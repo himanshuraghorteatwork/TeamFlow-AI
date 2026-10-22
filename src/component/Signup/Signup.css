@@ -1,0 +1,1106 @@
+/* =========================================
+   TEAMFLOW AI - SIGNUP PAGE
+   File: src/component/Signup/Signup.css
+========================================= */
+
+
+/* =========================================
+   1. PAGE LAYOUT
+========================================= */
+
+.auth-page {
+  width: 100%;
+  min-height: 100vh;
+
+  display: grid;
+  grid-template-columns: minmax(380px, 1fr) minmax(500px, 1fr);
+
+  background: #ffffff;
+}
+
+
+/* =========================================
+   2. LEFT SIDE
+========================================= */
+
+.auth-left {
+  position: relative;
+
+  min-height: 100vh;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 60px;
+
+  overflow: hidden;
+
+  background:
+    radial-gradient(
+      circle at 20% 20%,
+      rgba(139, 92, 246, 0.28),
+      transparent 35%
+    ),
+    radial-gradient(
+      circle at 80% 80%,
+      rgba(59, 130, 246, 0.22),
+      transparent 35%
+    ),
+    linear-gradient(
+      135deg,
+      #11152e 0%,
+      #19163d 50%,
+      #241650 100%
+    );
+
+  color: #ffffff;
+}
+
+
+/* Background glow */
+
+.auth-left::before {
+  content: "";
+
+  position: absolute;
+
+  width: 420px;
+  height: 420px;
+
+  top: -120px;
+  left: -120px;
+
+  border-radius: 50%;
+
+  background: rgba(124, 92, 255, 0.16);
+
+  filter: blur(60px);
+
+  pointer-events: none;
+}
+
+
+/* Second background glow */
+
+.auth-left::after {
+  content: "";
+
+  position: absolute;
+
+  width: 380px;
+  height: 380px;
+
+  right: -130px;
+  bottom: -130px;
+
+  border-radius: 50%;
+
+  background: rgba(59, 130, 246, 0.12);
+
+  filter: blur(60px);
+
+  pointer-events: none;
+}
+
+
+/* =========================================
+   3. LEFT SIDE CONTENT
+========================================= */
+
+.auth-left-content {
+  position: relative;
+  z-index: 2;
+
+  width: 100%;
+  max-width: 500px;
+
+  text-align: center;
+}
+
+
+.auth-visual-logo {
+  width: 76px;
+  height: 76px;
+
+  margin: 0 auto 30px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 22px;
+
+  background: linear-gradient(
+    135deg,
+    #6257ff,
+    #8b5cf6
+  );
+
+  color: #ffffff;
+
+  box-shadow:
+    0 18px 45px rgba(99, 91, 255, 0.35);
+
+  transform: rotate(-4deg);
+
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+
+.auth-visual-logo:hover {
+  transform: rotate(0deg) scale(1.05);
+
+  box-shadow:
+    0 24px 55px rgba(99, 91, 255, 0.45);
+}
+
+
+.auth-left-content h2 {
+  margin: 0 0 18px;
+
+  color: #ffffff;
+
+  font-size: clamp(34px, 4vw, 52px);
+  font-weight: 800;
+
+  line-height: 1.15;
+
+  letter-spacing: -1.8px;
+}
+
+
+.auth-left-content p {
+  max-width: 440px;
+
+  margin: 0 auto;
+
+  color: #c4c5d8;
+
+  font-size: 15px;
+
+  line-height: 1.9;
+}
+
+
+/* =========================================
+   4. SIGNUP CARD
+========================================= */
+
+.auth-card {
+  width: 100%;
+  max-width: 610px;
+
+  margin: auto;
+
+  padding: 45px 65px;
+}
+
+
+.signup-card {
+  animation: signupFadeIn 0.5s ease;
+}
+
+
+/* =========================================
+   5. TEAMFLOW LOGO
+========================================= */
+
+.auth-logo {
+  display: inline-flex;
+  align-items: center;
+
+  gap: 11px;
+
+  padding: 0;
+
+  border: none;
+
+  background: transparent;
+
+  color: #17182d;
+
+  font-size: 21px;
+  font-weight: 800;
+
+  letter-spacing: -0.7px;
+
+  cursor: pointer;
+}
+
+
+.auth-logo-icon {
+  width: 41px;
+  height: 41px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 12px;
+
+  color: #ffffff;
+
+  background: linear-gradient(
+    135deg,
+    #168dff,
+    #6545ff,
+    #963cff
+  );
+
+  box-shadow:
+    0 7px 18px rgba(81, 75, 255, 0.22);
+
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+
+.auth-logo:hover .auth-logo-icon {
+  transform: rotate(-5deg) scale(1.05);
+
+  box-shadow:
+    0 10px 24px rgba(81, 75, 255, 0.34);
+}
+
+
+.auth-logo strong {
+  color: #6956e8;
+}
+
+
+/* =========================================
+   6. HEADING
+========================================= */
+
+.signup-card h1 {
+  margin: 32px 0 8px;
+
+  color: #18182d;
+
+  font-size: clamp(30px, 3vw, 38px);
+  font-weight: 800;
+
+  line-height: 1.2;
+
+  letter-spacing: -1.2px;
+}
+
+
+.subtitle {
+  margin: 0 0 28px;
+
+  color: #77798d;
+
+  font-size: 14px;
+
+  line-height: 1.7;
+}
+
+
+/* =========================================
+   7. FORM
+========================================= */
+
+.signup-card form {
+  width: 100%;
+}
+
+
+.signup-card label {
+  display: block;
+
+  margin: 17px 0 8px;
+
+  color: #39384d;
+
+  font-size: 12px;
+  font-weight: 700;
+}
+
+
+/* =========================================
+   8. FIRST / LAST NAME
+========================================= */
+
+.two-col {
+  display: grid;
+
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  gap: 15px;
+}
+
+
+.two-col > div {
+  min-width: 0;
+}
+
+
+.two-col label {
+  margin-top: 0;
+}
+
+
+/* =========================================
+   9. INPUT FIELD
+========================================= */
+
+.input-wrap {
+  width: 100%;
+  min-height: 50px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+
+  padding: 0 14px;
+
+  border: 1px solid #dedfeb;
+  border-radius: 10px;
+
+  background: #ffffff;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+
+.input-wrap:hover {
+  border-color: #c9c5e9;
+}
+
+
+.input-wrap:focus-within {
+  border-color: #7564f5;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 0 0 3px rgba(117, 100, 245, 0.11);
+}
+
+
+.input-wrap > svg {
+  flex-shrink: 0;
+
+  color: #9293a7;
+}
+
+
+.input-wrap:focus-within > svg {
+  color: #7564f5;
+}
+
+
+.input-wrap input {
+  width: 100%;
+  min-width: 0;
+
+  padding: 14px 0;
+
+  border: none;
+  outline: none;
+
+  background: transparent;
+
+  color: #242438;
+
+  font-family: inherit;
+
+  font-size: 13px;
+}
+
+
+.input-wrap input::placeholder {
+  color: #aaaaba;
+}
+
+
+/* Browser autofill */
+
+.input-wrap input:-webkit-autofill,
+.input-wrap input:-webkit-autofill:hover,
+.input-wrap input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #242438;
+
+  transition:
+    background-color 9999s ease-in-out 0s;
+}
+
+
+/* =========================================
+   10. PASSWORD EYE BUTTON
+========================================= */
+
+.icon-btn {
+  flex-shrink: 0;
+
+  width: 32px;
+  height: 32px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+
+  border: none;
+  border-radius: 7px;
+
+  background: transparent;
+
+  color: #9293a7;
+
+  cursor: pointer;
+
+  transition:
+    color 0.2s ease,
+    background 0.2s ease;
+}
+
+
+.icon-btn:hover {
+  color: #6855e8;
+
+  background: #f4f1ff;
+}
+
+
+.icon-btn:focus-visible {
+  outline: 2px solid #8b7cf6;
+
+  outline-offset: 2px;
+}
+
+
+/* =========================================
+   11. TERMS AND CONDITIONS
+========================================= */
+
+.terms {
+  display: flex !important;
+  align-items: flex-start;
+
+  gap: 10px;
+
+  margin: 20px 0 0 !important;
+
+  color: #737488 !important;
+
+  font-size: 11px !important;
+  font-weight: 500 !important;
+
+  line-height: 1.7;
+
+  cursor: pointer;
+}
+
+
+.terms > input {
+  position: absolute;
+
+  width: 1px;
+  height: 1px;
+
+  opacity: 0;
+
+  pointer-events: none;
+}
+
+
+.fake-check {
+  width: 18px;
+  height: 18px;
+
+  flex: 0 0 18px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-top: 1px;
+
+  border: 1px solid #7564f5;
+  border-radius: 5px;
+
+  background: #7564f5;
+
+  color: #ffffff;
+
+  font-size: 11px;
+  font-weight: 800;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+
+.terms:hover .fake-check {
+  transform: scale(1.04);
+}
+
+
+.terms input:not(:checked) + .fake-check {
+  border-color: #d5d6e2;
+
+  background: #ffffff;
+
+  color: transparent;
+}
+
+
+.terms input:focus-visible + .fake-check {
+  outline: 3px solid rgba(117, 100, 245, 0.2);
+
+  outline-offset: 2px;
+}
+
+
+.terms > span:last-child {
+  flex: 1;
+}
+
+
+.terms button {
+  padding: 0;
+
+  border: none;
+
+  background: transparent;
+
+  color: #6d52dc;
+
+  font: inherit;
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+
+.terms button:hover {
+  color: #533bc4;
+
+  text-decoration: underline;
+}
+
+
+/* =========================================
+   12. ERROR MESSAGE
+========================================= */
+
+.error {
+  margin-top: 16px;
+
+  padding: 11px 13px;
+
+  border: 1px solid #fecaca;
+  border-radius: 9px;
+
+  background: #fef2f2;
+
+  color: #c62828;
+
+  font-size: 11px;
+  font-weight: 600;
+
+  line-height: 1.5;
+}
+
+
+/* =========================================
+   13. CREATE ACCOUNT BUTTON
+========================================= */
+
+.primary-btn {
+  width: 100%;
+  min-height: 50px;
+
+  margin-top: 22px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: none;
+  border-radius: 10px;
+
+  background: linear-gradient(
+    110deg,
+    #6554e8,
+    #8b62ef
+  );
+
+  color: #ffffff;
+
+  font-family: inherit;
+
+  font-size: 13px;
+  font-weight: 800;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 8px 22px rgba(101, 84, 232, 0.22);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    filter 0.2s ease;
+}
+
+
+.primary-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+
+  filter: brightness(1.05);
+
+  box-shadow:
+    0 13px 28px rgba(101, 84, 232, 0.32);
+}
+
+
+.primary-btn:active:not(:disabled) {
+  transform: translateY(0) scale(0.99);
+}
+
+
+.primary-btn:disabled {
+  opacity: 0.65;
+
+  cursor: not-allowed;
+}
+
+
+/* =========================================
+   14. OR DIVIDER
+========================================= */
+
+.or {
+  width: 100%;
+
+  display: flex;
+  align-items: center;
+
+  gap: 14px;
+
+  margin: 25px 0 19px;
+
+  color: #999aab;
+
+  font-size: 10px;
+  font-weight: 600;
+
+  text-transform: uppercase;
+}
+
+
+.or span {
+  flex: 1;
+
+  height: 1px;
+
+  background: #ececf2;
+}
+
+
+/* =========================================
+   15. SOCIAL SIGNUP
+========================================= */
+
+.social-row {
+  display: grid;
+
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  gap: 11px;
+}
+
+
+.social-btn {
+  width: 100%;
+  min-height: 46px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 9px;
+
+  padding: 0 12px;
+
+  border: 1px solid #e1e2eb;
+  border-radius: 9px;
+
+  background: #ffffff;
+
+  color: #414156;
+
+  font-family: inherit;
+
+  font-size: 11px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+
+.social-btn:hover {
+  transform: translateY(-2px);
+
+  border-color: #c1b6f7;
+
+  background: #faf9ff;
+
+  box-shadow:
+    0 7px 18px rgba(69, 53, 140, 0.07);
+}
+
+
+/* =========================================
+   16. GOOGLE / GITHUB ICON PLACEHOLDERS
+========================================= */
+
+.google-icon,
+.github-icon {
+  width: 22px;
+  height: 22px;
+
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  font-size: 10px;
+  font-weight: 900;
+}
+
+
+.google-icon {
+  border: 1px solid #e4e4ea;
+
+  background: #ffffff;
+
+  color: #4285f4;
+}
+
+
+.github-icon {
+  background: #18181b;
+
+  color: #ffffff;
+
+  font-size: 8px;
+}
+
+
+/* =========================================
+   17. BOTTOM SIGN IN LINK
+========================================= */
+
+.bottom-link {
+  margin: 25px 0 0;
+
+  color: #85869a;
+
+  font-size: 12px;
+
+  text-align: center;
+}
+
+
+.bottom-link button {
+  padding: 0;
+
+  border: none;
+
+  background: transparent;
+
+  color: #6d52dc;
+
+  font-family: inherit;
+
+  font-size: inherit;
+  font-weight: 800;
+
+  cursor: pointer;
+
+  transition: color 0.2s ease;
+}
+
+
+.bottom-link button:hover {
+  color: #533bc4;
+
+  text-decoration: underline;
+}
+
+
+/* =========================================
+   18. FOCUS ACCESSIBILITY
+========================================= */
+
+.primary-btn:focus-visible,
+.social-btn:focus-visible,
+.auth-logo:focus-visible,
+.bottom-link button:focus-visible,
+.terms button:focus-visible {
+  outline: 3px solid rgba(117, 100, 245, 0.28);
+
+  outline-offset: 3px;
+}
+
+
+/* =========================================
+   19. PAGE ANIMATION
+========================================= */
+
+@keyframes signupFadeIn {
+  from {
+    opacity: 0;
+
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+
+    transform: translateY(0);
+  }
+}
+
+
+/* =========================================
+   20. LAPTOP
+========================================= */
+
+@media (max-width: 1100px) {
+
+  .auth-page {
+    grid-template-columns:
+      minmax(340px, 0.85fr)
+      minmax(500px, 1.15fr);
+  }
+
+
+  .auth-left {
+    padding: 40px;
+  }
+
+
+  .auth-left-content h2 {
+    font-size: 38px;
+  }
+
+
+  .auth-card {
+    padding: 40px 45px;
+  }
+}
+
+
+/* =========================================
+   21. TABLET
+========================================= */
+
+@media (max-width: 850px) {
+
+  .auth-page {
+    grid-template-columns:
+      minmax(280px, 0.7fr)
+      minmax(450px, 1.3fr);
+  }
+
+
+  .auth-left {
+    padding: 30px;
+  }
+
+
+  .auth-left-content h2 {
+    font-size: 31px;
+  }
+
+
+  .auth-left-content p {
+    font-size: 13px;
+  }
+
+
+  .auth-card {
+    padding: 35px;
+  }
+}
+
+
+/* =========================================
+   22. MOBILE
+========================================= */
+
+@media (max-width: 700px) {
+
+  .auth-page {
+    display: block;
+
+    min-height: 100vh;
+  }
+
+
+  .auth-left {
+    display: none;
+  }
+
+
+  .auth-card {
+    width: 100%;
+    max-width: 520px;
+
+    min-height: 100vh;
+
+    margin: 0 auto;
+
+    padding: 38px 25px;
+  }
+
+
+  .signup-card h1 {
+    margin-top: 28px;
+
+    font-size: 31px;
+  }
+
+
+  .subtitle {
+    margin-bottom: 25px;
+  }
+}
+
+
+/* =========================================
+   23. SMALL MOBILE
+========================================= */
+
+@media (max-width: 480px) {
+
+  .auth-card {
+    padding: 30px 18px;
+  }
+
+
+  .auth-logo {
+    font-size: 19px;
+  }
+
+
+  .auth-logo-icon {
+    width: 38px;
+    height: 38px;
+  }
+
+
+  .signup-card h1 {
+    font-size: 28px;
+
+    letter-spacing: -0.8px;
+  }
+
+
+  .two-col {
+    grid-template-columns: 1fr;
+
+    gap: 0;
+  }
+
+
+  .two-col > div + div label {
+    margin-top: 17px;
+  }
+
+
+  .social-row {
+    grid-template-columns: 1fr;
+  }
+
+
+  .social-btn {
+    min-height: 48px;
+  }
+
+
+  .terms {
+    font-size: 10px !important;
+  }
+}
+
+
+/* =========================================
+   24. VERY SMALL MOBILE
+========================================= */
+
+@media (max-width: 360px) {
+
+  .auth-card {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+
+  .signup-card h1 {
+    font-size: 26px;
+  }
+
+
+  .input-wrap {
+    padding: 0 11px;
+  }
+}
+
+
+/* =========================================
+   25. REDUCED MOTION
+========================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .signup-card {
+    animation: none;
+  }
+
+
+  .auth-visual-logo,
+  .auth-logo-icon,
+  .input-wrap,
+  .icon-btn,
+  .fake-check,
+  .primary-btn,
+  .social-btn,
+  .bottom-link button {
+    transition: none;
+  }
+
+
+  .auth-visual-logo:hover,
+  .auth-logo:hover .auth-logo-icon,
+  .primary-btn:hover,
+  .social-btn:hover {
+    transform: none;
+  }
+}
