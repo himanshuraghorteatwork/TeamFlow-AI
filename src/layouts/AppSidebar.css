@@ -197,13 +197,33 @@
 
 
 
+
 /* Sidebar full-height fix */
 .app-sidebar {
   height: 100vh;
-  min-height: 100vh;
-  flex-shrink: 0;
-  align-self: stretch;
+  height: 100dvh;
+  min-height: 100dvh;
+  flex: 0 0 241px;
+  align-self: flex-start;
   box-sizing: border-box;
   overflow-y: auto;
   overflow-x: hidden;
 }
+
+/* Keep sidebar content usable on shorter screens */
+.app-sidebar-nav {
+  flex-shrink: 0;
+}
+
+.app-sidebar-profile {
+  flex-shrink: 0;
+}
+
+@media (max-width: 700px) {
+  .app-sidebar {
+    flex-basis: 68px;
+    width: 68px;
+    min-width: 68px;
+  }
+}
+

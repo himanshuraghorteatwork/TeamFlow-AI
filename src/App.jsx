@@ -4,9 +4,10 @@ import { Routes, Route } from "react-router-dom";
 import LandingPage from "./component/LandingPage/LandingPage.jsx";
 import Login from "./component/Login/login.jsx";
 import Signup from "./component/Signup/Signup.jsx";
-import CreateWorkspace from "./component/Dashboard/CreateWorkspace.jsx";
+
 import Chat from "./component/Chat/Chat.jsx";
 import Calendar from "./component/Calendar/Calendar.jsx";
+import Team from "./component/Team/Team.jsx";
 
 function App() {
   return (
@@ -16,13 +17,10 @@ function App() {
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
 
-      <Route path="/dashboard" element={<CreateWorkspace />} />
-      <Route
-        path="/create-workspace"
-        element={<CreateWorkspace />}
-      />
+      
       <Route path="/chat" element={<Chat />} />
       <Route path="/calendar" element={<Calendar />} />
+      <Route path="/team" element={<Team />} />
     </Routes>
   );
 }

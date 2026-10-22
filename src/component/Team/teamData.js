@@ -1,0 +1,85 @@
+
+export const initialMembers = [
+  {
+    id: 1,
+    name: "Alex Morgan",
+    email: "alex.morgan@example.com",
+    role: "Admin",
+    status: "Active",
+    joinedDate: "Jan 12, 2026",
+    department: "Management",
+  },
+  {
+    id: 2,
+    name: "Sophia Chen",
+    email: "sophia.chen@example.com",
+    role: "Manager",
+    status: "Active",
+    joinedDate: "Feb 04, 2026",
+    department: "Product",
+  },
+  {
+    id: 3,
+    name: "Ethan Williams",
+    email: "ethan.williams@example.com",
+    role: "Developer",
+    status: "Active",
+    joinedDate: "Feb 18, 2026",
+    department: "Engineering",
+  },
+  {
+    id: 4,
+    name: "Olivia Patel",
+    email: "olivia.patel@example.com",
+    role: "Designer",
+    status: "Active",
+    joinedDate: "Mar 02, 2026",
+    department: "Design",
+  },
+  {
+    id: 5,
+    name: "Noah Johnson",
+    email: "noah.johnson@example.com",
+    role: "Developer",
+    status: "Pending",
+    joinedDate: "Mar 15, 2026",
+    department: "Engineering",
+  },
+  {
+    id: 6,
+    name: "Ava Thompson",
+    email: "ava.thompson@example.com",
+    role: "Member",
+    status: "Active",
+    joinedDate: "Apr 06, 2026",
+    department: "Marketing",
+  },
+  {
+    id: 7,
+    name: "Liam Garcia",
+    email: "liam.garcia@example.com",
+    role: "Manager",
+    status: "Active",
+    joinedDate: "Apr 20, 2026",
+    department: "Operations",
+  },
+  {
+    id: 8,
+    name: "Isabella Brown",
+    email: "isabella.brown@example.com",
+    role: "Member",
+    status: "Pending",
+    joinedDate: "May 01, 2026",
+    department: "Support",
+  },
+];
+
+export const teamRoles = [
+  "Admin",
+  "Manager",
+  "Developer",
+  "Designer",
+  "Member",
+];
+
+export const teamStatuses = ["Active", "Pending"];
