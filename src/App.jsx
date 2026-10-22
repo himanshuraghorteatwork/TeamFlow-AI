@@ -9,6 +9,9 @@ import Chat from "./component/Chat/Chat.jsx";
 import Tasks from "./component/Tasks/Tasks.jsx";
 import Calendar from "./component/Calendar/Calendar.jsx";
 import Team from "./component/Team/Team.jsx";
+import Projects from "./component/Projects/Projects.jsx";
+import Bugs from "./component/Bugs/Bugs.jsx";
+
 
 function App() {
   return (
@@ -22,6 +25,8 @@ function App() {
       <Route path="/tasks" element={<Tasks />} />
       <Route path="/calendar" element={<Calendar />} />
       <Route path="/team" element={<Team />} />
+      <Route path="/projects" element={<Projects />} />
+      <Route path="/bugs" element={<Bugs />} /> 
     </Routes>
   );
 }
