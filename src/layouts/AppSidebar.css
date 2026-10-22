@@ -1,0 +1,209 @@
+
+.app-sidebar {
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 241px;
+  width: 241px;
+  min-width: 241px;
+  height: 100%;
+  min-height: 0;
+  padding: 16px 11px 12px;
+  background: #111831;
+  color: #fff;
+  box-sizing: border-box;
+}
+
+.app-sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 48px;
+  padding: 0 12px;
+  margin-bottom: 14px;
+  color: #fff;
+  text-decoration: none;
+}
+
+.app-brand-icon,
+.app-workspace-icon {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 37px;
+  height: 37px;
+  border-radius: 12px;
+  background: #6842ff;
+  color: #fff;
+}
+
+.app-brand-name {
+  font-size: 17px;
+  font-weight: 750;
+  white-space: nowrap;
+}
+
+.app-brand-name span {
+  color: #a78bfa;
+}
+
+.app-workspace-switcher {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 63px;
+  padding: 10px 12px;
+  margin: 9px 0 20px;
+  border: 0;
+  border-radius: 13px;
+  background: #202b4d;
+  color: #fff;
+  text-align: left;
+  cursor: pointer;
+}
+
+.app-workspace-info {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+
+.app-workspace-info strong {
+  font-size: 12px;
+}
+
+.app-workspace-info small {
+  color: #c0c9e3;
+  font-size: 11px;
+}
+
+.app-sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.app-sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 45px;
+  padding: 0 14px;
+  border-radius: 11px;
+  color: #e5e9f6;
+  font-size: 13px;
+  text-decoration: none;
+  transition: background 0.15s ease;
+}
+
+.app-sidebar-link:hover {
+  background: #202846;
+  color: #fff;
+}
+
+.app-sidebar-link.active {
+  background: #5030b8;
+  color: #fff;
+}
+
+.app-sidebar-profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: auto;
+  padding: 15px 8px 4px;
+  border-top: 1px solid #29314a;
+}
+
+.app-sidebar-profile > img {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.app-profile-info {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.app-profile-info strong {
+  font-size: 12px;
+}
+
+.app-profile-info span {
+  overflow: hidden;
+  color: #c0c9e3;
+  font-size: 10px;
+  text-overflow: ellipsis;
+}
+
+.app-sidebar-profile button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px;
+  border: 0;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+}
+
+@media (max-width: 700px) {
+  .app-sidebar {
+    flex-basis: 68px;
+    width: 68px;
+    min-width: 68px;
+    padding: 12px 7px;
+  }
+
+  .app-sidebar-brand {
+    justify-content: center;
+    padding: 0;
+  }
+
+  .app-brand-name,
+  .app-workspace-info,
+  .app-workspace-switcher > svg,
+  .app-sidebar-link span,
+  .app-profile-info,
+  .app-sidebar-profile button {
+    display: none;
+  }
+
+  .app-workspace-switcher {
+    justify-content: center;
+    padding: 8px 0;
+  }
+
+  .app-sidebar-link {
+    justify-content: center;
+    padding: 0;
+  }
+
+  .app-sidebar-profile {
+    justify-content: center;
+    padding-right: 0;
+    padding-left: 0;
+  }
+}
+
+
+
+/* Sidebar full-height fix */
+.app-sidebar {
+  height: 100vh;
+  min-height: 100vh;
+  flex-shrink: 0;
+  align-self: stretch;
+  box-sizing: border-box;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
