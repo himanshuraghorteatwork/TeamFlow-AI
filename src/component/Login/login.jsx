@@ -6,16 +6,23 @@ import {
   Lock,
   Eye,
   EyeOff,
-  Check,
 } from "lucide-react";
 
+
+import loginLeftImage from "../../assets/images/login-left.png";
 import "./login.css";
 
 
-// Get registered users from localStorage
+
+// ==========================================
+// GET REGISTERED USERS
+// ==========================================
+
 const getUsers = () => {
   try {
-    return JSON.parse(localStorage.getItem("teamflow_users") || "[]");
+    return JSON.parse(
+      localStorage.getItem("teamflow_users") || "[]"
+    );
   } catch {
     return [];
   }
@@ -24,26 +31,43 @@ const getUsers = () => {
 function Login() {
   const navigate = useNavigate();
 
+  // ==========================================
+  // STATE
+  // ==========================================
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [remember, setRemember] = useState(true);
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
 
-  // ==============================
-  // NORMAL LOGIN
-  // ==============================
+  const [showPassword, setShowPassword] =
+    useState(false);
+
+  const [remember, setRemember] =
+    useState(true);
+
+  const [error, setError] =
+    useState("");
+
+  const [loading, setLoading] =
+    useState(false);
+
+  // ==========================================
+  // NORMAL EMAIL LOGIN
+  // ==========================================
 
   const handleLogin = (e) => {
     e.preventDefault();
 
     setError("");
 
-    const cleanEmail = email.trim().toLowerCase();
+    const cleanEmail =
+      email.trim().toLowerCase();
 
+    // Basic validation
     if (!cleanEmail || !password) {
-      setError("Please enter your email and password.");
+      setError(
+        "Please enter your email and password."
+      );
+
       return;
     }
 
@@ -54,34 +78,44 @@ function Login() {
         item.email?.toLowerCase() === cleanEmail
     );
 
+    // Check credentials
     if (!user || user.password !== password) {
       setError(
         "Invalid email or password. Please create an account first."
       );
+
       return;
     }
 
     setLoading(true);
 
+    // Store logged-in user
     localStorage.setItem(
       "teamflow_current_user",
       JSON.stringify(user)
     );
 
+    // Remember login
     if (remember) {
-      localStorage.setItem("teamflow_remember", "1");
+      localStorage.setItem(
+        "teamflow_remember",
+        "1"
+      );
     } else {
-      localStorage.removeItem("teamflow_remember");
+      localStorage.removeItem(
+        "teamflow_remember"
+      );
     }
 
+    // Small loading effect
     setTimeout(() => {
       navigate("/dashboard");
-    }, 350);
+    }, 400);
   };
 
-  // ==============================
+  // ==========================================
   // DEMO SOCIAL LOGIN
-  // ==============================
+  // ==========================================
 
   const handleSocialLogin = (type) => {
     const socialEmail =
@@ -92,9 +126,11 @@ function Login() {
     let users = getUsers();
 
     let user = users.find(
-      (item) => item.email === socialEmail
+      (item) =>
+        item.email === socialEmail
     );
 
+    // Create demo social user
     if (!user) {
       user = {
         id:
@@ -108,8 +144,9 @@ function Login() {
 
         email: socialEmail,
 
-        // Demo frontend authentication only
         password: "social-login",
+
+        provider: type,
       };
 
       users.push(user);
@@ -128,18 +165,39 @@ function Login() {
     navigate("/dashboard");
   };
 
+  // ==========================================
+  // UI
+  // ==========================================
+
   return (
     <div className="login-page">
 
-      {/* =====================================
-          LEFT SIDE
+      {/* ======================================
+          LEFT IMAGE SECTION
       ====================================== */}
 
       <section className="login-left">
 
-        <div className="login-left-content">
+        <img
+          src={loginLeftImage}
+          alt="TeamFlow AI team collaboration"
+          className="login-left-image"
+        />
 
-          {/* Logo */}
+      </section>
+
+
+      {/* ======================================
+          RIGHT LOGIN SECTION
+      ====================================== */}
+
+      <main className="login-right">
+
+        <div className="login-card">
+
+          {/* ==================================
+              LOGO / BRAND
+          ================================== */}
 
           <button
             type="button"
@@ -147,153 +205,45 @@ function Login() {
             onClick={() => navigate("/")}
             aria-label="Go to TeamFlow AI home"
           >
+
             <div className="login-logo">
-              <UsersRound size={26} />
+
+              <UsersRound size={24} />
+
             </div>
 
             <span>
               TeamFlow <strong>AI</strong>
             </span>
+
           </button>
 
 
-          {/* Main Text */}
-
-          <div className="login-hero">
-
-            <span className="login-small-label">
-              TEAMFLOW AI
-            </span>
-
-            <h2>
-              Work together.
-              <br />
-              <span>Achieve more.</span>
-            </h2>
-
-            <p>
-              Bring your team, projects, tasks and
-              communication together in one intelligent
-              workspace.
-            </p>
-
-          </div>
-
-
-          {/* Features */}
-
-          <div className="login-feature-list">
-
-            <div className="login-feature-item">
-
-              <div className="login-check">
-                <Check size={15} />
-              </div>
-
-              <div>
-                <strong>Real-time collaboration</strong>
-                <p>
-                  Keep your entire team connected and
-                  productive.
-                </p>
-              </div>
-
-            </div>
-
-
-            <div className="login-feature-item">
-
-              <div className="login-check">
-                <Check size={15} />
-              </div>
-
-              <div>
-                <strong>AI-powered productivity</strong>
-                <p>
-                  Get intelligent assistance for your
-                  everyday work.
-                </p>
-              </div>
-
-            </div>
-
-
-            <div className="login-feature-item">
-
-              <div className="login-check">
-                <Check size={15} />
-              </div>
-
-              <div>
-                <strong>Everything in one workspace</strong>
-                <p>
-                  Manage projects, tasks and your team from
-                  one place.
-                </p>
-              </div>
-
-            </div>
-
-          </div>
-
-        </div>
-
-
-        {/* Decorative elements */}
-
-        <div className="login-circle login-circle-one"></div>
-
-        <div className="login-circle login-circle-two"></div>
-
-        <div className="login-glow"></div>
-
-      </section>
-
-
-      {/* =====================================
-          RIGHT SIDE
-      ====================================== */}
-
-      <main className="login-right">
-
-        <div className="login-card">
-
-          {/* Mobile Logo */}
-
-          <button
-            type="button"
-            className="login-mobile-brand"
-            onClick={() => navigate("/")}
-          >
-            <div className="login-mobile-logo">
-              <UsersRound size={23} />
-            </div>
-
-            <span>
-              TeamFlow <strong>AI</strong>
-            </span>
-          </button>
-
-
-          {/* Heading */}
+          {/* ==================================
+              HEADING
+          ================================== */}
 
           <div className="login-heading">
 
-            <h1>Welcome Back</h1>
+            <h1>
+              Welcome Back
+            </h1>
 
             <p>
-              Sign in to continue to your TeamFlow AI
-              workspace.
+              Sign in to continue to your
+              TeamFlow AI workspace.
             </p>
 
           </div>
 
 
-          {/* =====================================
-              SOCIAL BUTTONS
-          ====================================== */}
+          {/* ==================================
+              SOCIAL LOGIN
+          ================================== */}
 
           <div className="login-social-row">
+
+            {/* Google */}
 
             <button
               type="button"
@@ -304,13 +254,17 @@ function Login() {
             >
 
               <span className="google-logo">
-                <span className="google-blue">G</span>
+                G
               </span>
 
-              <span>Continue with Google</span>
+              <span>
+                Continue with Google
+              </span>
 
             </button>
 
+
+            {/* GitHub */}
 
             <button
               type="button"
@@ -325,42 +279,52 @@ function Login() {
                 viewBox="0 0 24 24"
                 aria-hidden="true"
               >
+
                 <path
                   fill="currentColor"
                   d="M12 .7a12 12 0 0 0-3.79 23.39c.6.11.82-.26.82-.58v-2.03c-3.34.73-4.04-1.61-4.04-1.61-.55-1.39-1.33-1.76-1.33-1.76-1.09-.74.08-.73.08-.73 1.2.09 1.84 1.24 1.84 1.24 1.07 1.83 2.81 1.3 3.5.99.11-.78.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.12-.3-.54-1.52.12-3.18 0 0 1.01-.32 3.3 1.23A11.5 11.5 0 0 1 12 6.5c1.02 0 2.04.14 3 .4 2.29-1.55 3.3-1.23 3.3-1.23.66 1.66.24 2.88.12 3.18.77.84 1.24 1.91 1.24 3.22 0 4.61-2.81 5.62-5.48 5.92.43.37.81 1.1.81 2.22v3.3c0 .32.22.7.82.58A12 12 0 0 0 12 .7Z"
                 />
+
               </svg>
 
-              <span>Continue with GitHub</span>
+              <span>
+                Continue with GitHub
+              </span>
 
             </button>
 
           </div>
 
 
-          {/* Divider */}
+          {/* ==================================
+              DIVIDER
+          ================================== */}
 
           <div className="login-divider">
 
             <span></span>
 
-            <p>OR CONTINUE WITH EMAIL</p>
+            <p>
+              OR CONTINUE WITH EMAIL
+            </p>
 
             <span></span>
 
           </div>
 
 
-          {/* =====================================
+          {/* ==================================
               LOGIN FORM
-          ====================================== */}
+          ================================== */}
 
           <form
             className="login-form"
             onSubmit={handleLogin}
           >
 
-            {/* Email */}
+            {/* ================================
+                EMAIL
+            ================================= */}
 
             <div className="login-form-group">
 
@@ -381,7 +345,9 @@ function Login() {
                   placeholder="Enter your email"
                   value={email}
                   onChange={(e) =>
-                    setEmail(e.target.value)
+                    setEmail(
+                      e.target.value
+                    )
                   }
                   autoComplete="email"
                 />
@@ -391,7 +357,9 @@ function Login() {
             </div>
 
 
-            {/* Password */}
+            {/* ================================
+                PASSWORD
+            ================================= */}
 
             <div className="login-form-group">
 
@@ -416,17 +384,23 @@ function Login() {
                   placeholder="Enter your password"
                   value={password}
                   onChange={(e) =>
-                    setPassword(e.target.value)
+                    setPassword(
+                      e.target.value
+                    )
                   }
                   autoComplete="current-password"
                 />
+
+
+                {/* Show / Hide Password */}
 
                 <button
                   type="button"
                   className="login-password-toggle"
                   onClick={() =>
                     setShowPassword(
-                      (current) => !current
+                      (current) =>
+                        !current
                     )
                   }
                   aria-label={
@@ -449,7 +423,9 @@ function Login() {
             </div>
 
 
-            {/* Remember / Forgot */}
+            {/* ================================
+                REMEMBER / FORGOT PASSWORD
+            ================================= */}
 
             <div className="login-options">
 
@@ -459,11 +435,15 @@ function Login() {
                   type="checkbox"
                   checked={remember}
                   onChange={(e) =>
-                    setRemember(e.target.checked)
+                    setRemember(
+                      e.target.checked
+                    )
                   }
                 />
 
-                <span>Remember me</span>
+                <span>
+                  Remember me
+                </span>
 
               </label>
 
@@ -473,7 +453,7 @@ function Login() {
                 className="login-forgot"
                 onClick={() =>
                   alert(
-                    "Password reset will be added later."
+                    "Password reset functionality will be added later."
                   )
                 }
               >
@@ -483,19 +463,27 @@ function Login() {
             </div>
 
 
-            {/* Error */}
+            {/* ================================
+                ERROR MESSAGE
+            ================================= */}
 
             {error && (
+
               <div
                 className="login-error"
                 role="alert"
               >
+
                 {error}
+
               </div>
+
             )}
 
 
-            {/* Submit */}
+            {/* ================================
+                LOGIN BUTTON
+            ================================= */}
 
             <button
               type="submit"
@@ -512,7 +500,9 @@ function Login() {
           </form>
 
 
-          {/* Signup */}
+          {/* ==================================
+              SIGNUP LINK
+          ================================== */}
 
           <p className="login-signup-text">
 
@@ -530,14 +520,20 @@ function Login() {
           </p>
 
 
-          {/* Back Home */}
+          {/* ==================================
+              BACK HOME
+          ================================== */}
 
           <button
             type="button"
             className="login-back-home"
-            onClick={() => navigate("/")}
+            onClick={() =>
+              navigate("/")
+            }
           >
+
             ← Back to TeamFlow AI
+
           </button>
 
         </div>
