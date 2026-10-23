@@ -36,6 +36,7 @@ function Logo() {
    NAVBAR
 ========================= */
 
+
 function Navbar() {
   const navigate = useNavigate();
 
@@ -71,7 +72,11 @@ function Navbar() {
         <button
           type="button"
           className="login-button"
-          onClick={() => navigate("/login")}
+          onClick={() =>
+            navigate("/choose-role", {
+              state: { next: "login" },
+            })
+          }
         >
           Login
         </button>
@@ -79,7 +84,11 @@ function Navbar() {
         <button
           type="button"
           className="get-started-button"
-          onClick={() => navigate("/signup")}
+          onClick={() =>
+            navigate("/choose-role", {
+              state: { next: "signup" },
+            })
+          }
         >
           Get Started
         </button>
@@ -87,6 +96,7 @@ function Navbar() {
     </header>
   );
 }
+
 /* =========================
    HERO
 ========================= */
@@ -118,13 +128,19 @@ function Hero() {
 
         <div className="hero-buttons">
 
+
           <button
             className="hero-primary-button"
-            onClick={() => navigate("/signup")}
+            onClick={() =>
+              navigate("/choose-role", {
+                state: { next: "signup" },
+              })
+            }
           >
             Get Started Free
             <ArrowRight size={19} />
           </button>
+
 
 
           <button
@@ -660,8 +676,8 @@ function Pricing() {
 
               <button
                 className={`plan-button ${plan.featured
-                    ? "primary-button"
-                    : "secondary-button"
+                  ? "primary-button"
+                  : "secondary-button"
                   }`}
                 onClick={() => {
                   if (plan.name === "Enterprise") {

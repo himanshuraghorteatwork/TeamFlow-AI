@@ -1,0 +1,684 @@
+
+/* ==========================================
+   TEAMFLOW AI — SUPER ADMIN SIDEBAR
+========================================== */
+
+.superadmin-sidebar,
+.superadmin-sidebar * {
+  box-sizing: border-box;
+}
+
+.superadmin-sidebar {
+  --sidebar-bg: #0b1532;
+  --sidebar-text: #f5f6ff;
+  --sidebar-muted: #9daed0;
+  --sidebar-purple: #7042ff;
+  --sidebar-border: rgba(155, 176, 255, 0.15);
+
+  position: fixed;
+  inset: 0 auto 0 0;
+  z-index: 1100;
+
+  width: 225px;
+  height: 100vh;
+  height: 100dvh;
+
+  display: flex;
+  flex-direction: column;
+
+  padding: 0 11px;
+
+  overflow-x: hidden;
+  overflow-y: auto;
+
+  color: var(--sidebar-text);
+
+  background:
+    radial-gradient(
+      circle at 10% 100%,
+      rgba(43, 60, 151, 0.15),
+      transparent 40%
+    ),
+    var(--sidebar-bg);
+
+  border-right: 1px solid var(--sidebar-border);
+
+  scrollbar-width: thin;
+  scrollbar-color: #34436a transparent;
+
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.superadmin-sidebar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.superadmin-sidebar::-webkit-scrollbar-thumb {
+  background: #34436a;
+  border-radius: 10px;
+}
+
+/* ==========================================
+   BRAND HEADER
+========================================== */
+
+.superadmin-sidebar-header {
+  min-height: 82px;
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 8px;
+  padding: 0 8px;
+
+  border-bottom: 1px solid var(--sidebar-border);
+}
+
+.superadmin-brand {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+
+  min-width: 0;
+
+  color: inherit;
+  text-decoration: none;
+}
+
+.superadmin-brand-icon {
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 13px;
+
+  color: #fff;
+  background: linear-gradient(140deg, #8c70ff, #613cff);
+
+  box-shadow: 0 5px 18px rgba(112, 66, 255, 0.3);
+}
+
+.superadmin-brand-text {
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.superadmin-brand-name {
+  color: #fff;
+  font-size: 15px;
+  line-height: 1.2;
+  font-weight: 750;
+  letter-spacing: -0.35px;
+  white-space: nowrap;
+}
+
+.superadmin-brand-name span {
+  color: #a993ff;
+}
+
+.superadmin-brand-caption {
+  color: #a5b3d2;
+  font-size: 10px;
+  line-height: 1.2;
+  letter-spacing: 0.15px;
+  white-space: nowrap;
+}
+
+.superadmin-close-sidebar {
+  display: none;
+
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+
+  align-items: center;
+  justify-content: center;
+
+  border: none;
+  border-radius: 8px;
+
+  color: #cbd4ec;
+  background: transparent;
+  cursor: pointer;
+}
+
+.superadmin-close-sidebar:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* ==========================================
+   SUPER ADMIN STATUS CARD
+========================================== */
+
+.superadmin-workspace {
+  min-height: 67px;
+  flex-shrink: 0;
+
+  margin: 15px 2px 20px;
+  padding: 10px;
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  border: 1px solid rgba(155, 176, 255, 0.15);
+  border-radius: 12px;
+
+  background: rgba(255, 255, 255, 0.045);
+}
+
+.superadmin-workspace-icon {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 10px;
+
+  color: #ffd04a;
+  background: rgba(255, 190, 40, 0.12);
+}
+
+.superadmin-workspace-info {
+  min-width: 0;
+  flex: 1;
+
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.superadmin-workspace-title {
+  color: #f7f7ff;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
+.superadmin-workspace-subtitle {
+  color: #a5b3d2;
+  font-size: 9px;
+  line-height: 1.3;
+}
+
+.superadmin-status-dot {
+  width: 8px;
+  height: 8px;
+  flex-shrink: 0;
+
+  border-radius: 50%;
+  background: #36dca4;
+
+  box-shadow: 0 0 0 4px rgba(54, 220, 164, 0.1);
+}
+
+/* ==========================================
+   NAVIGATION — EXACTLY 7 ITEMS
+========================================== */
+
+.superadmin-navigation {
+  flex: 1;
+  min-height: 0;
+
+  padding: 0 1px 12px;
+}
+
+.superadmin-nav-heading {
+  margin: 0 0 11px;
+  padding: 0 7px;
+
+  color: #8999bd;
+
+  font-size: 9px;
+  line-height: 1.4;
+  font-weight: 750;
+  letter-spacing: 1.3px;
+}
+
+.superadmin-nav-links {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.superadmin-nav-link {
+  position: relative;
+
+  width: 100%;
+  min-height: 43px;
+  flex-shrink: 0;
+
+  padding: 0 12px;
+
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  border: 1px solid transparent;
+  border-radius: 10px;
+
+  color: #d0d8ed;
+  text-decoration: none;
+
+  font-size: 12px;
+  font-weight: 550;
+
+  transition:
+    color 0.18s ease,
+    background 0.18s ease,
+    border-color 0.18s ease;
+}
+
+.superadmin-nav-icon {
+  flex-shrink: 0;
+  color: #bdc9e4;
+
+  transition: color 0.18s ease;
+}
+
+.superadmin-nav-label {
+  min-width: 0;
+  flex: 1;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.superadmin-nav-link:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.055);
+}
+
+.superadmin-nav-link:hover .superadmin-nav-icon {
+  color: #d4caff;
+}
+
+/* Active navigation item */
+
+.superadmin-nav-link-active {
+  color: #fff;
+  font-weight: 700;
+
+  border-color: rgba(165, 140, 255, 0.24);
+
+  background: linear-gradient(
+    105deg,
+    #7540ff 0%,
+    #5828e8 75%,
+    #4522c6 100%
+  );
+
+  box-shadow: 0 4px 13px rgba(83, 42, 220, 0.18);
+}
+
+.superadmin-nav-link-active .superadmin-nav-icon {
+  color: #fff;
+}
+
+.superadmin-nav-indicator {
+  position: absolute;
+  top: 50%;
+  right: -1px;
+
+  width: 4px;
+  height: 22px;
+
+  border-radius: 5px 0 0 5px;
+  background: #b19aff;
+
+  opacity: 0;
+  transform: translateY(-50%);
+}
+
+.superadmin-nav-link-active .superadmin-nav-indicator {
+  opacity: 1;
+}
+
+/* ==========================================
+   BOTTOM SECTION
+========================================== */
+
+.superadmin-sidebar-bottom {
+  flex-shrink: 0;
+  margin-top: auto;
+
+  padding: 12px 2px 12px;
+
+  border-top: 1px solid var(--sidebar-border);
+}
+
+/* Platform Control */
+
+.superadmin-support-card {
+  width: 100%;
+  min-height: 63px;
+
+  padding: 9px;
+
+  display: flex;
+  align-items: center;
+  gap: 9px;
+
+  border: 1px solid rgba(155, 176, 255, 0.14);
+  border-radius: 11px;
+
+  color: inherit;
+  background: rgba(255, 255, 255, 0.045);
+
+  text-align: left;
+  cursor: pointer;
+
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease;
+}
+
+.superadmin-support-card:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(144, 125, 255, 0.35);
+}
+
+.superadmin-support-icon {
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 9px;
+
+  color: #48e8b0;
+  background: rgba(28, 211, 157, 0.15);
+}
+
+.superadmin-support-info {
+  min-width: 0;
+  flex: 1;
+
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.superadmin-support-title {
+  color: #f5f6ff;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.superadmin-support-text {
+  color: #a5b3d2;
+  font-size: 9px;
+  line-height: 1.35;
+}
+
+.superadmin-support-arrow {
+  flex-shrink: 0;
+  color: #9aabda;
+}
+
+/* Admin Profile */
+
+.superadmin-profile {
+  margin-top: 13px;
+  padding: 12px 2px 0;
+
+  display: flex;
+  align-items: center;
+  gap: 9px;
+
+  border-top: 1px solid var(--sidebar-border);
+}
+
+.superadmin-profile-avatar {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid rgba(183, 169, 255, 0.35);
+  border-radius: 50%;
+
+  color: #fff;
+  background: linear-gradient(140deg, #7753ff, #5432dc);
+
+  font-size: 11px;
+  font-weight: 750;
+}
+
+.superadmin-profile-info {
+  min-width: 0;
+  flex: 1;
+
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.superadmin-profile-name {
+  overflow: hidden;
+
+  color: #f4f5ff;
+
+  font-size: 10px;
+  font-weight: 700;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.superadmin-profile-role {
+  color: #a5b3d2;
+  font-size: 9px;
+  white-space: nowrap;
+}
+
+.superadmin-logout-button {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid transparent;
+  border-radius: 8px;
+
+  color: #a5b6db;
+  background: transparent;
+
+  cursor: pointer;
+
+  transition:
+    color 0.18s ease,
+    background 0.18s ease;
+}
+
+.superadmin-logout-button:hover {
+  color: #ff9696;
+  background: rgba(255, 100, 100, 0.1);
+}
+
+/* Separate logout row */
+
+.superadmin-logout-link {
+  width: 100%;
+  min-height: 36px;
+
+  margin-top: 5px;
+  padding: 0 7px;
+
+  display: flex;
+  align-items: center;
+  gap: 11px;
+
+  border: none;
+  border-radius: 8px;
+
+  color: #c4cee5;
+  background: transparent;
+
+  font-size: 11px;
+  font-weight: 550;
+  text-align: left;
+
+  cursor: pointer;
+
+  transition:
+    color 0.18s ease,
+    background 0.18s ease;
+}
+
+.superadmin-logout-link:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* ==========================================
+   TABLET
+========================================== */
+
+@media (max-width: 1024px) and (min-width: 769px) {
+  .superadmin-sidebar {
+    width: 225px;
+  }
+}
+
+/* ==========================================
+   MOBILE
+========================================== */
+
+@media (max-width: 768px) {
+  .superadmin-sidebar {
+    width: min(270px, 86vw);
+
+    transform: translateX(-100%);
+    box-shadow: none;
+  }
+
+  .superadmin-sidebar.superadmin-sidebar-open {
+    transform: translateX(0);
+
+    box-shadow: 12px 0 40px rgba(0, 0, 0, 0.3);
+  }
+
+  .superadmin-close-sidebar {
+    display: flex;
+  }
+
+  .superadmin-sidebar-header {
+    min-height: 74px;
+  }
+
+  .superadmin-workspace {
+    margin-top: 14px;
+    margin-bottom: 17px;
+  }
+
+  .superadmin-nav-link {
+    min-height: 44px;
+  }
+}
+
+/* ==========================================
+   SHORT VIEWPORTS
+========================================== */
+
+@media (max-height: 700px) {
+  .superadmin-sidebar-header {
+    min-height: 68px;
+  }
+
+  .superadmin-workspace {
+    min-height: 59px;
+    margin-top: 10px;
+    margin-bottom: 12px;
+    padding: 8px;
+  }
+
+  .superadmin-workspace-icon {
+    width: 32px;
+    height: 32px;
+  }
+
+  .superadmin-nav-heading {
+    margin-bottom: 7px;
+  }
+
+  .superadmin-nav-links {
+    gap: 2px;
+  }
+
+  .superadmin-nav-link {
+    min-height: 38px;
+  }
+
+  .superadmin-sidebar-bottom {
+    padding-top: 8px;
+    padding-bottom: 7px;
+  }
+
+  .superadmin-support-card {
+    min-height: 55px;
+    padding: 7px;
+  }
+
+  .superadmin-profile {
+    margin-top: 8px;
+    padding-top: 8px;
+  }
+
+  .superadmin-logout-link {
+    min-height: 30px;
+    margin-top: 2px;
+  }
+}
+
+/* ==========================================
+   ACCESSIBILITY
+========================================== */
+
+.superadmin-brand:focus-visible,
+.superadmin-nav-link:focus-visible,
+.superadmin-close-sidebar:focus-visible,
+.superadmin-support-card:focus-visible,
+.superadmin-logout-button:focus-visible,
+.superadmin-logout-link:focus-visible {
+  outline: 2px solid #a99aff;
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .superadmin-sidebar,
+  .superadmin-nav-link,
+  .superadmin-nav-icon,
+  .superadmin-support-card,
+  .superadmin-logout-button,
+  .superadmin-logout-link {
+    transition: none;
+  }
+}
