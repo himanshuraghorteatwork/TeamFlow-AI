@@ -1,0 +1,495 @@
+/* =========================================================
+   TEAMFLOW AI ADMIN SIDEBAR
+
+   IMPORTANT:
+   All classes are unique.
+   This CSS will NOT modify Landing Page, User Dashboard,
+   Team Lead or Super Admin UI.
+========================================================= */
+
+.adminSimpleSidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+
+  z-index: 1000;
+
+  width: 225px;
+  height: 100vh;
+
+  display: flex;
+  flex-direction: column;
+
+  overflow: hidden;
+
+  color: #ffffff;
+
+  background: #0b1837;
+
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+
+  box-shadow: 5px 0 25px rgba(10, 20, 50, 0.08);
+
+  font-family: inherit;
+}
+
+/* =========================================================
+   BRAND
+========================================================= */
+
+.adminSimpleSidebar .adminSimpleSidebar__brand {
+  min-height: 90px;
+
+  padding: 20px 20px 14px;
+
+  display: flex;
+  align-items: flex-start;
+
+  gap: 11px;
+
+  flex-shrink: 0;
+}
+
+.adminSimpleSidebar .adminSimpleSidebar__logo {
+  width: 38px;
+  height: 38px;
+
+  flex: 0 0 38px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 10px;
+
+  color: #ffffff;
+
+  background: linear-gradient(
+    135deg,
+    #536fff 0%,
+    #703cff 55%,
+    #9a42ff 100%
+  );
+
+  box-shadow: 0 7px 20px rgba(108, 61, 255, 0.35);
+}
+
+.adminSimpleSidebar .adminSimpleSidebar__brandInfo {
+  min-width: 0;
+
+  padding-top: 1px;
+}
+
+.adminSimpleSidebar .adminSimpleSidebar__brandInfo h2 {
+  margin: 0;
+
+  color: #ffffff;
+
+  font-size: 17px;
+  font-weight: 800;
+
+  line-height: 1.15;
+
+  white-space: nowrap;
+}
+
+.adminSimpleSidebar
+  .adminSimpleSidebar__brandInfo
+  h2
+  span {
+  color: #9879ff;
+}
+
+/* ADMIN PANEL BADGE */
+
+.adminSimpleSidebar .adminSimpleSidebar__badge {
+  width: fit-content;
+
+  margin-top: 6px;
+  padding: 4px 8px;
+
+  display: block;
+
+  border-radius: 4px;
+
+  color: #ffffff;
+
+  background: #5136a7;
+
+  font-size: 9px;
+  font-weight: 600;
+
+  line-height: 1;
+}
+
+/* =========================================================
+   NAVIGATION
+========================================================= */
+
+.adminSimpleSidebar .adminSimpleSidebar__nav {
+  flex: 1;
+
+  min-height: 0;
+
+  padding: 2px 12px;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 3px;
+
+  overflow-x: hidden;
+  overflow-y: auto;
+
+  scrollbar-width: none;
+}
+
+.adminSimpleSidebar
+  .adminSimpleSidebar__nav::-webkit-scrollbar {
+  display: none;
+}
+
+/* MENU ITEM */
+
+.adminSimpleSidebar .adminSimpleSidebar__item {
+  width: 100%;
+  min-height: 47px;
+
+  padding: 0 13px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+
+  flex-shrink: 0;
+
+  border-radius: 10px;
+
+  color: #f0f3fb;
+
+  background: transparent;
+
+  text-decoration: none;
+
+  transition:
+    background 0.18s ease,
+    color 0.18s ease,
+    transform 0.18s ease;
+}
+
+/* ICON */
+
+.adminSimpleSidebar .adminSimpleSidebar__icon {
+  width: 20px;
+  height: 20px;
+
+  flex: 0 0 20px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: #d7dff2;
+
+  transition: color 0.18s ease;
+}
+
+/* LABEL */
+
+.adminSimpleSidebar .adminSimpleSidebar__label {
+  color: inherit;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  line-height: 1;
+
+  white-space: nowrap;
+}
+
+/* HOVER */
+
+.adminSimpleSidebar .adminSimpleSidebar__item:hover {
+  color: #ffffff;
+
+  background: rgba(255, 255, 255, 0.06);
+
+  transform: translateX(2px);
+}
+
+.adminSimpleSidebar
+  .adminSimpleSidebar__item:hover
+  .adminSimpleSidebar__icon {
+  color: #ffffff;
+}
+
+/* =========================================================
+   ACTIVE MENU
+
+   This creates the same subtle dark active background
+   shown on Billing & Payments in your screenshot.
+========================================================= */
+
+.adminSimpleSidebar
+  .adminSimpleSidebar__item--active {
+  color: #ffffff;
+
+  background: #202d4b;
+
+  box-shadow: none;
+
+  transform: none;
+}
+
+.adminSimpleSidebar
+  .adminSimpleSidebar__item--active
+  .adminSimpleSidebar__icon {
+  color: #ffffff;
+}
+
+.adminSimpleSidebar
+  .adminSimpleSidebar__item--active
+  .adminSimpleSidebar__label {
+  color: #ffffff;
+
+  font-weight: 700;
+}
+
+/* =========================================================
+   BOTTOM AREA
+========================================================= */
+
+.adminSimpleSidebar .adminSimpleSidebar__bottom {
+  flex-shrink: 0;
+
+  padding: 10px 10px 12px;
+
+  background: #0b1837;
+}
+
+/* =========================================================
+   SUPPORT CARD
+========================================================= */
+
+.adminSimpleSidebar .adminSimpleSidebar__support {
+  width: 100%;
+
+  padding: 14px 13px;
+
+  border: 1px solid rgba(119, 143, 199, 0.25);
+  border-radius: 11px;
+
+  background: #182e59;
+}
+
+/* SUPPORT TOP */
+
+.adminSimpleSidebar
+  .adminSimpleSidebar__supportTop {
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+}
+
+/* SUPPORT ICON */
+
+.adminSimpleSidebar
+  .adminSimpleSidebar__supportIcon {
+  width: 37px;
+  height: 37px;
+
+  flex: 0 0 37px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 9px;
+
+  color: #ffffff;
+
+  background: linear-gradient(
+    135deg,
+    #7546ff,
+    #6335ed
+  );
+}
+
+/* SUPPORT TEXT */
+
+.adminSimpleSidebar
+  .adminSimpleSidebar__supportText {
+  flex: 1;
+
+  min-width: 0;
+}
+
+.adminSimpleSidebar
+  .adminSimpleSidebar__supportText
+  strong {
+  display: block;
+
+  color: #ffffff;
+
+  font-size: 11px;
+  font-weight: 700;
+
+  line-height: 1.2;
+}
+
+.adminSimpleSidebar
+  .adminSimpleSidebar__supportText
+  span {
+  display: block;
+
+  margin-top: 3px;
+
+  color: #b2bdd7;
+
+  font-size: 8px;
+
+  white-space: nowrap;
+}
+
+/* SUPPORT BUTTON */
+
+.adminSimpleSidebar
+  .adminSimpleSidebar__supportButton {
+  width: 100%;
+  height: 35px;
+
+  margin-top: 13px;
+
+  border: 0;
+  border-radius: 6px;
+
+  outline: none;
+
+  color: #ffffff;
+
+  background: linear-gradient(
+    90deg,
+    #7544ff,
+    #713aff
+  );
+
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.adminSimpleSidebar
+  .adminSimpleSidebar__supportButton:hover {
+  transform: translateY(-1px);
+
+  box-shadow: 0 6px 18px rgba(108, 62, 255, 0.3);
+}
+
+/* =========================================================
+   LOGOUT
+========================================================= */
+
+.adminSimpleSidebar .adminSimpleSidebar__logout {
+  width: 100%;
+  height: 42px;
+
+  margin-top: 8px;
+  padding: 0 13px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+
+  border: 0;
+  border-radius: 8px;
+
+  outline: none;
+
+  color: #d9e0ef;
+
+  background: transparent;
+
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+
+  cursor: pointer;
+
+  transition:
+    color 0.18s ease,
+    background 0.18s ease;
+}
+
+.adminSimpleSidebar .adminSimpleSidebar__logout:hover {
+  color: #ff8b9b;
+
+  background: rgba(255, 84, 105, 0.08);
+}
+
+/* =========================================================
+   SMALLER LAPTOP HEIGHT
+
+   Keeps all menu items visible on smaller laptop screens.
+========================================================= */
+
+@media (max-height: 850px) {
+  .adminSimpleSidebar .adminSimpleSidebar__brand {
+    min-height: 76px;
+
+    padding-top: 13px;
+    padding-bottom: 9px;
+  }
+
+  .adminSimpleSidebar .adminSimpleSidebar__logo {
+    width: 36px;
+    height: 36px;
+
+    flex-basis: 36px;
+  }
+
+  .adminSimpleSidebar
+    .adminSimpleSidebar__brandInfo
+    h2 {
+    font-size: 16px;
+  }
+
+  .adminSimpleSidebar .adminSimpleSidebar__item {
+    min-height: 40px;
+  }
+
+  .adminSimpleSidebar .adminSimpleSidebar__label {
+    font-size: 12px;
+  }
+
+  .adminSimpleSidebar .adminSimpleSidebar__bottom {
+    padding-top: 5px;
+    padding-bottom: 5px;
+  }
+
+  .adminSimpleSidebar .adminSimpleSidebar__support {
+    padding: 10px;
+  }
+
+  .adminSimpleSidebar
+    .adminSimpleSidebar__supportButton {
+    height: 31px;
+
+    margin-top: 9px;
+  }
+
+  .adminSimpleSidebar .adminSimpleSidebar__logout {
+    height: 34px;
+
+    margin-top: 4px;
+  }
+}

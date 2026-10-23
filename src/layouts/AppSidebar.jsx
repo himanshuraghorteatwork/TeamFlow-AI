@@ -1,91 +1,213 @@
-
 import React from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
+
 import {
-  Users,
-  House,
-  MessageCircle,
-  SquareCheckBig,
-  FolderKanban,
-  Bug,
-  CalendarDays,
-  UserRound,
-  Files,
-  Sparkles,
-  Settings,
-  ChevronDown,
-  MoreVertical,
   LayoutDashboard,
+  Building2,
+  Users,
+  FolderKanban,
+  ListChecks,
+  Bot,
+  CreditCard,
+  BadgeDollarSign,
+  ChartNoAxesCombined,
+  Megaphone,
+  FileText,
+  Settings,
+  Headphones,
+  LogOut,
+  Boxes,
 } from "lucide-react";
 
 import "./AppSidebar.css";
 
-const navigation = [
-  { label: "Dashboard", path: "/dashboard", icon: House },
-  { label: "Chat", path: "/chat", icon: MessageCircle },
-  { label: "Tasks", path: "/tasks", icon: SquareCheckBig },
-  { label: "Projects", path: "/projects", icon: FolderKanban },
-  { label: "Bugs", path: "/bugs", icon: Bug },
-  { label: "Calendar", path: "/calendar", icon: CalendarDays },
-  { label: "Team", path: "/team", icon: UserRound },
-  { label: "Files", path: "/files", icon: Files },
-  { label: "AI Assistant", path: "/ai-assistant", icon: Sparkles },
-  { label: "Settings", path: "/settings", icon: Settings },
+// ============================================
+// ADMIN SIDEBAR MENU
+// ============================================
+
+const menuItems = [
+  {
+    name: "Dashboard",
+    path: "/admin/dashboard",
+    icon: LayoutDashboard,
+  },
+  {
+    name: "Workspaces",
+    path: "/admin/workspaces",
+    icon: Building2,
+  },
+  {
+    name: "Users",
+    path: "/admin/users",
+    icon: Users,
+  },
+  {
+    name: "Projects",
+    path: "/admin/projects",
+    icon: FolderKanban,
+  },
+  {
+    name: "Tasks",
+    path: "/admin/tasks",
+    icon: ListChecks,
+  },
+  {
+    name: "AI Tools",
+    path: "/admin/ai-tools",
+    icon: Bot,
+  },
+  {
+    name: "Billing & Payments",
+    path: "/admin/billing",
+    icon: CreditCard,
+  },
+  {
+    name: "Subscriptions",
+    path: "/admin/subscriptions",
+    icon: BadgeDollarSign,
+  },
+  {
+    name: "Analytics",
+    path: "/admin/analytics",
+    icon: ChartNoAxesCombined,
+  },
+  {
+    name: "Announcements",
+    path: "/admin/announcements",
+    icon: Megaphone,
+  },
+  {
+    name: "Reports",
+    path: "/admin/reports",
+    icon: FileText,
+  },
+  {
+    name: "Settings",
+    path: "/admin/settings",
+    icon: Settings,
+  },
 ];
 
-function AppSidebar() {
+// ============================================
+// ADMIN SIDEBAR COMPONENT
+// ============================================
+
+function AdminSidebar() {
+  const navigate = useNavigate();
+
+  // ==========================================
+  // LOGOUT
+  // ==========================================
+
+  const handleLogout = () => {
+    localStorage.removeItem("teamflow_admin");
+    localStorage.removeItem("teamflow_admin_logged_in");
+
+    navigate("/login", {
+      replace: true,
+    });
+  };
+
+  // ==========================================
+  // SUPPORT
+  // ==========================================
+
+  const handleSupport = () => {
+    alert("TeamFlow AI Support will be available here.");
+  };
+
   return (
-    <aside className="app-sidebar">
-      <NavLink to="/" className="app-sidebar-brand">
-        <span className="app-brand-icon">
-          <Users size={22} />
-        </span>
-        <span className="app-brand-name">
-          TeamFlow <span>AI</span>
-        </span>
-      </NavLink>
+    <aside className="admin-sidebar">
+      {/* =====================================
+          LOGO / BRAND
+      ====================================== */}
 
-      <button className="app-workspace-switcher" type="button">
-        <span className="app-workspace-icon">
-          <LayoutDashboard size={22} />
-        </span>
-        <span className="app-workspace-info">
-          <strong>Product Team</strong>
-          <small>Free Plan</small>
-        </span>
-        <ChevronDown size={17} />
-      </button>
+      <div className="admin-sidebar-brand">
+        <div className="admin-sidebar-logo">
+          <Boxes size={23} strokeWidth={2} />
+        </div>
 
-      <nav className="app-sidebar-nav" aria-label="Main navigation">
-        {navigation.map(({ label, path, icon: Icon }) => (
+        <div className="admin-sidebar-brand-text">
+          <h2>
+            TeamFlow <span>AI</span>
+          </h2>
+
+          <small>Admin Panel</small>
+        </div>
+      </div>
+
+      {/* =====================================
+          NAVIGATION
+      ====================================== */}
+
+      <nav
+        className="admin-sidebar-navigation"
+        aria-label="Admin navigation"
+      >
+        {menuItems.map(({ name, path, icon: Icon }) => (
           <NavLink
             key={path}
             to={path}
+            end={path === "/admin/dashboard"}
             className={({ isActive }) =>
-              `app-sidebar-link ${isActive ? "active" : ""}`
+              isActive
+                ? "admin-sidebar-item admin-sidebar-item-active"
+                : "admin-sidebar-item"
             }
           >
-            <Icon size={19} />
-            <span>{label}</span>
+            <Icon
+              className="admin-sidebar-menu-icon"
+              size={19}
+              strokeWidth={2}
+            />
+
+            <span>{name}</span>
           </NavLink>
         ))}
       </nav>
 
-      <div className="app-sidebar-profile">
-        <img
-          src="https://i.pravatar.cc/100?img=68"
-          alt="John Doe"
-        />
-        <div className="app-profile-info">
-          <strong>John Doe</strong>
-          <span>john@company.com</span>
+      {/* =====================================
+          SIDEBAR BOTTOM
+      ====================================== */}
+
+      <div className="admin-sidebar-bottom">
+        {/* SUPPORT CARD */}
+
+        <div className="admin-support-card">
+          <div className="admin-support-header">
+            <div className="admin-support-icon">
+              <Headphones size={20} />
+            </div>
+
+            <div className="admin-support-text">
+              <strong>Need Help?</strong>
+              <span>Contact support team</span>
+            </div>
+          </div>
+
+          <button
+            className="admin-support-button"
+            type="button"
+            onClick={handleSupport}
+          >
+            Contact Support
+          </button>
         </div>
-        <button type="button" aria-label="Profile options">
-          <MoreVertical size={19} />
+
+        {/* LOGOUT */}
+
+        <button
+          className="admin-logout-button"
+          type="button"
+          onClick={handleLogout}
+        >
+          <LogOut size={18} />
+
+          <span>Logout</span>
         </button>
       </div>
     </aside>
   );
 }
 
-export default AppSidebar;
+export default AdminSidebar;
