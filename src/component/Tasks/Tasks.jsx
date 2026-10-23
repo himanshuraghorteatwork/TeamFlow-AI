@@ -1,4 +1,3 @@
-
 import { useMemo, useState } from "react";
 import {
   Plus,
@@ -15,7 +14,6 @@ import {
   Trash2,
   Pencil,
   ChevronDown,
-  UserRound,
 } from "lucide-react";
 
 import AppSidebar from "../../layouts/AppSidebar";
@@ -71,6 +69,19 @@ function isOverdue(task) {
   return new Date(`${task.dueDate}T00:00:00`) < today;
 }
 
+function isValidDateString(date) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return false;
+
+  const [year, month, day] = date.split("-").map(Number);
+  const parsedDate = new Date(Date.UTC(year, month - 1, day));
+
+  return (
+    parsedDate.getUTCFullYear() === year &&
+    parsedDate.getUTCMonth() === month - 1 &&
+    parsedDate.getUTCDate() === day
+  );
+}
+
 function Tasks() {
   const [tasks, setTasks] = useState(initialTasks);
   const [search, setSearch] = useState("");
@@ -118,10 +129,10 @@ function Tasks() {
 
     return tasks.filter((task) => {
       const matchesSearch = [
-        task.title,
-        task.description,
-        task.project,
-        task.assignee,
+        task.title || "",
+        task.description || "",
+        task.project || "",
+        task.assignee || "",
       ].some((value) => value.toLowerCase().includes(query));
 
       const matchesStatus =
@@ -140,9 +151,9 @@ function Tasks() {
     setError("");
   }
 
-  function openCreateModal() {
+  function openCreateModal(defaultStatus = emptyTask.status) {
     setEditingId(null);
-    setForm({ ...emptyTask });
+    setForm({ ...emptyTask, status: defaultStatus });
     setError("");
     setShowModal(true);
   }
@@ -150,13 +161,13 @@ function Tasks() {
   function openEditModal(task) {
     setEditingId(task.id);
     setForm({
-      title: task.title,
-      description: task.description,
-      project: task.project,
-      assignee: task.assignee,
-      status: task.status,
-      priority: task.priority,
-      dueDate: task.dueDate,
+      title: task.title || "",
+      description: task.description || "",
+      project: task.project || "",
+      assignee: task.assignee || teamMembers[0],
+      status: task.status || "To Do",
+      priority: task.priority || "Medium",
+      dueDate: task.dueDate || "",
     });
     setError("");
     setOpenMenu(null);
@@ -165,25 +176,111 @@ function Tasks() {
 
   function saveTask(event) {
     event.preventDefault();
+    setError("");
 
     const title = form.title.trim();
+    const description = form.description.trim();
+    const project = form.project.trim();
 
+    // 1. Task title validation
     if (!title) {
-      setError("Please enter a task title.");
+      setError("Task title is required.");
       return;
     }
+
+    if (title.length > 100) {
+      setError("Task title cannot exceed 100 characters.");
+      return;
+    }
+
+    // 2. Description validation
+    if (description.length > 1000) {
+      setError("Description cannot exceed 1,000 characters.");
+      return;
+    }
+
+    // 3. Project validation
+    if (!project) {
+      setError("Please enter a project name.");
+      return;
+    }
+
+    if (project.length > 100) {
+      setError("Project name cannot exceed 100 characters.");
+      return;
+    }
+
+    // 4. Assignee validation
+    if (!teamMembers.includes(form.assignee)) {
+      setError("Please select a valid team member.");
+      return;
+    }
+
+    // 5. Priority validation
+    if (!taskPriorities.includes(form.priority)) {
+      setError("Please select a valid task priority.");
+      return;
+    }
+
+    // 6. Status validation
+    if (!taskStatuses.includes(form.status)) {
+      setError("Please select a valid task status.");
+      return;
+    }
+
+    // 7. Due date validation
+    if (form.dueDate) {
+      if (!isValidDateString(form.dueDate)) {
+        setError("Please select a valid due date.");
+        return;
+      }
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const selectedDate = new Date(`${form.dueDate}T00:00:00`);
+
+      if (selectedDate < today) {
+        setError("Past due dates are not allowed. Please select today or a future date.");
+        return;
+      }
+    }
+
+    // 8. Duplicate task validation
+    const duplicateTask = tasks.some((task) => {
+      const sameTitle =
+        (task.title || "").trim().toLowerCase() === title.toLowerCase();
+
+      const sameProject =
+        (task.project || "").trim().toLowerCase() === project.toLowerCase();
+
+      const isDifferentTask = task.id !== editingId;
+
+      return sameTitle && sameProject && isDifferentTask;
+    });
+
+    if (duplicateTask) {
+      setError("A task with this title already exists in this project.");
+      return;
+    }
+
+    // Save validated and normalized data
+    const validatedTask = {
+      ...form,
+      title,
+      description,
+      project,
+    };
 
     if (editingId !== null) {
       setTasks((previous) =>
         previous.map((task) =>
-          task.id === editingId
-            ? { ...task, ...form, title }
-            : task
+          task.id === editingId ? { ...task, ...validatedTask } : task
         )
       );
     } else {
       setTasks((previous) => [
-        { ...form, title, id: Date.now() },
+        { ...validatedTask, id: Date.now() },
         ...previous,
       ]);
     }
@@ -195,11 +292,14 @@ function Tasks() {
   }
 
   function updateStatus(id, status) {
+    if (!taskStatuses.includes(status)) return;
+
     setTasks((previous) =>
       previous.map((task) =>
         task.id === id ? { ...task, status } : task
       )
     );
+
     setOpenMenu(null);
   }
 
@@ -214,11 +314,18 @@ function Tasks() {
     setOpenMenu(null);
   }
 
+  function closeModal() {
+    setShowModal(false);
+    setError("");
+    setEditingId(null);
+    setForm({ ...emptyTask });
+  }
+
   function TaskCard({ task }) {
     return (
       <article className="tasks-card">
         <div className="tasks-card-top">
-          <span className={`tasks-priority ${task.priority.toLowerCase()}`}>
+          <span className={`tasks-priority ${(task.priority || "Medium").toLowerCase()}`}>
             <span />
             {task.priority}
           </span>
@@ -244,6 +351,7 @@ function Tasks() {
                   aria-label="Close task actions"
                   onClick={() => setOpenMenu(null)}
                 />
+
                 <div className="tasks-action-menu">
                   <button type="button" onClick={() => openEditModal(task)}>
                     <Pencil size={15} /> Edit task
@@ -292,10 +400,12 @@ function Tasks() {
         <div className="tasks-card-footer">
           <div className="tasks-assignee" title={task.assignee}>
             <span className="tasks-avatar">{initials(task.assignee)}</span>
-            <span>{task.assignee.split(" ")[0]}</span>
+            <span>{(task.assignee || "Unassigned").split(" ")[0]}</span>
           </div>
 
-          <span className={`tasks-due-date ${isOverdue(task) ? "overdue" : ""}`}>
+          <span
+            className={`tasks-due-date ${isOverdue(task) ? "overdue" : ""}`}
+          >
             <CalendarDays size={14} />
             {formatDate(task.dueDate)}
           </span>
@@ -320,7 +430,7 @@ function Tasks() {
             <button
               type="button"
               className="tasks-primary-button"
-              onClick={openCreateModal}
+              onClick={() => openCreateModal()}
             >
               <Plus size={18} />
               Create Task
@@ -336,6 +446,7 @@ function Tasks() {
                   <div className={`tasks-stat-icon ${stat.color}`}>
                     <Icon size={20} />
                   </div>
+
                   <div>
                     <span>{stat.label}</span>
                     <strong>{stat.value}</strong>
@@ -352,6 +463,7 @@ function Tasks() {
                   <h2>Task Board</h2>
                   <p>Organize and manage your team's workload.</p>
                 </div>
+
                 <span className="tasks-total-badge">
                   {filteredTasks.length} tasks
                 </span>
@@ -360,6 +472,7 @@ function Tasks() {
               <div className="tasks-controls">
                 <div className="tasks-search">
                   <Search size={17} />
+
                   <input
                     type="search"
                     placeholder="Search tasks..."
@@ -367,6 +480,7 @@ function Tasks() {
                     onChange={(event) => setSearch(event.target.value)}
                     aria-label="Search tasks"
                   />
+
                   {search && (
                     <button
                       type="button"
@@ -380,29 +494,35 @@ function Tasks() {
 
                 <label className="tasks-filter">
                   <span className="sr-only">Filter by status</span>
+
                   <select
                     value={statusFilter}
                     onChange={(event) => setStatusFilter(event.target.value)}
                   >
                     <option>All Statuses</option>
+
                     {taskStatuses.map((status) => (
                       <option key={status}>{status}</option>
                     ))}
                   </select>
+
                   <ChevronDown size={14} />
                 </label>
 
                 <label className="tasks-filter">
                   <span className="sr-only">Filter by priority</span>
+
                   <select
                     value={priorityFilter}
                     onChange={(event) => setPriorityFilter(event.target.value)}
                   >
                     <option>All Priorities</option>
+
                     {taskPriorities.map((priority) => (
                       <option key={priority}>{priority}</option>
                     ))}
                   </select>
+
                   <ChevronDown size={14} />
                 </label>
 
@@ -416,6 +536,7 @@ function Tasks() {
                   >
                     <LayoutGrid size={17} />
                   </button>
+
                   <button
                     type="button"
                     className={view === "list" ? "active" : ""}
@@ -433,19 +554,21 @@ function Tasks() {
               <div className="tasks-board">
                 {columns.map((column) => {
                   const Icon = column.icon;
+
                   const columnTasks = filteredTasks.filter(
                     (task) => task.status === column.name
                   );
 
                   return (
-                    <section
-                      className="tasks-column"
-                      key={column.name}
-                    >
+                    <section className="tasks-column" key={column.name}>
                       <div className="tasks-column-header">
                         <div className="tasks-column-name">
-                          <span className={`tasks-column-dot ${column.color}`} />
+                          <span
+                            className={`tasks-column-dot ${column.color}`}
+                          />
+
                           <h3>{column.name}</h3>
+
                           <span className="tasks-column-count">
                             {columnTasks.length}
                           </span>
@@ -454,15 +577,7 @@ function Tasks() {
                         <button
                           type="button"
                           className="tasks-add-small"
-                          onClick={() => {
-                            setForm({
-                              ...emptyTask,
-                              status: column.name,
-                            });
-                            setEditingId(null);
-                            setError("");
-                            setShowModal(true);
-                          }}
+                          onClick={() => openCreateModal(column.name)}
                           aria-label={`Add task to ${column.name}`}
                         >
                           <Plus size={17} />
@@ -484,12 +599,7 @@ function Tasks() {
                         <button
                           type="button"
                           className="tasks-add-task"
-                          onClick={() => {
-                            setForm({ ...emptyTask, status: column.name });
-                            setEditingId(null);
-                            setError("");
-                            setShowModal(true);
-                          }}
+                          onClick={() => openCreateModal(column.name)}
                         >
                           <Plus size={15} /> Add task
                         </button>
@@ -519,16 +629,22 @@ function Tasks() {
                       <strong>{task.title}</strong>
                       <small>{task.project}</small>
                     </button>
+
                     <span className="tasks-list-assignee">
                       <span className="tasks-avatar">
                         {initials(task.assignee)}
                       </span>
+
                       {task.assignee}
                     </span>
-                    <span className={`tasks-priority ${task.priority.toLowerCase()}`}>
+
+                    <span
+                      className={`tasks-priority ${(task.priority || "Medium").toLowerCase()}`}
+                    >
                       <span />
                       {task.priority}
                     </span>
+
                     <select
                       className="tasks-status-select"
                       value={task.status}
@@ -541,9 +657,13 @@ function Tasks() {
                         <option key={status}>{status}</option>
                       ))}
                     </select>
-                    <span className={`tasks-due-date ${isOverdue(task) ? "overdue" : ""}`}>
+
+                    <span
+                      className={`tasks-due-date ${isOverdue(task) ? "overdue" : ""}`}
+                    >
                       {formatDate(task.dueDate)}
                     </span>
+
                     <button
                       type="button"
                       className="tasks-icon-button"
@@ -571,8 +691,7 @@ function Tasks() {
           className="tasks-modal-overlay"
           onMouseDown={(event) => {
             if (event.target === event.currentTarget) {
-              setShowModal(false);
-              setError("");
+              closeModal();
             }
           }}
         >
@@ -586,14 +705,12 @@ function Tasks() {
               <div className="tasks-modal-icon">
                 <ClipboardList size={21} />
               </div>
+
               <button
                 type="button"
                 className="tasks-modal-close"
                 aria-label="Close form"
-                onClick={() => {
-                  setShowModal(false);
-                  setError("");
-                }}
+                onClick={closeModal}
               >
                 <X size={20} />
               </button>
@@ -602,6 +719,7 @@ function Tasks() {
             <h2 id="tasks-modal-title">
               {editingId !== null ? "Edit task" : "Create a new task"}
             </h2>
+
             <p className="tasks-modal-subtitle">
               Add the details and assign the work to a teammate.
             </p>
@@ -612,10 +730,15 @@ function Tasks() {
                 <input
                   autoFocus
                   value={form.title}
-                  onChange={(event) => updateField("title", event.target.value)}
+                  onChange={(event) =>
+                    updateField("title", event.target.value)
+                  }
                   placeholder="What needs to be done?"
+                  maxLength={100}
                   required
+                  aria-invalid={Boolean(error)}
                 />
+                <small>{form.title.length}/100 characters</small>
               </label>
 
               <label>
@@ -627,15 +750,21 @@ function Tasks() {
                     updateField("description", event.target.value)
                   }
                   placeholder="Add details about this task..."
+                  maxLength={1000}
                 />
+                <small>{form.description.length}/1000 characters</small>
               </label>
 
               <label>
-                Project
+                Project *
                 <input
                   value={form.project}
-                  onChange={(event) => updateField("project", event.target.value)}
+                  onChange={(event) =>
+                    updateField("project", event.target.value)
+                  }
                   placeholder="Project name"
+                  maxLength={100}
+                  required
                 />
               </label>
 
@@ -649,7 +778,9 @@ function Tasks() {
                     }
                   >
                     {teamMembers.map((member) => (
-                      <option key={member}>{member}</option>
+                      <option key={member} value={member}>
+                        {member}
+                      </option>
                     ))}
                   </select>
                 </label>
@@ -663,7 +794,9 @@ function Tasks() {
                     }
                   >
                     {taskPriorities.map((priority) => (
-                      <option key={priority}>{priority}</option>
+                      <option key={priority} value={priority}>
+                        {priority}
+                      </option>
                     ))}
                   </select>
                 </label>
@@ -672,10 +805,14 @@ function Tasks() {
                   Status
                   <select
                     value={form.status}
-                    onChange={(event) => updateField("status", event.target.value)}
+                    onChange={(event) =>
+                      updateField("status", event.target.value)
+                    }
                   >
                     {taskStatuses.map((status) => (
-                      <option key={status}>{status}</option>
+                      <option key={status} value={status}>
+                        {status}
+                      </option>
                     ))}
                   </select>
                 </label>
@@ -685,9 +822,27 @@ function Tasks() {
                   <input
                     type="date"
                     value={form.dueDate}
-                    onChange={(event) =>
-                      updateField("dueDate", event.target.value)
-                    }
+                    min={new Date().toLocaleDateString("en-CA")}
+                    onChange={(event) => {
+                      const selectedDate = event.target.value;
+
+                      if (!selectedDate) {
+                        updateField("dueDate", "");
+                        return;
+                      }
+
+                      const today = new Date();
+                      today.setHours(0, 0, 0, 0);
+
+                      const chosenDate = new Date(`${selectedDate}T00:00:00`);
+
+                      if (chosenDate < today) {
+                        setError("Past due dates are not allowed. Please select today or a future date.");
+                        return;
+                      }
+
+                      updateField("dueDate", selectedDate);
+                    }}
                   />
                 </label>
               </div>
@@ -702,13 +857,11 @@ function Tasks() {
                 <button
                   type="button"
                   className="tasks-cancel-button"
-                  onClick={() => {
-                    setShowModal(false);
-                    setError("");
-                  }}
+                  onClick={closeModal}
                 >
                   Cancel
                 </button>
+
                 <button type="submit" className="tasks-primary-button">
                   <Plus size={16} />
                   {editingId !== null ? "Save changes" : "Create task"}

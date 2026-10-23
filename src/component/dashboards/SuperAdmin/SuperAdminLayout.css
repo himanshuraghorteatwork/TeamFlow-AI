@@ -1,0 +1,243 @@
+
+/* ================================
+   SUPER ADMIN LAYOUT
+================================ */
+
+.superadmin-layout {
+  --superadmin-sidebar-width: 268px;
+
+  min-height: 100vh;
+  width: 100%;
+  background: #f6f7fb;
+  color: #202137;
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+}
+
+/* Main section */
+
+.superadmin-main {
+  min-height: 100vh;
+  min-width: 0;
+  margin-left: var(--superadmin-sidebar-width);
+  display: flex;
+  flex-direction: column;
+  transition: margin-left 0.25s ease;
+}
+
+/* ================================
+   TOP NAVBAR
+================================ */
+
+.superadmin-topbar {
+  height: 76px;
+  min-height: 76px;
+  padding: 0 32px;
+  background: #ffffff;
+  border-bottom: 1px solid #e9eaf1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.superadmin-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-width: 0;
+  font-size: 13px;
+  color: #85869a;
+}
+
+.superadmin-breadcrumb strong {
+  color: #282942;
+  font-weight: 650;
+}
+
+.superadmin-breadcrumb-divider {
+  color: #c3c4d0;
+}
+
+.superadmin-topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.superadmin-role-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 7px 12px;
+  border-radius: 20px;
+  border: 1px solid #e5e0ff;
+  background: #f4f1ff;
+  color: #6654c5;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.superadmin-avatar {
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #7765eb, #5948c4);
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* Mobile menu toggle */
+
+.superadmin-menu-toggle {
+  display: none;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  padding: 10px;
+  border: 1px solid #e8e8f0;
+  border-radius: 10px;
+  background: #ffffff;
+  cursor: pointer;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+.superadmin-menu-toggle span {
+  display: block;
+  width: 18px;
+  height: 2px;
+  border-radius: 2px;
+  background: #303149;
+}
+
+/* ================================
+   MAIN CONTENT
+================================ */
+
+.superadmin-content {
+  flex: 1;
+  min-width: 0;
+  padding: 32px;
+  overflow-wrap: anywhere;
+}
+
+/* ================================
+   SIDEBAR OVERLAY
+================================ */
+
+.superadmin-sidebar-overlay {
+  display: none;
+}
+
+/* ================================
+   TABLET RESPONSIVENESS
+================================ */
+
+@media (max-width: 1024px) {
+  .superadmin-layout {
+    --superadmin-sidebar-width: 240px;
+  }
+
+  .superadmin-topbar {
+    padding: 0 24px;
+  }
+
+  .superadmin-content {
+    padding: 24px;
+  }
+}
+
+/* ================================
+   MOBILE RESPONSIVENESS
+================================ */
+
+@media (max-width: 768px) {
+  .superadmin-main {
+    margin-left: 0;
+  }
+
+  .superadmin-topbar {
+    height: 66px;
+    min-height: 66px;
+    padding: 0 16px;
+    gap: 12px;
+  }
+
+  .superadmin-menu-toggle {
+    display: flex;
+  }
+
+  .superadmin-breadcrumb {
+    flex: 1;
+    gap: 7px;
+    font-size: 12px;
+  }
+
+  .superadmin-topbar-actions {
+    gap: 9px;
+  }
+
+  .superadmin-role-badge {
+    padding: 6px 9px;
+    font-size: 10px;
+  }
+
+  .superadmin-avatar {
+    width: 34px;
+    height: 34px;
+    font-size: 12px;
+  }
+
+  .superadmin-content {
+    padding: 20px 16px;
+  }
+
+  .superadmin-sidebar-overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 998;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    border: none;
+    background: rgba(13, 15, 35, 0.52);
+    cursor: pointer;
+  }
+}
+
+/* ================================
+   SMALL MOBILE SCREENS
+================================ */
+
+@media (max-width: 420px) {
+  .superadmin-topbar {
+    padding: 0 10px;
+    gap: 8px;
+  }
+
+  .superadmin-breadcrumb {
+    font-size: 11px;
+    gap: 5px;
+  }
+
+  .superadmin-role-badge {
+    display: none;
+  }
+
+  .superadmin-content {
+    padding: 16px 12px;
+  }
+}
