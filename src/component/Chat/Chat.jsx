@@ -10,12 +10,18 @@ import ChatWindow from "./ChatWindow";
 import ChannelDetails from "./ChannelDetails";
 
 const STORAGE_KEY = "teamflow-ai-chats-v1";
+const MAX_MESSAGE_LENGTH = 5000;
+const MAX_CHANNEL_NAME_LENGTH = 50;
 
 function loadChats() {
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
-    return normalizeChats(saved ? JSON.parse(saved) : initialChats);
-  } catch {
+    const parsed = saved ? JSON.parse(saved) : initialChats;
+    const normalized = normalizeChats(parsed);
+
+    return Array.isArray(normalized) ? normalized : initialChats;
+  } catch (error) {
+    console.error("Could not load TeamFlow chats:", error);
     return normalizeChats(initialChats);
   }
 }
@@ -39,17 +45,22 @@ function Chat() {
   }, [chats]);
 
   const activeChat =
-    chats.find((chat) => chat.id === activeChatId) ?? chats[0];
+    chats.find((chat) => chat.id === activeChatId) ?? chats[0] ?? null;
 
   const matchingMessages = useMemo(() => {
     const query = messageSearch.trim().toLowerCase();
+
     if (!query) return [];
 
     return chats.flatMap((chat) =>
-      chat.messages
-        .filter((message) => message.text.toLowerCase().includes(query))
+      (Array.isArray(chat.messages) ? chat.messages : [])
+        .filter((message) =>
+          String(message.text ?? "").toLowerCase().includes(query)
+        )
         .map((message) => ({
           ...message,
+          text: String(message.text ?? ""),
+          sender: String(message.sender ?? "Unknown"),
           chatId: chat.id,
           chatName: chat.name,
         }))
@@ -57,6 +68,10 @@ function Chat() {
   }, [chats, messageSearch]);
 
   function selectChat(id) {
+    const exists = chats.some((chat) => chat.id === id);
+
+    if (!exists) return;
+
     setActiveChatId(id);
     setMobilePanel("conversation");
 
@@ -68,8 +83,25 @@ function Chat() {
   }
 
   function sendMessage(text, attachment = null) {
-    const trimmed = text.trim();
-    if (!trimmed && !attachment) return;
+    const trimmed = typeof text === "string" ? text.trim() : "";
+
+    if (trimmed.length > MAX_MESSAGE_LENGTH) return false;
+    if (!trimmed && !attachment) return false;
+
+    if (
+      attachment &&
+      (!attachment.name ||
+        !Number.isFinite(attachment.size) ||
+        attachment.size <= 0)
+    ) {
+      return false;
+    }
+
+    const targetChat = chats.find(
+      (chat) => chat.id === activeChatId
+    );
+
+    if (!targetChat) return false;
 
     const now = new Date();
     const time = now.toLocaleTimeString([], {
@@ -89,35 +121,67 @@ function Chat() {
 
     setChats((previous) =>
       previous.map((chat) =>
-        chat.id === activeChatId
+        chat.id === targetChat.id
           ? {
               ...chat,
               time,
               preview: attachment
                 ? `You: ${attachment.name}`
                 : `You: ${trimmed}`,
-              messages: [...chat.messages, newMessage],
+              messages: [
+                ...(Array.isArray(chat.messages) ? chat.messages : []),
+                newMessage,
+              ],
             }
           : chat
       )
     );
+
+    return true;
   }
 
   function createChannel(name) {
-    const cleanName = name.trim().replace(/^#+/, "");
-    if (!cleanName) return;
+    if (typeof name !== "string") {
+      window.alert("Please enter a valid channel name.");
+      return false;
+    }
+
+    const cleanName = name.trim().replace(/^#+/, "").trim();
+
+    if (!cleanName) {
+      window.alert("Channel name is required.");
+      return false;
+    }
+
+    if (cleanName.length > MAX_CHANNEL_NAME_LENGTH) {
+      window.alert("Channel name cannot exceed 50 characters.");
+      return false;
+    }
+
+    if (!/^[a-zA-Z0-9][a-zA-Z0-9 _-]*$/.test(cleanName)) {
+      window.alert(
+        "Use letters, numbers, spaces, hyphens, or underscores."
+      );
+      return false;
+    }
 
     const exists = chats.some(
-      (chat) => chat.name.toLowerCase() === cleanName.toLowerCase()
+      (chat) =>
+        String(chat.name ?? "")
+          .trim()
+          .replace(/^#+/, "")
+          .toLowerCase() === cleanName.toLowerCase()
     );
 
     if (exists) {
       window.alert("A chat or channel with this name already exists.");
-      return;
+      return false;
     }
 
+    const timestamp = Date.now();
+
     const newChat = {
-      id: `channel-${Date.now()}`,
+      id: `channel-${timestamp}`,
       name: cleanName,
       type: "channel",
       icon: "hash",
@@ -126,7 +190,7 @@ function Chat() {
       unreadCount: 0,
       messages: [
         {
-          id: `welcome-${Date.now()}`,
+          id: `welcome-${timestamp}`,
           sender: "TeamFlow AI",
           time: "Now",
           text: `Welcome to #${cleanName}! Start the conversation here.`,
@@ -140,10 +204,53 @@ function Chat() {
     setActiveTab("All");
     setChatSearch("");
     setMobilePanel("conversation");
+
+    return true;
+  }
+
+  // Delete only channels, never direct messages or group conversations.
+  function deleteChannel(channelId) {
+    const channel = chats.find((chat) => chat.id === channelId);
+
+    if (!channel || channel.type !== "channel") {
+      window.alert("Only channels can be deleted using this option.");
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `Are you sure you want to delete #${channel.name}?\n\n` +
+        "This will remove the channel and its messages from this browser's saved chat data."
+    );
+
+    if (!confirmed) return;
+
+    const remainingChats = chats.filter(
+      (chat) => chat.id !== channelId
+    );
+
+    setChats(remainingChats);
+
+    if (activeChatId === channelId) {
+      const nextChat = remainingChats[0];
+
+      setActiveChatId(nextChat?.id ?? "");
+      setShowDetails(Boolean(nextChat));
+      setMobilePanel(nextChat ? "conversation" : "list");
+    }
   }
 
   if (!activeChat) {
-    return <div className="teamflow-chat">No chats available.</div>;
+    return (
+      <div className="teamflow-chat">
+        <AppSidebar />
+        <main className="chat-main">
+          <div className="chat-empty-state">
+            <h2>No conversations available</h2>
+            <p>Create a channel to start a new conversation.</p>
+          </div>
+        </main>
+      </div>
+    );
   }
 
   return (
@@ -153,6 +260,7 @@ function Chat() {
       <main className="chat-main">
         <header className="chat-topbar">
           <button
+            type="button"
             className="icon-button topbar-menu"
             aria-label="Toggle chat list"
             onClick={() =>
@@ -166,6 +274,7 @@ function Chat() {
 
           <div className="global-search">
             <Search size={19} />
+
             <input
               value={messageSearch}
               onChange={(event) => {
@@ -185,6 +294,7 @@ function Chat() {
 
                 {matchingMessages.slice(0, 10).map((message) => (
                   <button
+                    type="button"
                     key={`${message.chatId}-${message.id}`}
                     className="global-result"
                     onClick={() => {
@@ -193,15 +303,20 @@ function Chat() {
                     }}
                   >
                     <strong>{message.chatName}</strong>
-                    <span>{message.sender}: {message.text}</span>
+                    <span>
+                      {message.sender}: {message.text}
+                    </span>
                   </button>
                 ))}
 
                 {matchingMessages.length === 0 && (
-                  <p className="empty-search">No matching messages.</p>
+                  <p className="empty-search">
+                    No matching messages.
+                  </p>
                 )}
 
                 <button
+                  type="button"
                   className="close-search"
                   onClick={() => {
                     setShowGlobalSearch(false);
@@ -215,13 +330,23 @@ function Chat() {
           </div>
 
           <div className="topbar-actions">
-            <button className="icon-button" aria-label="Notifications">
+            <button
+              type="button"
+              className="icon-button"
+              aria-label="Notifications"
+            >
               <Bell size={20} />
             </button>
-            <button className="icon-button" aria-label="Help">
+
+            <button
+              type="button"
+              className="icon-button"
+              aria-label="Help"
+            >
               <CircleHelp size={21} />
             </button>
-            <button className="workspace-account">
+
+            <button type="button" className="workspace-account">
               <img src="https://i.pravatar.cc/100?img=68" alt="" />
               <strong>TeamFlow AI</strong>
               <ChevronDown size={17} />
@@ -229,7 +354,11 @@ function Chat() {
           </div>
         </header>
 
-        <div className={`chat-workspace ${showDetails ? "" : "details-hidden"}`}>
+        <div
+          className={`chat-workspace ${
+            showDetails ? "" : "details-hidden"
+          }`}
+        >
           <div
             className={`chat-list-slot ${
               mobilePanel === "list" ? "mobile-visible" : ""
@@ -244,6 +373,7 @@ function Chat() {
               search={chatSearch}
               setSearch={setChatSearch}
               onCreateChat={createChannel}
+              onDeleteChat={deleteChannel}
             />
           </div>
 
@@ -255,7 +385,9 @@ function Chat() {
             <ChatWindow
               chat={activeChat}
               onSendMessage={sendMessage}
-              onToggleDetails={() => setShowDetails((visible) => !visible)}
+              onToggleDetails={() =>
+                setShowDetails((visible) => !visible)
+              }
               onBack={() => setMobilePanel("list")}
               detailsOpen={showDetails}
             />

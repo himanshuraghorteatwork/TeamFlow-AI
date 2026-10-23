@@ -1974,3 +1974,95 @@
     margin-left: 0;
   }
 }
+
+
+
+/* Chat message validation */
+.chat-validation-footer {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 16px 8px;
+  font-size: 12px;
+}
+
+.chat-validation-message {
+  flex: 1;
+  min-width: 0;
+  color: #dc3545;
+  overflow-wrap: anywhere;
+}
+
+.chat-character-counter {
+  flex-shrink: 0;
+  color: #6c757d;
+  text-align: right;
+}
+
+/* Accessible invalid-input feedback */
+.message-composer input[aria-invalid="true"] {
+  border-color: #dc3545;
+  outline-color: #dc3545;
+}
+
+
+/* Chat list row with a separate delete action */
+.chat-list-entry {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  min-width: 0;
+}
+
+.chat-list-entry .chat-list-item {
+  flex: 1;
+  width: 0;
+  min-width: 0;
+}
+
+.chat-delete-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 34px;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: #8b929e;
+  cursor: pointer;
+  opacity: 0.7;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.chat-list-entry:hover .chat-delete-button,
+.chat-list-entry:focus-within .chat-delete-button {
+  opacity: 1;
+}
+
+.chat-delete-button:hover {
+  background-color: #fee2e2;
+  color: #dc2626;
+}
+
+.chat-delete-button:focus-visible {
+  outline: 2px solid #dc2626;
+  outline-offset: 2px;
+}
+
+.chat-delete-button:active {
+  transform: scale(0.96);
+}
+
+@media (hover: none) {
+  .chat-delete-button {
+    opacity: 1;
+  }
+}

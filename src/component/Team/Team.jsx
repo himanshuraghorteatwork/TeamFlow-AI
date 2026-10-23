@@ -1,5 +1,6 @@
 
 import { useMemo, useState } from "react";
+
 import {
   Users,
   UserPlus,
@@ -101,38 +102,88 @@ function Team() {
   }, [members, search, roleFilter, statusFilter]);
 
   function updateForm(field, value) {
-    setForm((previous) => ({ ...previous, [field]: value }));
+    setForm((previous) => ({
+      ...previous,
+      [field]: value,
+    }));
+
     setFormError("");
   }
 
   function handleInvite(event) {
     event.preventDefault();
 
-    const name = form.name.trim();
+    const name = form.name.trim().replace(/\s+/g, " ");
     const email = form.email.trim().toLowerCase();
+    const role = form.role;
 
-    if (!name || !email) {
-      setFormError("Please enter the member's name and email.");
+    // Full name validation
+    if (!name) {
+      setFormError("Full name is required.");
       return;
     }
 
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (name.length < 2) {
+      setFormError("Full name must contain at least 2 characters.");
+      return;
+    }
+
+    if (name.length > 80) {
+      setFormError("Full name cannot exceed 80 characters.");
+      return;
+    }
+
+    const namePattern =
+      /^[\p{L}\p{M}]+(?:[ '\u2019-][\p{L}\p{M}]+)*$/u;
+
+    if (!namePattern.test(name)) {
+      setFormError(
+        "Enter a valid name using letters, spaces, hyphens, or apostrophes."
+      );
+      return;
+    }
+
+    // Email validation
+    if (!email) {
+      setFormError("Work email is required.");
+      return;
+    }
+
+    if (email.length > 254) {
+      setFormError("Email address cannot exceed 254 characters.");
+      return;
+    }
+
+    const emailPattern =
+      /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
 
     if (!emailPattern.test(email)) {
-      setFormError("Please enter a valid email address.");
+      setFormError("Please enter a valid work email address.");
       return;
     }
 
-    if (members.some((member) => member.email.toLowerCase() === email)) {
-      setFormError("This email address is already in the team.");
+    // Prevent duplicate email addresses
+    const emailExists = members.some(
+      (member) => member.email.trim().toLowerCase() === email
+    );
+
+    if (emailExists) {
+      setFormError("This email address already exists in your team.");
       return;
     }
 
+    // Validate selected role
+    if (!teamRoles.includes(role)) {
+      setFormError("Please select a valid team role.");
+      return;
+    }
+
+    // Create the new team member
     const newMember = {
       id: Date.now(),
       name,
       email,
-      role: form.role,
+      role,
       status: "Pending",
       joinedDate: new Date().toLocaleDateString("en-US", {
         month: "short",
@@ -143,9 +194,13 @@ function Team() {
     };
 
     setMembers((previous) => [newMember, ...previous]);
+
+    // Reset search and filters so the new member is visible
     setSearch("");
     setRoleFilter("All Roles");
     setStatusFilter("All Statuses");
+
+    // Reset and close the form
     setForm(emptyForm);
     setFormError("");
     setShowInvite(false);
@@ -157,6 +212,7 @@ function Team() {
         member.id === id ? { ...member, role } : member
       )
     );
+
     setOpenMenu(null);
   }
 
@@ -171,7 +227,10 @@ function Team() {
 
     if (!confirmed) return;
 
-    setMembers((previous) => previous.filter((item) => item.id !== id));
+    setMembers((previous) =>
+      previous.filter((item) => item.id !== id)
+    );
+
     setOpenMenu(null);
   }
 
@@ -187,6 +246,17 @@ function Team() {
     setOpenMenu(null);
   }
 
+  function closeInviteModal() {
+    setShowInvite(false);
+    setFormError("");
+  }
+
+  function openInviteModal() {
+    setForm(emptyForm);
+    setFormError("");
+    setShowInvite(true);
+  }
+
   return (
     <div className="team-page">
       <AppSidebar />
@@ -198,7 +268,9 @@ function Team() {
               <div className="team-breadcrumb">
                 Workspace <span>/</span> Team
               </div>
+
               <h1>Team Members</h1>
+
               <p>
                 Manage your people, collaborate better, and control
                 workspace access.
@@ -206,18 +278,16 @@ function Team() {
             </div>
 
             <button
+              type="button"
               className="team-primary-btn"
-              onClick={() => {
-                setForm(emptyForm);
-                setFormError("");
-                setShowInvite(true);
-              }}
+              onClick={openInviteModal}
             >
               <UserPlus size={18} />
               <span>Invite Member</span>
             </button>
           </header>
 
+          {/* Team statistics */}
           <section className="team-stats">
             {stats.map((stat) => {
               const Icon = stat.icon;
@@ -228,7 +298,10 @@ function Team() {
                     <div className={`team-stat-icon ${stat.color}`}>
                       <Icon size={20} />
                     </div>
-                    <span className="team-stat-label">{stat.label}</span>
+
+                    <span className="team-stat-label">
+                      {stat.label}
+                    </span>
                   </div>
 
                   <div className="team-stat-bottom">
@@ -240,6 +313,7 @@ function Team() {
             })}
           </section>
 
+          {/* Team member table */}
           <section className="team-panel">
             <div className="team-panel-heading">
               <div>
@@ -248,15 +322,18 @@ function Team() {
                   View and manage everyone who belongs to your workspace.
                 </p>
               </div>
+
               <span className="team-count">
                 {filteredMembers.length}{" "}
                 {filteredMembers.length === 1 ? "member" : "members"}
               </span>
             </div>
 
+            {/* Search and filters */}
             <div className="team-toolbar">
               <div className="team-search">
                 <Search size={18} />
+
                 <input
                   type="search"
                   placeholder="Search name, email, or department..."
@@ -264,6 +341,7 @@ function Team() {
                   onChange={(event) => setSearch(event.target.value)}
                   aria-label="Search team members"
                 />
+
                 {search && (
                   <button
                     type="button"
@@ -279,29 +357,43 @@ function Team() {
               <div className="team-filters">
                 <label className="team-select-wrap">
                   <span className="sr-only">Filter by role</span>
+
                   <select
                     value={roleFilter}
-                    onChange={(event) => setRoleFilter(event.target.value)}
+                    onChange={(event) =>
+                      setRoleFilter(event.target.value)
+                    }
                   >
                     <option>All Roles</option>
+
                     {teamRoles.map((role) => (
-                      <option key={role}>{role}</option>
+                      <option key={role} value={role}>
+                        {role}
+                      </option>
                     ))}
                   </select>
+
                   <ChevronDown size={15} />
                 </label>
 
                 <label className="team-select-wrap">
                   <span className="sr-only">Filter by status</span>
+
                   <select
                     value={statusFilter}
-                    onChange={(event) => setStatusFilter(event.target.value)}
+                    onChange={(event) =>
+                      setStatusFilter(event.target.value)
+                    }
                   >
                     <option>All Statuses</option>
+
                     {teamStatuses.map((status) => (
-                      <option key={status}>{status}</option>
+                      <option key={status} value={status}>
+                        {status}
+                      </option>
                     ))}
                   </select>
+
                   <ChevronDown size={15} />
                 </label>
               </div>
@@ -328,6 +420,7 @@ function Team() {
                           <div className="team-avatar">
                             {getInitials(member.name)}
                           </div>
+
                           <div className="team-member-info">
                             <strong>{member.name}</strong>
                             <span>{member.email}</span>
@@ -393,6 +486,7 @@ function Team() {
                                 aria-label="Close member actions"
                                 onClick={() => setOpenMenu(null)}
                               />
+
                               <div className="team-action-menu">
                                 <div className="team-menu-title">
                                   Change role
@@ -405,10 +499,13 @@ function Team() {
                                     className={
                                       member.role === role ? "selected" : ""
                                     }
-                                    onClick={() => changeRole(member.id, role)}
+                                    onClick={() =>
+                                      changeRole(member.id, role)
+                                    }
                                   >
                                     <UserRound size={15} />
                                     {role}
+
                                     {member.role === role && (
                                       <CheckCircle2 size={15} />
                                     )}
@@ -418,7 +515,9 @@ function Team() {
                                 {member.status === "Pending" && (
                                   <button
                                     type="button"
-                                    onClick={() => resendInvite(member.id)}
+                                    onClick={() =>
+                                      resendInvite(member.id)
+                                    }
                                   >
                                     <Send size={15} />
                                     Resend invite
@@ -428,7 +527,9 @@ function Team() {
                                 <button
                                   type="button"
                                   className="danger"
-                                  onClick={() => removeMember(member.id)}
+                                  onClick={() =>
+                                    removeMember(member.id)
+                                  }
                                 >
                                   <Trash2 size={15} />
                                   Remove member
@@ -448,10 +549,13 @@ function Team() {
                   <div className="team-empty-icon">
                     <Users size={25} />
                   </div>
+
                   <h3>No members found</h3>
+
                   <p>
                     Try another search term or change your filters.
                   </p>
+
                   <button
                     type="button"
                     className="team-reset-btn"
@@ -471,6 +575,7 @@ function Team() {
               <span>
                 Showing {filteredMembers.length} of {members.length} members
               </span>
+
               <span className="team-footer-note">
                 <ShieldCheck size={15} />
                 Workspace access management
@@ -478,10 +583,12 @@ function Team() {
             </footer>
           </section>
 
+          {/* Help card */}
           <section className="team-help-card">
             <div className="team-help-icon">
               <Mail size={21} />
             </div>
+
             <div>
               <h3>Grow your team</h3>
               <p>
@@ -489,10 +596,11 @@ function Team() {
                 and conversations in one place.
               </p>
             </div>
+
             <button
               type="button"
               className="team-secondary-btn"
-              onClick={() => setShowInvite(true)}
+              onClick={openInviteModal}
             >
               <UserPlus size={16} />
               Add a teammate
@@ -501,13 +609,13 @@ function Team() {
         </div>
       </main>
 
+      {/* Invite member modal */}
       {showInvite && (
         <div
           className="team-modal-overlay"
           onMouseDown={(event) => {
             if (event.target === event.currentTarget) {
-              setShowInvite(false);
-              setFormError("");
+              closeInviteModal();
             }
           }}
         >
@@ -521,13 +629,11 @@ function Team() {
               <div className="team-modal-heading-icon">
                 <UserPlus size={21} />
               </div>
+
               <button
                 type="button"
                 className="team-modal-close"
-                onClick={() => {
-                  setShowInvite(false);
-                  setFormError("");
-                }}
+                onClick={closeInviteModal}
                 aria-label="Close invitation form"
               >
                 <X size={20} />
@@ -535,49 +641,69 @@ function Team() {
             </div>
 
             <h2 id="team-modal-title">Invite a team member</h2>
+
             <p className="team-modal-description">
               Add a colleague to your workspace. Their status will be set
               to Pending until they accept the invitation.
             </p>
 
-            <form className="team-invite-form" onSubmit={handleInvite}>
+            <form
+              className="team-invite-form"
+              onSubmit={handleInvite}
+              noValidate
+            >
               <label>
                 Full name
+
                 <input
                   type="text"
+                  name="name"
                   placeholder="e.g. Jordan Lee"
                   value={form.name}
                   onChange={(event) =>
                     updateForm("name", event.target.value)
                   }
                   autoFocus
+                  autoComplete="name"
+                  maxLength={80}
                   required
+                  aria-invalid={Boolean(formError)}
                 />
               </label>
 
               <label>
                 Work email
+
                 <input
                   type="email"
+                  name="email"
                   placeholder="name@company.com"
                   value={form.email}
                   onChange={(event) =>
                     updateForm("email", event.target.value)
                   }
+                  autoComplete="email"
+                  maxLength={254}
                   required
+                  aria-invalid={Boolean(formError)}
                 />
               </label>
 
               <label>
                 Assign role
+
                 <select
+                  name="role"
                   value={form.role}
                   onChange={(event) =>
                     updateForm("role", event.target.value)
                   }
+                  required
                 >
                   {teamRoles.map((role) => (
-                    <option key={role}>{role}</option>
+                    <option key={role} value={role}>
+                      {role}
+                    </option>
                   ))}
                 </select>
               </label>
@@ -592,14 +718,15 @@ function Team() {
                 <button
                   type="button"
                   className="team-cancel-btn"
-                  onClick={() => {
-                    setShowInvite(false);
-                    setFormError("");
-                  }}
+                  onClick={closeInviteModal}
                 >
                   Cancel
                 </button>
-                <button type="submit" className="team-primary-btn">
+
+                <button
+                  type="submit"
+                  className="team-primary-btn"
+                >
                   <Send size={16} />
                   Add member
                 </button>
