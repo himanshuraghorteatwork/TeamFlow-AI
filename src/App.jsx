@@ -11,6 +11,7 @@ import Calendar from "./component/Calendar/Calendar.jsx";
 import Team from "./component/Team/Team.jsx";
 import Projects from "./component/Projects/Projects.jsx";
 import Bugs from "./component/Bugs/Bugs.jsx";
+import File from "./component/File/File.jsx";
 
 
 function App() {
@@ -27,6 +28,7 @@ function App() {
       <Route path="/team" element={<Team />} />
       <Route path="/projects" element={<Projects />} />
       <Route path="/bugs" element={<Bugs />} /> 
+      <Route path="/files" element={<File />} />
     </Routes>
   );
 }
