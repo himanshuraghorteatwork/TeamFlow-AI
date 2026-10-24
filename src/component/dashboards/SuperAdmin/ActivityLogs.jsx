@@ -346,7 +346,7 @@ function ActivityLogs() {
     showToast("Activity logs exported successfully.");
   };
 
-  const clearDemoLogs = () => {
+  const _clearDemoLogs = () => {
     const confirmed = window.confirm(
       "Clear all demo activity logs? This only affects this page's current demo data."
     );

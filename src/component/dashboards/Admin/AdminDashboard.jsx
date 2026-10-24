@@ -632,42 +632,22 @@ function AdminDashboard() {
   ======================================================= */
 
   const users = useMemo(
-    () =>
-      readStorage(
-        [
-          "teamflow_admin_users",
-          "teamflow_users",
-        ],
-        fallbackUsers
-      ),
+    () => (dataVersion, readStorage(["teamflow_admin_users", "teamflow_users"], fallbackUsers)),
     [dataVersion]
   );
 
   const workspaces = useMemo(
-    () =>
-      readStorage(
-        [
-          "teamflow_admin_workspaces",
-          "teamflow_workspaces",
-        ],
-        fallbackWorkspaces
-      ),
+    () => (dataVersion, readStorage(["teamflow_admin_workspaces", "teamflow_workspaces"], fallbackWorkspaces)),
     [dataVersion]
   );
 
   const projects = useMemo(
-    () =>
-      readStorage(
-        [
-          "teamflow_projects",
-          "teamflow_admin_projects",
-        ],
-        fallbackProjects
-      ),
+    () => (dataVersion, readStorage(["teamflow_projects", "teamflow_admin_projects"], fallbackProjects)),
     [dataVersion]
   );
 
   const tasks = useMemo(() => {
+    void dataVersion;
     const directTasks = readStorage(
       ["teamflow_admin_tasks"],
       []
@@ -690,13 +670,7 @@ function AdminDashboard() {
   }, [projects, dataVersion]);
 
   const transactions = useMemo(
-    () =>
-      readStorage(
-        [
-          "teamflow_admin_transactions",
-        ],
-        fallbackTransactions
-      ),
+    () => (dataVersion, readStorage(["teamflow_admin_transactions"], fallbackTransactions)),
     [dataVersion]
   );
 
@@ -709,23 +683,18 @@ function AdminDashboard() {
       transactions
         .filter(
           (transaction) =>
-            String(
-              transaction.status
-            ).toLowerCase() ===
-            "paid"
+            String(transaction.status).toLowerCase() === "paid"
         )
         .reduce(
           (sum, transaction) =>
-            sum +
-            Number(
-              transaction.amount || 0
-            ),
+            sum + Number(transaction.amount || 0),
           0
         ),
     [transactions]
   );
 
   const aiCredits = useMemo(() => {
+    void dataVersion;
     try {
       const tools = JSON.parse(
         localStorage.getItem(
@@ -812,7 +781,7 @@ function AdminDashboard() {
         ),
       })
     );
-  }, [period, dataVersion]);
+  }, [period]);
 
   /* =======================================================
      PROJECT ACTIVITY
@@ -926,7 +895,7 @@ function AdminDashboard() {
           ),
         })
       );
-    }, [tasks, dataVersion]);
+    }, [tasks]);
 
   /* =======================================================
      SEARCH

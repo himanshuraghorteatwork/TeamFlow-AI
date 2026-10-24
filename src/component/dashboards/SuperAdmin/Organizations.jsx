@@ -97,10 +97,6 @@ function Organizations() {
   }, [organizations]);
 
   useEffect(() => {
-    setCurrentPage(1);
-  }, [search, statusFilter, planFilter]);
-
-  useEffect(() => {
     if (!toast) return undefined;
     const timer = window.setTimeout(() => setToast(""), 3200);
     return () => window.clearTimeout(timer);
@@ -349,17 +345,17 @@ function Organizations() {
         <div className="org-toolbar">
           <label className="org-search">
             <Search size={18} />
-            <input type="search" placeholder="Search name, email, domain or ID..." value={search} onChange={(event) => setSearch(event.target.value)} aria-label="Search organizations" />
+            <input type="search" placeholder="Search name, email, domain or ID..." value={search} onChange={(event) => { setSearch(event.target.value); setCurrentPage(1); }} aria-label="Search organizations" />
             {search && <button type="button" aria-label="Clear search" onClick={() => setSearch("")}><X size={15} /></button>}
           </label>
           <label className="org-filter">
             <SlidersHorizontal size={16} />
-            <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)} aria-label="Filter by status">
+            <select value={statusFilter} onChange={(event) => { setStatusFilter(event.target.value); setCurrentPage(1); }} aria-label="Filter by status">
               <option value="All">All statuses</option><option value="Active">Active</option><option value="Pending">Pending</option><option value="Suspended">Suspended</option>
             </select>
           </label>
           <label className="org-filter">
-            <select value={planFilter} onChange={(event) => setPlanFilter(event.target.value)} aria-label="Filter by subscription plan">
+            <select value={planFilter} onChange={(event) => { setPlanFilter(event.target.value); setCurrentPage(1); }} aria-label="Filter by subscription plan">
               <option value="All">All plans</option><option value="Starter">Starter</option><option value="Professional">Professional</option><option value="Enterprise">Enterprise</option>
             </select>
           </label>

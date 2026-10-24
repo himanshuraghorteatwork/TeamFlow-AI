@@ -46,6 +46,9 @@ import "./AI.css";
    TIME
 ===================================================== */
 
+let _msgId = 1000;
+const createMessageId = () => Date.now() + (++_msgId);
+
 const getTime = () =>
   new Date().toLocaleTimeString([], {
     hour: "2-digit",
@@ -181,7 +184,7 @@ function AI() {
      SEND MESSAGE
   =================================================== */
 
-  const sendMessage = (customMessage) => {
+  const handleSendMessage = (customMessage) => {
     const finalMessage =
       typeof customMessage === "string"
         ? customMessage.trim()
@@ -190,7 +193,7 @@ function AI() {
     if (!finalMessage || loading) return;
 
     const userMessage = {
-      id: Date.now(),
+      id: createMessageId(),
       sender: "user",
       type: "normal",
       text: finalMessage,
@@ -259,7 +262,7 @@ function AI() {
       !event.shiftKey
     ) {
       event.preventDefault();
-      sendMessage();
+      handleSendMessage();
     }
   };
 
@@ -301,7 +304,7 @@ function AI() {
     setSearch("");
     setShowSearchResults(false);
 
-    sendMessage(query);
+    handleSendMessage(query);
   };
 
   /* ===================================================
@@ -433,7 +436,7 @@ function AI() {
   =================================================== */
 
   const handleFeatureClick = (feature) => {
-    sendMessage(feature.prompt);
+    handleSendMessage(feature.prompt);
   };
 
   /* ===================================================
@@ -443,7 +446,7 @@ function AI() {
   const openRecentConversation = (conversation) => {
     setShowHistory(false);
 
-    sendMessage(conversation.title);
+    handleSendMessage(conversation.title);
   };
 
   /* ===================================================
@@ -991,7 +994,7 @@ function AI() {
                         type="button"
                         key={prompt.id}
                         onClick={() =>
-                          sendMessage(prompt.text)
+                          handleSendMessage(prompt.text)
                         }
                       >
                         <Icon size={14} />
@@ -1083,7 +1086,7 @@ function AI() {
                     loading
                   }
                   onClick={() =>
-                    sendMessage()
+                    handleSendMessage()
                   }
                 >
                   <Send size={20} />
@@ -1143,7 +1146,7 @@ function AI() {
                           type="button"
                           key={prompt.id}
                           onClick={() =>
-                            sendMessage(
+                            handleSendMessage(
                               prompt.text
                             )
                           }

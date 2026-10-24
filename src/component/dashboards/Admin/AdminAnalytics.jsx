@@ -109,42 +109,22 @@ function AdminAnalytics() {
   ======================================================= */
 
   const liveUsers = useMemo(
-    () =>
-      readStorage(
-        [
-          "teamflow_admin_users",
-          "teamflow_users",
-        ],
-        []
-      ),
+    () => (dataVersion, readStorage(["teamflow_admin_users", "teamflow_users"], [])),
     [dataVersion]
   );
 
   const liveWorkspaces = useMemo(
-    () =>
-      readStorage(
-        [
-          "teamflow_admin_workspaces",
-          "teamflow_workspaces",
-        ],
-        topWorkspaces
-      ),
+    () => (dataVersion, readStorage(["teamflow_admin_workspaces", "teamflow_workspaces"], topWorkspaces)),
     [dataVersion]
   );
 
   const liveProjects = useMemo(
-    () =>
-      readStorage(
-        [
-          "teamflow_admin_projects",
-          "teamflow_projects",
-        ],
-        []
-      ),
+    () => (dataVersion, readStorage(["teamflow_admin_projects", "teamflow_projects"], [])),
     [dataVersion]
   );
 
   const liveTasks = useMemo(() => {
+    void dataVersion;
     const savedTasks = readStorage(
       ["teamflow_admin_tasks"],
       []
@@ -165,11 +145,7 @@ function AdminAnalytics() {
   }, [liveProjects, dataVersion]);
 
   const liveTransactions = useMemo(
-    () =>
-      readStorage(
-        ["teamflow_admin_transactions"],
-        []
-      ),
+    () => (dataVersion, readStorage(["teamflow_admin_transactions"], [])),
     [dataVersion]
   );
 
@@ -1887,21 +1863,21 @@ function DonutChart({ data }) {
     "#c6cad4",
   ];
 
-  let current = 0;
-
-  const gradient = data
-    .map((item, index) => {
-      const start =
-        (current / total) * 100;
-
-      current += item.value;
-
-      const end =
-        (current / total) * 100;
-
-      return `${colors[index]} ${start}% ${end}%`;
-    })
-    .join(",");
+    const gradient = data
+    .reduce(
+      (acc, item, index) => {
+        const prevTotal = acc.sum;
+        const nextTotal = prevTotal + item.value;
+        const start = (prevTotal / total) * 100;
+        const end = (nextTotal / total) * 100;
+        return {
+          sum: nextTotal,
+          segments: [...acc.segments, `${colors[index]} ${start}% ${end}%`],
+        };
+      },
+      { sum: 0, segments: [] }
+    )
+    .segments.join(",");
 
   const activeItem =
     data.find(

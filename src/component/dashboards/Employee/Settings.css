@@ -274,7 +274,7 @@
   display: grid;
   grid-template-columns: 270px minmax(0, 1fr);
   gap: 16px;
-  align-items: start;
+  align-items: stretch;
   width: 100%;
   box-sizing: border-box;
 }
@@ -284,11 +284,12 @@
   background: var(--card-bg);
   border: 1px solid var(--card-border);
   border-radius: 14px;
-  padding: 8px;
+  padding: 6px;
   box-shadow: var(--card-shadow);
   display: flex;
   flex-direction: column;
   gap: 2px;
+  height: 100%;
   box-sizing: border-box;
 }
 
@@ -297,12 +298,13 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 10px 14px;
+  padding: 7.5px 12px;
+  min-height: 35px;
   border: 0;
-  border-radius: 10px;
+  border-radius: 9px;
   background: transparent;
   color: var(--text-main);
-  font-size: 13.5px;
+  font-size: 13px;
   font-weight: 500;
   text-align: left;
   cursor: pointer;
@@ -342,7 +344,7 @@
 .settings-panel {
   min-width: 0;
   width: 100%;
-  height: auto;
+  height: 100%;
   min-height: 0;
 }
 
@@ -480,7 +482,7 @@
 .profile-card {
   width: 100%;
   box-sizing: border-box;
-  height: auto;
+  height: 100%;
   min-height: 0;
 }
 
@@ -1880,6 +1882,7 @@
     overflow-x: auto;
     padding: 6px;
     gap: 6px;
+    height: auto;
   }
 
   .settings-menu-item {

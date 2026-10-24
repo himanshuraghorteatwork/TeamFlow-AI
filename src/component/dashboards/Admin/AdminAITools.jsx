@@ -660,7 +660,7 @@ function AIToolCard({
   configure,
   deleteTool,
 }) {
-  const Icon = getToolIcon(tool.icon);
+  
 
   return (
     <article
@@ -671,7 +671,7 @@ function AIToolCard({
       <div className="admin-ai-card-header">
         <div className="admin-ai-card-title">
           <div className="admin-ai-tool-icon">
-            <Icon size={22} />
+            <ToolIcon icon={tool.icon} size={22} />
           </div>
 
           <div>
@@ -847,25 +847,14 @@ function ModalHeader({ title, text, close }) {
   );
 }
 
-function getToolIcon(icon) {
+function ToolIcon({ icon, size = 22 }) {
   switch (icon) {
-    case "bug":
-      return Bug;
-
-    case "task":
-      return ListChecks;
-
-    case "summary":
-      return FileText;
-
-    case "meeting":
-      return MessageSquareText;
-
-    case "search":
-      return Search;
-
-    default:
-      return Bot;
+    case "bug": return <Bug size={size} />;
+    case "task": return <ListChecks size={size} />;
+    case "summary": return <FileText size={size} />;
+    case "meeting": return <MessageSquareText size={size} />;
+    case "search": return <Search size={size} />;
+    default: return <Bot size={size} />;
   }
 }
 

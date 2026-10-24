@@ -8,7 +8,6 @@ import {
   ChevronDown,
   FolderKanban,
   CircleCheckBig,
-  Clock3,
   AlertTriangle,
   Users,
   CalendarDays,

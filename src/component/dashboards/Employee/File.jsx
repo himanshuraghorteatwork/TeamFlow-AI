@@ -9,8 +9,7 @@ import {
   Image as ImageIcon,
   Video,
   Archive,
-  File as FileIcon,
-  FileSpreadsheet,
+  File as FileSpreadsheet,
   Presentation,
   FileCode2,
   MoreVertical,
@@ -283,27 +282,7 @@ function File() {
 
   const [notification, setNotification] = useState(null);
 
-  /* =======================================================
-     LOAD FILES
-  ======================================================= */
-
-  useEffect(() => {
-    loadFiles();
-  }, []);
-
-  const loadFiles = async () => {
-    try {
-      const savedFiles = await getAllFilesFromDB();
-
-      setFiles(savedFiles);
-    } catch (error) {
-      console.error("Unable to load files:", error);
-
-      showNotification("Unable to load files", "error");
-    }
-  };
-
-  /* =======================================================
+    /* =======================================================
      NOTIFICATION
   ======================================================= */
 
@@ -317,6 +296,37 @@ function File() {
       setNotification(null);
     }, 3000);
   };
+
+  /* =======================================================
+     LOAD FILES
+  ======================================================= */
+
+  const loadFiles = async () => {
+    try {
+      const savedFiles = await getAllFilesFromDB();
+      setFiles(savedFiles);
+    } catch (error) {
+      console.error("Unable to load files:", error);
+      showNotification("Unable to load files", "error");
+    }
+  };
+
+  useEffect(() => {
+    let active = true;
+    getAllFilesFromDB()
+      .then((saved) => {
+        if (active) setFiles(saved);
+      })
+      .catch((err) => {
+        console.error("Unable to load files:", err);
+        if (active) showNotification("Unable to load files", "error");
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  
 
   /* =======================================================
      UPLOAD

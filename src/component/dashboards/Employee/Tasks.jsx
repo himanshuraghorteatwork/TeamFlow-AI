@@ -15,8 +15,7 @@ import {
   Trash2,
   Pencil,
   ChevronDown,
-  UserRound,
-} from "lucide-react";
+  } from "lucide-react";
 
 import AppSidebar from "./AppSidebar";
 import {

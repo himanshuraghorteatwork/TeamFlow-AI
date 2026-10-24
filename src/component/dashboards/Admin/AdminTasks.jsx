@@ -14,7 +14,6 @@ import {
   Pencil,
   Trash2,
   X,
-  UserRound,
   FolderKanban,
   Building2,
   CalendarDays,

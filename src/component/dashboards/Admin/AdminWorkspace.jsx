@@ -242,6 +242,14 @@ function AdminWorkspace() {
     );
   }, [darkMode]);
 
+    const closeMenus = () => {
+    setCreateOpen(false);
+    setNotificationOpen(false);
+    setProfileOpen(false);
+    setSearchOpen(false);
+    setActiveMenu(null);
+  };
+
   /* =========================================================
      KEYBOARD SHORTCUTS
   ========================================================= */
@@ -303,14 +311,6 @@ function AdminWorkspace() {
   /* =========================================================
      HELPERS
   ========================================================= */
-
-  const closeMenus = () => {
-    setCreateOpen(false);
-    setNotificationOpen(false);
-    setProfileOpen(false);
-    setSearchOpen(false);
-    setActiveMenu(null);
-  };
 
   const navigateTo = (path) => {
     closeMenus();

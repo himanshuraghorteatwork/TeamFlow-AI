@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { NavLink } from "react-router-dom";
 import {
   Users,
@@ -15,8 +15,6 @@ import {
   ChevronDown,
   MoreVertical,
   LayoutGrid,
-  User,
-  LogOut,
 } from "lucide-react";
 
 import "./AppSidebar.css";
@@ -35,13 +33,7 @@ const navigation = [
 ];
 
 function AppSidebar() {
-    const handleLogout = () => {
-    localStorage.removeItem("teamflow_admin");
-    localStorage.removeItem("teamflow_admin_logged_in");
-
-    navigate("/login");
-  };
-  const [profile, setProfile] = useState(() => {
+  const [profile] = useState(() => {
     try {
       const settings = JSON.parse(
         localStorage.getItem("teamflow-settings") || "null"
@@ -67,7 +59,7 @@ function AppSidebar() {
       return {
         fullName: "John Doe",
         email: "john@company.com",
-        photo: null,
+        photo: "/avatar.png",
         initials: "JD",
       };
     }
@@ -111,44 +103,28 @@ function AppSidebar() {
       </nav>
 
       <div className="app-sidebar-profile">
-        {/* {profile.photo ? (
+        {profile.photo ? (
           <img
             src={profile.photo}
             alt={profile.fullName}
             className="app-profile-avatar"
+            onError={(e) => {
+              e.currentTarget.style.display = "none";
+              const next = e.currentTarget.nextElementSibling;
+              if (next) next.style.display = "flex";
+            }}
           />
-        ) : (
-          <span className="app-profile-avatar app-profile-initials">
-            {profile.initials}
-          </span>
-        )} */}
+        ) : null}
+        <span
+          className="app-profile-avatar app-profile-initials"
+          style={{ display: profile.photo ? "none" : "flex" }}
+        >
+          {profile.initials}
+        </span>
 
-        {/* <div className="app-profile-info">
+        <div className="app-profile-info">
           <strong>{profile.fullName}</strong>
           <span title={profile.email}>{profile.email}</span>
-        </div> */}
-        <div className="sidebar-bottom">
-          <button
-            type="button"
-            className="sidebar-logout"
-            onClick={() => {
-              const confirmed = window.confirm(
-                "Are you sure you want to logout?"
-              );
-
-              if (confirmed) {
-                // Clear authentication/session data if you use it
-                localStorage.removeItem("token");
-                localStorage.removeItem("user");
-
-                // Redirect to login
-                window.location.href = "http://localhost:5173/choose-role";
-              }
-            }}
-          >
-            <LogOut size={18} strokeWidth={2} />
-            <span>Logout</span>
-          </button>
         </div>
 
         <NavLink

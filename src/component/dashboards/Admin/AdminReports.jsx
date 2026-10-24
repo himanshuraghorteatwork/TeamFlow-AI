@@ -15,15 +15,11 @@ import {
   Users,
   Building2,
   FolderKanban,
-  ListChecks,
   DollarSign,
-  Bot,
-  CalendarDays,
   FileSpreadsheet,
   MoreVertical,
   RefreshCw,
   BarChart3,
-  Clock3,
   CheckCircle2,
 } from "lucide-react";
 

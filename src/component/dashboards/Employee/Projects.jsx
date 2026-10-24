@@ -84,24 +84,15 @@ const getProgress = (project) => {
    PROJECT ICON
 ========================================================= */
 
-const getProjectIcon = (icon) => {
+function ProjectIcon({ icon, size = 23 }) {
   switch (icon) {
-    case "mobile":
-      return Smartphone;
-
-    case "globe":
-      return Globe2;
-
-    case "brain":
-      return BrainCircuit;
-
-    case "database":
-      return Database;
-
-    default:
-      return Monitor;
+    case "mobile": return <Smartphone size={size} />;
+    case "globe": return <Globe2 size={size} />;
+    case "brain": return <BrainCircuit size={size} />;
+    case "database": return <Database size={size} />;
+    default: return <Monitor size={size} />;
   }
-};
+}
 
 /* =========================================================
    NEXT TASK STATUS
@@ -939,8 +930,7 @@ function ProjectCard({
   onEdit,
   onDelete,
 }) {
-  const Icon =
-    getProjectIcon(project.icon);
+  
 
   const progress =
     getProgress(project);
@@ -951,7 +941,7 @@ function ProjectCard({
         <div
           className={`project-card-icon ${project.icon}`}
         >
-          <Icon size={23} />
+          <ProjectIcon icon={project.icon} size={23} />
         </div>
 
         <div className="project-card-title">
@@ -1111,10 +1101,7 @@ function ProjectTable({
         <tbody>
           {projects.map(
             (project) => {
-              const Icon =
-                getProjectIcon(
-                  project.icon
-                );
+              
 
               const progress =
                 getProgress(
@@ -1140,11 +1127,7 @@ function ProjectTable({
                       <span
                         className={`project-table-icon ${project.icon}`}
                       >
-                        <Icon
-                          size={
-                            17
-                          }
-                        />
+                        <ProjectIcon icon={project.icon} size={17} />
                       </span>
 
                       <span>
