@@ -1,22 +1,27 @@
 /* =========================================================
-   TEAMFLOW AI ADMIN SIDEBAR
+   TEAMFLOW AI - ADMIN SIDEBAR
 
    IMPORTANT:
-   All classes are unique.
-   This CSS will NOT modify Landing Page, User Dashboard,
-   Team Lead or Super Admin UI.
+   Everything is scoped under .adminConsoleSidebar.
+   No global body/html/button/a/input styles.
 ========================================================= */
 
-.adminSimpleSidebar {
+.adminConsoleSidebar {
+  --admin-sidebar-width: 240px;
+
   position: fixed;
-  top: 0;
-  left: 0;
-  bottom: 0;
+  inset: 0 auto 0 0;
 
   z-index: 1000;
 
-  width: 225px;
+  width: var(--admin-sidebar-width);
+  min-width: var(--admin-sidebar-width);
+  max-width: var(--admin-sidebar-width);
+
   height: 100vh;
+
+  margin: 0;
+  padding: 0;
 
   display: flex;
   flex-direction: column;
@@ -25,35 +30,727 @@
 
   color: #ffffff;
 
-  background: #0b1837;
+  background:
+    radial-gradient(
+      circle at 10% 0%,
+      rgba(100, 74, 230, 0.14),
+      transparent 27%
+    ),
+    linear-gradient(
+      180deg,
+      #081630 0%,
+      #071735 45%,
+      #071630 100%
+    );
 
-  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  border: 0;
+  border-right: 1px solid rgba(128, 151, 205, 0.15);
 
-  box-shadow: 5px 0 25px rgba(10, 20, 50, 0.08);
+  box-shadow: 5px 0 25px rgba(3, 12, 32, 0.08);
 
   font-family: inherit;
+
+  isolation: isolate;
 }
 
 /* =========================================================
-   BRAND
+   LOCAL RESET
 ========================================================= */
 
-.adminSimpleSidebar .adminSimpleSidebar__brand {
-  min-height: 90px;
+.adminConsoleSidebar,
+.adminConsoleSidebar *,
+.adminConsoleSidebar *::before,
+.adminConsoleSidebar *::after {
+  box-sizing: border-box;
+}
 
-  padding: 20px 20px 14px;
+.adminConsoleSidebar > * {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.adminConsoleSidebar .adminConsoleSidebar__header {
+  width: 100%;
+
+  flex: 0 0 auto;
+
+  margin: 0;
+  padding: 18px 13px 0;
+
+  overflow: hidden;
+
+  background: transparent;
+}
+
+/* =========================================================
+   BRAND - SUPER ADMIN STYLE
+========================================================= */
+
+.adminConsoleSidebar .adminConsoleSidebar__brand {
+  width: 100%;
+  height: 45px;
+
+  margin: 0;
+  padding: 0 6px;
 
   display: flex;
-  align-items: flex-start;
+  align-items: center;
+  justify-content: flex-start;
 
   gap: 11px;
+
+  overflow: hidden;
+
+  border: 0;
+  outline: 0;
+
+  color: #ffffff;
+  background: transparent;
+
+  font-family: inherit;
+  text-align: left;
+
+  cursor: pointer;
+}
+
+/* =========================================================
+   LOGO
+========================================================= */
+
+.adminConsoleSidebar .adminConsoleSidebar__brandLogo {
+  width: 41px;
+  height: 41px;
+
+  min-width: 41px;
+  max-width: 41px;
+
+  flex: 0 0 41px;
+
+  margin: 0;
+  padding: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 12px;
+
+  color: #ffffff;
+
+  background: linear-gradient(
+    145deg,
+    #865cff 0%,
+    #7547fb 48%,
+    #6536ef 100%
+  );
+
+  box-shadow:
+    0 8px 22px rgba(106, 61, 255, 0.32),
+    inset 0 1px 0 rgba(255, 255, 255, 0.16);
+
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+/* Logo SVG */
+
+.adminConsoleSidebar
+  .adminConsoleSidebar__brandLogo
+  svg {
+  width: 26px;
+  height: 26px;
+
+  display: block;
+
+  color: #ffffff;
+
+  stroke: currentColor;
 
   flex-shrink: 0;
 }
 
-.adminSimpleSidebar .adminSimpleSidebar__logo {
+/* Logo hover */
+
+.adminConsoleSidebar
+  .adminConsoleSidebar__brand:hover
+  .adminConsoleSidebar__brandLogo {
+  transform: translateY(-1px);
+
+  box-shadow:
+    0 10px 25px rgba(106, 61, 255, 0.38),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+
+/* =========================================================
+   BRAND TEXT
+========================================================= */
+
+.adminConsoleSidebar .adminConsoleSidebar__brandText {
+  min-width: 0;
+
+  flex: 1 1 auto;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  gap: 3px;
+
+  margin: 0;
+  padding: 0;
+
+  overflow: hidden;
+}
+
+/* TeamFlow AI */
+
+.adminConsoleSidebar
+  .adminConsoleSidebar__brandText
+  strong {
+  display: block;
+
+  width: 100%;
+
+  margin: 0;
+  padding: 0;
+
+  overflow: hidden;
+
+  color: #ffffff;
+
+  font-size: 16px;
+  font-weight: 800;
+
+  line-height: 18px;
+
+  letter-spacing: -0.25px;
+
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* AI text */
+
+.adminConsoleSidebar
+  .adminConsoleSidebar__brandText
+  em {
+  color: #a77bff;
+
+  font-style: normal;
+}
+
+/* Admin Console */
+
+.adminConsoleSidebar
+  .adminConsoleSidebar__brandText
+  small {
+  display: block;
+
+  margin: 0;
+  padding: 0;
+
+  color: #aeb9d2;
+
+  font-size: 9px;
+  font-weight: 500;
+
+  line-height: 11px;
+
+  white-space: nowrap;
+}
+
+/* =========================================================
+   HEADER DIVIDER
+========================================================= */
+
+.adminConsoleSidebar .adminConsoleSidebar__divider {
+  width: 100%;
+  height: 1px;
+
+  margin: 13px 0 14px;
+
+  background: rgba(127, 149, 204, 0.18);
+}
+
+/* =========================================================
+   ROLE CARD
+========================================================= */
+
+.adminConsoleSidebar .adminConsoleSidebar__roleCard {
+  width: 100%;
+  height: 64px;
+
+  margin: 0;
+  padding: 10px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+
+  overflow: hidden;
+
+  border: 1px solid rgba(110, 147, 218, 0.26);
+
+  border-radius: 13px;
+
+  background: linear-gradient(
+    135deg,
+    #102b55 0%,
+    #0c2348 100%
+  );
+
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.025);
+}
+
+/* ROLE ICON */
+
+.adminConsoleSidebar .adminConsoleSidebar__roleIcon {
+  width: 39px;
+  height: 39px;
+
+  min-width: 39px;
+
+  flex: 0 0 39px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 10px;
+
+  color: #57c4ff;
+
+  background: linear-gradient(
+    135deg,
+    rgba(30, 101, 190, 0.76),
+    rgba(21, 73, 145, 0.44)
+  );
+}
+
+/* ROLE INFO */
+
+.adminConsoleSidebar .adminConsoleSidebar__roleInfo {
+  min-width: 0;
+
+  flex: 1 1 auto;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  gap: 4px;
+
+  overflow: hidden;
+}
+
+.adminConsoleSidebar
+  .adminConsoleSidebar__roleInfo
+  strong {
+  margin: 0;
+
+  color: #ffffff;
+
+  font-size: 12px;
+  font-weight: 700;
+
+  line-height: 14px;
+
+  white-space: nowrap;
+}
+
+.adminConsoleSidebar
+  .adminConsoleSidebar__roleInfo
+  small {
+  margin: 0;
+
+  overflow: hidden;
+
+  color: #9eafd3;
+
+  font-size: 8px;
+  font-weight: 500;
+
+  line-height: 10px;
+
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* ONLINE */
+
+.adminConsoleSidebar .adminConsoleSidebar__online {
+  width: 24px;
+  height: 24px;
+
+  min-width: 24px;
+
+  flex: 0 0 24px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background: rgba(30, 219, 176, 0.09);
+}
+
+.adminConsoleSidebar
+  .adminConsoleSidebar__online
+  span {
+  width: 9px;
+  height: 9px;
+
+  display: block;
+
+  border-radius: 50%;
+
+  background: #20dcb1;
+
+  box-shadow:
+    0 0 0 4px rgba(32, 220, 177, 0.09),
+    0 0 10px rgba(32, 220, 177, 0.4);
+}
+
+/* =========================================================
+   MIDDLE NAVIGATION AREA
+========================================================= */
+
+.adminConsoleSidebar .adminConsoleSidebar__middle {
+  width: 100%;
+
+  flex: 1 1 auto;
+
+  min-height: 0;
+
+  margin: 0;
+
+  padding: 15px 12px 7px;
+
+  display: flex;
+  flex-direction: column;
+
+  overflow: hidden;
+}
+
+/* SECTION TITLE */
+
+.adminConsoleSidebar
+  .adminConsoleSidebar__sectionTitle {
+  flex: 0 0 auto;
+
+  margin: 0 7px 8px;
+  padding: 0;
+
+  color: #8498c9;
+
+  font-size: 9px;
+  font-weight: 800;
+
+  line-height: 12px;
+
+  letter-spacing: 1.15px;
+
+  white-space: nowrap;
+}
+
+/* =========================================================
+   NAV
+========================================================= */
+
+.adminConsoleSidebar .adminConsoleSidebar__nav {
+  width: 100%;
+
+  flex: 1 1 auto;
+
+  min-height: 0;
+
+  margin: 0;
+  padding: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 2px;
+
+  overflow-x: hidden;
+  overflow-y: auto;
+
+  scrollbar-width: none;
+}
+
+.adminConsoleSidebar
+  .adminConsoleSidebar__nav::-webkit-scrollbar {
+  display: none;
+}
+
+/* =========================================================
+   NAV ITEM
+========================================================= */
+
+.adminConsoleSidebar
+  .adminConsoleSidebar__navItem {
+  position: relative;
+
+  width: 100%;
+  min-width: 0;
+
+  min-height: 40px;
+
+  flex: 0 0 40px;
+
+  margin: 0;
+  padding: 0 12px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+
+  overflow: hidden;
+
+  border: 0;
+  border-radius: 9px;
+
+  color: #dce4f6;
+
+  background: transparent;
+
+  text-decoration: none;
+
+  transition:
+    background 160ms ease,
+    color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+/* NAV ICON */
+
+.adminConsoleSidebar
+  .adminConsoleSidebar__navIcon {
+  width: 20px;
+  height: 20px;
+
+  min-width: 20px;
+
+  flex: 0 0 20px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: #b8c5e2;
+
+  transition:
+    color 160ms ease,
+    transform 160ms ease;
+}
+
+/* NAV LABEL */
+
+.adminConsoleSidebar
+  .adminConsoleSidebar__navLabel {
+  min-width: 0;
+
+  flex: 1 1 auto;
+
+  overflow: hidden;
+
+  color: inherit;
+
+  font-size: 11px;
+  font-weight: 600;
+
+  line-height: 14px;
+
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* RIGHT ACTIVE INDICATOR */
+
+.adminConsoleSidebar
+  .adminConsoleSidebar__activeIndicator {
+  position: absolute;
+
+  top: 8px;
+  right: 0;
+
+  width: 3px;
+  height: 24px;
+
+  border-radius: 4px 0 0 4px;
+
+  background: #c6b5ff;
+
+  opacity: 0;
+
+  transform: scaleY(0.3);
+
+  transition:
+    opacity 160ms ease,
+    transform 160ms ease;
+}
+
+/* HOVER */
+
+.adminConsoleSidebar
+  .adminConsoleSidebar__navItem:hover {
+  color: #ffffff;
+
+  background: rgba(255, 255, 255, 0.055);
+}
+
+.adminConsoleSidebar
+  .adminConsoleSidebar__navItem:hover
+  .adminConsoleSidebar__navIcon {
+  color: #ffffff;
+
+  transform: scale(1.04);
+}
+
+/* ACTIVE */
+
+.adminConsoleSidebar
+  .adminConsoleSidebar__navItem--active {
+  color: #ffffff;
+
+  background: linear-gradient(
+    100deg,
+    #7b48ff 0%,
+    #6c31fa 48%,
+    #5b24ef 100%
+  );
+
+  box-shadow:
+    0 8px 20px rgba(94, 42, 239, 0.24);
+}
+
+.adminConsoleSidebar
+  .adminConsoleSidebar__navItem--active
+  .adminConsoleSidebar__navIcon {
+  color: #ffffff;
+}
+
+.adminConsoleSidebar
+  .adminConsoleSidebar__navItem--active
+  .adminConsoleSidebar__navLabel {
+  color: #ffffff;
+
+  font-weight: 700;
+}
+
+.adminConsoleSidebar
+  .adminConsoleSidebar__navItem--active
+  .adminConsoleSidebar__activeIndicator {
+  opacity: 1;
+
+  transform: scaleY(1);
+}
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
+.adminConsoleSidebar .adminConsoleSidebar__footer {
+  width: 100%;
+
+  flex: 0 0 auto;
+
+  margin: 0;
+
+  padding: 0 13px 10px;
+
+  overflow: hidden;
+}
+
+/* FOOTER DIVIDER */
+
+.adminConsoleSidebar
+  .adminConsoleSidebar__footerDivider {
+  width: 100%;
+  height: 1px;
+
+  margin: 0 0 10px;
+
+  background: rgba(128, 151, 207, 0.18);
+}
+
+/* =========================================================
+   WORKSPACE CONTROL
+========================================================= */
+
+.adminConsoleSidebar
+  .adminConsoleSidebar__control {
+  width: 100%;
+  min-width: 0;
+
+  min-height: 63px;
+
+  margin: 0;
+  padding: 9px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 9px;
+
+  overflow: hidden;
+
+  border: 1px solid rgba(119, 147, 212, 0.25);
+
+  border-radius: 12px;
+
+  outline: none;
+
+  color: #ffffff;
+
+  background: linear-gradient(
+    135deg,
+    #112b54 0%,
+    #0d2347 100%
+  );
+
+  font-family: inherit;
+  text-align: left;
+
+  cursor: pointer;
+
+  transition:
+    border-color 160ms ease,
+    background 160ms ease,
+    transform 160ms ease;
+}
+
+.adminConsoleSidebar
+  .adminConsoleSidebar__control:hover {
+  border-color: rgba(117, 85, 255, 0.58);
+
+  background: linear-gradient(
+    135deg,
+    #16325f,
+    #102850
+  );
+
+  transform: translateY(-1px);
+}
+
+/* CONTROL ICON */
+
+.adminConsoleSidebar
+  .adminConsoleSidebar__controlIcon {
   width: 38px;
   height: 38px;
+
+  min-width: 38px;
 
   flex: 0 0 38px;
 
@@ -63,145 +760,268 @@
 
   border-radius: 10px;
 
-  color: #ffffff;
+  color: #1ee0b5;
 
   background: linear-gradient(
     135deg,
-    #536fff 0%,
-    #703cff 55%,
-    #9a42ff 100%
+    rgba(5, 128, 118, 0.72),
+    rgba(8, 89, 91, 0.46)
   );
-
-  box-shadow: 0 7px 20px rgba(108, 61, 255, 0.35);
 }
 
-.adminSimpleSidebar .adminSimpleSidebar__brandInfo {
+/* CONTROL INFO */
+
+.adminConsoleSidebar
+  .adminConsoleSidebar__controlInfo {
   min-width: 0;
 
-  padding-top: 1px;
-}
-
-.adminSimpleSidebar .adminSimpleSidebar__brandInfo h2 {
-  margin: 0;
-
-  color: #ffffff;
-
-  font-size: 17px;
-  font-weight: 800;
-
-  line-height: 1.15;
-
-  white-space: nowrap;
-}
-
-.adminSimpleSidebar
-  .adminSimpleSidebar__brandInfo
-  h2
-  span {
-  color: #9879ff;
-}
-
-/* ADMIN PANEL BADGE */
-
-.adminSimpleSidebar .adminSimpleSidebar__badge {
-  width: fit-content;
-
-  margin-top: 6px;
-  padding: 4px 8px;
-
-  display: block;
-
-  border-radius: 4px;
-
-  color: #ffffff;
-
-  background: #5136a7;
-
-  font-size: 9px;
-  font-weight: 600;
-
-  line-height: 1;
-}
-
-/* =========================================================
-   NAVIGATION
-========================================================= */
-
-.adminSimpleSidebar .adminSimpleSidebar__nav {
-  flex: 1;
-
-  min-height: 0;
-
-  padding: 2px 12px;
+  flex: 1 1 auto;
 
   display: flex;
   flex-direction: column;
 
   gap: 3px;
 
-  overflow-x: hidden;
-  overflow-y: auto;
-
-  scrollbar-width: none;
+  overflow: hidden;
 }
 
-.adminSimpleSidebar
-  .adminSimpleSidebar__nav::-webkit-scrollbar {
-  display: none;
+.adminConsoleSidebar
+  .adminConsoleSidebar__controlInfo
+  strong {
+  overflow: hidden;
+
+  color: #ffffff;
+
+  font-size: 9px;
+  font-weight: 700;
+
+  line-height: 11px;
+
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
-/* MENU ITEM */
+.adminConsoleSidebar
+  .adminConsoleSidebar__controlInfo
+  small {
+  color: #a8b7d8;
 
-.adminSimpleSidebar .adminSimpleSidebar__item {
+  font-size: 7px;
+  font-weight: 500;
+
+  line-height: 10px;
+}
+
+/* CONTROL ARROW */
+
+.adminConsoleSidebar
+  .adminConsoleSidebar__controlArrow {
+  min-width: 18px;
+
+  flex: 0 0 18px;
+
+  color: #9eafd3;
+
+  transition: transform 160ms ease;
+}
+
+.adminConsoleSidebar
+  .adminConsoleSidebar__control:hover
+  .adminConsoleSidebar__controlArrow {
+  transform: translateX(2px);
+}
+
+/* =========================================================
+   PROFILE DIVIDER
+========================================================= */
+
+.adminConsoleSidebar
+  .adminConsoleSidebar__profileDivider {
   width: 100%;
-  min-height: 47px;
+  height: 1px;
 
-  padding: 0 13px;
+  margin: 9px 0;
+
+  background: rgba(128, 151, 207, 0.18);
+}
+
+/* =========================================================
+   PROFILE
+========================================================= */
+
+.adminConsoleSidebar
+  .adminConsoleSidebar__profile {
+  width: 100%;
+  min-width: 0;
+
+  min-height: 42px;
+
+  margin: 0;
+  padding: 0 3px;
 
   display: flex;
   align-items: center;
 
-  gap: 12px;
+  gap: 9px;
 
-  flex-shrink: 0;
-
-  border-radius: 10px;
-
-  color: #f0f3fb;
-
-  background: transparent;
-
-  text-decoration: none;
-
-  transition:
-    background 0.18s ease,
-    color 0.18s ease,
-    transform 0.18s ease;
+  overflow: hidden;
 }
 
-/* ICON */
+/* AVATAR */
 
-.adminSimpleSidebar .adminSimpleSidebar__icon {
-  width: 20px;
-  height: 20px;
+.adminConsoleSidebar
+  .adminConsoleSidebar__avatar {
+  width: 36px;
+  height: 36px;
 
-  flex: 0 0 20px;
+  min-width: 36px;
+
+  flex: 0 0 36px;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  color: #d7dff2;
+  border: 1px solid rgba(255, 255, 255, 0.14);
 
-  transition: color 0.18s ease;
+  border-radius: 50%;
+
+  color: #ffffff;
+
+  background: linear-gradient(
+    135deg,
+    #8952ff,
+    #5725f3
+  );
+
+  box-shadow:
+    0 5px 15px rgba(93, 45, 239, 0.2);
+
+  font-size: 10px;
+  font-weight: 800;
 }
 
-/* LABEL */
+/* PROFILE INFO */
 
-.adminSimpleSidebar .adminSimpleSidebar__label {
+.adminConsoleSidebar
+  .adminConsoleSidebar__profileInfo {
+  min-width: 0;
+
+  flex: 1 1 auto;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 3px;
+
+  overflow: hidden;
+}
+
+.adminConsoleSidebar
+  .adminConsoleSidebar__profileInfo
+  strong {
+  overflow: hidden;
+
+  color: #ffffff;
+
+  font-size: 10px;
+  font-weight: 700;
+
+  line-height: 12px;
+
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.adminConsoleSidebar
+  .adminConsoleSidebar__profileInfo
+  small {
+  overflow: hidden;
+
+  color: #96a7cb;
+
+  font-size: 7px;
+
+  line-height: 10px;
+
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* =========================================================
+   ONLY ONE LOGOUT
+========================================================= */
+
+.adminConsoleSidebar
+  .adminConsoleSidebar__logout {
+  width: 100%;
+  height: 36px;
+
+  margin: 5px 0 0;
+  padding: 0 8px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+
+  overflow: hidden;
+  flex-shrink: 0;
+
+  border: 1px solid transparent;
+  border-radius: 8px;
+
+  outline: none;
+
+  color: #cad4e8;
+  background: transparent;
+
+  font-family: inherit;
+
+  font-size: 10px;
+  font-weight: 600;
+
+  text-align: left;
+
+  cursor: pointer;
+
+  transition:
+    color 160ms ease,
+    background 160ms ease,
+    border-color 160ms ease,
+    transform 160ms ease;
+}
+
+/* =========================================================
+   LOGOUT ICON
+========================================================= */
+
+.adminConsoleSidebar
+  .adminConsoleSidebar__logout
+  svg {
+  display: block;
+
+  flex-shrink: 0;
+
+  color: #aebbd5;
+
+  transition:
+    color 160ms ease,
+    transform 160ms ease;
+}
+
+/* =========================================================
+   LOGOUT TEXT
+========================================================= */
+
+.adminConsoleSidebar
+  .adminConsoleSidebar__logout
+  span {
+  display: block;
+
   color: inherit;
 
-  font-size: 13px;
+  font-size: 10px;
   font-weight: 600;
 
   line-height: 1;
@@ -209,287 +1029,216 @@
   white-space: nowrap;
 }
 
-/* HOVER */
+/* =========================================================
+   LOGOUT HOVER
+========================================================= */
 
-.adminSimpleSidebar .adminSimpleSidebar__item:hover {
-  color: #ffffff;
+.adminConsoleSidebar
+  .adminConsoleSidebar__logout:hover {
+  color: #ff8999;
 
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 84, 106, 0.075);
+
+  border-color: rgba(255, 84, 106, 0.1);
 
   transform: translateX(2px);
 }
 
-.adminSimpleSidebar
-  .adminSimpleSidebar__item:hover
-  .adminSimpleSidebar__icon {
-  color: #ffffff;
+.adminConsoleSidebar
+  .adminConsoleSidebar__logout:hover
+  svg {
+  color: #ff7187;
+
+  transform: translateX(1px);
 }
 
 /* =========================================================
-   ACTIVE MENU
-
-   This creates the same subtle dark active background
-   shown on Billing & Payments in your screenshot.
+   LOGOUT CLICK
 ========================================================= */
 
-.adminSimpleSidebar
-  .adminSimpleSidebar__item--active {
-  color: #ffffff;
-
-  background: #202d4b;
-
-  box-shadow: none;
-
-  transform: none;
-}
-
-.adminSimpleSidebar
-  .adminSimpleSidebar__item--active
-  .adminSimpleSidebar__icon {
-  color: #ffffff;
-}
-
-.adminSimpleSidebar
-  .adminSimpleSidebar__item--active
-  .adminSimpleSidebar__label {
-  color: #ffffff;
-
-  font-weight: 700;
+.adminConsoleSidebar
+  .adminConsoleSidebar__logout:active {
+  transform: translateX(1px) scale(0.99);
 }
 
 /* =========================================================
-   BOTTOM AREA
+   KEYBOARD FOCUS
 ========================================================= */
 
-.adminSimpleSidebar .adminSimpleSidebar__bottom {
+.adminConsoleSidebar
+  .adminConsoleSidebar__logout:focus-visible {
+  border-color: rgba(255, 113, 135, 0.5);
+
+  box-shadow:
+    0 0 0 3px rgba(255, 113, 135, 0.1);
+}
+/* =========================================================
+   SVG SAFETY
+========================================================= */
+
+.adminConsoleSidebar svg {
+  display: block;
+
   flex-shrink: 0;
-
-  padding: 10px 10px 12px;
-
-  background: #0b1837;
 }
 
 /* =========================================================
-   SUPPORT CARD
+   MEDIUM HEIGHT
 ========================================================= */
 
-.adminSimpleSidebar .adminSimpleSidebar__support {
-  width: 100%;
-
-  padding: 14px 13px;
-
-  border: 1px solid rgba(119, 143, 199, 0.25);
-  border-radius: 11px;
-
-  background: #182e59;
-}
-
-/* SUPPORT TOP */
-
-.adminSimpleSidebar
-  .adminSimpleSidebar__supportTop {
-  display: flex;
-  align-items: center;
-
-  gap: 10px;
-}
-
-/* SUPPORT ICON */
-
-.adminSimpleSidebar
-  .adminSimpleSidebar__supportIcon {
-  width: 37px;
-  height: 37px;
-
-  flex: 0 0 37px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  border-radius: 9px;
-
-  color: #ffffff;
-
-  background: linear-gradient(
-    135deg,
-    #7546ff,
-    #6335ed
-  );
-}
-
-/* SUPPORT TEXT */
-
-.adminSimpleSidebar
-  .adminSimpleSidebar__supportText {
-  flex: 1;
-
-  min-width: 0;
-}
-
-.adminSimpleSidebar
-  .adminSimpleSidebar__supportText
-  strong {
-  display: block;
-
-  color: #ffffff;
-
-  font-size: 11px;
-  font-weight: 700;
-
-  line-height: 1.2;
-}
-
-.adminSimpleSidebar
-  .adminSimpleSidebar__supportText
-  span {
-  display: block;
-
-  margin-top: 3px;
-
-  color: #b2bdd7;
-
-  font-size: 8px;
-
-  white-space: nowrap;
-}
-
-/* SUPPORT BUTTON */
-
-.adminSimpleSidebar
-  .adminSimpleSidebar__supportButton {
-  width: 100%;
-  height: 35px;
-
-  margin-top: 13px;
-
-  border: 0;
-  border-radius: 6px;
-
-  outline: none;
-
-  color: #ffffff;
-
-  background: linear-gradient(
-    90deg,
-    #7544ff,
-    #713aff
-  );
-
-  font-family: inherit;
-  font-size: 11px;
-  font-weight: 600;
-
-  cursor: pointer;
-
-  transition:
-    transform 0.18s ease,
-    box-shadow 0.18s ease;
-}
-
-.adminSimpleSidebar
-  .adminSimpleSidebar__supportButton:hover {
-  transform: translateY(-1px);
-
-  box-shadow: 0 6px 18px rgba(108, 62, 255, 0.3);
-}
-
-/* =========================================================
-   LOGOUT
-========================================================= */
-
-.adminSimpleSidebar .adminSimpleSidebar__logout {
-  width: 100%;
-  height: 42px;
-
-  margin-top: 8px;
-  padding: 0 13px;
-
-  display: flex;
-  align-items: center;
-
-  gap: 12px;
-
-  border: 0;
-  border-radius: 8px;
-
-  outline: none;
-
-  color: #d9e0ef;
-
-  background: transparent;
-
-  font-family: inherit;
-  font-size: 12px;
-  font-weight: 500;
-
-  cursor: pointer;
-
-  transition:
-    color 0.18s ease,
-    background 0.18s ease;
-}
-
-.adminSimpleSidebar .adminSimpleSidebar__logout:hover {
-  color: #ff8b9b;
-
-  background: rgba(255, 84, 105, 0.08);
-}
-
-/* =========================================================
-   SMALLER LAPTOP HEIGHT
-
-   Keeps all menu items visible on smaller laptop screens.
-========================================================= */
-
-@media (max-height: 850px) {
-  .adminSimpleSidebar .adminSimpleSidebar__brand {
-    min-height: 76px;
-
-    padding-top: 13px;
-    padding-bottom: 9px;
+@media (max-height: 900px) {
+  .adminConsoleSidebar
+    .adminConsoleSidebar__header {
+    padding-top: 12px;
   }
 
-  .adminSimpleSidebar .adminSimpleSidebar__logo {
-    width: 36px;
-    height: 36px;
+  .adminConsoleSidebar
+    .adminConsoleSidebar__brand {
+    height: 42px;
+  }
+
+  .adminConsoleSidebar
+    .adminConsoleSidebar__brandLogo {
+    width: 37px;
+    height: 37px;
+
+    min-width: 37px;
+
+    flex-basis: 37px;
+  }
+
+  .adminConsoleSidebar
+    .adminConsoleSidebar__divider {
+    margin: 9px 0 10px;
+  }
+
+  .adminConsoleSidebar
+    .adminConsoleSidebar__roleCard {
+    height: 56px;
+  }
+
+  .adminConsoleSidebar
+    .adminConsoleSidebar__middle {
+    padding-top: 10px;
+  }
+
+  .adminConsoleSidebar
+    .adminConsoleSidebar__navItem {
+    min-height: 36px;
 
     flex-basis: 36px;
   }
 
-  .adminSimpleSidebar
-    .adminSimpleSidebar__brandInfo
-    h2 {
-    font-size: 16px;
+  .adminConsoleSidebar
+    .adminConsoleSidebar__control {
+    min-height: 56px;
   }
 
-  .adminSimpleSidebar .adminSimpleSidebar__item {
-    min-height: 40px;
+  .adminConsoleSidebar
+    .adminConsoleSidebar__profileDivider {
+    margin: 6px 0;
   }
 
-  .adminSimpleSidebar .adminSimpleSidebar__label {
-    font-size: 12px;
+  .adminConsoleSidebar
+    .adminConsoleSidebar__profile {
+    min-height: 37px;
   }
 
-  .adminSimpleSidebar .adminSimpleSidebar__bottom {
-    padding-top: 5px;
-    padding-bottom: 5px;
+  .adminConsoleSidebar
+    .adminConsoleSidebar__avatar {
+    width: 33px;
+    height: 33px;
+
+    min-width: 33px;
+
+    flex-basis: 33px;
   }
 
-  .adminSimpleSidebar .adminSimpleSidebar__support {
-    padding: 10px;
+  .adminConsoleSidebar
+    .adminConsoleSidebar__logout {
+    height: 30px;
+
+    margin-top: 2px;
+  }
+}
+
+/* =========================================================
+   SHORT SCREEN
+========================================================= */
+
+@media (max-height: 760px) {
+  .adminConsoleSidebar
+    .adminConsoleSidebar__header {
+    padding-top: 8px;
   }
 
-  .adminSimpleSidebar
-    .adminSimpleSidebar__supportButton {
-    height: 31px;
-
-    margin-top: 9px;
+  .adminConsoleSidebar
+    .adminConsoleSidebar__brand {
+    height: 38px;
   }
 
-  .adminSimpleSidebar .adminSimpleSidebar__logout {
+  .adminConsoleSidebar
+    .adminConsoleSidebar__brandLogo {
+    width: 34px;
     height: 34px;
 
-    margin-top: 4px;
+    min-width: 34px;
+
+    flex-basis: 34px;
+  }
+
+  .adminConsoleSidebar
+    .adminConsoleSidebar__brandText
+    small {
+    display: none;
+  }
+
+  .adminConsoleSidebar
+    .adminConsoleSidebar__divider {
+    margin: 6px 0;
+  }
+
+  .adminConsoleSidebar
+    .adminConsoleSidebar__roleCard {
+    display: none;
+  }
+
+  .adminConsoleSidebar
+    .adminConsoleSidebar__middle {
+    padding-top: 6px;
+  }
+
+  .adminConsoleSidebar
+    .adminConsoleSidebar__sectionTitle {
+    margin-bottom: 4px;
+
+    font-size: 8px;
+  }
+
+  .adminConsoleSidebar
+    .adminConsoleSidebar__navItem {
+    min-height: 33px;
+
+    flex-basis: 33px;
+  }
+
+  .adminConsoleSidebar
+    .adminConsoleSidebar__navLabel {
+    font-size: 10px;
+  }
+
+  .adminConsoleSidebar
+    .adminConsoleSidebar__control {
+    display: none;
+  }
+
+  .adminConsoleSidebar
+    .adminConsoleSidebar__footerDivider {
+    margin-bottom: 5px;
+  }
+
+  .adminConsoleSidebar
+    .adminConsoleSidebar__profileDivider {
+    margin: 4px 0;
   }
 }
