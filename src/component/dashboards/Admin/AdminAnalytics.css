@@ -2201,3 +2201,584 @@
     display: none;
   }
 }
+
+/* =========================================================
+   ADMIN ANALYTICS - POLISHED INTERACTION LAYER
+   Scoped only to Admin Analytics
+========================================================= */
+
+.admin-analytics-shell {
+  overflow-x: hidden;
+}
+
+/* ---------- PAGE OPEN ---------- */
+
+.admin-analytics-shell.admin-analytics-loading
+  .admin-analytics-content {
+  opacity: 0;
+  transform: translateY(14px);
+}
+
+.admin-analytics-shell.admin-analytics-ready
+  .admin-analytics-content {
+  opacity: 1;
+  transform: translateY(0);
+
+  transition:
+    opacity 0.45s ease,
+    transform 0.45s ease;
+}
+
+/* ---------- TOPBAR ---------- */
+
+.admin-analytics-shell
+  .admin-analytics-topbar {
+  backdrop-filter: blur(14px);
+}
+
+.admin-analytics-shell
+  .admin-analytics-create,
+.admin-analytics-shell
+  .admin-analytics-primary-button,
+.admin-analytics-shell
+  .admin-analytics-secondary-button,
+.admin-analytics-shell
+  .admin-analytics-profile {
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.admin-analytics-shell
+  .admin-analytics-create:hover,
+.admin-analytics-shell
+  .admin-analytics-primary-button:hover {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 10px 24px
+      rgba(102, 59, 245, 0.22);
+}
+
+.admin-analytics-shell
+  .admin-analytics-secondary-button:hover,
+.admin-analytics-shell
+  .admin-analytics-profile:hover {
+  transform: translateY(-1px);
+
+  border-color: #cfc5ff;
+
+  box-shadow:
+    0 6px 18px
+      rgba(39, 31, 74, 0.08);
+}
+
+/* ---------- SEARCH ---------- */
+
+.admin-analytics-shell
+  .admin-analytics-global-search {
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.admin-analytics-shell
+  .admin-analytics-global-search:focus-within {
+  background: #ffffff;
+
+  border-color: #7651ff;
+
+  box-shadow:
+    0 0 0 4px
+      rgba(102, 59, 245, 0.08);
+}
+
+/* ---------- KPI ---------- */
+
+.admin-analytics-shell
+  .admin-analytics-kpi {
+  cursor: pointer;
+
+  transition:
+    transform 0.22s ease,
+    box-shadow 0.22s ease,
+    border-color 0.22s ease;
+}
+
+.admin-analytics-shell
+  .admin-analytics-kpi:hover {
+  transform: translateY(-4px);
+
+  border-color: #d5ccff;
+
+  box-shadow:
+    0 12px 30px
+      rgba(47, 37, 86, 0.09);
+}
+
+.admin-analytics-shell
+  .admin-analytics-kpi-icon {
+  transition:
+    transform 0.22s ease;
+}
+
+.admin-analytics-shell
+  .admin-analytics-kpi:hover
+  .admin-analytics-kpi-icon {
+  transform:
+    scale(1.08)
+    rotate(-3deg);
+}
+
+.admin-analytics-shell
+  .admin-analytics-kpi-arrow {
+  opacity: 0;
+
+  transform:
+    translate(-4px, 4px);
+
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+
+.admin-analytics-shell
+  .admin-analytics-kpi:hover
+  .admin-analytics-kpi-arrow {
+  opacity: 1;
+
+  transform:
+    translate(0, 0);
+}
+
+/* ---------- CARDS ---------- */
+
+.admin-analytics-shell
+  .admin-analytics-card {
+  transition:
+    transform 0.22s ease,
+    box-shadow 0.22s ease,
+    border-color 0.22s ease;
+}
+
+.admin-analytics-shell
+  .admin-analytics-card:hover {
+  border-color: #ddd6ff;
+
+  box-shadow:
+    0 12px 34px
+      rgba(38, 30, 72, 0.07);
+}
+
+/* ---------- LIVE DOT ---------- */
+
+.admin-analytics-shell
+  .admin-analytics-chart-live i,
+.admin-analytics-shell
+  .admin-analytics-system-live i,
+.admin-analytics-shell
+  .admin-analytics-live-indicator i,
+.admin-analytics-shell
+  .admin-analytics-live-dot {
+  animation:
+    adminAnalyticsPulse
+    1.8s ease-in-out infinite;
+}
+
+@keyframes adminAnalyticsPulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.45;
+    transform: scale(0.72);
+  }
+}
+
+/* ---------- LINE CHART ---------- */
+
+.admin-analytics-shell
+  .admin-analytics-users-line,
+.admin-analytics-shell
+  .admin-analytics-active-line {
+  stroke-dasharray: 1200;
+  stroke-dashoffset: 1200;
+
+  animation:
+    adminAnalyticsDrawLine
+    1.15s ease forwards;
+}
+
+.admin-analytics-shell
+  .admin-analytics-active-line {
+  animation-delay: 0.12s;
+}
+
+@keyframes adminAnalyticsDrawLine {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.admin-analytics-shell
+  .admin-analytics-user-point,
+.admin-analytics-shell
+  .admin-analytics-active-point {
+  cursor: pointer;
+
+  transition:
+    r 0.15s ease,
+    filter 0.15s ease;
+}
+
+.admin-analytics-shell
+  .admin-analytics-user-point:hover,
+.admin-analytics-shell
+  .admin-analytics-active-point:hover {
+  filter:
+    drop-shadow(
+      0 3px 5px
+        rgba(82, 50, 210, 0.28)
+    );
+}
+
+/* ---------- DONUT ---------- */
+
+.admin-analytics-shell
+  .admin-analytics-donut {
+  transition:
+    transform 0.25s ease,
+    filter 0.25s ease;
+}
+
+.admin-analytics-shell
+  .admin-analytics-donut:hover {
+  transform: scale(1.04);
+
+  filter:
+    drop-shadow(
+      0 8px 12px
+        rgba(86, 54, 190, 0.12)
+    );
+}
+
+.admin-analytics-shell
+  .admin-analytics-donut-legend
+  button {
+  width: 100%;
+  padding: 5px 7px;
+
+  border: 0;
+  border-radius: 7px;
+
+  background: transparent;
+
+  cursor: pointer;
+
+  transition:
+    background 0.18s ease,
+    transform 0.18s ease;
+}
+
+.admin-analytics-shell
+  .admin-analytics-donut-legend
+  button:hover,
+.admin-analytics-shell
+  .admin-analytics-donut-legend
+  button.active {
+  background: #f7f5ff;
+
+  transform:
+    translateX(3px);
+}
+
+/* ---------- REVENUE ---------- */
+
+.admin-analytics-shell
+  .admin-analytics-revenue-column {
+  position: relative;
+}
+
+.admin-analytics-shell
+  .admin-analytics-revenue-bar {
+  cursor: pointer;
+
+  transform-origin: bottom;
+
+  animation:
+    adminAnalyticsBarGrow
+    0.7s ease both;
+
+  transition:
+    transform 0.18s ease,
+    filter 0.18s ease;
+}
+
+.admin-analytics-shell
+  .admin-analytics-revenue-bar:hover,
+.admin-analytics-shell
+  .admin-analytics-revenue-bar.active {
+  transform:
+    scaleX(1.14);
+
+  filter:
+    drop-shadow(
+      0 6px 6px
+        rgba(87, 56, 215, 0.2)
+    );
+}
+
+@keyframes adminAnalyticsBarGrow {
+  from {
+    transform:
+      scaleY(0);
+  }
+
+  to {
+    transform:
+      scaleY(1);
+  }
+}
+
+/* ---------- PLAN BARS ---------- */
+
+.admin-analytics-shell
+  .admin-analytics-plan-row {
+  padding: 5px;
+
+  border-radius: 8px;
+
+  transition:
+    background 0.18s ease,
+    transform 0.18s ease;
+}
+
+.admin-analytics-shell
+  .admin-analytics-plan-row:hover,
+.admin-analytics-shell
+  .admin-analytics-plan-row.active {
+  background: #faf9ff;
+
+  transform:
+    translateX(3px);
+}
+
+.admin-analytics-shell
+  .admin-analytics-progress span {
+  transform-origin: left;
+
+  animation:
+    adminAnalyticsProgressGrow
+    0.8s ease both;
+}
+
+@keyframes adminAnalyticsProgressGrow {
+  from {
+    transform:
+      scaleX(0);
+  }
+
+  to {
+    transform:
+      scaleX(1);
+  }
+}
+
+/* ---------- ACTIVITY ---------- */
+
+.admin-analytics-shell
+  .admin-analytics-activity-column {
+  position: relative;
+
+  cursor: pointer;
+}
+
+.admin-analytics-shell
+  .admin-analytics-activity-bar-group {
+  transition:
+    transform 0.18s ease;
+}
+
+.admin-analytics-shell
+  .admin-analytics-activity-column:hover
+  .admin-analytics-activity-bar-group {
+  transform:
+    translateY(-4px);
+}
+
+.admin-analytics-shell
+  .admin-analytics-activity-bar-group
+  span {
+  transform-origin: bottom;
+
+  animation:
+    adminAnalyticsActivityGrow
+    0.75s ease both;
+}
+
+@keyframes adminAnalyticsActivityGrow {
+  from {
+    transform:
+      scaleY(0);
+  }
+
+  to {
+    transform:
+      scaleY(1);
+  }
+}
+
+/* ---------- TOOLTIP ---------- */
+
+.admin-analytics-shell
+  .admin-analytics-chart-tooltip,
+.admin-analytics-shell
+  .admin-analytics-bar-tooltip,
+.admin-analytics-shell
+  .admin-analytics-activity-tooltip {
+  z-index: 30;
+
+  padding: 8px 10px;
+
+  border: 1px solid
+    rgba(104, 60, 245, 0.14);
+
+  border-radius: 8px;
+
+  background:
+    rgba(24, 28, 45, 0.94);
+
+  color: #ffffff;
+
+  box-shadow:
+    0 8px 24px
+      rgba(20, 24, 45, 0.18);
+
+  pointer-events: none;
+}
+
+.admin-analytics-shell
+  .admin-analytics-chart-tooltip
+  strong,
+.admin-analytics-shell
+  .admin-analytics-bar-tooltip
+  strong,
+.admin-analytics-shell
+  .admin-analytics-activity-tooltip
+  strong {
+  display: block;
+
+  margin-bottom: 4px;
+
+  font-size: 9px;
+}
+
+.admin-analytics-shell
+  .admin-analytics-chart-tooltip
+  span,
+.admin-analytics-shell
+  .admin-analytics-bar-tooltip
+  span,
+.admin-analytics-shell
+  .admin-analytics-activity-tooltip
+  span {
+  display: block;
+
+  margin-top: 2px;
+
+  font-size: 8px;
+
+  color: #d9dceb;
+}
+
+/* ---------- TABLE ---------- */
+
+.admin-analytics-shell
+  .admin-analytics-table tbody tr {
+  cursor: pointer;
+
+  transition:
+    background 0.18s ease,
+    transform 0.18s ease;
+}
+
+.admin-analytics-shell
+  .admin-analytics-table tbody tr:hover {
+  background: #f8f6ff;
+}
+
+/* ---------- SYSTEM HEALTH ---------- */
+
+.admin-analytics-shell
+  .admin-analytics-system-progress span {
+  transform-origin: left;
+
+  animation:
+    adminAnalyticsHealthGrow
+    1s ease both;
+}
+
+@keyframes adminAnalyticsHealthGrow {
+  from {
+    transform:
+      scaleX(0);
+  }
+
+  to {
+    transform:
+      scaleX(1);
+  }
+}
+
+.admin-analytics-shell
+  .admin-analytics-system-metric {
+  transition:
+    transform 0.18s ease,
+    background 0.18s ease;
+}
+
+.admin-analytics-shell
+  .admin-analytics-system-metric:hover {
+  transform:
+    translateX(3px);
+}
+
+/* ---------- REFRESH ---------- */
+
+.admin-analytics-shell
+  .admin-analytics-spin {
+  animation:
+    adminAnalyticsSpin
+    0.8s linear infinite;
+}
+
+@keyframes adminAnalyticsSpin {
+  to {
+    transform:
+      rotate(360deg);
+  }
+}
+
+/* ---------- ACCESSIBILITY ---------- */
+
+@media (
+  prefers-reduced-motion: reduce
+) {
+  .admin-analytics-shell *,
+  .admin-analytics-shell *::before,
+  .admin-analytics-shell *::after {
+    animation-duration:
+      0.01ms !important;
+
+    animation-iteration-count:
+      1 !important;
+
+    transition-duration:
+      0.01ms !important;
+  }
+}
