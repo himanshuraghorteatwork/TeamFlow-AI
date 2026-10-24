@@ -6,6 +6,7 @@ import {
   CheckSquare,
   ChevronRight,
   FolderKanban,
+  Headphones,
   LayoutDashboard,
   Layers,
   LogOut,
