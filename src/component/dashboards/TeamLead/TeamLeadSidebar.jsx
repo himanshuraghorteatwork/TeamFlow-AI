@@ -1,3 +1,4 @@
+
 import {
   BarChart3,
   Bug,
@@ -17,10 +18,6 @@ import {
 import { useLocation, useNavigate } from "react-router-dom";
 
 import "./TeamLeadSidebar.css";
-
-/* =========================================================
-   NAVIGATION ITEMS
-========================================================= */
 
 const NAV_ITEMS = [
   {
@@ -80,10 +77,6 @@ const NAV_ITEMS = [
   },
 ];
 
-/* =========================================================
-   COMPONENT
-========================================================= */
-
 export default function TeamLeadSidebar({
   onLogout,
   onProfile,
@@ -92,17 +85,9 @@ export default function TeamLeadSidebar({
   const navigate = useNavigate();
   const location = useLocation();
 
-  /* =========================================================
-     NAVIGATION
-  ========================================================= */
-
   const handleNavigate = (path) => {
     navigate(path);
   };
-
-  /* =========================================================
-     ACTIVE PAGE
-  ========================================================= */
 
   const isActive = (path) => {
     if (path === "/teamlead/member") {
@@ -112,30 +97,28 @@ export default function TeamLeadSidebar({
     return location.pathname === path;
   };
 
-  /* =========================================================
-     LOGOUT
-  ========================================================= */
-
   const handleLogout = () => {
+    // Clear the active session
+    [
+      "teamflow_current_user",
+      "teamflow_teamlead",
+      "teamflow_admin",
+      "teamflow_admin_logged_in",
+      "teamflow_superadmin",
+      "teamflow_user",
+    ].forEach((key) => {
+      localStorage.removeItem(key);
+      sessionStorage.removeItem(key);
+    });
+
+    // Use the parent's logout callback if provided
     if (onLogout) {
       onLogout();
       return;
     }
 
-    localStorage.removeItem("teamflow_current_user");
-    localStorage.removeItem("teamflow_teamlead");
-    localStorage.removeItem("teamflow_user");
-
-    sessionStorage.removeItem("teamflow_current_user");
-    sessionStorage.removeItem("teamflow_teamlead");
-    sessionStorage.removeItem("teamflow_user");
-
-    navigate("/login");
+    navigate("/choose-role", { replace: true });
   };
-
-  /* =========================================================
-     PROFILE
-  ========================================================= */
 
   const handleProfile = () => {
     if (onProfile) {
@@ -146,17 +129,9 @@ export default function TeamLeadSidebar({
     navigate("/teamlead/settings");
   };
 
-  /* =========================================================
-     SUPPORT
-  ========================================================= */
-
   const handleSupport = () => {
     navigate("/teamlead/settings");
   };
-
-  /* =========================================================
-     PROFILE INITIALS
-  ========================================================= */
 
   const initials = profileName
     .trim()
@@ -168,11 +143,7 @@ export default function TeamLeadSidebar({
 
   return (
     <aside className="team-lead-sidebar">
-
-      {/* =====================================================
-          BRAND
-      ===================================================== */}
-
+      {/* Brand */}
       <button
         type="button"
         className="tls-brand"
@@ -194,10 +165,7 @@ export default function TeamLeadSidebar({
         </span>
       </button>
 
-      {/* =====================================================
-          NAVIGATION
-      ===================================================== */}
-
+      {/* Navigation */}
       <nav
         className="tls-nav"
         aria-label="Team Lead navigation"
@@ -227,35 +195,19 @@ export default function TeamLeadSidebar({
         })}
       </nav>
 
-      {/* =====================================================
-          BOTTOM SECTION
-      ===================================================== */}
-
+      {/* Bottom Section */}
       <div className="tls-sidebar-bottom">
-
-        {/* ===================================================
-            SUPPORT
-        =================================================== */}
-
+        {/* Support */}
         <div className="tls-support-card">
-
           <div className="tls-support-heading">
-
             <div className="tls-support-icon">
-              <Headphones
-                size={21}
-                strokeWidth={2}
-              />
+              <Headphones size={21} strokeWidth={2} />
             </div>
 
             <div className="tls-support-copy">
               <b>Need Help?</b>
-
-              <small>
-                Contact support team
-              </small>
+              <small>Contact support team</small>
             </div>
-
           </div>
 
           <button
@@ -265,41 +217,26 @@ export default function TeamLeadSidebar({
           >
             Contact Support
           </button>
-
         </div>
 
-        {/* ===================================================
-            PROFILE
-        =================================================== */}
-
+        {/* Profile */}
         <button
           className="tls-profile-button"
           type="button"
           onClick={handleProfile}
           aria-label={`Open profile for ${profileName}`}
         >
-          <span className="tls-avatar">
-            {initials}
-          </span>
+          <span className="tls-avatar">{initials}</span>
 
           <span className="tls-profile-copy">
             <b>{profileName}</b>
-
-            <small>
-              Team Lead · View profile
-            </small>
+            <small>Team Lead · View profile</small>
           </span>
 
-          <UserRound
-            size={17}
-            aria-hidden="true"
-          />
+          <UserRound size={17} aria-hidden="true" />
         </button>
 
-        {/* ===================================================
-            LOGOUT
-        =================================================== */}
-
+        {/* Logout */}
         <button
           className="tls-nav-item tls-logout"
           type="button"
@@ -313,9 +250,7 @@ export default function TeamLeadSidebar({
 
           <span>Logout</span>
         </button>
-
       </div>
-
     </aside>
   );
 }

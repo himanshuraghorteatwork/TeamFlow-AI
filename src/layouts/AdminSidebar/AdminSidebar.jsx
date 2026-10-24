@@ -1,3 +1,4 @@
+
 import React from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 
@@ -88,10 +89,19 @@ function AdminSidebar() {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    localStorage.removeItem("teamflow_admin");
-    localStorage.removeItem("teamflow_admin_logged_in");
+    [
+      "teamflow_current_user",
+      "teamflow_admin",
+      "teamflow_admin_logged_in",
+      "teamflow_superadmin",
+      "teamflow_teamlead",
+      "teamflow_user",
+    ].forEach((key) => {
+      localStorage.removeItem(key);
+      sessionStorage.removeItem(key);
+    });
 
-    navigate("/login");
+    navigate("/choose-role", { replace: true });
   };
 
   const handleSupport = () => {
@@ -100,8 +110,7 @@ function AdminSidebar() {
 
   return (
     <aside className="adminSimpleSidebar">
-      {/* ================= BRAND ================= */}
-
+      {/* Brand */}
       <div className="adminSimpleSidebar__brand">
         <div className="adminSimpleSidebar__logo">
           <Boxes size={24} strokeWidth={2} />
@@ -118,8 +127,7 @@ function AdminSidebar() {
         </div>
       </div>
 
-      {/* ================= MENU ================= */}
-
+      {/* Navigation */}
       <nav className="adminSimpleSidebar__nav">
         {adminMenuItems.map((item) => {
           const Icon = item.icon;
@@ -149,8 +157,7 @@ function AdminSidebar() {
         })}
       </nav>
 
-      {/* ================= BOTTOM ================= */}
-
+      {/* Bottom */}
       <div className="adminSimpleSidebar__bottom">
         <div className="adminSimpleSidebar__support">
           <div className="adminSimpleSidebar__supportTop">
@@ -179,7 +186,6 @@ function AdminSidebar() {
           onClick={handleLogout}
         >
           <LogOut size={18} />
-
           <span>Logout</span>
         </button>
       </div>
