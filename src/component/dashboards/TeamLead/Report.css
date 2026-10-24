@@ -1371,3 +1371,114 @@
     padding: 16px;
   }
 }
+/* ================= CHART INTERACTION ================= */
+
+.tl-report-chart-wrap {
+  position: relative;
+  width: 100%;
+}
+
+/* let the SVG scale by its own aspect ratio instead of a fixed height */
+.tl-report-chart-wrap .tl-report-line-chart {
+  width: 100%;
+  height: auto;
+}
+
+.tl-report-dot.bugs {
+  fill: #e5a340;
+}
+
+.tl-report-dot {
+  transition: r 120ms ease;
+}
+
+.tl-report-crosshair {
+  stroke: #c9cde0;
+  stroke-dasharray: 3 4;
+  stroke-width: 1;
+}
+
+.tl-report-tooltip {
+  position: absolute;
+  top: 0;
+  z-index: 3;
+
+  display: flex;
+  min-width: 140px;
+  flex-direction: column;
+  gap: 5px;
+  padding: 9px 12px;
+
+  border-radius: 10px;
+  background: #20243a;
+  box-shadow: 0 10px 24px #20243a40;
+  color: #ffffff;
+  font-size: 12.5px;
+
+  pointer-events: none;
+  transform: translateX(-50%);
+}
+
+.tl-report-tooltip strong {
+  margin-bottom: 2px;
+  font-size: 12.5px;
+}
+
+.tl-report-tooltip span {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #cfd3e6;
+}
+
+.tl-report-tooltip span i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+
+.tl-report-tooltip span b {
+  margin-left: auto;
+  padding-left: 12px;
+  color: #ffffff;
+}
+
+/* ================= CLICKABLE LEGEND ================= */
+
+.tl-report-legend-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+
+  border: 1px solid transparent;
+  border-radius: 99px;
+  background: transparent;
+  color: #6b7087;
+  font-size: 13px;
+  cursor: pointer;
+
+  transition: background 140ms ease, opacity 140ms ease;
+}
+
+.tl-report-legend-btn:hover {
+  background: #f4f2ff;
+}
+
+.tl-report-legend-btn.off {
+  opacity: 0.45;
+  text-decoration: line-through;
+}
+
+/* ================= REFRESH BUTTON ================= */
+
+button.tl-report-updated {
+  border: 0;
+  background: transparent;
+  color: #9196a9;
+  cursor: pointer;
+}
+
+button.tl-report-updated:hover {
+  color: #6849ec;
+}
