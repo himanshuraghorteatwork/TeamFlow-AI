@@ -29,7 +29,7 @@ import {
   UserRound,
 } from "lucide-react";
 
-import AdminSidebar from "../../layouts/AdminSidebar/AdminSidebar.jsx";
+import AdminSidebar from "../../../layouts/AdminSidebar/AdminSidebar.jsx";
 import "./AdminWorkspace.css";
 
 /* =========================================================

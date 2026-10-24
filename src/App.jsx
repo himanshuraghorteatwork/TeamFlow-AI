@@ -1,3 +1,4 @@
+
 import "./App.css";
 
 import {
@@ -13,6 +14,7 @@ import {
 import LandingPage from "./component/LandingPage/LandingPage.jsx";
 import Login from "./component/Login/login.jsx";
 import Signup from "./component/Signup/Signup.jsx";
+import ChooseRole from "./component/ChooseRole/ChooseRole.jsx";
 
 /* =========================================================
    NORMAL USER PAGES
@@ -25,6 +27,48 @@ import Team from "./component/Team/Team.jsx";
 import Projects from "./component/Projects/Projects.jsx";
 import Bugs from "./component/Bugs/Bugs.jsx";
 import File from "./component/File/File.jsx";
+
+/* =========================================================
+   EMPLOYEE DASHBOARD
+========================================================= */
+
+// Confirm that this file exists in your project.
+import Dashboard from "./component/Dashboard/Dashboard.jsx";
+
+/* =========================================================
+   SUPER ADMIN LAYOUT
+========================================================= */
+
+import SuperAdminLayout from "./component/dashboards/SuperAdmin/SuperAdminLayout.jsx";
+
+/* =========================================================
+   SUPER ADMIN PAGES
+========================================================= */
+
+import SuperAdminDashboard from "./component/dashboards/SuperAdmin/SuperAdminDashboard.jsx";
+import Organizations from "./component/dashboards/SuperAdmin/Organizations.jsx";
+import SuperAdminUsers from "./component/dashboards/SuperAdmin/Users.jsx";
+import SuperAdminAnalytics from "./component/dashboards/SuperAdmin/Analytics.jsx";
+import ActivityLogs from "./component/dashboards/SuperAdmin/ActivityLogs.jsx";
+import SuperAdminSettings from "./component/dashboards/SuperAdmin/Settings.jsx";
+import SuperAdminSubscriptions from "./component/dashboards/SuperAdmin/Subscriptions.jsx";
+
+/* =========================================================
+   ADMIN PAGES
+========================================================= */
+
+import AdminDashboard from "./component/dashboards/Admin/AdminDashboard.jsx";
+import AdminAITools from "./component/dashboards/Admin/AdminAITools.jsx";
+import AdminAnalytics from "./component/dashboards/Admin/AdminAnalytics.jsx";
+import AdminAnnouncements from "./component/dashboards/Admin/AdminAnnouncements.jsx";
+import AdminBilling from "./component/dashboards/Admin/AdminBilling.jsx";
+import AdminProjects from "./component/dashboards/Admin/AdminProjects.jsx";
+import AdminReports from "./component/dashboards/Admin/AdminReports.jsx";
+import AdminSettings from "./component/dashboards/Admin/AdminSettings.jsx";
+import AdminSubscriptions from "./component/dashboards/Admin/AdminSubscriptions.jsx";
+import AdminTasks from "./component/dashboards/Admin/AdminTasks.jsx";
+import AdminUsers from "./component/dashboards/Admin/AdminUsers.jsx";
+import AdminWorkspace from "./component/dashboards/Admin/AdminWorkspace.jsx";
 
 /* =========================================================
    TEAM LEAD LAYOUT
@@ -48,145 +92,198 @@ import TeamLeadSetting from "./component/dashboards/TeamLead/Setting.jsx";
 import TeamLeadAI from "./component/dashboards/TeamLead/AiAssistant.jsx";
 import TeamMember1 from "./component/dashboards/TeamLead/TeamMember1.jsx";
 
-
 function App() {
   return (
     <Routes>
-
       {/* =====================================================
           PUBLIC ROUTES
       ===================================================== */}
 
-      <Route
-        path="/"
-        element={<LandingPage />}
-      />
+      <Route path="/" element={<LandingPage />} />
 
-      <Route
-        path="/login"
-        element={<Login />}
-      />
+      <Route path="/login" element={<Login />} />
 
-      <Route
-        path="/signup"
-        element={<Signup />}
-      />
+      <Route path="/signup" element={<Signup />} />
 
+      <Route path="/choose-role" element={<ChooseRole />} />
 
       {/* =====================================================
-          NORMAL USER ROUTES
+          SUPER ADMIN ROUTES
+      ===================================================== */}
+
+      <Route path="/superadmin" element={<SuperAdminLayout />}>
+        <Route
+          index
+          element={<Navigate to="dashboard" replace />}
+        />
+
+        <Route
+          path="dashboard"
+          element={<SuperAdminDashboard />}
+        />
+
+        <Route
+          path="organizations"
+          element={<Organizations />}
+        />
+
+        <Route
+          path="users"
+          element={<SuperAdminUsers />}
+        />
+
+        <Route
+          path="analytics"
+          element={<SuperAdminAnalytics />}
+        />
+
+        <Route
+          path="activity-logs"
+          element={<ActivityLogs />}
+        />
+
+        <Route
+          path="settings"
+          element={<SuperAdminSettings />}
+        />
+
+        <Route
+          path="subscriptions"
+          element={<SuperAdminSubscriptions />}
+        />
+      </Route>
+
+      {/* =====================================================
+          ADMIN ROUTES
       ===================================================== */}
 
       <Route
-        path="/chat"
-        element={<Chat />}
+        path="/admin"
+        element={<Navigate to="/admin/dashboard" replace />}
       />
 
       <Route
-        path="/tasks"
-        element={<Tasks />}
+        path="/admin/dashboard"
+        element={<AdminDashboard />}
       />
 
       <Route
-        path="/calendar"
-        element={<Calendar />}
+        path="/admin/ai-tools"
+        element={<AdminAITools />}
       />
 
       <Route
-        path="/team"
-        element={<Team />}
+        path="/admin/analytics"
+        element={<AdminAnalytics />}
       />
 
       <Route
-        path="/projects"
-        element={<Projects />}
+        path="/admin/announcements"
+        element={<AdminAnnouncements />}
       />
 
       <Route
-        path="/bugs"
-        element={<Bugs />}
+        path="/admin/billing"
+        element={<AdminBilling />}
       />
 
       <Route
-        path="/files"
-        element={<File />}
+        path="/admin/projects"
+        element={<AdminProjects />}
       />
 
+      <Route
+        path="/admin/reports"
+        element={<AdminReports />}
+      />
+
+      <Route
+        path="/admin/settings"
+        element={<AdminSettings />}
+      />
+
+      <Route
+        path="/admin/subscriptions"
+        element={<AdminSubscriptions />}
+      />
+
+      <Route
+        path="/admin/tasks"
+        element={<AdminTasks />}
+      />
+
+      <Route
+        path="/admin/users"
+        element={<AdminUsers />}
+      />
+
+      <Route
+        path="/admin/workspaces"
+        element={<AdminWorkspace />}
+      />
+
+      {/* =====================================================
+          EMPLOYEE ROUTES
+      ===================================================== */}
+
+      <Route
+        path="/dashboard"
+        element={<Dashboard />}
+      />
+
+      <Route path="/chat" element={<Chat />} />
+
+      <Route path="/tasks" element={<Tasks />} />
+
+      <Route path="/calendar" element={<Calendar />} />
+
+      <Route path="/team" element={<Team />} />
+
+      <Route path="/projects" element={<Projects />} />
+
+      <Route path="/bugs" element={<Bugs />} />
+
+      <Route path="/files" element={<File />} />
 
       {/* =====================================================
           TEAM LEAD ROUTES
-          
-          TeamLeadLayout stays on screen.
-          Outlet changes depending on selected sidebar page.
       ===================================================== */}
 
-      <Route
-        path="/teamlead"
-        element={<TeamLeadLayout />}
-      >
-
-        {/* /teamlead -> /teamlead/dashboard */}
-
+      <Route path="/teamlead" element={<TeamLeadLayout />}>
         <Route
           index
-          element={
-            <Navigate
-              to="dashboard"
-              replace
-            />
-          }
+          element={<Navigate to="dashboard" replace />}
         />
-
-
-        {/* DASHBOARD */}
 
         <Route
           path="dashboard"
           element={<TeamLeadDashboard />}
         />
 
-
-        {/* MY TEAM */}
-
         <Route
           path="team"
           element={<TeamLeadMyTeam />}
         />
-
-
-        {/* PROJECTS */}
 
         <Route
           path="projects"
           element={<TeamLeadProject />}
         />
 
-
-        {/* TASKS */}
-
         <Route
           path="tasks"
           element={<TeamLeadTask />}
         />
-
-
-        {/* BUGS */}
 
         <Route
           path="bugs"
           element={<TeamLeadBug />}
         />
 
-
-        {/* CALENDAR */}
-
         <Route
           path="calendar"
           element={<TeamLeadCalendar />}
         />
-
-
-        {/* TEAM MEMBERS */}
 
         <Route
           path="member"
@@ -198,40 +295,26 @@ function App() {
           element={<TeamMember1 />}
         />
 
-
-        {/* REPORTS */}
-
         <Route
           path="reports"
           element={<TeamLeadReport />}
         />
-
-
-        {/* CHAT */}
 
         <Route
           path="chat"
           element={<TeamLeadChat />}
         />
 
-
-        {/* AI ASSISTANT */}
-
         <Route
           path="ai-assistant"
           element={<TeamLeadAI />}
         />
 
-
-        {/* SETTINGS */}
-
         <Route
           path="settings"
           element={<TeamLeadSetting />}
         />
-
       </Route>
-
 
       {/* =====================================================
           OLD TEAM LEAD URL
@@ -247,21 +330,14 @@ function App() {
         }
       />
 
-
       {/* =====================================================
           404
       ===================================================== */}
 
       <Route
         path="*"
-        element={
-          <Navigate
-            to="/"
-            replace
-          />
-        }
+        element={<Navigate to="/" replace />}
       />
-
     </Routes>
   );
 }
