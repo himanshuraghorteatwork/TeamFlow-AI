@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
   UsersRound,
@@ -9,30 +9,153 @@ import {
 } from "lucide-react";
 
 import loginLeftImage from "../../assets/images/login-left.png";
+
 import {
   ROLES,
   ROLE_LABELS,
   getDashboardPath,
   getUserRole,
 } from "../../auth/roleConfig";
+
 import "./login.css";
 
-// Get registered users
+/* =========================================================
+   DEFAULT TEAMFLOW ROLE ACCOUNTS
+========================================================= */
+
+const DEFAULT_ROLE_USERS = [
+  {
+    id: "superadmin-001",
+    name: "Super Admin",
+    firstName: "Super",
+    lastName: "Admin",
+    email: "superadmin@teamflow.local",
+    password: "SuperAdmin@123",
+    role: ROLES.SUPERADMIN,
+    provider: "local",
+    status: "active",
+  },
+
+  {
+    id: "admin-001",
+    name: "Admin",
+    firstName: "Admin",
+    lastName: "User",
+    email: "admin@teamflow.local",
+    password: "Admin@123",
+    role: ROLES.ADMIN,
+    provider: "local",
+    status: "active",
+  },
+
+  {
+    id: "teamlead-001",
+    name: "Team Lead",
+    firstName: "Team",
+    lastName: "Lead",
+    email: "teamlead@teamflow.local",
+    password: "TeamLead@123",
+    role: ROLES.TEAMLEAD,
+    provider: "local",
+    status: "active",
+  },
+
+  {
+    id: "employee-001",
+    name: "Employee",
+    firstName: "Employee",
+    lastName: "User",
+    email: "employee@teamflow.local",
+    password: "Employee@123",
+    role: ROLES.EMPLOYEE,
+    provider: "local",
+    status: "active",
+  },
+];
+
+/* =========================================================
+   GET USERS
+========================================================= */
+
 const getUsers = () => {
   try {
-    return JSON.parse(
+    const users = JSON.parse(
       localStorage.getItem("teamflow_users") || "[]"
     );
-  } catch {
+
+    return Array.isArray(users) ? users : [];
+  } catch (error) {
+    console.error("Unable to read TeamFlow users:", error);
     return [];
   }
 };
+
+/* =========================================================
+   INITIALIZE DEFAULT ROLE USERS
+========================================================= */
+
+const initializeDefaultUsers = () => {
+  try {
+    const existingUsers = getUsers();
+
+    const mergedUsers = [...existingUsers];
+
+    DEFAULT_ROLE_USERS.forEach((defaultUser) => {
+      const index = mergedUsers.findIndex(
+        (user) =>
+          String(user.email || "")
+            .trim()
+            .toLowerCase() ===
+          defaultUser.email.toLowerCase()
+      );
+
+      if (index === -1) {
+        mergedUsers.push(defaultUser);
+      } else {
+        /*
+          Update the fixed demo account while preserving
+          any extra information already attached to it.
+        */
+        mergedUsers[index] = {
+          ...mergedUsers[index],
+          ...defaultUser,
+        };
+      }
+    });
+
+    localStorage.setItem(
+      "teamflow_users",
+      JSON.stringify(mergedUsers)
+    );
+
+    return mergedUsers;
+  } catch (error) {
+    console.error(
+      "Unable to initialize TeamFlow users:",
+      error
+    );
+
+    localStorage.setItem(
+      "teamflow_users",
+      JSON.stringify(DEFAULT_ROLE_USERS)
+    );
+
+    return DEFAULT_ROLE_USERS;
+  }
+};
+
+/* =========================================================
+   LOGIN COMPONENT
+========================================================= */
 
 function Login() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Read the role selected on the Choose Role page
+  /* -------------------------------------------------------
+     SELECTED ROLE
+  ------------------------------------------------------- */
+
   const selectedRole = location.state?.selectedRole;
 
   const validSelectedRole = Object.values(ROLES).includes(
@@ -41,71 +164,187 @@ function Login() {
     ? selectedRole
     : null;
 
+  /* -------------------------------------------------------
+     STATE
+  ------------------------------------------------------- */
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [remember, setRemember] = useState(true);
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
 
-  // Redirect according to the account's assigned role
+  const [showPassword, setShowPassword] =
+    useState(false);
+
+  const [remember, setRemember] =
+    useState(true);
+
+  const [error, setError] =
+    useState("");
+
+  const [loading, setLoading] =
+    useState(false);
+
+  /* =========================================================
+     CREATE DEFAULT USERS WHEN LOGIN PAGE LOADS
+  ========================================================= */
+
+  useEffect(() => {
+    initializeDefaultUsers();
+  }, []);
+
+  /* =========================================================
+     OPTIONAL DEMO AUTO FILL
+
+     This fills the credentials according to the role
+     selected on ChooseRole.
+  ========================================================= */
+
+  useEffect(() => {
+    if (!validSelectedRole) {
+      return;
+    }
+
+    const users = initializeDefaultUsers();
+
+    const selectedUser = users.find(
+      (user) =>
+        getUserRole(user) === validSelectedRole &&
+        DEFAULT_ROLE_USERS.some(
+          (demoUser) =>
+            demoUser.email.toLowerCase() ===
+            String(user.email || "").toLowerCase()
+        )
+    );
+
+    if (selectedUser) {
+      setEmail(selectedUser.email);
+      setPassword(selectedUser.password);
+    }
+  }, [validSelectedRole]);
+
+  /* =========================================================
+     CLEAR ERROR WHEN USER TYPES
+  ========================================================= */
+
+  useEffect(() => {
+    if (error) {
+      setError("");
+    }
+  }, [email, password]);
+
+  /* =========================================================
+     REDIRECT USER
+  ========================================================= */
+
   const redirectUser = (user) => {
-    navigate(getDashboardPath(user), {
+    const dashboardPath = getDashboardPath(user);
+
+    console.log(
+      "TeamFlow login successful:",
+      user.role,
+      dashboardPath
+    );
+
+    navigate(dashboardPath, {
       replace: true,
     });
   };
 
-  // Normal email and password login
+  /* =========================================================
+     NORMAL EMAIL/PASSWORD LOGIN
+  ========================================================= */
+
   const handleLogin = (e) => {
     e.preventDefault();
+
     setError("");
 
-    const cleanEmail = email.trim().toLowerCase();
+    const cleanEmail = email
+      .trim()
+      .toLowerCase();
 
     if (!cleanEmail || !password) {
-      setError("Please enter your email and password.");
+      setError(
+        "Please enter your email and password."
+      );
+
       return;
     }
 
-    const users = getUsers();
+    /*
+      Initialize first so our four default users
+      definitely exist.
+    */
+
+    const users = initializeDefaultUsers();
 
     const user = users.find(
       (item) =>
-        item.email?.toLowerCase() === cleanEmail
+        String(item.email || "")
+          .trim()
+          .toLowerCase() === cleanEmail
     );
 
-    if (!user || user.password !== password) {
+    /* -------------------------------------------------------
+       EMAIL CHECK
+    ------------------------------------------------------- */
+
+    if (!user) {
       setError(
         "Invalid email or password. Please check your credentials."
       );
+
       return;
     }
 
-    // Keep the role assigned to the account.
-    // Older accounts without a role default to Employee.
+    /* -------------------------------------------------------
+       PASSWORD CHECK
+    ------------------------------------------------------- */
+
+    if (user.password !== password) {
+      setError(
+        "Invalid email or password. Please check your credentials."
+      );
+
+      return;
+    }
+
+    /* -------------------------------------------------------
+       NORMALIZE ROLE
+    ------------------------------------------------------- */
+
     const normalizedUser = {
       ...user,
       role: getUserRole(user),
     };
 
-    // Verify that the selected role matches the account.
+    /* -------------------------------------------------------
+       VERIFY SELECTED ROLE
+    ------------------------------------------------------- */
+
     if (
       validSelectedRole &&
       normalizedUser.role !== validSelectedRole
     ) {
       setError(
         `This account belongs to the ${
-          ROLE_LABELS[normalizedUser.role]
+          ROLE_LABELS[normalizedUser.role] ||
+          normalizedUser.role
         } role. Please go back and select the correct role.`
       );
+
       return;
     }
 
     setLoading(true);
 
-    // Update the registered account
+    /* -------------------------------------------------------
+       UPDATE USER IN STORAGE
+    ------------------------------------------------------- */
+
     const updatedUsers = users.map((item) =>
-      item.email?.toLowerCase() === cleanEmail
+      String(item.email || "")
+        .trim()
+        .toLowerCase() === cleanEmail
         ? normalizedUser
         : item
     );
@@ -115,30 +354,71 @@ function Login() {
       JSON.stringify(updatedUsers)
     );
 
-    // Save the logged-in user
+    /* -------------------------------------------------------
+       SAVE CURRENT USER
+    ------------------------------------------------------- */
+
+    const loggedInUser = {
+      ...normalizedUser,
+      loggedIn: true,
+      loginTime: new Date().toISOString(),
+    };
+
     localStorage.setItem(
       "teamflow_current_user",
-      JSON.stringify(normalizedUser)
+      JSON.stringify(loggedInUser)
     );
 
-    // Remember login preference
+    /* -------------------------------------------------------
+       REMEMBER LOGIN
+    ------------------------------------------------------- */
+
     if (remember) {
-      localStorage.setItem("teamflow_remember", "1");
+      localStorage.setItem(
+        "teamflow_remember",
+        "1"
+      );
+
+      localStorage.setItem(
+        "teamflow_remembered_email",
+        normalizedUser.email
+      );
+
+      localStorage.setItem(
+        "teamflow_remembered_role",
+        normalizedUser.role
+      );
     } else {
-      localStorage.removeItem("teamflow_remember");
+      localStorage.removeItem(
+        "teamflow_remember"
+      );
+
+      localStorage.removeItem(
+        "teamflow_remembered_email"
+      );
+
+      localStorage.removeItem(
+        "teamflow_remembered_role"
+      );
     }
 
-    // Redirect after successful login
+    /* -------------------------------------------------------
+       REDIRECT
+    ------------------------------------------------------- */
+
     setTimeout(() => {
-      redirectUser(normalizedUser);
+      setLoading(false);
+      redirectUser(loggedInUser);
     }, 400);
   };
 
-  // Demo Google and GitHub login
+  /* =========================================================
+     SOCIAL LOGIN
+  ========================================================= */
+
   const handleSocialLogin = (type) => {
     setError("");
 
-    // Demo social accounts use the Employee role
     if (
       validSelectedRole &&
       validSelectedRole !== ROLES.EMPLOYEE
@@ -146,6 +426,7 @@ function Login() {
       setError(
         "Demo Google/GitHub accounts use the Employee role. Please go back and select Employee."
       );
+
       return;
     }
 
@@ -154,11 +435,12 @@ function Login() {
         ? "google.user@teamflow.local"
         : "github.user@teamflow.local";
 
-    let users = getUsers();
+    let users = initializeDefaultUsers();
 
     let user = users.find(
       (item) =>
-        item.email?.toLowerCase() === socialEmail
+        String(item.email || "")
+          .toLowerCase() === socialEmail
     );
 
     if (!user) {
@@ -166,13 +448,28 @@ function Login() {
         id:
           window.crypto?.randomUUID?.() ||
           Date.now().toString(),
-        name: type === "google" ? "Google User" : "GitHub User",
-        firstName: type === "google" ? "Google" : "GitHub",
+
+        name:
+          type === "google"
+            ? "Google User"
+            : "GitHub User",
+
+        firstName:
+          type === "google"
+            ? "Google"
+            : "GitHub",
+
         lastName: "User",
+
         email: socialEmail,
+
         password: "social-login",
+
         provider: type,
+
         role: ROLES.EMPLOYEE,
+
+        status: "active",
       };
 
       users.push(user);
@@ -183,7 +480,8 @@ function Login() {
       };
 
       users = users.map((item) =>
-        item.email?.toLowerCase() === socialEmail
+        String(item.email || "")
+          .toLowerCase() === socialEmail
           ? user
           : item
       );
@@ -196,35 +494,55 @@ function Login() {
 
     localStorage.setItem(
       "teamflow_current_user",
-      JSON.stringify(user)
+      JSON.stringify({
+        ...user,
+        loggedIn: true,
+        loginTime: new Date().toISOString(),
+      })
     );
 
-    localStorage.setItem("teamflow_remember", "1");
+    localStorage.setItem(
+      "teamflow_remember",
+      "1"
+    );
 
     redirectUser(user);
   };
 
+  /* =========================================================
+     UI
+  ========================================================= */
+
   return (
     <div className="login-page">
+
       {/* LEFT IMAGE SECTION */}
+
       <section className="login-left">
+
         <img
           src={loginLeftImage}
           alt="TeamFlow AI team collaboration"
           className="login-left-image"
         />
+
       </section>
 
       {/* RIGHT LOGIN SECTION */}
+
       <main className="login-right">
+
         <div className="login-card">
-          {/* LOGO / BRAND */}
+
+          {/* LOGO */}
+
           <button
             type="button"
             className="login-brand"
             onClick={() => navigate("/")}
             aria-label="Go to TeamFlow AI home"
           >
+
             <div className="login-logo">
               <UsersRound size={24} />
             </div>
@@ -232,39 +550,59 @@ function Login() {
             <span>
               TeamFlow <strong>AI</strong>
             </span>
+
           </button>
 
           {/* HEADING */}
+
           <div className="login-heading">
+
             <h1>Welcome Back</h1>
 
             <p>
               {validSelectedRole
                 ? `Sign in as ${
-                    ROLE_LABELS[validSelectedRole]
+                    ROLE_LABELS[
+                      validSelectedRole
+                    ] || validSelectedRole
                   } to continue to your TeamFlow AI workspace.`
                 : "Sign in to continue to your TeamFlow AI workspace."}
             </p>
+
           </div>
 
           {/* SOCIAL LOGIN */}
+
           <div className="login-social-row">
+
             <button
               type="button"
               className="login-social-button"
-              onClick={() => handleSocialLogin("google")}
+              onClick={() =>
+                handleSocialLogin("google")
+              }
               disabled={loading}
             >
-              <span className="google-logo">G</span>
-              <span>Continue with Google</span>
+
+              <span className="google-logo">
+                G
+              </span>
+
+              <span>
+                Continue with Google
+              </span>
+
             </button>
 
             <button
               type="button"
               className="login-social-button"
-              onClick={() => handleSocialLogin("github")}
+              onClick={() =>
+                handleSocialLogin("github")
+              }
               disabled={loading}
             >
+
               <svg
                 className="github-logo"
                 viewBox="0 0 24 24"
@@ -276,29 +614,45 @@ function Login() {
                 />
               </svg>
 
-              <span>Continue with GitHub</span>
+              <span>
+                Continue with GitHub
+              </span>
+
             </button>
+
           </div>
 
           {/* DIVIDER */}
+
           <div className="login-divider">
-            <span></span>
-            <p>OR CONTINUE WITH EMAIL</p>
-            <span></span>
+
+            <span />
+
+            <p>
+              OR CONTINUE WITH EMAIL
+            </p>
+
+            <span />
+
           </div>
 
-          {/* LOGIN FORM */}
+          {/* FORM */}
+
           <form
             className="login-form"
             onSubmit={handleLogin}
           >
+
             {/* EMAIL */}
+
             <div className="login-form-group">
+
               <label htmlFor="login-email">
                 Email Address
               </label>
 
               <div className="login-input-wrapper">
+
                 <Mail
                   size={19}
                   className="login-input-icon"
@@ -309,20 +663,27 @@ function Login() {
                   type="email"
                   placeholder="Enter your email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) =>
+                    setEmail(e.target.value)
+                  }
                   autoComplete="email"
                   required
                 />
+
               </div>
+
             </div>
 
             {/* PASSWORD */}
+
             <div className="login-form-group">
+
               <label htmlFor="login-password">
                 Password
               </label>
 
               <div className="login-input-wrapper">
+
                 <Lock
                   size={19}
                   className="login-input-icon"
@@ -330,7 +691,11 @@ function Login() {
 
                 <input
                   id="login-password"
-                  type={showPassword ? "text" : "password"}
+                  type={
+                    showPassword
+                      ? "text"
+                      : "password"
+                  }
                   placeholder="Enter your password"
                   value={password}
                   onChange={(e) =>
@@ -344,7 +709,9 @@ function Login() {
                   type="button"
                   className="login-password-toggle"
                   onClick={() =>
-                    setShowPassword((current) => !current)
+                    setShowPassword(
+                      (current) => !current
+                    )
                   }
                   aria-label={
                     showPassword
@@ -352,27 +719,39 @@ function Login() {
                       : "Show password"
                   }
                 >
+
                   {showPassword ? (
                     <EyeOff size={19} />
                   ) : (
                     <Eye size={19} />
                   )}
+
                 </button>
+
               </div>
+
             </div>
 
-            {/* REMEMBER / FORGOT PASSWORD */}
+            {/* OPTIONS */}
+
             <div className="login-options">
+
               <label className="login-remember">
+
                 <input
                   type="checkbox"
                   checked={remember}
                   onChange={(e) =>
-                    setRemember(e.target.checked)
+                    setRemember(
+                      e.target.checked
+                    )
                   }
                 />
 
-                <span>Remember me</span>
+                <span>
+                  Remember me
+                </span>
+
               </label>
 
               <button
@@ -386,9 +765,11 @@ function Login() {
               >
                 Forgot password?
               </button>
+
             </div>
 
-            {/* ERROR MESSAGE */}
+            {/* ERROR */}
+
             {error && (
               <div
                 className="login-error"
@@ -398,42 +779,59 @@ function Login() {
               </div>
             )}
 
-            {/* LOGIN BUTTON */}
+            {/* LOGIN */}
+
             <button
               type="submit"
               className="login-submit-button"
               disabled={loading}
             >
-              {loading ? "Signing In..." : "Sign In"}
+
+              {loading
+                ? "Signing In..."
+                : "Sign In"}
+
             </button>
+
           </form>
 
-          {/* SIGNUP LINK */}
+          {/* SIGNUP */}
+
           <p className="login-signup-text">
+
             Don&apos;t have an account?
 
             <button
               type="button"
               onClick={() =>
                 navigate("/choose-role", {
-                  state: { next: "signup" },
+                  state: {
+                    next: "signup",
+                  },
                 })
               }
             >
               Sign up
             </button>
+
           </p>
 
           {/* BACK HOME */}
+
           <button
             type="button"
             className="login-back-home"
-            onClick={() => navigate("/")}
+            onClick={() =>
+              navigate("/")
+            }
           >
             ← Back to TeamFlow AI
           </button>
+
         </div>
+
       </main>
+
     </div>
   );
 }
