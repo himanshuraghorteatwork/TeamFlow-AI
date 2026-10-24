@@ -1,0 +1,347 @@
+/* =========================================================
+   TEAMFLOW AI - APP SIDEBAR
+   Standard employee sidebar component (Width: 241px / Mobile: 68px)
+========================================================= */
+
+.app-sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 1000;
+
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 241px;
+  width: 241px;
+  min-width: 241px;
+  height: 100vh;
+  height: 100dvh;
+
+  padding: 16px 11px 12px;
+  background: #111831;
+  color: #fff;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.app-sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 48px;
+  padding: 0 12px;
+  margin-bottom: 14px;
+  color: #fff;
+  text-decoration: none;
+}
+
+.app-brand-icon,
+.app-workspace-icon {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 37px;
+  height: 37px;
+  border-radius: 12px;
+  background: #6842ff;
+  color: #fff;
+}
+
+.app-brand-name {
+  font-size: 17px;
+  font-weight: 750;
+  white-space: nowrap;
+}
+
+.app-brand-name span {
+  color: #a78bfa;
+}
+
+.app-workspace-switcher {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 50px;
+  padding: 8px 10px;
+  margin: 6px 0 16px;
+  border: 0;
+  border-radius: 11px;
+  background: #1d2542;
+  color: #fff;
+  text-align: left;
+  cursor: pointer;
+}
+
+.app-workspace-info {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.app-workspace-info strong {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.app-workspace-info small {
+  color: #94a3b8;
+  font-size: 11px;
+}
+
+.app-sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex-shrink: 0;
+}
+
+.app-sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 45px;
+  padding: 0 14px;
+  border-radius: 11px;
+  color: #e5e9f6;
+  font-size: 13px;
+  text-decoration: none;
+  transition: background 0.15s ease;
+}
+
+.app-sidebar-link:hover {
+  background: #202846;
+  color: #fff;
+}
+
+.app-sidebar-link.active {
+  background: #6842ff;
+  color: #fff;
+}
+
+.app-sidebar-profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: auto;
+  padding: 15px 8px 4px;
+  border-top: 1px solid #29314a;
+  flex-shrink: 0;
+}
+
+.app-profile-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.app-profile-initials {
+  background: linear-gradient(135deg, #6842ff, #a78bfa);
+  color: #fff;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.app-profile-info {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.app-profile-info strong {
+  font-size: 12px;
+}
+
+.app-profile-info span {
+  overflow: hidden;
+  color: #c0c9e3;
+  font-size: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.app-sidebar-profile-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px;
+  border: 0;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+  text-decoration: none;
+  border-radius: 6px;
+  transition: background 0.15s ease;
+}
+
+.app-sidebar-profile-btn:hover {
+  background: #202846;
+}
+
+@media (max-width: 700px) {
+  .app-sidebar {
+    flex-basis: 68px;
+    width: 68px;
+    min-width: 68px;
+    padding: 12px 7px;
+  }
+
+  .app-sidebar-brand {
+    justify-content: center;
+    padding: 0;
+  }
+
+  .app-brand-name,
+  .app-workspace-info,
+  .app-workspace-switcher > svg,
+  .app-sidebar-link span,
+  .app-profile-info,
+  .app-sidebar-profile-btn {
+    display: none;
+  }
+
+  .app-workspace-switcher {
+    justify-content: center;
+    padding: 8px 0;
+  }
+
+  .app-sidebar-link {
+    justify-content: center;
+    padding: 0;
+  }
+
+  .app-sidebar-profile {
+    justify-content: center;
+    padding-right: 0;
+    padding-left: 0;
+  }
+}
+/* =========================================================
+   SIDEBAR BOTTOM SECTION
+========================================================= */
+
+.sidebar-bottom {
+  margin-top: auto;
+  padding: 12px 0 4px;
+}
+
+
+/* =========================================================
+   LOGOUT BUTTON
+========================================================= */
+
+.sidebar-logout {
+  width: 100%;
+  height: 44px;
+
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  padding: 0 14px;
+
+  border: 1px solid transparent;
+  border-radius: 10px;
+
+  background: transparent;
+
+  color: #64748b;
+
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: 500;
+
+  cursor: pointer;
+
+  text-align: left;
+
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.15s ease;
+}
+
+
+/* Icon */
+
+.sidebar-logout svg {
+  flex-shrink: 0;
+
+  color: #64748b;
+
+  transition:
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+
+/* Hover */
+
+.sidebar-logout:hover {
+  background: #fef2f2;
+
+  color: #dc2626;
+
+  border-color: #fee2e2;
+}
+
+
+.sidebar-logout:hover svg {
+  color: #dc2626;
+
+  transform: translateX(2px);
+}
+
+
+/* Active / Click */
+
+.sidebar-logout:active {
+  transform: scale(0.98);
+}
+
+
+/* Keyboard accessibility */
+
+.sidebar-logout:focus-visible {
+  outline: 2px solid #8b5cf6;
+  outline-offset: 2px;
+}
+
+
+/* =========================================================
+   DARK MODE SUPPORT
+========================================================= */
+
+.dark .sidebar-logout {
+  color: #94a3b8;
+}
+
+.dark .sidebar-logout svg {
+  color: #94a3b8;
+}
+
+.dark .sidebar-logout:hover {
+  background: rgba(239, 68, 68, 0.1);
+
+  color: #f87171;
+
+  border-color: rgba(239, 68, 68, 0.2);
+}
+
+.dark .sidebar-logout:hover svg {
+  color: #f87171;
+}

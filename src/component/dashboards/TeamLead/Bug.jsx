@@ -23,7 +23,7 @@ import {
   bugProjects,
   bugStatuses,
   initialBugs,
-} from "../../Bugs/bugdata.js";
+} from "../Employee/bugdata.js";
 import "./Bug.css";
 
 const STORAGE_KEY = "teamflow_bugs";

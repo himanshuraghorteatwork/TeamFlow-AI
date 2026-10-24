@@ -11,7 +11,7 @@ import {
   Trash2,
   X,
 } from "lucide-react";
-import { initialEvents } from "../../Calendar/calendarData.js";
+import { initialEvents } from "../Employee/calendarData.js";
 import "./Calendar.css";
 
 const CATEGORIES = [

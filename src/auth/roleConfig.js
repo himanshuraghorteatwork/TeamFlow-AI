@@ -9,7 +9,7 @@ export const ROLE_DASHBOARDS = {
   [ROLES.SUPERADMIN]: "/superadmin/dashboard",
   [ROLES.ADMIN]: "/admin/dashboard",
   [ROLES.TEAMLEAD]: "/teamlead/dashboard",
-  [ROLES.EMPLOYEE]: "/dashboard",
+  [ROLES.EMPLOYEE]: "/employee/dashboard",
 };
 
 export const ROLE_LABELS = {
@@ -58,7 +58,10 @@ export const ROLE_NAVIGATION = {
     "Projects",
     "Bugs",
     "Calendar",
+    "Team",
     "Files",
+    "AI Assistant",
+    "Settings",
   ],
 };
 

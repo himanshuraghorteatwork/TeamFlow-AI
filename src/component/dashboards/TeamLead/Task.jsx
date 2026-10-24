@@ -18,7 +18,7 @@ import {
   taskPriorities,
   taskStatuses,
   teamMembers,
-} from "../../Tasks/tasksData.js";
+} from "../Employee/tasksData.js";
 import "./Task.css";
 
 const TASKS_STORAGE_KEY = "teamflow_teamlead_tasks";

@@ -12,7 +12,7 @@ import {
   Users,
   X,
 } from "lucide-react";
-import { initialMembers, teamRoles, teamStatuses } from "../../Team/teamData.js";
+import { initialMembers, teamRoles, teamStatuses } from "../Employee/teamData.js";
 import "./TeamMember1.css";
 
 const EMPTY_FORM = { name: "", email: "", role: "Member" };

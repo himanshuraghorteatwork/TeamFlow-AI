@@ -12,7 +12,7 @@ import {
   Sparkles,
   Users,
 } from "lucide-react";
-import { initialProjects } from "../../Projects/projectData.js";
+import { initialProjects } from "../Employee/projectData.js";
 import "./Project.css";
 
 const STORAGE_KEY = "teamflow_projects";

@@ -10,16 +10,20 @@ import Signup from "./component/Signup/Signup.jsx";
 import ChooseRole from "./component/ChooseRole/ChooseRole.jsx";
 
 /* NORMAL USER PAGES */
-import Chat from "./component/Chat/Chat.jsx";
-import Tasks from "./component/Tasks/Tasks.jsx";
-import Calendar from "./component/Calendar/Calendar.jsx";
-import Team from "./component/Team/Team.jsx";
-import Projects from "./component/Projects/Projects.jsx";
-import Bugs from "./component/Bugs/Bugs.jsx";
-import File from "./component/File/File.jsx";
+
 
 /* EMPLOYEE DASHBOARD */
-import Dashboard from "./component/Dashboard/Dashboard.jsx";
+import Dashboard from "./component/dashboards/Employee/Dashboard.jsx";
+import Chat from "./component/dashboards/Employee/Chat.jsx";
+import Tasks from "./component/dashboards/Employee/Tasks.jsx";
+import Calendar from "./component/dashboards/Employee/Calendar.jsx";
+import Team from "./component/dashboards/Employee/Team.jsx";
+import Projects from "./component/dashboards/Employee/Projects.jsx";
+import Bugs from "./component/dashboards/Employee/Bugs.jsx";
+import File from "./component/dashboards/Employee/File.jsx";
+import EmployeeAI from "./component/dashboards/Employee/AI.jsx";
+import EmployeeSettings from "./component/dashboards/Employee/Settings.jsx"; 
+
 
 /* SUPER ADMIN */
 import SuperAdminLayout from "./component/dashboards/SuperAdmin/SuperAdminLayout.jsx";
@@ -99,14 +103,28 @@ function App() {
       <Route path="/admin/settings" element={<AdminSettings />} />
 
       {/* EMPLOYEE ROUTES */}
-      <Route path="/dashboard" element={<Dashboard />} />
-      <Route path="/chat" element={<Chat />} />
-      <Route path="/tasks" element={<Tasks />} />
-      <Route path="/calendar" element={<Calendar />} />
-      <Route path="/team" element={<Team />} />
-      <Route path="/projects" element={<Projects />} />
-      <Route path="/bugs" element={<Bugs />} />
-      <Route path="/files" element={<File />} />
+      <Route
+        path="/employee"
+        element={<Navigate to="/employee/dashboard" replace />}
+      />
+      <Route
+        path="/dashboard"
+        element={<Navigate to="/employee/dashboard" replace />}
+      />
+      <Route path="/employee/dashboard" element={<Dashboard />} />
+      <Route path="/employee/chat" element={<Chat />} />
+      <Route path="/employee/tasks" element={<Tasks />} />
+      <Route path="/employee/projects" element={<Projects />} />
+      <Route path="/employee/bugs" element={<Bugs />} />
+      <Route path="/employee/calendar" element={<Calendar />} />
+      <Route path="/employee/team" element={<Team />} />
+      <Route path="/employee/files" element={<File />} />
+      <Route
+        path="/employee/Files"
+        element={<Navigate to="/employee/files" replace />}
+      />
+      <Route path="/employee/ai-assistant" element={<EmployeeAI />} />
+      <Route path="/employee/settings" element={<EmployeeSettings />} />
 
       {/* TEAM LEAD ROUTES */}
       <Route path="/teamlead" element={<TeamLeadLayout />}>
