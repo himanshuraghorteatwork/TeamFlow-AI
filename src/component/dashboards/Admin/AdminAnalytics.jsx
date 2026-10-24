@@ -5,7 +5,9 @@ import React, {
   useState,
 } from "react";
 
-import { useNavigate } from "react-router-dom";
+import {
+  useNavigate,
+} from "react-router-dom";
 
 import {
   Search,
@@ -48,7 +50,7 @@ import {
 import "./AdminAnalytics.css";
 
 /* =========================================================
-   STORAGE HELPER
+   STORAGE HELPERS
 ========================================================= */
 
 function readStorage(keys, fallback = []) {
@@ -64,11 +66,25 @@ function readStorage(keys, fallback = []) {
         return parsed;
       }
     } catch {
-      // Continue to next key.
+      // Try next storage key
     }
   }
 
   return fallback;
+}
+
+function normalizeStatus(value) {
+  return String(value || "")
+    .trim()
+    .toLowerCase();
+}
+
+function numberValue(value) {
+  const parsed = Number(value);
+
+  return Number.isFinite(parsed)
+    ? parsed
+    : 0;
 }
 
 /* =========================================================
@@ -77,35 +93,77 @@ function readStorage(keys, fallback = []) {
 
 function AdminAnalytics() {
   const navigate = useNavigate();
-  const globalSearchRef = useRef(null);
 
-  const [range, setRange] = useState("30 Days");
-  const [search, setSearch] = useState("");
-  const [globalSearch, setGlobalSearch] = useState("");
+  const globalSearchRef =
+    useRef(null);
 
-  const [workspaceType, setWorkspaceType] =
-    useState("All");
+  const [range, setRange] =
+    useState("30 Days");
 
-  const [lastUpdated, setLastUpdated] =
-    useState(new Date());
+  const [search, setSearch] =
+    useState("");
 
-  const [dataVersion, setDataVersion] =
-    useState(0);
+  const [
+    globalSearch,
+    setGlobalSearch,
+  ] = useState("");
 
-  const [createOpen, setCreateOpen] =
-    useState(false);
+  const [
+    workspaceType,
+    setWorkspaceType,
+  ] = useState("All");
 
-  const [profileOpen, setProfileOpen] =
-    useState(false);
+  const [
+    lastUpdated,
+    setLastUpdated,
+  ] = useState(new Date());
 
-  const [searchOpen, setSearchOpen] =
-    useState(false);
+  const [
+    dataVersion,
+    setDataVersion,
+  ] = useState(0);
 
-  const [refreshing, setRefreshing] =
-    useState(false);
+  const [
+    createOpen,
+    setCreateOpen,
+  ] = useState(false);
+
+  const [
+    profileOpen,
+    setProfileOpen,
+  ] = useState(false);
+
+  const [
+    searchOpen,
+    setSearchOpen,
+  ] = useState(false);
+
+  const [
+    refreshing,
+    setRefreshing,
+  ] = useState(false);
+
+  const [
+    pageReady,
+    setPageReady,
+  ] = useState(false);
 
   /* =======================================================
-     LIVE DATA
+     PAGE OPEN ANIMATION
+  ======================================================= */
+
+  useEffect(() => {
+    const frame =
+      requestAnimationFrame(() => {
+        setPageReady(true);
+      });
+
+    return () =>
+      cancelAnimationFrame(frame);
+  }, []);
+
+  /* =======================================================
+     LIVE USERS
   ======================================================= */
 
   const liveUsers = useMemo(
@@ -120,6 +178,10 @@ function AdminAnalytics() {
     [dataVersion]
   );
 
+  /* =======================================================
+     LIVE WORKSPACES
+  ======================================================= */
+
   const liveWorkspaces = useMemo(
     () =>
       readStorage(
@@ -131,6 +193,10 @@ function AdminAnalytics() {
       ),
     [dataVersion]
   );
+
+  /* =======================================================
+     LIVE PROJECTS
+  ======================================================= */
 
   const liveProjects = useMemo(
     () =>
@@ -144,34 +210,57 @@ function AdminAnalytics() {
     [dataVersion]
   );
 
+  /* =======================================================
+     LIVE TASKS
+  ======================================================= */
+
   const liveTasks = useMemo(() => {
-    const savedTasks = readStorage(
-      ["teamflow_admin_tasks"],
-      []
-    );
+    const savedTasks =
+      readStorage(
+        [
+          "teamflow_admin_tasks",
+          "teamflow_tasks",
+        ],
+        []
+      );
 
     if (savedTasks.length) {
       return savedTasks;
     }
 
     const nestedTasks =
-      liveProjects.flatMap((project) =>
-        Array.isArray(project.tasks)
-          ? project.tasks
-          : []
+      liveProjects.flatMap(
+        (project) =>
+          Array.isArray(
+            project.tasks
+          )
+            ? project.tasks
+            : []
       );
 
     return nestedTasks;
-  }, [liveProjects, dataVersion]);
+  }, [
+    liveProjects,
+    dataVersion,
+  ]);
 
-  const liveTransactions = useMemo(
-    () =>
-      readStorage(
-        ["teamflow_admin_transactions"],
-        []
-      ),
-    [dataVersion]
-  );
+  /* =======================================================
+     LIVE TRANSACTIONS
+  ======================================================= */
+
+  const liveTransactions =
+    useMemo(
+      () =>
+        readStorage(
+          [
+            "teamflow_admin_transactions",
+            "teamflow_transactions",
+            "teamflow_payments",
+          ],
+          []
+        ),
+      [dataVersion]
+    );
 
   /* =======================================================
      SUMMARY
@@ -182,27 +271,36 @@ function AdminAnalytics() {
       liveTransactions
         .filter(
           (transaction) =>
-            String(
-              transaction.status || ""
-            ).toLowerCase() === "paid"
+            normalizeStatus(
+              transaction.status
+            ) === "paid"
         )
         .reduce(
-          (sum, transaction) =>
-            sum +
-            Number(
-              transaction.amount || 0
+          (
+            total,
+            transaction
+          ) =>
+            total +
+            numberValue(
+              transaction.amount
             ),
           0
         );
 
     const activeUserCount =
-      liveUsers.filter((user) => {
-        const status = String(
-          user.status || "active"
-        ).toLowerCase();
+      liveUsers.filter(
+        (user) => {
+          const status =
+            normalizeStatus(
+              user.status ||
+                "active"
+            );
 
-        return status === "active";
-      }).length;
+          return (
+            status === "active"
+          );
+        }
+      ).length;
 
     return {
       totalUsers:
@@ -239,15 +337,75 @@ function AdminAnalytics() {
   ]);
 
   /* =======================================================
-     GROWTH DATA
+     USER GROWTH
   ======================================================= */
 
   const currentGrowthData =
-    growthData[range] ||
-    growthData["30 Days"];
+    useMemo(() => {
+      const source =
+        growthData[range] ||
+        growthData["30 Days"];
+
+      if (!liveUsers.length) {
+        return source;
+      }
+
+      const currentUsers =
+        liveUsers.length;
+
+      const currentActive =
+        liveUsers.filter(
+          (user) =>
+            normalizeStatus(
+              user.status ||
+                "active"
+            ) === "active"
+        ).length;
+
+      return source.map(
+        (item, index) => {
+          const factor =
+            (index + 1) /
+            source.length;
+
+          return {
+            ...item,
+
+            users:
+              index ===
+              source.length - 1
+                ? currentUsers
+                : Math.max(
+                    1,
+                    Math.round(
+                      currentUsers *
+                        factor *
+                        0.88
+                    )
+                  ),
+
+            active:
+              index ===
+              source.length - 1
+                ? currentActive
+                : Math.max(
+                    0,
+                    Math.round(
+                      currentActive *
+                        factor *
+                        0.88
+                    )
+                  ),
+          };
+        }
+      );
+    }, [
+      range,
+      liveUsers,
+    ]);
 
   /* =======================================================
-     LIVE WORKSPACE TABLE
+     NORMALIZED WORKSPACES
   ======================================================= */
 
   const analyticsWorkspaces =
@@ -259,58 +417,383 @@ function AdminAnalytics() {
       }
 
       return liveWorkspaces.map(
-        (workspace, index) => ({
+        (
+          workspace,
+          index
+        ) => ({
           id:
             workspace.id ??
             index + 1,
 
           name:
             workspace.name ||
-            `Workspace ${index + 1}`,
+            `Workspace ${
+              index + 1
+            }`,
 
           owner:
             workspace.owner ||
             workspace.ownerName ||
+            workspace.createdBy ||
             "TeamFlow Admin",
 
-          members: Number(
-            workspace.members || 0
+          members: numberValue(
+            workspace.members ||
+              workspace.memberCount
           ),
 
-          projects: Number(
+          projects: numberValue(
             workspace.projects ||
-              workspace.projectCount ||
-              0
+              workspace.projectCount
           ),
 
-          tasks: Number(
+          tasks: numberValue(
             workspace.tasks ||
-              workspace.taskCount ||
-              0
+              workspace.taskCount
           ),
 
-          storage: Number(
-            workspace.storage || 0
+          storage: numberValue(
+            workspace.storage
           ),
 
           plan:
-            workspace.plan || "Free",
+            workspace.plan ||
+            "Free",
 
-          growth: Number(
-            workspace.growth ||
-              0
+          category:
+            workspace.category ||
+            workspace.department ||
+            workspace.type ||
+            "Others",
+
+          growth: numberValue(
+            workspace.growth
           ),
         })
       );
     }, [liveWorkspaces]);
 
+  /* =======================================================
+     LIVE WORKSPACE DISTRIBUTION
+  ======================================================= */
+
+  const liveWorkspaceDistribution =
+    useMemo(() => {
+      if (
+        !analyticsWorkspaces.length
+      ) {
+        return workspaceDistribution;
+      }
+
+      const groups = {};
+
+      analyticsWorkspaces.forEach(
+        (workspace) => {
+          const category =
+            workspace.category ||
+            "Others";
+
+          groups[category] =
+            (groups[category] ||
+              0) + 1;
+        }
+      );
+
+      const result =
+        Object.entries(
+          groups
+        ).map(
+          ([name, value]) => ({
+            name,
+            value,
+          })
+        );
+
+      return result.length
+        ? result
+        : workspaceDistribution;
+    }, [
+      analyticsWorkspaces,
+    ]);
+
+  /* =======================================================
+     LIVE PLAN DISTRIBUTION
+  ======================================================= */
+
+  const livePlanDistribution =
+    useMemo(() => {
+      if (
+        !analyticsWorkspaces.length
+      ) {
+        return planDistribution;
+      }
+
+      const plans = {
+        Free: 0,
+        Pro: 0,
+        Business: 0,
+        Enterprise: 0,
+      };
+
+      analyticsWorkspaces.forEach(
+        (workspace) => {
+          const plan =
+            workspace.plan ||
+            "Free";
+
+          if (
+            Object.prototype.hasOwnProperty.call(
+              plans,
+              plan
+            )
+          ) {
+            plans[plan] += 1;
+          } else {
+            plans.Free += 1;
+          }
+        }
+      );
+
+      return Object.entries(
+        plans
+      ).map(
+        ([name, value]) => ({
+          name,
+          value,
+        })
+      );
+    }, [
+      analyticsWorkspaces,
+    ]);
+
+  /* =======================================================
+     LIVE PROJECT ACTIVITY
+  ======================================================= */
+
+  const liveActivityData =
+    useMemo(() => {
+      if (!liveTasks.length) {
+        return activityData;
+      }
+
+      const days = [
+        "Mon",
+        "Tue",
+        "Wed",
+        "Thu",
+        "Fri",
+        "Sat",
+        "Sun",
+      ];
+
+      const completed =
+        liveTasks.filter(
+          (task) =>
+            normalizeStatus(
+              task.status
+            ) ===
+            "completed"
+        ).length;
+
+      const progress =
+        liveTasks.filter(
+          (task) => {
+            const status =
+              normalizeStatus(
+                task.status
+              );
+
+            return [
+              "in progress",
+              "progress",
+              "working",
+            ].includes(status);
+          }
+        ).length;
+
+      const pending =
+        liveTasks.filter(
+          (task) => {
+            const status =
+              normalizeStatus(
+                task.status
+              );
+
+            return [
+              "todo",
+              "to do",
+              "pending",
+              "review",
+            ].includes(status);
+          }
+        ).length;
+
+      const factors = [
+        0.65,
+        0.82,
+        0.72,
+        0.9,
+        0.76,
+        0.84,
+        1,
+      ];
+
+      return days.map(
+        (day, index) => ({
+          day,
+
+          created: Math.max(
+            1,
+            Math.round(
+              liveTasks.length *
+                factors[index]
+            )
+          ),
+
+          updated: Math.max(
+            1,
+            Math.round(
+              (progress +
+                pending) *
+                factors[index]
+            )
+          ),
+
+          completed: Math.max(
+            1,
+            Math.round(
+              completed *
+                factors[index]
+            )
+          ),
+        })
+      );
+    }, [liveTasks]);
+
+  /* =======================================================
+     LIVE REVENUE
+  ======================================================= */
+
+  const liveRevenueData =
+    useMemo(() => {
+      if (
+        !liveTransactions.length
+      ) {
+        return revenueData;
+      }
+
+      const months = [
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+      ];
+
+      const totals = {};
+
+      months.forEach(
+        (month) => {
+          totals[month] = 0;
+        }
+      );
+
+      liveTransactions.forEach(
+        (transaction) => {
+          if (
+            normalizeStatus(
+              transaction.status
+            ) !== "paid"
+          ) {
+            return;
+          }
+
+          const amount =
+            numberValue(
+              transaction.amount
+            );
+
+          const rawDate =
+            transaction.date ||
+            transaction.createdAt ||
+            transaction.created_at;
+
+          if (!rawDate) {
+            totals.Oct +=
+              amount;
+
+            return;
+          }
+
+          const date =
+            new Date(rawDate);
+
+          if (
+            Number.isNaN(
+              date.getTime()
+            )
+          ) {
+            totals.Oct +=
+              amount;
+
+            return;
+          }
+
+          const month =
+            date.toLocaleString(
+              "en-US",
+              {
+                month: "short",
+              }
+            );
+
+          if (
+            Object.prototype.hasOwnProperty.call(
+              totals,
+              month
+            )
+          ) {
+            totals[month] +=
+              amount;
+          }
+        }
+      );
+
+      const result =
+        months.map(
+          (month) => ({
+            month,
+            revenue:
+              totals[month],
+          })
+        );
+
+      const hasRevenue =
+        result.some(
+          (item) =>
+            item.revenue > 0
+        );
+
+      return hasRevenue
+        ? result
+        : revenueData;
+    }, [
+      liveTransactions,
+    ]);
+
+  /* =======================================================
+     FILTER WORKSPACES
+  ======================================================= */
+
   const filteredWorkspaces =
     useMemo(() => {
       return analyticsWorkspaces.filter(
         (workspace) => {
-          const query = search
-            .toLowerCase()
-            .trim();
+          const query =
+            search
+              .trim()
+              .toLowerCase();
 
           const matchesSearch =
             !query ||
@@ -326,7 +809,8 @@ function AdminAnalytics() {
               .includes(query);
 
           const matchesPlan =
-            workspaceType === "All" ||
+            workspaceType ===
+              "All" ||
             workspace.plan ===
               workspaceType;
 
@@ -343,88 +827,105 @@ function AdminAnalytics() {
     ]);
 
   /* =======================================================
-     GLOBAL SEARCH
+     GLOBAL SEARCH ITEMS
   ======================================================= */
 
-  const searchItems = useMemo(
-    () => [
-      {
-        name: "Dashboard",
-        description:
-          "Admin dashboard overview",
-        path: "/admin/dashboard",
-        icon: Activity,
-      },
-      {
-        name: "Users",
-        description: `${summary.totalUsers.toLocaleString()} users`,
-        path: "/admin/users",
-        icon: Users,
-      },
-      {
-        name: "Workspaces",
-        description: `${summary.totalWorkspaces.toLocaleString()} workspaces`,
-        path: "/admin/workspaces",
-        icon: Building2,
-      },
-      {
-        name: "Projects",
-        description: `${summary.totalProjects.toLocaleString()} projects`,
-        path: "/admin/projects",
-        icon: FolderKanban,
-      },
-      {
-        name: "Tasks",
-        description: `${summary.totalTasks.toLocaleString()} tasks`,
-        path: "/admin/tasks",
-        icon: CheckCircle2,
-      },
-      {
-        name: "Billing & Payments",
-        description:
-          "Revenue and payments",
-        path: "/admin/billing",
-        icon: DollarSign,
-      },
-      {
-        name: "Subscriptions",
-        description:
-          "Subscription plans",
-        path: "/admin/subscriptions",
-        icon: CircleDollarSign,
-      },
-      {
-        name: "Analytics",
-        description:
-          "Platform analytics",
-        path: "/admin/analytics",
-        icon: BarChart3,
-      },
-      {
-        name: "Reports",
-        description:
-          "Analytics reports",
-        path: "/admin/reports",
-        icon: TrendingUp,
-      },
-      {
-        name: "Settings",
-        description:
-          "Platform settings",
-        path: "/admin/settings",
-        icon: Settings,
-      },
-    ],
-    [summary]
-  );
+  const searchItems =
+    useMemo(
+      () => [
+        {
+          name: "Dashboard",
+          description:
+            "Admin dashboard overview",
+          path:
+            "/admin/dashboard",
+          icon: Activity,
+        },
+        {
+          name: "Users",
+          description: `${summary.totalUsers.toLocaleString()} users`,
+          path:
+            "/admin/users",
+          icon: Users,
+        },
+        {
+          name: "Workspaces",
+          description: `${summary.totalWorkspaces.toLocaleString()} workspaces`,
+          path:
+            "/admin/workspaces",
+          icon: Building2,
+        },
+        {
+          name: "Projects",
+          description: `${summary.totalProjects.toLocaleString()} projects`,
+          path:
+            "/admin/projects",
+          icon: FolderKanban,
+        },
+        {
+          name: "Tasks",
+          description: `${summary.totalTasks.toLocaleString()} tasks`,
+          path:
+            "/admin/tasks",
+          icon: CheckCircle2,
+        },
+        {
+          name:
+            "Billing & Payments",
+          description:
+            "Revenue and payments",
+          path:
+            "/admin/billing",
+          icon: DollarSign,
+        },
+        {
+          name:
+            "Subscriptions",
+          description:
+            "Subscription plans",
+          path:
+            "/admin/subscriptions",
+          icon:
+            CircleDollarSign,
+        },
+        {
+          name: "Analytics",
+          description:
+            "Platform analytics",
+          path:
+            "/admin/analytics",
+          icon: BarChart3,
+        },
+        {
+          name: "Reports",
+          description:
+            "Analytics reports",
+          path:
+            "/admin/reports",
+          icon: TrendingUp,
+        },
+        {
+          name: "Settings",
+          description:
+            "Platform settings",
+          path:
+            "/admin/settings",
+          icon: Settings,
+        },
+      ],
+      [summary]
+    );
 
   const globalResults =
     useMemo(() => {
-      const query = globalSearch
-        .trim()
-        .toLowerCase();
+      const query =
+        globalSearch
+          .trim()
+          .toLowerCase();
 
-      if (!query) return [];
+      if (!query) {
+        return [];
+      }
 
       return searchItems.filter(
         (item) =>
@@ -438,57 +939,85 @@ function AdminAnalytics() {
     ]);
 
   /* =======================================================
+     NAVIGATION
+  ======================================================= */
+
+  const goTo = (path) => {
+    setCreateOpen(false);
+    setProfileOpen(false);
+    setSearchOpen(false);
+    setGlobalSearch("");
+
+    navigate(path);
+  };
+
+  /* =======================================================
      REFRESH
   ======================================================= */
 
-  const refreshAnalytics = () => {
-    setRefreshing(true);
+  const refreshAnalytics =
+    () => {
+      setRefreshing(true);
 
-    setDataVersion(
-      (current) => current + 1
-    );
+      setDataVersion(
+        (current) =>
+          current + 1
+      );
 
-    setLastUpdated(new Date());
+      setLastUpdated(
+        new Date()
+      );
 
-    window.setTimeout(() => {
-      setRefreshing(false);
-    }, 500);
-  };
+      window.setTimeout(
+        () => {
+          setRefreshing(false);
+        },
+        600
+      );
+    };
 
   /* =======================================================
      AUTO REFRESH
   ======================================================= */
 
   useEffect(() => {
-    const interval = window.setInterval(
+    const interval =
+      window.setInterval(
+        () => {
+          setDataVersion(
+            (current) =>
+              current + 1
+          );
+
+          setLastUpdated(
+            new Date()
+          );
+        },
+        15000
+      );
+
+    return () =>
+      window.clearInterval(
+        interval
+      );
+  }, []);
+
+  /* =======================================================
+     STORAGE CHANGE LISTENER
+  ======================================================= */
+
+  useEffect(() => {
+    const handleStorage =
       () => {
         setDataVersion(
           (current) =>
             current + 1
         );
 
-        setLastUpdated(new Date());
-      },
-      15000
-    );
-
-    return () =>
-      window.clearInterval(interval);
-  }, []);
-
-  /* =======================================================
-     STORAGE CHANGES
-  ======================================================= */
-
-  useEffect(() => {
-    const handleStorage = () => {
-      setDataVersion(
-        (current) =>
-          current + 1
-      );
-
-      setLastUpdated(new Date());
-    };
+        setLastUpdated(
+          new Date()
+        );
+      };
 
     window.addEventListener(
       "storage",
@@ -507,30 +1036,30 @@ function AdminAnalytics() {
   ======================================================= */
 
   useEffect(() => {
-    const handleKeyboard = (
-      event
-    ) => {
-      if (
-        (event.ctrlKey ||
-          event.metaKey) &&
-        event.key.toLowerCase() ===
-          "k"
-      ) {
-        event.preventDefault();
+    const handleKeyboard =
+      (event) => {
+        if (
+          (event.ctrlKey ||
+            event.metaKey) &&
+          event.key.toLowerCase() ===
+            "k"
+        ) {
+          event.preventDefault();
 
-        globalSearchRef.current?.focus();
+          globalSearchRef.current?.focus();
 
-        setSearchOpen(true);
-      }
+          setSearchOpen(true);
+        }
 
-      if (
-        event.key === "Escape"
-      ) {
-        setSearchOpen(false);
-        setCreateOpen(false);
-        setProfileOpen(false);
-      }
-    };
+        if (
+          event.key ===
+          "Escape"
+        ) {
+          setSearchOpen(false);
+          setCreateOpen(false);
+          setProfileOpen(false);
+        }
+      };
 
     window.addEventListener(
       "keydown",
@@ -545,108 +1074,106 @@ function AdminAnalytics() {
   }, []);
 
   /* =======================================================
-     NAVIGATION
-  ======================================================= */
-
-  const goTo = (path) => {
-    setCreateOpen(false);
-    setProfileOpen(false);
-    setSearchOpen(false);
-    setGlobalSearch("");
-
-    navigate(path);
-  };
-
-  /* =======================================================
      EXPORT CSV
   ======================================================= */
 
-  const exportAnalytics = () => {
-    const headers = [
-      "Workspace",
-      "Owner",
-      "Members",
-      "Projects",
-      "Tasks",
-      "Storage",
-      "Plan",
-      "Growth",
-    ];
+  const exportAnalytics =
+    () => {
+      const headers = [
+        "Workspace",
+        "Owner",
+        "Members",
+        "Projects",
+        "Tasks",
+        "Plan",
+        "Growth",
+      ];
 
-    const rows =
-      filteredWorkspaces.map(
-        (workspace) => [
-          workspace.name,
-          workspace.owner,
-          workspace.members,
-          workspace.projects,
-          workspace.tasks,
-          `${workspace.storage}%`,
-          workspace.plan,
-          `${workspace.growth}%`,
-        ]
+      const rows =
+        filteredWorkspaces.map(
+          (workspace) => [
+            workspace.name,
+            workspace.owner,
+            workspace.members,
+            workspace.projects,
+            workspace.tasks,
+            workspace.plan,
+            `${workspace.growth}%`,
+          ]
+        );
+
+      const csv = [
+        headers,
+        ...rows,
+      ]
+        .map((row) =>
+          row
+            .map(
+              (value) =>
+                `"${String(
+                  value
+                ).replace(
+                  /"/g,
+                  '""'
+                )}"`
+            )
+            .join(",")
+        )
+        .join("\n");
+
+      const blob =
+        new Blob(
+          [csv],
+          {
+            type:
+              "text/csv;charset=utf-8;",
+          }
+        );
+
+      const url =
+        URL.createObjectURL(
+          blob
+        );
+
+      const link =
+        document.createElement(
+          "a"
+        );
+
+      link.href = url;
+
+      link.download =
+        `teamflow-analytics-${range
+          .toLowerCase()
+          .replaceAll(
+            " ",
+            "-"
+          )}.csv`;
+
+      document.body.appendChild(
+        link
       );
 
-    const csv = [
-      headers,
-      ...rows,
-    ]
-      .map((row) =>
-        row
-          .map(
-            (value) =>
-              `"${String(
-                value
-              ).replace(
-                /"/g,
-                '""'
-              )}"`
-          )
-          .join(",")
-      )
-      .join("\n");
+      link.click();
 
-    const blob = new Blob(
-      [csv],
-      {
-        type: "text/csv;charset=utf-8;",
-      }
-    );
+      document.body.removeChild(
+        link
+      );
 
-    const url =
-      URL.createObjectURL(blob);
-
-    const link =
-      document.createElement("a");
-
-    link.href = url;
-
-    link.download =
-      `teamflow-analytics-${range
-        .toLowerCase()
-        .replaceAll(
-          " ",
-          "-"
-        )}.csv`;
-
-    document.body.appendChild(
-      link
-    );
-
-    link.click();
-
-    document.body.removeChild(
-      link
-    );
-
-    URL.revokeObjectURL(url);
-  };
+      URL.revokeObjectURL(
+        url
+      );
+    };
 
   /* =======================================================
      LOGOUT
   ======================================================= */
 
   const logout = () => {
+    localStorage.removeItem(
+      "teamflow_current_user"
+    );
+
     localStorage.removeItem(
       "teamflow_admin"
     );
@@ -655,33 +1182,66 @@ function AdminAnalytics() {
       "teamflow_admin_logged_in"
     );
 
+    localStorage.removeItem(
+      "teamflow_remember"
+    );
+
+    localStorage.removeItem(
+      "teamflow_remembered_email"
+    );
+
+    localStorage.removeItem(
+      "teamflow_remembered_role"
+    );
+
     sessionStorage.removeItem(
       "teamflow_admin"
     );
 
-    navigate("/login");
+    navigate(
+      "/choose-role",
+      {
+        replace: true,
+
+        state: {
+          next: "login",
+        },
+      }
+    );
   };
 
+  /* =======================================================
+     JSX
+  ======================================================= */
+
   return (
-    <div className="admin-analytics-shell">
+    <div
+      className={`admin-analytics-shell ${
+        pageReady
+          ? "admin-analytics-ready"
+          : "admin-analytics-loading"
+      }`}
+    >
       <AdminSidebar />
 
       <main className="admin-analytics-main">
-        {/* =============================================
-            TOPBAR
-        ============================================== */}
+        {/* ================= TOPBAR ================= */}
 
         <header className="admin-analytics-topbar">
           <div className="admin-analytics-global-search-wrapper">
             <div className="admin-analytics-global-search">
-              <Search size={17} />
+              <Search
+                size={17}
+              />
 
               <input
                 ref={
                   globalSearchRef
                 }
                 type="text"
-                value={globalSearch}
+                value={
+                  globalSearch
+                }
                 placeholder="Search users, workspaces, projects, or anything..."
                 onFocus={() =>
                   setSearchOpen(
@@ -711,11 +1271,14 @@ function AdminAnalytics() {
                       ""
                     )
                   }
+                  aria-label="Clear search"
                 >
                   <X size={14} />
                 </button>
               ) : (
-                <span>Ctrl + K</span>
+                <span>
+                  Ctrl + K
+                </span>
               )}
             </div>
 
@@ -778,7 +1341,6 @@ function AdminAnalytics() {
 
                       <strong>
                         No results
-                        found
                       </strong>
 
                       <span>
@@ -808,8 +1370,12 @@ function AdminAnalytics() {
                   );
                 }}
               >
-                <Plus size={17} />
+                <Plus
+                  size={17}
+                />
+
                 Create
+
                 <ChevronDown
                   size={14}
                 />
@@ -828,6 +1394,7 @@ function AdminAnalytics() {
                     <Building2
                       size={16}
                     />
+
                     New Workspace
                   </button>
 
@@ -842,6 +1409,7 @@ function AdminAnalytics() {
                     <Users
                       size={16}
                     />
+
                     New User
                   </button>
 
@@ -856,6 +1424,7 @@ function AdminAnalytics() {
                     <FolderKanban
                       size={16}
                     />
+
                     New Project
                   </button>
                 </div>
@@ -888,7 +1457,6 @@ function AdminAnalytics() {
                   </strong>
 
                   <span>
-                    Super
                     Administrator
                   </span>
                 </div>
@@ -911,17 +1479,21 @@ function AdminAnalytics() {
                     <Settings
                       size={15}
                     />
+
                     Settings
                   </button>
 
                   <button
                     type="button"
                     className="danger"
-                    onClick={logout}
+                    onClick={
+                      logout
+                    }
                   >
                     <LogOut
                       size={15}
                     />
+
                     Logout
                   </button>
                 </div>
@@ -930,12 +1502,10 @@ function AdminAnalytics() {
           </div>
         </header>
 
-        {/* =============================================
-            CONTENT
-        ============================================== */}
+        {/* ================= CONTENT ================= */}
 
         <div className="admin-analytics-content">
-          {/* HEADING */}
+          {/* ================= HEADING ================= */}
 
           <section className="admin-analytics-heading">
             <div>
@@ -1039,14 +1609,13 @@ function AdminAnalytics() {
                 <Download
                   size={15}
                 />
+
                 Export Report
               </button>
             </div>
           </section>
 
-          {/* =============================================
-              KPI
-          ============================================== */}
+          {/* ================= KPI ================= */}
 
           <section className="admin-analytics-kpis">
             <KpiCard
@@ -1119,7 +1688,9 @@ function AdminAnalytics() {
               value={`$${summary.monthlyRevenue.toLocaleString()}`}
               change="+32%"
               description="Recurring revenue"
-              icon={DollarSign}
+              icon={
+                DollarSign
+              }
               type="pink"
               onClick={() =>
                 goTo(
@@ -1129,9 +1700,7 @@ function AdminAnalytics() {
             />
           </section>
 
-          {/* =============================================
-              CHART ROW 1
-          ============================================== */}
+          {/* ================= CHART ROW 1 ================= */}
 
           <section className="admin-analytics-grid admin-analytics-grid-main">
             <ChartCard
@@ -1152,19 +1721,19 @@ function AdminAnalytics() {
             <ChartCard
               title="Workspace Distribution"
               subtitle="Workspaces by department"
-              icon={Building2}
+              icon={
+                Building2
+              }
             >
               <DonutChart
                 data={
-                  workspaceDistribution
+                  liveWorkspaceDistribution
                 }
               />
             </ChartCard>
           </section>
 
-          {/* =============================================
-              CHART ROW 2
-          ============================================== */}
+          {/* ================= CHART ROW 2 ================= */}
 
           <section className="admin-analytics-grid admin-analytics-grid-three">
             <ChartCard
@@ -1176,7 +1745,7 @@ function AdminAnalytics() {
             >
               <RevenueChart
                 data={
-                  revenueData
+                  liveRevenueData
                 }
               />
             </ChartCard>
@@ -1184,11 +1753,13 @@ function AdminAnalytics() {
             <ChartCard
               title="Plan Distribution"
               subtitle="Subscriptions by plan"
-              icon={BarChart3}
+              icon={
+                BarChart3
+              }
             >
               <PlanDistribution
                 data={
-                  planDistribution
+                  livePlanDistribution
                 }
               />
             </ChartCard>
@@ -1200,18 +1771,16 @@ function AdminAnalytics() {
             >
               <ActivityChart
                 data={
-                  activityData
+                  liveActivityData
                 }
               />
             </ChartCard>
           </section>
 
-          {/* =============================================
-              WORKSPACE + HEALTH
-          ============================================== */}
+          {/* ================= BOTTOM ================= */}
 
           <section className="admin-analytics-bottom-grid">
-            {/* WORKSPACE TABLE */}
+            {/* WORKSPACES */}
 
             <article className="admin-analytics-card">
               <div className="admin-analytics-card-header">
@@ -1453,7 +2022,7 @@ function AdminAnalytics() {
               </div>
             </article>
 
-            {/* SYSTEM HEALTH */}
+            {/* SYSTEM PERFORMANCE */}
 
             <article className="admin-analytics-card">
               <div className="admin-analytics-card-header">
@@ -1517,6 +2086,8 @@ function AdminAnalytics() {
             </article>
           </section>
 
+          {/* ================= UPDATED ================= */}
+
           <div className="admin-analytics-updated">
             <span className="admin-analytics-live-dot" />
 
@@ -1524,8 +2095,10 @@ function AdminAnalytics() {
             {lastUpdated.toLocaleTimeString(
               [],
               {
-                hour: "2-digit",
-                minute: "2-digit",
+                hour:
+                  "2-digit",
+                minute:
+                  "2-digit",
                 second:
                   "2-digit",
               }
@@ -1563,12 +2136,18 @@ function KpiCard({
       </div>
 
       <div className="admin-analytics-kpi-info">
-        <span>{title}</span>
+        <span>
+          {title}
+        </span>
 
-        <strong>{value}</strong>
+        <strong>
+          {value}
+        </strong>
 
         <small>
-          <b>{change}</b>{" "}
+          <b>
+            {change}
+          </b>{" "}
           {description}
         </small>
       </div>
@@ -1598,11 +2177,16 @@ function ChartCard({
       <div className="admin-analytics-card-header">
         <div>
           <h3>
-            <Icon size={17} />
+            <Icon
+              size={17}
+            />
+
             {title}
           </h3>
 
-          <p>{subtitle}</p>
+          <p>
+            {subtitle}
+          </p>
         </div>
 
         <span className="admin-analytics-chart-live">
@@ -1620,20 +2204,42 @@ function ChartCard({
    LINE CHART
 ========================================================= */
 
-function LineChart({ data }) {
-  const [hovered, setHovered] =
-    useState(null);
+function LineChart({
+  data,
+}) {
+  const [
+    hovered,
+    setHovered,
+  ] = useState(null);
 
   const width = 700;
   const height = 230;
   const padding = 35;
 
+  const safeData =
+    Array.isArray(data) &&
+    data.length
+      ? data
+      : [];
+
+  if (!safeData.length) {
+    return (
+      <div className="admin-analytics-chart-empty">
+        No growth data available.
+      </div>
+    );
+  }
+
   const maxValue =
     Math.max(
-      ...data.flatMap(
+      ...safeData.flatMap(
         (item) => [
-          item.users,
-          item.active,
+          numberValue(
+            item.users
+          ),
+          numberValue(
+            item.active
+          ),
         ]
       ),
       1
@@ -1642,39 +2248,50 @@ function LineChart({ data }) {
   const getX = (index) =>
     padding +
     (index *
-      (width - padding * 2)) /
+      (width -
+        padding * 2)) /
       Math.max(
-        data.length - 1,
+        safeData.length - 1,
         1
       );
 
   const getY = (value) =>
     height -
     padding -
-    (value / maxValue) *
-      (height - padding * 2);
+    (numberValue(value) /
+      maxValue) *
+      (height -
+        padding * 2);
 
-  const userPoints = data
-    .map(
-      (item, index) =>
-        `${getX(
+  const userPoints =
+    safeData
+      .map(
+        (
+          item,
           index
-        )},${getY(
-          item.users
-        )}`
-    )
-    .join(" ");
+        ) =>
+          `${getX(
+            index
+          )},${getY(
+            item.users
+          )}`
+      )
+      .join(" ");
 
-  const activePoints = data
-    .map(
-      (item, index) =>
-        `${getX(
+  const activePoints =
+    safeData
+      .map(
+        (
+          item,
           index
-        )},${getY(
-          item.active
-        )}`
-    )
-    .join(" ");
+        ) =>
+          `${getX(
+            index
+          )},${getY(
+            item.active
+          )}`
+      )
+      .join(" ");
 
   return (
     <div className="admin-analytics-line-chart">
@@ -1722,17 +2339,24 @@ function LineChart({ data }) {
           )}
 
           <polyline
-            points={userPoints}
+            points={
+              userPoints
+            }
             className="admin-analytics-users-line"
           />
 
           <polyline
-            points={activePoints}
+            points={
+              activePoints
+            }
             className="admin-analytics-active-line"
           />
 
-          {data.map(
-            (item, index) => (
+          {safeData.map(
+            (
+              item,
+              index
+            ) => (
               <React.Fragment
                 key={
                   item.label
@@ -1757,7 +2381,8 @@ function LineChart({ data }) {
                   onMouseEnter={() =>
                     setHovered({
                       index,
-                      type: "users",
+                      type:
+                        "users",
                       item,
                     })
                   }
@@ -1787,7 +2412,8 @@ function LineChart({ data }) {
                   onMouseEnter={() =>
                     setHovered({
                       index,
-                      type: "active",
+                      type:
+                        "active",
                       item,
                     })
                   }
@@ -1817,6 +2443,7 @@ function LineChart({ data }) {
                 ),
                 86
               )}%`,
+
               top: `${Math.max(
                 (getY(
                   hovered.type ===
@@ -1842,23 +2469,35 @@ function LineChart({ data }) {
 
             <span>
               Total:{" "}
-              {hovered.item.users.toLocaleString()}
+              {numberValue(
+                hovered.item
+                  .users
+              ).toLocaleString()}
             </span>
 
             <span>
               Active:{" "}
-              {hovered.item.active.toLocaleString()}
+              {numberValue(
+                hovered.item
+                  .active
+              ).toLocaleString()}
             </span>
           </div>
         )}
       </div>
 
       <div className="admin-analytics-chart-labels">
-        {data.map((item) => (
-          <span key={item.label}>
-            {item.label}
-          </span>
-        ))}
+        {safeData.map(
+          (item) => (
+            <span
+              key={
+                item.label
+              }
+            >
+              {item.label}
+            </span>
+          )
+        )}
       </div>
     </div>
   );
@@ -1868,15 +2507,41 @@ function LineChart({ data }) {
    DONUT CHART
 ========================================================= */
 
-function DonutChart({ data }) {
-  const [selected, setSelected] =
-    useState(null);
+function DonutChart({
+  data,
+}) {
+  const [
+    selected,
+    setSelected,
+  ] = useState(null);
 
-  const total = data.reduce(
-    (sum, item) =>
-      sum + item.value,
-    0
-  );
+  const safeData =
+    Array.isArray(data)
+      ? data.filter(
+          (item) =>
+            numberValue(
+              item.value
+            ) > 0
+        )
+      : [];
+
+  if (!safeData.length) {
+    return (
+      <div className="admin-analytics-chart-empty">
+        No workspace data available.
+      </div>
+    );
+  }
+
+  const total =
+    safeData.reduce(
+      (sum, item) =>
+        sum +
+        numberValue(
+          item.value
+        ),
+      0
+    );
 
   const colors = [
     "#6338f5",
@@ -1889,24 +2554,43 @@ function DonutChart({ data }) {
 
   let current = 0;
 
-  const gradient = data
-    .map((item, index) => {
-      const start =
-        (current / total) * 100;
+  const gradient =
+    safeData
+      .map(
+        (
+          item,
+          index
+        ) => {
+          const start =
+            (current /
+              total) *
+            100;
 
-      current += item.value;
+          current +=
+            numberValue(
+              item.value
+            );
 
-      const end =
-        (current / total) * 100;
+          const end =
+            (current /
+              total) *
+            100;
 
-      return `${colors[index]} ${start}% ${end}%`;
-    })
-    .join(",");
+          return `${
+            colors[
+              index %
+                colors.length
+            ]
+          } ${start}% ${end}%`;
+        }
+      )
+      .join(",");
 
   const activeItem =
-    data.find(
+    safeData.find(
       (item) =>
-        item.name === selected
+        item.name ===
+        selected
     );
 
   return (
@@ -1918,7 +2602,8 @@ function DonutChart({ data }) {
             : ""
         }`}
         style={{
-          background: `conic-gradient(${gradient})`,
+          background:
+            `conic-gradient(${gradient})`,
         }}
       >
         <div>
@@ -1937,11 +2622,16 @@ function DonutChart({ data }) {
       </div>
 
       <div className="admin-analytics-donut-legend">
-        {data.map(
-          (item, index) => (
+        {safeData.map(
+          (
+            item,
+            index
+          ) => (
             <button
               type="button"
-              key={item.name}
+              key={
+                item.name
+              }
               className={
                 selected ===
                 item.name
@@ -1954,7 +2644,9 @@ function DonutChart({ data }) {
                 )
               }
               onMouseLeave={() =>
-                setSelected(null)
+                setSelected(
+                  null
+                )
               }
               onFocus={() =>
                 setSelected(
@@ -1962,7 +2654,9 @@ function DonutChart({ data }) {
                 )
               }
               onBlur={() =>
-                setSelected(null)
+                setSelected(
+                  null
+                )
               }
             >
               <span>
@@ -1970,7 +2664,8 @@ function DonutChart({ data }) {
                   style={{
                     background:
                       colors[
-                        index
+                        index %
+                          colors.length
                       ],
                   }}
                 />
@@ -1996,39 +2691,63 @@ function DonutChart({ data }) {
 }
 
 /* =========================================================
-   REVENUE
+   REVENUE CHART
 ========================================================= */
 
-function RevenueChart({ data }) {
-  const [hovered, setHovered] =
-    useState(null);
+function RevenueChart({
+  data,
+}) {
+  const [
+    hovered,
+    setHovered,
+  ] = useState(null);
 
-  const max = Math.max(
-    ...data.map(
-      (item) => item.revenue
-    ),
-    1
-  );
+  const safeData =
+    Array.isArray(data)
+      ? data
+      : [];
+
+  const max =
+    Math.max(
+      ...safeData.map(
+        (item) =>
+          numberValue(
+            item.revenue
+          )
+      ),
+      1
+    );
 
   return (
     <div className="admin-analytics-revenue-chart">
       <div className="admin-analytics-revenue-bars">
-        {data.map(
-          (item, index) => (
+        {safeData.map(
+          (
+            item,
+            index
+          ) => (
             <div
               className="admin-analytics-revenue-column"
-              key={item.month}
+              key={
+                item.month
+              }
               onMouseEnter={() =>
-                setHovered(index)
+                setHovered(
+                  index
+                )
               }
               onMouseLeave={() =>
-                setHovered(null)
+                setHovered(
+                  null
+                )
               }
             >
               <span className="admin-analytics-bar-value">
                 $
                 {(
-                  item.revenue /
+                  numberValue(
+                    item.revenue
+                  ) /
                   1000
                 ).toFixed(1)}
                 k
@@ -2043,7 +2762,9 @@ function RevenueChart({ data }) {
                 }`}
                 style={{
                   height: `${
-                    (item.revenue /
+                    (numberValue(
+                      item.revenue
+                    ) /
                       max) *
                     150
                   }px`,
@@ -2063,7 +2784,9 @@ function RevenueChart({ data }) {
 
                   <span>
                     $
-                    {item.revenue.toLocaleString()}
+                    {numberValue(
+                      item.revenue
+                    ).toLocaleString()}
                   </span>
                 </div>
               )}
@@ -2082,104 +2805,150 @@ function RevenueChart({ data }) {
 function PlanDistribution({
   data,
 }) {
-  const [hovered, setHovered] =
-    useState(null);
+  const [
+    hovered,
+    setHovered,
+  ] = useState(null);
 
-  const total = data.reduce(
-    (sum, item) =>
-      sum + item.value,
-    0
-  );
+  const safeData =
+    Array.isArray(data)
+      ? data
+      : [];
+
+  const total =
+    safeData.reduce(
+      (sum, item) =>
+        sum +
+        numberValue(
+          item.value
+        ),
+      0
+    );
 
   return (
     <div className="admin-analytics-plan-list">
-      {data.map((item) => {
-        const percentage =
-          Math.round(
-            (item.value /
-              total) *
-              100
-          );
+      {safeData.map(
+        (item) => {
+          const percentage =
+            total
+              ? Math.round(
+                  (numberValue(
+                    item.value
+                  ) /
+                    total) *
+                    100
+                )
+              : 0;
 
-        return (
-          <div
-            className={`admin-analytics-plan-row ${
-              hovered ===
-              item.name
-                ? "active"
-                : ""
-            }`}
-            key={item.name}
-            onMouseEnter={() =>
-              setHovered(
+          return (
+            <div
+              className={`admin-analytics-plan-row ${
+                hovered ===
                 item.name
-              )
-            }
-            onMouseLeave={() =>
-              setHovered(null)
-            }
-          >
-            <div>
-              <span>
-                {item.name}
-              </span>
+                  ? "active"
+                  : ""
+              }`}
+              key={
+                item.name
+              }
+              onMouseEnter={() =>
+                setHovered(
+                  item.name
+                )
+              }
+              onMouseLeave={() =>
+                setHovered(
+                  null
+                )
+              }
+            >
+              <div>
+                <span>
+                  {item.name}
+                </span>
 
-              <strong>
-                {item.value}
-              </strong>
+                <strong>
+                  {item.value}
+                </strong>
+              </div>
+
+              <div className="admin-analytics-progress">
+                <span
+                  className={item.name.toLowerCase()}
+                  style={{
+                    width: `${percentage}%`,
+                  }}
+                />
+              </div>
+
+              <small>
+                {percentage}%
+              </small>
             </div>
-
-            <div className="admin-analytics-progress">
-              <span
-                className={item.name.toLowerCase()}
-                style={{
-                  width: `${percentage}%`,
-                }}
-              />
-            </div>
-
-            <small>
-              {percentage}%
-            </small>
-          </div>
-        );
-      })}
+          );
+        }
+      )}
     </div>
   );
 }
 
 /* =========================================================
-   ACTIVITY
+   ACTIVITY CHART
 ========================================================= */
 
-function ActivityChart({ data }) {
-  const [hovered, setHovered] =
-    useState(null);
+function ActivityChart({
+  data,
+}) {
+  const [
+    hovered,
+    setHovered,
+  ] = useState(null);
 
-  const max = Math.max(
-    ...data.flatMap(
-      (item) => [
-        item.created,
-        item.updated,
-        item.completed,
-      ]
-    ),
-    1
-  );
+  const safeData =
+    Array.isArray(data)
+      ? data
+      : [];
+
+  const max =
+    Math.max(
+      ...safeData.flatMap(
+        (item) => [
+          numberValue(
+            item.created
+          ),
+          numberValue(
+            item.updated
+          ),
+          numberValue(
+            item.completed
+          ),
+        ]
+      ),
+      1
+    );
 
   return (
     <div className="admin-analytics-activity">
       <div className="admin-analytics-activity-bars">
-        {data.map(
-          (item, index) => (
+        {safeData.map(
+          (
+            item,
+            index
+          ) => (
             <div
               className="admin-analytics-activity-column"
-              key={item.day}
+              key={
+                item.day
+              }
               onMouseEnter={() =>
-                setHovered(index)
+                setHovered(
+                  index
+                )
               }
               onMouseLeave={() =>
-                setHovered(null)
+                setHovered(
+                  null
+                )
               }
             >
               <div
@@ -2194,7 +2963,9 @@ function ActivityChart({ data }) {
                   className="created"
                   style={{
                     height: `${
-                      (item.created /
+                      (numberValue(
+                        item.created
+                      ) /
                         max) *
                       125
                     }px`,
@@ -2205,7 +2976,9 @@ function ActivityChart({ data }) {
                   className="updated"
                   style={{
                     height: `${
-                      (item.updated /
+                      (numberValue(
+                        item.updated
+                      ) /
                         max) *
                       125
                     }px`,
@@ -2216,7 +2989,9 @@ function ActivityChart({ data }) {
                   className="completed"
                   style={{
                     height: `${
-                      (item.completed /
+                      (numberValue(
+                        item.completed
+                      ) /
                         max) *
                       125
                     }px`,
@@ -2298,12 +3073,26 @@ function SystemMetric({
   ];
 
   const Icon =
-    icons[index] || Activity;
+    icons[index] ||
+    Activity;
+
+  const value =
+    Math.min(
+      100,
+      Math.max(
+        0,
+        numberValue(
+          metric.value
+        )
+      )
+    );
 
   return (
     <div className="admin-analytics-system-metric">
       <div className="admin-analytics-system-icon">
-        <Icon size={17} />
+        <Icon
+          size={17}
+        />
       </div>
 
       <div className="admin-analytics-system-info">
@@ -2313,14 +3102,14 @@ function SystemMetric({
           </span>
 
           <strong>
-            {metric.value}%
+            {value}%
           </strong>
         </div>
 
         <div className="admin-analytics-system-progress">
           <span
             style={{
-              width: `${metric.value}%`,
+              width: `${value}%`,
             }}
           />
         </div>

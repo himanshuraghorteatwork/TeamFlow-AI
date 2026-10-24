@@ -1,3 +1,4 @@
+
 import React from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 
@@ -21,10 +22,6 @@ import {
 } from "lucide-react";
 
 import "./AdminSidebar.css";
-
-/* =========================================================
-   ADMIN MENU ITEMS
-========================================================= */
 
 const adminMenuItems = [
   {
@@ -89,99 +86,41 @@ const adminMenuItems = [
   },
 ];
 
-/* =========================================================
-   ADMIN SIDEBAR
-========================================================= */
-
 function AdminSidebar() {
   const navigate = useNavigate();
 
-  /* =======================================================
-     LOGOUT
-
-     FLOW:
-     Admin Dashboard
-          ↓
-        Logout
-          ↓
-      Choose Role
-          ↓
-        Login
-          ↓
-     Selected Dashboard
-  ======================================================= */
-
   const handleLogout = () => {
     try {
-      /* ===================================================
-         CLEAR CURRENT SESSION
-      =================================================== */
-
+      // Clear the current login session.
       localStorage.removeItem("teamflow_current_user");
+      sessionStorage.removeItem("teamflow_current_user");
 
-      /* ===================================================
-         CLEAR ADMIN SESSION
-      =================================================== */
-
+      // Clear Admin-specific session data.
       localStorage.removeItem("teamflow_admin");
       localStorage.removeItem("teamflow_admin_logged_in");
+      sessionStorage.removeItem("teamflow_admin");
+      sessionStorage.removeItem("teamflow_admin_logged_in");
 
-      /* ===================================================
-         CLEAR REMEMBER LOGIN DATA
-      =================================================== */
-
+      // Clear remembered login details.
       localStorage.removeItem("teamflow_remember");
       localStorage.removeItem("teamflow_remembered_email");
       localStorage.removeItem("teamflow_remembered_role");
-
-      /*
-        IMPORTANT:
-        DO NOT REMOVE:
-
-        teamflow_users
-
-        That contains your registered/default users.
-      */
-
-      /* ===================================================
-         GO TO CHOOSE ROLE
-
-         next: "login"
-
-         This tells ChooseRole.jsx:
-         after selecting a role -> open Login page
-      =================================================== */
-
-      navigate("/choose-role", {
-        replace: true,
-        state: {
-          next: "login",
-        },
-      });
     } catch (error) {
       console.error("Admin logout failed:", error);
-
-      /* Fallback */
-      navigate("/choose-role", {
-        replace: true,
-        state: {
-          next: "login",
-        },
-      });
     }
-  };
 
-  /* =======================================================
-     WORKSPACE CONTROL
-  ======================================================= */
+    // Return to role selection. Keep registered users intact.
+    navigate("/choose-role", {
+      replace: true,
+      state: {
+        next: "login",
+      },
+    });
+  };
 
   const handleWorkspaceControl = () => {
     navigate("/admin/settings");
   };
-
-  /* =======================================================
-     BRAND CLICK
-  ======================================================= */
 
   const handleBrandClick = () => {
     navigate("/admin/dashboard");
@@ -189,15 +128,9 @@ function AdminSidebar() {
 
   return (
     <aside className="adminConsoleSidebar">
-      {/* ===================================================
-          HEADER
-      =================================================== */}
-
+      {/* Header */}
       <div className="adminConsoleSidebar__header">
-        {/* =================================================
-            BRAND
-        ================================================= */}
-
+        {/* Brand */}
         <button
           type="button"
           className="adminConsoleSidebar__brand"
@@ -212,21 +145,14 @@ function AdminSidebar() {
             <strong>
               TeamFlow <em>AI</em>
             </strong>
-
             <small>Admin Console</small>
           </span>
         </button>
 
-        {/* =================================================
-            HEADER DIVIDER
-        ================================================= */}
-
+        {/* Header divider */}
         <div className="adminConsoleSidebar__divider" />
 
-        {/* =================================================
-            ADMIN ROLE CARD
-        ================================================= */}
-
+        {/* Admin role card */}
         <div className="adminConsoleSidebar__roleCard">
           <span className="adminConsoleSidebar__roleIcon">
             <ShieldCheck size={22} strokeWidth={2} />
@@ -234,7 +160,6 @@ function AdminSidebar() {
 
           <span className="adminConsoleSidebar__roleInfo">
             <strong>Admin</strong>
-
             <small>Workspace Management</small>
           </span>
 
@@ -248,10 +173,7 @@ function AdminSidebar() {
         </div>
       </div>
 
-      {/* ===================================================
-          MIDDLE NAVIGATION
-      =================================================== */}
-
+      {/* Navigation */}
       <div className="adminConsoleSidebar__middle">
         <p className="adminConsoleSidebar__sectionTitle">
           PLATFORM MANAGEMENT
@@ -280,19 +202,13 @@ function AdminSidebar() {
                     .join(" ")
                 }
               >
-                {/* NAV ICON */}
-
                 <span className="adminConsoleSidebar__navIcon">
                   <Icon size={18} strokeWidth={1.9} />
                 </span>
 
-                {/* NAV LABEL */}
-
                 <span className="adminConsoleSidebar__navLabel">
                   {item.name}
                 </span>
-
-                {/* ACTIVE INDICATOR */}
 
                 <span
                   className="adminConsoleSidebar__activeIndicator"
@@ -304,21 +220,11 @@ function AdminSidebar() {
         </nav>
       </div>
 
-      {/* ===================================================
-          FOOTER
-      =================================================== */}
-
+      {/* Footer */}
       <div className="adminConsoleSidebar__footer">
-        {/* =================================================
-            FOOTER DIVIDER
-        ================================================= */}
-
         <div className="adminConsoleSidebar__footerDivider" />
 
-        {/* =================================================
-            WORKSPACE CONTROL
-        ================================================= */}
-
+        {/* Workspace settings */}
         <button
           type="button"
           className="adminConsoleSidebar__control"
@@ -331,7 +237,6 @@ function AdminSidebar() {
 
           <span className="adminConsoleSidebar__controlInfo">
             <strong>Workspace Control</strong>
-
             <small>
               Manage team workspace
               <br />
@@ -346,16 +251,9 @@ function AdminSidebar() {
           />
         </button>
 
-        {/* =================================================
-            PROFILE DIVIDER
-        ================================================= */}
-
         <div className="adminConsoleSidebar__profileDivider" />
 
-        {/* =================================================
-            ADMIN PROFILE
-        ================================================= */}
-
+        {/* Admin profile */}
         <div className="adminConsoleSidebar__profile">
           <div
             className="adminConsoleSidebar__avatar"
@@ -366,16 +264,11 @@ function AdminSidebar() {
 
           <div className="adminConsoleSidebar__profileInfo">
             <strong>Admin</strong>
-
             <small>Workspace Administrator</small>
           </div>
         </div>
 
-        {/* =================================================
-            LOGOUT
-            ONLY ONE LOGOUT BUTTON
-        ================================================= */}
-
+        {/* Single logout button */}
         <button
           type="button"
           className="adminConsoleSidebar__logout"
@@ -384,7 +277,6 @@ function AdminSidebar() {
           title="Logout"
         >
           <LogOut size={18} strokeWidth={1.9} />
-
           <span>Logout</span>
         </button>
       </div>
