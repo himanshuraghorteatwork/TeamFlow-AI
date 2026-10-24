@@ -1,1014 +1,1230 @@
+
 import React, { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
 import {
+  ResponsiveContainer,
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  PieChart,
+  Pie,
+  Cell,
+  BarChart,
+  Bar,
+} from "recharts";
+import {
+  Activity,
+  ArrowDownRight,
+  ArrowRight,
+  ArrowUpRight,
   Bell,
   CalendarDays,
   CheckCircle2,
-  CheckSquare,
   ChevronDown,
+  CircleHelp,
   Clock3,
   FolderKanban,
-  HelpCircle,
+  LayoutDashboard,
   LogOut,
+  Menu,
   MessageCircle,
+  MoreHorizontal,
+  Plus,
   Search,
   Settings,
   Sparkles,
+  Target,
   Users,
   X,
+  Zap,
+    Sun,
+  Moon,
 } from "lucide-react";
-
 import "./TeamLeadDashboard.css";
 
-/* =========================================================
-   PROJECT DATA
-========================================================= */
-
-const PROJECTS = [
-  {
-    id: 1,
-    name: "TeamFlow AI - Web",
-    members: 4,
-    tasks: 5,
-    completed: 2,
-    progress: 40,
-    status: "Active",
-  },
-  {
-    id: 2,
-    name: "Mobile App",
-    members: 3,
-    tasks: 4,
-    completed: 2,
-    progress: 50,
-    status: "Active",
-  },
-  {
-    id: 3,
-    name: "Marketing Website",
-    members: 2,
-    tasks: 3,
-    completed: 3,
-    progress: 100,
-    status: "Completed",
-  },
+const activityData = [
+  { day: "Mon", completed: 18, created: 12 },
+  { day: "Tue", completed: 24, created: 16 },
+  { day: "Wed", completed: 20, created: 13 },
+  { day: "Thu", completed: 32, created: 21 },
+  { day: "Fri", completed: 28, created: 17 },
+  { day: "Sat", completed: 37, created: 24 },
+  { day: "Sun", completed: 34, created: 19 },
 ];
 
-/* =========================================================
-   TEAM MEMBERS
-========================================================= */
-
-const MEMBERS = [
-  {
-    id: 1,
-    name: "Alex Morgan",
-    role: "Frontend Developer",
-    status: "Available",
-    initials: "AM",
-  },
-  {
-    id: 2,
-    name: "Sarah Chen",
-    role: "UI/UX Designer",
-    status: "Available",
-    initials: "SC",
-  },
-  {
-    id: 3,
-    name: "Mike Johnson",
-    role: "Backend Developer",
-    status: "Away",
-    initials: "MJ",
-  },
-  {
-    id: 4,
-    name: "Emily Davis",
-    role: "DevOps Engineer",
-    status: "Available",
-    initials: "ED",
-  },
+const projectData = [
+  { name: "TeamFlow Website", progress: 84 },
+  { name: "Mobile Application", progress: 67 },
+  { name: "Admin Dashboard", progress: 52 },
+  { name: "Analytics Module", progress: 38 },
 ];
 
-/* =========================================================
-   TASK DATA
-========================================================= */
-
-const TASKS = [
+const initialTasks = [
   {
-    id: 1,
-    task: "Dashboard UI",
-    project: "TeamFlow AI - Web",
-    assignee: "Himanshu",
+    id: "TF-1024",
+    title: "Redesign dashboard overview",
+    project: "TeamFlow Website",
+    assignee: "KP",
+    assigneeName: "Komal Pawar",
     priority: "High",
     status: "In Progress",
-    dueDate: "Oct 28",
+    due: "Oct 26",
+    color: "#7c5cff",
   },
   {
-    id: 2,
-    task: "Mobile Navigation",
-    project: "Mobile App",
-    assignee: "Alex Morgan",
+    id: "TF-1025",
+    title: "Fix responsive navigation",
+    project: "Mobile Application",
+    assignee: "AS",
+    assigneeName: "Aarav Shah",
     priority: "Medium",
-    status: "Pending",
-    dueDate: "Oct 30",
+    status: "In Review",
+    due: "Oct 27",
+    color: "#0ea5e9",
   },
   {
-    id: 3,
-    task: "Landing Page Design",
-    project: "Marketing Website",
-    assignee: "Sarah Chen",
+    id: "TF-1026",
+    title: "Create analytics components",
+    project: "Analytics Module",
+    assignee: "PR",
+    assigneeName: "Priya Rao",
+    priority: "High",
+    status: "To Do",
+    due: "Oct 28",
+    color: "#ec4899",
+  },
+  {
+    id: "TF-1027",
+    title: "Update authentication flow",
+    project: "Admin Dashboard",
+    assignee: "RK",
+    assigneeName: "Rohan Kulkarni",
     priority: "Low",
     status: "Completed",
-    dueDate: "Oct 24",
-  },
-  {
-    id: 4,
-    task: "Authentication Flow",
-    project: "TeamFlow AI - Web",
-    assignee: "Mike Johnson",
-    priority: "High",
-    status: "In Progress",
-    dueDate: "Nov 02",
+    due: "Oct 24",
+    color: "#10b981",
   },
 ];
 
-/* =========================================================
-   NOTIFICATIONS
-========================================================= */
-
-const NOTIFICATIONS = [
+const teamMembers = [
   {
     id: 1,
-    title: "Task completed",
-    text: "Sarah completed Landing Page Design.",
-    time: "10 min ago",
+    name: "Komal Pawar",
+    role: "Frontend Developer",
+    initials: "KP",
+    color: "#ede9fe",
+    textColor: "#6d4aff",
+    status: "Online",
+    tasks: 8,
   },
   {
     id: 2,
-    title: "Project updated",
-    text: "TeamFlow AI - Web progress is now 40%.",
-    time: "35 min ago",
+    name: "Aarav Shah",
+    role: "Backend Developer",
+    initials: "AS",
+    color: "#dbeafe",
+    textColor: "#2563eb",
+    status: "Online",
+    tasks: 6,
   },
   {
     id: 3,
-    title: "Upcoming deadline",
-    text: "Dashboard UI is due on Oct 28.",
-    time: "1 hr ago",
+    name: "Priya Rao",
+    role: "UI/UX Designer",
+    initials: "PR",
+    color: "#fce7f3",
+    textColor: "#db2777",
+    status: "In a meeting",
+    tasks: 5,
+  },
+  {
+    id: 4,
+    name: "Rohan Kulkarni",
+    role: "QA Engineer",
+    initials: "RK",
+    color: "#d1fae5",
+    textColor: "#059669",
+    status: "Offline",
+    tasks: 4,
   },
 ];
 
-/* =========================================================
-   DASHBOARD
-========================================================= */
-
-function TeamLeadDashboard() {
-  const navigate = useNavigate();
-
-  const [search, setSearch] = useState("");
-  const [notificationOpen, setNotificationOpen] =
-    useState(false);
-  const [profileOpen, setProfileOpen] = useState(false);
-  const [helpOpen, setHelpOpen] = useState(false);
-
-  /* =======================================================
-     DASHBOARD STATS
-  ======================================================= */
-
-  const stats = useMemo(() => {
-    const totalTasks = TASKS.length;
-
-    const completedTasks = TASKS.filter(
-      (task) => task.status === "Completed"
-    ).length;
-
-    const pendingTasks = TASKS.filter(
-      (task) => task.status !== "Completed"
-    ).length;
-
-    const completion =
-      totalTasks === 0
-        ? 0
-        : Math.round((completedTasks / totalTasks) * 100);
-
-    return {
-      teamMembers: MEMBERS.length,
-      activeProjects: PROJECTS.filter(
-        (project) => project.status === "Active"
-      ).length,
-      pendingTasks,
-      completion,
-    };
-  }, []);
-
-  /* =======================================================
-     SEARCH
-  ======================================================= */
-
-  const filteredTasks = useMemo(() => {
-    const value = search.trim().toLowerCase();
-
-    if (!value) {
-      return TASKS;
-    }
-
-    return TASKS.filter((task) => {
-      return (
-        task.task.toLowerCase().includes(value) ||
-        task.project.toLowerCase().includes(value) ||
-        task.assignee.toLowerCase().includes(value) ||
-        task.priority.toLowerCase().includes(value) ||
-        task.status.toLowerCase().includes(value)
-      );
-    });
-  }, [search]);
-
-  /* =======================================================
-     LOGOUT
-  ======================================================= */
-
-  const handleLogout = () => {
-    localStorage.removeItem("teamflow_current_user");
-    localStorage.removeItem("teamflow_teamlead");
-    localStorage.removeItem("teamflow_teamlead_logged_in");
-
-    sessionStorage.removeItem("teamflow_current_user");
-    sessionStorage.removeItem("teamflow_teamlead");
-
-    navigate("/login");
-  };
-
-  return (
-    <div className="tld-page">
-      {/* ===================================================
-          TOP NAVBAR
-      =================================================== */}
-
-      <header className="tld-topbar">
-        <div className="tld-search-wrapper">
-          <Search size={18} />
-
-          <input
-            type="text"
-            placeholder="Search tasks, projects, members..."
-            value={search}
-            onChange={(event) =>
-              setSearch(event.target.value)
-            }
-          />
-
-          {search && (
-            <button
-              type="button"
-              className="tld-search-clear"
-              onClick={() => setSearch("")}
-              aria-label="Clear search"
-            >
-              <X size={15} />
-            </button>
-          )}
-        </div>
-
-        <div className="tld-top-actions">
-          {/* HELP */}
-
-          <button
-            type="button"
-            className="tld-icon-button"
-            title="Help"
-            onClick={() => {
-              setHelpOpen(true);
-              setNotificationOpen(false);
-              setProfileOpen(false);
-            }}
-          >
-            <HelpCircle size={19} />
-          </button>
-
-          {/* NOTIFICATION */}
-
-          <div className="tld-dropdown-container">
-            <button
-              type="button"
-              className="tld-icon-button tld-notification-button"
-              onClick={() => {
-                setNotificationOpen(
-                  (previous) => !previous
-                );
-
-                setProfileOpen(false);
-              }}
-            >
-              <Bell size={19} />
-
-              <span className="tld-notification-count">
-                {NOTIFICATIONS.length}
-              </span>
-            </button>
-
-            {notificationOpen && (
-              <div className="tld-dropdown tld-notification-dropdown">
-                <div className="tld-dropdown-heading">
-                  <div>
-                    <strong>Notifications</strong>
-                    <span>
-                      {NOTIFICATIONS.length} new updates
-                    </span>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setNotificationOpen(false)
-                    }
-                  >
-                    <X size={16} />
-                  </button>
-                </div>
-
-                <div className="tld-notification-list">
-                  {NOTIFICATIONS.map((item) => (
-                    <button
-                      type="button"
-                      className="tld-notification-item"
-                      key={item.id}
-                      onClick={() =>
-                        setNotificationOpen(false)
-                      }
-                    >
-                      <span className="tld-notification-dot" />
-
-                      <span>
-                        <strong>{item.title}</strong>
-                        <small>{item.text}</small>
-                        <em>{item.time}</em>
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* PROFILE */}
-
-          <div className="tld-dropdown-container">
-            <button
-              type="button"
-              className="tld-profile-button"
-              onClick={() => {
-                setProfileOpen(
-                  (previous) => !previous
-                );
-
-                setNotificationOpen(false);
-              }}
-            >
-              <span className="tld-profile-avatar">
-                PS
-              </span>
-
-              <span className="tld-profile-information">
-                <strong>Priya Sharma</strong>
-                <small>Team Lead</small>
-              </span>
-
-              <ChevronDown size={16} />
-            </button>
-
-            {profileOpen && (
-              <div className="tld-dropdown tld-profile-dropdown">
-                <div className="tld-profile-dropdown-user">
-                  <span className="tld-profile-large-avatar">
-                    PS
-                  </span>
-
-                  <div>
-                    <strong>Priya Sharma</strong>
-                    <span>Team Lead</span>
-                  </div>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setProfileOpen(false);
-                    navigate("/teamlead/settings");
-                  }}
-                >
-                  <Settings size={16} />
-                  Settings
-                </button>
-
-                <button
-                  type="button"
-                  className="tld-logout-option"
-                  onClick={handleLogout}
-                >
-                  <LogOut size={16} />
-                  Logout
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      </header>
-
-      {/* ===================================================
-          CONTENT
-      =================================================== */}
-
-      <main className="tld-content">
-        {/* PAGE HEADER */}
-
-        <section className="tld-welcome">
-          <div>
-            <span className="tld-eyebrow">
-              TEAM LEAD DASHBOARD
-            </span>
-
-            <h1>
-              Welcome back, <span>Priya!</span>
-            </h1>
-
-            <p>
-              Here's what's happening with your team and
-              projects today.
-            </p>
-          </div>
-
-          <button
-            type="button"
-            className="tld-primary-button"
-            onClick={() =>
-              navigate("/teamlead/tasks")
-            }
-          >
-            <CheckSquare size={17} />
-            View Tasks
-          </button>
-        </section>
-
-        {/* =================================================
-            STATS
-        ================================================= */}
-
-        <section className="tld-stats-grid">
-          <StatCard
-            icon={Users}
-            title="Team Members"
-            value={stats.teamMembers}
-            text="People in your team"
-            type="purple"
-            onClick={() =>
-              navigate("/teamlead/team")
-            }
-          />
-
-          <StatCard
-            icon={FolderKanban}
-            title="Active Projects"
-            value={stats.activeProjects}
-            text={`${PROJECTS.length} total projects`}
-            type="blue"
-            onClick={() =>
-              navigate("/teamlead/projects")
-            }
-          />
-
-          <StatCard
-            icon={CheckSquare}
-            title="Pending Tasks"
-            value={stats.pendingTasks}
-            text={`${TASKS.length} total tasks`}
-            type="orange"
-            onClick={() =>
-              navigate("/teamlead/tasks")
-            }
-          />
-
-          <StatCard
-            icon={CheckCircle2}
-            title="Completion"
-            value={`${stats.completion}%`}
-            text={`${TASKS.filter(
-              (task) =>
-                task.status === "Completed"
-            ).length} tasks completed`}
-            type="green"
-            onClick={() =>
-              navigate("/teamlead/tasks")
-            }
-          />
-        </section>
-
-        {/* =================================================
-            PROJECTS + TEAM
-        ================================================= */}
-
-        <section className="tld-main-grid">
-          {/* PROJECT PROGRESS */}
-
-          <div className="tld-card">
-            <CardHeader
-              title="Project Progress"
-              subtitle="Current progress of active team projects."
-              buttonText="View All"
-              onClick={() =>
-                navigate("/teamlead/projects")
-              }
-            />
-
-            <div className="tld-project-list">
-              {PROJECTS.map((project) => (
-                <button
-                  type="button"
-                  className="tld-project-row"
-                  key={project.id}
-                  onClick={() =>
-                    navigate("/teamlead/projects")
-                  }
-                >
-                  <div className="tld-project-icon">
-                    <FolderKanban size={19} />
-                  </div>
-
-                  <div className="tld-project-info">
-                    <div className="tld-project-title-row">
-                      <div>
-                        <strong>
-                          {project.name}
-                        </strong>
-
-                        <span>
-                          {project.members} members ·{" "}
-                          {project.tasks} tasks
-                        </span>
-                      </div>
-
-                      <span
-                        className={`tld-project-status ${
-                          project.status ===
-                          "Completed"
-                            ? "completed"
-                            : ""
-                        }`}
-                      >
-                        {project.status}
-                      </span>
-                    </div>
-
-                    <div className="tld-progress-meta">
-                      <span>Progress</span>
-                      <strong>
-                        {project.progress}%
-                      </strong>
-                    </div>
-
-                    <div className="tld-progress-track">
-                      <span
-                        style={{
-                          width: `${project.progress}%`,
-                        }}
-                      />
-                    </div>
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* TEAM AVAILABILITY */}
-
-          <div className="tld-card">
-            <CardHeader
-              title="Team Availability"
-              subtitle="Current availability of your team."
-              buttonText="View Team"
-              onClick={() =>
-                navigate("/teamlead/team")
-              }
-            />
-
-            <div className="tld-member-list">
-              {MEMBERS.map((member) => (
-                <button
-                  type="button"
-                  className="tld-member-row"
-                  key={member.id}
-                  onClick={() =>
-                    navigate(
-                      `/teamlead/member/${member.id}`
-                    )
-                  }
-                >
-                  <span className="tld-member-avatar">
-                    {member.initials}
-                  </span>
-
-                  <span className="tld-member-info">
-                    <strong>{member.name}</strong>
-                    <small>{member.role}</small>
-                  </span>
-
-                  <span
-                    className={`tld-member-status ${
-                      member.status === "Away"
-                        ? "away"
-                        : ""
-                    }`}
-                  >
-                    <i />
-                    {member.status}
-                  </span>
-                </button>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* =================================================
-            RECENT TASKS
-        ================================================= */}
-
-        <section className="tld-card tld-tasks-card">
-          <CardHeader
-            title="Recent Tasks"
-            subtitle={
-              search
-                ? `Showing results for "${search}"`
-                : "Track your team's latest assigned tasks."
-            }
-            buttonText="View All"
-            onClick={() =>
-              navigate("/teamlead/tasks")
-            }
-          />
-
-          <div className="tld-table-wrapper">
-            <table className="tld-table">
-              <thead>
-                <tr>
-                  <th>Task</th>
-                  <th>Project</th>
-                  <th>Assignee</th>
-                  <th>Priority</th>
-                  <th>Status</th>
-                  <th>Due Date</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {filteredTasks.length > 0 ? (
-                  filteredTasks.map((task) => (
-                    <tr key={task.id}>
-                      <td>
-                        <strong>{task.task}</strong>
-                      </td>
-
-                      <td>{task.project}</td>
-
-                      <td>
-                        <div className="tld-table-user">
-                          <span>
-                            {getInitials(
-                              task.assignee
-                            )}
-                          </span>
-
-                          {task.assignee}
-                        </div>
-                      </td>
-
-                      <td>
-                        <span
-                          className={`tld-priority ${task.priority.toLowerCase()}`}
-                        >
-                          {task.priority}
-                        </span>
-                      </td>
-
-                      <td>
-                        <span
-                          className={`tld-task-status ${task.status
-                            .toLowerCase()
-                            .replaceAll(" ", "-")}`}
-                        >
-                          {task.status}
-                        </span>
-                      </td>
-
-                      <td>{task.dueDate}</td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td
-                      colSpan="6"
-                      className="tld-empty-search"
-                    >
-                      No tasks found for "{search}".
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </section>
-
-        {/* =================================================
-            BOTTOM SECTION
-        ================================================= */}
-
-        <section className="tld-bottom-grid">
-          {/* UPCOMING */}
-
-          <div className="tld-card">
-            <CardHeader
-              title="Upcoming"
-              subtitle="Important events and deadlines."
-            />
-
-            <div className="tld-upcoming-list">
-              <UpcomingItem
-                icon={CalendarDays}
-                title="Team Standup"
-                text="Today · 11:00 AM"
-                type="purple"
-              />
-
-              <UpcomingItem
-                icon={Clock3}
-                title="Dashboard UI Deadline"
-                text="Oct 28 · TeamFlow AI - Web"
-                type="orange"
-              />
-
-              <UpcomingItem
-                icon={CalendarDays}
-                title="Sprint Review"
-                text="Oct 30 · 3:00 PM"
-                type="blue"
-              />
-            </div>
-
-            <button
-              type="button"
-              className="tld-text-button"
-              onClick={() =>
-                navigate("/teamlead/calendar")
-              }
-            >
-              Open Calendar
-            </button>
-          </div>
-
-          {/* QUICK ACTIONS */}
-
-          <div className="tld-card">
-            <CardHeader
-              title="Quick Actions"
-              subtitle="Jump directly to common actions."
-            />
-
-            <div className="tld-quick-grid">
-              <QuickAction
-                icon={CheckSquare}
-                title="Manage Tasks"
-                text="Create and assign tasks"
-                onClick={() =>
-                  navigate("/teamlead/tasks")
-                }
-              />
-
-              <QuickAction
-                icon={Users}
-                title="Manage Team"
-                text="View team members"
-                onClick={() =>
-                  navigate("/teamlead/team")
-                }
-              />
-
-              <QuickAction
-                icon={MessageCircle}
-                title="Open Chat"
-                text="Message your team"
-                onClick={() =>
-                  navigate("/teamlead/chat")
-                }
-              />
-
-              <QuickAction
-                icon={Sparkles}
-                title="AI Assistant"
-                text="Get AI-powered help"
-                onClick={() =>
-                  navigate(
-                    "/teamlead/ai-assistant"
-                  )
-                }
-              />
-            </div>
-          </div>
-        </section>
-      </main>
-
-      {/* ===================================================
-          HELP MODAL
-      =================================================== */}
-
-      {helpOpen && (
-        <div
-          className="tld-modal-backdrop"
-          onMouseDown={(event) => {
-            if (
-              event.target === event.currentTarget
-            ) {
-              setHelpOpen(false);
-            }
-          }}
-        >
-          <div className="tld-help-modal">
-            <button
-              type="button"
-              className="tld-modal-close"
-              onClick={() => setHelpOpen(false)}
-            >
-              <X size={18} />
-            </button>
-
-            <span className="tld-help-icon">
-              <HelpCircle size={27} />
-            </span>
-
-            <h2>Need help?</h2>
-
-            <p>
-              Access TeamFlow AI settings or contact
-              support if you need help managing your
-              workspace.
-            </p>
-
-            <div className="tld-help-actions">
-              <button
-                type="button"
-                className="tld-primary-button"
-                onClick={() => {
-                  setHelpOpen(false);
-                  navigate("/teamlead/settings");
-                }}
-              >
-                <Settings size={16} />
-                Open Settings
-              </button>
-
-              <button
-                type="button"
-                className="tld-secondary-button"
-                onClick={() =>
-                  setHelpOpen(false)
-                }
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-/* =========================================================
-   STAT CARD COMPONENT
-========================================================= */
+const upcomingEvents = [
+  {
+    day: "25",
+    month: "OCT",
+    title: "Daily Standup",
+    time: "10:00 AM – 10:30 AM",
+    type: "Meeting",
+  },
+  {
+    day: "26",
+    month: "OCT",
+    title: "Sprint Planning",
+    time: "11:30 AM – 12:30 PM",
+    type: "Planning",
+  },
+  {
+    day: "28",
+    month: "OCT",
+    title: "Project Review",
+    time: "02:00 PM – 03:00 PM",
+    type: "Review",
+  },
+];
+
+const taskStatusData = [
+  { name: "Completed", value: 42, color: "#10b981" },
+  { name: "In Progress", value: 28, color: "#7c5cff" },
+  { name: "In Review", value: 18, color: "#f59e0b" },
+  { name: "To Do", value: 12, color: "#cbd5e1" },
+];
 
 function StatCard({
-  icon: Icon,
   title,
   value,
-  text,
-  type,
-  onClick,
+  change,
+  description,
+  icon: Icon,
+  iconColor,
+  iconBg,
+  negative = false,
 }) {
   return (
-    <button
-      type="button"
-      className="tld-stat-card"
-      onClick={onClick}
-    >
-      <span
-        className={`tld-stat-icon ${type}`}
-      >
-        <Icon size={21} />
-      </span>
+    <article className="tld-stat-card">
+      <div className="tld-stat-top">
+        <span className="tld-stat-label">{title}</span>
+        <span
+          className="tld-stat-icon"
+          style={{ color: iconColor, background: iconBg }}
+        >
+          <Icon size={20} />
+        </span>
+      </div>
 
-      <span className="tld-stat-content">
-        <small>{title}</small>
+      <div className="tld-stat-value">{value}</div>
 
-        <strong>{value}</strong>
-
-        <span>{text}</span>
-      </span>
-    </button>
+      <div className="tld-stat-bottom">
+        <span className={`tld-stat-change ${negative ? "negative" : ""}`}>
+          {negative ? (
+            <ArrowDownRight size={15} />
+          ) : (
+            <ArrowUpRight size={15} />
+          )}
+          {change}
+        </span>
+        <span className="tld-stat-description">{description}</span>
+      </div>
+    </article>
   );
 }
 
-/* =========================================================
-   CARD HEADER
-========================================================= */
-
-function CardHeader({
-  title,
-  subtitle,
-  buttonText,
-  onClick,
-}) {
+function SectionHeader({ title, subtitle, action, onAction }) {
   return (
-    <div className="tld-card-header">
+    <div className="tld-section-header">
       <div>
         <h2>{title}</h2>
-        <p>{subtitle}</p>
+        {subtitle && <p>{subtitle}</p>}
       </div>
 
-      {buttonText && (
-        <button
-          type="button"
-          onClick={onClick}
-        >
-          {buttonText}
+      {action && (
+        <button className="tld-text-button" onClick={onAction}>
+          {action} <ArrowRight size={15} />
         </button>
       )}
     </div>
   );
 }
 
-/* =========================================================
-   UPCOMING ITEM
-========================================================= */
+export default function TeamLeadDashboard() {
+  const navigate = useNavigate();
 
-function UpcomingItem({
-  icon: Icon,
-  title,
-  text,
-  type,
-}) {
+  const [tasks, setTasks] = useState(initialTasks);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [activePeriod, setActivePeriod] = useState("7 days");
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
+  const [showCreateMenu, setShowCreateMenu] = useState(false);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(
+  () => document.documentElement.classList.contains("dark-mode")
+);
+
+const toggleMode = () => {
+  const nextMode = !isDarkMode;
+
+  document.documentElement.classList.toggle("dark-mode", nextMode);
+  setIsDarkMode(nextMode);
+};
+
+  const filteredTasks = useMemo(() => {
+    const term = searchTerm.toLowerCase().trim();
+
+    if (!term) return tasks;
+
+    return tasks.filter((task) =>
+      [
+        task.id,
+        task.title,
+        task.project,
+        task.assigneeName,
+        task.status,
+        task.priority,
+      ]
+        .join(" ")
+        .toLowerCase()
+        .includes(term)
+    );
+  }, [tasks, searchTerm]);
+
+  const completedCount = tasks.filter(
+    (task) => task.status === "Completed"
+  ).length;
+
+  const openCount = tasks.filter(
+    (task) => task.status !== "Completed"
+  ).length;
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    sessionStorage.clear();
+    navigate("/choose-role");
+  };
+
+  const handleCreateTask = () => {
+    setShowCreateMenu(false);
+    navigate("/teamlead/tasks");
+  };
+
+  const handleTaskStatusChange = (taskId, status) => {
+    setTasks((currentTasks) =>
+      currentTasks.map((task) =>
+        task.id === taskId ? { ...task, status } : task
+      )
+    );
+  };
+
+  const goToTasks = () => navigate("/teamlead/tasks");
+  const goToProjects = () => navigate("/teamlead/projects");
+  const goToTeam = () => navigate("/teamlead/team");
+  const goToCalendar = () => navigate("/teamlead/calendar");
+
   return (
-    <div className="tld-upcoming-item">
-      <span
-        className={`tld-upcoming-icon ${type}`}
-      >
-        <Icon size={18} />
-      </span>
+    <div className="tld-dashboard">
+      {/* TOP NAVIGATION — NO SIDEBAR */}
+   
 
-      <div>
-        <strong>{title}</strong>
-        <span>{text}</span>
-      </div>
+{/* TOP NAVIGATION — FULL WIDTH SEARCH + MODE + HELP */}
+<header className="tld-topbar">
+  <div className="tld-topbar-actions">
+
+    {/* Expanded Search Bar */}
+    <label className="tld-search">
+      <Search size={18} />
+
+      <input
+        type="text"
+        placeholder="Search tasks, projects..."
+        value={searchTerm}
+        onChange={(event) => setSearchTerm(event.target.value)}
+      />
+
+      <kbd>Ctrl K</kbd>
+    </label>
+
+    {/* Notifications */}
+    <div className="tld-popover-wrap">
+      <button
+        className={`tld-icon-button ${
+          showNotifications ? "active" : ""
+        }`}
+        title="Notifications"
+        aria-label="Notifications"
+        onClick={() => {
+          setShowNotifications(!showNotifications);
+          setShowProfile(false);
+        }}
+      >
+        <Bell size={19} />
+        <span className="tld-notification-dot" />
+      </button>
+
+      {showNotifications && (
+        <div className="tld-popover tld-notifications">
+          <div className="tld-popover-heading">
+            <strong>Notifications</strong>
+            <span className="tld-unread-badge">3 new</span>
+          </div>
+
+          <div className="tld-notification-item">
+            <span className="tld-notification-icon purple">
+              <MessageCircle size={17} />
+            </span>
+            <div>
+              <strong>New team comment</strong>
+              <p>Aarav commented on the dashboard task.</p>
+              <small>10 minutes ago</small>
+            </div>
+          </div>
+
+          <div className="tld-notification-item">
+            <span className="tld-notification-icon green">
+              <CheckCircle2 size={17} />
+            </span>
+            <div>
+              <strong>Task completed</strong>
+              <p>Authentication flow is ready for review.</p>
+              <small>30 minutes ago</small>
+            </div>
+          </div>
+
+          <div className="tld-notification-item">
+            <span className="tld-notification-icon orange">
+              <CalendarDays size={17} />
+            </span>
+            <div>
+              <strong>Upcoming meeting</strong>
+              <p>Your sprint planning is coming up.</p>
+              <small>1 hour ago</small>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+
+    {/* Profile Dropdown */}
+    <div className="tld-popover-wrap">
+      <button
+        className="tld-profile-button"
+        onClick={() => {
+          setShowProfile(!showProfile);
+          setShowNotifications(false);
+        }}
+        aria-label="Open profile menu"
+      >
+        <span className="tld-avatar tld-avatar-purple">KP</span>
+
+        <span className="tld-profile-details">
+          <strong>Team Lead</strong>
+          <small>Administrator</small>
+        </span>
+
+        <ChevronDown size={15} />
+      </button>
+
+      {showProfile && (
+        <div className="tld-popover tld-profile-menu">
+          <button
+            onClick={() => {
+              setShowProfile(false);
+              navigate("/teamlead/settings");
+            }}
+          >
+            <Settings size={16} />
+            Settings
+          </button>
+
+          <button
+            onClick={() => {
+              setShowProfile(false);
+              setShowHelp(true);
+            }}
+          >
+            <CircleHelp size={16} />
+            Help center
+          </button>
+
+          <div className="tld-menu-divider" />
+
+          <button
+            className="tld-logout-button"
+            onClick={handleLogout}
+          >
+            <LogOut size={16} />
+            Sign out
+          </button>
+        </div>
+      )}
+    </div>
+
+    {/* Mode Toggle */}
+  {/* Mode Toggle */}
+<button
+  className="tld-icon-button tld-mode-button"
+  title={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
+  aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
+  onClick={toggleMode}
+>
+  {isDarkMode ? <Moon size={19} /> : <Sun size={19} />}
+</button>
+
+    {/* Help Button */}
+    <button
+      className="tld-icon-button tld-help-button"
+      title="Help and support"
+      aria-label="Help and support"
+      onClick={() => setShowHelp(true)}
+    >
+      <CircleHelp size={19} />
+    </button>
+
+    {/* Mobile Menu */}
+    <button
+      className="tld-icon-button tld-mobile-menu"
+      onClick={() => setShowMobileMenu(!showMobileMenu)}
+      aria-label="Open quick navigation"
+    >
+      {showMobileMenu ? <X size={20} /> : <Menu size={20} />}
+    </button>
+
+  </div>
+</header>
+
+
+
+      {/* MOBILE QUICK NAVIGATION — NOT A SIDEBAR */}
+      {showMobileMenu && (
+        <nav className="tld-mobile-nav">
+          <button onClick={() => navigate("/teamlead/tasks")}>
+            <CheckCircle2 size={17} /> Tasks
+          </button>
+          <button onClick={goToProjects}>
+            <FolderKanban size={17} /> Projects
+          </button>
+          <button onClick={goToTeam}>
+            <Users size={17} /> Team
+          </button>
+          <button onClick={goToCalendar}>
+            <CalendarDays size={17} /> Calendar
+          </button>
+          <button onClick={() => navigate("/teamlead/chat")}>
+            <MessageCircle size={17} /> Chat
+          </button>
+          <button onClick={() => navigate("/teamlead/settings")}>
+            <Settings size={17} /> Settings
+          </button>
+        </nav>
+      )}
+
+      {/* MAIN FULL-WIDTH CONTENT */}
+      <main className="tld-main">
+        <section className="tld-welcome-section">
+          <div>
+            <div className="tld-eyebrow">
+              <Sparkles size={15} /> TEAM WORKSPACE
+            </div>
+
+            <h1>
+              Good afternoon, <span>Team Lead!</span>
+            </h1>
+
+            <p>
+              Here's what's happening with your team today. Let's make
+              progress together.
+            </p>
+          </div>
+
+          <div className="tld-welcome-actions">
+            <button className="tld-secondary-button" onClick={goToCalendar}>
+              <CalendarDays size={17} /> View calendar
+            </button>
+
+            <div className="tld-create-wrap">
+              <button
+                className="tld-primary-button"
+                onClick={() => setShowCreateMenu(!showCreateMenu)}
+              >
+                <Plus size={18} /> Create new <ChevronDown size={15} />
+              </button>
+
+              {showCreateMenu && (
+                <div className="tld-create-menu">
+                  <button onClick={handleCreateTask}>
+                    <CheckCircle2 size={16} /> New task
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowCreateMenu(false);
+                      goToProjects();
+                    }}
+                  >
+                    <FolderKanban size={16} /> New project
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowCreateMenu(false);
+                      goToTeam();
+                    }}
+                  >
+                    <Users size={16} /> Manage team
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </section>
+
+        {/* KPI CARDS */}
+        <section className="tld-stats-grid">
+          <StatCard
+            title="Total Projects"
+            value="12"
+            change="+16.8%"
+            description="vs. last month"
+            icon={FolderKanban}
+            iconColor="#7554f6"
+            iconBg="#eee9ff"
+          />
+
+          <StatCard
+            title="Active Tasks"
+            value={String(openCount + 20)}
+            change="+8.2%"
+            description="vs. last week"
+            icon={Activity}
+            iconColor="#0d9fe8"
+            iconBg="#e1f5ff"
+          />
+
+          <StatCard
+            title="Completed Tasks"
+            value={String(completedCount + 126)}
+            change="+12.5%"
+            description="vs. last month"
+            icon={CheckCircle2}
+            iconColor="#0ca678"
+            iconBg="#dcfce7"
+          />
+
+          <StatCard
+            title="Team Efficiency"
+            value="94.2%"
+            change="+4.3%"
+            description="vs. last month"
+            icon={Target}
+            iconColor="#e99b19"
+            iconBg="#fff1d6"
+          />
+        </section>
+
+        {/* CHARTS */}
+        <section className="tld-charts-grid">
+          <article className="tld-panel tld-activity-panel">
+            <SectionHeader
+              title="Task Activity"
+              subtitle="Track task creation and completion over time"
+            />
+
+            <div className="tld-chart-legend">
+              <span>
+                <i className="tld-legend-dot purple-dot" /> Completed
+              </span>
+              <span>
+                <i className="tld-legend-dot blue-dot" /> Created
+              </span>
+
+              <select
+                value={activePeriod}
+                onChange={(event) => setActivePeriod(event.target.value)}
+                aria-label="Activity period"
+              >
+                <option>7 days</option>
+                <option>30 days</option>
+                <option>90 days</option>
+              </select>
+            </div>
+
+            <div className="tld-activity-chart">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart
+                  data={activityData}
+                  margin={{ top: 12, right: 8, left: -18, bottom: 0 }}
+                >
+                  <defs>
+                    <linearGradient
+                      id="tldPurpleGradient"
+                      x1="0"
+                      y1="0"
+                      x2="0"
+                      y2="1"
+                    >
+                      <stop
+                        offset="0%"
+                        stopColor="#7958f5"
+                        stopOpacity={0.24}
+                      />
+                      <stop
+                        offset="95%"
+                        stopColor="#7958f5"
+                        stopOpacity={0}
+                      />
+                    </linearGradient>
+
+                    <linearGradient
+                      id="tldBlueGradient"
+                      x1="0"
+                      y1="0"
+                      x2="0"
+                      y2="1"
+                    >
+                      <stop
+                        offset="0%"
+                        stopColor="#29a7ed"
+                        stopOpacity={0.15}
+                      />
+                      <stop
+                        offset="95%"
+                        stopColor="#29a7ed"
+                        stopOpacity={0}
+                      />
+                    </linearGradient>
+                  </defs>
+
+                  <CartesianGrid
+                    stroke="#edf0f6"
+                    strokeDasharray="4 4"
+                    vertical={false}
+                  />
+
+                  <XAxis
+                    dataKey="day"
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fill: "#8b93a7", fontSize: 12 }}
+                    dy={10}
+                  />
+
+                  <YAxis
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fill: "#8b93a7", fontSize: 12 }}
+                  />
+
+                  <Tooltip
+                    contentStyle={{
+                      borderRadius: 12,
+                      border: "1px solid #eceef5",
+                      boxShadow: "0 8px 30px #17203312",
+                    }}
+                  />
+
+                  <Area
+                    type="monotone"
+                    dataKey="completed"
+                    name="Completed"
+                    stroke="#7958f5"
+                    strokeWidth={3}
+                    fill="url(#tldPurpleGradient)"
+                    activeDot={{ r: 5 }}
+                  />
+
+                  <Area
+                    type="monotone"
+                    dataKey="created"
+                    name="Created"
+                    stroke="#29a7ed"
+                    strokeWidth={2.5}
+                    fill="url(#tldBlueGradient)"
+                    activeDot={{ r: 4 }}
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+
+            <div className="tld-chart-footer">
+              <span>
+                <span className="tld-trend-up">
+                  <ArrowUpRight size={15} /> 18.6%
+                </span>
+                more tasks completed
+              </span>
+              <span className="tld-muted">Compared to previous period</span>
+            </div>
+          </article>
+
+          <article className="tld-panel tld-status-panel">
+            <SectionHeader
+              title="Task Distribution"
+              subtitle="Current status of all team tasks"
+              action="View tasks"
+              onAction={goToTasks}
+            />
+
+            <div className="tld-status-content">
+              <div className="tld-donut-wrap">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={taskStatusData}
+                      dataKey="value"
+                      nameKey="name"
+                      cx="50%"
+                      cy="50%"
+                      innerRadius="67%"
+                      outerRadius="90%"
+                      paddingAngle={4}
+                      stroke="none"
+                    >
+                      {taskStatusData.map((item) => (
+                        <Cell key={item.name} fill={item.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                  </PieChart>
+                </ResponsiveContainer>
+
+                <div className="tld-donut-center">
+                  <strong>248</strong>
+                  <span>Total tasks</span>
+                </div>
+              </div>
+
+              <div className="tld-status-legend">
+                {taskStatusData.map((item) => (
+                  <div className="tld-status-legend-item" key={item.name}>
+                    <div>
+                      <span
+                        className="tld-legend-dot"
+                        style={{ background: item.color }}
+                      />
+                      <span>{item.name}</span>
+                    </div>
+                    <strong>{item.value}%</strong>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="tld-status-summary">
+              <span className="tld-summary-icon">
+                <CheckCircle2 size={17} />
+              </span>
+              <p>
+                Your team has completed <strong>42%</strong> of all tasks.
+                Keep up the great work!
+              </p>
+            </div>
+          </article>
+        </section>
+
+        {/* PROJECT PROGRESS AND TEAM */}
+        <section className="tld-middle-grid">
+          <article className="tld-panel">
+            <SectionHeader
+              title="Project Progress"
+              subtitle="Monitor progress across active projects"
+              action="All projects"
+              onAction={goToProjects}
+            />
+
+            <div className="tld-project-chart">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={projectData}
+                  layout="vertical"
+                  margin={{ top: 4, right: 18, left: 8, bottom: 0 }}
+                  barCategoryGap={19}
+                >
+                  <CartesianGrid
+                    stroke="#edf0f6"
+                    strokeDasharray="4 4"
+                    horizontal={false}
+                  />
+                  <XAxis
+                    type="number"
+                    domain={[0, 100]}
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fill: "#9299ab", fontSize: 11 }}
+                    tickFormatter={(value) => `${value}%`}
+                  />
+                  <YAxis
+                    type="category"
+                    dataKey="name"
+                    width={120}
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fill: "#626d83", fontSize: 11 }}
+                  />
+                  <Tooltip formatter={(value) => [`${value}%`, "Progress"]} />
+                  <Bar
+                    dataKey="progress"
+                    fill="#7958f5"
+                    radius={[0, 8, 8, 0]}
+                    barSize={15}
+                    background={{ fill: "#f0eefb", radius: 8 }}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </article>
+
+          <article className="tld-panel">
+            <SectionHeader
+              title="Team Availability"
+              subtitle="Your team's current status"
+              action="View team"
+              onAction={goToTeam}
+            />
+
+            <div className="tld-team-list">
+              {teamMembers.map((member) => (
+                <button
+                  className="tld-team-member"
+                  key={member.id}
+                  onClick={() => navigate(`/teamlead/member/${member.id}`)}
+                >
+                  <span
+                    className="tld-avatar"
+                    style={{
+                      background: member.color,
+                      color: member.textColor,
+                    }}
+                  >
+                    {member.initials}
+                  </span>
+
+                  <span className="tld-team-info">
+                    <strong>{member.name}</strong>
+                    <small>{member.role}</small>
+                  </span>
+
+                  <span className="tld-team-status-wrap">
+                    <span
+                      className={`tld-status-indicator ${
+                        member.status === "Online"
+                          ? "online"
+                          : member.status === "Offline"
+                          ? "offline"
+                          : "meeting"
+                      }`}
+                    />
+                    <small>{member.status}</small>
+                  </span>
+
+                  <span className="tld-member-task-count">
+                    {member.tasks} tasks
+                  </span>
+                </button>
+              ))}
+            </div>
+
+            <button className="tld-invite-button" onClick={goToTeam}>
+              <Plus size={16} /> Manage team members
+            </button>
+          </article>
+        </section>
+
+        {/* TASK TABLE AND EVENTS */}
+        <section className="tld-bottom-grid">
+          <article className="tld-panel tld-tasks-panel">
+            <SectionHeader
+              title="Recent Tasks"
+              subtitle="Review and manage your team's latest work"
+              action="View all tasks"
+              onAction={goToTasks}
+            />
+
+            <div className="tld-task-filters">
+              <span className="tld-task-filter-active">
+                All tasks <span>{tasks.length}</span>
+              </span>
+              <span>In progress</span>
+              <span>Completed</span>
+            </div>
+
+            <div className="tld-table-wrapper">
+              <table className="tld-task-table">
+                <thead>
+                  <tr>
+                    <th>Task</th>
+                    <th>Project</th>
+                    <th>Assignee</th>
+                    <th>Priority</th>
+                    <th>Status</th>
+                    <th>Due date</th>
+                    <th />
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {filteredTasks.map((task) => (
+                    <tr key={task.id}>
+                      <td>
+                        <div className="tld-task-name">
+                          <span
+                            className={`tld-task-check ${
+                              task.status === "Completed" ? "checked" : ""
+                            }`}
+                          >
+                            {task.status === "Completed" && (
+                              <CheckCircle2 size={14} />
+                            )}
+                          </span>
+                          <div>
+                            <strong>{task.title}</strong>
+                            <small>{task.id}</small>
+                          </div>
+                        </div>
+                      </td>
+
+                      <td>
+                        <span className="tld-project-name">
+                          <span
+                            className="tld-project-indicator"
+                            style={{ background: task.color }}
+                          />
+                          {task.project}
+                        </span>
+                      </td>
+
+                      <td>
+                        <span className="tld-assignee">
+                          <span
+                            className="tld-avatar tld-small-avatar"
+                            style={{
+                              background: `${task.color}20`,
+                              color: task.color,
+                            }}
+                          >
+                            {task.assignee}
+                          </span>
+                          {task.assigneeName}
+                        </span>
+                      </td>
+
+                      <td>
+                        <span
+                          className={`tld-priority ${
+                            task.priority === "High"
+                              ? "priority-high"
+                              : task.priority === "Medium"
+                              ? "priority-medium"
+                              : "priority-low"
+                          }`}
+                        >
+                          {task.priority}
+                        </span>
+                      </td>
+
+                      <td>
+                        <select
+                          className={`tld-task-status ${
+                            task.status === "Completed"
+                              ? "status-completed"
+                              : task.status === "In Progress"
+                              ? "status-progress"
+                              : task.status === "In Review"
+                              ? "status-review"
+                              : "status-todo"
+                          }`}
+                          value={task.status}
+                          onChange={(event) =>
+                            handleTaskStatusChange(
+                              task.id,
+                              event.target.value
+                            )
+                          }
+                          aria-label={`Status for ${task.title}`}
+                        >
+                          <option>To Do</option>
+                          <option>In Progress</option>
+                          <option>In Review</option>
+                          <option>Completed</option>
+                        </select>
+                      </td>
+
+                      <td>
+                        <span className="tld-due-date">
+                          <CalendarDays size={14} /> {task.due}
+                        </span>
+                      </td>
+
+                      <td>
+                        <button
+                          className="tld-row-menu"
+                          aria-label={`More options for ${task.title}`}
+                          onClick={goToTasks}
+                        >
+                          <MoreHorizontal size={18} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+
+                  {filteredTasks.length === 0 && (
+                    <tr>
+                      <td colSpan="7" className="tld-empty-state">
+                        No tasks match "{searchTerm}".
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="tld-table-footer">
+              Showing {filteredTasks.length} of {tasks.length} sample tasks
+              <button onClick={goToTasks}>
+                Open task management <ArrowRight size={14} />
+              </button>
+            </div>
+          </article>
+
+          <article className="tld-panel tld-events-panel">
+            <SectionHeader
+              title="Upcoming Events"
+              subtitle="Meetings and important deadlines"
+              action="Calendar"
+              onAction={goToCalendar}
+            />
+
+            <div className="tld-events-list">
+              {upcomingEvents.map((event, index) => (
+                <div className="tld-event" key={event.title}>
+                  <div className="tld-event-date">
+                    <strong>{event.day}</strong>
+                    <span>{event.month}</span>
+                  </div>
+
+                  <div className="tld-event-info">
+                    <strong>{event.title}</strong>
+                    <span>
+                      <Clock3 size={13} /> {event.time}
+                    </span>
+                    <small>{event.type}</small>
+                  </div>
+
+                  <button
+                    className="tld-event-arrow"
+                    onClick={goToCalendar}
+                    aria-label={`View ${event.title}`}
+                  >
+                    <ArrowRight size={16} />
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            <button className="tld-calendar-button" onClick={goToCalendar}>
+              <CalendarDays size={16} /> View full calendar
+            </button>
+
+            <div className="tld-ai-card">
+              <span className="tld-ai-icon">
+                <Sparkles size={19} />
+              </span>
+              <div>
+                <strong>Need a productivity boost?</strong>
+                <p>Get AI-powered insights for your team's workflow.</p>
+                <button
+                  onClick={() => navigate("/teamlead/ai-assistant")}
+                >
+                  Explore AI assistant <ArrowRight size={14} />
+                </button>
+              </div>
+            </div>
+          </article>
+        </section>
+
+        {/* FOOTER */}
+        <footer className="tld-footer">
+          <span>
+            <span className="tld-footer-dot" /> All systems operational
+          </span>
+          <span>TeamFlow.ai · Team Lead Workspace</span>
+          <button onClick={() => setShowHelp(true)}>
+            <CircleHelp size={14} /> Help & support
+          </button>
+        </footer>
+      </main>
+
+      {/* HELP MODAL */}
+      {showHelp && (
+        <div
+          className="tld-modal-overlay"
+          onClick={() => setShowHelp(false)}
+        >
+          <div
+            className="tld-help-modal"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <button
+              className="tld-modal-close"
+              onClick={() => setShowHelp(false)}
+              aria-label="Close help"
+            >
+              <X size={19} />
+            </button>
+
+            <span className="tld-help-icon">
+              <CircleHelp size={28} />
+            </span>
+
+            <h2>How can we help?</h2>
+            <p>
+              Find your way around TeamFlow.ai or get help with your workspace.
+            </p>
+
+            <button
+              className="tld-help-option"
+              onClick={() => {
+                setShowHelp(false);
+                goToTasks();
+              }}
+            >
+              <CheckCircle2 size={19} />
+              <span>
+                <strong>Managing tasks</strong>
+                <small>View, update, and track tasks</small>
+              </span>
+              <ArrowRight size={17} />
+            </button>
+
+            <button
+              className="tld-help-option"
+              onClick={() => {
+                setShowHelp(false);
+                goToProjects();
+              }}
+            >
+              <FolderKanban size={19} />
+              <span>
+                <strong>Project management</strong>
+                <small>Check project progress and activity</small>
+              </span>
+              <ArrowRight size={17} />
+            </button>
+
+            <button
+              className="tld-help-option"
+              onClick={() => {
+                setShowHelp(false);
+                goToTeam();
+              }}
+            >
+              <Users size={19} />
+              <span>
+                <strong>Team management</strong>
+                <small>Review members and assignments</small>
+              </span>
+              <ArrowRight size={17} />
+            </button>
+
+            <button
+              className="tld-primary-button tld-help-done"
+              onClick={() => setShowHelp(false)}
+            >
+              Got it
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
-
-/* =========================================================
-   QUICK ACTION
-========================================================= */
-
-function QuickAction({
-  icon: Icon,
-  title,
-  text,
-  onClick,
-}) {
-  return (
-    <button
-      type="button"
-      className="tld-quick-action"
-      onClick={onClick}
-    >
-      <span className="tld-quick-icon">
-        <Icon size={20} />
-      </span>
-
-      <span>
-        <strong>{title}</strong>
-        <small>{text}</small>
-      </span>
-    </button>
-  );
-}
-
-/* =========================================================
-   INITIALS
-========================================================= */
-
-function getInitials(name) {
-  return name
-    .split(" ")
-    .map((part) => part[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
-}
-
-export default TeamLeadDashboard;

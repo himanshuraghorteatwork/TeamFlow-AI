@@ -105,21 +105,13 @@ function LineChart({ data }) {
       (Number(item[key] || 0) / maxValue) *
         (height - paddingTop - paddingBottom);
 
-    return {
-      x,
-      y,
-    };
+    return { x, y };
   };
 
   const createPoints = (key) =>
     data
       .map((item, index) => {
-        const point = getPoint(
-          item,
-          index,
-          key
-        );
-
+        const point = getPoint(item, index, key);
         return `${point.x},${point.y}`;
       })
       .join(" ");
@@ -218,54 +210,30 @@ function LineChart({ data }) {
         {hovered && (
           <g className="tf-svg-tooltip">
             <rect
-              x={Math.min(
-                hovered.x + 8,
-                520
-              )}
-              y={Math.max(
-                hovered.y - 58,
-                5
-              )}
+              x={Math.min(hovered.x + 8, 520)}
+              y={Math.max(hovered.y - 58, 5)}
               width="115"
               height="48"
               rx="7"
             />
 
             <text
-              x={Math.min(
-                hovered.x + 18,
-                530
-              )}
-              y={Math.max(
-                hovered.y - 39,
-                24
-              )}
+              x={Math.min(hovered.x + 18, 530)}
+              y={Math.max(hovered.y - 39, 24)}
             >
               {hovered.label}
             </text>
 
             <text
-              x={Math.min(
-                hovered.x + 18,
-                530
-              )}
-              y={Math.max(
-                hovered.y - 23,
-                40
-              )}
+              x={Math.min(hovered.x + 18, 530)}
+              y={Math.max(hovered.y - 23, 40)}
             >
               Users: {hovered.users}
             </text>
 
             <text
-              x={Math.min(
-                hovered.x + 18,
-                530
-              )}
-              y={Math.max(
-                hovered.y - 9,
-                54
-              )}
+              x={Math.min(hovered.x + 18, 530)}
+              y={Math.max(hovered.y - 9, 54)}
             >
               Active: {hovered.active}
             </text>
@@ -308,17 +276,13 @@ function DonutChart({ workspaces }) {
     return Object.entries(result);
   }, [workspaces]);
 
-  const total = Math.max(
-    workspaces.length,
-    1
-  );
+  const total = Math.max(workspaces.length, 1);
 
   let offset = 0;
 
   const segments = distribution.map(
     ([name, value], index) => {
-      const percentage =
-        (value / total) * 100;
+      const percentage = (value / total) * 100;
 
       const segment = {
         name,
@@ -335,8 +299,7 @@ function DonutChart({ workspaces }) {
   );
 
   const selected = segments.find(
-    (segment) =>
-      segment.name === selectedSegment
+    (segment) => segment.name === selectedSegment
   );
 
   return (
@@ -359,36 +322,24 @@ function DonutChart({ workspaces }) {
               className={`tf-donut-segment tf-donut-${
                 segment.index % 6
               } ${
-                selectedSegment ===
-                segment.name
+                selectedSegment === segment.name
                   ? "selected"
                   : ""
               }`}
-              strokeDasharray={`${
-                segment.percentage
-              } ${
-                100 -
-                segment.percentage
+              strokeDasharray={`${segment.percentage} ${
+                100 - segment.percentage
               }`}
-              strokeDashoffset={
-                -segment.offset
-              }
+              strokeDashoffset={-segment.offset}
               onMouseEnter={() =>
-                setSelectedSegment(
-                  segment.name
-                )
+                setSelectedSegment(segment.name)
               }
               onMouseLeave={() =>
                 setSelectedSegment(null)
               }
             >
               <title>
-                {segment.name}:{" "}
-                {segment.value} (
-                {segment.percentage.toFixed(
-                  1
-                )}
-                %)
+                {segment.name}: {segment.value} (
+                {segment.percentage.toFixed(1)}%)
               </title>
             </circle>
           ))}
@@ -397,23 +348,13 @@ function DonutChart({ workspaces }) {
         <div className="tf-donut-center">
           {selected ? (
             <>
-              <strong>
-                {selected.value}
-              </strong>
-
-              <span>
-                {selected.name}
-              </span>
+              <strong>{selected.value}</strong>
+              <span>{selected.name}</span>
             </>
           ) : (
             <>
-              <strong>
-                {workspaces.length}
-              </strong>
-
-              <span>
-                Workspaces
-              </span>
+              <strong>{workspaces.length}</strong>
+              <span>Workspaces</span>
             </>
           )}
         </div>
@@ -424,9 +365,7 @@ function DonutChart({ workspaces }) {
           <div
             key={segment.name}
             onMouseEnter={() =>
-              setSelectedSegment(
-                segment.name
-              )
+              setSelectedSegment(segment.name)
             }
             onMouseLeave={() =>
               setSelectedSegment(null)
@@ -438,13 +377,9 @@ function DonutChart({ workspaces }) {
               }`}
             />
 
-            <span>
-              {segment.name}
-            </span>
+            <span>{segment.name}</span>
 
-            <strong>
-              {segment.value}
-            </strong>
+            <strong>{segment.value}</strong>
           </div>
         ))}
       </div>
@@ -478,8 +413,7 @@ function ActivityChart({ data }) {
           Number(item.progress || 0) +
           Number(item.todo || 0);
 
-        const height =
-          (total / max) * 100;
+        const height = (total / max) * 100;
 
         return (
           <div
@@ -499,59 +433,43 @@ function ActivityChart({ data }) {
                   : ""
               }`}
               style={{
-                height: `${Math.max(
-                  height,
-                  10
-                )}%`,
+                height: `${Math.max(height, 10)}%`,
               }}
             >
               <span
                 className="tf-activity-completed"
                 style={{
-                  flex:
-                    item.completed ||
-                    0.1,
+                  flex: item.completed || 0.1,
                 }}
               />
 
               <span
                 className="tf-activity-progress"
                 style={{
-                  flex:
-                    item.progress ||
-                    0.1,
+                  flex: item.progress || 0.1,
                 }}
               />
 
               <span
                 className="tf-activity-todo"
                 style={{
-                  flex:
-                    item.todo ||
-                    0.1,
+                  flex: item.todo || 0.1,
                 }}
               />
             </div>
 
-            <small>
-              {item.label}
-            </small>
+            <small>{item.label}</small>
 
-            {hoveredDay ===
-              item.label && (
+            {hoveredDay === item.label && (
               <div className="tf-bar-tooltip">
-                <strong>
-                  {item.label}
-                </strong>
+                <strong>{item.label}</strong>
 
                 <span>
-                  Completed:{" "}
-                  {item.completed}
+                  Completed: {item.completed}
                 </span>
 
                 <span>
-                  In progress:{" "}
-                  {item.progress}
+                  In progress: {item.progress}
                 </span>
 
                 <span>
@@ -574,8 +492,17 @@ function AdminDashboard() {
   const navigate = useNavigate();
   const searchRef = useRef(null);
 
-  const [search, setSearch] =
-    useState("");
+  /* =======================================================
+     OPEN ANIMATION
+  ======================================================= */
+
+  const [dashboardReady, setDashboardReady] =
+    useState(false);
+
+  const [refreshing, setRefreshing] =
+    useState(false);
+
+  const [search, setSearch] = useState("");
 
   const [showSearch, setShowSearch] =
     useState(false);
@@ -626,6 +553,18 @@ function AdminDashboard() {
       read: false,
     },
   ]);
+
+  /* =======================================================
+     DASHBOARD ENTRANCE
+  ======================================================= */
+
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => {
+      setDashboardReady(true);
+    });
+
+    return () => cancelAnimationFrame(frame);
+  }, []);
 
   /* =======================================================
      LIVE DATA
@@ -692,9 +631,7 @@ function AdminDashboard() {
   const transactions = useMemo(
     () =>
       readStorage(
-        [
-          "teamflow_admin_transactions",
-        ],
+        ["teamflow_admin_transactions"],
         fallbackTransactions
       ),
     [dataVersion]
@@ -711,15 +648,12 @@ function AdminDashboard() {
           (transaction) =>
             String(
               transaction.status
-            ).toLowerCase() ===
-            "paid"
+            ).toLowerCase() === "paid"
         )
         .reduce(
           (sum, transaction) =>
             sum +
-            Number(
-              transaction.amount || 0
-            ),
+            Number(transaction.amount || 0),
           0
         ),
     [transactions]
@@ -757,8 +691,7 @@ function AdminDashboard() {
       (task) =>
         String(task.status)
           .trim()
-          .toLowerCase() ===
-        "completed"
+          .toLowerCase() === "completed"
     ).length;
 
   const activeProjects =
@@ -766,8 +699,7 @@ function AdminDashboard() {
       (project) =>
         String(project.status)
           .trim()
-          .toLowerCase() !==
-        "completed"
+          .toLowerCase() !== "completed"
     ).length;
 
   /* =======================================================
@@ -855,8 +787,7 @@ function AdminDashboard() {
             .toLowerCase();
 
           return (
-            status ===
-              "in progress" ||
+            status === "in progress" ||
             status === "progress"
           );
         }).length;
@@ -991,16 +922,48 @@ function AdminDashboard() {
   ======================================================= */
 
   const refreshDashboard = () => {
+    setRefreshing(true);
+
     setDataVersion(
       (value) => value + 1
     );
 
     setLastUpdated(new Date());
+
+    window.setTimeout(() => {
+      setRefreshing(false);
+    }, 650);
   };
+
+  /* =======================================================
+     AUTO REFRESH
+  ======================================================= */
+
+  useEffect(() => {
+    const interval =
+      window.setInterval(() => {
+        setDataVersion(
+          (value) => value + 1
+        );
+
+        setLastUpdated(new Date());
+      }, 15000);
+
+    return () =>
+      window.clearInterval(interval);
+  }, []);
+
+  /* =======================================================
+     STORAGE LISTENER
+  ======================================================= */
 
   useEffect(() => {
     const handleStorage = () => {
-      refreshDashboard();
+      setDataVersion(
+        (value) => value + 1
+      );
+
+      setLastUpdated(new Date());
     };
 
     window.addEventListener(
@@ -1008,36 +971,28 @@ function AdminDashboard() {
       handleStorage
     );
 
-    const interval = setInterval(
-      refreshDashboard,
-      15000
-    );
-
-    return () => {
+    return () =>
       window.removeEventListener(
         "storage",
         handleStorage
       );
-
-      clearInterval(interval);
-    };
   }, []);
 
   /* =======================================================
-     KEYBOARD
+     CTRL + K
   ======================================================= */
 
   useEffect(() => {
-    const handleKey = (event) => {
+    const handleKeyboard = (event) => {
       if (
         (event.ctrlKey ||
           event.metaKey) &&
-        event.key.toLowerCase() ===
-          "k"
+        event.key.toLowerCase() === "k"
       ) {
         event.preventDefault();
 
         searchRef.current?.focus();
+
         setShowSearch(true);
       }
 
@@ -1051,18 +1006,18 @@ function AdminDashboard() {
 
     window.addEventListener(
       "keydown",
-      handleKey
+      handleKeyboard
     );
 
     return () =>
       window.removeEventListener(
         "keydown",
-        handleKey
+        handleKeyboard
       );
   }, []);
 
   /* =======================================================
-     ACTIONS
+     NAVIGATION
   ======================================================= */
 
   const goTo = (path) => {
@@ -1073,6 +1028,10 @@ function AdminDashboard() {
 
     navigate(path);
   };
+
+  /* =======================================================
+     NOTIFICATIONS
+  ======================================================= */
 
   const unreadCount =
     notifications.filter(
@@ -1088,7 +1047,15 @@ function AdminDashboard() {
     );
   };
 
+  /* =======================================================
+     LOGOUT
+  ======================================================= */
+
   const logout = () => {
+    localStorage.removeItem(
+      "teamflow_current_user"
+    );
+
     localStorage.removeItem(
       "teamflow_admin"
     );
@@ -1097,25 +1064,50 @@ function AdminDashboard() {
       "teamflow_admin_logged_in"
     );
 
+    localStorage.removeItem(
+      "teamflow_remember"
+    );
+
+    localStorage.removeItem(
+      "teamflow_remembered_email"
+    );
+
+    localStorage.removeItem(
+      "teamflow_remembered_role"
+    );
+
     sessionStorage.removeItem(
       "teamflow_admin"
     );
 
-    navigate("/login");
+    navigate("/choose-role", {
+      replace: true,
+      state: {
+        next: "login",
+      },
+    });
   };
 
   return (
     <div
-      className={`tf-admin-dashboard ${
+      className={[
+        "tf-admin-dashboard",
         darkMode
           ? "tf-admin-dashboard-dark"
-          : ""
-      }`}
+          : "",
+        dashboardReady
+          ? "tf-dashboard-ready"
+          : "tf-dashboard-loading",
+      ]
+        .filter(Boolean)
+        .join(" ")}
     >
       <AdminSidebar />
 
       <div className="tf-admin-dashboard-main">
-        {/* TOP BAR */}
+        {/* =================================================
+            TOP BAR
+        ================================================= */}
 
         <header className="tf-admin-topbar">
           <div className="tf-admin-search-wrap">
@@ -1159,9 +1151,7 @@ function AdminDashboard() {
                     filteredSearch.map(
                       (item) => (
                         <button
-                          key={
-                            item.path
-                          }
+                          key={item.path}
                           type="button"
                           onClick={() =>
                             goTo(
@@ -1175,9 +1165,7 @@ function AdminDashboard() {
 
                           <span>
                             <strong>
-                              {
-                                item.title
-                              }
+                              {item.title}
                             </strong>
 
                             <small>
@@ -1195,8 +1183,7 @@ function AdminDashboard() {
                     )
                   ) : (
                     <p>
-                      No matching
-                      results
+                      No matching results
                     </p>
                   )}
                 </div>
@@ -1223,7 +1210,9 @@ function AdminDashboard() {
                 }}
               >
                 <Plus size={18} />
+
                 Create
+
                 <ChevronDown
                   size={15}
                 />
@@ -1298,7 +1287,14 @@ function AdminDashboard() {
                 refreshDashboard
               }
             >
-              <RefreshCw size={17} />
+              <RefreshCw
+                size={17}
+                className={
+                  refreshing
+                    ? "tf-refresh-spinning"
+                    : ""
+                }
+              />
             </button>
 
             {/* DARK MODE */}
@@ -1309,7 +1305,8 @@ function AdminDashboard() {
               title="Toggle dark mode"
               onClick={() =>
                 setDarkMode(
-                  !darkMode
+                  (current) =>
+                    !current
                 )
               }
             >
@@ -1353,8 +1350,7 @@ function AdminDashboard() {
                       </strong>
 
                       <small>
-                        {unreadCount}{" "}
-                        unread
+                        {unreadCount} unread
                       </small>
                     </div>
 
@@ -1405,6 +1401,7 @@ function AdminDashboard() {
             <button
               type="button"
               className="tf-top-icon"
+              title="Help"
               onClick={() =>
                 alert(
                   "TeamFlow AI Admin Support"
@@ -1444,7 +1441,6 @@ function AdminDashboard() {
                   </strong>
 
                   <small>
-                    Super
                     Administrator
                   </small>
                 </span>
@@ -1486,7 +1482,9 @@ function AdminDashboard() {
           </div>
         </header>
 
-        {/* CONTENT */}
+        {/* =================================================
+            CONTENT
+        ================================================= */}
 
         <main className="tf-dashboard-content">
           {/* HERO */}
@@ -1525,6 +1523,8 @@ function AdminDashboard() {
                 </small>
               </div>
             </div>
+
+            {/* HERO ACTIONS */}
 
             <div className="tf-hero-actions">
               <HeroAction
@@ -1572,6 +1572,8 @@ function AdminDashboard() {
               />
             </div>
 
+            {/* HERO BOT */}
+
             <div className="tf-hero-visual">
               <div className="tf-hero-orbit" />
 
@@ -1581,7 +1583,9 @@ function AdminDashboard() {
             </div>
           </section>
 
-          {/* KPI CARDS */}
+          {/* =================================================
+              KPI CARDS
+          ================================================= */}
 
           <section className="tf-kpi-grid">
             <StatCard
@@ -1596,18 +1600,14 @@ function AdminDashboard() {
             <StatCard
               icon={<Building2 />}
               label="Workspaces"
-              value={
-                workspaces.length
-              }
+              value={workspaces.length}
               note="Platform workspaces"
               path="/admin/workspaces"
               goTo={goTo}
             />
 
             <StatCard
-              icon={
-                <FolderKanban />
-              }
+              icon={<FolderKanban />}
               label="Projects"
               value={projects.length}
               note={`${activeProjects} active`}
@@ -1647,7 +1647,9 @@ function AdminDashboard() {
             />
           </section>
 
-          {/* CHARTS */}
+          {/* =================================================
+              CHARTS
+          ================================================= */}
 
           <section className="tf-dashboard-chart-grid">
             {/* USER GROWTH */}
@@ -1661,8 +1663,7 @@ function AdminDashboard() {
                   value={period}
                   onChange={(event) =>
                     setPeriod(
-                      event.target
-                        .value
+                      event.target.value
                     )
                   }
                 >
@@ -1777,10 +1778,12 @@ function AdminDashboard() {
             </div>
           </section>
 
-          {/* LOWER */}
+          {/* =================================================
+              LOWER CARDS
+          ================================================= */}
 
           <section className="tf-lower-grid">
-            {/* USERS */}
+            {/* RECENT USERS */}
 
             <div className="tf-dashboard-card">
               <CardHeader
@@ -1851,7 +1854,7 @@ function AdminDashboard() {
               </div>
             </div>
 
-            {/* WORKSPACES */}
+            {/* RECENT WORKSPACES */}
 
             <div className="tf-dashboard-card">
               <CardHeader
@@ -1968,7 +1971,10 @@ function AdminDashboard() {
                       <div className="tf-health-track">
                         <span
                           style={{
-                            width: `${health.value}%`,
+                            width:
+                              dashboardReady
+                                ? `${health.value}%`
+                                : "0%",
                           }}
                         />
                       </div>
@@ -1979,7 +1985,9 @@ function AdminDashboard() {
             </div>
           </section>
 
-          {/* SUMMARY */}
+          {/* =================================================
+              SUMMARY
+          ================================================= */}
 
           <section className="tf-summary-strip">
             <div>
@@ -2118,10 +2126,13 @@ function HeroAction({
 
       <div>
         <strong>{title}</strong>
+
         <small>{text}</small>
       </div>
 
-      <ArrowUpRight size={14} />
+      <ArrowUpRight
+        size={14}
+      />
     </button>
   );
 }
@@ -2139,6 +2150,7 @@ function CardHeader({
     <div className="tf-card-header">
       <div>
         <h3>{title}</h3>
+
         <p>{subtitle}</p>
       </div>
 
