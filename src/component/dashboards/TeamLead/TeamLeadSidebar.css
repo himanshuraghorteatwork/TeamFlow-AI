@@ -1,0 +1,298 @@
+
+/* Main Sidebar */
+
+.team-lead-sidebar {
+  box-sizing: border-box;
+  position: sticky;
+  top: 0;
+
+  display: flex;
+  flex: 0 0 224px;
+  flex-direction: column;
+
+  width: 224px;
+  height: 100vh;
+
+  padding: 18px 12px;
+  overflow-y: auto;
+
+  background: #0b1937;
+  color: #d5dced;
+
+  font-family: Arial, sans-serif;
+}
+
+/* Reset */
+
+.team-lead-sidebar *,
+.team-lead-sidebar *::before,
+.team-lead-sidebar *::after {
+  box-sizing: border-box;
+}
+
+.team-lead-sidebar button {
+  color: inherit;
+  font: inherit;
+}
+
+/* Brand */
+
+.tls-brand {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+
+  margin-bottom: 28px;
+  padding: 0 8px;
+
+  color: #ffffff;
+  text-decoration: none;
+}
+
+.tls-logo {
+  display: grid;
+  flex: 0 0 38px;
+  place-items: center;
+
+  width: 38px;
+  height: 38px;
+
+  border-radius: 10px;
+  background: #693cff;
+  color: #ffffff;
+
+  box-shadow: 0 5px 15px #693cff40;
+}
+
+.tls-brand-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.tls-brand-name {
+  font-size: 17px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.tls-brand-name b {
+  color: #a58aff;
+}
+
+.tls-admin-badge {
+  width: fit-content;
+  padding: 3px 7px;
+
+  border-radius: 4px;
+  background: #5534a8;
+  color: #eee6ff;
+
+  font-size: 10px;
+  font-weight: 600;
+}
+
+/* Navigation */
+
+.tls-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.tls-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+
+  width: 100%;
+  min-height: 46px;
+  padding: 0 15px;
+
+  border: none;
+  border-radius: 12px;
+
+  background: transparent;
+  color: #d5dced;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  text-align: left;
+  cursor: pointer;
+
+  transition: background 150ms ease, color 150ms ease;
+}
+
+.tls-nav-item svg {
+  flex-shrink: 0;
+}
+
+.tls-nav-item span {
+  white-space: nowrap;
+}
+
+/* Hover */
+
+.tls-nav-item:hover {
+  background: #18294b;
+  color: #ffffff;
+}
+
+/* Active Page */
+
+.tls-nav-item.active {
+  background: #202f50;
+  color: #ffffff;
+}
+
+/* Bottom Section */
+
+.tls-sidebar-bottom {
+  margin-top: auto;
+  padding-top: 24px;
+}
+
+/* Support Card */
+
+.tls-support-card {
+  padding: 14px;
+  margin-bottom: 12px;
+
+  border: 1px solid #30466e;
+  border-radius: 12px;
+
+  background: #182b50;
+}
+
+.tls-support-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  margin-bottom: 12px;
+}
+
+.tls-support-icon {
+  display: grid;
+  flex: 0 0 38px;
+  place-items: center;
+
+  width: 38px;
+  height: 38px;
+
+  border-radius: 10px;
+  background: #693cff;
+  color: #ffffff;
+}
+
+.tls-support-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.tls-support-copy b {
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.tls-support-copy small {
+  color: #b6c2dc;
+  font-size: 9px;
+}
+
+/* Support Button */
+
+.tls-support-button {
+  width: 100%;
+  height: 36px;
+
+  border: none;
+  border-radius: 8px;
+
+  background: #693cff;
+  color: #ffffff;
+
+  font-size: 12px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: background 150ms ease;
+}
+
+.tls-support-button:hover {
+  background: #7955ff;
+}
+
+/* Logout */
+
+.tls-logout {
+  min-height: 42px;
+}
+
+.tls-profile-button {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 8px;
+  padding: 10px 8px;
+  border: 1px solid #30466e;
+  border-radius: 11px;
+  background: #132548;
+  color: #fff;
+  text-align: left;
+  cursor: pointer;
+}
+
+.tls-profile-button:hover {
+  border-color: #536b9a;
+  background: #1b3158;
+}
+
+.tls-profile-button .tls-avatar {
+  flex-basis: 38px;
+  width: 38px;
+  height: 38px;
+  font-size: 12px;
+}
+
+.tls-profile-copy {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tls-profile-copy b,
+.tls-profile-copy small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tls-profile-copy b { font-size: 12px; }
+.tls-profile-copy small { color: #b6c2dc; font-size: 10px; }
+
+/* Focus */
+
+.tls-nav-item:focus-visible,
+.tls-support-button:focus-visible,
+.tls-profile-button:focus-visible,
+.tls-brand:focus-visible {
+  outline: 2px solid #a99aff;
+  outline-offset: 3px;
+}
+
+/* Responsive */
+
+@media (max-width: 768px) {
+  .team-lead-sidebar {
+    flex: 0 0 224px;
+    width: 224px;
+  }
+}
