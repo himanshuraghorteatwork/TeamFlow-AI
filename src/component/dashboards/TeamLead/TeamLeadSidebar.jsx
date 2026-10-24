@@ -82,7 +82,7 @@ export default function TeamLeadSidebar({
     sessionStorage.removeItem("teamflow_teamlead");
     sessionStorage.removeItem("teamflow_user");
 
-    navigate("/login");
+    navigate("/choose-role");
   };
 
   /* =========================================================
