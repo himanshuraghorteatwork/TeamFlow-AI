@@ -1,4 +1,10 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+
 import { useNavigate } from "react-router-dom";
 
 import {
@@ -22,11 +28,9 @@ import {
   Settings,
   LogOut,
   CheckCheck,
-  Mail,
   RotateCcw,
   HardDrive,
   Trash2,
-  UserRound,
 } from "lucide-react";
 
 import AdminSidebar from "../../../layouts/AdminSidebar/AdminSidebar.jsx";
@@ -127,7 +131,7 @@ const SEARCH_ITEMS = [
 ];
 
 /* =========================================================
-   COMPONENT
+   MAIN COMPONENT
 ========================================================= */
 
 function AdminWorkspace() {
@@ -140,7 +144,9 @@ function AdminWorkspace() {
 
   const [workspaces, setWorkspaces] = useState(() => {
     try {
-      const saved = localStorage.getItem("teamflow_admin_workspaces");
+      const saved = localStorage.getItem(
+        "teamflow_admin_workspaces"
+      );
 
       if (saved) {
         const parsed = JSON.parse(saved);
@@ -230,11 +236,14 @@ function AdminWorkspace() {
   }, [workspaces]);
 
   useEffect(() => {
-    localStorage.setItem("teamflow_admin_dark", String(darkMode));
+    localStorage.setItem(
+      "teamflow_admin_dark",
+      String(darkMode)
+    );
   }, [darkMode]);
 
   /* =========================================================
-     KEYBOARD
+     KEYBOARD SHORTCUTS
   ========================================================= */
 
   useEffect(() => {
@@ -270,7 +279,10 @@ function AdminWorkspace() {
 
   useEffect(() => {
     const handleOutsideClick = (event) => {
-      if (topbarRef.current && !topbarRef.current.contains(event.target)) {
+      if (
+        topbarRef.current &&
+        !topbarRef.current.contains(event.target)
+      ) {
         setCreateOpen(false);
         setNotificationOpen(false);
         setProfileOpen(false);
@@ -281,7 +293,10 @@ function AdminWorkspace() {
     document.addEventListener("mousedown", handleOutsideClick);
 
     return () => {
-      document.removeEventListener("mousedown", handleOutsideClick);
+      document.removeEventListener(
+        "mousedown",
+        handleOutsideClick
+      );
     };
   }, []);
 
@@ -308,10 +323,14 @@ function AdminWorkspace() {
   ========================================================= */
 
   const globalResults = useMemo(() => {
-    if (!globalSearch.trim()) return [];
+    if (!globalSearch.trim()) {
+      return [];
+    }
 
     return SEARCH_ITEMS.filter((item) =>
-      item.label.toLowerCase().includes(globalSearch.toLowerCase())
+      item.label
+        .toLowerCase()
+        .includes(globalSearch.toLowerCase())
     );
   }, [globalSearch]);
 
@@ -330,14 +349,21 @@ function AdminWorkspace() {
         workspace.email.toLowerCase().includes(query);
 
       const statusMatch =
-        statusFilter === "All" || workspace.status === statusFilter;
+        statusFilter === "All" ||
+        workspace.status === statusFilter;
 
       const planMatch =
-        planFilter === "All" || workspace.plan === planFilter;
+        planFilter === "All" ||
+        workspace.plan === planFilter;
 
       return searchMatch && statusMatch && planMatch;
     });
-  }, [workspaces, workspaceSearch, statusFilter, planFilter]);
+  }, [
+    workspaces,
+    workspaceSearch,
+    statusFilter,
+    planFilter,
+  ]);
 
   /* =========================================================
      STATISTICS
@@ -354,7 +380,8 @@ function AdminWorkspace() {
   ).length;
 
   const totalMembers = workspaces.reduce(
-    (total, workspace) => total + Number(workspace.members || 0),
+    (total, workspace) =>
+      total + Number(workspace.members || 0),
     0
   );
 
@@ -391,7 +418,10 @@ function AdminWorkspace() {
       }),
     };
 
-    setWorkspaces((current) => [workspace, ...current]);
+    setWorkspaces((current) => [
+      workspace,
+      ...current,
+    ]);
 
     setNotifications((current) => [
       {
@@ -415,17 +445,22 @@ function AdminWorkspace() {
   };
 
   /* =========================================================
-     STATUS
+     WORKSPACE STATUS
   ========================================================= */
 
   const toggleStatus = (id) => {
     setWorkspaces((current) =>
       current.map((workspace) => {
-        if (workspace.id !== id) return workspace;
+        if (workspace.id !== id) {
+          return workspace;
+        }
 
         return {
           ...workspace,
-          status: workspace.status === "Active" ? "Suspended" : "Active",
+          status:
+            workspace.status === "Active"
+              ? "Suspended"
+              : "Active",
         };
       })
     );
@@ -434,29 +469,37 @@ function AdminWorkspace() {
   };
 
   /* =========================================================
-     DELETE
+     DELETE WORKSPACE
   ========================================================= */
 
   const deleteWorkspace = (id) => {
-    const workspace = workspaces.find((item) => item.id === id);
+    const workspace = workspaces.find(
+      (item) => item.id === id
+    );
 
-    if (!workspace) return;
+    if (!workspace) {
+      return;
+    }
 
     const confirmed = window.confirm(
       `Delete "${workspace.name}" workspace?`
     );
 
-    if (!confirmed) return;
+    if (!confirmed) {
+      return;
+    }
 
     setWorkspaces((current) =>
-      current.filter((workspaceItem) => workspaceItem.id !== id)
+      current.filter(
+        (workspaceItem) => workspaceItem.id !== id
+      )
     );
 
     setActiveMenu(null);
   };
 
   /* =========================================================
-     RESET
+     RESET DEMO DATA
   ========================================================= */
 
   const resetData = () => {
@@ -464,10 +507,11 @@ function AdminWorkspace() {
       "Reset all workspace demo data?"
     );
 
-    if (!confirmed) return;
+    if (!confirmed) {
+      return;
+    }
 
     setWorkspaces(DEFAULT_WORKSPACES);
-
     setWorkspaceSearch("");
     setStatusFilter("All");
     setPlanFilter("All");
@@ -505,9 +549,13 @@ function AdminWorkspace() {
   ========================================================= */
 
   const logout = () => {
-    const confirmed = window.confirm("Do you want to logout?");
+    const confirmed = window.confirm(
+      "Do you want to logout?"
+    );
 
-    if (!confirmed) return;
+    if (!confirmed) {
+      return;
+    }
 
     localStorage.removeItem("teamflow_admin");
     localStorage.removeItem("teamflow_admin_logged_in");
@@ -521,17 +569,20 @@ function AdminWorkspace() {
     });
   };
 
+  /* =========================================================
+     RENDER
+  ========================================================= */
+
   return (
     <div
-      className={`admin-workspace-app ${darkMode ? "dark" : ""}`}
+      className={`admin-workspace-app ${
+        darkMode ? "dark" : ""
+      }`}
     >
       <AdminSidebar />
 
       <div className="admin-workspace-main">
-
-        {/* =====================================================
-            TOPBAR
-        ===================================================== */}
+        {/* TOPBAR */}
 
         <header
           ref={topbarRef}
@@ -587,11 +638,10 @@ function AdminWorkspace() {
             )}
           </div>
 
-          {/* ACTIONS */}
+          {/* TOPBAR ACTIONS */}
 
           <div className="admin-workspace-top-actions">
-
-            {/* CREATE */}
+            {/* CREATE MENU */}
 
             <div className="admin-workspace-top-dropdown">
               <button
@@ -621,13 +671,17 @@ function AdminWorkspace() {
 
                     <span>
                       <strong>Workspace</strong>
-                      <small>Create a new workspace</small>
+                      <small>
+                        Create a new workspace
+                      </small>
                     </span>
                   </button>
 
                   <button
                     type="button"
-                    onClick={() => navigateTo("/admin/users")}
+                    onClick={() =>
+                      navigateTo("/admin/users")
+                    }
                   >
                     <Users size={17} />
 
@@ -639,7 +693,9 @@ function AdminWorkspace() {
 
                   <button
                     type="button"
-                    onClick={() => navigateTo("/admin/projects")}
+                    onClick={() =>
+                      navigateTo("/admin/projects")
+                    }
                   >
                     <FolderKanban size={17} />
 
@@ -660,9 +716,15 @@ function AdminWorkspace() {
                 darkMode ? "active" : ""
               }`}
               title={darkMode ? "Light Mode" : "Dark Mode"}
-              onClick={() => setDarkMode((current) => !current)}
+              onClick={() =>
+                setDarkMode((current) => !current)
+              }
             >
-              {darkMode ? <Sun size={18} /> : <Moon size={18} />}
+              {darkMode ? (
+                <Sun size={18} />
+              ) : (
+                <Moon size={18} />
+              )}
             </button>
 
             {/* NOTIFICATIONS */}
@@ -674,14 +736,18 @@ function AdminWorkspace() {
                   notificationOpen ? "active" : ""
                 }`}
                 onClick={() => {
-                  setNotificationOpen((current) => !current);
+                  setNotificationOpen(
+                    (current) => !current
+                  );
                   setCreateOpen(false);
                   setProfileOpen(false);
                 }}
               >
                 <Bell size={18} />
 
-                {unreadCount > 0 && <span>{unreadCount}</span>}
+                {unreadCount > 0 && (
+                  <span>{unreadCount}</span>
+                )}
               </button>
 
               {notificationOpen && (
@@ -689,7 +755,9 @@ function AdminWorkspace() {
                   <div className="admin-workspace-notification-header">
                     <div>
                       <strong>Notifications</strong>
-                      <small>{unreadCount} unread</small>
+                      <small>
+                        {unreadCount} unread
+                      </small>
                     </div>
 
                     <button
@@ -717,9 +785,13 @@ function AdminWorkspace() {
                       </span>
 
                       <span className="admin-workspace-notification-item-content">
-                        <strong>{notification.title}</strong>
+                        <strong>
+                          {notification.title}
+                        </strong>
 
-                        <small>{notification.message}</small>
+                        <small>
+                          {notification.message}
+                        </small>
 
                         <em>{notification.time}</em>
                       </span>
@@ -780,7 +852,9 @@ function AdminWorkspace() {
 
                   <button
                     type="button"
-                    onClick={() => navigateTo("/admin/settings")}
+                    onClick={() =>
+                      navigateTo("/admin/settings")
+                    }
                   >
                     <Settings size={16} />
                     Settings
@@ -800,12 +874,9 @@ function AdminWorkspace() {
           </div>
         </header>
 
-        {/* =====================================================
-            PAGE
-        ===================================================== */}
+        {/* PAGE CONTENT */}
 
         <main className="admin-workspace-content">
-
           {/* HEADING */}
 
           <section className="admin-workspace-heading">
@@ -832,7 +903,7 @@ function AdminWorkspace() {
             </button>
           </section>
 
-          {/* STATS */}
+          {/* STATISTICS */}
 
           <section className="admin-workspace-stats">
             <StatCard
@@ -868,7 +939,7 @@ function AdminWorkspace() {
             />
           </section>
 
-          {/* TOOLBAR */}
+          {/* FILTER TOOLBAR */}
 
           <section className="admin-workspace-toolbar">
             <div className="admin-workspace-search">
@@ -921,23 +992,29 @@ function AdminWorkspace() {
             <div className="admin-workspace-view-buttons">
               <button
                 type="button"
-                className={viewMode === "grid" ? "active" : ""}
+                className={
+                  viewMode === "grid" ? "active" : ""
+                }
                 onClick={() => setViewMode("grid")}
+                title="Grid view"
               >
                 <Grid2X2 size={16} />
               </button>
 
               <button
                 type="button"
-                className={viewMode === "list" ? "active" : ""}
+                className={
+                  viewMode === "list" ? "active" : ""
+                }
                 onClick={() => setViewMode("list")}
+                title="List view"
               >
                 <List size={17} />
               </button>
             </div>
           </section>
 
-          {/* RESULT */}
+          {/* RESULTS */}
 
           <div className="admin-workspace-result-row">
             <span>
@@ -974,8 +1051,12 @@ function AdminWorkspace() {
                     setSelectedWorkspace(workspace);
                     setActiveMenu(null);
                   }}
-                  onStatus={() => toggleStatus(workspace.id)}
-                  onDelete={() => deleteWorkspace(workspace.id)}
+                  onStatus={() =>
+                    toggleStatus(workspace.id)
+                  }
+                  onDelete={() =>
+                    deleteWorkspace(workspace.id)
+                  }
                 />
               ))}
             </section>
@@ -1005,7 +1086,7 @@ function AdminWorkspace() {
       </div>
 
       {/* =====================================================
-          CREATE MODAL
+          CREATE WORKSPACE MODAL
       ===================================================== */}
 
       {createModal && (
@@ -1133,7 +1214,7 @@ function AdminWorkspace() {
       )}
 
       {/* =====================================================
-          VIEW DETAILS
+          WORKSPACE DETAILS MODAL
       ===================================================== */}
 
       {selectedWorkspace && (
@@ -1155,12 +1236,16 @@ function AdminWorkspace() {
             </button>
 
             <div className="admin-workspace-details-logo">
-              {selectedWorkspace.name.charAt(0).toUpperCase()}
+              {selectedWorkspace.name
+                .charAt(0)
+                .toUpperCase()}
             </div>
 
             <h2>{selectedWorkspace.name}</h2>
 
-            <StatusBadge status={selectedWorkspace.status} />
+            <StatusBadge
+              status={selectedWorkspace.status}
+            />
 
             <div className="admin-workspace-details-grid">
               <Detail
@@ -1216,7 +1301,7 @@ function AdminWorkspace() {
       )}
 
       {/* =====================================================
-          HELP
+          HELP MODAL
       ===================================================== */}
 
       {helpOpen && (
@@ -1305,7 +1390,6 @@ function WorkspaceCard({
 }) {
   return (
     <article className="admin-workspace-card">
-
       <div className="admin-workspace-card-header">
         <div className="admin-workspace-title-area">
           <div className="admin-workspace-card-logo">
@@ -1330,6 +1414,7 @@ function WorkspaceCard({
                   : workspace.id
               )
             }
+            aria-label={`Actions for ${workspace.name}`}
           >
             <MoreVertical size={17} />
           </button>
@@ -1387,7 +1472,7 @@ function WorkspaceCard({
         </div>
       </div>
 
-      {/* STATS */}
+      {/* STATISTICS */}
 
       <div className="admin-workspace-card-stats">
         <div>
@@ -1435,9 +1520,7 @@ function WorkspaceCard({
       <div className="admin-workspace-card-meta">
         <PlanBadge plan={workspace.plan} />
 
-        <small>
-          Created {workspace.created}
-        </small>
+        <small>Created {workspace.created}</small>
       </div>
 
       <button
@@ -1453,7 +1536,7 @@ function WorkspaceCard({
 }
 
 /* =========================================================
-   STATUS
+   STATUS BADGE
 ========================================================= */
 
 function StatusBadge({ status }) {
@@ -1467,7 +1550,7 @@ function StatusBadge({ status }) {
 }
 
 /* =========================================================
-   PLAN
+   PLAN BADGE
 ========================================================= */
 
 function PlanBadge({ plan }) {
@@ -1481,7 +1564,7 @@ function PlanBadge({ plan }) {
 }
 
 /* =========================================================
-   DETAIL
+   DETAIL ITEM
 ========================================================= */
 
 function Detail({ label, value }) {

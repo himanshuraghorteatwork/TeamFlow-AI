@@ -1299,3 +1299,905 @@
     width: 100%;
   }
 }
+
+/* =========================================================
+   LIVE + INTERACTIVE ANALYTICS
+   Add below existing AdminAnalytics.css
+========================================================= */
+
+.admin-analytics-shell button,
+.admin-analytics-shell input,
+.admin-analytics-shell select {
+  font-family: inherit;
+}
+
+/* ================= DROPDOWNS ================= */
+
+.admin-analytics-dropdown {
+  position: relative;
+}
+
+.admin-analytics-create-menu,
+.admin-analytics-profile-menu {
+  position: absolute;
+  z-index: 500;
+
+  top: calc(100% + 9px);
+  right: 0;
+
+  width: 190px;
+  padding: 7px;
+
+  border: 1px solid #e4e7ef;
+  border-radius: 11px;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 16px 45px
+    rgba(24, 29, 48, 0.14);
+
+  animation:
+    adminAnalyticsMenuIn
+    0.18s ease;
+}
+
+.admin-analytics-create-menu button,
+.admin-analytics-profile-menu button {
+  width: 100%;
+  min-height: 38px;
+  padding: 0 10px;
+
+  display: flex;
+  align-items: center;
+  gap: 9px;
+
+  border: 0;
+  border-radius: 7px;
+
+  background: transparent;
+  color: #4d5569;
+
+  font-size: 10px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
+}
+
+.admin-analytics-create-menu button:hover,
+.admin-analytics-profile-menu button:hover {
+  background: #f5f2ff;
+  color: #633af2;
+}
+
+.admin-analytics-profile-menu button.danger:hover {
+  background: #fff0f2;
+  color: #e33c56;
+}
+
+@keyframes adminAnalyticsMenuIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ================= PROFILE BUTTON ================= */
+
+.admin-analytics-profile {
+  cursor: pointer;
+
+  text-align: left;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.admin-analytics-profile:hover {
+  border-color: #cfc5ff;
+
+  box-shadow:
+    0 6px 18px
+    rgba(100, 58, 242, 0.08);
+}
+
+/* ================= GLOBAL SEARCH ================= */
+
+.admin-analytics-global-search-wrapper {
+  position: relative;
+
+  width: min(680px, 60%);
+}
+
+.admin-analytics-global-search-wrapper
+  .admin-analytics-global-search {
+  width: 100%;
+}
+
+.admin-analytics-global-search:focus-within {
+  border-color: #8d72f7;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(99, 58, 242, 0.08);
+}
+
+.admin-analytics-clear-search {
+  width: 25px;
+  height: 25px;
+
+  display: grid;
+  place-items: center;
+
+  flex-shrink: 0;
+
+  border: 0;
+  border-radius: 6px;
+
+  background: transparent;
+  color: #8d94a5;
+
+  cursor: pointer;
+}
+
+.admin-analytics-clear-search:hover {
+  background: #eceef5;
+  color: #4e5669;
+}
+
+/* SEARCH RESULTS */
+
+.admin-analytics-search-results {
+  position: absolute;
+
+  z-index: 600;
+
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+
+  max-height: 350px;
+  padding: 7px;
+
+  overflow-y: auto;
+
+  border: 1px solid #e3e6ef;
+  border-radius: 11px;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 18px 50px
+    rgba(25, 31, 50, 0.14);
+
+  animation:
+    adminAnalyticsMenuIn
+    0.18s ease;
+}
+
+.admin-analytics-search-results
+  > button {
+  width: 100%;
+  min-height: 52px;
+  padding: 8px 10px;
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  border: 0;
+  border-radius: 8px;
+
+  background: transparent;
+
+  text-align: left;
+
+  cursor: pointer;
+
+  transition:
+    background 0.18s ease,
+    transform 0.18s ease;
+}
+
+.admin-analytics-search-results
+  > button:hover {
+  background: #f7f5ff;
+
+  transform: translateX(2px);
+}
+
+.admin-analytics-search-result-icon {
+  width: 32px;
+  height: 32px;
+
+  display: grid;
+  place-items: center;
+
+  flex-shrink: 0;
+
+  border-radius: 8px;
+
+  background: #eee9ff;
+  color: #633af2;
+}
+
+.admin-analytics-search-results
+  > button
+  > span {
+  min-width: 0;
+
+  flex: 1;
+}
+
+.admin-analytics-search-results strong {
+  display: block;
+
+  color: #282f43;
+
+  font-size: 10px;
+}
+
+.admin-analytics-search-results small {
+  display: block;
+
+  margin-top: 3px;
+
+  color: #949bad;
+
+  font-size: 8px;
+}
+
+.admin-analytics-search-results
+  > button
+  > svg {
+  color: #9ba1af;
+}
+
+.admin-analytics-search-empty {
+  min-height: 110px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  color: #9ba2b2;
+}
+
+.admin-analytics-search-empty strong {
+  margin-top: 8px;
+}
+
+.admin-analytics-search-empty span {
+  margin-top: 3px;
+
+  font-size: 8px;
+}
+
+/* ================= LIVE STATUS ================= */
+
+.admin-analytics-live-indicator {
+  margin-top: 10px;
+
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  color: #0ba866;
+
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.admin-analytics-live-indicator i,
+.admin-analytics-live-dot,
+.admin-analytics-chart-live i,
+.admin-analytics-system-live i {
+  width: 7px;
+  height: 7px;
+
+  display: inline-block;
+
+  flex-shrink: 0;
+
+  border-radius: 50%;
+
+  background: #08b978;
+
+  box-shadow:
+    0 0 0 4px
+    rgba(8, 185, 120, 0.1);
+
+  animation:
+    adminAnalyticsPulse
+    1.7s infinite;
+}
+
+.admin-analytics-live-indicator small {
+  margin-left: 5px;
+
+  color: #999faf;
+
+  font-size: 8px;
+  font-weight: 500;
+}
+
+@keyframes adminAnalyticsPulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.4;
+  }
+}
+
+/* ================= REFRESH ================= */
+
+.admin-analytics-secondary-button:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.admin-analytics-spin {
+  animation:
+    adminAnalyticsSpin
+    0.65s linear infinite;
+}
+
+@keyframes adminAnalyticsSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ================= BUTTON HOVERS ================= */
+
+.admin-analytics-primary-button,
+.admin-analytics-secondary-button,
+.admin-analytics-create {
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    opacity 0.18s ease;
+}
+
+.admin-analytics-primary-button:hover,
+.admin-analytics-create:hover {
+  transform: translateY(-1px);
+
+  box-shadow:
+    0 9px 22px
+    rgba(101, 59, 245, 0.25);
+}
+
+.admin-analytics-secondary-button:hover {
+  transform: translateY(-1px);
+
+  border-color: #c8c0ee;
+
+  background: #faf9ff;
+}
+
+/* ================= KPI INTERACTION ================= */
+
+.admin-analytics-kpi {
+  width: 100%;
+
+  text-align: left;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.admin-analytics-kpi:hover {
+  transform: translateY(-3px);
+
+  border-color: #d5ccfa;
+
+  box-shadow:
+    0 12px 28px
+    rgba(38, 43, 67, 0.08);
+}
+
+.admin-analytics-kpi-arrow {
+  position: absolute;
+
+  top: 13px;
+  right: 13px;
+
+  color: #a1a7b6;
+
+  opacity: 0;
+
+  transform: translate(-3px, 3px);
+
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+
+.admin-analytics-kpi:hover
+  .admin-analytics-kpi-arrow {
+  opacity: 1;
+
+  transform: translate(0, 0);
+}
+
+.admin-analytics-kpi:hover
+  .admin-analytics-kpi-trend {
+  opacity: 0;
+}
+
+/* ================= CARD ================= */
+
+.admin-analytics-card {
+  transition:
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.admin-analytics-card:hover {
+  border-color: #dcd9eb;
+
+  box-shadow:
+    0 8px 25px
+    rgba(30, 36, 56, 0.045);
+}
+
+.admin-analytics-chart-live,
+.admin-analytics-system-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  color: #0aa867;
+
+  font-size: 8px;
+  font-weight: 800;
+}
+
+.admin-analytics-card-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+
+  border: 0;
+
+  background: transparent;
+  color: #633af2;
+
+  font-size: 9px;
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+/* ================= LINE CHART ================= */
+
+.admin-analytics-svg-wrapper {
+  position: relative;
+}
+
+.admin-analytics-user-point,
+.admin-analytics-active-point {
+  cursor: pointer;
+
+  transition:
+    r 0.18s ease,
+    filter 0.18s ease;
+}
+
+.admin-analytics-user-point:hover,
+.admin-analytics-active-point:hover {
+  filter:
+    drop-shadow(
+      0 2px 4px
+      rgba(70, 52, 180, 0.25)
+    );
+}
+
+.admin-analytics-users-line,
+.admin-analytics-active-line {
+  vector-effect:
+    non-scaling-stroke;
+}
+
+.admin-analytics-chart-tooltip {
+  position: absolute;
+
+  z-index: 20;
+
+  min-width: 105px;
+  padding: 8px 10px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+
+  transform:
+    translate(-50%, -100%);
+
+  border-radius: 8px;
+
+  background: #161b2d;
+  color: #ffffff;
+
+  box-shadow:
+    0 8px 22px
+    rgba(18, 24, 43, 0.2);
+
+  pointer-events: none;
+}
+
+.admin-analytics-chart-tooltip strong {
+  font-size: 9px;
+}
+
+.admin-analytics-chart-tooltip span {
+  color: #d9ddea;
+
+  font-size: 7px;
+}
+
+/* ================= DONUT ================= */
+
+.admin-analytics-donut {
+  transition:
+    transform 0.25s ease,
+    filter 0.25s ease;
+}
+
+.admin-analytics-donut.is-active {
+  transform: scale(1.04);
+
+  filter:
+    drop-shadow(
+      0 7px 10px
+      rgba(75, 55, 165, 0.12)
+    );
+}
+
+.admin-analytics-donut-legend
+  > button {
+  width: 100%;
+  padding: 5px 6px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+
+  border: 0;
+  border-radius: 6px;
+
+  background: transparent;
+
+  color: #626a7d;
+
+  font-size: 8px;
+
+  cursor: pointer;
+
+  transition:
+    background 0.18s ease,
+    transform 0.18s ease;
+}
+
+.admin-analytics-donut-legend
+  > button:hover,
+.admin-analytics-donut-legend
+  > button.active {
+  background: #f6f3ff;
+
+  transform: translateX(2px);
+}
+
+.admin-analytics-donut-legend
+  > button
+  > span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.admin-analytics-donut-legend
+  > button
+  > strong {
+  color: #30374b;
+
+  font-size: 8px;
+}
+
+/* ================= REVENUE TOOLTIP ================= */
+
+.admin-analytics-revenue-column {
+  position: relative;
+
+  cursor: pointer;
+}
+
+.admin-analytics-revenue-bar {
+  transition:
+    height 0.35s ease,
+    transform 0.2s ease,
+    filter 0.2s ease;
+}
+
+.admin-analytics-revenue-bar.active {
+  transform: scaleX(1.12);
+
+  filter:
+    brightness(1.08)
+    drop-shadow(
+      0 6px 7px
+      rgba(99, 58, 242, 0.2)
+    );
+}
+
+.admin-analytics-bar-tooltip {
+  position: absolute;
+
+  z-index: 30;
+
+  left: 50%;
+  bottom: calc(100% + 4px);
+
+  min-width: 80px;
+  padding: 7px 8px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  transform:
+    translateX(-50%);
+
+  border-radius: 7px;
+
+  background: #171c2e;
+  color: #ffffff;
+
+  box-shadow:
+    0 8px 18px
+    rgba(17, 22, 38, 0.2);
+
+  pointer-events: none;
+}
+
+.admin-analytics-bar-tooltip strong {
+  font-size: 8px;
+}
+
+.admin-analytics-bar-tooltip span {
+  margin-top: 2px;
+
+  color: #d9ddeb;
+
+  font-size: 7px;
+}
+
+/* ================= PLAN INTERACTION ================= */
+
+.admin-analytics-plan-row {
+  padding: 6px;
+
+  border-radius: 7px;
+
+  transition:
+    background 0.18s ease,
+    transform 0.18s ease;
+}
+
+.admin-analytics-plan-row:hover,
+.admin-analytics-plan-row.active {
+  background: #faf9ff;
+
+  transform: translateX(2px);
+}
+
+.admin-analytics-progress span {
+  transition:
+    width 0.45s ease,
+    filter 0.2s ease;
+}
+
+.admin-analytics-plan-row:hover
+  .admin-analytics-progress span {
+  filter: brightness(1.08);
+}
+
+/* ================= ACTIVITY ================= */
+
+.admin-analytics-activity-column {
+  position: relative;
+
+  cursor: pointer;
+}
+
+.admin-analytics-activity-bar-group {
+  transition:
+    transform 0.2s ease,
+    filter 0.2s ease;
+}
+
+.admin-analytics-activity-bar-group.active {
+  transform: translateY(-4px);
+
+  filter:
+    drop-shadow(
+      0 5px 6px
+      rgba(67, 48, 150, 0.16)
+    );
+}
+
+.admin-analytics-activity-bar-group
+  span {
+  transition:
+    height 0.35s ease,
+    transform 0.2s ease;
+}
+
+.admin-analytics-activity-tooltip {
+  position: absolute;
+
+  z-index: 30;
+
+  left: 50%;
+  bottom: calc(100% + 6px);
+
+  width: 105px;
+  padding: 8px 9px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  transform:
+    translateX(-50%);
+
+  border-radius: 7px;
+
+  background: #171c2e;
+  color: #ffffff;
+
+  box-shadow:
+    0 8px 20px
+    rgba(20, 25, 43, 0.2);
+
+  pointer-events: none;
+}
+
+.admin-analytics-activity-tooltip
+  strong {
+  margin-bottom: 2px;
+
+  font-size: 8px;
+}
+
+.admin-analytics-activity-tooltip
+  span {
+  color: #d9ddea;
+
+  font-size: 7px;
+}
+
+/* ================= TABLE ================= */
+
+.admin-analytics-table-search-clear {
+  width: 22px;
+  height: 22px;
+
+  display: grid;
+  place-items: center;
+
+  flex-shrink: 0;
+
+  border: 0;
+  border-radius: 5px;
+
+  background: transparent;
+  color: #9299aa;
+
+  cursor: pointer;
+}
+
+.admin-analytics-table-search-clear:hover {
+  background: #eceef4;
+}
+
+.admin-analytics-table tbody tr {
+  cursor: pointer;
+
+  transition:
+    background 0.18s ease;
+}
+
+.admin-analytics-no-results {
+  height: 90px;
+
+  color: #969dae !important;
+
+  text-align: center !important;
+}
+
+/* ================= SYSTEM HEALTH ================= */
+
+.admin-analytics-system-metric {
+  padding: 5px;
+
+  border-radius: 8px;
+
+  transition:
+    background 0.18s ease,
+    transform 0.18s ease;
+}
+
+.admin-analytics-system-metric:hover {
+  background: #f8faf9;
+
+  transform: translateX(2px);
+}
+
+.admin-analytics-system-progress
+  span {
+  transition:
+    width 0.6s ease;
+}
+
+/* ================= LAST UPDATED ================= */
+
+.admin-analytics-updated {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 7px;
+}
+
+/* ================= RESPONSIVE ADDITIONS ================= */
+
+@media (max-width: 900px) {
+  .admin-analytics-global-search-wrapper {
+    width: 55%;
+  }
+}
+
+@media (max-width: 700px) {
+  .admin-analytics-global-search-wrapper {
+    width: 100%;
+  }
+
+  .admin-analytics-search-results {
+    position: fixed;
+
+    top: 65px;
+    left: 12px;
+    right: 12px;
+
+    width: auto;
+  }
+
+  .admin-analytics-chart-tooltip,
+  .admin-analytics-bar-tooltip,
+  .admin-analytics-activity-tooltip {
+    display: none;
+  }
+}

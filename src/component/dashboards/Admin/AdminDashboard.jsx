@@ -42,7 +42,6 @@ import {
   fallbackTasks,
   fallbackTransactions,
   fallbackGrowth,
-  projectActivity,
   systemHealth,
 } from "./adminDashboardData.js";
 
@@ -65,7 +64,7 @@ function readStorage(keys, fallback) {
         }
       }
     } catch {
-      // continue
+      // Try next storage key.
     }
   }
 
@@ -73,15 +72,20 @@ function readStorage(keys, fallback) {
 }
 
 /* =========================================================
-   SVG LINE CHART
+   LINE CHART
 ========================================================= */
 
 function LineChart({ data }) {
   const width = 650;
   const height = 210;
-  const padding = 25;
 
-  const max = Math.max(
+  const paddingX = 28;
+  const paddingTop = 20;
+  const paddingBottom = 25;
+
+  const [hovered, setHovered] = useState(null);
+
+  const maxValue = Math.max(
     ...data.flatMap((item) => [
       Number(item.users || 0),
       Number(item.active || 0),
@@ -89,24 +93,36 @@ function LineChart({ data }) {
     1
   );
 
-  const createPoints = (key) => {
-    return data
+  const getPoint = (item, index, key) => {
+    const x =
+      paddingX +
+      (index * (width - paddingX * 2)) /
+        Math.max(data.length - 1, 1);
+
+    const y =
+      height -
+      paddingBottom -
+      (Number(item[key] || 0) / maxValue) *
+        (height - paddingTop - paddingBottom);
+
+    return {
+      x,
+      y,
+    };
+  };
+
+  const createPoints = (key) =>
+    data
       .map((item, index) => {
-        const x =
-          padding +
-          (index * (width - padding * 2)) /
-            Math.max(data.length - 1, 1);
+        const point = getPoint(
+          item,
+          index,
+          key
+        );
 
-        const y =
-          height -
-          padding -
-          (Number(item[key] || 0) / max) *
-            (height - padding * 2);
-
-        return `${x},${y}`;
+        return `${point.x},${point.y}`;
       })
       .join(" ");
-  };
 
   return (
     <div className="tf-live-line-chart">
@@ -114,16 +130,20 @@ function LineChart({ data }) {
         viewBox={`0 0 ${width} ${height}`}
         preserveAspectRatio="none"
       >
-        {[0, 1, 2, 3].map((line) => (
-          <line
-            key={line}
-            x1="0"
-            x2={width}
-            y1={45 + line * 40}
-            y2={45 + line * 40}
-            className="tf-chart-grid-line"
-          />
-        ))}
+        {[0, 1, 2, 3].map((line) => {
+          const y = 40 + line * 42;
+
+          return (
+            <line
+              key={line}
+              x1="0"
+              x2={width}
+              y1={y}
+              y2={y}
+              className="tf-chart-grid-line"
+            />
+          );
+        })}
 
         <polyline
           points={createPoints("users")}
@@ -136,31 +156,121 @@ function LineChart({ data }) {
         />
 
         {data.map((item, index) => {
-          const x =
-            padding +
-            (index * (width - padding * 2)) /
-              Math.max(data.length - 1, 1);
+          const usersPoint = getPoint(
+            item,
+            index,
+            "users"
+          );
 
-          const y =
-            height -
-            padding -
-            (Number(item.users || 0) / max) *
-              (height - padding * 2);
+          const activePoint = getPoint(
+            item,
+            index,
+            "active"
+          );
 
           return (
-            <circle
-              key={item.label}
-              cx={x}
-              cy={y}
-              r="4"
-              className="tf-users-point"
-            >
-              <title>
-                {item.label}: {item.users} users
-              </title>
-            </circle>
+            <React.Fragment key={item.label}>
+              <circle
+                cx={usersPoint.x}
+                cy={usersPoint.y}
+                r="5"
+                className="tf-users-point"
+                onMouseEnter={() =>
+                  setHovered({
+                    ...item,
+                    x: usersPoint.x,
+                    y: usersPoint.y,
+                  })
+                }
+                onMouseLeave={() =>
+                  setHovered(null)
+                }
+              >
+                <title>
+                  {item.label}: {item.users} users
+                </title>
+              </circle>
+
+              <circle
+                cx={activePoint.x}
+                cy={activePoint.y}
+                r="4"
+                className="tf-active-point"
+                onMouseEnter={() =>
+                  setHovered({
+                    ...item,
+                    x: activePoint.x,
+                    y: activePoint.y,
+                  })
+                }
+                onMouseLeave={() =>
+                  setHovered(null)
+                }
+              >
+                <title>
+                  {item.label}: {item.active} active
+                </title>
+              </circle>
+            </React.Fragment>
           );
         })}
+
+        {hovered && (
+          <g className="tf-svg-tooltip">
+            <rect
+              x={Math.min(
+                hovered.x + 8,
+                520
+              )}
+              y={Math.max(
+                hovered.y - 58,
+                5
+              )}
+              width="115"
+              height="48"
+              rx="7"
+            />
+
+            <text
+              x={Math.min(
+                hovered.x + 18,
+                530
+              )}
+              y={Math.max(
+                hovered.y - 39,
+                24
+              )}
+            >
+              {hovered.label}
+            </text>
+
+            <text
+              x={Math.min(
+                hovered.x + 18,
+                530
+              )}
+              y={Math.max(
+                hovered.y - 23,
+                40
+              )}
+            >
+              Users: {hovered.users}
+            </text>
+
+            <text
+              x={Math.min(
+                hovered.x + 18,
+                530
+              )}
+              y={Math.max(
+                hovered.y - 9,
+                54
+              )}
+            >
+              Active: {hovered.active}
+            </text>
+          </g>
+        )}
       </svg>
 
       <div className="tf-chart-labels">
@@ -175,10 +285,13 @@ function LineChart({ data }) {
 }
 
 /* =========================================================
-   DONUT
+   DONUT CHART
 ========================================================= */
 
 function DonutChart({ workspaces }) {
+  const [selectedSegment, setSelectedSegment] =
+    useState(null);
+
   const distribution = useMemo(() => {
     const result = {};
 
@@ -195,13 +308,17 @@ function DonutChart({ workspaces }) {
     return Object.entries(result);
   }, [workspaces]);
 
-  const total = Math.max(workspaces.length, 1);
+  const total = Math.max(
+    workspaces.length,
+    1
+  );
 
   let offset = 0;
 
   const segments = distribution.map(
     ([name, value], index) => {
-      const percentage = (value / total) * 100;
+      const percentage =
+        (value / total) * 100;
 
       const segment = {
         name,
@@ -215,6 +332,11 @@ function DonutChart({ workspaces }) {
 
       return segment;
     }
+  );
+
+  const selected = segments.find(
+    (segment) =>
+      segment.name === selectedSegment
   );
 
   return (
@@ -234,31 +356,95 @@ function DonutChart({ workspaces }) {
               cx="21"
               cy="21"
               r="15.9155"
-              className={`tf-donut-segment tf-donut-${segment.index % 6}`}
-              strokeDasharray={`${segment.percentage} ${
-                100 - segment.percentage
+              className={`tf-donut-segment tf-donut-${
+                segment.index % 6
+              } ${
+                selectedSegment ===
+                segment.name
+                  ? "selected"
+                  : ""
               }`}
-              strokeDashoffset={-segment.offset}
-            />
+              strokeDasharray={`${
+                segment.percentage
+              } ${
+                100 -
+                segment.percentage
+              }`}
+              strokeDashoffset={
+                -segment.offset
+              }
+              onMouseEnter={() =>
+                setSelectedSegment(
+                  segment.name
+                )
+              }
+              onMouseLeave={() =>
+                setSelectedSegment(null)
+              }
+            >
+              <title>
+                {segment.name}:{" "}
+                {segment.value} (
+                {segment.percentage.toFixed(
+                  1
+                )}
+                %)
+              </title>
+            </circle>
           ))}
         </svg>
 
         <div className="tf-donut-center">
-          <strong>{workspaces.length}</strong>
-          <span>Workspaces</span>
+          {selected ? (
+            <>
+              <strong>
+                {selected.value}
+              </strong>
+
+              <span>
+                {selected.name}
+              </span>
+            </>
+          ) : (
+            <>
+              <strong>
+                {workspaces.length}
+              </strong>
+
+              <span>
+                Workspaces
+              </span>
+            </>
+          )}
         </div>
       </div>
 
       <div className="tf-donut-legend">
         {segments.map((segment) => (
-          <div key={segment.name}>
+          <div
+            key={segment.name}
+            onMouseEnter={() =>
+              setSelectedSegment(
+                segment.name
+              )
+            }
+            onMouseLeave={() =>
+              setSelectedSegment(null)
+            }
+          >
             <span
-              className={`tf-legend-dot tf-legend-${segment.index % 6}`}
+              className={`tf-legend-dot tf-legend-${
+                segment.index % 6
+              }`}
             />
 
-            <span>{segment.name}</span>
+            <span>
+              {segment.name}
+            </span>
 
-            <strong>{segment.value}</strong>
+            <strong>
+              {segment.value}
+            </strong>
           </div>
         ))}
       </div>
@@ -270,59 +456,109 @@ function DonutChart({ workspaces }) {
    ACTIVITY CHART
 ========================================================= */
 
-function ActivityChart() {
+function ActivityChart({ data }) {
+  const [hoveredDay, setHoveredDay] =
+    useState(null);
+
   const max = Math.max(
-    ...projectActivity.map(
+    ...data.map(
       (item) =>
-        item.completed +
-        item.progress +
-        item.todo
-    )
+        Number(item.completed || 0) +
+        Number(item.progress || 0) +
+        Number(item.todo || 0)
+    ),
+    1
   );
 
   return (
     <div className="tf-activity-chart">
-      {projectActivity.map((item) => {
+      {data.map((item) => {
         const total =
-          item.completed +
-          item.progress +
-          item.todo;
+          Number(item.completed || 0) +
+          Number(item.progress || 0) +
+          Number(item.todo || 0);
 
-        const height = (total / max) * 100;
+        const height =
+          (total / max) * 100;
 
         return (
           <div
             className="tf-activity-column"
             key={item.label}
+            onMouseEnter={() =>
+              setHoveredDay(item.label)
+            }
+            onMouseLeave={() =>
+              setHoveredDay(null)
+            }
           >
             <div
-              className="tf-activity-stack"
-              style={{ height: `${height}%` }}
-              title={`${item.label}: ${total} activities`}
+              className={`tf-activity-stack ${
+                hoveredDay === item.label
+                  ? "active"
+                  : ""
+              }`}
+              style={{
+                height: `${Math.max(
+                  height,
+                  10
+                )}%`,
+              }}
             >
               <span
                 className="tf-activity-completed"
                 style={{
-                  flex: item.completed,
+                  flex:
+                    item.completed ||
+                    0.1,
                 }}
               />
 
               <span
                 className="tf-activity-progress"
                 style={{
-                  flex: item.progress,
+                  flex:
+                    item.progress ||
+                    0.1,
                 }}
               />
 
               <span
                 className="tf-activity-todo"
                 style={{
-                  flex: item.todo,
+                  flex:
+                    item.todo ||
+                    0.1,
                 }}
               />
             </div>
 
-            <small>{item.label}</small>
+            <small>
+              {item.label}
+            </small>
+
+            {hoveredDay ===
+              item.label && (
+              <div className="tf-bar-tooltip">
+                <strong>
+                  {item.label}
+                </strong>
+
+                <span>
+                  Completed:{" "}
+                  {item.completed}
+                </span>
+
+                <span>
+                  In progress:{" "}
+                  {item.progress}
+                </span>
+
+                <span>
+                  To do: {item.todo}
+                </span>
+              </div>
+            )}
           </div>
         );
       })}
@@ -331,22 +567,26 @@ function ActivityChart() {
 }
 
 /* =========================================================
-   MAIN
+   MAIN DASHBOARD
 ========================================================= */
 
 function AdminDashboard() {
   const navigate = useNavigate();
   const searchRef = useRef(null);
 
-  const [search, setSearch] = useState("");
+  const [search, setSearch] =
+    useState("");
+
   const [showSearch, setShowSearch] =
     useState(false);
 
   const [createOpen, setCreateOpen] =
     useState(false);
 
-  const [notificationOpen, setNotificationOpen] =
-    useState(false);
+  const [
+    notificationOpen,
+    setNotificationOpen,
+  ] = useState(false);
 
   const [profileOpen, setProfileOpen] =
     useState(false);
@@ -360,33 +600,35 @@ function AdminDashboard() {
   const [lastUpdated, setLastUpdated] =
     useState(new Date());
 
-  const [notifications, setNotifications] =
-    useState([
-      {
-        id: 1,
-        text: "New workspace created",
-        time: "2 min ago",
-        read: false,
-      },
-      {
-        id: 2,
-        text: "Enterprise payment received",
-        time: "18 min ago",
-        read: false,
-      },
-      {
-        id: 3,
-        text: "New user joined TeamFlow AI",
-        time: "42 min ago",
-        read: false,
-      },
-    ]);
-
   const [dataVersion, setDataVersion] =
     useState(0);
 
+  const [
+    notifications,
+    setNotifications,
+  ] = useState([
+    {
+      id: 1,
+      text: "New workspace created",
+      time: "2 min ago",
+      read: false,
+    },
+    {
+      id: 2,
+      text: "Enterprise payment received",
+      time: "18 min ago",
+      read: false,
+    },
+    {
+      id: 3,
+      text: "New user joined TeamFlow AI",
+      time: "42 min ago",
+      read: false,
+    },
+  ]);
+
   /* =======================================================
-     LIVE LOCAL DATA
+     LIVE DATA
   ======================================================= */
 
   const users = useMemo(
@@ -435,12 +677,12 @@ function AdminDashboard() {
       return directTasks;
     }
 
-    const projectTasks = projects.flatMap(
-      (project) =>
+    const projectTasks =
+      projects.flatMap((project) =>
         Array.isArray(project.tasks)
           ? project.tasks
           : []
-    );
+      );
 
     return projectTasks.length
       ? projectTasks
@@ -450,31 +692,38 @@ function AdminDashboard() {
   const transactions = useMemo(
     () =>
       readStorage(
-        ["teamflow_admin_transactions"],
+        [
+          "teamflow_admin_transactions",
+        ],
         fallbackTransactions
       ),
     [dataVersion]
   );
 
   /* =======================================================
-     REAL CALCULATED KPIs
+     KPI
   ======================================================= */
 
-  const revenue = useMemo(() => {
-    return transactions
-      .filter(
-        (transaction) =>
-          String(
-            transaction.status
-          ).toLowerCase() === "paid"
-      )
-      .reduce(
-        (sum, transaction) =>
-          sum +
-          Number(transaction.amount || 0),
-        0
-      );
-  }, [transactions]);
+  const revenue = useMemo(
+    () =>
+      transactions
+        .filter(
+          (transaction) =>
+            String(
+              transaction.status
+            ).toLowerCase() ===
+            "paid"
+        )
+        .reduce(
+          (sum, transaction) =>
+            sum +
+            Number(
+              transaction.amount || 0
+            ),
+          0
+        ),
+    [transactions]
+  );
 
   const aiCredits = useMemo(() => {
     try {
@@ -503,23 +752,46 @@ function AdminDashboard() {
     }
   }, [dataVersion]);
 
-  const completedTasks = tasks.filter(
-    (task) =>
-      String(task.status).toLowerCase() ===
-      "completed"
-  ).length;
+  const completedTasks =
+    tasks.filter(
+      (task) =>
+        String(task.status)
+          .trim()
+          .toLowerCase() ===
+        "completed"
+    ).length;
 
-  const activeProjects = projects.filter(
-    (project) =>
-      String(project.status).toLowerCase() !==
-      "completed"
-  ).length;
+  const activeProjects =
+    projects.filter(
+      (project) =>
+        String(project.status)
+          .trim()
+          .toLowerCase() !==
+        "completed"
+    ).length;
 
   /* =======================================================
-     GROWTH DATA
+     USER GROWTH
   ======================================================= */
 
   const growthData = useMemo(() => {
+    try {
+      const saved = JSON.parse(
+        localStorage.getItem(
+          "teamflow_admin_growth"
+        ) || "[]"
+      );
+
+      if (
+        Array.isArray(saved) &&
+        saved.length
+      ) {
+        return saved;
+      }
+    } catch {
+      // Use fallback.
+    }
+
     const multiplier =
       period === "7"
         ? 0.85
@@ -527,18 +799,134 @@ function AdminDashboard() {
           ? 1.18
           : 1;
 
-    return fallbackGrowth.map((item) => ({
-      ...item,
+    return fallbackGrowth.map(
+      (item) => ({
+        ...item,
 
-      users: Math.round(
-        item.users * multiplier
-      ),
+        users: Math.round(
+          item.users * multiplier
+        ),
 
-      active: Math.round(
-        item.active * multiplier
-      ),
-    }));
-  }, [period]);
+        active: Math.round(
+          item.active * multiplier
+        ),
+      })
+    );
+  }, [period, dataVersion]);
+
+  /* =======================================================
+     PROJECT ACTIVITY
+  ======================================================= */
+
+  const liveProjectActivity =
+    useMemo(() => {
+      try {
+        const saved = JSON.parse(
+          localStorage.getItem(
+            "teamflow_admin_project_activity"
+          ) || "[]"
+        );
+
+        if (
+          Array.isArray(saved) &&
+          saved.length
+        ) {
+          return saved;
+        }
+      } catch {
+        // Generate from tasks.
+      }
+
+      const completed =
+        tasks.filter(
+          (task) =>
+            String(task.status)
+              .trim()
+              .toLowerCase() ===
+            "completed"
+        ).length;
+
+      const progress =
+        tasks.filter((task) => {
+          const status = String(
+            task.status
+          )
+            .trim()
+            .toLowerCase();
+
+          return (
+            status ===
+              "in progress" ||
+            status === "progress"
+          );
+        }).length;
+
+      const todo =
+        tasks.filter((task) => {
+          const status = String(
+            task.status
+          )
+            .trim()
+            .toLowerCase();
+
+          return [
+            "to do",
+            "todo",
+            "pending",
+            "review",
+          ].includes(status);
+        }).length;
+
+      const labels = [
+        "Mon",
+        "Tue",
+        "Wed",
+        "Thu",
+        "Fri",
+        "Sat",
+        "Sun",
+      ];
+
+      const factors = [
+        0.55,
+        0.68,
+        0.61,
+        0.82,
+        0.7,
+        0.9,
+        1,
+      ];
+
+      return labels.map(
+        (label, index) => ({
+          label,
+
+          completed: Math.max(
+            1,
+            Math.round(
+              completed *
+                factors[index]
+            )
+          ),
+
+          progress: Math.max(
+            1,
+            Math.round(
+              progress *
+                factors[index]
+            )
+          ),
+
+          todo: Math.max(
+            1,
+            Math.round(
+              todo *
+                factors[index]
+            )
+          ),
+        })
+      );
+    }, [tasks, dataVersion]);
 
   /* =======================================================
      SEARCH
@@ -599,11 +987,14 @@ function AdminDashboard() {
         );
 
   /* =======================================================
-     LIVE REFRESH
+     REFRESH
   ======================================================= */
 
   const refreshDashboard = () => {
-    setDataVersion((value) => value + 1);
+    setDataVersion(
+      (value) => value + 1
+    );
+
     setLastUpdated(new Date());
   };
 
@@ -633,14 +1024,16 @@ function AdminDashboard() {
   }, []);
 
   /* =======================================================
-     CTRL + K
+     KEYBOARD
   ======================================================= */
 
   useEffect(() => {
     const handleKey = (event) => {
       if (
-        (event.ctrlKey || event.metaKey) &&
-        event.key.toLowerCase() === "k"
+        (event.ctrlKey ||
+          event.metaKey) &&
+        event.key.toLowerCase() ===
+          "k"
       ) {
         event.preventDefault();
 
@@ -669,7 +1062,7 @@ function AdminDashboard() {
   }, []);
 
   /* =======================================================
-     NAVIGATION
+     ACTIONS
   ======================================================= */
 
   const goTo = (path) => {
@@ -704,6 +1097,10 @@ function AdminDashboard() {
       "teamflow_admin_logged_in"
     );
 
+    sessionStorage.removeItem(
+      "teamflow_admin"
+    );
+
     navigate("/login");
   };
 
@@ -718,7 +1115,7 @@ function AdminDashboard() {
       <AdminSidebar />
 
       <div className="tf-admin-dashboard-main">
-        {/* TOPBAR */}
+        {/* TOP BAR */}
 
         <header className="tf-admin-topbar">
           <div className="tf-admin-search-wrap">
@@ -755,42 +1152,55 @@ function AdminDashboard() {
               )}
             </div>
 
-            {showSearch && search && (
-              <div className="tf-search-results">
-                {filteredSearch.length ? (
-                  filteredSearch.map(
-                    (item) => (
-                      <button
-                        key={item.path}
-                        onClick={() =>
-                          goTo(item.path)
-                        }
-                      >
-                        <Search size={16} />
+            {showSearch &&
+              search && (
+                <div className="tf-search-results">
+                  {filteredSearch.length ? (
+                    filteredSearch.map(
+                      (item) => (
+                        <button
+                          key={
+                            item.path
+                          }
+                          type="button"
+                          onClick={() =>
+                            goTo(
+                              item.path
+                            )
+                          }
+                        >
+                          <Search
+                            size={16}
+                          />
 
-                        <span>
-                          <strong>
-                            {item.title}
-                          </strong>
+                          <span>
+                            <strong>
+                              {
+                                item.title
+                              }
+                            </strong>
 
-                          <small>
-                            {item.subtitle}
-                          </small>
-                        </span>
+                            <small>
+                              {
+                                item.subtitle
+                              }
+                            </small>
+                          </span>
 
-                        <ArrowUpRight
-                          size={14}
-                        />
-                      </button>
+                          <ArrowUpRight
+                            size={14}
+                          />
+                        </button>
+                      )
                     )
-                  )
-                ) : (
-                  <p>
-                    No matching results
-                  </p>
-                )}
-              </div>
-            )}
+                  ) : (
+                    <p>
+                      No matching
+                      results
+                    </p>
+                  )}
+                </div>
+              )}
           </div>
 
           <div className="tf-topbar-actions">
@@ -798,6 +1208,7 @@ function AdminDashboard() {
 
             <div className="tf-dropdown-wrap">
               <button
+                type="button"
                 className="tf-create-btn"
                 onClick={() => {
                   setCreateOpen(
@@ -821,6 +1232,7 @@ function AdminDashboard() {
               {createOpen && (
                 <div className="tf-create-menu">
                   <button
+                    type="button"
                     onClick={() =>
                       goTo(
                         "/admin/workspaces"
@@ -834,8 +1246,11 @@ function AdminDashboard() {
                   </button>
 
                   <button
+                    type="button"
                     onClick={() =>
-                      goTo("/admin/users")
+                      goTo(
+                        "/admin/users"
+                      )
                     }
                   >
                     <Users size={17} />
@@ -843,6 +1258,7 @@ function AdminDashboard() {
                   </button>
 
                   <button
+                    type="button"
                     onClick={() =>
                       goTo(
                         "/admin/projects"
@@ -856,8 +1272,11 @@ function AdminDashboard() {
                   </button>
 
                   <button
+                    type="button"
                     onClick={() =>
-                      goTo("/admin/tasks")
+                      goTo(
+                        "/admin/tasks"
+                      )
                     }
                   >
                     <ListChecks
@@ -872,19 +1291,26 @@ function AdminDashboard() {
             {/* REFRESH */}
 
             <button
+              type="button"
               className="tf-top-icon"
               title="Refresh dashboard"
-              onClick={refreshDashboard}
+              onClick={
+                refreshDashboard
+              }
             >
               <RefreshCw size={17} />
             </button>
 
-            {/* DARK */}
+            {/* DARK MODE */}
 
             <button
+              type="button"
               className="tf-top-icon"
+              title="Toggle dark mode"
               onClick={() =>
-                setDarkMode(!darkMode)
+                setDarkMode(
+                  !darkMode
+                )
               }
             >
               {darkMode ? (
@@ -894,10 +1320,11 @@ function AdminDashboard() {
               )}
             </button>
 
-            {/* NOTIFICATION */}
+            {/* NOTIFICATIONS */}
 
             <div className="tf-dropdown-wrap">
               <button
+                type="button"
                 className="tf-top-icon tf-bell"
                 onClick={() => {
                   setNotificationOpen(
@@ -926,11 +1353,13 @@ function AdminDashboard() {
                       </strong>
 
                       <small>
-                        {unreadCount} unread
+                        {unreadCount}{" "}
+                        unread
                       </small>
                     </div>
 
                     <button
+                      type="button"
                       onClick={
                         markAllRead
                       }
@@ -971,7 +1400,10 @@ function AdminDashboard() {
               )}
             </div>
 
+            {/* HELP */}
+
             <button
+              type="button"
               className="tf-top-icon"
               onClick={() =>
                 alert(
@@ -979,13 +1411,16 @@ function AdminDashboard() {
                 )
               }
             >
-              <CircleHelp size={17} />
+              <CircleHelp
+                size={17}
+              />
             </button>
 
             {/* PROFILE */}
 
             <div className="tf-dropdown-wrap">
               <button
+                type="button"
                 className="tf-admin-profile"
                 onClick={() => {
                   setProfileOpen(
@@ -993,6 +1428,7 @@ function AdminDashboard() {
                   );
 
                   setCreateOpen(false);
+
                   setNotificationOpen(
                     false
                   );
@@ -1008,7 +1444,8 @@ function AdminDashboard() {
                   </strong>
 
                   <small>
-                    Super Administrator
+                    Super
+                    Administrator
                   </small>
                 </span>
 
@@ -1020,6 +1457,7 @@ function AdminDashboard() {
               {profileOpen && (
                 <div className="tf-profile-menu">
                   <button
+                    type="button"
                     onClick={() =>
                       goTo(
                         "/admin/settings"
@@ -1033,10 +1471,13 @@ function AdminDashboard() {
                   </button>
 
                   <button
+                    type="button"
                     className="danger"
                     onClick={logout}
                   >
-                    <LogOut size={16} />
+                    <LogOut
+                      size={16}
+                    />
                     Logout
                   </button>
                 </div>
@@ -1077,7 +1518,8 @@ function AdminDashboard() {
                     [],
                     {
                       hour: "2-digit",
-                      minute: "2-digit",
+                      minute:
+                        "2-digit",
                     }
                   )}
                 </small>
@@ -1090,7 +1532,9 @@ function AdminDashboard() {
                 title="Manage Users"
                 text={`${users.length} registered users`}
                 onClick={() =>
-                  goTo("/admin/users")
+                  goTo(
+                    "/admin/users"
+                  )
                 }
               />
 
@@ -1121,7 +1565,9 @@ function AdminDashboard() {
                 title="View Reports"
                 text="View detailed reports"
                 onClick={() =>
-                  goTo("/admin/reports")
+                  goTo(
+                    "/admin/reports"
+                  )
                 }
               />
             </div>
@@ -1135,7 +1581,7 @@ function AdminDashboard() {
             </div>
           </section>
 
-          {/* KPI */}
+          {/* KPI CARDS */}
 
           <section className="tf-kpi-grid">
             <StatCard
@@ -1150,7 +1596,9 @@ function AdminDashboard() {
             <StatCard
               icon={<Building2 />}
               label="Workspaces"
-              value={workspaces.length}
+              value={
+                workspaces.length
+              }
               note="Platform workspaces"
               path="/admin/workspaces"
               goTo={goTo}
@@ -1199,10 +1647,10 @@ function AdminDashboard() {
             />
           </section>
 
-          {/* MAIN CHARTS */}
+          {/* CHARTS */}
 
           <section className="tf-dashboard-chart-grid">
-            {/* GROWTH */}
+            {/* USER GROWTH */}
 
             <div className="tf-dashboard-card tf-growth-panel">
               <CardHeader
@@ -1213,7 +1661,8 @@ function AdminDashboard() {
                   value={period}
                   onChange={(event) =>
                     setPeriod(
-                      event.target.value
+                      event.target
+                        .value
                     )
                   }
                 >
@@ -1248,7 +1697,7 @@ function AdminDashboard() {
               />
             </div>
 
-            {/* WORKSPACES */}
+            {/* WORKSPACE DISTRIBUTION */}
 
             <div className="tf-dashboard-card">
               <CardHeader
@@ -1256,6 +1705,7 @@ function AdminDashboard() {
                 subtitle="Workspace categories"
               >
                 <button
+                  type="button"
                   className="tf-view-link"
                   onClick={() =>
                     goTo(
@@ -1264,6 +1714,7 @@ function AdminDashboard() {
                   }
                 >
                   View
+
                   <ArrowUpRight
                     size={13}
                   />
@@ -1271,11 +1722,13 @@ function AdminDashboard() {
               </CardHeader>
 
               <DonutChart
-                workspaces={workspaces}
+                workspaces={
+                  workspaces
+                }
               />
             </div>
 
-            {/* ACTIVITY */}
+            {/* PROJECT ACTIVITY */}
 
             <div className="tf-dashboard-card">
               <CardHeader
@@ -1283,6 +1736,7 @@ function AdminDashboard() {
                 subtitle="Weekly task activity"
               >
                 <button
+                  type="button"
                   className="tf-view-link"
                   onClick={() =>
                     goTo(
@@ -1291,13 +1745,18 @@ function AdminDashboard() {
                   }
                 >
                   View
+
                   <ArrowUpRight
                     size={13}
                   />
                 </button>
               </CardHeader>
 
-              <ActivityChart />
+              <ActivityChart
+                data={
+                  liveProjectActivity
+                }
+              />
 
               <div className="tf-activity-legend">
                 <span>
@@ -1318,7 +1777,7 @@ function AdminDashboard() {
             </div>
           </section>
 
-          {/* LOWER SECTION */}
+          {/* LOWER */}
 
           <section className="tf-lower-grid">
             {/* USERS */}
@@ -1329,9 +1788,12 @@ function AdminDashboard() {
                 subtitle="Latest platform members"
               >
                 <button
+                  type="button"
                   className="tf-view-link"
                   onClick={() =>
-                    goTo("/admin/users")
+                    goTo(
+                      "/admin/users"
+                    )
                   }
                 >
                   View all
@@ -1342,8 +1804,12 @@ function AdminDashboard() {
                 {users
                   .slice(0, 4)
                   .map(
-                    (user, index) => (
+                    (
+                      user,
+                      index
+                    ) => (
                       <button
+                        type="button"
                         key={
                           user.id ||
                           index
@@ -1393,6 +1859,7 @@ function AdminDashboard() {
                 subtitle="Active team spaces"
               >
                 <button
+                  type="button"
                   className="tf-view-link"
                   onClick={() =>
                     goTo(
@@ -1413,6 +1880,7 @@ function AdminDashboard() {
                       index
                     ) => (
                       <button
+                        type="button"
                         key={
                           workspace.id ||
                           index
@@ -1431,7 +1899,9 @@ function AdminDashboard() {
 
                         <span className="tf-list-info">
                           <strong>
-                            {workspace.name}
+                            {
+                              workspace.name
+                            }
                           </strong>
 
                           <small>
@@ -1451,7 +1921,7 @@ function AdminDashboard() {
               </div>
             </div>
 
-            {/* HEALTH */}
+            {/* SYSTEM HEALTH */}
 
             <div className="tf-dashboard-card">
               <CardHeader
@@ -1471,7 +1941,9 @@ function AdminDashboard() {
                   (health) => (
                     <div
                       className="tf-health-row"
-                      key={health.label}
+                      key={
+                        health.label
+                      }
                     >
                       <div className="tf-health-top">
                         <span>
@@ -1507,11 +1979,13 @@ function AdminDashboard() {
             </div>
           </section>
 
-          {/* QUICK SUMMARY */}
+          {/* SUMMARY */}
 
           <section className="tf-summary-strip">
             <div>
-              <CreditCard size={19} />
+              <CreditCard
+                size={19}
+              />
 
               <span>
                 <small>
@@ -1526,7 +2000,9 @@ function AdminDashboard() {
             </div>
 
             <div>
-              <ListChecks size={19} />
+              <ListChecks
+                size={19}
+              />
 
               <span>
                 <small>
@@ -1583,7 +2059,7 @@ function AdminDashboard() {
 }
 
 /* =========================================================
-   COMPONENTS
+   STAT CARD
 ========================================================= */
 
 function StatCard({
@@ -1596,6 +2072,7 @@ function StatCard({
 }) {
   return (
     <button
+      type="button"
       className="tf-stat-card"
       onClick={() => goTo(path)}
     >
@@ -1621,6 +2098,10 @@ function StatCard({
   );
 }
 
+/* =========================================================
+   HERO ACTION
+========================================================= */
+
 function HeroAction({
   icon,
   title,
@@ -1629,6 +2110,7 @@ function HeroAction({
 }) {
   return (
     <button
+      type="button"
       className="tf-hero-action"
       onClick={onClick}
     >
@@ -1643,6 +2125,10 @@ function HeroAction({
     </button>
   );
 }
+
+/* =========================================================
+   CARD HEADER
+========================================================= */
 
 function CardHeader({
   title,

@@ -1,6 +1,11 @@
-// src/component/AdminAnalytics/AdminAnalytics.jsx
+import React, {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
-import React, { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import {
   Search,
@@ -22,9 +27,12 @@ import {
   Database,
   HardDrive,
   Bot,
+  Settings,
+  LogOut,
+  X,
 } from "lucide-react";
 
-import AdminSidebar from "../../../layouts/AdminSidebar/AdminSidebar.jsx"; 
+import AdminSidebar from "../../../layouts/AdminSidebar/AdminSidebar.jsx";
 
 import {
   analyticsSummary,
@@ -39,35 +47,519 @@ import {
 
 import "./AdminAnalytics.css";
 
+/* =========================================================
+   STORAGE HELPER
+========================================================= */
+
+function readStorage(keys, fallback = []) {
+  for (const key of keys) {
+    try {
+      const value = localStorage.getItem(key);
+
+      if (!value) continue;
+
+      const parsed = JSON.parse(value);
+
+      if (Array.isArray(parsed)) {
+        return parsed;
+      }
+    } catch {
+      // Continue to next key.
+    }
+  }
+
+  return fallback;
+}
+
+/* =========================================================
+   ADMIN ANALYTICS
+========================================================= */
+
 function AdminAnalytics() {
+  const navigate = useNavigate();
+  const globalSearchRef = useRef(null);
+
   const [range, setRange] = useState("30 Days");
   const [search, setSearch] = useState("");
-  const [workspaceType, setWorkspaceType] = useState("All");
-  const [lastUpdated, setLastUpdated] = useState(new Date());
+  const [globalSearch, setGlobalSearch] = useState("");
+
+  const [workspaceType, setWorkspaceType] =
+    useState("All");
+
+  const [lastUpdated, setLastUpdated] =
+    useState(new Date());
+
+  const [dataVersion, setDataVersion] =
+    useState(0);
+
+  const [createOpen, setCreateOpen] =
+    useState(false);
+
+  const [profileOpen, setProfileOpen] =
+    useState(false);
+
+  const [searchOpen, setSearchOpen] =
+    useState(false);
+
+  const [refreshing, setRefreshing] =
+    useState(false);
+
+  /* =======================================================
+     LIVE DATA
+  ======================================================= */
+
+  const liveUsers = useMemo(
+    () =>
+      readStorage(
+        [
+          "teamflow_admin_users",
+          "teamflow_users",
+        ],
+        []
+      ),
+    [dataVersion]
+  );
+
+  const liveWorkspaces = useMemo(
+    () =>
+      readStorage(
+        [
+          "teamflow_admin_workspaces",
+          "teamflow_workspaces",
+        ],
+        topWorkspaces
+      ),
+    [dataVersion]
+  );
+
+  const liveProjects = useMemo(
+    () =>
+      readStorage(
+        [
+          "teamflow_admin_projects",
+          "teamflow_projects",
+        ],
+        []
+      ),
+    [dataVersion]
+  );
+
+  const liveTasks = useMemo(() => {
+    const savedTasks = readStorage(
+      ["teamflow_admin_tasks"],
+      []
+    );
+
+    if (savedTasks.length) {
+      return savedTasks;
+    }
+
+    const nestedTasks =
+      liveProjects.flatMap((project) =>
+        Array.isArray(project.tasks)
+          ? project.tasks
+          : []
+      );
+
+    return nestedTasks;
+  }, [liveProjects, dataVersion]);
+
+  const liveTransactions = useMemo(
+    () =>
+      readStorage(
+        ["teamflow_admin_transactions"],
+        []
+      ),
+    [dataVersion]
+  );
+
+  /* =======================================================
+     SUMMARY
+  ======================================================= */
+
+  const summary = useMemo(() => {
+    const paidRevenue =
+      liveTransactions
+        .filter(
+          (transaction) =>
+            String(
+              transaction.status || ""
+            ).toLowerCase() === "paid"
+        )
+        .reduce(
+          (sum, transaction) =>
+            sum +
+            Number(
+              transaction.amount || 0
+            ),
+          0
+        );
+
+    const activeUserCount =
+      liveUsers.filter((user) => {
+        const status = String(
+          user.status || "active"
+        ).toLowerCase();
+
+        return status === "active";
+      }).length;
+
+    return {
+      totalUsers:
+        liveUsers.length ||
+        analyticsSummary.totalUsers,
+
+      activeUsers:
+        liveUsers.length
+          ? activeUserCount
+          : analyticsSummary.activeUsers,
+
+      totalWorkspaces:
+        liveWorkspaces.length ||
+        analyticsSummary.totalWorkspaces,
+
+      totalProjects:
+        liveProjects.length ||
+        analyticsSummary.totalProjects,
+
+      totalTasks:
+        liveTasks.length ||
+        analyticsSummary.totalTasks,
+
+      monthlyRevenue:
+        paidRevenue ||
+        analyticsSummary.monthlyRevenue,
+    };
+  }, [
+    liveUsers,
+    liveWorkspaces,
+    liveProjects,
+    liveTasks,
+    liveTransactions,
+  ]);
+
+  /* =======================================================
+     GROWTH DATA
+  ======================================================= */
 
   const currentGrowthData =
-    growthData[range] || growthData["30 Days"];
+    growthData[range] ||
+    growthData["30 Days"];
 
-  const filteredWorkspaces = useMemo(() => {
-    return topWorkspaces.filter((workspace) => {
-      const query = search.toLowerCase().trim();
+  /* =======================================================
+     LIVE WORKSPACE TABLE
+  ======================================================= */
 
-      const matchesSearch =
-        !query ||
-        workspace.name.toLowerCase().includes(query) ||
-        workspace.owner.toLowerCase().includes(query);
+  const analyticsWorkspaces =
+    useMemo(() => {
+      if (
+        !liveWorkspaces.length
+      ) {
+        return topWorkspaces;
+      }
 
-      const matchesPlan =
-        workspaceType === "All" ||
-        workspace.plan === workspaceType;
+      return liveWorkspaces.map(
+        (workspace, index) => ({
+          id:
+            workspace.id ??
+            index + 1,
 
-      return matchesSearch && matchesPlan;
-    });
-  }, [search, workspaceType]);
+          name:
+            workspace.name ||
+            `Workspace ${index + 1}`,
+
+          owner:
+            workspace.owner ||
+            workspace.ownerName ||
+            "TeamFlow Admin",
+
+          members: Number(
+            workspace.members || 0
+          ),
+
+          projects: Number(
+            workspace.projects ||
+              workspace.projectCount ||
+              0
+          ),
+
+          tasks: Number(
+            workspace.tasks ||
+              workspace.taskCount ||
+              0
+          ),
+
+          storage: Number(
+            workspace.storage || 0
+          ),
+
+          plan:
+            workspace.plan || "Free",
+
+          growth: Number(
+            workspace.growth ||
+              0
+          ),
+        })
+      );
+    }, [liveWorkspaces]);
+
+  const filteredWorkspaces =
+    useMemo(() => {
+      return analyticsWorkspaces.filter(
+        (workspace) => {
+          const query = search
+            .toLowerCase()
+            .trim();
+
+          const matchesSearch =
+            !query ||
+            String(
+              workspace.name
+            )
+              .toLowerCase()
+              .includes(query) ||
+            String(
+              workspace.owner
+            )
+              .toLowerCase()
+              .includes(query);
+
+          const matchesPlan =
+            workspaceType === "All" ||
+            workspace.plan ===
+              workspaceType;
+
+          return (
+            matchesSearch &&
+            matchesPlan
+          );
+        }
+      );
+    }, [
+      search,
+      workspaceType,
+      analyticsWorkspaces,
+    ]);
+
+  /* =======================================================
+     GLOBAL SEARCH
+  ======================================================= */
+
+  const searchItems = useMemo(
+    () => [
+      {
+        name: "Dashboard",
+        description:
+          "Admin dashboard overview",
+        path: "/admin/dashboard",
+        icon: Activity,
+      },
+      {
+        name: "Users",
+        description: `${summary.totalUsers.toLocaleString()} users`,
+        path: "/admin/users",
+        icon: Users,
+      },
+      {
+        name: "Workspaces",
+        description: `${summary.totalWorkspaces.toLocaleString()} workspaces`,
+        path: "/admin/workspaces",
+        icon: Building2,
+      },
+      {
+        name: "Projects",
+        description: `${summary.totalProjects.toLocaleString()} projects`,
+        path: "/admin/projects",
+        icon: FolderKanban,
+      },
+      {
+        name: "Tasks",
+        description: `${summary.totalTasks.toLocaleString()} tasks`,
+        path: "/admin/tasks",
+        icon: CheckCircle2,
+      },
+      {
+        name: "Billing & Payments",
+        description:
+          "Revenue and payments",
+        path: "/admin/billing",
+        icon: DollarSign,
+      },
+      {
+        name: "Subscriptions",
+        description:
+          "Subscription plans",
+        path: "/admin/subscriptions",
+        icon: CircleDollarSign,
+      },
+      {
+        name: "Analytics",
+        description:
+          "Platform analytics",
+        path: "/admin/analytics",
+        icon: BarChart3,
+      },
+      {
+        name: "Reports",
+        description:
+          "Analytics reports",
+        path: "/admin/reports",
+        icon: TrendingUp,
+      },
+      {
+        name: "Settings",
+        description:
+          "Platform settings",
+        path: "/admin/settings",
+        icon: Settings,
+      },
+    ],
+    [summary]
+  );
+
+  const globalResults =
+    useMemo(() => {
+      const query = globalSearch
+        .trim()
+        .toLowerCase();
+
+      if (!query) return [];
+
+      return searchItems.filter(
+        (item) =>
+          `${item.name} ${item.description}`
+            .toLowerCase()
+            .includes(query)
+      );
+    }, [
+      globalSearch,
+      searchItems,
+    ]);
+
+  /* =======================================================
+     REFRESH
+  ======================================================= */
 
   const refreshAnalytics = () => {
+    setRefreshing(true);
+
+    setDataVersion(
+      (current) => current + 1
+    );
+
     setLastUpdated(new Date());
+
+    window.setTimeout(() => {
+      setRefreshing(false);
+    }, 500);
   };
+
+  /* =======================================================
+     AUTO REFRESH
+  ======================================================= */
+
+  useEffect(() => {
+    const interval = window.setInterval(
+      () => {
+        setDataVersion(
+          (current) =>
+            current + 1
+        );
+
+        setLastUpdated(new Date());
+      },
+      15000
+    );
+
+    return () =>
+      window.clearInterval(interval);
+  }, []);
+
+  /* =======================================================
+     STORAGE CHANGES
+  ======================================================= */
+
+  useEffect(() => {
+    const handleStorage = () => {
+      setDataVersion(
+        (current) =>
+          current + 1
+      );
+
+      setLastUpdated(new Date());
+    };
+
+    window.addEventListener(
+      "storage",
+      handleStorage
+    );
+
+    return () =>
+      window.removeEventListener(
+        "storage",
+        handleStorage
+      );
+  }, []);
+
+  /* =======================================================
+     CTRL + K / ESC
+  ======================================================= */
+
+  useEffect(() => {
+    const handleKeyboard = (
+      event
+    ) => {
+      if (
+        (event.ctrlKey ||
+          event.metaKey) &&
+        event.key.toLowerCase() ===
+          "k"
+      ) {
+        event.preventDefault();
+
+        globalSearchRef.current?.focus();
+
+        setSearchOpen(true);
+      }
+
+      if (
+        event.key === "Escape"
+      ) {
+        setSearchOpen(false);
+        setCreateOpen(false);
+        setProfileOpen(false);
+      }
+    };
+
+    window.addEventListener(
+      "keydown",
+      handleKeyboard
+    );
+
+    return () =>
+      window.removeEventListener(
+        "keydown",
+        handleKeyboard
+      );
+  }, []);
+
+  /* =======================================================
+     NAVIGATION
+  ======================================================= */
+
+  const goTo = (path) => {
+    setCreateOpen(false);
+    setProfileOpen(false);
+    setSearchOpen(false);
+    setGlobalSearch("");
+
+    navigate(path);
+  };
+
+  /* =======================================================
+     EXPORT CSV
+  ======================================================= */
 
   const exportAnalytics = () => {
     const headers = [
@@ -81,43 +573,93 @@ function AdminAnalytics() {
       "Growth",
     ];
 
-    const rows = filteredWorkspaces.map((workspace) => [
-      workspace.name,
-      workspace.owner,
-      workspace.members,
-      workspace.projects,
-      workspace.tasks,
-      `${workspace.storage}%`,
-      workspace.plan,
-      `${workspace.growth}%`,
-    ]);
+    const rows =
+      filteredWorkspaces.map(
+        (workspace) => [
+          workspace.name,
+          workspace.owner,
+          workspace.members,
+          workspace.projects,
+          workspace.tasks,
+          `${workspace.storage}%`,
+          workspace.plan,
+          `${workspace.growth}%`,
+        ]
+      );
 
-    const csv = [headers, ...rows]
+    const csv = [
+      headers,
+      ...rows,
+    ]
       .map((row) =>
         row
           .map(
             (value) =>
-              `"${String(value).replace(/"/g, '""')}"`
+              `"${String(
+                value
+              ).replace(
+                /"/g,
+                '""'
+              )}"`
           )
           .join(",")
       )
       .join("\n");
 
-    const blob = new Blob([csv], {
-      type: "text/csv;charset=utf-8;",
-    });
+    const blob = new Blob(
+      [csv],
+      {
+        type: "text/csv;charset=utf-8;",
+      }
+    );
 
-    const url = URL.createObjectURL(blob);
+    const url =
+      URL.createObjectURL(blob);
 
-    const link = document.createElement("a");
+    const link =
+      document.createElement("a");
+
     link.href = url;
-    link.download = "teamflow-analytics.csv";
 
-    document.body.appendChild(link);
+    link.download =
+      `teamflow-analytics-${range
+        .toLowerCase()
+        .replaceAll(
+          " ",
+          "-"
+        )}.csv`;
+
+    document.body.appendChild(
+      link
+    );
+
     link.click();
-    document.body.removeChild(link);
+
+    document.body.removeChild(
+      link
+    );
 
     URL.revokeObjectURL(url);
+  };
+
+  /* =======================================================
+     LOGOUT
+  ======================================================= */
+
+  const logout = () => {
+    localStorage.removeItem(
+      "teamflow_admin"
+    );
+
+    localStorage.removeItem(
+      "teamflow_admin_logged_in"
+    );
+
+    sessionStorage.removeItem(
+      "teamflow_admin"
+    );
+
+    navigate("/login");
   };
 
   return (
@@ -125,149 +667,486 @@ function AdminAnalytics() {
       <AdminSidebar />
 
       <main className="admin-analytics-main">
-        {/* ================= TOPBAR ================= */}
+        {/* =============================================
+            TOPBAR
+        ============================================== */}
 
         <header className="admin-analytics-topbar">
-          <div className="admin-analytics-global-search">
-            <Search size={17} />
+          <div className="admin-analytics-global-search-wrapper">
+            <div className="admin-analytics-global-search">
+              <Search size={17} />
 
-            <input
-              type="text"
-              placeholder="Search users, workspaces, projects, or anything..."
-            />
+              <input
+                ref={
+                  globalSearchRef
+                }
+                type="text"
+                value={globalSearch}
+                placeholder="Search users, workspaces, projects, or anything..."
+                onFocus={() =>
+                  setSearchOpen(
+                    true
+                  )
+                }
+                onChange={(
+                  event
+                ) => {
+                  setGlobalSearch(
+                    event.target
+                      .value
+                  );
 
-            <span>Ctrl + K</span>
+                  setSearchOpen(
+                    true
+                  );
+                }}
+              />
+
+              {globalSearch ? (
+                <button
+                  type="button"
+                  className="admin-analytics-clear-search"
+                  onClick={() =>
+                    setGlobalSearch(
+                      ""
+                    )
+                  }
+                >
+                  <X size={14} />
+                </button>
+              ) : (
+                <span>Ctrl + K</span>
+              )}
+            </div>
+
+            {searchOpen &&
+              globalSearch && (
+                <div className="admin-analytics-search-results">
+                  {globalResults.length >
+                  0 ? (
+                    globalResults.map(
+                      (item) => {
+                        const Icon =
+                          item.icon;
+
+                        return (
+                          <button
+                            type="button"
+                            key={
+                              item.path
+                            }
+                            onClick={() =>
+                              goTo(
+                                item.path
+                              )
+                            }
+                          >
+                            <div className="admin-analytics-search-result-icon">
+                              <Icon
+                                size={
+                                  16
+                                }
+                              />
+                            </div>
+
+                            <span>
+                              <strong>
+                                {
+                                  item.name
+                                }
+                              </strong>
+
+                              <small>
+                                {
+                                  item.description
+                                }
+                              </small>
+                            </span>
+
+                            <ArrowUpRight
+                              size={14}
+                            />
+                          </button>
+                        );
+                      }
+                    )
+                  ) : (
+                    <div className="admin-analytics-search-empty">
+                      <Search
+                        size={20}
+                      />
+
+                      <strong>
+                        No results
+                        found
+                      </strong>
+
+                      <span>
+                        Try another
+                        search.
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
           </div>
 
           <div className="admin-analytics-top-actions">
-            <button className="admin-analytics-create">
-              <Plus size={17} />
-              Create
-              <ChevronDown size={14} />
-            </button>
+            {/* CREATE */}
 
-            <div className="admin-analytics-profile">
-              <div className="admin-analytics-avatar">
-                HR
-              </div>
+            <div className="admin-analytics-dropdown">
+              <button
+                type="button"
+                className="admin-analytics-create"
+                onClick={() => {
+                  setCreateOpen(
+                    !createOpen
+                  );
 
-              <div>
-                <strong>Himanshu</strong>
-                <span>Super Administrator</span>
-              </div>
+                  setProfileOpen(
+                    false
+                  );
+                }}
+              >
+                <Plus size={17} />
+                Create
+                <ChevronDown
+                  size={14}
+                />
+              </button>
 
-              <ChevronDown size={15} />
+              {createOpen && (
+                <div className="admin-analytics-create-menu">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      goTo(
+                        "/admin/workspaces"
+                      )
+                    }
+                  >
+                    <Building2
+                      size={16}
+                    />
+                    New Workspace
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      goTo(
+                        "/admin/users"
+                      )
+                    }
+                  >
+                    <Users
+                      size={16}
+                    />
+                    New User
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      goTo(
+                        "/admin/projects"
+                      )
+                    }
+                  >
+                    <FolderKanban
+                      size={16}
+                    />
+                    New Project
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* PROFILE */}
+
+            <div className="admin-analytics-dropdown">
+              <button
+                type="button"
+                className="admin-analytics-profile"
+                onClick={() => {
+                  setProfileOpen(
+                    !profileOpen
+                  );
+
+                  setCreateOpen(
+                    false
+                  );
+                }}
+              >
+                <div className="admin-analytics-avatar">
+                  HR
+                </div>
+
+                <div>
+                  <strong>
+                    Himanshu
+                  </strong>
+
+                  <span>
+                    Super
+                    Administrator
+                  </span>
+                </div>
+
+                <ChevronDown
+                  size={15}
+                />
+              </button>
+
+              {profileOpen && (
+                <div className="admin-analytics-profile-menu">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      goTo(
+                        "/admin/settings"
+                      )
+                    }
+                  >
+                    <Settings
+                      size={15}
+                    />
+                    Settings
+                  </button>
+
+                  <button
+                    type="button"
+                    className="danger"
+                    onClick={logout}
+                  >
+                    <LogOut
+                      size={15}
+                    />
+                    Logout
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </header>
 
-        {/* ================= CONTENT ================= */}
+        {/* =============================================
+            CONTENT
+        ============================================== */}
 
         <div className="admin-analytics-content">
+          {/* HEADING */}
+
           <section className="admin-analytics-heading">
             <div>
               <div className="admin-analytics-breadcrumb">
-                <BarChart3 size={15} />
+                <BarChart3
+                  size={15}
+                />
+
                 ADMIN / ANALYTICS
               </div>
 
-              <h1>Analytics Overview</h1>
+              <h1>
+                Analytics Overview
+              </h1>
 
               <p>
-                Monitor platform growth, engagement,
-                revenue and workspace performance.
+                Monitor platform
+                growth, engagement,
+                revenue and workspace
+                performance.
               </p>
+
+              <div className="admin-analytics-live-indicator">
+                <i />
+
+                <span>
+                  Live analytics
+                </span>
+
+                <small>
+                  Updated{" "}
+                  {lastUpdated.toLocaleTimeString(
+                    [],
+                    {
+                      hour:
+                        "2-digit",
+                      minute:
+                        "2-digit",
+                    }
+                  )}
+                </small>
+              </div>
             </div>
 
             <div className="admin-analytics-heading-actions">
               <select
                 value={range}
-                onChange={(event) =>
-                  setRange(event.target.value)
+                onChange={(
+                  event
+                ) =>
+                  setRange(
+                    event.target
+                      .value
+                  )
                 }
               >
-                <option>7 Days</option>
-                <option>30 Days</option>
-                <option>90 Days</option>
+                <option>
+                  7 Days
+                </option>
+
+                <option>
+                  30 Days
+                </option>
+
+                <option>
+                  90 Days
+                </option>
               </select>
 
               <button
+                type="button"
                 className="admin-analytics-secondary-button"
-                onClick={refreshAnalytics}
+                onClick={
+                  refreshAnalytics
+                }
+                disabled={
+                  refreshing
+                }
               >
-                <RefreshCw size={15} />
-                Refresh
+                <RefreshCw
+                  size={15}
+                  className={
+                    refreshing
+                      ? "admin-analytics-spin"
+                      : ""
+                  }
+                />
+
+                {refreshing
+                  ? "Refreshing..."
+                  : "Refresh"}
               </button>
 
               <button
+                type="button"
                 className="admin-analytics-primary-button"
-                onClick={exportAnalytics}
+                onClick={
+                  exportAnalytics
+                }
               >
-                <Download size={15} />
+                <Download
+                  size={15}
+                />
                 Export Report
               </button>
             </div>
           </section>
 
-          {/* ================= KPI ================= */}
+          {/* =============================================
+              KPI
+          ============================================== */}
 
           <section className="admin-analytics-kpis">
             <KpiCard
               title="Total Users"
-              value={analyticsSummary.totalUsers.toLocaleString()}
+              value={summary.totalUsers.toLocaleString()}
               change="+12.4%"
               description="vs previous period"
               icon={Users}
               type="purple"
+              onClick={() =>
+                goTo(
+                  "/admin/users"
+                )
+              }
             />
 
             <KpiCard
               title="Active Users"
-              value={analyticsSummary.activeUsers.toLocaleString()}
+              value={summary.activeUsers.toLocaleString()}
               change="+8.7%"
-              description="71.4% engagement"
+              description={`${Math.round(
+                (summary.activeUsers /
+                  Math.max(
+                    summary.totalUsers,
+                    1
+                  )) *
+                  100
+              )}% engagement`}
               icon={Activity}
               type="blue"
+              onClick={() =>
+                goTo(
+                  "/admin/users"
+                )
+              }
             />
 
             <KpiCard
               title="Workspaces"
-              value={analyticsSummary.totalWorkspaces}
+              value={summary.totalWorkspaces.toLocaleString()}
               change="+8.6%"
-              description="16 new this month"
+              description="Active platform spaces"
               icon={Building2}
               type="green"
+              onClick={() =>
+                goTo(
+                  "/admin/workspaces"
+                )
+              }
             />
 
             <KpiCard
               title="Projects"
-              value={analyticsSummary.totalProjects}
+              value={summary.totalProjects.toLocaleString()}
               change="+24%"
               description="vs previous period"
-              icon={FolderKanban}
+              icon={
+                FolderKanban
+              }
               type="orange"
+              onClick={() =>
+                goTo(
+                  "/admin/projects"
+                )
+              }
             />
 
             <KpiCard
               title="Monthly Revenue"
-              value={`$${analyticsSummary.monthlyRevenue.toLocaleString()}`}
+              value={`$${summary.monthlyRevenue.toLocaleString()}`}
               change="+32%"
               description="Recurring revenue"
               icon={DollarSign}
               type="pink"
+              onClick={() =>
+                goTo(
+                  "/admin/billing"
+                )
+              }
             />
           </section>
 
-          {/* ================= FIRST CHART ROW ================= */}
+          {/* =============================================
+              CHART ROW 1
+          ============================================== */}
 
           <section className="admin-analytics-grid admin-analytics-grid-main">
             <ChartCard
               title="User Growth"
-              subtitle="Total vs active users over time"
-              icon={TrendingUp}
+              subtitle={`Total vs active users · ${range}`}
+              icon={
+                TrendingUp
+              }
               className="admin-analytics-growth-card"
             >
-              <LineChart data={currentGrowthData} />
+              <LineChart
+                data={
+                  currentGrowthData
+                }
+              />
             </ChartCard>
 
             <ChartCard
@@ -275,19 +1154,31 @@ function AdminAnalytics() {
               subtitle="Workspaces by department"
               icon={Building2}
             >
-              <DonutChart data={workspaceDistribution} />
+              <DonutChart
+                data={
+                  workspaceDistribution
+                }
+              />
             </ChartCard>
           </section>
 
-          {/* ================= SECOND CHART ROW ================= */}
+          {/* =============================================
+              CHART ROW 2
+          ============================================== */}
 
           <section className="admin-analytics-grid admin-analytics-grid-three">
             <ChartCard
               title="Revenue Growth"
               subtitle="Monthly recurring revenue"
-              icon={CircleDollarSign}
+              icon={
+                CircleDollarSign
+              }
             >
-              <RevenueChart data={revenueData} />
+              <RevenueChart
+                data={
+                  revenueData
+                }
+              />
             </ChartCard>
 
             <ChartCard
@@ -295,7 +1186,11 @@ function AdminAnalytics() {
               subtitle="Subscriptions by plan"
               icon={BarChart3}
             >
-              <PlanDistribution data={planDistribution} />
+              <PlanDistribution
+                data={
+                  planDistribution
+                }
+              />
             </ChartCard>
 
             <ChartCard
@@ -303,52 +1198,118 @@ function AdminAnalytics() {
               subtitle="Weekly platform activity"
               icon={Zap}
             >
-              <ActivityChart data={activityData} />
+              <ActivityChart
+                data={
+                  activityData
+                }
+              />
             </ChartCard>
           </section>
 
-          {/* ================= WORKSPACES + HEALTH ================= */}
+          {/* =============================================
+              WORKSPACE + HEALTH
+          ============================================== */}
 
           <section className="admin-analytics-bottom-grid">
+            {/* WORKSPACE TABLE */}
+
             <article className="admin-analytics-card">
               <div className="admin-analytics-card-header">
                 <div>
-                  <h3>Top Performing Workspaces</h3>
+                  <h3>
+                    Top Performing
+                    Workspaces
+                  </h3>
+
                   <p>
-                    Workspaces ranked by activity and
+                    Workspaces ranked
+                    by activity and
                     growth
                   </p>
                 </div>
 
-                <ArrowUpRight size={17} />
+                <button
+                  type="button"
+                  className="admin-analytics-card-action"
+                  onClick={() =>
+                    goTo(
+                      "/admin/workspaces"
+                    )
+                  }
+                >
+                  View all
+
+                  <ArrowUpRight
+                    size={14}
+                  />
+                </button>
               </div>
 
               <div className="admin-analytics-workspace-toolbar">
                 <div>
-                  <Search size={15} />
+                  <Search
+                    size={15}
+                  />
 
                   <input
                     value={search}
-                    onChange={(event) =>
-                      setSearch(event.target.value)
+                    onChange={(
+                      event
+                    ) =>
+                      setSearch(
+                        event.target
+                          .value
+                      )
                     }
                     placeholder="Search workspace..."
                   />
+
+                  {search && (
+                    <button
+                      type="button"
+                      className="admin-analytics-table-search-clear"
+                      onClick={() =>
+                        setSearch(
+                          ""
+                        )
+                      }
+                    >
+                      <X
+                        size={13}
+                      />
+                    </button>
+                  )}
                 </div>
 
                 <select
-                  value={workspaceType}
-                  onChange={(event) =>
-                    setWorkspaceType(event.target.value)
+                  value={
+                    workspaceType
+                  }
+                  onChange={(
+                    event
+                  ) =>
+                    setWorkspaceType(
+                      event.target
+                        .value
+                    )
                   }
                 >
                   <option value="All">
                     All Plans
                   </option>
-                  <option value="Pro">Pro</option>
+
+                  <option value="Free">
+                    Free
+                  </option>
+
+                  <option value="Pro">
+                    Pro
+                  </option>
+
                   <option value="Business">
                     Business
                   </option>
+
                   <option value="Enterprise">
                     Enterprise
                   </option>
@@ -359,80 +1320,176 @@ function AdminAnalytics() {
                 <table className="admin-analytics-table">
                   <thead>
                     <tr>
-                      <th>WORKSPACE</th>
-                      <th>MEMBERS</th>
-                      <th>PROJECTS</th>
-                      <th>TASKS</th>
-                      <th>PLAN</th>
-                      <th>GROWTH</th>
+                      <th>
+                        WORKSPACE
+                      </th>
+
+                      <th>
+                        MEMBERS
+                      </th>
+
+                      <th>
+                        PROJECTS
+                      </th>
+
+                      <th>
+                        TASKS
+                      </th>
+
+                      <th>
+                        PLAN
+                      </th>
+
+                      <th>
+                        GROWTH
+                      </th>
                     </tr>
                   </thead>
 
                   <tbody>
-                    {filteredWorkspaces.map(
-                      (workspace) => (
-                        <tr key={workspace.id}>
-                          <td>
-                            <div className="admin-analytics-workspace-name">
-                              <div>
-                                {workspace.name.charAt(0)}
+                    {filteredWorkspaces.length >
+                    0 ? (
+                      filteredWorkspaces.map(
+                        (
+                          workspace
+                        ) => (
+                          <tr
+                            key={
+                              workspace.id
+                            }
+                            onClick={() =>
+                              goTo(
+                                "/admin/workspaces"
+                              )
+                            }
+                          >
+                            <td>
+                              <div className="admin-analytics-workspace-name">
+                                <div>
+                                  {workspace.name
+                                    .charAt(
+                                      0
+                                    )
+                                    .toUpperCase()}
+                                </div>
+
+                                <span>
+                                  <strong>
+                                    {
+                                      workspace.name
+                                    }
+                                  </strong>
+
+                                  <small>
+                                    {
+                                      workspace.owner
+                                    }
+                                  </small>
+                                </span>
                               </div>
+                            </td>
 
-                              <span>
-                                <strong>
-                                  {workspace.name}
-                                </strong>
+                            <td>
+                              {
+                                workspace.members
+                              }
+                            </td>
 
-                                <small>
-                                  {workspace.owner}
-                                </small>
+                            <td>
+                              {
+                                workspace.projects
+                              }
+                            </td>
+
+                            <td>
+                              {
+                                workspace.tasks
+                              }
+                            </td>
+
+                            <td>
+                              <span
+                                className={`admin-analytics-plan ${String(
+                                  workspace.plan
+                                ).toLowerCase()}`}
+                              >
+                                {
+                                  workspace.plan
+                                }
                               </span>
-                            </div>
-                          </td>
+                            </td>
 
-                          <td>{workspace.members}</td>
-                          <td>{workspace.projects}</td>
-                          <td>{workspace.tasks}</td>
+                            <td>
+                              <span className="admin-analytics-growth">
+                                <TrendingUp
+                                  size={
+                                    12
+                                  }
+                                />
 
-                          <td>
-                            <span
-                              className={`admin-analytics-plan ${workspace.plan.toLowerCase()}`}
-                            >
-                              {workspace.plan}
-                            </span>
-                          </td>
-
-                          <td>
-                            <span className="admin-analytics-growth">
-                              <TrendingUp size={12} />
-                              {workspace.growth}%
-                            </span>
-                          </td>
-                        </tr>
+                                {
+                                  workspace.growth
+                                }
+                                %
+                              </span>
+                            </td>
+                          </tr>
+                        )
                       )
+                    ) : (
+                      <tr>
+                        <td
+                          colSpan="6"
+                          className="admin-analytics-no-results"
+                        >
+                          No workspaces
+                          match your
+                          filters.
+                        </td>
+                      </tr>
                     )}
                   </tbody>
                 </table>
               </div>
             </article>
 
+            {/* SYSTEM HEALTH */}
+
             <article className="admin-analytics-card">
               <div className="admin-analytics-card-header">
                 <div>
-                  <h3>System Performance</h3>
-                  <p>Live service health overview</p>
+                  <h3>
+                    System Performance
+                  </h3>
+
+                  <p>
+                    Live service health
+                    overview
+                  </p>
                 </div>
 
-                <Activity size={18} />
+                <span className="admin-analytics-system-live">
+                  <i />
+                  LIVE
+                </span>
               </div>
 
               <div className="admin-analytics-health-list">
                 {systemMetrics.map(
-                  (metric, index) => (
+                  (
+                    metric,
+                    index
+                  ) => (
                     <SystemMetric
-                      key={metric.name}
-                      metric={metric}
-                      index={index}
+                      key={
+                        metric.name
+                      }
+                      metric={
+                        metric
+                      }
+                      index={
+                        index
+                      }
                     />
                   )
                 )}
@@ -440,15 +1497,20 @@ function AdminAnalytics() {
 
               <div className="admin-analytics-health-summary">
                 <div>
-                  <CheckCircle2 size={19} />
+                  <CheckCircle2
+                    size={19}
+                  />
                 </div>
 
                 <span>
                   <strong>
-                    All systems operational
+                    All systems
+                    operational
                   </strong>
+
                   <small>
-                    No incidents reported
+                    No incidents
+                    reported
                   </small>
                 </span>
               </div>
@@ -456,11 +1518,18 @@ function AdminAnalytics() {
           </section>
 
           <div className="admin-analytics-updated">
-            Last updated:{" "}
-            {lastUpdated.toLocaleTimeString([], {
-              hour: "2-digit",
-              minute: "2-digit",
-            })}
+            <span className="admin-analytics-live-dot" />
+
+            Live data · Last updated{" "}
+            {lastUpdated.toLocaleTimeString(
+              [],
+              {
+                hour: "2-digit",
+                minute: "2-digit",
+                second:
+                  "2-digit",
+              }
+            )}
           </div>
         </div>
       </main>
@@ -469,7 +1538,7 @@ function AdminAnalytics() {
 }
 
 /* =========================================================
-   COMPONENTS
+   KPI CARD
 ========================================================= */
 
 function KpiCard({
@@ -479,9 +1548,14 @@ function KpiCard({
   description,
   icon: Icon,
   type,
+  onClick,
 }) {
   return (
-    <article className="admin-analytics-kpi">
+    <button
+      type="button"
+      className="admin-analytics-kpi"
+      onClick={onClick}
+    >
       <div
         className={`admin-analytics-kpi-icon ${type}`}
       >
@@ -494,14 +1568,21 @@ function KpiCard({
         <strong>{value}</strong>
 
         <small>
-          <b>{change}</b> {description}
+          <b>{change}</b>{" "}
+          {description}
         </small>
       </div>
 
       <TrendingUp className="admin-analytics-kpi-trend" />
-    </article>
+
+      <ArrowUpRight className="admin-analytics-kpi-arrow" />
+    </button>
   );
 }
+
+/* =========================================================
+   CHART CARD
+========================================================= */
 
 function ChartCard({
   title,
@@ -524,9 +1605,10 @@ function ChartCard({
           <p>{subtitle}</p>
         </div>
 
-        <button>
-          <MoreDots />
-        </button>
+        <span className="admin-analytics-chart-live">
+          <i />
+          Live
+        </span>
       </div>
 
       {children}
@@ -534,44 +1616,63 @@ function ChartCard({
   );
 }
 
-function MoreDots() {
-  return <span className="admin-analytics-dots">•••</span>;
-}
-
 /* =========================================================
-   SVG LINE CHART
+   LINE CHART
 ========================================================= */
 
 function LineChart({ data }) {
+  const [hovered, setHovered] =
+    useState(null);
+
   const width = 700;
   const height = 230;
   const padding = 35;
 
   const maxValue =
-    Math.max(...data.flatMap((item) => [item.users, item.active])) *
-    1.12;
+    Math.max(
+      ...data.flatMap(
+        (item) => [
+          item.users,
+          item.active,
+        ]
+      ),
+      1
+    ) * 1.12;
 
   const getX = (index) =>
     padding +
-    (index * (width - padding * 2)) /
-      Math.max(data.length - 1, 1);
+    (index *
+      (width - padding * 2)) /
+      Math.max(
+        data.length - 1,
+        1
+      );
 
   const getY = (value) =>
     height -
     padding -
-    (value / maxValue) * (height - padding * 2);
+    (value / maxValue) *
+      (height - padding * 2);
 
   const userPoints = data
     .map(
       (item, index) =>
-        `${getX(index)},${getY(item.users)}`
+        `${getX(
+          index
+        )},${getY(
+          item.users
+        )}`
     )
     .join(" ");
 
   const activePoints = data
     .map(
       (item, index) =>
-        `${getX(index)},${getY(item.active)}`
+        `${getX(
+          index
+        )},${getY(
+          item.active
+        )}`
     )
     .join(" ");
 
@@ -589,55 +1690,168 @@ function LineChart({ data }) {
         </span>
       </div>
 
-      <svg
-        viewBox={`0 0 ${width} ${height}`}
-        preserveAspectRatio="none"
-      >
-        {[0, 1, 2, 3, 4].map((line) => {
-          const y =
-            padding +
-            (line * (height - padding * 2)) / 4;
+      <div className="admin-analytics-svg-wrapper">
+        <svg
+          viewBox={`0 0 ${width} ${height}`}
+          preserveAspectRatio="none"
+        >
+          {[0, 1, 2, 3, 4].map(
+            (line) => {
+              const y =
+                padding +
+                (line *
+                  (height -
+                    padding *
+                      2)) /
+                  4;
 
-          return (
-            <line
-              key={line}
-              x1={padding}
-              y1={y}
-              x2={width - padding}
-              y2={y}
-              className="admin-analytics-grid-line"
-            />
-          );
-        })}
+              return (
+                <line
+                  key={line}
+                  x1={padding}
+                  y1={y}
+                  x2={
+                    width -
+                    padding
+                  }
+                  y2={y}
+                  className="admin-analytics-grid-line"
+                />
+              );
+            }
+          )}
 
-        <polyline
-          points={userPoints}
-          className="admin-analytics-users-line"
-        />
+          <polyline
+            points={userPoints}
+            className="admin-analytics-users-line"
+          />
 
-        <polyline
-          points={activePoints}
-          className="admin-analytics-active-line"
-        />
+          <polyline
+            points={activePoints}
+            className="admin-analytics-active-line"
+          />
 
-        {data.map((item, index) => (
-          <React.Fragment key={item.label}>
-            <circle
-              cx={getX(index)}
-              cy={getY(item.users)}
-              r="4"
-              className="admin-analytics-user-point"
-            />
+          {data.map(
+            (item, index) => (
+              <React.Fragment
+                key={
+                  item.label
+                }
+              >
+                <circle
+                  cx={getX(
+                    index
+                  )}
+                  cy={getY(
+                    item.users
+                  )}
+                  r={
+                    hovered?.index ===
+                      index &&
+                    hovered?.type ===
+                      "users"
+                      ? 7
+                      : 4
+                  }
+                  className="admin-analytics-user-point"
+                  onMouseEnter={() =>
+                    setHovered({
+                      index,
+                      type: "users",
+                      item,
+                    })
+                  }
+                  onMouseLeave={() =>
+                    setHovered(
+                      null
+                    )
+                  }
+                />
 
-            <circle
-              cx={getX(index)}
-              cy={getY(item.active)}
-              r="4"
-              className="admin-analytics-active-point"
-            />
-          </React.Fragment>
-        ))}
-      </svg>
+                <circle
+                  cx={getX(
+                    index
+                  )}
+                  cy={getY(
+                    item.active
+                  )}
+                  r={
+                    hovered?.index ===
+                      index &&
+                    hovered?.type ===
+                      "active"
+                      ? 7
+                      : 4
+                  }
+                  className="admin-analytics-active-point"
+                  onMouseEnter={() =>
+                    setHovered({
+                      index,
+                      type: "active",
+                      item,
+                    })
+                  }
+                  onMouseLeave={() =>
+                    setHovered(
+                      null
+                    )
+                  }
+                />
+              </React.Fragment>
+            )
+          )}
+        </svg>
+
+        {hovered && (
+          <div
+            className="admin-analytics-chart-tooltip"
+            style={{
+              left: `${Math.min(
+                Math.max(
+                  (getX(
+                    hovered.index
+                  ) /
+                    width) *
+                    100,
+                  10
+                ),
+                86
+              )}%`,
+              top: `${Math.max(
+                (getY(
+                  hovered.type ===
+                    "users"
+                    ? hovered.item
+                        .users
+                    : hovered.item
+                        .active
+                ) /
+                  height) *
+                  100 -
+                  8,
+                5
+              )}%`,
+            }}
+          >
+            <strong>
+              {
+                hovered.item
+                  .label
+              }
+            </strong>
+
+            <span>
+              Total:{" "}
+              {hovered.item.users.toLocaleString()}
+            </span>
+
+            <span>
+              Active:{" "}
+              {hovered.item.active.toLocaleString()}
+            </span>
+          </div>
+        )}
+      </div>
 
       <div className="admin-analytics-chart-labels">
         {data.map((item) => (
@@ -651,12 +1865,16 @@ function LineChart({ data }) {
 }
 
 /* =========================================================
-   DONUT
+   DONUT CHART
 ========================================================= */
 
 function DonutChart({ data }) {
+  const [selected, setSelected] =
+    useState(null);
+
   const total = data.reduce(
-    (sum, item) => sum + item.value,
+    (sum, item) =>
+      sum + item.value,
     0
   );
 
@@ -673,90 +1891,185 @@ function DonutChart({ data }) {
 
   const gradient = data
     .map((item, index) => {
-      const start = (current / total) * 100;
+      const start =
+        (current / total) * 100;
 
       current += item.value;
 
-      const end = (current / total) * 100;
+      const end =
+        (current / total) * 100;
 
       return `${colors[index]} ${start}% ${end}%`;
     })
     .join(",");
 
+  const activeItem =
+    data.find(
+      (item) =>
+        item.name === selected
+    );
+
   return (
     <div className="admin-analytics-donut-layout">
       <div
-        className="admin-analytics-donut"
+        className={`admin-analytics-donut ${
+          selected
+            ? "is-active"
+            : ""
+        }`}
         style={{
           background: `conic-gradient(${gradient})`,
         }}
       >
         <div>
-          <strong>{total}</strong>
-          <span>Total Workspaces</span>
+          <strong>
+            {activeItem
+              ? activeItem.value
+              : total}
+          </strong>
+
+          <span>
+            {activeItem
+              ? activeItem.name
+              : "Total Workspaces"}
+          </span>
         </div>
       </div>
 
       <div className="admin-analytics-donut-legend">
-        {data.map((item, index) => (
-          <div key={item.name}>
-            <span>
-              <i
-                style={{
-                  background: colors[index],
-                }}
-              />
+        {data.map(
+          (item, index) => (
+            <button
+              type="button"
+              key={item.name}
+              className={
+                selected ===
+                item.name
+                  ? "active"
+                  : ""
+              }
+              onMouseEnter={() =>
+                setSelected(
+                  item.name
+                )
+              }
+              onMouseLeave={() =>
+                setSelected(null)
+              }
+              onFocus={() =>
+                setSelected(
+                  item.name
+                )
+              }
+              onBlur={() =>
+                setSelected(null)
+              }
+            >
+              <span>
+                <i
+                  style={{
+                    background:
+                      colors[
+                        index
+                      ],
+                  }}
+                />
 
-              {item.name}
-            </span>
+                {item.name}
+              </span>
 
-            <strong>
-              {item.value} (
-              {Math.round(
-                (item.value / total) * 100
-              )}
-              %)
-            </strong>
-          </div>
-        ))}
+              <strong>
+                {item.value} (
+                {Math.round(
+                  (item.value /
+                    total) *
+                    100
+                )}
+                %)
+              </strong>
+            </button>
+          )
+        )}
       </div>
     </div>
   );
 }
 
 /* =========================================================
-   REVENUE CHART
+   REVENUE
 ========================================================= */
 
 function RevenueChart({ data }) {
+  const [hovered, setHovered] =
+    useState(null);
+
   const max = Math.max(
-    ...data.map((item) => item.revenue)
+    ...data.map(
+      (item) => item.revenue
+    ),
+    1
   );
 
   return (
     <div className="admin-analytics-revenue-chart">
       <div className="admin-analytics-revenue-bars">
-        {data.map((item) => (
-          <div
-            className="admin-analytics-revenue-column"
-            key={item.month}
-          >
-            <span className="admin-analytics-bar-value">
-              ${(item.revenue / 1000).toFixed(1)}k
-            </span>
-
+        {data.map(
+          (item, index) => (
             <div
-              className="admin-analytics-revenue-bar"
-              style={{
-                height: `${
-                  (item.revenue / max) * 150
-                }px`,
-              }}
-            />
+              className="admin-analytics-revenue-column"
+              key={item.month}
+              onMouseEnter={() =>
+                setHovered(index)
+              }
+              onMouseLeave={() =>
+                setHovered(null)
+              }
+            >
+              <span className="admin-analytics-bar-value">
+                $
+                {(
+                  item.revenue /
+                  1000
+                ).toFixed(1)}
+                k
+              </span>
 
-            <small>{item.month}</small>
-          </div>
-        ))}
+              <div
+                className={`admin-analytics-revenue-bar ${
+                  hovered ===
+                  index
+                    ? "active"
+                    : ""
+                }`}
+                style={{
+                  height: `${
+                    (item.revenue /
+                      max) *
+                    150
+                  }px`,
+                }}
+              />
+
+              <small>
+                {item.month}
+              </small>
+
+              {hovered ===
+                index && (
+                <div className="admin-analytics-bar-tooltip">
+                  <strong>
+                    {item.month}
+                  </strong>
+
+                  <span>
+                    $
+                    {item.revenue.toLocaleString()}
+                  </span>
+                </div>
+              )}
+            </div>
+          )
+        )}
       </div>
     </div>
   );
@@ -766,27 +2079,54 @@ function RevenueChart({ data }) {
    PLAN DISTRIBUTION
 ========================================================= */
 
-function PlanDistribution({ data }) {
+function PlanDistribution({
+  data,
+}) {
+  const [hovered, setHovered] =
+    useState(null);
+
   const total = data.reduce(
-    (sum, item) => sum + item.value,
+    (sum, item) =>
+      sum + item.value,
     0
   );
 
   return (
     <div className="admin-analytics-plan-list">
       {data.map((item) => {
-        const percentage = Math.round(
-          (item.value / total) * 100
-        );
+        const percentage =
+          Math.round(
+            (item.value /
+              total) *
+              100
+          );
 
         return (
           <div
-            className="admin-analytics-plan-row"
+            className={`admin-analytics-plan-row ${
+              hovered ===
+              item.name
+                ? "active"
+                : ""
+            }`}
             key={item.name}
+            onMouseEnter={() =>
+              setHovered(
+                item.name
+              )
+            }
+            onMouseLeave={() =>
+              setHovered(null)
+            }
           >
             <div>
-              <span>{item.name}</span>
-              <strong>{item.value}</strong>
+              <span>
+                {item.name}
+              </span>
+
+              <strong>
+                {item.value}
+              </strong>
             </div>
 
             <div className="admin-analytics-progress">
@@ -798,7 +2138,9 @@ function PlanDistribution({ data }) {
               />
             </div>
 
-            <small>{percentage}%</small>
+            <small>
+              {percentage}%
+            </small>
           </div>
         );
       })}
@@ -807,58 +2149,117 @@ function PlanDistribution({ data }) {
 }
 
 /* =========================================================
-   ACTIVITY CHART
+   ACTIVITY
 ========================================================= */
 
 function ActivityChart({ data }) {
+  const [hovered, setHovered] =
+    useState(null);
+
   const max = Math.max(
-    ...data.flatMap((item) => [
-      item.created,
-      item.updated,
-      item.completed,
-    ])
+    ...data.flatMap(
+      (item) => [
+        item.created,
+        item.updated,
+        item.completed,
+      ]
+    ),
+    1
   );
 
   return (
     <div className="admin-analytics-activity">
       <div className="admin-analytics-activity-bars">
-        {data.map((item) => (
-          <div
-            className="admin-analytics-activity-column"
-            key={item.day}
-          >
-            <div className="admin-analytics-activity-bar-group">
-              <span
-                className="created"
-                style={{
-                  height: `${
-                    (item.created / max) * 125
-                  }px`,
-                }}
-              />
+        {data.map(
+          (item, index) => (
+            <div
+              className="admin-analytics-activity-column"
+              key={item.day}
+              onMouseEnter={() =>
+                setHovered(index)
+              }
+              onMouseLeave={() =>
+                setHovered(null)
+              }
+            >
+              <div
+                className={`admin-analytics-activity-bar-group ${
+                  hovered ===
+                  index
+                    ? "active"
+                    : ""
+                }`}
+              >
+                <span
+                  className="created"
+                  style={{
+                    height: `${
+                      (item.created /
+                        max) *
+                      125
+                    }px`,
+                  }}
+                />
 
-              <span
-                className="updated"
-                style={{
-                  height: `${
-                    (item.updated / max) * 125
-                  }px`,
-                }}
-              />
+                <span
+                  className="updated"
+                  style={{
+                    height: `${
+                      (item.updated /
+                        max) *
+                      125
+                    }px`,
+                  }}
+                />
 
-              <span
-                className="completed"
-                style={{
-                  height: `${
-                    (item.completed / max) * 125
-                  }px`,
-                }}
-              />
+                <span
+                  className="completed"
+                  style={{
+                    height: `${
+                      (item.completed /
+                        max) *
+                      125
+                    }px`,
+                  }}
+                />
+              </div>
+
+              <small>
+                {item.day}
+              </small>
+
+              {hovered ===
+                index && (
+                <div className="admin-analytics-activity-tooltip">
+                  <strong>
+                    {item.day}
+                  </strong>
+
+                  <span>
+                    Created:{" "}
+                    {
+                      item.created
+                    }
+                  </span>
+
+                  <span>
+                    Updated:{" "}
+                    {
+                      item.updated
+                    }
+                  </span>
+
+                  <span>
+                    Completed:{" "}
+                    {
+                      item.completed
+                    }
+                  </span>
+                </div>
+              )}
             </div>
-
-            <small>{item.day}</small>
-          </div>
-        ))}
+          )
+        )}
       </div>
 
       <div className="admin-analytics-activity-legend">
@@ -882,10 +2283,13 @@ function ActivityChart({ data }) {
 }
 
 /* =========================================================
-   SYSTEM HEALTH
+   SYSTEM METRIC
 ========================================================= */
 
-function SystemMetric({ metric, index }) {
+function SystemMetric({
+  metric,
+  index,
+}) {
   const icons = [
     Activity,
     Database,
@@ -893,7 +2297,8 @@ function SystemMetric({ metric, index }) {
     HardDrive,
   ];
 
-  const Icon = icons[index] || Activity;
+  const Icon =
+    icons[index] || Activity;
 
   return (
     <div className="admin-analytics-system-metric">
@@ -903,9 +2308,13 @@ function SystemMetric({ metric, index }) {
 
       <div className="admin-analytics-system-info">
         <div>
-          <span>{metric.name}</span>
+          <span>
+            {metric.name}
+          </span>
 
-          <strong>{metric.value}%</strong>
+          <strong>
+            {metric.value}%
+          </strong>
         </div>
 
         <div className="admin-analytics-system-progress">

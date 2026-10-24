@@ -1898,3 +1898,229 @@
     border-right: 0;
   }
 }
+
+/* =========================================================
+   INTERACTIVE LIVE CHART ENHANCEMENTS
+========================================================= */
+
+.tf-admin-dashboard .tf-live-line-chart {
+  position: relative;
+}
+
+.tf-admin-dashboard .tf-users-line,
+.tf-admin-dashboard .tf-active-line {
+  transition: all 0.3s ease;
+}
+
+.tf-admin-dashboard .tf-users-point,
+.tf-admin-dashboard .tf-active-point {
+  cursor: pointer;
+  transition:
+    r 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.tf-admin-dashboard .tf-users-point:hover,
+.tf-admin-dashboard .tf-active-point:hover {
+  r: 7;
+}
+
+.tf-admin-dashboard .tf-active-point {
+  fill: #ffffff;
+  stroke: #8c3dff;
+  stroke-width: 3;
+  vector-effect: non-scaling-stroke;
+}
+
+.tf-admin-dashboard .tf-svg-tooltip {
+  pointer-events: none;
+}
+
+.tf-admin-dashboard .tf-svg-tooltip rect {
+  fill: #10152b;
+  opacity: 0.95;
+}
+
+.tf-admin-dashboard .tf-svg-tooltip text {
+  fill: #ffffff;
+  font-size: 9px;
+  font-weight: 500;
+}
+
+.tf-admin-dashboard .tf-svg-tooltip text:first-of-type {
+  font-weight: 800;
+}
+
+/* DONUT */
+
+.tf-admin-dashboard .tf-donut-segment {
+  cursor: pointer;
+
+  transition:
+    stroke-width 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.tf-admin-dashboard .tf-donut-segment:hover,
+.tf-admin-dashboard .tf-donut-segment.selected {
+  stroke-width: 6.5;
+}
+
+.tf-admin-dashboard .tf-donut-legend > div {
+  padding: 4px 6px;
+
+  border-radius: 6px;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.tf-admin-dashboard .tf-donut-legend > div:hover {
+  background: #f5f2ff;
+
+  transform: translateX(2px);
+}
+
+/* PROJECT ACTIVITY */
+
+.tf-admin-dashboard .tf-activity-column {
+  position: relative;
+}
+
+.tf-admin-dashboard .tf-activity-stack {
+  cursor: pointer;
+
+  transition:
+    transform 0.2s ease,
+    filter 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.tf-admin-dashboard .tf-activity-stack:hover,
+.tf-admin-dashboard .tf-activity-stack.active {
+  transform: translateY(-4px);
+
+  filter: brightness(1.05);
+
+  box-shadow:
+    0 8px 15px
+    rgba(66, 44, 150, 0.12);
+}
+
+.tf-admin-dashboard .tf-bar-tooltip {
+  position: absolute;
+
+  z-index: 50;
+
+  left: 50%;
+
+  bottom: calc(100% + 6px);
+
+  width: 120px;
+
+  padding: 9px 10px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 3px;
+
+  transform: translateX(-50%);
+
+  border-radius: 8px;
+
+  color: #ffffff;
+
+  background: #10152b;
+
+  box-shadow:
+    0 10px 25px
+    rgba(15, 21, 43, 0.2);
+
+  pointer-events: none;
+}
+
+.tf-admin-dashboard .tf-bar-tooltip::after {
+  content: "";
+
+  position: absolute;
+
+  left: 50%;
+
+  bottom: -5px;
+
+  width: 10px;
+
+  height: 10px;
+
+  transform:
+    translateX(-50%)
+    rotate(45deg);
+
+  background: #10152b;
+}
+
+.tf-admin-dashboard .tf-bar-tooltip strong {
+  margin-bottom: 2px;
+
+  color: #ffffff;
+
+  font-size: 9px;
+}
+
+.tf-admin-dashboard .tf-bar-tooltip span {
+  color: #d7dbea;
+
+  font-size: 7px;
+}
+
+/* SMOOTH HEALTH BARS */
+
+.tf-admin-dashboard .tf-health-track span {
+  transition: width 0.6s ease;
+}
+
+/* REFRESH ANIMATION */
+
+.tf-admin-dashboard .tf-top-icon:active svg {
+  transform: scale(0.88);
+}
+
+/* DARK MODE CHARTS */
+
+.tf-admin-dashboard-dark .tf-donut-center strong {
+  color: #ffffff;
+}
+
+.tf-admin-dashboard-dark .tf-donut-legend > div:hover {
+  background: #252f44;
+}
+
+.tf-admin-dashboard-dark .tf-users-point,
+.tf-admin-dashboard-dark .tf-active-point {
+  fill: #1a2335;
+}
+
+.tf-admin-dashboard-dark .tf-chart-grid-line {
+  stroke: #303a4e;
+}
+
+/* MOBILE */
+
+@media (max-width: 650px) {
+  .tf-admin-dashboard .tf-bar-tooltip {
+    display: none;
+  }
+
+  .tf-admin-dashboard .tf-live-line-chart {
+    min-width: 500px;
+  }
+
+  .tf-admin-dashboard .tf-growth-panel {
+    overflow-x: auto;
+  }
+}
