@@ -21,6 +21,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 import "./TeamLeadSidebar.css";
 
+
 const NAV_ITEMS = [
   { label: "Dashboard", icon: LayoutDashboard, path: "/teamlead/dashboard" },
   { label: "My Team", icon: Users, path: "/teamlead/team" },
@@ -35,9 +36,7 @@ const NAV_ITEMS = [
   { label: "Settings", icon: Settings, path: "/teamlead/settings" },
 ];
 
-/* =========================================================
-   COMPONENT
-========================================================= */
+
 
 export default function TeamLeadSidebar({
   onLogout,
@@ -47,9 +46,7 @@ export default function TeamLeadSidebar({
   const navigate = useNavigate();
   const location = useLocation();
 
-  /* =========================================================
-     NAVIGATION
-  ========================================================= */
+
 
   const handleNavigate = (path) => {
     navigate(path);
