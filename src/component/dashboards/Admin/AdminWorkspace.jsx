@@ -1,4 +1,10 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+
 import { useNavigate } from "react-router-dom";
 
 import {
@@ -29,9 +35,9 @@ import {
   UserRound,
 } from "lucide-react";
 
-import AdminSidebar from "../../layouts/AdminSidebar/AdminSidebar.jsx";
 import "./AdminWorkspace.css";
 
+import AdminSidebar from "../../../layouts/AdminSidebar/AdminSidebar.jsx";
 /* =========================================================
    DEFAULT DATA
 ========================================================= */

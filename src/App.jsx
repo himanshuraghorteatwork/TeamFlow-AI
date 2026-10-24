@@ -7,7 +7,7 @@ import {
 } from "react-router-dom";
 
 /* =========================================================
-   PUBLIC PAGES
+   PUBLIC
 ========================================================= */
 
 import LandingPage from "./component/LandingPage/LandingPage.jsx";
@@ -15,7 +15,7 @@ import Login from "./component/Login/login.jsx";
 import Signup from "./component/Signup/Signup.jsx";
 
 /* =========================================================
-   NORMAL USER PAGES
+   NORMAL USER
 ========================================================= */
 
 import Chat from "./component/Chat/Chat.jsx";
@@ -27,25 +27,59 @@ import Bugs from "./component/Bugs/Bugs.jsx";
 import File from "./component/File/File.jsx";
 
 /* =========================================================
-   TEAM LEAD LAYOUT
+   ADMIN
+========================================================= */
+
+import AdminDashboard from "./component/dashboards/Admin/AdminDashboard.jsx";
+
+import AdminWorkspace from "./component/dashboards/Admin/AdminWorkspace.jsx";
+
+import AdminUsers from "./component/dashboards/Admin/AdminUsers.jsx";
+
+import AdminProjects from "./component/dashboards/Admin/AdminProjects.jsx";
+
+import AdminTasks from "./component/dashboards/Admin/AdminTasks.jsx";
+
+import AdminAITools from "./component/dashboards/Admin/AdminAITools.jsx";
+
+import AdminBilling from "./component/dashboards/Admin/AdminBilling.jsx";
+
+import AdminSubscriptions from "./component/dashboards/Admin/AdminSubscriptions.jsx";
+
+import AdminAnalytics from "./component/dashboards/Admin/AdminAnalytics.jsx";
+
+import AdminAnnouncements from "./component/dashboards/Admin/AdminAnnouncements.jsx";
+
+import AdminReports from "./component/dashboards/Admin/AdminReports.jsx";
+
+import AdminSettings from "./component/dashboards/Admin/AdminSettings.jsx";
+
+/* =========================================================
+   TEAM LEAD
 ========================================================= */
 
 import TeamLeadLayout from "./component/dashboards/TeamLead/TeamLeadLayout.jsx";
 
-/* =========================================================
-   TEAM LEAD PAGES
-========================================================= */
-
 import TeamLeadDashboard from "./component/dashboards/TeamLead/TeamLeadDashboard.jsx";
+
 import TeamLeadChat from "./component/dashboards/TeamLead/Chat.jsx";
+
 import TeamLeadTask from "./component/dashboards/TeamLead/Task.jsx";
+
 import TeamLeadProject from "./component/dashboards/TeamLead/Project.jsx";
+
 import TeamLeadBug from "./component/dashboards/TeamLead/Bug.jsx";
+
 import TeamLeadCalendar from "./component/dashboards/TeamLead/Calendar.jsx";
+
 import TeamLeadMyTeam from "./component/dashboards/TeamLead/MyTeam.jsx";
+
 import TeamLeadReport from "./component/dashboards/TeamLead/Report.jsx";
+
 import TeamLeadSetting from "./component/dashboards/TeamLead/Setting.jsx";
+
 import TeamLeadAI from "./component/dashboards/TeamLead/AiAssistant.jsx";
+
 import TeamMember1 from "./component/dashboards/TeamLead/TeamMember1.jsx";
 
 
@@ -53,9 +87,7 @@ function App() {
   return (
     <Routes>
 
-      {/* =====================================================
-          PUBLIC ROUTES
-      ===================================================== */}
+      {/* ================= PUBLIC ================= */}
 
       <Route
         path="/"
@@ -73,9 +105,7 @@ function App() {
       />
 
 
-      {/* =====================================================
-          NORMAL USER ROUTES
-      ===================================================== */}
+      {/* ================= USER ================= */}
 
       <Route
         path="/chat"
@@ -114,18 +144,88 @@ function App() {
 
 
       {/* =====================================================
-          TEAM LEAD ROUTES
-          
-          TeamLeadLayout stays on screen.
-          Outlet changes depending on selected sidebar page.
+          ADMIN
+      ===================================================== */}
+
+      <Route
+        path="/admin"
+        element={
+          <Navigate
+            to="/admin/dashboard"
+            replace
+          />
+        }
+      />
+
+      <Route
+        path="/admin/dashboard"
+        element={<AdminDashboard />}
+      />
+
+      <Route
+        path="/admin/workspaces"
+        element={<AdminWorkspace />}
+      />
+
+      <Route
+        path="/admin/users"
+        element={<AdminUsers />}
+      />
+
+      <Route
+        path="/admin/projects"
+        element={<AdminProjects />}
+      />
+
+      <Route
+        path="/admin/tasks"
+        element={<AdminTasks />}
+      />
+
+      <Route
+        path="/admin/ai-tools"
+        element={<AdminAITools />}
+      />
+
+      <Route
+        path="/admin/billing"
+        element={<AdminBilling />}
+      />
+
+      <Route
+        path="/admin/subscriptions"
+        element={<AdminSubscriptions />}
+      />
+
+      <Route
+        path="/admin/analytics"
+        element={<AdminAnalytics />}
+      />
+
+      <Route
+        path="/admin/announcements"
+        element={<AdminAnnouncements />}
+      />
+
+      <Route
+        path="/admin/reports"
+        element={<AdminReports />}
+      />
+
+      <Route
+        path="/admin/settings"
+        element={<AdminSettings />}
+      />
+
+
+      {/* =====================================================
+          TEAM LEAD
       ===================================================== */}
 
       <Route
         path="/teamlead"
         element={<TeamLeadLayout />}
       >
-
-        {/* /teamlead -> /teamlead/dashboard */}
 
         <Route
           index
@@ -137,56 +237,35 @@ function App() {
           }
         />
 
-
-        {/* DASHBOARD */}
-
         <Route
           path="dashboard"
           element={<TeamLeadDashboard />}
         />
-
-
-        {/* MY TEAM */}
 
         <Route
           path="team"
           element={<TeamLeadMyTeam />}
         />
 
-
-        {/* PROJECTS */}
-
         <Route
           path="projects"
           element={<TeamLeadProject />}
         />
-
-
-        {/* TASKS */}
 
         <Route
           path="tasks"
           element={<TeamLeadTask />}
         />
 
-
-        {/* BUGS */}
-
         <Route
           path="bugs"
           element={<TeamLeadBug />}
         />
 
-
-        {/* CALENDAR */}
-
         <Route
           path="calendar"
           element={<TeamLeadCalendar />}
         />
-
-
-        {/* TEAM MEMBERS */}
 
         <Route
           path="member"
@@ -198,32 +277,20 @@ function App() {
           element={<TeamMember1 />}
         />
 
-
-        {/* REPORTS */}
-
         <Route
           path="reports"
           element={<TeamLeadReport />}
         />
-
-
-        {/* CHAT */}
 
         <Route
           path="chat"
           element={<TeamLeadChat />}
         />
 
-
-        {/* AI ASSISTANT */}
-
         <Route
           path="ai-assistant"
           element={<TeamLeadAI />}
         />
-
-
-        {/* SETTINGS */}
 
         <Route
           path="settings"
@@ -233,9 +300,7 @@ function App() {
       </Route>
 
 
-      {/* =====================================================
-          OLD TEAM LEAD URL
-      ===================================================== */}
+      {/* OLD TEAM LEAD URL */}
 
       <Route
         path="/team-lead-dashboard"
@@ -248,9 +313,7 @@ function App() {
       />
 
 
-      {/* =====================================================
-          404
-      ===================================================== */}
+      {/* ================= 404 ================= */}
 
       <Route
         path="*"
