@@ -17,12 +17,15 @@ import Dashboard from "./component/dashboards/Employee/Dashboard.jsx";
 import Chat from "./component/dashboards/Employee/Chat.jsx";
 import Tasks from "./component/dashboards/Employee/Tasks.jsx";
 import Calendar from "./component/dashboards/Employee/Calendar.jsx";
+import Meetings from "./component/dashboards/Employee/Meetings.jsx";
 import Team from "./component/dashboards/Employee/Team.jsx";
 import Projects from "./component/dashboards/Employee/Projects.jsx";
 import Bugs from "./component/dashboards/Employee/Bugs.jsx";
 import File from "./component/dashboards/Employee/File.jsx";
 import EmployeeAI from "./component/dashboards/Employee/AI.jsx";
 import EmployeeSettings from "./component/dashboards/Employee/Settings.jsx"; 
+import Activity from "./component/dashboards/Employee/Activity.jsx"; 
+import TeamProgress from "./component/dashboards/Employee/TeamProgress.jsx"; 
 
 
 /* SUPER ADMIN */
@@ -136,19 +139,70 @@ function App() {
         element={<Navigate to="/employee/dashboard" replace />}
       />
       <Route path="/employee/dashboard" element={<Dashboard />} />
+      <Route
+        path="/chat"
+        element={<Navigate to="/employee/chat" replace />}
+      />
       <Route path="/employee/chat" element={<Chat />} />
+      <Route
+        path="/tasks"
+        element={<Navigate to="/employee/tasks" replace />}
+      />
       <Route path="/employee/tasks" element={<Tasks />} />
+      <Route
+        path="/projects"
+        element={<Navigate to="/employee/projects" replace />}
+      />
       <Route path="/employee/projects" element={<Projects />} />
       <Route path="/employee/bugs" element={<Bugs />} />
       <Route path="/employee/calendar" element={<Calendar />} />
-      <Route path="/employee/team" element={<Team />} />
-      <Route path="/employee/files" element={<File />} />
       <Route
-        path="/employee/Files"
+        path="/meetings"
+        element={<Navigate to="/employee/meetings" replace />}
+      />
+      <Route path="/employee/meetings" element={<Meetings />} />
+      <Route path="/employee/team" element={<Team />} />
+      <Route
+        path="/files"
         element={<Navigate to="/employee/files" replace />}
       />
+      <Route path="/employee/files" element={<File />} />
+      <Route
+        path="/ai-assistant"
+        element={<Navigate to="/employee/ai-assistant" replace />}
+      />
       <Route path="/employee/ai-assistant" element={<EmployeeAI />} />
+      <Route
+        path="/settings"
+        element={<Navigate to="/employee/settings" replace />}
+      />
       <Route path="/employee/settings" element={<EmployeeSettings />} />
+      <Route
+        path="/employee/notifications"
+        element={<Navigate to="/employee/settings" replace />}
+      />
+      <Route
+        path="/employee/profile"
+        element={<Navigate to="/employee/settings" replace />}
+      />
+      <Route
+        path="/activity"
+        element={<Navigate to="/employee/activity" replace />}
+      />
+      <Route
+        path="/employee/my-activity"
+        element={<Navigate to="/employee/activity" replace />}
+      />
+      <Route path="/employee/activity" element={<Activity />} />
+      <Route
+        path="/team-progress"
+        element={<Navigate to="/employee/team-progress" replace />}
+      />
+      <Route
+        path="/employee/progress"
+        element={<Navigate to="/employee/team-progress" replace />}
+      />
+      <Route path="/employee/team-progress" element={<TeamProgress />} />
 
       {/* TEAM LEAD ROUTES */}
       <Route path="/teamlead" element={<TeamLeadLayout />}>

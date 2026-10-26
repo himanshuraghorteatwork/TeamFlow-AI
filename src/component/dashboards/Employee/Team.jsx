@@ -1,4 +1,4 @@
-
+﻿
 import { useMemo, useState } from "react";
 import {
   Users,
@@ -17,7 +17,7 @@ import {
   UserRound,
 } from "lucide-react";
 
-import AppSidebar from "./AppSidebar";
+import EmployeeShell from "./EmployeeShell";
 import { initialMembers, teamRoles, teamStatuses } from "./teamData";
 import "./Team.css";
 
@@ -188,10 +188,8 @@ function Team() {
   }
 
   return (
-    <div className="team-page">
-      <AppSidebar />
-
-      <main className="team-main">
+    <EmployeeShell activeRoute="/employee/team">
+      <div className="team-main">
         <div className="team-content">
           <header className="team-header">
             <div>
@@ -499,7 +497,7 @@ function Team() {
             </button>
           </section>
         </div>
-      </main>
+      </div>
 
       {showInvite && (
         <div
@@ -608,7 +606,7 @@ function Team() {
           </section>
         </div>
       )}
-    </div>
+    </EmployeeShell>
   );
 }
 

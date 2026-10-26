@@ -1,142 +1,369 @@
-import { useState } from "react";
-import { NavLink } from "react-router-dom";
+import React from "react";
+import { NavLink, useLocation } from "react-router-dom";
 import {
-  Users,
-  House,
-  MessageCircle,
-  SquareCheckBig,
+  Home,
+  CheckSquare,
   FolderKanban,
   Bug,
-  CalendarDays,
-  UserRound,
-  Files,
+  Calendar,
+  FileText,
+  MessageSquare,
+  Video,
   Sparkles,
+  Activity,
+  BarChart2,
   Settings,
-  ChevronDown,
-  MoreVertical,
-  LayoutGrid,
+  X,
 } from "lucide-react";
 
 import "./AppSidebar.css";
 
-const navigation = [
-  { label: "Dashboard", path: "/employee/dashboard", icon: House },
-  { label: "Chat", path: "/employee/chat", icon: MessageCircle },
-  { label: "Tasks", path: "/employee/tasks", icon: SquareCheckBig },
-  { label: "Projects", path: "/employee/projects", icon: FolderKanban },
-  { label: "Bugs", path: "/employee/bugs", icon: Bug },
-  { label: "Calendar", path: "/employee/calendar", icon: CalendarDays },
-  { label: "Team", path: "/employee/team", icon: UserRound },
-  { label: "Files", path: "/employee/files", icon: Files },
-  { label: "AI Assistant", path: "/employee/ai-assistant", icon: Sparkles },
-  { label: "Settings", path: "/employee/settings", icon: Settings },
+const navSections = [
+  {
+    title: "MY WORK",
+    items: [
+      {
+        label: "My Tasks",
+        path: "/employee/tasks",
+        icon: CheckSquare,
+      },
+      {
+        label: "My Projects",
+        path: "/employee/projects",
+        icon: FolderKanban,
+      },
+      {
+        label: "Assigned Bugs",
+        path: "/employee/bugs",
+        icon: Bug,
+      },
+      {
+        label: "Calendar",
+        path: "/employee/calendar",
+        icon: Calendar,
+      },
+      {
+        label: "My Files",
+        path: "/employee/files",
+        icon: FileText,
+      },
+    ],
+  },
+  {
+    title: "COLLABORATION",
+    items: [
+      {
+        label: "Team Chat",
+        path: "/employee/chat",
+        icon: MessageSquare,
+      },
+      {
+        label: "Meetings",
+        path: "/employee/meetings",
+        icon: Video,
+      },
+    ],
+  },
+  {
+    title: "AI TOOLS",
+    items: [
+      {
+        label: "AI Assistant",
+        path: "/employee/ai-assistant",
+        icon: Sparkles,
+      },
+    ],
+  },
+  {
+    title: "REPORTS",
+    items: [
+      {
+        label: "My Activity",
+        path: "/employee/activity",
+        icon: Activity,
+      },
+      {
+        label: "Team Progress",
+        path: "/employee/team-progress",
+        icon: BarChart2,
+      },
+    ],
+  },
+  {
+    title: "SETTINGS",
+    items: [
+      {
+        label: "Settings",
+        path: "/employee/settings",
+        icon: Settings,
+      },
+    ],
+  },
 ];
 
-function AppSidebar() {
-  const [profile] = useState(() => {
-    try {
-      const settings = JSON.parse(
-        localStorage.getItem("teamflow-settings") || "null"
-      );
-      const user = JSON.parse(
-        localStorage.getItem("teamflow_current_user") || "null"
-      );
+function AppSidebar({ isOpen = false, onClose }) {
+  const location = useLocation();
 
-      const firstName =
-        settings?.profile?.firstName ||
-        (user?.name ? user.name.split(" ")[0] : "John");
-      const lastName =
-        settings?.profile?.lastName ||
-        (user?.name ? user.name.split(" ").slice(1).join(" ") : "Doe");
-      const fullName = `${firstName} ${lastName}`.trim() || "John Doe";
-      const email =
-        settings?.profile?.email || user?.email || "john@company.com";
-      const photo = settings?.profile?.photo || "/avatar.png";
-      const initials = `${firstName[0] || "J"}${lastName[0] || "D"}`.toUpperCase();
+  // Check if a navigation item is active
+  const isItemActive = (itemPath) => {
+    const [pathname, search] = itemPath.split("?");
 
-      return { fullName, email, photo, initials };
-    } catch {
-      return {
-        fullName: "John Doe",
-        email: "john@company.com",
-        photo: "/avatar.png",
-        initials: "JD",
-      };
+    if (search) {
+      return (
+        location.pathname === pathname &&
+        location.search.includes(search)
+      );
     }
-  });
+
+    return location.pathname === pathname;
+  };
+
+  // Dashboard active state
+  const isDashboardActive =
+    location.pathname === "/employee/dashboard" ||
+    location.pathname === "/dashboard" ||
+    location.pathname === "/employee";
 
   return (
-    <aside className="app-sidebar">
-      <NavLink to="/employee/dashboard" className="app-sidebar-brand">
-        <span className="app-brand-icon">
-          <Users size={22} />
-        </span>
-        <span className="app-brand-name">
-          TeamFlow <span>AI</span>
-        </span>
-      </NavLink>
+    <>
+      {/* =========================================
+          MOBILE BACKDROP
+      ========================================== */}
+      {isOpen && (
+        <div
+          className="app-sidebar-backdrop"
+          onClick={onClose}
+          aria-hidden="true"
+        />
+      )}
 
-      <button className="app-workspace-switcher" type="button">
-        <span className="app-workspace-icon">
-          <LayoutGrid size={20} />
-        </span>
-        <span className="app-workspace-info">
-          <strong>Product Team</strong>
-          <small>Free Plan</small>
-        </span>
-        <ChevronDown size={17} />
-      </button>
+      {/* =========================================
+          SIDEBAR
+      ========================================== */}
+      <aside className={`app-sidebar ${isOpen ? "open" : ""}`}>
 
-      <nav className="app-sidebar-nav" aria-label="Main navigation">
-        {navigation.map(({ label, path, icon: Icon }) => (
+        {/* =========================================
+            BRAND HEADER
+        ========================================== */}
+        <div className="app-sidebar-header">
+
           <NavLink
-            key={path}
-            to={path}
-            className={({ isActive }) =>
-              `app-sidebar-link ${isActive ? "active" : ""}`
-            }
+            to="/employee/dashboard"
+            className="app-sidebar-brand"
+            onClick={onClose}
           >
-            <Icon size={19} />
-            <span>{label}</span>
+
+            {/* =====================================
+                TEAMFLOW AI LOGO
+            ====================================== */}
+            <div className="logo-container">
+
+              <div className="logo-icon-brand">
+
+                <svg
+                  width="28"
+                  height="28"
+                  viewBox="0 0 28 28"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  aria-label="TeamFlow AI Logo"
+                  role="img"
+                >
+
+                  {/* Logo Background */}
+                  <rect
+                    width="28"
+                    height="28"
+                    rx="8"
+                    fill="url(#tf-sidebar-logo-gradient)"
+                  />
+
+                  {/* T / Flow Symbol */}
+                  <path
+                    d="M8 9H20M14 9V19M11 19H17"
+                    stroke="white"
+                    strokeWidth="2.4"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+
+                  {/* Blue Accent Dot */}
+                  <circle
+                    cx="21"
+                    cy="7"
+                    r="2.5"
+                    fill="#38BDF8"
+                  />
+
+                  {/* Gradient Definition */}
+                  <defs>
+                    <linearGradient
+                      id="tf-sidebar-logo-gradient"
+                      x1="0"
+                      y1="0"
+                      x2="28"
+                      y2="28"
+                      gradientUnits="userSpaceOnUse"
+                    >
+                      <stop
+                        offset="0"
+                        stopColor="#4361EE"
+                      />
+
+                      <stop
+                        offset="0.5"
+                        stopColor="#3A0CA3"
+                      />
+
+                      <stop
+                        offset="1"
+                        stopColor="#F72585"
+                      />
+                    </linearGradient>
+                  </defs>
+
+                </svg>
+
+              </div>
+
+              {/* Brand Name */}
+              <span className="logo-text">
+                TeamFlow{" "}
+                <span className="logo-ai">
+                  AI
+                </span>
+              </span>
+
+            </div>
+
           </NavLink>
-        ))}
-      </nav>
 
-      <div className="app-sidebar-profile">
-        {profile.photo ? (
-          <img
-            src={profile.photo}
-            alt={profile.fullName}
-            className="app-profile-avatar"
-            onError={(e) => {
-              e.currentTarget.style.display = "none";
-              const next = e.currentTarget.nextElementSibling;
-              if (next) next.style.display = "flex";
-            }}
-          />
-        ) : null}
-        <span
-          className="app-profile-avatar app-profile-initials"
-          style={{ display: profile.photo ? "none" : "flex" }}
-        >
-          {profile.initials}
-        </span>
+          {/* Mobile Close Button */}
+          {onClose && (
+            <button
+              type="button"
+              className="app-sidebar-close-btn"
+              onClick={onClose}
+              aria-label="Close menu"
+            >
+              <X size={20} />
+            </button>
+          )}
 
-        <div className="app-profile-info">
-          <strong>{profile.fullName}</strong>
-          <span title={profile.email}>{profile.email}</span>
         </div>
 
-        <NavLink
-          to="/employee/settings"
-          className="app-sidebar-profile-btn"
-          aria-label="Settings"
-          title="Profile & Settings"
-        >
-          <MoreVertical size={19} />
-        </NavLink>
-      </div>
-    </aside>
+        {/* =========================================
+            NAVIGATION SCROLL AREA
+        ========================================== */}
+        <div className="app-sidebar-scroll">
+
+          {/* =======================================
+              DASHBOARD BUTTON
+          ======================================== */}
+          <div className="app-nav-top-dashboard">
+
+            <NavLink
+              to="/employee/dashboard"
+              className={`app-sidebar-dashboard-btn ${
+                isDashboardActive ? "active" : ""
+              }`}
+              onClick={onClose}
+            >
+
+              <Home
+                size={18}
+                strokeWidth={2.2}
+                className="app-dashboard-icon"
+              />
+
+              <span>
+                Dashboard
+              </span>
+
+            </NavLink>
+
+          </div>
+
+          {/* =========================================
+              MAIN NAVIGATION
+          ========================================== */}
+          <nav
+            className="app-sidebar-nav"
+            aria-label="Main employee navigation"
+          >
+
+            {navSections.map((section, idx) => (
+
+              <div
+                key={section.title || idx}
+                className="app-nav-group"
+              >
+
+                {/* Section Title */}
+                {section.title && (
+                  <div className="app-nav-section-title">
+                    {section.title}
+                  </div>
+                )}
+
+                {/* Navigation Items */}
+                <ul className="app-nav-list">
+
+                  {section.items.map((item) => {
+
+                    const Icon = item.icon;
+
+                    const active = isItemActive(
+                      item.path
+                    );
+
+                    return (
+                      <li key={item.label}>
+
+                        <NavLink
+                          to={item.path}
+                          className={`app-sidebar-link ${
+                            active ? "active" : ""
+                          }`}
+                          onClick={onClose}
+                        >
+
+                          {/* Icon */}
+                          <span className="app-nav-icon">
+
+                            <Icon
+                              size={17}
+                              strokeWidth={
+                                active ? 2.2 : 1.7
+                              }
+                            />
+
+                          </span>
+
+                          {/* Label */}
+                          <span className="app-nav-text">
+                            {item.label}
+                          </span>
+
+                        </NavLink>
+
+                      </li>
+                    );
+
+                  })}
+
+                </ul>
+
+              </div>
+
+            ))}
+
+          </nav>
+
+        </div>
+
+      </aside>
+    </>
   );
 }
 
