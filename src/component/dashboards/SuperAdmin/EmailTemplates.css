@@ -1,0 +1,536 @@
+/* ==========================================================================
+   TEAMFLOW AI — SUPER ADMIN EMAIL TEMPLATES CSS
+   Enterprise SAP Master Data Grid & Themed Visual Cards Gallery
+   ========================================================================== */
+
+.sa-templates-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+/* 1. View Switcher (Table Grid vs Visual Cards) */
+.sa-view-switcher {
+  display: inline-flex;
+  align-items: center;
+  background: var(--sa-bg, #f1f5f9);
+  border: 1px solid var(--sa-border, #e2e8f0);
+  border-radius: var(--sa-radius-md, 8px);
+  padding: 2px;
+  gap: 2px;
+}
+
+.sa-view-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--sa-text-muted, #64748b);
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.sa-view-btn:hover {
+  color: var(--sa-text-main, #0f172a);
+}
+
+.sa-view-btn.is-active {
+  background: var(--sa-surface, #ffffff);
+  color: var(--sa-primary, #3b66ff);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+}
+
+/* 2. Table Thumbnail & ID Cell */
+.tpl-thumb-id-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.tpl-thumb-box {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+}
+
+.tpl-name-col {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.tpl-name-col strong {
+  font-size: 12.5px;
+  color: var(--sa-text-main);
+}
+
+.tpl-engine-tag {
+  font-size: 10px;
+  color: var(--sa-text-muted);
+  font-family: ui-monospace, SFMono-Regular, monospace;
+}
+
+/* 3. Themed Category Badge */
+.tpl-category-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 9px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 650;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+.tpl-color-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+/* 4. Trigger & Subject Cells */
+.tpl-trigger-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-width: 220px;
+}
+
+.tpl-trigger-cell code {
+  font-size: 10.5px;
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  color: var(--sa-primary, #3b66ff);
+  background: rgba(59, 102, 255, 0.06);
+  padding: 1px 4px;
+  border-radius: 4px;
+  width: fit-content;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 210px;
+}
+
+.tpl-trigger-desc {
+  font-size: 11px;
+  color: var(--sa-text-muted);
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tpl-subject-cell {
+  font-size: 12px;
+  font-weight: 550;
+  color: var(--sa-text-main);
+  max-width: 260px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 5. Engagement Metrics & Progress Bar */
+.tpl-engagement-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 140px;
+}
+
+.tpl-rate-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 10.5px;
+  color: var(--sa-text-muted);
+}
+
+.tpl-rate-row strong {
+  color: var(--sa-text-main);
+}
+
+.tpl-engagement-bar-track {
+  width: 100%;
+  height: 4px;
+  background: var(--sa-border-subtle, #edf2f7);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.tpl-engagement-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+/* 6. Visual Cards Gallery View */
+.tpl-cards-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+  padding: 18px;
+}
+
+.tpl-visual-card {
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--sa-radius-md, 10px);
+  overflow: hidden;
+  border: 1px solid var(--sa-border, #e2e8f0);
+  background: var(--sa-surface, #ffffff);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.tpl-visual-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+}
+
+.tpl-card-graphic-banner {
+  height: 90px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+}
+
+.tpl-card-graphic-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.22);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+}
+
+.tpl-card-badge-pill {
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.9);
+  color: #0f172a;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+.tpl-card-body {
+  padding: 16px 18px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+}
+
+.tpl-card-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.tpl-card-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--sa-text-main);
+  line-height: 1.3;
+}
+
+.tpl-card-trigger-text {
+  margin: 0;
+  font-size: 11.5px;
+  color: var(--sa-text-muted);
+  line-height: 1.4;
+  min-height: 32px;
+}
+
+.sa-tpl-subject-box {
+  background: var(--sa-bg, #f8fafc);
+  padding: 8px 12px;
+  border-radius: var(--sa-radius-sm, 6px);
+  border: 1px solid var(--sa-border-subtle, #edf2f7);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sa-tpl-subject-box label {
+  font-size: 9px;
+  font-weight: 750;
+  color: var(--sa-text-muted);
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+}
+
+.sa-tpl-subject-box strong {
+  font-size: 11.5px;
+  color: var(--sa-text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tpl-card-stats-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  background: var(--sa-bg, #f8fafc);
+  border-radius: 8px;
+  margin-top: 4px;
+}
+
+.tpl-stat-label {
+  display: block;
+  font-size: 10px;
+  color: var(--sa-text-muted);
+  text-transform: uppercase;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.tpl-stat-val {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.tpl-card-footer-btns {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 10px;
+  border-top: 1px solid var(--sa-border-subtle, #edf2f7);
+}
+
+.tpl-card-footer-btns button:first-child {
+  flex: 1;
+}
+
+.tpl-card-footer-btns button:nth-child(2) {
+  flex: 1;
+}
+
+/* 7. Preview Modal Envelope & Viewport */
+.tpl-preview-envelope {
+  background: var(--sa-surface, #ffffff);
+  border: 1px solid var(--sa-border, #e2e8f0);
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  font-size: 12px;
+  color: var(--sa-text-muted);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  box-shadow: var(--sa-shadow-sm);
+}
+
+.tpl-preview-envelope strong {
+  color: var(--sa-text-main);
+  margin-right: 6px;
+}
+
+.tpl-preview-viewport {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(15, 23, 42, 0.12);
+  overflow: hidden;
+}
+
+.tpl-preview-viewport.is-mobile {
+  border: 6px solid #1e293b;
+  border-radius: 24px;
+}
+
+/* Merge Tags Hints */
+.sa-merge-tags-hint {
+  margin-top: 8px;
+  padding: 10px 14px;
+  background: rgba(59, 102, 255, 0.08);
+  border: 1px solid rgba(59, 102, 255, 0.18);
+  border-radius: var(--sa-radius-sm);
+  font-size: 11.5px;
+  color: var(--sa-primary);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sa-merge-tags-hint code {
+  color: #1e293b;
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-size: 11px;
+}
+
+/* ==========================================================================
+   DARK MODE OVERRIDES FOR EMAIL TEMPLATES
+   ========================================================================== */
+.sa-dark-mode .sa-view-switcher {
+  background: #172442 !important;
+  border-color: #233355 !important;
+}
+
+.sa-dark-mode .sa-view-btn {
+  color: #94a3b8 !important;
+}
+
+.sa-dark-mode .sa-view-btn.is-active {
+  background: #111c35 !important;
+  color: #6088ff !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4) !important;
+}
+
+.sa-dark-mode .tpl-engine-tag {
+  color: #94a3b8 !important;
+}
+
+.sa-dark-mode .tpl-trigger-cell code {
+  background: rgba(59, 102, 255, 0.2) !important;
+  color: #7093ff !important;
+}
+
+.sa-dark-mode .tpl-trigger-desc {
+  color: #94a3b8 !important;
+}
+
+.sa-dark-mode .tpl-subject-cell {
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .tpl-engagement-bar-track {
+  background: #1f2d4d !important;
+}
+
+.sa-dark-mode .tpl-visual-card {
+  background: #111c35 !important;
+  border-color: #1f2d4d !important;
+}
+
+.sa-dark-mode .tpl-visual-card:hover {
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.4) !important;
+}
+
+.sa-dark-mode .tpl-card-title {
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .tpl-card-trigger-text {
+  color: #94a3b8 !important;
+}
+
+.sa-dark-mode .sa-tpl-subject-box {
+  background: #172442 !important;
+  border-color: #233355 !important;
+}
+
+.sa-dark-mode .sa-tpl-subject-box label {
+  color: #94a3b8 !important;
+}
+
+.sa-dark-mode .sa-tpl-subject-box strong {
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .tpl-card-stats-row {
+  background: #172442 !important;
+}
+
+.sa-dark-mode .tpl-card-footer-btns {
+  border-top-color: #1f2d4d !important;
+}
+
+.sa-dark-mode .tpl-preview-envelope {
+  background: #172442 !important;
+  border-color: #233355 !important;
+}
+
+.sa-dark-mode .tpl-preview-envelope strong {
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .sa-merge-tags-hint {
+  background: rgba(59, 102, 255, 0.15) !important;
+  border-color: rgba(59, 102, 255, 0.3) !important;
+}
+
+.sa-dark-mode .sa-merge-tags-hint code {
+  color: #cbd5e1 !important;
+}
+
+/* Company / Organization Column in Table */
+.tpl-company-col {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 170px;
+}
+
+.tpl-company-name-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--sa-text-main);
+  font-size: 12.5px;
+}
+
+.tpl-company-name-row strong {
+  font-weight: 650;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 190px;
+}
+
+.tpl-company-subtext {
+  font-size: 10.5px;
+  color: var(--sa-text-muted);
+  white-space: nowrap;
+}
+
+/* Card View Company Tag */
+.tpl-card-company-tag {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  font-weight: 650;
+  color: var(--sa-text-main);
+  background: var(--sa-bg, #f8fafc);
+  border: 1px solid var(--sa-border-subtle, #edf2f7);
+  padding: 4px 8px;
+  border-radius: 6px;
+  width: fit-content;
+}
+
+.sa-dark-mode .tpl-company-name-row {
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .tpl-company-subtext {
+  color: #94a3b8 !important;
+}
+
+.sa-dark-mode .tpl-card-company-tag {
+  background: #172442 !important;
+  border-color: #233355 !important;
+  color: #f8fafc !important;
+}

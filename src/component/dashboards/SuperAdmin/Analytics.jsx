@@ -26,6 +26,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import "./SuperAdminCommon.css";
 import "./Analytics.css";
 
 const growthData = {
@@ -49,6 +50,27 @@ const growthData = {
     { label: "Month 2", organizations: 58, users: 1050 },
     { label: "Month 3", organizations: 82, users: 1480 },
   ],
+};
+
+const METRICS_BY_PERIOD = {
+  "7 days": {
+    orgs: { value: "186", change: "+4.2%" },
+    users: { value: "1,248", change: "+6.8%" },
+    active: { value: "892", change: "+5.1%" },
+    tasks: { value: "4,820", change: "+12.4%" },
+  },
+  "30 days": {
+    orgs: { value: "248", change: "+12.8%" },
+    users: { value: "12,840", change: "+18.4%" },
+    active: { value: "8,624", change: "+8.6%" },
+    tasks: { value: "34,592", change: "+24.3%" },
+  },
+  "90 days": {
+    orgs: { value: "310", change: "+28.5%" },
+    users: { value: "24,650", change: "+32.1%" },
+    active: { value: "16,400", change: "+19.4%" },
+    tasks: { value: "89,400", change: "+44.8%" },
+  },
 };
 
 const initialOrganizations = [
@@ -135,6 +157,7 @@ function Analytics() {
   }, [organizationQuery]);
 
   const selectedGrowth = growthData[period];
+  const periodMetrics = METRICS_BY_PERIOD[period] || METRICS_BY_PERIOD["30 days"];
 
   const handleExport = () => {
     const rows = [
@@ -211,32 +234,32 @@ function Analytics() {
       <section className="analytics-metrics-grid">
         <MetricCard
           title="Total Organizations"
-          value="248"
-          change="+12.8%"
+          value={periodMetrics.orgs.value}
+          change={periodMetrics.orgs.change}
           description="vs. previous period"
           icon={Building2}
         />
 
         <MetricCard
           title="Total Users"
-          value="12,840"
-          change="+18.4%"
+          value={periodMetrics.users.value}
+          change={periodMetrics.users.change}
           description="vs. previous period"
           icon={Users}
         />
 
         <MetricCard
           title="Active Users"
-          value="8,624"
-          change="+8.6%"
+          value={periodMetrics.active.value}
+          change={periodMetrics.active.change}
           description="vs. previous period"
           icon={Activity}
         />
 
         <MetricCard
           title="Tasks Completed"
-          value="34,592"
-          change="+24.3%"
+          value={periodMetrics.tasks.value}
+          change={periodMetrics.tasks.change}
           description="vs. previous period"
           icon={CheckCircle2}
         />

@@ -1,5 +1,6 @@
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import {
   ArrowDownRight,
   ArrowUpRight,
@@ -21,6 +22,7 @@ import {
   X,
   XCircle,
 } from "lucide-react";
+import "./SuperAdminCommon.css";
 import "./Subscriptions.css";
 
 const INITIAL_SUBSCRIPTIONS = [
@@ -156,7 +158,7 @@ const INITIAL_SUBSCRIPTIONS = [
   },
 ];
 
-const PLANS = [
+const DEFAULT_PLANS = [
   {
     name: "Starter",
     price: 1999,
@@ -176,6 +178,19 @@ const PLANS = [
     features: ["Unlimited team members", "Advanced access controls", "Dedicated support"],
   },
 ];
+
+function loadPlanPrices() {
+  try {
+    const saved = localStorage.getItem("teamflow_superadmin_plan_prices");
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    }
+  } catch (e) {
+    console.error("Failed to load plan prices", e);
+  }
+  return DEFAULT_PLANS;
+}
 
 const formatCurrency = (amount) =>
   new Intl.NumberFormat("en-IN", {
@@ -213,6 +228,8 @@ function SubscriptionStatus({ status }) {
 }
 
 function Subscriptions() {
+  const [plans, setPlans] = useState(loadPlanPrices);
+  const [editingPlanPrice, setEditingPlanPrice] = useState(null);
   const [subscriptions, setSubscriptions] = useState(INITIAL_SUBSCRIPTIONS);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All statuses");
@@ -224,6 +241,22 @@ function Subscriptions() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showPlans, setShowPlans] = useState(false);
   const [toast, setToast] = useState("");
+
+  // Prevent background scroll when any modal is open
+  useEffect(() => {
+    const hasModal = Boolean(
+      selectedSubscription || showPlans || editingPlanPrice || editingSubscription || showCreateModal
+    );
+    if (typeof document !== "undefined") {
+      document.body.style.overflow = hasModal ? "hidden" : "";
+    }
+    return () => {
+      if (typeof document !== "undefined") {
+        document.body.style.overflow = "";
+      }
+    };
+  }, [selectedSubscription, showPlans, editingPlanPrice, editingSubscription, showCreateModal]);
+
   const [menuId, setMenuId] = useState(null);
   const pageSize = 7;
 
@@ -471,7 +504,7 @@ function Subscriptions() {
         </div>
 
         <div className="subscriptions-plan-grid">
-          {PLANS.map((plan, index) => (
+          {plans.map((plan, index) => (
             <article
               key={plan.name}
               className={`subscriptions-plan-card ${
@@ -483,9 +516,21 @@ function Subscriptions() {
               )}
               <div className="subscriptions-plan-name">{plan.name}</div>
               <p>{plan.description}</p>
-              <div className="subscriptions-plan-price">
-                <strong>{formatCurrency(plan.price)}</strong>
-                <span>/ {index === 2 ? "year" : "month"}</span>
+              <div className="subscriptions-plan-price-row">
+                <div className="subscriptions-plan-price">
+                  <strong>{formatCurrency(plan.price)}</strong>
+                  <span>/ {index === 2 ? "year" : "month"}</span>
+                </div>
+                <button
+                  type="button"
+                  className="subscriptions-edit-price-btn"
+                  title={`Edit price for ${plan.name}`}
+                  onClick={() =>
+                    setEditingPlanPrice({ name: plan.name, price: plan.price })
+                  }
+                >
+                  <Pencil size={12} /> Edit Price
+                </button>
               </div>
               <div className="subscriptions-plan-features">
                 {plan.features.map((feature) => (
@@ -806,93 +851,144 @@ function Subscriptions() {
         processed by this page.
       </p>
 
-      {selectedSubscription && (
-        <div
-          className="subscriptions-modal-backdrop"
-          onMouseDown={(event) => {
-            if (event.target === event.currentTarget) {
-              setSelectedSubscription(null);
-            }
-          }}
-        >
-          <section className="subscriptions-modal" role="dialog" aria-modal="true">
-            <header>
-              <div>
-                <span className="subscriptions-modal-icon">
-                  <CreditCard size={20} />
-                </span>
-                <div>
-                  <h2>Subscription details</h2>
-                  <p>{selectedSubscription.id}</p>
+      {selectedSubscription &&
+        typeof document !== "undefined" &&
+        createPortal(
+          <div
+            className="subscriptions-modal-backdrop"
+            onClick={(event) => {
+              if (event.target === event.currentTarget) {
+                setSelectedSubscription(null);
+              }
+            }}
+          >
+            <section
+              className="subscriptions-modal subscriptions-view-modal"
+              role="dialog"
+              aria-modal="true"
+            >
+              <header className="subscriptions-view-header">
+                <div className="subscriptions-view-header-left">
+                  <span className="subscriptions-modal-icon">
+                    <CreditCard size={18} />
+                  </span>
+                  <div>
+                    <h2>Subscription Details</h2>
+                    <p className="subscriptions-view-id-tag">
+                      {selectedSubscription.id}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  className="subscriptions-icon-button"
+                  onClick={() => setSelectedSubscription(null)}
+                  aria-label="Close modal"
+                >
+                  <X size={18} />
+                </button>
+              </header>
+
+              <div className="subscriptions-view-modal-body">
+                {/* Hero organization card */}
+                <div className="sub-view-hero">
+                  <div className="sub-view-org-cell">
+                    <span className="sub-view-avatar">
+                      {getInitials(selectedSubscription.organization)}
+                    </span>
+                    <div>
+                      <h3>{selectedSubscription.organization}</h3>
+                      <p>
+                        {selectedSubscription.contact} · {selectedSubscription.email}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="sub-view-badges-cell">
+                    <div className="sub-view-badge-item">
+                      <small>Plan</small>
+                      <strong className="sub-view-plan-pill">{selectedSubscription.plan}</strong>
+                    </div>
+                    <div className="sub-view-badge-item">
+                      <small>Price</small>
+                      <strong className="sub-view-price-pill">
+                        {formatCurrency(selectedSubscription.price)}
+                        <span className="sub-view-per">/{selectedSubscription.billing.toLowerCase().replace("ly", "")}</span>
+                      </strong>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 2-Column Info Grid */}
+                <div className="sub-view-grid">
+                  <div className="sub-view-grid-card">
+                    <span className="sub-view-grid-label">Subscription Status</span>
+                    <span
+                      className={`subscriptions-status subscriptions-status-${selectedSubscription.status.toLowerCase()}`}
+                    >
+                      <span />
+                      {selectedSubscription.status}
+                    </span>
+                  </div>
+
+                  <div className="sub-view-grid-card">
+                    <span className="sub-view-grid-label">Billing Cycle</span>
+                    <strong className="sub-view-grid-val">{selectedSubscription.billing}</strong>
+                  </div>
+
+                  <div className="sub-view-grid-card">
+                    <span className="sub-view-grid-label">Payment Status</span>
+                    <span
+                      className={`subscriptions-payment subscriptions-payment-${selectedSubscription.payment.toLowerCase()}`}
+                    >
+                      {selectedSubscription.payment}
+                    </span>
+                  </div>
+
+                  <div className="sub-view-grid-card">
+                    <span className="sub-view-grid-label">Payment Method</span>
+                    <strong className="sub-view-grid-val">Visa Corporate (•••• 4021)</strong>
+                  </div>
+
+                  <div className="sub-view-grid-card">
+                    <span className="sub-view-grid-label">Start Date</span>
+                    <strong className="sub-view-grid-val">{formatDate(selectedSubscription.started)}</strong>
+                  </div>
+
+                  <div className="sub-view-grid-card">
+                    <span className="sub-view-grid-label">Next Renewal</span>
+                    <strong className="sub-view-grid-val">{formatDate(selectedSubscription.renewal)}</strong>
+                  </div>
                 </div>
               </div>
-              <button
-                type="button"
-                className="subscriptions-icon-button"
-                onClick={() => setSelectedSubscription(null)}
-                aria-label="Close modal"
-              >
-                <X size={18} />
-              </button>
-            </header>
-            <div className="subscriptions-modal-body">
-              <div className="subscriptions-detail-hero">
-                <span>{getInitials(selectedSubscription.organization)}</span>
-                <div>
-                  <h3>{selectedSubscription.organization}</h3>
-                  <p>{selectedSubscription.contact} · {selectedSubscription.email}</p>
-                </div>
-              </div>
-              <div className="subscriptions-detail-plan">
-                <div>
-                  <small>Current plan</small>
-                  <strong>{selectedSubscription.plan}</strong>
-                </div>
-                <div>
-                  <small>Subscription price</small>
-                  <strong>{formatCurrency(selectedSubscription.price)}</strong>
-                  <small>per {selectedSubscription.billing.toLowerCase().replace("ly", "")}</small>
-                </div>
-              </div>
-              {[
-                ["Subscription status", selectedSubscription.status],
-                ["Billing cycle", selectedSubscription.billing],
-                ["Payment status", selectedSubscription.payment],
-                ["Start date", formatDate(selectedSubscription.started)],
-                ["Renewal date", formatDate(selectedSubscription.renewal)],
-              ].map(([label, value]) => (
-                <div className="subscriptions-detail-row" key={label}>
-                  <span>{label}</span>
-                  <strong>{value}</strong>
-                </div>
-              ))}
-            </div>
-            <footer>
-              <button
-                type="button"
-                className="subscriptions-button subscriptions-button-light"
-                onClick={() => setSelectedSubscription(null)}
-              >
-                Close
-              </button>
-              <button
-                type="button"
-                className="subscriptions-button subscriptions-button-primary"
-                onClick={() => {
-                  setEditingSubscription(selectedSubscription);
-                  setSelectedSubscription(null);
-                }}
-              >
-                <Pencil size={15} /> Edit subscription
-              </button>
-            </footer>
-          </section>
-        </div>
-      )}
+
+              <footer className="subscriptions-view-footer">
+                <button
+                  type="button"
+                  className="subscriptions-button subscriptions-button-light"
+                  onClick={() => setSelectedSubscription(null)}
+                >
+                  Close
+                </button>
+                <button
+                  type="button"
+                  className="subscriptions-button subscriptions-button-primary"
+                  onClick={() => {
+                    setEditingSubscription(selectedSubscription);
+                    setSelectedSubscription(null);
+                  }}
+                >
+                  <Pencil size={14} /> Edit Subscription
+                </button>
+              </footer>
+            </section>
+          </div>,
+          document.body
+        )}
 
       {(showCreateModal || editingSubscription) && (
         <SubscriptionForm
           initial={editingSubscription}
+          plans={plans}
           onClose={() => {
             setShowCreateModal(false);
             setEditingSubscription(null);
@@ -908,67 +1004,183 @@ function Subscriptions() {
         />
       )}
 
-      {showPlans && (
-        <div
-          className="subscriptions-modal-backdrop"
-          onMouseDown={(event) => {
-            if (event.target === event.currentTarget) setShowPlans(false);
-          }}
-        >
-          <section className="subscriptions-modal subscriptions-plans-modal" role="dialog" aria-modal="true">
-            <header>
-              <div>
-                <span className="subscriptions-modal-icon">
-                  <Sparkles size={20} />
-                </span>
+      {showPlans &&
+        typeof document !== "undefined" &&
+        createPortal(
+          <div
+            className="subscriptions-modal-backdrop"
+            onClick={(event) => {
+              if (event.target === event.currentTarget) setShowPlans(false);
+            }}
+          >
+            <section className="subscriptions-modal subscriptions-plans-modal" role="dialog" aria-modal="true">
+              <header>
                 <div>
-                  <h2>Plan catalogue</h2>
-                  <p>Current demo plan definitions</p>
-                </div>
-              </div>
-              <button
-                type="button"
-                className="subscriptions-icon-button"
-                onClick={() => setShowPlans(false)}
-                aria-label="Close plan catalogue"
-              >
-                <X size={18} />
-              </button>
-            </header>
-            <div className="subscriptions-modal-body">
-              {PLANS.map((plan) => (
-                <div className="subscriptions-catalogue-row" key={plan.name}>
+                  <span className="subscriptions-modal-icon">
+                    <Sparkles size={20} />
+                  </span>
                   <div>
-                    <strong>{plan.name}</strong>
-                    <span>{plan.description}</span>
+                    <h2>Plan Catalogue</h2>
+                    <p>Current plan definitions & pricing</p>
                   </div>
-                  <strong>{formatCurrency(plan.price)}</strong>
                 </div>
-              ))}
-              <p className="subscriptions-catalogue-note">
-                These are demonstration prices. Plan changes here do not alter
-                real billing settings.
-              </p>
-            </div>
-            <footer>
-              <button
-                type="button"
-                className="subscriptions-button subscriptions-button-primary"
-                onClick={() => setShowPlans(false)}
+                <button
+                  type="button"
+                  className="subscriptions-icon-button"
+                  onClick={() => setShowPlans(false)}
+                  aria-label="Close plan catalogue"
+                >
+                  <X size={18} />
+                </button>
+              </header>
+              <div className="subscriptions-modal-body">
+                {plans.map((plan) => (
+                  <div className="subscriptions-catalogue-row" key={plan.name}>
+                    <div>
+                      <strong>{plan.name}</strong>
+                      <span>{plan.description}</span>
+                    </div>
+                    <div className="subscriptions-catalogue-price-action">
+                      <strong>{formatCurrency(plan.price)}</strong>
+                      <button
+                        type="button"
+                        className="subscriptions-edit-price-btn"
+                        onClick={() =>
+                          setEditingPlanPrice({ name: plan.name, price: plan.price })
+                        }
+                      >
+                        <Pencil size={12} /> Edit Price
+                      </button>
+                    </div>
+                  </div>
+                ))}
+                <p className="subscriptions-catalogue-note">
+                  Super Admin can edit pricing for any tier. Changes update the catalog and new subscriptions.
+                </p>
+              </div>
+              <footer>
+                <button
+                  type="button"
+                  className="subscriptions-button subscriptions-button-primary"
+                  onClick={() => setShowPlans(false)}
+                >
+                  Done
+                </button>
+              </footer>
+            </section>
+          </div>,
+          document.body
+        )}
+
+      {editingPlanPrice &&
+        typeof document !== "undefined" &&
+        createPortal(
+          <div
+            className="subscriptions-modal-backdrop"
+            onClick={(event) => {
+              if (event.target === event.currentTarget) setEditingPlanPrice(null);
+            }}
+          >
+            <section className="subscriptions-modal" role="dialog" aria-modal="true" style={{ maxWidth: 440 }}>
+              <header>
+                <div>
+                  <span className="subscriptions-modal-icon">
+                    <Pencil size={18} />
+                  </span>
+                  <div>
+                    <h2>Edit Plan Price</h2>
+                    <p>Update pricing for {editingPlanPrice.name} Plan</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  className="subscriptions-icon-button"
+                  onClick={() => setEditingPlanPrice(null)}
+                  aria-label="Close form"
+                >
+                  <X size={18} />
+                </button>
+              </header>
+
+              <form
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  const newPrice = Number(editingPlanPrice.price);
+                  if (isNaN(newPrice) || newPrice < 0) return;
+
+                  const updated = plans.map((p) =>
+                    p.name === editingPlanPrice.name ? { ...p, price: newPrice } : p
+                  );
+                  setPlans(updated);
+                  try {
+                    localStorage.setItem("teamflow_superadmin_plan_prices", JSON.stringify(updated));
+                  } catch (err) {
+                    console.error(err);
+                  }
+                  setEditingPlanPrice(null);
+                  notify(`Price for ${editingPlanPrice.name} Plan updated to ₹${newPrice.toLocaleString()} successfully.`);
+                }}
               >
-                Done
-              </button>
-            </footer>
-          </section>
-        </div>
-      )}
+                <div className="subscriptions-modal-body" style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                  <label style={{ display: "flex", flexDirection: "column", gap: 6, fontSize: 13, fontWeight: 550 }}>
+                    Plan Name
+                    <input
+                      type="text"
+                      value={editingPlanPrice.name}
+                      disabled
+                      style={{ background: "#f8fafc", color: "#64748b", border: "1px solid #e2e8f0", padding: "8px 12px", borderRadius: 8 }}
+                    />
+                  </label>
+
+                  <label style={{ display: "flex", flexDirection: "column", gap: 6, fontSize: 13, fontWeight: 550 }}>
+                    Price (₹ INR)
+                    <input
+                      type="number"
+                      min="0"
+                      step="1"
+                      value={editingPlanPrice.price}
+                      onChange={(e) =>
+                        setEditingPlanPrice({ ...editingPlanPrice, price: e.target.value })
+                      }
+                      placeholder="Enter amount in ₹"
+                      required
+                      autoFocus
+                      style={{ border: "1px solid #3b66ff", padding: "8px 12px", borderRadius: 8, fontSize: 15, fontWeight: 700 }}
+                    />
+                  </label>
+                  <p style={{ margin: 0, fontSize: 11.5, color: "#64748b" }}>
+                    This updates the official subscription catalogue and is used for subsequent tenant billing cycles.
+                  </p>
+                </div>
+
+                <footer>
+                  <button
+                    type="button"
+                    className="subscriptions-button subscriptions-button-light"
+                    onClick={() => setEditingPlanPrice(null)}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="subscriptions-button subscriptions-button-primary"
+                  >
+                    <Check size={15} /> Save Price
+                  </button>
+                </footer>
+              </form>
+            </section>
+          </div>,
+          document.body
+        )}
 
       {toast && <div className="subscriptions-toast">{toast}</div>}
     </div>
   );
 }
 
-function SubscriptionForm({ initial, onClose, onSave }) {
+function SubscriptionForm({ initial, plans, onClose, onSave }) {
+  const availablePlans = plans || DEFAULT_PLANS;
   const [organization, setOrganization] = useState(initial?.organization || "");
   const [contact, setContact] = useState(initial?.contact || "");
   const [email, setEmail] = useState(initial?.email || "");
@@ -980,7 +1192,7 @@ function SubscriptionForm({ initial, onClose, onSave }) {
   const [payment, setPayment] = useState(initial?.payment || "Paid");
   const [error, setError] = useState("");
 
-  const selectedPlan = PLANS.find((item) => item.name === plan);
+  const selectedPlan = availablePlans.find((item) => item.name === plan) || availablePlans[0];
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -1009,7 +1221,8 @@ function SubscriptionForm({ initial, onClose, onSave }) {
     });
   };
 
-  return (
+  if (typeof document === "undefined") return null;
+  return createPortal(
     <div
       className="subscriptions-modal-backdrop"
       onMouseDown={(event) => {
@@ -1074,7 +1287,7 @@ function SubscriptionForm({ initial, onClose, onSave }) {
             <label>
               Plan
               <select value={plan} onChange={(event) => setPlan(event.target.value)}>
-                {PLANS.map((item) => (
+                {availablePlans.map((item) => (
                   <option key={item.name} value={item.name}>
                     {item.name} — {formatCurrency(item.price)}
                   </option>
@@ -1151,7 +1364,8 @@ function SubscriptionForm({ initial, onClose, onSave }) {
           </footer>
         </form>
       </section>
-    </div>
+    </div>,
+    document.body
   );
 }
 

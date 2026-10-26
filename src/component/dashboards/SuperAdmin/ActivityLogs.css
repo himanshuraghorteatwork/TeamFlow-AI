@@ -1239,3 +1239,193 @@
   }
 }
 
+
+/* ==========================================================================
+   AUDIT LOGS VIEW MODAL — COMPACT & VIEWPORT-CENTERED (NO SCROLLING)
+   ========================================================================== */
+.activity-view-modal {
+  width: min(100%, 540px) !important;
+  max-width: 540px !important;
+  max-height: 92vh !important;
+  background: #ffffff !important;
+  border-radius: 14px !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 24px 65px rgba(15, 23, 42, 0.28) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+  animation: activityModalPop 0.2s cubic-bezier(0.16, 1, 0.3, 1) both !important;
+}
+
+@keyframes activityModalPop {
+  from {
+    opacity: 0;
+    transform: scale(0.97) translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.activity-view-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 13px 18px !important;
+  border-bottom: 1px solid #edf2f7 !important;
+  background: #ffffff !important;
+}
+
+.activity-view-header-left {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+}
+
+.activity-view-header-left h2 {
+  margin: 0 !important;
+  font-size: 14.5px !important;
+  font-weight: 700 !important;
+  color: #0f172a !important;
+}
+
+.activity-view-id-tag {
+  display: inline-block !important;
+  font-size: 10.5px !important;
+  font-weight: 600 !important;
+  color: #64748b !important;
+  font-family: ui-monospace, SFMono-Regular, monospace !important;
+}
+
+.activity-view-modal-body {
+  padding: 14px 18px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 11px !important;
+}
+
+.activity-view-summary {
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 10px !important;
+  padding: 11px 14px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 4px !important;
+}
+
+.activity-view-summary-head {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  margin-bottom: 2px !important;
+}
+
+.activity-view-category-pill {
+  font-size: 10.5px !important;
+  font-weight: 650 !important;
+  color: #4f46e5 !important;
+  background: rgba(79, 70, 229, 0.08) !important;
+  padding: 2px 7px !important;
+  border-radius: 5px !important;
+}
+
+.activity-view-summary h3 {
+  margin: 0 !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  color: #0f172a !important;
+}
+
+.activity-view-summary p {
+  margin: 0 !important;
+  font-size: 11px !important;
+  color: #64748b !important;
+  line-height: 1.4 !important;
+}
+
+.activity-view-grid {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 8px !important;
+}
+
+.activity-view-grid-card {
+  background: #f8fafc !important;
+  border: 1px solid #edf2f7 !important;
+  border-radius: 8px !important;
+  padding: 8px 12px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 3px !important;
+}
+
+.activity-view-label {
+  font-size: 9.5px !important;
+  font-weight: 650 !important;
+  color: #64748b !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.3px !important;
+}
+
+.activity-view-val {
+  font-size: 11.5px !important;
+  font-weight: 650 !important;
+  color: #1e293b !important;
+  word-break: break-all !important;
+}
+
+.activity-view-footer {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  padding: 11px 18px !important;
+  border-top: 1px solid #edf2f7 !important;
+  background: #fcfdfe !important;
+}
+
+/* Dark Mode Overrides for Activity Logs Modal */
+.sa-dark-mode .activity-logs-modal,
+.sa-dark-mode .activity-view-modal {
+  background: #151f38 !important;
+  border-color: #233355 !important;
+  box-shadow: 0 24px 65px rgba(0, 0, 0, 0.65) !important;
+}
+
+.sa-dark-mode .activity-view-header,
+.sa-dark-mode .activity-logs-modal > header {
+  background: #151f38 !important;
+  border-bottom-color: #233355 !important;
+}
+
+.sa-dark-mode .activity-view-header-left h2,
+.sa-dark-mode .activity-logs-modal h2 {
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .activity-view-summary,
+.sa-dark-mode .activity-view-grid-card,
+.sa-dark-mode .activity-logs-detail-summary {
+  background: #1b2746 !important;
+  border-color: #28395f !important;
+}
+
+.sa-dark-mode .activity-view-summary h3,
+.sa-dark-mode .activity-view-val,
+.sa-dark-mode .activity-logs-detail-summary h3,
+.sa-dark-mode .activity-logs-detail-row > strong {
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .activity-view-summary p,
+.sa-dark-mode .activity-view-label,
+.sa-dark-mode .activity-logs-detail-row > span {
+  color: #94a3b8 !important;
+}
+
+.sa-dark-mode .activity-view-footer,
+.sa-dark-mode .activity-logs-modal > footer {
+  background: #111a30 !important;
+  border-top-color: #233355 !important;
+}

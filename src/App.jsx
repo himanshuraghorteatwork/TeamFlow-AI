@@ -30,10 +30,22 @@ import SuperAdminLayout from "./component/dashboards/SuperAdmin/SuperAdminLayout
 import SuperAdminDashboard from "./component/dashboards/SuperAdmin/SuperAdminDashboard.jsx";
 import Organizations from "./component/dashboards/SuperAdmin/Organizations.jsx";
 import SuperAdminUsers from "./component/dashboards/SuperAdmin/Users.jsx";
+import Plans from "./component/dashboards/SuperAdmin/Plans.jsx";
+import SuperAdminSubscriptions from "./component/dashboards/SuperAdmin/Subscriptions.jsx";
+import BillingPayments from "./component/dashboards/SuperAdmin/BillingPayments.jsx";
+import Invoices from "./component/dashboards/SuperAdmin/Invoices.jsx";
+import EmailConfig from "./component/dashboards/SuperAdmin/EmailConfig.jsx";
+import EmailTemplates from "./component/dashboards/SuperAdmin/EmailTemplates.jsx";
+import Announcements from "./component/dashboards/SuperAdmin/Announcements.jsx";
+import AIConfiguration from "./component/dashboards/SuperAdmin/AIConfiguration.jsx";
+import AIUsage from "./component/dashboards/SuperAdmin/AIUsage.jsx";
 import SuperAdminAnalytics from "./component/dashboards/SuperAdmin/Analytics.jsx";
 import ActivityLogs from "./component/dashboards/SuperAdmin/ActivityLogs.jsx";
+import SystemHealth from "./component/dashboards/SuperAdmin/SystemHealth.jsx";
+import Security from "./component/dashboards/SuperAdmin/Security.jsx";
 import SuperAdminSettings from "./component/dashboards/SuperAdmin/Settings.jsx";
-import SuperAdminSubscriptions from "./component/dashboards/SuperAdmin/Subscriptions.jsx";
+import HelpSupport from "./component/dashboards/SuperAdmin/HelpSupport.jsx";
+import RolesPermissions from "./component/dashboards/SuperAdmin/RolesPermissions.jsx";
 
 /* ADMIN */
 import AdminDashboard from "./component/dashboards/Admin/AdminDashboard.jsx";
@@ -78,10 +90,22 @@ function App() {
         <Route path="dashboard" element={<SuperAdminDashboard />} />
         <Route path="organizations" element={<Organizations />} />
         <Route path="users" element={<SuperAdminUsers />} />
+        <Route path="roles" element={<RolesPermissions />} />
+        <Route path="plans" element={<Plans />} />
+        <Route path="subscriptions" element={<SuperAdminSubscriptions />} />
+        <Route path="billing" element={<BillingPayments />} />
+        <Route path="invoices" element={<Invoices />} />
+        <Route path="email" element={<EmailConfig />} />
+        <Route path="email-templates" element={<EmailTemplates />} />
+        <Route path="announcements" element={<Announcements />} />
+        <Route path="help-support" element={<HelpSupport />} />
+        <Route path="ai-configuration" element={<AIConfiguration />} />
+        <Route path="ai-usage" element={<AIUsage />} />
         <Route path="analytics" element={<SuperAdminAnalytics />} />
         <Route path="activity-logs" element={<ActivityLogs />} />
+        <Route path="system-health" element={<SystemHealth />} />
+        <Route path="security" element={<Security />} />
         <Route path="settings" element={<SuperAdminSettings />} />
-        <Route path="subscriptions" element={<SuperAdminSubscriptions />} />
       </Route>
 
       {/* ADMIN ROUTES */}

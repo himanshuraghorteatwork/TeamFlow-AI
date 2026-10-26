@@ -1,5 +1,7 @@
 
 import { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
+import { useSearchParams } from "react-router-dom";
 import {
   Building2,
   Plus,
@@ -22,7 +24,9 @@ import {
   AlertCircle,
   ShieldCheck,
   Sparkles,
+  Trash2,
 } from "lucide-react";
+import "./SuperAdminCommon.css";
 import "./Organizations.css";
 
 const STORAGE_KEY = "teamflow_superadmin_organizations";
@@ -51,19 +55,31 @@ const emptyForm = {
 };
 
 const makeInitials = (name = "") =>
-  name.trim().split(/\s+/).slice(0, 2).map((part) => part[0]?.toUpperCase() || "").join("");
+  name
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() || "")
+    .join("");
 
 const formatDate = (value) => {
   if (!value) return "—";
+
   const date = new Date(`${value}T00:00:00`);
+
   return Number.isNaN(date.getTime())
     ? "—"
-    : date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+    : date.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      });
 };
 
 function readOrganizations() {
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
+
     if (saved) {
       const parsed = JSON.parse(saved);
       if (Array.isArray(parsed)) return parsed;
@@ -71,12 +87,17 @@ function readOrganizations() {
   } catch (error) {
     console.error("Unable to read demo organizations:", error);
   }
+
   return initialOrganizations;
 }
 
 function Organizations() {
+  const [searchParams, setSearchParams] = useSearchParams();
+
   const [organizations, setOrganizations] = useState(readOrganizations);
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(
+    () => searchParams.get("search") || ""
+  );
   const [statusFilter, setStatusFilter] = useState("All");
   const [planFilter, setPlanFilter] = useState("All");
   const [currentPage, setCurrentPage] = useState(1);
@@ -85,9 +106,12 @@ function Organizations() {
   const [form, setForm] = useState(emptyForm);
   const [formError, setFormError] = useState("");
   const [toast, setToast] = useState("");
+  const [resetConfirmOpen, setResetConfirmOpen] = useState(false);
+  const [deleteConfirmOrg, setDeleteConfirmOrg] = useState(null);
 
   const pageSize = 6;
 
+  // Persist demo data in this browser.
   useEffect(() => {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(organizations));
@@ -96,23 +120,37 @@ function Organizations() {
     }
   }, [organizations]);
 
+  // Clear success messages automatically.
   useEffect(() => {
     if (!toast) return undefined;
+
     const timer = window.setTimeout(() => setToast(""), 3200);
     return () => window.clearTimeout(timer);
   }, [toast]);
 
+  // Synchronize the topbar search URL with the table search.
   useEffect(() => {
-    if (!modal) return undefined;
+    const urlSearch = searchParams.get("search") || "";
+    setSearch((current) => (current === urlSearch ? current : urlSearch));
+    setCurrentPage(1);
+  }, [searchParams]);
+
+  // Close dialogs using Escape.
+  useEffect(() => {
+    if (!modal && !resetConfirmOpen && !deleteConfirmOrg) return undefined;
+
     const handleKeyDown = (event) => {
       if (event.key === "Escape") {
         setModal(null);
         setFormError("");
+        setResetConfirmOpen(false);
+        setDeleteConfirmOrg(null);
       }
     };
+
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [modal]);
+  }, [modal, resetConfirmOpen, deleteConfirmOrg]);
 
   const filteredOrganizations = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -120,28 +158,71 @@ function Organizations() {
     return organizations.filter((org) => {
       const matchesSearch =
         !query ||
-        [org.name, org.email, org.domain, org.id].some((value) =>
-          String(value || "").toLowerCase().includes(query)
+        [org.name, org.email, org.domain, org.id, org.plan, org.status].some(
+          (value) => String(value || "").toLowerCase().includes(query)
         );
-      const matchesStatus = statusFilter === "All" || org.status === statusFilter;
+
+      const matchesStatus =
+        statusFilter === "All" || org.status === statusFilter;
+
       const matchesPlan = planFilter === "All" || org.plan === planFilter;
+
       return matchesSearch && matchesStatus && matchesPlan;
     });
   }, [organizations, search, statusFilter, planFilter]);
 
-  const totalPages = Math.max(1, Math.ceil(filteredOrganizations.length / pageSize));
+  const totalPages = Math.max(
+    1,
+    Math.ceil(filteredOrganizations.length / pageSize)
+  );
   const safePage = Math.min(currentPage, totalPages);
+
   const paginatedOrganizations = filteredOrganizations.slice(
     (safePage - 1) * pageSize,
     safePage * pageSize
   );
 
-  const activeCount = organizations.filter((org) => org.status === "Active").length;
-  const pendingCount = organizations.filter((org) => org.status === "Pending").length;
-  const suspendedCount = organizations.filter((org) => org.status === "Suspended").length;
-  const totalUsers = organizations.reduce((sum, org) => sum + (Number(org.users) || 0), 0);
+  const activeCount = organizations.filter(
+    (org) => org.status === "Active"
+  ).length;
+
+  const pendingCount = organizations.filter(
+    (org) => org.status === "Pending"
+  ).length;
+
+  const suspendedCount = organizations.filter(
+    (org) => org.status === "Suspended"
+  ).length;
+
+  const totalUsers = organizations.reduce(
+    (sum, org) => sum + (Number(org.users) || 0),
+    0
+  );
 
   const notify = (message) => setToast(message);
+
+  const updateSearch = (value) => {
+    setSearch(value);
+    setCurrentPage(1);
+
+    const next = new URLSearchParams(searchParams);
+
+    if (value.trim()) {
+      next.set("search", value);
+    } else {
+      next.delete("search");
+    }
+
+    setSearchParams(next, { replace: true });
+  };
+
+  const clearFilters = () => {
+    setSearch("");
+    setStatusFilter("All");
+    setPlanFilter("All");
+    setCurrentPage(1);
+    setSearchParams({}, { replace: true });
+  };
 
   const openAddModal = () => {
     setForm(emptyForm);
@@ -158,13 +239,17 @@ function Organizations() {
       plan: org.plan,
       status: org.status,
     });
+
     setFormError("");
     setMenuId(null);
     setModal({ mode: "edit", organization: org });
   };
 
   const handleFormChange = (event) => {
-    setForm((previous) => ({ ...previous, [event.target.name]: event.target.value }));
+    setForm((previous) => ({
+      ...previous,
+      [event.target.name]: event.target.value,
+    }));
   };
 
   const handleSave = (event) => {
@@ -173,7 +258,11 @@ function Organizations() {
 
     const name = form.name.trim();
     const email = form.email.trim().toLowerCase();
-    const domain = form.domain.trim().toLowerCase().replace(/^https?:\/\//, "").replace(/\/.*$/, "");
+    const domain = form.domain
+      .trim()
+      .toLowerCase()
+      .replace(/^https?:\/\//, "")
+      .replace(/\/.*$/, "");
 
     if (!name || !email || !domain) {
       setFormError("Please complete all required fields.");
@@ -185,21 +274,29 @@ function Organizations() {
       return;
     }
 
-    if (!/^(?=.{1,253}$)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$/i.test(domain)) {
+    if (
+      !/^(?=.{1,253}$)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$/i.test(
+        domain
+      )
+    ) {
       setFormError("Enter a valid domain, such as example.com.");
       return;
     }
 
     const editingId = modal.mode === "edit" ? modal.organization.id : null;
-    const duplicate = organizations.some((org) =>
-      org.id !== editingId &&
-      (org.name.toLowerCase() === name.toLowerCase() ||
-        org.email.toLowerCase() === email ||
-        org.domain.toLowerCase() === domain)
+
+    const duplicate = organizations.some(
+      (org) =>
+        org.id !== editingId &&
+        (org.name.toLowerCase() === name.toLowerCase() ||
+          org.email.toLowerCase() === email ||
+          org.domain.toLowerCase() === domain)
     );
 
     if (duplicate) {
-      setFormError("An organization with this name, email, or domain already exists.");
+      setFormError(
+        "An organization with this name, email, or domain already exists."
+      );
       return;
     }
 
@@ -207,10 +304,19 @@ function Organizations() {
       setOrganizations((previous) =>
         previous.map((org) =>
           org.id === editingId
-            ? { ...org, name, email, domain, plan: form.plan, status: form.status, initials: makeInitials(name) }
+            ? {
+                ...org,
+                name,
+                email,
+                domain,
+                plan: form.plan,
+                status: form.status,
+                initials: makeInitials(name),
+              }
             : org
         )
       );
+
       notify(`${name} was updated in demo data.`);
     } else {
       const newOrg = {
@@ -225,11 +331,9 @@ function Organizations() {
         initials: makeInitials(name),
         color: colors[organizations.length % colors.length],
       };
+
       setOrganizations((previous) => [newOrg, ...previous]);
-      setSearch("");
-      setStatusFilter("All");
-      setPlanFilter("All");
-      setCurrentPage(1);
+      clearFilters();
       notify(`${name} was added to the demo organization list.`);
     }
 
@@ -239,40 +343,90 @@ function Organizations() {
 
   const toggleStatus = (org) => {
     const nextStatus = org.status === "Suspended" ? "Active" : "Suspended";
+
     setOrganizations((previous) =>
-      previous.map((item) => item.id === org.id ? { ...item, status: nextStatus } : item)
+      previous.map((item) =>
+        item.id === org.id ? { ...item, status: nextStatus } : item
+      )
     );
+
     setMenuId(null);
-    notify(`${org.name} is now marked ${nextStatus.toLowerCase()} in demo data.`);
+    notify(`${org.name} is now marked ${nextStatus.toLowerCase()}.`);
+  };
+
+  const confirmDeleteOrganization = () => {
+    if (!deleteConfirmOrg) return;
+
+    const name = deleteConfirmOrg.name;
+
+    setOrganizations((previous) =>
+      previous.filter((org) => org.id !== deleteConfirmOrg.id)
+    );
+
+    setDeleteConfirmOrg(null);
+    setMenuId(null);
+    notify(`${name} was removed from demo data.`);
   };
 
   const exportOrganizations = () => {
-    const headers = ["Organization ID", "Organization Name", "Contact Email", "Domain", "Plan", "Users", "Status", "Created At"];
+    const headers = [
+      "Organization ID",
+      "Organization Name",
+      "Contact Email",
+      "Domain",
+      "Plan",
+      "Users",
+      "Status",
+      "Created At",
+    ];
+
     const rows = filteredOrganizations.map((org) => [
-      org.id, org.name, org.email, org.domain, org.plan, org.users, org.status, org.createdAt,
+      org.id,
+      org.name,
+      org.email,
+      org.domain,
+      org.plan,
+      org.users,
+      org.status,
+      org.createdAt,
     ]);
-    const escapeCsv = (value) => `"${String(value ?? "").replace(/"/g, '""')}"`;
-    const csv = [headers, ...rows].map((row) => row.map(escapeCsv).join(",")).join("\r\n");
-    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+
+    const escapeCsv = (value) =>
+      `"${String(value ?? "").replace(/"/g, '""')}"`;
+
+    const csv = [headers, ...rows]
+      .map((row) => row.map(escapeCsv).join(","))
+      .join("\r\n");
+
+    const blob = new Blob(["\uFEFF" + csv], {
+      type: "text/csv;charset=utf-8;",
+    });
+
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement("a");
+
     anchor.href = url;
     anchor.download = "teamflow-organizations-demo.csv";
     document.body.appendChild(anchor);
     anchor.click();
     anchor.remove();
     URL.revokeObjectURL(url);
+
     notify("Organization CSV export started.");
   };
 
   const resetDemoData = () => {
-    if (!window.confirm("Reset organizations to the original sample data? Locally added demo organizations will be removed.")) return;
+    setMenuId(null);
+    setResetConfirmOpen(true);
+  };
+
+  const confirmResetDemoData = () => {
     setOrganizations(initialOrganizations);
-    setSearch("");
-    setStatusFilter("All");
-    setPlanFilter("All");
+    clearFilters();
     setCurrentPage(1);
     setMenuId(null);
+    setResetConfirmOpen(false);
+
     notify("Organization demo data has been reset.");
   };
 
@@ -280,22 +434,35 @@ function Organizations() {
     <main className="org-page" onClick={() => menuId && setMenuId(null)}>
       <header className="org-page-header">
         <div className="org-header-copy">
-          <div className="org-breadcrumb">
-            <span>Platform Management</span><span className="org-breadcrumb-separator">/</span><strong>Organizations</strong>
-          </div>
           <div className="org-title-row">
             <div>
               <h1>Organizations</h1>
-              <p>Manage the organizations registered on your TeamFlow AI platform.</p>
+              <p>
+                Manage the organizations registered on your TeamFlow AI
+                platform.
+              </p>
             </div>
-            <span className="org-demo-badge"><span /> Demo environment</span>
+
+            <span className="org-demo-badge">
+              <span /> Demo environment
+            </span>
           </div>
         </div>
+
         <div className="org-header-actions">
-          <button type="button" className="org-button org-button-secondary" onClick={exportOrganizations}>
+          <button
+            type="button"
+            className="org-button org-button-secondary"
+            onClick={exportOrganizations}
+          >
             <Download size={16} /> Export CSV
           </button>
-          <button type="button" className="org-button org-button-primary" onClick={openAddModal}>
+
+          <button
+            type="button"
+            className="org-button org-button-primary"
+            onClick={openAddModal}
+          >
             <Plus size={17} /> Add organization
           </button>
         </div>
@@ -305,88 +472,269 @@ function Organizations() {
         <div className="org-toast" role="status">
           <CheckCircle2 size={18} />
           <span>{toast}</span>
-          <button type="button" aria-label="Dismiss message" onClick={() => setToast("")}><X size={16} /></button>
+          <button
+            type="button"
+            aria-label="Dismiss message"
+            onClick={() => setToast("")}
+          >
+            <X size={16} />
+          </button>
         </div>
       )}
 
       <section className="org-stats-grid" aria-label="Organization statistics">
         <article className="org-stat-card">
-          <div className="org-stat-top"><span className="org-stat-icon purple"><Building2 size={20} /></span><span className="org-stat-caption">Directory</span></div>
-          <p>Total organizations</p><strong>{organizations.length.toLocaleString("en-US")}</strong>
+          <div className="org-stat-top">
+            <span className="org-stat-icon purple">
+              <Building2 size={20} />
+            </span>
+            <span className="org-stat-caption">Directory</span>
+          </div>
+          <p>Total organizations</p>
+          <strong>{organizations.length.toLocaleString("en-US")}</strong>
           <span className="org-stat-foot">Organizations in demo data</span>
         </article>
+
         <article className="org-stat-card">
-          <div className="org-stat-top"><span className="org-stat-icon green"><CheckCircle2 size={20} /></span><span className="org-stat-caption">Operational</span></div>
-          <p>Active organizations</p><strong>{activeCount.toLocaleString("en-US")}</strong>
+          <div className="org-stat-top">
+            <span className="org-stat-icon green">
+              <CheckCircle2 size={20} />
+            </span>
+            <span className="org-stat-caption">Operational</span>
+          </div>
+          <p>Active organizations</p>
+          <strong>{activeCount.toLocaleString("en-US")}</strong>
           <span className="org-stat-foot">Currently marked active</span>
         </article>
+
         <article className="org-stat-card">
-          <div className="org-stat-top"><span className="org-stat-icon orange"><CalendarDays size={20} /></span><span className="org-stat-caption">Review</span></div>
-          <p>Pending organizations</p><strong>{pendingCount.toLocaleString("en-US")}</strong>
+          <div className="org-stat-top">
+            <span className="org-stat-icon orange">
+              <CalendarDays size={20} />
+            </span>
+            <span className="org-stat-caption">Review</span>
+          </div>
+          <p>Pending organizations</p>
+          <strong>{pendingCount.toLocaleString("en-US")}</strong>
           <span className="org-stat-foot">Awaiting review in demo data</span>
         </article>
+
         <article className="org-stat-card">
-          <div className="org-stat-top"><span className="org-stat-icon blue"><Users size={20} /></span><span className="org-stat-caption">Platform reach</span></div>
-          <p>Total organization users</p><strong>{totalUsers.toLocaleString("en-US")}</strong>
-          <span className="org-stat-foot">{suspendedCount} suspended organizations</span>
+          <div className="org-stat-top">
+            <span className="org-stat-icon blue">
+              <Users size={20} />
+            </span>
+            <span className="org-stat-caption">Platform reach</span>
+          </div>
+          <p>Total organization users</p>
+          <strong>{totalUsers.toLocaleString("en-US")}</strong>
+          <span className="org-stat-foot">
+            {suspendedCount} suspended organizations
+          </span>
         </article>
       </section>
 
       <section className="org-table-panel">
         <div className="org-table-heading">
           <div>
-            <div className="org-section-kicker"><Sparkles size={14} /> ORGANIZATION DIRECTORY</div>
-            <h2>All organizations <span className="org-count-pill">{filteredOrganizations.length}</span></h2>
-            <p>Review accounts, manage subscriptions, and update organization status.</p>
+            <div className="org-section-kicker">
+              <Sparkles size={14} /> ORGANIZATION DIRECTORY
+            </div>
+            <h2>
+              All organizations{" "}
+              <span className="org-count-pill">
+                {filteredOrganizations.length}
+              </span>
+            </h2>
+            <p>
+              Review accounts, manage subscriptions, and update organization
+              status.
+            </p>
           </div>
-          <button type="button" className="org-reset-button" onClick={resetDemoData}><RotateCcw size={15} /> Reset demo data</button>
+
+          <button
+            type="button"
+            className="org-reset-button"
+            onClick={resetDemoData}
+          >
+            <RotateCcw size={15} /> Reset demo data
+          </button>
         </div>
 
         <div className="org-toolbar">
           <label className="org-search">
             <Search size={18} />
-            <input type="search" placeholder="Search name, email, domain or ID..." value={search} onChange={(event) => { setSearch(event.target.value); setCurrentPage(1); }} aria-label="Search organizations" />
-            {search && <button type="button" aria-label="Clear search" onClick={() => setSearch("")}><X size={15} /></button>}
+
+            <input
+              type="search"
+              placeholder="Search name, email, domain or ID..."
+              value={search}
+              onChange={(event) => updateSearch(event.target.value)}
+              aria-label="Search organizations"
+            />
+
+            {search && (
+              <button
+                type="button"
+                aria-label="Clear search"
+                onClick={() => updateSearch("")}
+              >
+                <X size={15} />
+              </button>
+            )}
           </label>
+
           <label className="org-filter">
             <SlidersHorizontal size={16} />
-            <select value={statusFilter} onChange={(event) => { setStatusFilter(event.target.value); setCurrentPage(1); }} aria-label="Filter by status">
-              <option value="All">All statuses</option><option value="Active">Active</option><option value="Pending">Pending</option><option value="Suspended">Suspended</option>
+            <select
+              value={statusFilter}
+              onChange={(event) => {
+                setStatusFilter(event.target.value);
+                setCurrentPage(1);
+              }}
+              aria-label="Filter by status"
+            >
+              <option value="All">All statuses</option>
+              <option value="Active">Active</option>
+              <option value="Pending">Pending</option>
+              <option value="Suspended">Suspended</option>
             </select>
           </label>
+
           <label className="org-filter">
-            <select value={planFilter} onChange={(event) => { setPlanFilter(event.target.value); setCurrentPage(1); }} aria-label="Filter by subscription plan">
-              <option value="All">All plans</option><option value="Starter">Starter</option><option value="Professional">Professional</option><option value="Enterprise">Enterprise</option>
+            <select
+              value={planFilter}
+              onChange={(event) => {
+                setPlanFilter(event.target.value);
+                setCurrentPage(1);
+              }}
+              aria-label="Filter by subscription plan"
+            >
+              <option value="All">All plans</option>
+              <option value="Starter">Starter</option>
+              <option value="Professional">Professional</option>
+              <option value="Enterprise">Enterprise</option>
             </select>
           </label>
         </div>
 
         <div className="org-table-scroll">
           <table className="org-table">
-            <thead><tr><th>ORGANIZATION</th><th>SUBSCRIPTION</th><th>USERS</th><th>STATUS</th><th>CREATED</th><th><span className="org-sr-only">Actions</span></th></tr></thead>
+            <thead>
+              <tr>
+                <th>ORGANIZATION</th>
+                <th>SUBSCRIPTION</th>
+                <th>USERS</th>
+                <th>STATUS</th>
+                <th>CREATED</th>
+                <th>
+                  <span className="org-sr-only">Actions</span>
+                </th>
+              </tr>
+            </thead>
+
             <tbody>
               {paginatedOrganizations.map((org) => (
                 <tr key={org.id}>
                   <td>
                     <div className="org-name-cell">
-                      <div className={`org-avatar ${org.color}`}>{org.initials || makeInitials(org.name)}</div>
-                      <div className="org-name-info"><strong>{org.name}</strong><span>{org.email}</span><small>{org.id}</small></div>
+                      <div className={`org-avatar ${org.color}`}>
+                        {org.initials || makeInitials(org.name)}
+                      </div>
+                      <div className="org-name-info">
+                        <strong>{org.name}</strong>
+                        <span>{org.email}</span>
+                        <small>{org.id}</small>
+                      </div>
                     </div>
                   </td>
-                  <td><span className={`org-plan-tag ${org.plan.toLowerCase()}`}>{org.plan}</span></td>
-                  <td><span className="org-user-count"><Users size={14} />{Number(org.users || 0).toLocaleString("en-US")}</span></td>
-                  <td><span className={`org-status-tag ${org.status.toLowerCase()}`}><span />{org.status}</span></td>
-                  <td className="org-date-cell">{formatDate(org.createdAt)}</td>
+
                   <td>
-                    <div className="org-row-menu-wrap" onClick={(event) => event.stopPropagation()}>
-                      <button type="button" className="org-row-menu-trigger" aria-label={`Actions for ${org.name}`} aria-expanded={menuId === org.id} onClick={() => setMenuId((current) => current === org.id ? null : org.id)}><MoreHorizontal size={19} /></button>
+                    <span className={`org-plan-tag ${org.plan.toLowerCase()}`}>
+                      {org.plan}
+                    </span>
+                  </td>
+
+                  <td>
+                    <span className="org-user-count">
+                      <Users size={14} />
+                      {Number(org.users || 0).toLocaleString("en-US")}
+                    </span>
+                  </td>
+
+                  <td>
+                    <span className={`org-status-tag ${org.status.toLowerCase()}`}>
+                      <span />
+                      {org.status}
+                    </span>
+                  </td>
+
+                  <td className="org-date-cell">{formatDate(org.createdAt)}</td>
+
+                  <td>
+                    <div
+                      className="org-row-menu-wrap"
+                      onClick={(event) => event.stopPropagation()}
+                    >
+                      <button
+                        type="button"
+                        className="org-row-menu-trigger"
+                        aria-label={`Actions for ${org.name}`}
+                        aria-expanded={menuId === org.id}
+                        onClick={() =>
+                          setMenuId((current) =>
+                            current === org.id ? null : org.id
+                          )
+                        }
+                      >
+                        <MoreHorizontal size={19} />
+                      </button>
+
                       {menuId === org.id && (
                         <div className="org-row-menu">
-                          <button type="button" onClick={() => { setModal({ mode: "view", organization: org }); setMenuId(null); }}><Eye size={15} /> View details</button>
-                          <button type="button" onClick={() => openEditModal(org)}><Pencil size={15} /> Edit organization</button>
-                          <button type="button" className={org.status === "Suspended" ? "org-menu-activate" : "org-menu-danger"} onClick={() => toggleStatus(org)}>
-                            {org.status === "Suspended" ? <CheckCircle2 size={15} /> : <Ban size={15} />}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setModal({ mode: "view", organization: org });
+                              setMenuId(null);
+                            }}
+                          >
+                            <Eye size={15} /> View details
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => openEditModal(org)}
+                          >
+                            <Pencil size={15} /> Edit organization
+                          </button>
+
+                          <button
+                            type="button"
+                            className={
+                              org.status === "Suspended"
+                                ? "org-menu-activate"
+                                : "org-menu-danger"
+                            }
+                            onClick={() => toggleStatus(org)}
+                          >
+                            {org.status === "Suspended" ? (
+                              <CheckCircle2 size={15} />
+                            ) : (
+                              <Ban size={15} />
+                            )}
                             {org.status === "Suspended" ? "Reactivate" : "Suspend"}
+                          </button>
+
+                          <button
+                            type="button"
+                            className="org-menu-danger"
+                            onClick={() => {
+                              setDeleteConfirmOrg(org);
+                              setMenuId(null);
+                            }}
+                          >
+                            <Trash2 size={15} /> Delete organization
                           </button>
                         </div>
                       )}
@@ -394,63 +742,398 @@ function Organizations() {
                   </td>
                 </tr>
               ))}
+
               {paginatedOrganizations.length === 0 && (
-                <tr><td colSpan={6}>
-                  <div className="org-empty-state"><div><Search size={23} /></div><strong>No organizations found</strong><p>Try changing your search or filter selections.</p><button type="button" onClick={() => { setSearch(""); setStatusFilter("All"); setPlanFilter("All"); }}>Clear all filters</button></div>
-                </td></tr>
+                <tr>
+                  <td colSpan={6}>
+                    <div className="org-empty-state">
+                      <div>
+                        <Search size={23} />
+                      </div>
+                      <strong>No organizations found</strong>
+                      <p>Try changing your search or filter selections.</p>
+                      <button type="button" onClick={clearFilters}>
+                        Clear all filters
+                      </button>
+                    </div>
+                  </td>
+                </tr>
               )}
             </tbody>
           </table>
         </div>
 
         <footer className="org-table-footer">
-          <span>Showing {filteredOrganizations.length ? (safePage - 1) * pageSize + 1 : 0}–{Math.min(safePage * pageSize, filteredOrganizations.length)} of {filteredOrganizations.length} organizations</span>
+          <span>
+            Showing{" "}
+            {filteredOrganizations.length ? (safePage - 1) * pageSize + 1 : 0}
+            –{Math.min(safePage * pageSize, filteredOrganizations.length)} of{" "}
+            {filteredOrganizations.length} organizations
+          </span>
+
           <div className="org-pagination">
-            <button type="button" aria-label="Previous page" disabled={safePage <= 1} onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}><ChevronLeft size={17} /></button>
-            <span>Page {safePage} of {totalPages}</span>
-            <button type="button" aria-label="Next page" disabled={safePage >= totalPages} onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}><ChevronRight size={17} /></button>
+            <button
+              type="button"
+              aria-label="Previous page"
+              disabled={safePage <= 1}
+              onClick={() =>
+                setCurrentPage((page) => Math.max(1, page - 1))
+              }
+            >
+              <ChevronLeft size={17} />
+            </button>
+
+            <span>
+              Page {safePage} of {totalPages}
+            </span>
+
+            <button
+              type="button"
+              aria-label="Next page"
+              disabled={safePage >= totalPages}
+              onClick={() =>
+                setCurrentPage((page) => Math.min(totalPages, page + 1))
+              }
+            >
+              <ChevronRight size={17} />
+            </button>
           </div>
         </footer>
       </section>
 
-      <div className="org-demo-note"><ShieldCheck size={16} /><span><strong>Demo mode:</strong> organization changes are saved in this browser only. Connect your API to manage real organizations.</span></div>
+      <div className="org-demo-note">
+        <ShieldCheck size={16} />
+        <span>
+          <strong>Demo mode:</strong> organization changes are saved in this
+          browser only. Connect your API to manage real organizations.
+        </span>
+      </div>
 
-      {modal && (
-        <div className="org-modal-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) { setModal(null); setFormError(""); } }}>
-          <section className={`org-modal ${modal.mode === "view" ? "org-details-modal" : ""}`} role="dialog" aria-modal="true" aria-labelledby="org-modal-title">
+      {modal && typeof document !== "undefined" && createPortal(
+        <div
+          className="org-modal-backdrop"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) {
+              setModal(null);
+              setFormError("");
+            }
+          }}
+        >
+          <section
+            className={`org-modal ${
+              modal.mode === "view" ? "org-details-modal" : ""
+            }`}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="org-modal-title"
+          >
             <header className="org-modal-header">
-              <div className="org-modal-title-icon">{modal.mode === "view" ? <Building2 size={22} /> : modal.mode === "edit" ? <Pencil size={22} /> : <Plus size={22} />}</div>
-              <div><h2 id="org-modal-title">{modal.mode === "view" ? "Organization details" : modal.mode === "edit" ? "Edit organization" : "Add organization"}</h2><p>{modal.mode === "view" ? "Review account information and subscription status." : "Enter the details for this organization."}</p></div>
-              <button type="button" className="org-modal-close" aria-label="Close dialog" onClick={() => { setModal(null); setFormError(""); }}><X size={19} /></button>
+              <div className="org-modal-title-icon">
+                {modal.mode === "view" ? (
+                  <Building2 size={22} />
+                ) : modal.mode === "edit" ? (
+                  <Pencil size={22} />
+                ) : (
+                  <Plus size={22} />
+                )}
+              </div>
+
+              <div>
+                <h2 id="org-modal-title">
+                  {modal.mode === "view"
+                    ? "Organization details"
+                    : modal.mode === "edit"
+                      ? "Edit organization"
+                      : "Add organization"}
+                </h2>
+                <p>
+                  {modal.mode === "view"
+                    ? "Review account information and subscription status."
+                    : "Enter the details for this organization."}
+                </p>
+              </div>
+
+              <button
+                type="button"
+                className="org-modal-close"
+                aria-label="Close dialog"
+                onClick={() => {
+                  setModal(null);
+                  setFormError("");
+                }}
+              >
+                <X size={19} />
+              </button>
             </header>
 
             {modal.mode === "view" ? (
               <div className="org-details-content">
-                <div className="org-details-identity"><div className={`org-avatar org-avatar-large ${modal.organization.color}`}>{modal.organization.initials || makeInitials(modal.organization.name)}</div><div><h3>{modal.organization.name}</h3><span>{modal.organization.id}</span></div><span className={`org-status-tag ${modal.organization.status.toLowerCase()}`}><span />{modal.organization.status}</span></div>
-                <div className="org-details-grid">
-                  <div className="org-detail-item"><span><Mail size={15} /> Contact email</span><strong>{modal.organization.email}</strong></div>
-                  <div className="org-detail-item"><span><Globe size={15} /> Domain</span><strong>{modal.organization.domain}</strong></div>
-                  <div className="org-detail-item"><span><ShieldCheck size={15} /> Subscription plan</span><strong>{modal.organization.plan}</strong></div>
-                  <div className="org-detail-item"><span><Users size={15} /> Registered users</span><strong>{Number(modal.organization.users || 0).toLocaleString("en-US")}</strong></div>
-                  <div className="org-detail-item"><span><CalendarDays size={15} /> Created on</span><strong>{formatDate(modal.organization.createdAt)}</strong></div>
+                <div className="org-details-identity">
+                  <div
+                    className={`org-avatar org-avatar-large ${modal.organization.color}`}
+                  >
+                    {makeInitials(modal.organization.name)}
+                  </div>
+
+                  <div>
+                    <h3>{modal.organization.name}</h3>
+                    <span>{modal.organization.id}</span>
+                  </div>
+
+                  <span
+                    className={`org-status-tag ${modal.organization.status.toLowerCase()}`}
+                  >
+                    <span />
+                    {modal.organization.status}
+                  </span>
                 </div>
-                <div className="org-modal-actions"><button type="button" className="org-button org-button-secondary" onClick={() => setModal(null)}>Close</button><button type="button" className="org-button org-button-primary" onClick={() => openEditModal(modal.organization)}><Pencil size={15} /> Edit organization</button></div>
+
+                <div className="org-details-grid">
+                  <div className="org-detail-item">
+                    <span><Mail size={15} /> Contact email</span>
+                    <strong>{modal.organization.email}</strong>
+                  </div>
+
+                  <div className="org-detail-item">
+                    <span><Globe size={15} /> Domain</span>
+                    <strong>{modal.organization.domain}</strong>
+                  </div>
+
+                  <div className="org-detail-item">
+                    <span><ShieldCheck size={15} /> Subscription plan</span>
+                    <strong>{modal.organization.plan}</strong>
+                  </div>
+
+                  <div className="org-detail-item">
+                    <span><Users size={15} /> Registered users</span>
+                    <strong>
+                      {Number(modal.organization.users || 0).toLocaleString("en-US")}
+                    </strong>
+                  </div>
+
+                  <div className="org-detail-item">
+                    <span><CalendarDays size={15} /> Created on</span>
+                    <strong>{formatDate(modal.organization.createdAt)}</strong>
+                  </div>
+                </div>
+
+                <div className="org-modal-actions">
+                  <button
+                    type="button"
+                    className="org-button org-button-secondary"
+                    onClick={() => setModal(null)}
+                  >
+                    Close
+                  </button>
+
+                  <button
+                    type="button"
+                    className="org-button org-button-primary"
+                    onClick={() => openEditModal(modal.organization)}
+                  >
+                    <Pencil size={15} /> Edit organization
+                  </button>
+                </div>
               </div>
             ) : (
               <form onSubmit={handleSave}>
-                {formError && <div className="org-form-error" role="alert"><AlertCircle size={16} />{formError}</div>}
+                {formError && (
+                  <div className="org-form-error" role="alert">
+                    <AlertCircle size={16} />
+                    {formError}
+                  </div>
+                )}
+
                 <div className="org-form-grid">
-                  <label className="org-form-field org-form-full"><span>Organization name <b>*</b></span><input name="name" value={form.name} onChange={handleFormChange} placeholder="e.g. Acme Corporation" maxLength={100} required autoFocus /></label>
-                  <label className="org-form-field"><span>Contact email <b>*</b></span><input name="email" type="email" value={form.email} onChange={handleFormChange} placeholder="admin@example.com" maxLength={150} required /></label>
-                  <label className="org-form-field"><span>Website domain <b>*</b></span><input name="domain" value={form.domain} onChange={handleFormChange} placeholder="example.com" maxLength={253} required /></label>
-                  <label className="org-form-field"><span>Subscription plan</span><select name="plan" value={form.plan} onChange={handleFormChange}><option>Starter</option><option>Professional</option><option>Enterprise</option></select></label>
-                  <label className="org-form-field"><span>Organization status</span><select name="status" value={form.status} onChange={handleFormChange}><option>Active</option><option>Pending</option><option>Suspended</option></select></label>
+                  <label className="org-form-field org-form-full">
+                    <span>Organization name <b>*</b></span>
+                    <input
+                      name="name"
+                      value={form.name}
+                      onChange={handleFormChange}
+                      placeholder="e.g. Acme Corporation"
+                      maxLength={100}
+                      required
+                      autoFocus
+                    />
+                  </label>
+
+                  <label className="org-form-field">
+                    <span>Contact email <b>*</b></span>
+                    <input
+                      name="email"
+                      type="email"
+                      value={form.email}
+                      onChange={handleFormChange}
+                      placeholder="admin@example.com"
+                      maxLength={150}
+                      required
+                    />
+                  </label>
+
+                  <label className="org-form-field">
+                    <span>Website domain <b>*</b></span>
+                    <input
+                      name="domain"
+                      value={form.domain}
+                      onChange={handleFormChange}
+                      placeholder="example.com"
+                      maxLength={253}
+                      required
+                    />
+                  </label>
+
+                  <label className="org-form-field">
+                    <span>Subscription plan</span>
+                    <select
+                      name="plan"
+                      value={form.plan}
+                      onChange={handleFormChange}
+                    >
+                      <option>Starter</option>
+                      <option>Professional</option>
+                      <option>Enterprise</option>
+                    </select>
+                  </label>
+
+                  <label className="org-form-field">
+                    <span>Organization status</span>
+                    <select
+                      name="status"
+                      value={form.status}
+                      onChange={handleFormChange}
+                    >
+                      <option>Active</option>
+                      <option>Pending</option>
+                      <option>Suspended</option>
+                    </select>
+                  </label>
                 </div>
-                <div className="org-modal-actions"><button type="button" className="org-button org-button-secondary" onClick={() => { setModal(null); setFormError(""); }}>Cancel</button><button type="submit" className="org-button org-button-primary">{modal.mode === "edit" ? <><CheckCircle2 size={16} /> Save changes</> : <><Plus size={16} /> Add organization</>}</button></div>
+
+                <div className="org-modal-actions">
+                  <button
+                    type="button"
+                    className="org-button org-button-secondary"
+                    onClick={() => {
+                      setModal(null);
+                      setFormError("");
+                    }}
+                  >
+                    Cancel
+                  </button>
+
+                  <button
+                    type="submit"
+                    className="org-button org-button-primary"
+                  >
+                    {modal.mode === "edit" ? (
+                      <><CheckCircle2 size={16} /> Save changes</>
+                    ) : (
+                      <><Plus size={16} /> Add organization</>
+                    )}
+                  </button>
+                </div>
               </form>
             )}
           </section>
-        </div>
+        </div>,
+        document.body
+      )}
+
+      {resetConfirmOpen && typeof document !== "undefined" && createPortal(
+        <div
+          className="org-modal-backdrop org-reset-backdrop"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) {
+              setResetConfirmOpen(false);
+            }
+          }}
+        >
+          <section
+            className="org-modal org-reset-modal"
+            role="alertdialog"
+            aria-modal="true"
+            aria-labelledby="org-reset-title"
+            aria-describedby="org-reset-description"
+          >
+            <div className="org-reset-icon">
+              <RotateCcw size={24} />
+            </div>
+
+            <h2 id="org-reset-title">Reset demo data?</h2>
+            <p id="org-reset-description">
+              This restores the original sample organizations and removes
+              organizations added in this browser. This action cannot be undone.
+            </p>
+
+            <div className="org-reset-actions">
+              <button
+                type="button"
+                className="org-button org-button-secondary"
+                onClick={() => setResetConfirmOpen(false)}
+              >
+                Cancel
+              </button>
+
+              <button
+                type="button"
+                className="org-button org-reset-confirm"
+                onClick={confirmResetDemoData}
+              >
+                Reset data
+              </button>
+            </div>
+          </section>
+        </div>,
+        document.body
+      )}
+
+      {deleteConfirmOrg && typeof document !== "undefined" && createPortal(
+        <div
+          className="org-modal-backdrop org-reset-backdrop"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) {
+              setDeleteConfirmOrg(null);
+            }
+          }}
+        >
+          <section
+            className="org-modal org-reset-modal"
+            role="alertdialog"
+            aria-modal="true"
+            aria-labelledby="org-delete-title"
+          >
+            <div className="org-reset-icon org-delete-icon">
+              <Trash2 size={24} />
+            </div>
+
+            <h2 id="org-delete-title">Delete organization?</h2>
+            <p>
+              Are you sure you want to remove{" "}
+              <strong>{deleteConfirmOrg.name}</strong> from the demo directory?
+              This action cannot be undone.
+            </p>
+
+            <div className="org-reset-actions">
+              <button
+                type="button"
+                className="org-button org-button-secondary"
+                onClick={() => setDeleteConfirmOrg(null)}
+              >
+                Cancel
+              </button>
+
+              <button
+                type="button"
+                className="org-button org-reset-confirm"
+                onClick={confirmDeleteOrganization}
+              >
+                Delete organization
+              </button>
+            </div>
+          </section>
+        </div>,
+        document.body
       )}
     </main>
   );

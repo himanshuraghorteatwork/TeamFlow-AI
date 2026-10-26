@@ -1,0 +1,90 @@
+/* ==========================================================================
+   TEAMFLOW AI — SUPER ADMIN HELP & SUPPORT CSS
+   ========================================================================== */
+
+.sa-support-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sa-tickets-table-card {
+  padding: 18px 20px 14px;
+}
+
+.sa-ticket-modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sa-ticket-tags-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--sa-border-subtle);
+}
+
+.sa-ticket-thread {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 280px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.sa-thread-bubble {
+  padding: 12px 14px;
+  border-radius: var(--sa-radius-md);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sa-thread-bubble.user-bubble {
+  background: #f8fafc;
+  border: 1px solid var(--sa-border);
+  border-left: 3px solid #3b66ff;
+}
+
+.sa-thread-bubble.admin-bubble {
+  background: #eff3fe;
+  border: 1px solid #dbeafe;
+  border-left: 3px solid #10b981;
+}
+
+.sa-bubble-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11.5px;
+}
+
+.sa-bubble-time {
+  color: var(--sa-text-muted);
+}
+
+.sa-bubble-text {
+  margin: 0;
+  font-size: 12.5px;
+  color: var(--sa-text-main);
+  line-height: 1.45;
+}
+
+.sa-ticket-reply-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.sa-reply-actions-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+

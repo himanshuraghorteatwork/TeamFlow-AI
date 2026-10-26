@@ -1,0 +1,120 @@
+/* ==========================================================================
+   TEAMFLOW AI — SUPER ADMIN ANNOUNCEMENTS CSS
+   ========================================================================== */
+
+.sa-announcements-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sa-announcements-list-card {
+  padding: 20px;
+}
+
+.sa-announcements-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.sa-ann-banner-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 16px 20px;
+  border-radius: var(--sa-radius-md);
+  border: 1px solid transparent;
+  background: #ffffff;
+  transition: box-shadow 0.15s ease;
+}
+
+.sa-ann-banner-card:hover {
+  box-shadow: var(--sa-shadow-sm);
+}
+
+.sa-ann-banner-card.info {
+  background: #f0f7ff;
+  border-color: #bfdbfe;
+  color: #1e40af;
+}
+
+.sa-ann-banner-card.warning {
+  background: #fffbeb;
+  border-color: #fde68a;
+  color: #92400e;
+}
+
+.sa-ann-banner-card.emergency {
+  background: #fef2f2;
+  border-color: #fecaca;
+  color: #991b1b;
+}
+
+.sa-ann-banner-card.success {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+  color: #166534;
+}
+
+.sa-ann-banner-icon {
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.sa-ann-banner-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.sa-ann-banner-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 11px;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+}
+
+.sa-ann-type-badge {
+  font-weight: 750;
+  letter-spacing: 0.5px;
+  background: rgba(0, 0, 0, 0.08);
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+
+.sa-ann-target {
+  font-weight: 600;
+}
+
+.sa-ann-schedule,
+.sa-ann-views {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  opacity: 0.85;
+}
+
+.sa-ann-title {
+  margin: 0 0 4px 0;
+  font-size: 14.5px;
+  font-weight: 700;
+  color: inherit;
+}
+
+.sa-ann-desc {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.45;
+  opacity: 0.9;
+}
+
+.sa-ann-banner-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+

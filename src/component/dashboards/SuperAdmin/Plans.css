@@ -1,0 +1,268 @@
+/* ==========================================================================
+   TEAMFLOW AI — SUPER ADMIN PLANS CSS
+   ========================================================================== */
+
+.sa-plans-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sa-billing-toggle {
+  display: inline-flex;
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid var(--sa-border);
+  border-radius: var(--sa-radius-md);
+  padding: 3px;
+  gap: 2px;
+}
+
+.sa-billing-tab {
+  border: 0;
+  background: transparent;
+  padding: 6px 12px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 550;
+  color: var(--sa-text-muted);
+  border-radius: var(--sa-radius-sm);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.sa-billing-tab.is-active {
+  background: var(--sa-primary);
+  color: #ffffff;
+  box-shadow: 0 1px 3px rgba(59, 102, 255, 0.25);
+}
+
+/* Allocation Bar */
+.sa-plan-distribution-card {
+  padding: 16px 20px;
+}
+
+.sa-total-tag {
+  color: var(--sa-text-muted);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.sa-alloc-bar-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sa-alloc-bar {
+  display: flex;
+  height: 12px;
+  width: 100%;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #edf2f7;
+}
+
+.sa-alloc-segment {
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+.sa-alloc-legend {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.sa-alloc-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+}
+
+.sa-alloc-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+}
+
+.sa-alloc-name {
+  font-weight: 600;
+  color: var(--sa-text-main);
+}
+
+.sa-alloc-subtext {
+  color: var(--sa-text-muted);
+}
+
+/* 4 Plans Grid */
+.sa-plans-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.sa-plan-tier-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 24px 20px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.sa-plan-tier-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--sa-shadow-md);
+}
+
+.sa-plan-tier-card.has-badge {
+  border-color: #cbd5e1;
+}
+
+.sa-plan-badge-pill {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: var(--sa-radius-full);
+  font-size: 11px;
+  font-weight: 650;
+  border: 1px solid transparent;
+}
+
+.sa-plan-card-header h3 {
+  margin: 0 0 4px 0;
+  font-size: 18px;
+  font-weight: 750;
+}
+
+.sa-plan-card-header p {
+  margin: 0 0 16px 0;
+  font-size: 12px;
+  color: var(--sa-text-muted);
+  line-height: 1.4;
+  min-height: 34px;
+}
+
+.sa-plan-price-block {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  margin-bottom: 16px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--sa-border-subtle);
+}
+
+.sa-plan-price-num {
+  display: flex;
+  align-items: baseline;
+}
+
+.sa-price-currency {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--sa-text-main);
+  margin-right: 2px;
+}
+
+.sa-price-digits {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--sa-text-main);
+  line-height: 1;
+}
+
+.sa-price-suffix {
+  font-size: 12px;
+  color: var(--sa-text-muted);
+}
+
+.sa-plan-subscribers-bar {
+  margin-bottom: 18px;
+}
+
+.sa-sub-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11.5px;
+  margin-bottom: 6px;
+  color: var(--sa-text-muted);
+}
+
+.sa-sub-header strong {
+  color: var(--sa-text-main);
+}
+
+.sa-sub-progress {
+  height: 6px;
+  background: #edf2f7;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.sa-sub-progress-fill {
+  height: 100%;
+  border-radius: 4px;
+}
+
+.sa-plan-features-list {
+  flex: 1;
+  margin-bottom: 20px;
+}
+
+.sa-feat-heading {
+  margin: 0 0 10px 0;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--sa-text-light);
+  letter-spacing: 0.5px;
+}
+
+.sa-plan-features-list ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sa-plan-features-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--sa-text-main);
+  line-height: 1.4;
+}
+
+.sa-check-icon {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.sa-plan-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 12px;
+  border-top: 1px solid var(--sa-border-subtle);
+}
+
+@media (max-width: 1200px) {
+  .sa-plans-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .sa-plans-grid {
+    grid-template-columns: 1fr;
+  }
+}
+

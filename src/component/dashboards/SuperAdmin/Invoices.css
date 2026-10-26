@@ -1,0 +1,58 @@
+/* ==========================================================================
+   TEAMFLOW AI — SUPER ADMIN INVOICES CSS
+   ========================================================================== */
+
+.sa-invoices-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sa-invoices-table-card {
+  padding: 18px 20px 14px;
+}
+
+/* Printable preview */
+.sa-invoice-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sa-inv-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--sa-border);
+}
+
+.sa-inv-parties-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  font-size: 12px;
+}
+
+.sa-inv-parties-grid label {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--sa-text-light);
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.sa-inv-parties-grid strong {
+  display: block;
+  font-size: 13px;
+  color: var(--sa-text-main);
+  margin-bottom: 2px;
+}
+
+.sa-inv-parties-grid p {
+  margin: 0;
+  color: var(--sa-text-muted);
+  line-height: 1.4;
+}
+

@@ -1,5 +1,6 @@
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import {
   Activity,
   AlertTriangle,
@@ -19,6 +20,7 @@ import {
   Users,
   X,
 } from "lucide-react";
+import "./SuperAdminCommon.css";
 import "./ActivityLogs.css";
 
 const INITIAL_LOGS = [
@@ -27,7 +29,7 @@ const INITIAL_LOGS = [
     action: "User created",
     category: "User Management",
     description: "A new user account was created.",
-    actor: "Sohan Admin",
+    actor: "Himanshu (Super Admin)",
     email: "admin@teamflow.demo",
     target: "Aarav Sharma",
     organization: "Acme Technologies",
@@ -40,7 +42,7 @@ const INITIAL_LOGS = [
     action: "Organization created",
     category: "Organization",
     description: "A new organization was registered.",
-    actor: "Sohan Admin",
+    actor: "Himanshu (Super Admin)",
     email: "admin@teamflow.demo",
     target: "Nova Solutions",
     organization: "Nova Solutions",
@@ -79,7 +81,7 @@ const INITIAL_LOGS = [
     action: "User suspended",
     category: "User Management",
     description: "A user account was suspended.",
-    actor: "Sohan Admin",
+    actor: "Himanshu (Super Admin)",
     email: "admin@teamflow.demo",
     target: "Rohan Mehta",
     organization: "Pixel Studios",
@@ -105,7 +107,7 @@ const INITIAL_LOGS = [
     action: "Permission changed",
     category: "Security",
     description: "A role permission was updated.",
-    actor: "Sohan Admin",
+    actor: "Himanshu (Super Admin)",
     email: "admin@teamflow.demo",
     target: "Project Manager role",
     organization: "Nova Solutions",
@@ -144,7 +146,7 @@ const INITIAL_LOGS = [
     action: "Organization suspended",
     category: "Organization",
     description: "Organization access was suspended.",
-    actor: "Sohan Admin",
+    actor: "Himanshu (Super Admin)",
     email: "admin@teamflow.demo",
     target: "Old Demo Workspace",
     organization: "Old Demo Workspace",
@@ -220,6 +222,19 @@ function ActivityLogs() {
   const [selectedLog, setSelectedLog] = useState(null);
   const [toast, setToast] = useState("");
 
+  // Prevent background scroll when modal is open
+  useEffect(() => {
+    if (typeof document !== "undefined") {
+      document.body.style.overflow = selectedLog ? "hidden" : "";
+    }
+    return () => {
+      if (typeof document !== "undefined") {
+        document.body.style.overflow = "";
+      }
+    };
+  }, [selectedLog]);
+
+
   const pageSize = 8;
 
   const filteredLogs = useMemo(() => {
@@ -272,12 +287,12 @@ function ActivityLogs() {
 
   const stats = useMemo(
     () => ({
-      total: logs.length,
-      success: logs.filter((log) => log.status === "Success").length,
-      warnings: logs.filter((log) => log.status === "Warning").length,
-      categories: new Set(logs.map((log) => log.category)).size,
+      total: filteredLogs.length,
+      success: filteredLogs.filter((log) => log.status === "Success").length,
+      warnings: filteredLogs.filter((log) => log.status === "Warning").length,
+      categories: new Set(filteredLogs.map((log) => log.category)).size,
     }),
-    [logs]
+    [filteredLogs]
   );
 
   const showToast = (message) => {
@@ -659,80 +674,107 @@ function ActivityLogs() {
         stored by the backend, not by the browser.
       </p>
 
-      {selectedLog && (
-        <div
-          className="activity-logs-modal-backdrop"
-          onMouseDown={(event) => {
-            if (event.target === event.currentTarget) setSelectedLog(null);
-          }}
-        >
-          <section
-            className="activity-logs-modal"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="activity-log-modal-title"
+      {selectedLog &&
+        typeof document !== "undefined" &&
+        createPortal(
+          <div
+            className="activity-logs-modal-backdrop"
+            onClick={(event) => {
+              if (event.target === event.currentTarget) setSelectedLog(null);
+            }}
           >
-            <header>
-              <div>
-                <span className="activity-logs-modal-icon">
-                  <Eye size={19} />
-                </span>
-                <div>
-                  <h2 id="activity-log-modal-title">Event details</h2>
-                  <p>{selectedLog.id}</p>
+            <section
+              className="activity-logs-modal activity-view-modal"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="activity-log-modal-title"
+            >
+              <header className="activity-view-header">
+                <div className="activity-view-header-left">
+                  <span className="activity-logs-modal-icon">
+                    <Eye size={18} />
+                  </span>
+                  <div>
+                    <h2 id="activity-log-modal-title">Audit Event Details</h2>
+                    <p className="activity-view-id-tag">{selectedLog.id}</p>
+                  </div>
                 </div>
-              </div>
 
-              <button
-                type="button"
-                onClick={() => setSelectedLog(null)}
-                aria-label="Close details"
-              >
-                <X size={19} />
-              </button>
-            </header>
-
-            <div className="activity-logs-modal-body">
-              <div className="activity-logs-detail-summary">
-                <span
-                  className={`activity-logs-status activity-logs-status-${selectedLog.status.toLowerCase()}`}
+                <button
+                  type="button"
+                  className="activity-logs-icon-button"
+                  onClick={() => setSelectedLog(null)}
+                  aria-label="Close details"
                 >
-                  <span />
-                  {selectedLog.status}
-                </span>
-                <h3>{selectedLog.action}</h3>
-                <p>{selectedLog.description}</p>
+                  <X size={18} />
+                </button>
+              </header>
+
+              <div className="activity-view-modal-body">
+                {/* Event Summary Banner */}
+                <div className="activity-view-summary">
+                  <div className="activity-view-summary-head">
+                    <span
+                      className={`activity-logs-status activity-logs-status-${selectedLog.status.toLowerCase()}`}
+                    >
+                      <span />
+                      {selectedLog.status}
+                    </span>
+                    <span className="activity-view-category-pill">
+                      {selectedLog.category}
+                    </span>
+                  </div>
+                  <h3>{selectedLog.action}</h3>
+                  <p>{selectedLog.description}</p>
+                </div>
+
+                {/* 2-Column Structured Info Grid */}
+                <div className="activity-view-grid">
+                  <div className="activity-view-grid-card">
+                    <span className="activity-view-label">Actor</span>
+                    <strong className="activity-view-val">{selectedLog.actor}</strong>
+                  </div>
+
+                  <div className="activity-view-grid-card">
+                    <span className="activity-view-label">Actor Email</span>
+                    <strong className="activity-view-val">{selectedLog.email}</strong>
+                  </div>
+
+                  <div className="activity-view-grid-card">
+                    <span className="activity-view-label">Organization</span>
+                    <strong className="activity-view-val">{selectedLog.organization}</strong>
+                  </div>
+
+                  <div className="activity-view-grid-card">
+                    <span className="activity-view-label">Target Resource</span>
+                    <strong className="activity-view-val">{selectedLog.target}</strong>
+                  </div>
+
+                  <div className="activity-view-grid-card">
+                    <span className="activity-view-label">Date & Time</span>
+                    <strong className="activity-view-val">{formatDate(selectedLog.date)}</strong>
+                  </div>
+
+                  <div className="activity-view-grid-card">
+                    <span className="activity-view-label">IP Address</span>
+                    <strong className="activity-view-val">{selectedLog.ip}</strong>
+                  </div>
+                </div>
               </div>
 
-              {[
-                ["Event ID", selectedLog.id],
-                ["Category", selectedLog.category],
-                ["Actor", selectedLog.actor],
-                ["Actor email", selectedLog.email],
-                ["Target", selectedLog.target],
-                ["Organization", selectedLog.organization],
-                ["Date & time", formatDate(selectedLog.date)],
-                ["IP address", selectedLog.ip],
-              ].map(([label, value]) => (
-                <div className="activity-logs-detail-row" key={label}>
-                  <span>{label}</span>
-                  <strong>{value}</strong>
-                </div>
-              ))}
-            </div>
-
-            <footer>
-              <button
-                type="button"
-                onClick={() => setSelectedLog(null)}
-                className="activity-logs-button activity-logs-button-primary"
-              >
-                Close details
-              </button>
-            </footer>
-          </section>
-        </div>
-      )}
+              <footer className="activity-view-footer">
+                <button
+                  type="button"
+                  onClick={() => setSelectedLog(null)}
+                  className="activity-logs-button activity-logs-button-primary"
+                >
+                  Close Details
+                </button>
+              </footer>
+            </section>
+          </div>,
+          document.body
+        )}
 
       {toast && <div className="activity-logs-toast">{toast}</div>}
     </div>
