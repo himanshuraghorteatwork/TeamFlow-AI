@@ -1,7 +1,9 @@
-/* =========================================
-   TEAMFLOW AI
-   SIGNUP PAGE
-========================================= */
+
+/* =========================================================
+   TEAMFLOW AI — SIGNUP PAGE
+   Premium pastel lavender / blue theme
+   Continuous animations + responsive layout
+========================================================= */
 
 .signup-page,
 .signup-page * {
@@ -9,1018 +11,1182 @@
 }
 
 .signup-page {
-  width: 100%;
-  min-height: 100vh;
-
   display: grid;
-
-  grid-template-columns:
-    minmax(500px, 1fr)
-    minmax(540px, 1fr);
-
-  background: #ffffff;
-
-  color: #10142f;
-
-  font-family:
-    Inter,
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    sans-serif;
-}
-
-
-/* =========================================
-   LEFT SIDE
-========================================= */
-
-.signup-visual {
-  position: relative;
-
+  grid-template-columns: minmax(0, 1.35fr) minmax(440px, 0.95fr);
   width: 100%;
   height: 100vh;
-
+  height: 100dvh;
+  min-height: 0;
   overflow: hidden;
+  background: #f5f6ff;
+  color: #111638;
+  font-family: Inter, "Segoe UI", Arial, sans-serif;
+}
 
+/* =========================================================
+   LEFT WORKSPACE / VISUAL PANEL
+========================================================= */
+
+.signup-workspace {
+  position: relative;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
+  justify-content: space-between;
+  min-width: 0;
+  min-height: 0;
+  padding: clamp(24px, 3.4vw, 52px);
+  overflow: hidden;
+  isolation: isolate;
 
   background:
+    radial-gradient(
+      ellipse at 72% 22%,
+      #d7cbff 0%,
+      transparent 43%
+    ),
+    radial-gradient(
+      ellipse at 12% 82%,
+      #cde6ff 0%,
+      transparent 48%
+    ),
     linear-gradient(
-      145deg,
-      #f4f7ff,
-      #f7f3ff
+      125deg,
+      #eff1ff,
+      #e8f1ff 58%,
+      #f1e8ff
     );
 }
 
-
-/* =========================================
-   LEFT IMAGE
-========================================= */
-
-.signup-visual-image {
-  width: 100%;
-  height: 100%;
-
-  display: block;
-
-  object-fit: cover;
-  object-position: center;
-
-  user-select: none;
-
-  -webkit-user-drag: none;
+.signup-workspace::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  left: -10%;
+  right: -10%;
+  bottom: -18%;
+  height: 35%;
+  border-radius: 50% 50% 0 0;
+  background: linear-gradient(
+    135deg,
+    #ffffffb3,
+    #a8beff38
+  );
+  transform: rotate(-5deg);
 }
 
+/* Animated background glows */
 
-/* =========================================
-   RIGHT SIDE
-========================================= */
+.signup-workspace .workspace-glow {
+  position: absolute;
+  z-index: -1;
+  width: 280px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  filter: blur(42px);
+  opacity: 0.55;
+  pointer-events: none;
+  animation: signupGlow 12s ease-in-out infinite alternate;
+}
 
-.signup-form-section {
-  width: 100%;
-  min-height: 100vh;
+.signup-workspace .workspace-glow-one {
+  top: 4%;
+  left: 40%;
+  background: #bba7ff;
+}
 
+.signup-workspace .workspace-glow-two {
+  right: 4%;
+  bottom: 8%;
+  background: #a6d4ff;
+  animation-delay: -6s;
+}
+
+/* Brand */
+
+.signup-workspace .workspace-brand {
   display: flex;
   align-items: center;
-  justify-content: center;
-
-  padding:
-    45px
-    clamp(40px, 5vw, 85px);
-
-  background:
-    linear-gradient(
-      145deg,
-      #ffffff 0%,
-      #fdfcff 100%
-    );
+  gap: 12px;
+  flex-shrink: 0;
+  color: #111638;
+  font-size: clamp(20px, 1.65vw, 26px);
+  font-weight: 850;
+  letter-spacing: -1px;
 }
 
-
-/* =========================================
-   CONTAINER
-========================================= */
-
-.signup-container {
-  width: 100%;
-  max-width: 590px;
-
-  animation:
-    signupFadeIn
-    0.45s
-    ease;
+.signup-workspace .workspace-brand strong {
+  color: #6241ed;
 }
 
+.signup-workspace .workspace-brand-icon {
+  display: grid;
+  place-items: center;
+  width: 45px;
+  height: 45px;
+  border-radius: 11px;
+  color: #fff;
+  background: linear-gradient(135deg, #8967ff, #5344e9);
+  box-shadow: 0 9px 22px #6c5ce533;
+  animation: signupBob 4s ease-in-out infinite;
+}
 
-/* =========================================
-   BRAND
-========================================= */
+/* Workspace heading */
 
-.signup-brand {
+.signup-workspace .workspace-copy {
+  position: relative;
+  z-index: 3;
+  width: min(53%, 440px);
+  margin-top: auto;
+}
+
+.signup-workspace .workspace-eyebrow {
   display: inline-flex;
   align-items: center;
-
-  gap: 12px;
-
-  margin: 0;
-  padding: 0;
-
-  border: none;
-
-  background: transparent;
-
-  cursor: pointer;
-
-  font-family: inherit;
-}
-
-
-/* =========================================
-   BRAND ICON
-========================================= */
-
-.signup-brand-icon {
-  width: 46px;
-  height: 46px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  flex-shrink: 0;
-
-  border-radius: 13px;
-
-  color: #ffffff;
-
-  background:
-    linear-gradient(
-      135deg,
-      #268cff 0%,
-      #5f61ff 50%,
-      #8a45ff 100%
-    );
-
-  box-shadow:
-    0 8px 22px
-    rgba(86, 77, 235, 0.24);
-
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
-}
-
-.signup-brand:hover
-.signup-brand-icon {
-  transform:
-    translateY(-2px)
-    rotate(-4deg);
-
-  box-shadow:
-    0 12px 28px
-    rgba(86, 77, 235, 0.32);
-}
-
-
-/* =========================================
-   BRAND NAME
-========================================= */
-
-.signup-brand-name {
-  color: #111530;
-
-  font-size: 23px;
+  gap: 8px;
+  padding: 7px 11px;
+  border-radius: 18px;
+  background: #dadcffbd;
+  color: #4730d6;
+  font-size: 10px;
   font-weight: 800;
-
-  letter-spacing: -0.8px;
+  letter-spacing: 0.9px;
 }
 
-.signup-brand-name strong {
-  color: #684cff;
+.signup-workspace .workspace-live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #764dff;
+  box-shadow: 0 0 0 4px #7850f522;
+  animation: signupPulse 2s infinite;
 }
 
-
-/* =========================================
-   HEADING
-========================================= */
-
-.signup-heading {
-  margin:
-    31px
-    0
-    27px;
+.signup-workspace .workspace-copy h2 {
+  margin: 15px 0;
+  color: #101635;
+  font-size: clamp(29px, 3.25vw, 48px);
+  line-height: 1.1;
+  letter-spacing: -1.8px;
+  font-weight: 850;
 }
 
-.signup-heading h1 {
-  margin: 0;
-
-  color: #10142f;
-
-  font-size:
-    clamp(32px, 3vw, 40px);
-
-  font-weight: 800;
-
-  line-height: 1.15;
-
-  letter-spacing: -1.5px;
+.signup-workspace .workspace-copy h2 span {
+  color: #5c3df1;
 }
 
-.signup-heading p {
-  margin:
-    10px
-    0
-    0;
-
-  color: #747b98;
-
-  font-size: 14px;
-
+.signup-workspace .workspace-copy p {
+  margin: 0 0 20px;
+  color: #354365;
+  font-size: clamp(12px, 1.05vw, 15px);
   line-height: 1.65;
 }
 
+.signup-workspace .workspace-features {
+  display: grid;
+  gap: 11px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
 
-/* =========================================
-   FORM
-========================================= */
+.signup-workspace .workspace-features li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #293558;
+  font-size: clamp(11px, 0.95vw, 14px);
+}
+
+.signup-workspace .workspace-features li span {
+  display: grid;
+  place-items: center;
+  width: 23px;
+  height: 23px;
+  flex-shrink: 0;
+  border-radius: 6px;
+  color: #fff;
+  background: linear-gradient(140deg, #9470ff, #477df9);
+  box-shadow: 0 5px 12px #6252d529;
+  font-size: 13px;
+}
+
+/* Bottom text */
+
+.signup-workspace .workspace-bottom {
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-shrink: 0;
+  margin-top: 24px;
+  color: #46527c;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+
+/* =========================================================
+   DASHBOARD PREVIEW
+========================================================= */
+
+.signup-workspace .workspace-visual {
+  position: absolute;
+  inset: 18% 2% 12% 43%;
+  perspective: 950px;
+  pointer-events: none;
+}
+
+.signup-workspace .workflow-dashboard {
+  position: absolute;
+  top: 20%;
+  right: 4%;
+  left: 1%;
+  height: 52%;
+  padding: 17px;
+  border: 1px solid #ffffffd9;
+  border-radius: 18px;
+  background: #ffffffae;
+  box-shadow: 0 30px 65px #686bc82c;
+  backdrop-filter: blur(15px);
+  transform: rotateY(-9deg) rotateX(5deg) rotateZ(3deg);
+  animation: signupDashboard 7s ease-in-out infinite;
+}
+
+.signup-workspace .workflow-dashboard-top {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding-bottom: 15px;
+  color: #202448;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.signup-workspace .dashboard-indicator {
+  width: 9px;
+  height: 9px;
+  border-radius: 3px;
+  background: #6651f4;
+}
+
+.signup-workspace .dashboard-dots {
+  margin-left: auto;
+  color: #98a1c7;
+  letter-spacing: 3px;
+}
+
+.signup-workspace .workflow-columns {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 7px;
+  height: 76%;
+}
+
+.signup-workspace .workflow-column {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  min-width: 0;
+  padding: 9px 7px;
+  border-radius: 9px;
+  background: #f0f1ff;
+}
+
+.signup-workspace .workflow-column strong {
+  overflow: hidden;
+  color: #363c67;
+  font-size: clamp(7px, 0.7vw, 10px);
+  white-space: nowrap;
+}
+
+.signup-workspace .workflow-task {
+  display: block;
+  height: 19px;
+  border-radius: 5px;
+  background: linear-gradient(
+    90deg,
+    #a6a0ff 12%,
+    #fff 12%
+  );
+  box-shadow: 0 2px 6px #6b67bc12;
+}
+
+.signup-workspace .workflow-task.short {
+  width: 75%;
+}
+
+.signup-workspace .workflow-progress {
+  display: block;
+  height: 5px;
+  margin-top: auto;
+  overflow: hidden;
+  border-radius: 9px;
+  background: #d9dcf6;
+}
+
+.signup-workspace .workflow-progress i {
+  display: block;
+  height: 100%;
+  border-radius: 9px;
+  background: #39cfa4;
+  animation: signupProgress 4s ease-in-out infinite alternate;
+}
+
+/* Floating dashboard cards */
+
+.signup-workspace .workflow-node {
+  position: absolute;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: min(60%, 250px);
+  min-height: 62px;
+  padding: 11px;
+  border: 1px solid #fff;
+  border-radius: 13px;
+  background: #ffffffd9;
+  box-shadow: 0 13px 30px #6d75c42a;
+  backdrop-filter: blur(15px);
+  animation: signupBob 5s ease-in-out infinite;
+}
+
+.signup-workspace .workflow-node-one {
+  top: 5%;
+  right: 0;
+}
+
+.signup-workspace .workflow-node-two {
+  bottom: 14%;
+  left: -5%;
+  animation-delay: -2s;
+}
+
+.signup-workspace .workflow-node-three {
+  right: 0;
+  bottom: 2%;
+  animation-delay: -3.4s;
+}
+
+.signup-workspace .workflow-node-icon {
+  display: grid;
+  place-items: center;
+  width: 31px;
+  height: 31px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  color: #fff;
+  background: linear-gradient(135deg, #9b79ff, #4e72fa);
+  font-size: 17px;
+}
+
+.signup-workspace .workflow-node-copy {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.signup-workspace .workflow-node-copy strong {
+  overflow: hidden;
+  color: #20264b;
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.signup-workspace .workflow-node-copy small {
+  color: #8490b2;
+  font-size: 9px;
+  white-space: nowrap;
+}
+
+.signup-workspace .workflow-status {
+  padding: 4px 5px;
+  border-radius: 5px;
+  background: #e6fff3;
+  color: #22a881;
+  font-size: 8px;
+  font-weight: 800;
+}
+
+/* Orbits and moving lines */
+
+.signup-workspace .workflow-orbit {
+  position: absolute;
+  z-index: -1;
+  top: 49%;
+  left: 45%;
+  width: 55%;
+  aspect-ratio: 1;
+  border: 1px dashed #8d80ef5e;
+  border-radius: 50%;
+  animation: signupSpin 32s linear infinite;
+}
+
+.signup-workspace .workflow-orbit-two {
+  top: 37%;
+  left: 35%;
+  width: 75%;
+  border-color: #72a3f65e;
+  animation-direction: reverse;
+}
+
+.signup-workspace .workflow-line {
+  position: absolute;
+  top: 35%;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    #a38aff,
+    #77baff,
+    transparent
+  );
+  background-size: 200% 100%;
+  transform: rotate(13deg);
+  animation: signupFlow 4s linear infinite;
+}
+
+.signup-workspace .workflow-line-two {
+  top: 70%;
+  transform: rotate(-18deg);
+  animation-delay: -2s;
+}
+
+/* =========================================================
+   RIGHT SIGNUP SECTION
+========================================================= */
+
+.signup-form-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  min-height: 0;
+  padding: clamp(12px, 2vw, 30px);
+  overflow-x: hidden;
+  overflow-y: auto;
+  background: linear-gradient(145deg, #fff, #f9faff);
+}
+
+.signup-container {
+  width: 100%;
+  max-width: 480px;
+  margin: auto;
+  padding: clamp(16px, 1.8vw, 27px);
+  border: 1px solid #fff;
+  border-radius: 22px;
+  background: #ffffffdf;
+  box-shadow: 0 20px 65px #626eb51b;
+  animation: signupEnter 0.75s ease both;
+}
+
+/* =========================================================
+   SIGNUP BRAND
+========================================================= */
+
+.signup-brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: 0 auto 13px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #111638;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.signup-brand-icon {
+  display: grid;
+  place-items: center;
+  width: 37px;
+  height: 37px;
+  border-radius: 10px;
+  color: #fff;
+  background: linear-gradient(135deg, #8c68ff, #456fff);
+}
+
+.signup-brand-name {
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+.signup-brand-name strong {
+  color: #6045ef;
+}
+
+/* =========================================================
+   SIGNUP HEADING
+========================================================= */
+
+.signup-heading {
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.signup-heading h1 {
+  margin: 0 0 7px;
+  color: #101638;
+  font-size: clamp(24px, 2vw, 31px);
+  font-weight: 800;
+  letter-spacing: -1px;
+  line-height: 1.2;
+}
+
+.signup-heading p {
+  margin: 5px 0;
+  color: #73809e;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.signup-heading p strong {
+  color: #6045ef;
+}
+
+/* =========================================================
+   SIGNUP FORM
+========================================================= */
 
 .signup-form {
   width: 100%;
 }
 
-
-/* =========================================
-   NAME ROW
-========================================= */
-
 .signup-name-row {
   display: grid;
-
-  grid-template-columns:
-    repeat(2, minmax(0, 1fr));
-
-  gap: 18px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
 }
 
-
-/* =========================================
-   FIELD
-========================================= */
-
 .signup-field {
-  width: 100%;
-
-  margin-bottom: 17px;
+  min-width: 0;
+  margin-bottom: 11px;
 }
 
 .signup-field label {
   display: block;
-
-  margin-bottom: 8px;
-
-  color: #20243d;
-
+  margin-bottom: 6px;
+  color: #3b456b;
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 650;
 }
 
-
-/* =========================================
-   INPUT
-========================================= */
+/* Input wrapper */
 
 .signup-input {
-  width: 100%;
-  min-height: 53px;
-
   display: flex;
   align-items: center;
-
-  gap: 11px;
-
-  padding:
-    0
-    14px;
-
-  border:
-    1px solid
-    #dce2ed;
-
-  border-radius: 10px;
-
-  background: #ffffff;
-
-  color: #8793ad;
-
+  position: relative;
+  height: 42px;
+  min-width: 0;
+  border: 1px solid #dce1f3;
+  border-radius: 9px;
+  background: #fff;
   transition:
     border-color 0.2s ease,
     box-shadow 0.2s ease,
-    background-color 0.2s ease;
-}
-
-.signup-input:hover {
-  border-color: #c5cde0;
+    background 0.2s ease;
 }
 
 .signup-input:focus-within {
-  border-color: #6959ef;
-
-  box-shadow:
-    0 0 0 4px
-    rgba(105, 89, 239, 0.09);
+  border-color: #8065ff;
+  box-shadow: 0 0 0 3px #8065ff17;
 }
 
 .signup-input > svg {
+  width: 16px;
+  height: 16px;
   flex-shrink: 0;
-
-  color: #8490ac;
-
-  transition:
-    color 0.2s ease;
+  margin: 0 10px;
+  color: #6f7d9f;
 }
-
-.signup-input:focus-within > svg {
-  color: #6959ef;
-}
-
-
-/* =========================================
-   INPUT ELEMENT
-========================================= */
 
 .signup-input input {
   flex: 1;
-
   width: 100%;
-  height: 51px;
-
   min-width: 0;
-
+  height: 100%;
   padding: 0;
-
-  border: none;
+  border: 0;
   outline: none;
-
   background: transparent;
-
-  color: #22263f;
-
+  color: #22294e;
   font-family: inherit;
-
-  font-size: 13px;
+  font-size: 12px;
 }
 
 .signup-input input::placeholder {
-  color: #8d99b4;
+  color: #a0a9c1;
 }
 
+.signup-input input:focus-visible {
+  outline: none;
+}
 
-/* =========================================
-   PASSWORD EYE
-========================================= */
+/* Password visibility buttons */
 
 .signup-eye-button {
-  width: 32px;
-  height: 32px;
-
+  display: grid;
+  place-items: center;
   flex-shrink: 0;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  padding: 0;
-
-  border: none;
-
-  border-radius: 7px;
-
+  padding: 8px 10px;
+  border: 0;
   background: transparent;
-
-  color: #8190ad;
-
+  color: #66759a;
   cursor: pointer;
-
-  transition:
-    color 0.2s ease,
-    background-color 0.2s ease;
 }
 
 .signup-eye-button:hover {
-  color: #6551e8;
-
-  background: #f5f3ff;
+  color: #6045ef;
 }
 
-
-/* =========================================
-   TERMS
-========================================= */
+/* =========================================================
+   TERMS AND CONDITIONS
+========================================================= */
 
 .signup-terms {
-  position: relative;
-
   display: flex;
   align-items: flex-start;
-
-  gap: 10px;
-
-  margin:
-    2px
-    0
-    0;
-
-  color: #5f6780;
-
+  gap: 9px;
+  margin: 4px 0 14px;
+  color: #687493;
   font-size: 11px;
-
-  line-height: 1.7;
-
+  line-height: 1.6;
   cursor: pointer;
 }
 
-.signup-terms > input {
+.signup-terms input {
   position: absolute;
-
   width: 1px;
   height: 1px;
-
+  overflow: hidden;
   opacity: 0;
 }
 
-
-/* =========================================
-   CUSTOM CHECKBOX
-========================================= */
-
 .signup-checkbox {
-  width: 19px;
-  height: 19px;
-
-  flex:
-    0
-    0
-    19px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
+  display: grid;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
   margin-top: 1px;
-
-  border:
-    1px solid
-    #6957ef;
-
-  border-radius: 5px;
-
-  background:
-    linear-gradient(
-      135deg,
-      #6657ef,
-      #7e51f4
-    );
-
-  color: #ffffff;
-
-  font-size: 11px;
-  font-weight: 900;
-}
-
-.signup-terms
-input:not(:checked)
-+
-.signup-checkbox {
-  border-color: #d4d9e5;
-
-  background: #ffffff;
-
+  border: 1px solid #cbd3e9;
+  border-radius: 4px;
+  background: #fff;
   color: transparent;
+  font-size: 10px;
+  font-weight: 800;
+  transition: 0.2s;
 }
 
+.signup-terms input:checked + .signup-checkbox {
+  border-color: #7052f3;
+  background: #7052f3;
+  color: #fff;
+}
 
-/* =========================================
-   TERMS BUTTONS
-========================================= */
+.signup-terms input:focus-visible + .signup-checkbox {
+  outline: 2px solid #7252f7;
+  outline-offset: 2px;
+}
 
 .signup-terms button {
   padding: 0;
-
-  border: none;
-
+  border: 0;
   background: transparent;
-
-  color: #6046e8;
-
+  color: #6045ee;
   font: inherit;
-
-  font-weight: 700;
-
+  font-weight: 750;
   cursor: pointer;
 }
 
-.signup-terms button:hover {
-  text-decoration: underline;
-}
-
-
-/* =========================================
-   ERROR
-========================================= */
+/* =========================================================
+   ERROR MESSAGE
+========================================================= */
 
 .signup-error {
-  margin-top: 16px;
-
-  padding:
-    11px
-    13px;
-
-  border:
-    1px solid
-    #fecaca;
-
-  border-radius: 9px;
-
-  background: #fff5f5;
-
-  color: #c83232;
-
+  margin: 0 0 12px;
+  padding: 9px 11px;
+  border: 1px solid #ffd6de;
+  border-radius: 8px;
+  background: #fff0f3;
+  color: #ad2e46;
   font-size: 11px;
-  font-weight: 600;
-
   line-height: 1.5;
 }
 
-
-/* =========================================
-   CREATE ACCOUNT
-========================================= */
+/* =========================================================
+   CREATE ACCOUNT BUTTON
+========================================================= */
 
 .signup-submit {
-  width: 100%;
-  min-height: 52px;
-
-  margin-top: 20px;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
-  border: none;
-
-  border-radius: 10px;
-
-  background:
-    linear-gradient(
-      105deg,
-      #2887fa 0%,
-      #5969fa 48%,
-      #8447f5 100%
-    );
-
-  color: #ffffff;
-
+  width: 100%;
+  min-height: 43px;
+  padding: 10px 14px;
+  border: 0;
+  border-radius: 9px;
+  background: linear-gradient(100deg, #8860f7, #377dfd);
+  box-shadow: 0 8px 20px #6b64ed32;
+  color: #fff;
   font-family: inherit;
-
-  font-size: 14px;
-  font-weight: 800;
-
+  font-size: 13px;
+  font-weight: 750;
   cursor: pointer;
-
-  box-shadow:
-    0 10px 26px
-    rgba(92, 78, 234, 0.22);
-
   transition:
     transform 0.2s ease,
     box-shadow 0.2s ease,
-    filter 0.2s ease,
-    opacity 0.2s ease;
+    filter 0.2s ease;
 }
 
 .signup-submit:hover:not(:disabled) {
   transform: translateY(-2px);
-
+  box-shadow: 0 12px 24px #6b64ed42;
   filter: brightness(1.04);
-
-  box-shadow:
-    0 14px 32px
-    rgba(92, 78, 234, 0.3);
-}
-
-.signup-submit:active:not(:disabled) {
-  transform: scale(0.99);
 }
 
 .signup-submit:disabled {
-  opacity: 0.65;
-
-  cursor: not-allowed;
+  opacity: 0.7;
+  cursor: wait;
 }
 
-
-/* =========================================
-   DIVIDER
-========================================= */
+/* =========================================================
+   SOCIAL SIGNUP
+========================================================= */
 
 .signup-divider {
-  width: 100%;
-
   display: flex;
   align-items: center;
-
-  gap: 14px;
-
-  margin:
-    25px
-    0
-    18px;
+  gap: 10px;
+  margin: 14px 0 11px;
+  color: #98a2be;
+  font-size: 10px;
+  text-align: center;
 }
 
-.signup-divider span {
+.signup-divider::before,
+.signup-divider::after {
+  content: "";
   flex: 1;
-
   height: 1px;
-
-  background: #e5e8ef;
+  background: #e1e5f3;
 }
 
 .signup-divider p {
   margin: 0;
-
-  color: #858ca2;
-
-  font-size: 10px;
-  font-weight: 600;
-
   white-space: nowrap;
 }
 
-
-/* =========================================
-   SOCIAL BUTTONS
-========================================= */
-
 .signup-social-row {
-  display: grid;
-
-  grid-template-columns:
-    repeat(2, minmax(0, 1fr));
-
-  gap: 12px;
+  display: flex;
+  gap: 10px;
 }
 
 .signup-social-button {
-  width: 100%;
-  min-height: 48px;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
-  gap: 10px;
-
-  padding:
-    0
-    13px;
-
-  border:
-    1px solid
-    #dfe3ec;
-
+  flex: 1;
+  gap: 7px;
+  min-width: 0;
+  min-height: 40px;
+  padding: 7px 8px;
+  border: 1px solid #dce1f3;
   border-radius: 9px;
-
-  background: #ffffff;
-
-  color: #262b42;
-
+  background: #fff;
+  color: #1d2547;
   font-family: inherit;
-
   font-size: 11px;
   font-weight: 700;
-
   cursor: pointer;
-
-  transition:
-    transform 0.2s ease,
-    border-color 0.2s ease,
-    box-shadow 0.2s ease,
-    background-color 0.2s ease;
+  transition: 0.2s;
 }
 
-.signup-social-button:hover {
-  transform: translateY(-2px);
-
-  border-color: #c3baf5;
-
-  background: #fbfaff;
-
-  box-shadow:
-    0 7px 18px
-    rgba(69, 53, 140, 0.07);
+.signup-social-button:hover:not(:disabled) {
+  border-color: #a99bff;
+  background: #f4f3ff;
 }
 
+.signup-social-button:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
 
-/* =========================================
-   GOOGLE
-========================================= */
+.signup-google,
+.signup-github {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
 
 .signup-google {
-  width: 22px;
-  height: 22px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  flex-shrink: 0;
-
-  border:
-    1px solid
-    #e2e4ea;
-
-  border-radius: 50%;
-
-  background: #ffffff;
-
+  display: grid;
+  place-items: center;
   color: #4285f4;
-
-  font-size: 13px;
-  font-weight: 900;
+  font-size: 18px;
+  font-weight: 850;
 }
-
-
-/* =========================================
-   GITHUB
-========================================= */
 
 .signup-github {
-  width: 21px;
-  height: 21px;
-
-  flex-shrink: 0;
-
-  color: #18181b;
+  color: #24292f;
 }
 
-
-/* =========================================
+/* =========================================================
    SIGN IN LINK
-========================================= */
+========================================================= */
 
 .signup-login-link {
-  margin:
-    26px
-    0
-    0;
-
-  color: #747b92;
-
+  margin: 15px 0 0;
+  color: #687493;
   font-size: 12px;
-
   text-align: center;
 }
 
 .signup-login-link button {
-  margin-left: 5px;
-
   padding: 0;
-
-  border: none;
-
+  border: 0;
   background: transparent;
-
-  color: #6047e7;
-
+  color: #6045ee;
   font-family: inherit;
-
   font-size: inherit;
   font-weight: 800;
-
   cursor: pointer;
 }
 
-.signup-login-link button:hover {
-  text-decoration: underline;
+/* =========================================================
+   ANIMATIONS
+========================================================= */
+
+@keyframes signupGlow {
+  to {
+    transform: translate(50px, 28px) scale(1.17);
+  }
 }
 
-
-/* =========================================
-   FOCUS
-========================================= */
-
-.signup-brand:focus-visible,
-.signup-eye-button:focus-visible,
-.signup-submit:focus-visible,
-.signup-social-button:focus-visible,
-.signup-login-link button:focus-visible,
-.signup-terms button:focus-visible {
-  outline:
-    3px solid
-    rgba(105, 87, 239, 0.25);
-
-  outline-offset: 3px;
+@keyframes signupBob {
+  50% {
+    translate: 0 -8px;
+  }
 }
 
+@keyframes signupPulse {
+  50% {
+    opacity: 0.45;
+    transform: scale(0.7);
+  }
+}
 
-/* =========================================
-   ANIMATION
-========================================= */
+@keyframes signupSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
 
-@keyframes signupFadeIn {
+@keyframes signupFlow {
+  to {
+    background-position: -200% 0;
+  }
+}
 
+@keyframes signupDashboard {
+  50% {
+    transform:
+      rotateY(-6deg)
+      rotateX(3deg)
+      rotateZ(1deg)
+      translateY(-10px);
+  }
+}
+
+@keyframes signupProgress {
+  to {
+    transform: scaleX(0.72);
+    transform-origin: left;
+  }
+}
+
+@keyframes signupEnter {
   from {
     opacity: 0;
-
-    transform:
-      translateY(10px);
+    transform: translateY(15px);
   }
 
   to {
     opacity: 1;
-
-    transform:
-      translateY(0);
+    transform: translateY(0);
   }
-
 }
 
+/* =========================================================
+   FOCUS STATES
+========================================================= */
 
-/* =========================================
-   LAPTOP
-========================================= */
+.signup-page button:focus-visible,
+.signup-page input:focus-visible {
+  outline: 2px solid #7252f7;
+  outline-offset: 2px;
+}
+
+/* =========================================================
+   TABLET
+========================================================= */
 
 @media (max-width: 1150px) {
-
   .signup-page {
     grid-template-columns:
-      minmax(420px, 0.9fr)
-      minmax(520px, 1.1fr);
+      minmax(0, 1.05fr)
+      minmax(420px, 0.95fr);
+  }
+
+  .signup-workspace .workspace-copy {
+    width: 58%;
+  }
+
+  .signup-workspace .workspace-visual {
+    inset: 23% 1% 15% 47%;
+    opacity: 0.9;
+  }
+
+  .signup-workspace .workflow-node {
+    width: 75%;
   }
 
   .signup-form-section {
-    padding:
-      40px
-      45px;
-  }
-
-}
-
-
-/* =========================================
-   SMALL LAPTOP
-========================================= */
-
-@media (max-width: 950px) {
-
-  .signup-page {
-    grid-template-columns:
-      42%
-      58%;
-  }
-
-  .signup-form-section {
-    padding:
-      35px
-      30px;
+    padding: 12px;
   }
 
   .signup-container {
-    max-width: 550px;
+    padding: 18px;
   }
-
 }
 
+/* =========================================================
+   SHORT DESKTOP SCREENS
+========================================================= */
 
-/* =========================================
-   TABLET
-========================================= */
-
-@media (max-width: 800px) {
-
-  .signup-page {
-    display: block;
+@media (min-width: 761px) and (max-height: 800px) {
+  .signup-workspace {
+    padding: 22px 28px;
   }
 
-  .signup-visual {
-    display: none;
+  .signup-workspace .workspace-copy h2 {
+    margin: 10px 0;
+    font-size: clamp(26px, 2.5vw, 36px);
+  }
+
+  .signup-workspace .workspace-copy p {
+    margin-bottom: 10px;
+  }
+
+  .signup-workspace .workspace-features {
+    gap: 7px;
+  }
+
+  .signup-workspace .workspace-bottom {
+    margin-top: 12px;
   }
 
   .signup-form-section {
-    width: 100%;
-    min-height: 100vh;
-
-    padding:
-      40px
-      25px;
+    padding: 8px 16px;
   }
 
   .signup-container {
-    max-width: 560px;
+    padding: 14px 20px;
   }
 
-}
-
-
-/* =========================================
-   MOBILE
-========================================= */
-
-@media (max-width: 520px) {
-
-  .signup-form-section {
-    align-items: flex-start;
-
-    padding:
-      28px
-      18px
-      40px;
-  }
-
-  .signup-brand-name {
-    font-size: 20px;
-  }
-
-  .signup-brand-icon {
-    width: 42px;
-    height: 42px;
+  .signup-brand {
+    margin-bottom: 7px;
   }
 
   .signup-heading {
-    margin-top: 27px;
+    margin-bottom: 10px;
   }
 
   .signup-heading h1 {
-    font-size: 30px;
+    font-size: 25px;
   }
 
   .signup-heading p {
-    font-size: 13px;
+    margin: 3px 0;
   }
 
-  .signup-name-row {
-    grid-template-columns: 1fr;
-
-    gap: 0;
-  }
-
-  .signup-social-row {
-    grid-template-columns: 1fr;
-  }
-
-  .signup-social-button {
-    min-height: 49px;
-
-    font-size: 12px;
-  }
-
-}
-
-
-/* =========================================
-   SMALL MOBILE
-========================================= */
-
-@media (max-width: 360px) {
-
-  .signup-form-section {
-    padding-left: 14px;
-    padding-right: 14px;
-  }
-
-  .signup-heading h1 {
-    font-size: 27px;
+  .signup-field {
+    margin-bottom: 8px;
   }
 
   .signup-input {
-    padding:
-      0
-      11px;
+    height: 38px;
   }
 
+  .signup-terms {
+    margin-bottom: 9px;
+  }
+
+  .signup-divider {
+    margin: 10px 0 8px;
+  }
+
+  .signup-login-link {
+    margin-top: 10px;
+  }
 }
 
+/* =========================================================
+   MOBILE
+========================================================= */
 
-/* =========================================
-   REDUCED MOTION
-========================================= */
+@media (max-width: 760px) {
+  .signup-page {
+    display: flex;
+    flex-direction: column;
+    height: auto;
+    min-height: 100dvh;
+    overflow: visible;
+  }
 
-@media (prefers-reduced-motion: reduce) {
+  .signup-workspace {
+    flex: none;
+    min-height: 235px;
+    padding: 20px 22px;
+  }
+
+  .signup-workspace .workspace-brand {
+    font-size: 21px;
+  }
+
+  .signup-workspace .workspace-copy {
+    width: 65%;
+    margin: 22px 0 0;
+  }
+
+  .signup-workspace .workspace-copy h2 {
+    margin: 10px 0;
+    font-size: clamp(25px, 5vw, 35px);
+  }
+
+  .signup-workspace .workspace-copy p {
+    font-size: 12px;
+  }
+
+  .signup-workspace .workspace-features {
+    display: none;
+  }
+
+  .signup-workspace .workspace-visual {
+    inset: 28% 2% 14% 60%;
+    opacity: 0.75;
+  }
+
+  .signup-workspace .workflow-node {
+    display: none;
+  }
+
+  .signup-workspace .workflow-dashboard {
+    padding: 9px;
+  }
+
+  .signup-workspace .workflow-dashboard-top {
+    padding-bottom: 8px;
+    font-size: 9px;
+  }
+
+  .signup-workspace .workflow-column {
+    gap: 5px;
+    padding: 4px;
+  }
+
+  .signup-workspace .workflow-task {
+    height: 11px;
+  }
+
+  .signup-workspace .workspace-bottom {
+    gap: 7px;
+    margin-top: 12px;
+    font-size: 8px;
+  }
+
+  .signup-form-section {
+    flex: 1;
+    overflow: visible;
+    padding: 18px 14px 28px;
+  }
 
   .signup-container {
-    animation: none;
+    max-width: 500px;
+    padding: 20px;
+  }
+}
+
+/* =========================================================
+   SMALL MOBILE
+========================================================= */
+
+@media (max-width: 430px) {
+  .signup-workspace {
+    min-height: 215px;
   }
 
-  .signup-brand-icon,
-  .signup-input,
-  .signup-eye-button,
-  .signup-submit,
+  .signup-workspace .workspace-copy {
+    width: 76%;
+  }
+
+  .signup-workspace .workspace-copy h2 {
+    font-size: 25px;
+  }
+
+  .signup-workspace .workspace-visual {
+    opacity: 0.28;
+  }
+
+  .signup-container {
+    padding: 18px 15px;
+    border-radius: 17px;
+  }
+
+  .signup-heading h1 {
+    font-size: 25px;
+  }
+
+  .signup-name-row {
+    gap: 9px;
+  }
+
+  .signup-field label {
+    font-size: 11px;
+  }
+
+  .signup-input input {
+    font-size: 11px;
+  }
+
+  .signup-social-row {
+    flex-direction: column;
+  }
+
   .signup-social-button {
-    transition: none;
+    min-height: 40px;
   }
+}
 
+/* =========================================================
+   ACCESSIBILITY — REDUCED MOTION
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .signup-page *,
+  .signup-page *::before,
+  .signup-page *::after {
+    animation: none !important;
+    transition: none !important;
+  }
 }

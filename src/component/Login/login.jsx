@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+
+import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
   UsersRound,
@@ -8,31 +9,142 @@ import {
   EyeOff,
 } from "lucide-react";
 
-import loginLeftImage from "../../assets/images/login-left.png";
 import {
   ROLES,
   ROLE_LABELS,
   getDashboardPath,
   getUserRole,
 } from "../../auth/roleConfig";
+
 import "./login.css";
 
-// Get registered users
+/* =========================================================
+   DEFAULT TEAMFLOW ROLE ACCOUNTS
+========================================================= */
+
+const DEFAULT_ROLE_USERS = [
+  {
+    id: "superadmin-001",
+    name: "Super Admin",
+    firstName: "Super",
+    lastName: "Admin",
+    email: "superadmin@teamflow.local",
+    password: "SuperAdmin@123",
+    role: ROLES.SUPERADMIN,
+    provider: "local",
+    status: "active",
+  },
+  {
+    id: "admin-001",
+    name: "Admin",
+    firstName: "Admin",
+    lastName: "User",
+    email: "admin@teamflow.local",
+    password: "Admin@123",
+    role: ROLES.ADMIN,
+    provider: "local",
+    status: "active",
+  },
+  {
+    id: "teamlead-001",
+    name: "Team Lead",
+    firstName: "Team",
+    lastName: "Lead",
+    email: "teamlead@teamflow.local",
+    password: "TeamLead@123",
+    role: ROLES.TEAMLEAD,
+    provider: "local",
+    status: "active",
+  },
+  {
+    id: "employee-001",
+    name: "Employee",
+    firstName: "Employee",
+    lastName: "User",
+    email: "employee@teamflow.local",
+    password: "Employee@123",
+    role: ROLES.EMPLOYEE,
+    provider: "local",
+    status: "active",
+  },
+];
+
+/* =========================================================
+   GET USERS FROM LOCAL STORAGE
+========================================================= */
+
 const getUsers = () => {
   try {
-    return JSON.parse(
+    const users = JSON.parse(
       localStorage.getItem("teamflow_users") || "[]"
     );
-  } catch {
+
+    return Array.isArray(users) ? users : [];
+  } catch (error) {
+    console.error("Unable to read TeamFlow users:", error);
     return [];
   }
 };
+
+/* =========================================================
+   INITIALIZE DEFAULT ROLE USERS
+========================================================= */
+
+const initializeDefaultUsers = () => {
+  try {
+    const existingUsers = getUsers();
+    const mergedUsers = [...existingUsers];
+
+    DEFAULT_ROLE_USERS.forEach((defaultUser) => {
+      const index = mergedUsers.findIndex(
+        (user) =>
+          String(user.email || "").trim().toLowerCase() ===
+          defaultUser.email.toLowerCase()
+      );
+
+      if (index === -1) {
+        mergedUsers.push(defaultUser);
+      } else {
+        mergedUsers[index] = {
+          ...mergedUsers[index],
+          ...defaultUser,
+        };
+      }
+    });
+
+    localStorage.setItem(
+      "teamflow_users",
+      JSON.stringify(mergedUsers)
+    );
+
+    return mergedUsers;
+  } catch (error) {
+    console.error(
+      "Unable to initialize TeamFlow users:",
+      error
+    );
+
+    localStorage.setItem(
+      "teamflow_users",
+      JSON.stringify(DEFAULT_ROLE_USERS)
+    );
+
+    return DEFAULT_ROLE_USERS;
+  }
+};
+
+/* =========================================================
+   LOGIN COMPONENT
+========================================================= */
 
 function Login() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Read the role selected on the Choose Role page
+  /* -------------------------------------------------------
+     SELECTED ROLE
+  ------------------------------------------------------- */
+
   const selectedRole = location.state?.selectedRole;
 
   const validSelectedRole = Object.values(ROLES).includes(
@@ -41,6 +153,10 @@ function Login() {
     ? selectedRole
     : null;
 
+  /* -------------------------------------------------------
+     STATE
+  ------------------------------------------------------- */
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -48,14 +164,73 @@ function Login() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Redirect according to the account's assigned role
+  /* =========================================================
+     CREATE DEFAULT USERS WHEN LOGIN PAGE LOADS
+  ========================================================= */
+
+  useEffect(() => {
+    initializeDefaultUsers();
+  }, []);
+
+  /* =========================================================
+     AUTO-FILL DEMO CREDENTIALS FOR THE SELECTED ROLE
+  ========================================================= */
+
+  useEffect(() => {
+    if (!validSelectedRole) {
+      return;
+    }
+
+    const users = initializeDefaultUsers();
+
+    const selectedUser = users.find(
+      (user) =>
+        getUserRole(user) === validSelectedRole &&
+        DEFAULT_ROLE_USERS.some(
+          (demoUser) =>
+            demoUser.email.toLowerCase() ===
+            String(user.email || "").toLowerCase()
+        )
+    );
+
+    if (selectedUser) {
+      setEmail(selectedUser.email);
+      setPassword(selectedUser.password);
+    }
+  }, [validSelectedRole]);
+
+  /* =========================================================
+     CLEAR ERROR WHEN USER TYPES
+  ========================================================= */
+
+  useEffect(() => {
+    if (error) {
+      setError("");
+    }
+  }, [email, password]);
+
+  /* =========================================================
+     REDIRECT USER TO THE CORRECT DASHBOARD
+  ========================================================= */
+
   const redirectUser = (user) => {
-    navigate(getDashboardPath(user), {
+    const dashboardPath = getDashboardPath(user);
+
+    console.log(
+      "TeamFlow login successful:",
+      user.role,
+      dashboardPath
+    );
+
+    navigate(dashboardPath, {
       replace: true,
     });
   };
 
-  // Normal email and password login
+  /* =========================================================
+     NORMAL EMAIL/PASSWORD LOGIN
+  ========================================================= */
+
   const handleLogin = (e) => {
     e.preventDefault();
     setError("");
@@ -67,35 +242,43 @@ function Login() {
       return;
     }
 
-    const users = getUsers();
+    const users = initializeDefaultUsers();
 
     const user = users.find(
       (item) =>
-        item.email?.toLowerCase() === cleanEmail
+        String(item.email || "").trim().toLowerCase() ===
+        cleanEmail
     );
 
-    if (!user || user.password !== password) {
+    if (!user) {
       setError(
         "Invalid email or password. Please check your credentials."
       );
       return;
     }
 
-    // Keep the role assigned to the account.
-    // Older accounts without a role default to Employee.
+    if (user.password !== password) {
+      setError(
+        "Invalid email or password. Please check your credentials."
+      );
+      return;
+    }
+
     const normalizedUser = {
       ...user,
       role: getUserRole(user),
     };
 
-    // Verify that the selected role matches the account.
+    /* Verify that the account matches the selected role. */
+
     if (
       validSelectedRole &&
       normalizedUser.role !== validSelectedRole
     ) {
       setError(
         `This account belongs to the ${
-          ROLE_LABELS[normalizedUser.role]
+          ROLE_LABELS[normalizedUser.role] ||
+          normalizedUser.role
         } role. Please go back and select the correct role.`
       );
       return;
@@ -103,9 +286,11 @@ function Login() {
 
     setLoading(true);
 
-    // Update the registered account
+    /* Update user information in storage. */
+
     const updatedUsers = users.map((item) =>
-      item.email?.toLowerCase() === cleanEmail
+      String(item.email || "").trim().toLowerCase() ===
+      cleanEmail
         ? normalizedUser
         : item
     );
@@ -115,30 +300,54 @@ function Login() {
       JSON.stringify(updatedUsers)
     );
 
-    // Save the logged-in user
+    /* Save the currently logged-in user. */
+
+    const loggedInUser = {
+      ...normalizedUser,
+      loggedIn: true,
+      loginTime: new Date().toISOString(),
+    };
+
     localStorage.setItem(
       "teamflow_current_user",
-      JSON.stringify(normalizedUser)
+      JSON.stringify(loggedInUser)
     );
 
-    // Remember login preference
+    /* Remember login details if selected. */
+
     if (remember) {
       localStorage.setItem("teamflow_remember", "1");
+      localStorage.setItem(
+        "teamflow_remembered_email",
+        normalizedUser.email
+      );
+      localStorage.setItem(
+        "teamflow_remembered_role",
+        normalizedUser.role
+      );
     } else {
       localStorage.removeItem("teamflow_remember");
+      localStorage.removeItem("teamflow_remembered_email");
+      localStorage.removeItem("teamflow_remembered_role");
     }
 
-    // Redirect after successful login
+    /* Redirect after a short loading animation. */
+
     setTimeout(() => {
-      redirectUser(normalizedUser);
+      setLoading(false);
+      redirectUser(loggedInUser);
     }, 400);
   };
 
-  // Demo Google and GitHub login
+  /* =========================================================
+     DEMO SOCIAL LOGIN
+     NOTE: This simulates Google/GitHub login locally.
+     It does not perform real OAuth authentication.
+  ========================================================= */
+
   const handleSocialLogin = (type) => {
     setError("");
 
-    // Demo social accounts use the Employee role
     if (
       validSelectedRole &&
       validSelectedRole !== ROLES.EMPLOYEE
@@ -154,11 +363,11 @@ function Login() {
         ? "google.user@teamflow.local"
         : "github.user@teamflow.local";
 
-    let users = getUsers();
+    let users = initializeDefaultUsers();
 
     let user = users.find(
       (item) =>
-        item.email?.toLowerCase() === socialEmail
+        String(item.email || "").toLowerCase() === socialEmail
     );
 
     if (!user) {
@@ -173,6 +382,7 @@ function Login() {
         password: "social-login",
         provider: type,
         role: ROLES.EMPLOYEE,
+        status: "active",
       };
 
       users.push(user);
@@ -183,7 +393,7 @@ function Login() {
       };
 
       users = users.map((item) =>
-        item.email?.toLowerCase() === socialEmail
+        String(item.email || "").toLowerCase() === socialEmail
           ? user
           : item
       );
@@ -194,31 +404,153 @@ function Login() {
       JSON.stringify(users)
     );
 
+    const loggedInUser = {
+      ...user,
+      loggedIn: true,
+      loginTime: new Date().toISOString(),
+    };
+
     localStorage.setItem(
       "teamflow_current_user",
-      JSON.stringify(user)
+      JSON.stringify(loggedInUser)
     );
 
     localStorage.setItem("teamflow_remember", "1");
 
-    redirectUser(user);
+    redirectUser(loggedInUser);
   };
+
+  /* =========================================================
+     UI
+  ========================================================= */
 
   return (
     <div className="login-page">
-      {/* LEFT IMAGE SECTION */}
-      <section className="login-left">
-        <img
-          src={loginLeftImage}
-          alt="TeamFlow AI team collaboration"
-          className="login-left-image"
-        />
+      {/* LEFT WORKSPACE / VISUAL SECTION */}
+
+      <section
+        className="login-left login-workspace"
+        aria-label="TeamFlow AI collaboration preview"
+      >
+        <div className="workspace-glow workspace-glow-one" />
+        <div className="workspace-glow workspace-glow-two" />
+
+        <div className="workspace-brand">
+          <span className="workspace-brand-icon">
+            <UsersRound size={24} />
+          </span>
+          <span>
+            TeamFlow <strong>AI</strong>
+          </span>
+        </div>
+
+        <div className="workspace-copy">
+          <span className="workspace-eyebrow">
+            <span className="workspace-live-dot" />
+            YOUR TEAM, IN SYNC
+          </span>
+
+          <h2>
+            Great work happens <span>together.</span>
+          </h2>
+
+          <p>
+            Bring projects, people, and intelligent workflows
+            into one focused workspace.
+          </p>
+
+          <ul className="workspace-features">
+            <li>
+              <span>▣</span> Create &amp; manage projects
+            </li>
+            <li>
+              <span>♟</span> Invite your team members
+            </li>
+            <li>
+              <span>✦</span> Get intelligent recommendations
+            </li>
+            <li>
+              <span>▥</span> Monitor team performance
+            </li>
+          </ul>
+        </div>
+
+        {/* Decorative project dashboard preview */}
+
+        <div className="workspace-visual" aria-hidden="true">
+          <div className="workflow-line workflow-line-one" />
+          <div className="workflow-line workflow-line-two" />
+
+          <div className="workflow-dashboard">
+            <div className="workflow-dashboard-top">
+              <span className="dashboard-indicator" />
+              Project Dashboard
+              <span className="dashboard-dots">•••</span>
+            </div>
+
+            <div className="workflow-columns">
+              {["To Do", "In Progress", "Review", "Completed"].map(
+                (column, index) => (
+                  <div className="workflow-column" key={column}>
+                    <strong>{column}</strong>
+                    <span className="workflow-task" />
+                    <span className="workflow-task short" />
+                    <span className="workflow-task" />
+                    <span className="workflow-progress">
+                      <i
+                        style={{
+                          width: `${45 + index * 16}%`,
+                        }}
+                      />
+                    </span>
+                  </div>
+                )
+              )}
+            </div>
+          </div>
+
+          <div className="workflow-node workflow-node-one">
+            <span className="workflow-node-icon">✓</span>
+            <span className="workflow-node-copy">
+              <strong>Project planning</strong>
+              <small>Tasks organized</small>
+            </span>
+            <span className="workflow-status">DONE</span>
+          </div>
+
+          <div className="workflow-node workflow-node-two">
+            <span className="workflow-node-icon">✦</span>
+            <span className="workflow-node-copy">
+              <strong>AI insights</strong>
+              <small>Analyzing workflow</small>
+            </span>
+            <span className="workflow-status">LIVE</span>
+          </div>
+
+          <div className="workflow-node workflow-node-three">
+            <span className="workflow-node-icon">↗</span>
+            <span className="workflow-node-copy">
+              <strong>Team progress</strong>
+              <small>Weekly productivity</small>
+            </span>
+            <span className="workflow-status">+32%</span>
+          </div>
+
+          <div className="workflow-orbit workflow-orbit-one" />
+          <div className="workflow-orbit workflow-orbit-two" />
+        </div>
+
+        <div className="workspace-bottom">
+          CONNECT <span>·</span> COLLABORATE <span>·</span> DELIVER
+        </div>
       </section>
 
       {/* RIGHT LOGIN SECTION */}
+
       <main className="login-right">
         <div className="login-card">
-          {/* LOGO / BRAND */}
+          {/* LOGO */}
+
           <button
             type="button"
             className="login-brand"
@@ -235,19 +567,22 @@ function Login() {
           </button>
 
           {/* HEADING */}
+
           <div className="login-heading">
             <h1>Welcome Back</h1>
 
             <p>
               {validSelectedRole
                 ? `Sign in as ${
-                    ROLE_LABELS[validSelectedRole]
+                    ROLE_LABELS[validSelectedRole] ||
+                    validSelectedRole
                   } to continue to your TeamFlow AI workspace.`
                 : "Sign in to continue to your TeamFlow AI workspace."}
             </p>
           </div>
 
           {/* SOCIAL LOGIN */}
+
           <div className="login-social-row">
             <button
               type="button"
@@ -281,22 +616,20 @@ function Login() {
           </div>
 
           {/* DIVIDER */}
+
           <div className="login-divider">
-            <span></span>
+            <span />
             <p>OR CONTINUE WITH EMAIL</p>
-            <span></span>
+            <span />
           </div>
 
           {/* LOGIN FORM */}
-          <form
-            className="login-form"
-            onSubmit={handleLogin}
-          >
+
+          <form className="login-form" onSubmit={handleLogin}>
             {/* EMAIL */}
+
             <div className="login-form-group">
-              <label htmlFor="login-email">
-                Email Address
-              </label>
+              <label htmlFor="login-email">Email Address</label>
 
               <div className="login-input-wrapper">
                 <Mail
@@ -317,10 +650,9 @@ function Login() {
             </div>
 
             {/* PASSWORD */}
+
             <div className="login-form-group">
-              <label htmlFor="login-password">
-                Password
-              </label>
+              <label htmlFor="login-password">Password</label>
 
               <div className="login-input-wrapper">
                 <Lock
@@ -333,9 +665,7 @@ function Login() {
                   type={showPassword ? "text" : "password"}
                   placeholder="Enter your password"
                   value={password}
-                  onChange={(e) =>
-                    setPassword(e.target.value)
-                  }
+                  onChange={(e) => setPassword(e.target.value)}
                   autoComplete="current-password"
                   required
                 />
@@ -347,9 +677,7 @@ function Login() {
                     setShowPassword((current) => !current)
                   }
                   aria-label={
-                    showPassword
-                      ? "Hide password"
-                      : "Show password"
+                    showPassword ? "Hide password" : "Show password"
                   }
                 >
                   {showPassword ? (
@@ -361,17 +689,15 @@ function Login() {
               </div>
             </div>
 
-            {/* REMEMBER / FORGOT PASSWORD */}
+            {/* OPTIONS */}
+
             <div className="login-options">
               <label className="login-remember">
                 <input
                   type="checkbox"
                   checked={remember}
-                  onChange={(e) =>
-                    setRemember(e.target.checked)
-                  }
+                  onChange={(e) => setRemember(e.target.checked)}
                 />
-
                 <span>Remember me</span>
               </label>
 
@@ -389,16 +715,15 @@ function Login() {
             </div>
 
             {/* ERROR MESSAGE */}
+
             {error && (
-              <div
-                className="login-error"
-                role="alert"
-              >
+              <div className="login-error" role="alert">
                 {error}
               </div>
             )}
 
-            {/* LOGIN BUTTON */}
+            {/* SUBMIT BUTTON */}
+
             <button
               type="submit"
               className="login-submit-button"
@@ -409,6 +734,7 @@ function Login() {
           </form>
 
           {/* SIGNUP LINK */}
+
           <p className="login-signup-text">
             Don&apos;t have an account?
 
@@ -416,7 +742,9 @@ function Login() {
               type="button"
               onClick={() =>
                 navigate("/choose-role", {
-                  state: { next: "signup" },
+                  state: {
+                    next: "signup",
+                  },
                 })
               }
             >
@@ -425,6 +753,7 @@ function Login() {
           </p>
 
           {/* BACK HOME */}
+
           <button
             type="button"
             className="login-back-home"

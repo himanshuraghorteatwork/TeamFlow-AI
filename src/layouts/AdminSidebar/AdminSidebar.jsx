@@ -1,8 +1,9 @@
+
 import React from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 
 import {
-  Boxes,
+  Layers3,
   LayoutDashboard,
   Building2,
   Users,
@@ -15,7 +16,8 @@ import {
   Megaphone,
   FileText,
   Settings,
-  Headphones,
+  ShieldCheck,
+  ChevronRight,
   LogOut,
 } from "lucide-react";
 
@@ -88,98 +90,193 @@ function AdminSidebar() {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    localStorage.removeItem("teamflow_admin");
-    localStorage.removeItem("teamflow_admin_logged_in");
+    try {
+      // Clear the current login session.
+      localStorage.removeItem("teamflow_current_user");
+      sessionStorage.removeItem("teamflow_current_user");
 
-    navigate("/login");
+      // Clear Admin-specific session data.
+      localStorage.removeItem("teamflow_admin");
+      localStorage.removeItem("teamflow_admin_logged_in");
+      sessionStorage.removeItem("teamflow_admin");
+      sessionStorage.removeItem("teamflow_admin_logged_in");
+
+      // Clear remembered login details.
+      localStorage.removeItem("teamflow_remember");
+      localStorage.removeItem("teamflow_remembered_email");
+      localStorage.removeItem("teamflow_remembered_role");
+    } catch (error) {
+      console.error("Admin logout failed:", error);
+    }
+
+    // Return to role selection. Keep registered users intact.
+    navigate("/choose-role", {
+      replace: true,
+      state: {
+        next: "login",
+      },
+    });
   };
 
-  const handleSupport = () => {
-    alert("TeamFlow AI Support");
+  const handleWorkspaceControl = () => {
+    navigate("/admin/settings");
+  };
+
+  const handleBrandClick = () => {
+    navigate("/admin/dashboard");
   };
 
   return (
-    <aside className="adminSimpleSidebar">
-      {/* ================= BRAND ================= */}
+    <aside className="adminConsoleSidebar">
+      {/* Header */}
+      <div className="adminConsoleSidebar__header">
+        {/* Brand */}
+        <button
+          type="button"
+          className="adminConsoleSidebar__brand"
+          onClick={handleBrandClick}
+          aria-label="Go to Admin Dashboard"
+        >
+          <span className="adminConsoleSidebar__brandLogo">
+            <Layers3 size={26} strokeWidth={2.2} />
+          </span>
 
-      <div className="adminSimpleSidebar__brand">
-        <div className="adminSimpleSidebar__logo">
-          <Boxes size={24} strokeWidth={2} />
-        </div>
+          <span className="adminConsoleSidebar__brandText">
+            <strong>
+              TeamFlow <em>AI</em>
+            </strong>
+            <small>Admin Console</small>
+          </span>
+        </button>
 
-        <div className="adminSimpleSidebar__brandInfo">
-          <h2>
-            TeamFlow <span>AI</span>
-          </h2>
+        {/* Header divider */}
+        <div className="adminConsoleSidebar__divider" />
 
-          <span className="adminSimpleSidebar__badge">
-            Admin Panel
+        {/* Admin role card */}
+        <div className="adminConsoleSidebar__roleCard">
+          <span className="adminConsoleSidebar__roleIcon">
+            <ShieldCheck size={22} strokeWidth={2} />
+          </span>
+
+          <span className="adminConsoleSidebar__roleInfo">
+            <strong>Admin</strong>
+            <small>Workspace Management</small>
+          </span>
+
+          <span
+            className="adminConsoleSidebar__online"
+            title="Online"
+            aria-label="Admin is online"
+          >
+            <span />
           </span>
         </div>
       </div>
 
-      {/* ================= MENU ================= */}
+      {/* Navigation */}
+      <div className="adminConsoleSidebar__middle">
+        <p className="adminConsoleSidebar__sectionTitle">
+          PLATFORM MANAGEMENT
+        </p>
 
-      <nav className="adminSimpleSidebar__nav">
-        {adminMenuItems.map((item) => {
-          const Icon = item.icon;
+        <nav
+          className="adminConsoleSidebar__nav"
+          aria-label="Admin navigation"
+        >
+          {adminMenuItems.map((item) => {
+            const Icon = item.icon;
 
-          return (
-            <NavLink
-              key={item.path}
-              to={item.path}
-              end={item.path === "/admin/dashboard"}
-              className={({ isActive }) =>
-                `adminSimpleSidebar__item ${
-                  isActive
-                    ? "adminSimpleSidebar__item--active"
-                    : ""
-                }`
-              }
-            >
-              <span className="adminSimpleSidebar__icon">
-                <Icon size={19} strokeWidth={1.8} />
-              </span>
+            return (
+              <NavLink
+                key={item.path}
+                to={item.path}
+                end={item.path === "/admin/dashboard"}
+                className={({ isActive }) =>
+                  [
+                    "adminConsoleSidebar__navItem",
+                    isActive
+                      ? "adminConsoleSidebar__navItem--active"
+                      : "",
+                  ]
+                    .filter(Boolean)
+                    .join(" ")
+                }
+              >
+                <span className="adminConsoleSidebar__navIcon">
+                  <Icon size={18} strokeWidth={1.9} />
+                </span>
 
-              <span className="adminSimpleSidebar__label">
-                {item.name}
-              </span>
-            </NavLink>
-          );
-        })}
-      </nav>
+                <span className="adminConsoleSidebar__navLabel">
+                  {item.name}
+                </span>
 
-      {/* ================= BOTTOM ================= */}
+                <span
+                  className="adminConsoleSidebar__activeIndicator"
+                  aria-hidden="true"
+                />
+              </NavLink>
+            );
+          })}
+        </nav>
+      </div>
 
-      <div className="adminSimpleSidebar__bottom">
-        <div className="adminSimpleSidebar__support">
-          <div className="adminSimpleSidebar__supportTop">
-            <div className="adminSimpleSidebar__supportIcon">
-              <Headphones size={21} />
-            </div>
+      {/* Footer */}
+      <div className="adminConsoleSidebar__footer">
+        <div className="adminConsoleSidebar__footerDivider" />
 
-            <div className="adminSimpleSidebar__supportText">
-              <strong>Need Help?</strong>
-              <span>Contact support team</span>
-            </div>
-          </div>
-
-          <button
-            type="button"
-            className="adminSimpleSidebar__supportButton"
-            onClick={handleSupport}
-          >
-            Contact Support
-          </button>
-        </div>
-
+        {/* Workspace settings */}
         <button
           type="button"
-          className="adminSimpleSidebar__logout"
-          onClick={handleLogout}
+          className="adminConsoleSidebar__control"
+          onClick={handleWorkspaceControl}
+          aria-label="Open workspace settings"
         >
-          <LogOut size={18} />
+          <span className="adminConsoleSidebar__controlIcon">
+            <ShieldCheck size={21} strokeWidth={2} />
+          </span>
 
+          <span className="adminConsoleSidebar__controlInfo">
+            <strong>Workspace Control</strong>
+            <small>
+              Manage team workspace
+              <br />
+              and settings
+            </small>
+          </span>
+
+          <ChevronRight
+            size={18}
+            strokeWidth={1.9}
+            className="adminConsoleSidebar__controlArrow"
+          />
+        </button>
+
+        <div className="adminConsoleSidebar__profileDivider" />
+
+        {/* Admin profile */}
+        <div className="adminConsoleSidebar__profile">
+          <div
+            className="adminConsoleSidebar__avatar"
+            aria-hidden="true"
+          >
+            AD
+          </div>
+
+          <div className="adminConsoleSidebar__profileInfo">
+            <strong>Admin</strong>
+            <small>Workspace Administrator</small>
+          </div>
+        </div>
+
+        {/* Single logout button */}
+        <button
+          type="button"
+          className="adminConsoleSidebar__logout"
+          onClick={handleLogout}
+          aria-label="Logout from Admin account"
+          title="Logout"
+        >
+          <LogOut size={18} strokeWidth={1.9} />
           <span>Logout</span>
         </button>
       </div>

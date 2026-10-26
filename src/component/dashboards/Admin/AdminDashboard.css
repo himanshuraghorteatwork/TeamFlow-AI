@@ -29,11 +29,16 @@
 }
 
 .tf-admin-dashboard-main {
-  margin-left: 225px;
+  margin-left: 240px;
 
-  width: calc(100% - 225px);
+  width: calc(100% - 240px);
 
+  min-width: 0;
   min-height: 100vh;
+
+  overflow-x: hidden;
+
+  background: var(--tf-bg);
 }
 
 /* =========================================================
@@ -45,7 +50,7 @@
 
   top: 0;
 
-  z-index: 1000;
+  z-index: 100;
 
   height: 72px;
 
@@ -587,7 +592,15 @@
 ========================================================= */
 
 .tf-dashboard-content {
+  width: 100%;
+  max-width: 100%;
+
+  min-width: 0;
+  min-height: calc(100vh - 72px);
+
   padding: 18px;
+
+  overflow-x: hidden;
 
   background:
     radial-gradient(
@@ -597,7 +610,6 @@
     ),
     #f7f8fc;
 }
-
 /* =========================================================
    HERO
 ========================================================= */
@@ -2122,5 +2134,846 @@
 
   .tf-admin-dashboard .tf-growth-panel {
     overflow-x: auto;
+  }
+}
+
+/* =========================================================
+   ADMIN DASHBOARD - OPEN / LIVE ANIMATIONS
+   Scoped only to Admin Dashboard
+========================================================= */
+
+/* =========================================================
+   TOPBAR ENTRANCE
+========================================================= */
+
+.tf-admin-dashboard.tf-dashboard-loading
+  .tf-admin-topbar {
+  opacity: 0;
+  transform: translateY(-14px);
+}
+
+.tf-admin-dashboard.tf-dashboard-ready
+  .tf-admin-topbar {
+  animation: tfTopbarEnter 0.55s ease both;
+}
+
+@keyframes tfTopbarEnter {
+  from {
+    opacity: 0;
+    transform: translateY(-14px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =========================================================
+   HERO ENTRANCE
+========================================================= */
+
+.tf-admin-dashboard.tf-dashboard-loading
+  .tf-dashboard-hero {
+  opacity: 0;
+  transform: translateY(20px) scale(0.985);
+}
+
+.tf-admin-dashboard.tf-dashboard-ready
+  .tf-dashboard-hero {
+  animation: tfHeroEnter 0.7s
+    cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes tfHeroEnter {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* =========================================================
+   HERO COPY
+========================================================= */
+
+.tf-admin-dashboard.tf-dashboard-loading
+  .tf-hero-copy {
+  opacity: 0;
+  transform: translateX(-18px);
+}
+
+.tf-admin-dashboard.tf-dashboard-ready
+  .tf-hero-copy {
+  animation: tfHeroCopyEnter 0.65s 0.16s
+    cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes tfHeroCopyEnter {
+  from {
+    opacity: 0;
+    transform: translateX(-18px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* =========================================================
+   HERO ACTIONS
+========================================================= */
+
+.tf-admin-dashboard.tf-dashboard-loading
+  .tf-hero-action {
+  opacity: 0;
+  transform: translateY(14px);
+}
+
+.tf-admin-dashboard.tf-dashboard-ready
+  .tf-hero-action {
+  animation: tfActionEnter 0.5s ease both;
+}
+
+.tf-admin-dashboard.tf-dashboard-ready
+  .tf-hero-action:nth-child(1) {
+  animation-delay: 0.18s;
+}
+
+.tf-admin-dashboard.tf-dashboard-ready
+  .tf-hero-action:nth-child(2) {
+  animation-delay: 0.25s;
+}
+
+.tf-admin-dashboard.tf-dashboard-ready
+  .tf-hero-action:nth-child(3) {
+  animation-delay: 0.32s;
+}
+
+.tf-admin-dashboard.tf-dashboard-ready
+  .tf-hero-action:nth-child(4) {
+  animation-delay: 0.39s;
+}
+
+@keyframes tfActionEnter {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =========================================================
+   HERO BOT
+========================================================= */
+
+.tf-admin-dashboard.tf-dashboard-ready
+  .tf-hero-bot {
+  animation:
+    tfBotEnter 0.7s 0.3s
+      cubic-bezier(0.22, 1, 0.36, 1) both,
+    tfBotFloat 3.5s 1s ease-in-out infinite;
+}
+
+@keyframes tfBotEnter {
+  from {
+    opacity: 0;
+    transform:
+      scale(0.5)
+      rotate(-15deg);
+  }
+
+  to {
+    opacity: 1;
+    transform:
+      scale(1)
+      rotate(6deg);
+  }
+}
+
+@keyframes tfBotFloat {
+  0%,
+  100% {
+    transform:
+      translateY(0)
+      rotate(6deg);
+  }
+
+  50% {
+    transform:
+      translateY(-7px)
+      rotate(3deg);
+  }
+}
+
+/* =========================================================
+   HERO ORBIT
+========================================================= */
+
+.tf-admin-dashboard.tf-dashboard-ready
+  .tf-hero-orbit {
+  animation:
+    tfOrbitEnter 0.8s 0.25s ease both,
+    tfOrbitPulse 2.8s 1s ease-in-out infinite;
+}
+
+@keyframes tfOrbitEnter {
+  from {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes tfOrbitPulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.75;
+  }
+
+  50% {
+    transform: scale(1.12);
+    opacity: 0.35;
+  }
+}
+
+/* =========================================================
+   LIVE STATUS DOT
+========================================================= */
+
+.tf-admin-dashboard
+  .tf-live-status
+  > span {
+  animation: tfLivePulse 1.8s ease-in-out infinite;
+}
+
+@keyframes tfLivePulse {
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 3px
+      rgba(24, 201, 148, 0.12);
+  }
+
+  50% {
+    box-shadow:
+      0 0 0 7px
+      rgba(24, 201, 148, 0);
+  }
+}
+
+/* =========================================================
+   KPI CARD ENTRANCE
+========================================================= */
+
+.tf-admin-dashboard.tf-dashboard-loading
+  .tf-stat-card {
+  opacity: 0;
+  transform: translateY(18px);
+}
+
+.tf-admin-dashboard.tf-dashboard-ready
+  .tf-stat-card {
+  animation: tfKpiEnter 0.55s
+    cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.tf-admin-dashboard.tf-dashboard-ready
+  .tf-stat-card:nth-child(1) {
+  animation-delay: 0.28s;
+}
+
+.tf-admin-dashboard.tf-dashboard-ready
+  .tf-stat-card:nth-child(2) {
+  animation-delay: 0.34s;
+}
+
+.tf-admin-dashboard.tf-dashboard-ready
+  .tf-stat-card:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+.tf-admin-dashboard.tf-dashboard-ready
+  .tf-stat-card:nth-child(4) {
+  animation-delay: 0.46s;
+}
+
+.tf-admin-dashboard.tf-dashboard-ready
+  .tf-stat-card:nth-child(5) {
+  animation-delay: 0.52s;
+}
+
+.tf-admin-dashboard.tf-dashboard-ready
+  .tf-stat-card:nth-child(6) {
+  animation-delay: 0.58s;
+}
+
+@keyframes tfKpiEnter {
+  from {
+    opacity: 0;
+    transform:
+      translateY(18px)
+      scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+    transform:
+      translateY(0)
+      scale(1);
+  }
+}
+
+/* =========================================================
+   KPI ICON POP
+========================================================= */
+
+.tf-admin-dashboard.tf-dashboard-ready
+  .tf-stat-icon {
+  animation: tfIconPop 0.45s ease both;
+}
+
+@keyframes tfIconPop {
+  0% {
+    transform: scale(0.65);
+  }
+
+  70% {
+    transform: scale(1.08);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* =========================================================
+   CHART CARD ENTRANCE
+========================================================= */
+
+.tf-admin-dashboard.tf-dashboard-loading
+  .tf-dashboard-chart-grid
+  > .tf-dashboard-card {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.tf-admin-dashboard.tf-dashboard-ready
+  .tf-dashboard-chart-grid
+  > .tf-dashboard-card {
+  animation: tfChartCardEnter 0.65s
+    cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.tf-admin-dashboard.tf-dashboard-ready
+  .tf-dashboard-chart-grid
+  > .tf-dashboard-card:nth-child(1) {
+  animation-delay: 0.52s;
+}
+
+.tf-admin-dashboard.tf-dashboard-ready
+  .tf-dashboard-chart-grid
+  > .tf-dashboard-card:nth-child(2) {
+  animation-delay: 0.6s;
+}
+
+.tf-admin-dashboard.tf-dashboard-ready
+  .tf-dashboard-chart-grid
+  > .tf-dashboard-card:nth-child(3) {
+  animation-delay: 0.68s;
+}
+
+@keyframes tfChartCardEnter {
+  from {
+    opacity: 0;
+    transform:
+      translateY(20px)
+      scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform:
+      translateY(0)
+      scale(1);
+  }
+}
+
+/* =========================================================
+   LINE CHART DRAW
+========================================================= */
+
+.tf-admin-dashboard
+  .tf-users-line,
+.tf-admin-dashboard
+  .tf-active-line {
+  stroke-dasharray: 1600;
+  stroke-dashoffset: 1600;
+}
+
+.tf-admin-dashboard.tf-dashboard-ready
+  .tf-users-line {
+  animation: tfDrawLine 1.25s 0.72s ease forwards;
+}
+
+.tf-admin-dashboard.tf-dashboard-ready
+  .tf-active-line {
+  animation: tfDrawLine 1.25s 0.88s ease forwards;
+}
+
+@keyframes tfDrawLine {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* =========================================================
+   LINE CHART POINTS
+========================================================= */
+
+.tf-admin-dashboard
+  .tf-users-point,
+.tf-admin-dashboard
+  .tf-active-point {
+  transform-box: fill-box;
+  transform-origin: center;
+
+  opacity: 0;
+  transform: scale(0);
+}
+
+.tf-admin-dashboard.tf-dashboard-ready
+  .tf-users-point,
+.tf-admin-dashboard.tf-dashboard-ready
+  .tf-active-point {
+  animation: tfPointEnter 0.4s 1.35s ease forwards;
+}
+
+@keyframes tfPointEnter {
+  from {
+    opacity: 0;
+    transform: scale(0);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* =========================================================
+   DONUT CHART DRAW
+========================================================= */
+
+.tf-admin-dashboard
+  .tf-donut-wrapper {
+  opacity: 0;
+  transform: scale(0.8);
+}
+
+.tf-admin-dashboard.tf-dashboard-ready
+  .tf-donut-wrapper {
+  animation: tfDonutEnter 0.7s 0.75s ease forwards;
+}
+
+@keyframes tfDonutEnter {
+  from {
+    opacity: 0;
+    transform: scale(0.8) rotate(-8deg);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) rotate(0);
+  }
+}
+
+.tf-admin-dashboard
+  .tf-donut-segment {
+  transition:
+    stroke-width 0.2s ease,
+    opacity 0.2s ease,
+    stroke-dashoffset 0.8s ease;
+}
+
+/* =========================================================
+   DONUT CENTER NUMBER
+========================================================= */
+
+.tf-admin-dashboard.tf-dashboard-ready
+  .tf-donut-center {
+  animation: tfFadeScale 0.5s 1s ease both;
+}
+
+@keyframes tfFadeScale {
+  from {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* =========================================================
+   ACTIVITY BARS
+========================================================= */
+
+.tf-admin-dashboard
+  .tf-activity-stack {
+  transform-origin: bottom;
+}
+
+.tf-admin-dashboard.tf-dashboard-loading
+  .tf-activity-stack {
+  transform: scaleY(0);
+}
+
+.tf-admin-dashboard.tf-dashboard-ready
+  .tf-activity-stack {
+  animation: tfBarGrow 0.75s
+    cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.tf-admin-dashboard.tf-dashboard-ready
+  .tf-activity-column:nth-child(1)
+  .tf-activity-stack {
+  animation-delay: 0.7s;
+}
+
+.tf-admin-dashboard.tf-dashboard-ready
+  .tf-activity-column:nth-child(2)
+  .tf-activity-stack {
+  animation-delay: 0.77s;
+}
+
+.tf-admin-dashboard.tf-dashboard-ready
+  .tf-activity-column:nth-child(3)
+  .tf-activity-stack {
+  animation-delay: 0.84s;
+}
+
+.tf-admin-dashboard.tf-dashboard-ready
+  .tf-activity-column:nth-child(4)
+  .tf-activity-stack {
+  animation-delay: 0.91s;
+}
+
+.tf-admin-dashboard.tf-dashboard-ready
+  .tf-activity-column:nth-child(5)
+  .tf-activity-stack {
+  animation-delay: 0.98s;
+}
+
+.tf-admin-dashboard.tf-dashboard-ready
+  .tf-activity-column:nth-child(6)
+  .tf-activity-stack {
+  animation-delay: 1.05s;
+}
+
+.tf-admin-dashboard.tf-dashboard-ready
+  .tf-activity-column:nth-child(7)
+  .tf-activity-stack {
+  animation-delay: 1.12s;
+}
+
+@keyframes tfBarGrow {
+  from {
+    opacity: 0;
+    transform: scaleY(0);
+  }
+
+  to {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+}
+
+/* Keep hover working after entrance animation */
+
+.tf-admin-dashboard.tf-dashboard-ready
+  .tf-activity-stack:hover,
+.tf-admin-dashboard.tf-dashboard-ready
+  .tf-activity-stack.active {
+  transform: translateY(-4px);
+}
+
+/* =========================================================
+   LOWER CARD ENTRANCE
+========================================================= */
+
+.tf-admin-dashboard.tf-dashboard-loading
+  .tf-lower-grid
+  > .tf-dashboard-card {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.tf-admin-dashboard.tf-dashboard-ready
+  .tf-lower-grid
+  > .tf-dashboard-card {
+  animation: tfLowerCardEnter 0.6s ease both;
+}
+
+.tf-admin-dashboard.tf-dashboard-ready
+  .tf-lower-grid
+  > .tf-dashboard-card:nth-child(1) {
+  animation-delay: 0.78s;
+}
+
+.tf-admin-dashboard.tf-dashboard-ready
+  .tf-lower-grid
+  > .tf-dashboard-card:nth-child(2) {
+  animation-delay: 0.86s;
+}
+
+.tf-admin-dashboard.tf-dashboard-ready
+  .tf-lower-grid
+  > .tf-dashboard-card:nth-child(3) {
+  animation-delay: 0.94s;
+}
+
+@keyframes tfLowerCardEnter {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =========================================================
+   RECENT LIST ROWS
+========================================================= */
+
+.tf-admin-dashboard.tf-dashboard-loading
+  .tf-list
+  > button {
+  opacity: 0;
+  transform: translateX(-12px);
+}
+
+.tf-admin-dashboard.tf-dashboard-ready
+  .tf-list
+  > button {
+  animation: tfListRowEnter 0.45s ease both;
+}
+
+.tf-admin-dashboard.tf-dashboard-ready
+  .tf-list
+  > button:nth-child(1) {
+  animation-delay: 0.95s;
+}
+
+.tf-admin-dashboard.tf-dashboard-ready
+  .tf-list
+  > button:nth-child(2) {
+  animation-delay: 1.02s;
+}
+
+.tf-admin-dashboard.tf-dashboard-ready
+  .tf-list
+  > button:nth-child(3) {
+  animation-delay: 1.09s;
+}
+
+.tf-admin-dashboard.tf-dashboard-ready
+  .tf-list
+  > button:nth-child(4) {
+  animation-delay: 1.16s;
+}
+
+@keyframes tfListRowEnter {
+  from {
+    opacity: 0;
+    transform: translateX(-12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* =========================================================
+   HEALTH BAR LIVE LOAD
+========================================================= */
+
+.tf-admin-dashboard
+  .tf-health-track
+  span {
+  transition:
+    width 1.25s
+    cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* =========================================================
+   SYSTEM HEALTH ROWS
+========================================================= */
+
+.tf-admin-dashboard.tf-dashboard-loading
+  .tf-health-row {
+  opacity: 0;
+  transform: translateX(10px);
+}
+
+.tf-admin-dashboard.tf-dashboard-ready
+  .tf-health-row {
+  animation: tfHealthEnter 0.45s ease both;
+}
+
+.tf-admin-dashboard.tf-dashboard-ready
+  .tf-health-row:nth-child(1) {
+  animation-delay: 0.95s;
+}
+
+.tf-admin-dashboard.tf-dashboard-ready
+  .tf-health-row:nth-child(2) {
+  animation-delay: 1.05s;
+}
+
+.tf-admin-dashboard.tf-dashboard-ready
+  .tf-health-row:nth-child(3) {
+  animation-delay: 1.15s;
+}
+
+@keyframes tfHealthEnter {
+  from {
+    opacity: 0;
+    transform: translateX(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* =========================================================
+   SUMMARY STRIP
+========================================================= */
+
+.tf-admin-dashboard.tf-dashboard-loading
+  .tf-summary-strip {
+  opacity: 0;
+  transform: translateY(15px);
+}
+
+.tf-admin-dashboard.tf-dashboard-ready
+  .tf-summary-strip {
+  animation: tfSummaryEnter 0.6s 1s ease both;
+}
+
+@keyframes tfSummaryEnter {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =========================================================
+   REFRESH ICON
+========================================================= */
+
+.tf-admin-dashboard
+  .tf-refresh-spinning {
+  animation: tfRefreshSpin 0.65s linear infinite;
+}
+
+@keyframes tfRefreshSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* =========================================================
+   CARD LIVE HOVER
+========================================================= */
+
+.tf-admin-dashboard
+  .tf-dashboard-card {
+  transition:
+    transform 0.22s ease,
+    box-shadow 0.22s ease,
+    border-color 0.22s ease;
+}
+
+.tf-admin-dashboard
+  .tf-dashboard-chart-grid
+  > .tf-dashboard-card:hover,
+.tf-admin-dashboard
+  .tf-lower-grid
+  > .tf-dashboard-card:hover {
+  transform: translateY(-3px);
+
+  border-color: rgba(105, 64, 245, 0.22);
+
+  box-shadow:
+    0 12px 32px
+    rgba(66, 47, 130, 0.08);
+}
+
+/* =========================================================
+   CREATE BUTTON LIVE EFFECT
+========================================================= */
+
+.tf-admin-dashboard
+  .tf-create-btn {
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.tf-admin-dashboard
+  .tf-create-btn:hover {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 10px 25px
+    rgba(105, 61, 239, 0.28);
+}
+
+.tf-admin-dashboard
+  .tf-create-btn:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* =========================================================
+   ACCESSIBILITY
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .tf-admin-dashboard *,
+  .tf-admin-dashboard *::before,
+  .tf-admin-dashboard *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+
+    scroll-behavior: auto !important;
   }
 }

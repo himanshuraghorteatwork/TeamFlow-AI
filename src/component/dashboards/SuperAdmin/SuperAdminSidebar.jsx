@@ -66,9 +66,21 @@ function SuperAdminSidebar({
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("teamflow_current_user");
+    [
+      "teamflow_current_user",
+      "teamflow_superadmin",
+      "teamflow_admin",
+      "teamflow_admin_logged_in",
+      "teamflow_teamlead",
+      "teamflow_user",
+    ].forEach((key) => {
+      localStorage.removeItem(key);
+      sessionStorage.removeItem(key);
+    });
+
     closeSidebar();
-    navigate("/login", { replace: true });
+
+    navigate("/choose-role", { replace: true });
   };
 
   const handlePlatformControl = () => {
@@ -138,7 +150,7 @@ function SuperAdminSidebar({
         />
       </div>
 
-      {/* Exactly 7 Navigation Items */}
+      {/* Navigation */}
       <nav className="superadmin-navigation">
         <p className="superadmin-nav-heading">
           PLATFORM MANAGEMENT
@@ -182,7 +194,6 @@ function SuperAdminSidebar({
 
       {/* Bottom Section */}
       <div className="superadmin-sidebar-bottom">
-        {/* Platform Control Card */}
         <button
           type="button"
           className="superadmin-support-card"
@@ -208,11 +219,9 @@ function SuperAdminSidebar({
           />
         </button>
 
-        {/* Super Admin Profile */}
+        {/* Profile with one Logout button */}
         <div className="superadmin-profile">
-          <div className="superadmin-profile-avatar">
-            SA
-          </div>
+          <div className="superadmin-profile-avatar">SA</div>
 
           <div className="superadmin-profile-info">
             <span className="superadmin-profile-name">
@@ -234,16 +243,6 @@ function SuperAdminSidebar({
             <LogOut size={19} strokeWidth={1.9} />
           </button>
         </div>
-
-        {/* Logout Row */}
-        <button
-          type="button"
-          className="superadmin-logout-link"
-          onClick={handleLogout}
-        >
-          <LogOut size={17} />
-          <span>Logout</span>
-        </button>
       </div>
     </aside>
   );

@@ -1,5 +1,4 @@
-
-/* Main Sidebar */
+/* ================= MAIN SIDEBAR ================= */
 
 .team-lead-sidebar {
   box-sizing: border-box;
@@ -7,22 +6,21 @@
   top: 0;
 
   display: flex;
-  flex: 0 0 224px;
+  flex: 0 0 232px;
   flex-direction: column;
 
-  width: 224px;
+  width: 232px;
   height: 100vh;
 
-  padding: 18px 12px;
+  padding: 16px 12px 12px;
   overflow-y: auto;
 
-  background: #0b1937;
-  color: #d5dced;
+  background: linear-gradient(180deg, #0b1438 0%, #070d28 100%);
+  border-right: 1px solid #19234e;
+  color: #c3cdea;
 
-  font-family: Arial, sans-serif;
+  font-family: Inter, "Segoe UI", Arial, sans-serif;
 }
-
-/* Reset */
 
 .team-lead-sidebar *,
 .team-lead-sidebar *::before,
@@ -30,48 +28,66 @@
   box-sizing: border-box;
 }
 
-.team-lead-sidebar button {
+/* zero-specificity reset so component classes can override it freely */
+:where(.team-lead-sidebar) button {
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
   color: inherit;
   font: inherit;
+  cursor: pointer;
 }
 
-/* Brand */
+.team-lead-sidebar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.team-lead-sidebar::-webkit-scrollbar-thumb {
+  background: #243063;
+  border-radius: 4px;
+}
+
+/* ================= BRAND ================= */
 
 .tls-brand {
   display: flex;
   align-items: center;
   gap: 11px;
 
-  margin-bottom: 28px;
-  padding: 0 8px;
+  width: 100%;
+  margin-bottom: 14px;
+  padding: 0 4px 14px;
 
+  border-bottom: 1px solid #19234e;
   color: #ffffff;
-  text-decoration: none;
+  text-align: left;
 }
 
 .tls-logo {
   display: grid;
-  flex: 0 0 38px;
+  flex: 0 0 40px;
   place-items: center;
 
-  width: 38px;
-  height: 38px;
+  width: 40px;
+  height: 40px;
 
-  border-radius: 10px;
-  background: #693cff;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #8257ff, #5b2fe0);
   color: #ffffff;
-
-  box-shadow: 0 5px 15px #693cff40;
+  box-shadow: 0 6px 18px rgba(105, 60, 255, 0.45);
 }
 
 .tls-brand-copy {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 3px;
+  min-width: 0;
 }
 
 .tls-brand-name {
-  font-size: 17px;
+  color: #ffffff;
+  font-size: 16px;
   font-weight: 700;
   white-space: nowrap;
 }
@@ -80,48 +96,114 @@
   color: #a58aff;
 }
 
-.tls-admin-badge {
-  width: fit-content;
-  padding: 3px 7px;
-
-  border-radius: 4px;
-  background: #5534a8;
-  color: #eee6ff;
-
-  font-size: 10px;
-  font-weight: 600;
+.tls-brand-sub {
+  color: #8f9bc4;
+  font-size: 10.5px;
+  white-space: nowrap;
 }
 
-/* Navigation */
+/* ================= ROLE CARD ================= */
+
+.tls-role-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  margin-bottom: 18px;
+  padding: 11px 12px;
+
+  border: 1px solid #263566;
+  border-radius: 13px;
+  background: linear-gradient(135deg, #14214f 0%, #0f1a40 100%);
+}
+
+.tls-role-icon {
+  display: grid;
+  flex: 0 0 38px;
+  place-items: center;
+
+  width: 38px;
+  height: 38px;
+
+  border: 1px solid #2d4a8a;
+  border-radius: 10px;
+  background: #16295a;
+  color: #4da3ff;
+}
+
+.tls-role-copy {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.tls-role-copy b {
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.tls-role-copy small {
+  overflow: hidden;
+  color: #8f9bc4;
+  font-size: 9.5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tls-status-dot {
+  flex: 0 0 10px;
+  width: 10px;
+  height: 10px;
+
+  border-radius: 50%;
+  background: #2ee59d;
+  box-shadow: 0 0 0 4px rgba(46, 229, 157, 0.16),
+    0 0 12px rgba(46, 229, 157, 0.75);
+}
+
+/* ================= SECTION LABEL ================= */
+
+.tls-section-label {
+  margin: 0 0 8px;
+  padding: 0 6px;
+
+  color: #7e8ab6;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/* ================= NAVIGATION ================= */
 
 .tls-nav {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 3px;
 }
 
 .tls-nav-item {
+  position: relative;
+
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 13px;
 
   width: 100%;
-  min-height: 46px;
-  padding: 0 15px;
+  min-height: 40px;
+  padding: 0 14px;
 
-  border: none;
-  border-radius: 12px;
+  border-radius: 11px;
+  color: #b9c3e3;
 
-  background: transparent;
-  color: #d5dced;
-
-  font-size: 13px;
+  font-size: 12.5px;
   font-weight: 600;
-
   text-align: left;
-  cursor: pointer;
 
-  transition: background 150ms ease, color 150ms ease;
+  transition: background 160ms ease, color 160ms ease, box-shadow 160ms ease;
 }
 
 .tls-nav-item svg {
@@ -132,48 +214,64 @@
   white-space: nowrap;
 }
 
-/* Hover */
-
 .tls-nav-item:hover {
-  background: #18294b;
+  background: #141e4a;
   color: #ffffff;
 }
 
-/* Active Page */
+/* Active page */
 
 .tls-nav-item.active {
-  background: #202f50;
+  background: linear-gradient(135deg, #8257ff 0%, #5b2fe0 100%);
   color: #ffffff;
+  box-shadow: 0 8px 22px rgba(105, 60, 255, 0.42);
 }
 
-/* Bottom Section */
+.tls-active-bar {
+  position: absolute;
+  top: 50%;
+  right: -10px;
+
+  width: 5px;
+  height: 22px;
+
+  border-radius: 4px 0 0 4px;
+  background: #cbbcff;
+  transform: translateY(-50%);
+}
+
+/* ================= BOTTOM SECTION ================= */
 
 .tls-sidebar-bottom {
   margin-top: auto;
-  padding-top: 24px;
+  padding-top: 18px;
 }
 
-/* Support Card */
+/* Team control card */
 
-.tls-support-card {
-  padding: 14px;
-  margin-bottom: 12px;
-
-  border: 1px solid #30466e;
-  border-radius: 12px;
-
-  background: #182b50;
-}
-
-.tls-support-heading {
+.tls-control-card {
   display: flex;
   align-items: center;
   gap: 10px;
 
-  margin-bottom: 12px;
+  width: 100%;
+  padding: 11px 12px;
+
+  border: 1px solid #263566;
+  border-radius: 13px;
+  background: linear-gradient(135deg, #14214f 0%, #0f1a40 100%);
+  color: #8f9bc4;
+  text-align: left;
+
+  transition: border-color 160ms ease, background 160ms ease;
 }
 
-.tls-support-icon {
+.tls-control-card:hover {
+  border-color: #3a4a8f;
+  background: linear-gradient(135deg, #182860 0%, #12204d 100%);
+}
+
+.tls-control-icon {
   display: grid;
   flex: 0 0 38px;
   place-items: center;
@@ -182,90 +280,81 @@
   height: 38px;
 
   border-radius: 10px;
-  background: #693cff;
-  color: #ffffff;
+  background: #0f4a4a;
+  color: #2ee59d;
 }
 
-.tls-support-copy {
+.tls-control-copy {
   display: flex;
+  flex: 1;
   flex-direction: column;
-  gap: 5px;
+  gap: 3px;
+  min-width: 0;
 }
 
-.tls-support-copy b {
+.tls-control-copy b {
   color: #ffffff;
-  font-size: 11px;
+  font-size: 11.5px;
   font-weight: 700;
 }
 
-.tls-support-copy small {
-  color: #b6c2dc;
-  font-size: 9px;
+.tls-control-copy small {
+  color: #8f9bc4;
+  font-size: 9.5px;
+  line-height: 1.35;
 }
 
-/* Support Button */
-
-.tls-support-button {
-  width: 100%;
-  height: 36px;
-
-  border: none;
-  border-radius: 8px;
-
-  background: #693cff;
-  color: #ffffff;
-
-  font-size: 12px;
-  font-weight: 600;
-
-  cursor: pointer;
-
-  transition: background 150ms ease;
+.tls-bottom-divider {
+  height: 1px;
+  margin: 14px 0 10px;
+  background: #19234e;
 }
 
-.tls-support-button:hover {
-  background: #7955ff;
-}
-
-/* Logout */
-
-.tls-logout {
-  min-height: 42px;
-}
+/* Profile */
 
 .tls-profile-button {
   display: flex;
-  width: 100%;
   align-items: center;
   gap: 10px;
-  margin: 0 0 8px;
-  padding: 10px 8px;
-  border: 1px solid #30466e;
+
+  width: 100%;
+  min-width: 0;
+  margin-bottom: 4px;
+  padding: 6px 8px;
+
   border-radius: 11px;
-  background: #132548;
-  color: #fff;
   text-align: left;
-  cursor: pointer;
+
+  transition: background 160ms ease;
 }
 
 .tls-profile-button:hover {
-  border-color: #536b9a;
-  background: #1b3158;
+  background: #141e4a;
 }
 
-.tls-profile-button .tls-avatar {
-  flex-basis: 38px;
+.tls-avatar {
+  display: grid;
+  flex: 0 0 38px;
+  place-items: center;
+
   width: 38px;
   height: 38px;
+
+  border-radius: 50%;
+  background: linear-gradient(135deg, #8a5cff, #5b2fe0);
+  color: #ffffff;
+
   font-size: 12px;
+  font-weight: 700;
+  box-shadow: 0 0 0 3px rgba(124, 77, 255, 0.25);
 }
 
 .tls-profile-copy {
   display: flex;
-  min-width: 0;
   flex: 1;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
+  min-width: 0;
 }
 
 .tls-profile-copy b,
@@ -275,24 +364,115 @@
   white-space: nowrap;
 }
 
-.tls-profile-copy b { font-size: 12px; }
-.tls-profile-copy small { color: #b6c2dc; font-size: 10px; }
+.tls-profile-copy b {
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+}
 
-/* Focus */
+.tls-profile-copy small {
+  color: #8f9bc4;
+  font-size: 10px;
+}
+
+/* Logout */
+
+.tls-logout {
+  min-height: 38px;
+  gap: 12px;
+  font-size: 12px;
+}
+
+.tls-logout:hover {
+  background: #2a1a3d;
+  color: #ff7a8a;
+}
+
+/* ================= FOCUS ================= */
 
 .tls-nav-item:focus-visible,
-.tls-support-button:focus-visible,
+.tls-control-card:focus-visible,
 .tls-profile-button:focus-visible,
 .tls-brand:focus-visible {
   outline: 2px solid #a99aff;
-  outline-offset: 3px;
+  outline-offset: 2px;
 }
 
-/* Responsive */
+/* ================= RESPONSIVE ================= */
 
 @media (max-width: 768px) {
   .team-lead-sidebar {
-    flex: 0 0 224px;
-    width: 224px;
+    flex: 0 0 232px;
+    width: 232px;
   }
+}
+
+/* SUPPORT CARD */
+.tls-support-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  padding: 14px 11px;
+  margin-bottom: 12px;
+
+  background: linear-gradient(135deg, #14214f, #0f1a40);
+  border: 1px solid #263566;
+  border-radius: 13px;
+}
+
+.tls-support-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.tls-support-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+
+  background: #16295a;
+  color: #a58aff;
+  border-radius: 10px;
+}
+
+.tls-support-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.tls-support-copy b {
+  color: #ffffff;
+  font-size: 12px;
+}
+
+.tls-support-copy small {
+  color: #8f9bc4;
+  font-size: 10px;
+}
+
+.tls-support-button {
+  display: block;
+  width: 100%;
+  padding: 9px 6px !important;
+
+  background: #292052 !important;
+  border: 1px solid #493b85 !important;
+  border-radius: 8px;
+  color: #d8ceff !important;
+
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  text-align: center;
+  cursor: pointer;
+}
+
+.tls-support-button:hover {
+  background: #49358a !important;
 }

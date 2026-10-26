@@ -14,6 +14,9 @@ import {
   MessageCircle,
   FolderKanban,
   CalendarDays,
+  Zap,
+  Shield,
+  CircleCheck,
 } from "lucide-react";
 
 import "./ChooseRole.css";
@@ -25,6 +28,7 @@ const roles = [
     description: "Full control over the platform and all organizations.",
     icon: Crown,
     color: "purple",
+    badge: "Platform access",
   },
   {
     id: "admin",
@@ -32,6 +36,7 @@ const roles = [
     description: "Manage team members, projects, and daily operations.",
     icon: ShieldCheck,
     color: "blue",
+    badge: "Workspace control",
   },
   {
     id: "teamlead",
@@ -39,13 +44,15 @@ const roles = [
     description: "Lead your team, track progress, and ensure timely delivery.",
     icon: Users,
     color: "orange",
+    badge: "Team management",
   },
   {
     id: "employee",
-    title: "Member",
+    title: "Employee",
     description: "Work on assigned tasks and collaborate with your team.",
     icon: UserRound,
     color: "green",
+    badge: "Team collaboration",
   },
 ];
 
@@ -64,7 +71,16 @@ function ChooseRole() {
   };
 
   return (
-    <div className="choose-role-page">
+    <main className="choose-role-page">
+      {/* Ambient animated background */}
+      <div className="role-ambient-background" aria-hidden="true">
+        <span className="role-orb role-orb-one" />
+        <span className="role-orb role-orb-two" />
+        <span className="role-orb role-orb-three" />
+        <span className="role-grid-pattern" />
+      </div>
+
+      {/* LEFT: BRAND EXPERIENCE */}
       <section className="role-intro">
         <div className="role-intro-content">
           <div className="role-brand">
@@ -139,6 +155,7 @@ function ChooseRole() {
             </div>
           </div>
 
+          {/* Animated workspace illustration */}
           <div className="role-illustration" aria-hidden="true">
             <div className="role-illustration-circle circle-one" />
             <div className="role-illustration-circle circle-two" />
@@ -161,10 +178,21 @@ function ChooseRole() {
               <span>👩🏻‍💻</span>
               <span>👨🏽‍💻</span>
             </div>
+
+            <div className="role-floating-status">
+              <span className="role-status-dot" />
+              <span>Team workspace active</span>
+            </div>
+          </div>
+
+          <div className="role-trust-note">
+            <Shield size={15} />
+            Built for teams that move forward together
           </div>
         </div>
       </section>
 
+      {/* RIGHT: ROLE SELECTION */}
       <section className="role-selection-panel">
         <div className="role-selection-inner">
           <div className="role-mobile-brand">
@@ -177,7 +205,15 @@ function ChooseRole() {
           </div>
 
           <div className="role-heading">
-            <h2>Choose Your Role</h2>
+            <span className="role-step-label">
+              <Zap size={14} />
+              PERSONALIZE YOUR EXPERIENCE
+            </span>
+
+            <h2>
+              Choose Your <span>Role</span>
+            </h2>
+
             <p>
               Select the role that best describes you to continue
               to your workspace.
@@ -185,7 +221,7 @@ function ChooseRole() {
           </div>
 
           <div className="role-grid">
-            {roles.map((role) => {
+            {roles.map((role, index) => {
               const RoleIcon = role.icon;
               const isSelected = selectedRole === role.id;
 
@@ -193,20 +229,27 @@ function ChooseRole() {
                 <button
                   type="button"
                   key={role.id}
-                  className={`role-card ${role.color} ${
-                    isSelected ? "selected" : ""
-                  }`}
+                  style={{ "--card-index": index }}
+                  className={`role-card ${role.color} ${isSelected ? "selected" : ""
+                    }`}
                   onClick={() => setSelectedRole(role.id)}
                   aria-pressed={isSelected}
+                  aria-label={`Select ${role.title}`}
                 >
                   {isSelected && (
                     <span className="role-selected-check">
-                      <Check size={19} />
+                      <Check size={17} strokeWidth={3} />
                     </span>
                   )}
 
-                  <span className="role-card-icon">
-                    <RoleIcon size={27} />
+                  <span className="role-card-topline">
+                    <span className="role-card-icon">
+                      <RoleIcon size={26} strokeWidth={1.9} />
+                    </span>
+
+                    <span className="role-card-indicator">
+                      <CircleCheck size={18} />
+                    </span>
                   </span>
 
                   <span className="role-card-title">
@@ -216,9 +259,24 @@ function ChooseRole() {
                   <span className="role-card-description">
                     {role.description}
                   </span>
+
+                  <span className="role-card-bottom">
+                    <span className="role-card-badge">
+                      {role.badge}
+                    </span>
+                    <ArrowRight
+                      className="role-card-arrow"
+                      size={16}
+                    />
+                  </span>
                 </button>
               );
             })}
+          </div>
+
+          <div className="role-selection-hint">
+            <ShieldCheck size={16} />
+            Your role determines your workspace experience.
           </div>
 
           <button
@@ -226,7 +284,10 @@ function ChooseRole() {
             className="role-continue-button"
             onClick={handleContinue}
           >
-            Continue <ArrowRight size={20} />
+            <span>Continue to {next === "signup" ? "Sign Up" : "Login"}</span>
+            <span className="role-continue-arrow">
+              <ArrowRight size={19} />
+            </span>
           </button>
 
           <button
@@ -234,16 +295,17 @@ function ChooseRole() {
             className="role-back-button"
             onClick={() => navigate("/")}
           >
-            <ArrowLeft size={17} />
+            <ArrowLeft size={16} />
             Back to Home
           </button>
 
           <p className="role-footer-note">
+            <Sparkles size={13} />
             Your workspace, your way.
           </p>
         </div>
       </section>
-    </div>
+    </main>
   );
 }
 
