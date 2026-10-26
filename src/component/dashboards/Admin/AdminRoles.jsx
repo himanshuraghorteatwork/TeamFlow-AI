@@ -20,6 +20,7 @@ import {
   Shield,
   Layers,
   Sparkles,
+  List,
 } from "lucide-react";
 
 import AdminSidebar from "./AdminSidebar.jsx";
@@ -191,7 +192,7 @@ export default function AdminRoles() {
   const [activeTab, setActiveTab] = useState("matrix"); // 'matrix' | 'cards'
   const [selectedRole, setSelectedRole] = useState(roles[1]); // default to Org Admin
   const [search, setSearch] = useState("");
-  const [viewMode, setViewMode] = useState("matrix"); // "matrix" | "detail"
+  const [viewMode, setViewMode] = useState("table"); // "table" | "matrix" | "detail"
   const [toast, setToast] = useState(null);
 
   // Modals
@@ -582,6 +583,14 @@ export default function AdminRoles() {
             <div className="tfAdminRoles__viewModeToggle">
               <button
                 type="button"
+                className={`view-mode-btn ${viewMode === "table" ? "active" : ""}`}
+                onClick={() => setViewMode("table")}
+              >
+                <List size={14} />
+                <span>Roles Directory Table</span>
+              </button>
+              <button
+                type="button"
                 className={`view-mode-btn ${viewMode === "matrix" ? "active" : ""}`}
                 onClick={() => setViewMode("matrix")}
               >
@@ -599,13 +608,141 @@ export default function AdminRoles() {
             </div>
           </div>
 
-          {/* VIEW 1: FULL SAAS TABLE MATRIX */}
+          {/* VIEW 1: ROLES DIRECTORY TABLE */}
+          {viewMode === "table" && (
+            <div className="tfAdminRoles__tableCard">
+              <div className="tfAdminRoles__tableResponsive">
+                <table className="tfAdminRoles__matrixTable">
+                  <thead>
+                    <tr>
+                      <th style={{ width: 48, textAlign: "center" }}>#</th>
+                      <th>ROLE NAME</th>
+                      <th>DESCRIPTION</th>
+                      <th>TYPE</th>
+                      <th>MEMBERS</th>
+                      <th>PERMISSIONS</th>
+                      <th style={{ textAlign: "right" }}>ACTIONS</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {roles.map((r, idx) => (
+                      <tr key={r.id} className="permission-row">
+                        <td style={{ textAlign: "center" }}>
+                          <span className="admin-row-num">{idx + 1}</span>
+                        </td>
+                        <td>
+                          <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
+                            <span
+                              className="th-dot"
+                              style={{
+                                backgroundColor: r.color || "#5b5cf0",
+                                width: 10,
+                                height: 10,
+                                borderRadius: "50%",
+                              }}
+                            />
+                            <strong style={{ fontSize: 13.5, color: "#0f172a" }}>
+                              {r.name}
+                            </strong>
+                          </div>
+                        </td>
+                        <td>
+                          <span style={{ fontSize: 12.5, color: "#64748b" }}>
+                            {r.description}
+                          </span>
+                        </td>
+                        <td>
+                          <span
+                            className="system-pill"
+                            style={{
+                              padding: "3px 8px",
+                              borderRadius: 5,
+                              fontSize: 11,
+                              fontWeight: 700,
+                              background: r.isSystem ? "#f1f5f9" : "#e0e7ff",
+                              color: r.isSystem ? "#475569" : "#4338ca",
+                            }}
+                          >
+                            {r.isSystem ? "System Protected" : "Custom Role"}
+                          </span>
+                        </td>
+                        <td>
+                          <span style={{ fontWeight: 600, color: "#334155", fontSize: 13 }}>
+                            {r.usersCount || 0} members
+                          </span>
+                        </td>
+                        <td>
+                          <span
+                            style={{
+                              background: "linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(168, 85, 247, 0.08))",
+                              color: "#4f46e5",
+                              border: "1px solid rgba(99, 102, 241, 0.2)",
+                              padding: "3px 9px",
+                              borderRadius: 6,
+                              fontWeight: 700,
+                              fontSize: 11.5,
+                            }}
+                          >
+                            {r.permissions.length} / {ALL_PERMISSION_IDS.length}
+                          </span>
+                        </td>
+                        <td style={{ textAlign: "right" }}>
+                          <div style={{ display: "inline-flex", gap: 6, alignItems: "center" }}>
+                            <button
+                              type="button"
+                              className="action-btn"
+                              title="Inspect & Edit Permissions"
+                              onClick={() => {
+                                setSelectedRole(r);
+                                setViewMode("detail");
+                              }}
+                            >
+                              <Eye size={14} />
+                            </button>
+                            <button
+                              type="button"
+                              className="action-btn"
+                              title="Edit Role Meta"
+                              onClick={() => openEditRoleModal(r)}
+                            >
+                              <Pencil size={14} />
+                            </button>
+                            <button
+                              type="button"
+                              className="action-btn"
+                              title="Duplicate Role"
+                              onClick={() => handleDuplicateRole(r)}
+                            >
+                              <Copy size={14} />
+                            </button>
+                            {!r.isSystem && (
+                              <button
+                                type="button"
+                                className="action-btn delete"
+                                title="Delete Role"
+                                onClick={() => handleDeleteRole(r.id)}
+                              >
+                                <Trash2 size={14} />
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* VIEW 2: FULL SAAS TABLE MATRIX */}
           {viewMode === "matrix" && (
             <div className="tfAdminRoles__tableCard">
               <div className="tfAdminRoles__tableResponsive">
                 <table className="tfAdminRoles__matrixTable">
                   <thead>
                     <tr>
+                      <th style={{ width: 44, textAlign: "center" }}>#</th>
                       <th className="perm-col">PERMISSION & CAPABILITY</th>
                       {roles.map((r) => (
                         <th key={r.id} className="role-col">
@@ -621,15 +758,18 @@ export default function AdminRoles() {
                     {filteredModules.map((module) => (
                       <React.Fragment key={module.category}>
                         <tr className="category-row">
-                          <td colSpan={roles.length + 1}>
+                          <td colSpan={roles.length + 2}>
                             <div className="category-header-wrap">
                               <strong>{module.category}</strong>
                               <span>{module.description}</span>
                             </div>
                           </td>
                         </tr>
-                        {module.permissions.map((p) => (
+                        {module.permissions.map((p, pIdx) => (
                           <tr key={p.id} className="permission-row">
+                            <td style={{ textAlign: "center" }}>
+                              <span className="admin-row-num">{pIdx + 1}</span>
+                            </td>
                             <td className="perm-info-td">
                               <strong>{p.name}</strong>
                               <small>{p.desc}</small>

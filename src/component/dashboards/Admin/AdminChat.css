@@ -4,7 +4,9 @@
 
 .admin-chat-app {
   --admin-sidebar-width: 228px;
-  min-height: 100vh;
+  height: 100vh;
+  max-height: 100vh;
+  overflow: hidden;
   background: #f8fafc;
   color: #0f172a;
   display: flex;
@@ -14,7 +16,9 @@
 .admin-chat-main {
   margin-left: var(--admin-sidebar-width);
   width: calc(100% - var(--admin-sidebar-width));
-  min-height: 100vh;
+  height: 100vh;
+  max-height: 100vh;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   background: #f8fafc;
@@ -61,7 +65,8 @@
   display: grid;
   grid-template-columns: 280px 1fr;
   flex: 1;
-  height: calc(100vh - 64px);
+  height: calc(100vh - 72px);
+  max-height: calc(100vh - 72px);
   overflow: hidden;
   background: #ffffff;
   border-top: 1px solid #e2e8f0;

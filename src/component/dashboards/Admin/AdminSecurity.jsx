@@ -481,11 +481,12 @@ export default function AdminSecurity() {
                 </div>
 
                 <div className="tfAdminSecurity__sessionsList">
-                  {securityData.activeSessions.map((session) => (
+                  {securityData.activeSessions.map((session, idx) => (
                     <div
                       key={session.id}
                       className={`tfAdminSecurity__sessionItem ${session.isCurrent ? "tfAdminSecurity__sessionItem--current" : ""}`}
                     >
+                      <span className="admin-row-num">{idx + 1}</span>
                       <div className="tfAdminSecurity__sessionInfo">
                         <div className="tfAdminSecurity__sessionTitle">
                           <strong>{session.device}</strong>
@@ -537,8 +538,9 @@ export default function AdminSecurity() {
                 </div>
 
                 <div className="tfAdminSecurity__logsList">
-                  {securityData.loginHistory.map((log) => (
+                  {securityData.loginHistory.map((log, idx) => (
                     <div key={log.id} className="tfAdminSecurity__logItem">
+                      <span className="admin-row-num">{idx + 1}</span>
                       <div className="tfAdminSecurity__logStatusDot" />
                       <div className="tfAdminSecurity__logMeta">
                         <strong>{log.event}</strong>

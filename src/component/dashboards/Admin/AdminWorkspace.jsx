@@ -18,6 +18,10 @@ import {
   Trash2,
   Copy,
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
   X,
   Mail,
   User,
@@ -28,6 +32,9 @@ import {
   Check,
   AlertCircle,
   MoreVertical,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
 } from "lucide-react";
 
 import AdminSidebar from "./AdminSidebar.jsx";
@@ -151,7 +158,36 @@ export default function AdminWorkspace() {
   const [statusFilter, setStatusFilter] = useState("All");
   const [planFilter, setPlanFilter] = useState("All");
   const [sortBy, setSortBy] = useState("recent");
-  const [viewMode, setViewMode] = useState("grid"); // 'grid' | 'table'
+  const [sortKey, setSortKey] = useState("name");
+  const [sortOrder, setSortOrder] = useState("asc");
+  const [viewMode, setViewMode] = useState("table"); // 'table' | 'grid'
+
+  // Column sort toggle handler
+  const handleSort = (key) => {
+    if (sortKey === key) {
+      const nextOrder = sortOrder === "asc" ? "desc" : "asc";
+      setSortOrder(nextOrder);
+      if (key === "name") setSortBy(nextOrder === "asc" ? "name-asc" : "name-desc");
+    } else {
+      setSortKey(key);
+      setSortOrder("asc");
+      if (key === "name") setSortBy("name-asc");
+      else if (key === "members") setSortBy("members");
+      else if (key === "storage") setSortBy("storage");
+      else setSortBy(key);
+    }
+  };
+
+  const renderSortIcon = (key) => {
+    if (sortKey !== key) {
+      return <ArrowUpDown size={13} className="admin-sort-icon muted" />;
+    }
+    return sortOrder === "asc" ? (
+      <ArrowUp size={13} className="admin-sort-icon active" />
+    ) : (
+      <ArrowDown size={13} className="admin-sort-icon active" />
+    );
+  };
 
   // Selection & Bulk
   const [selectedIds, setSelectedIds] = useState([]);
@@ -242,13 +278,41 @@ export default function AdminWorkspace() {
       if (sortBy === "name-desc") return (b.name || "").localeCompare(a.name || "");
       if (sortBy === "members") return (b.members || 0) - (a.members || 0);
       if (sortBy === "storage") return (b.storage || 0) - (a.storage || 0);
-      return (b.id || 0) - (a.id || 0); // default 'recent'
+
+      let valA = a[sortKey];
+      let valB = b[sortKey];
+      if (valA === undefined || valA === null) valA = "";
+      if (valB === undefined || valB === null) valB = "";
+      if (typeof valA === "number" && typeof valB === "number") {
+        return sortOrder === "asc" ? valA - valB : valB - valA;
+      }
+      valA = String(valA).toLowerCase();
+      valB = String(valB).toLowerCase();
+      if (valA < valB) return sortOrder === "asc" ? -1 : 1;
+      if (valA > valB) return sortOrder === "asc" ? 1 : -1;
+      return (b.id || 0) - (a.id || 0);
     });
 
     return result;
-  }, [workspaces, search, statusFilter, planFilter, sortBy]);
+  }, [workspaces, search, statusFilter, planFilter, sortBy, sortKey, sortOrder]);
 
   // Statistics
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(8);
+
+  const totalPages = Math.max(1, Math.ceil(filteredWorkspaces.length / pageSize));
+
+  const paginatedWorkspaces = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return filteredWorkspaces.slice(start, start + pageSize);
+  }, [filteredWorkspaces, currentPage, pageSize]);
+
+  // Reset page to 1 when filters or sort change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, statusFilter, planFilter, sortBy, sortKey, sortOrder, pageSize]);
+
   const stats = useMemo(() => {
     const total = workspaces.length;
     const active = workspaces.filter((w) => w.status === "Active").length;
@@ -661,6 +725,21 @@ export default function AdminWorkspace() {
                 <option value="storage">Highest Storage</option>
               </select>
 
+              {(search || statusFilter !== "All" || planFilter !== "All") && (
+                <button
+                  type="button"
+                  className="clear-filters-btn"
+                  onClick={() => {
+                    setSearch("");
+                    setStatusFilter("All");
+                    setPlanFilter("All");
+                  }}
+                >
+                  <X size={13} />
+                  Clear Filters
+                </button>
+              )}
+
               {/* VIEW SWITCHER */}
               <div className="admin-workspace-view-switch">
                 <button
@@ -890,32 +969,87 @@ export default function AdminWorkspace() {
               <table className="admin-workspace-table">
                 <thead>
                   <tr>
-                    <th style={{ width: 44, textAlign: "center" }}>
-                      <input
-                        type="checkbox"
-                        checked={selectedIds.length === filteredWorkspaces.length && filteredWorkspaces.length > 0}
-                        onChange={toggleSelectAll}
-                        aria-label="Select all"
-                      />
+                    <th style={{ width: 50, textAlign: "center" }}>#</th>
+                    <th style={{ width: 68, textAlign: "center" }}>
+                      <label className="table-select-header" title="Select all workspaces on this page">
+                        <input
+                          type="checkbox"
+                          checked={
+                            paginatedWorkspaces.length > 0 &&
+                            paginatedWorkspaces.every((w) => selectedIds.includes(w.id))
+                          }
+                          onChange={() => {
+                            const pageIds = paginatedWorkspaces.map((w) => w.id);
+                            const allPageSelected = pageIds.every((id) => selectedIds.includes(id));
+                            if (allPageSelected) {
+                              setSelectedIds((prev) => prev.filter((id) => !pageIds.includes(id)));
+                            } else {
+                              setSelectedIds((prev) => Array.from(new Set([...prev, ...pageIds])));
+                            }
+                          }}
+                          aria-label="Select all on page"
+                        />
+                        <span>SELECT</span>
+                      </label>
                     </th>
-                    <th>Workspace</th>
-                    <th>Status</th>
-                    <th>Owner</th>
-                    <th>Members</th>
-                    <th>Projects</th>
-                    <th>Storage</th>
-                    <th>Created</th>
+                    <th className="sortable-th" onClick={() => handleSort("name")}>
+                      <div className="th-content">
+                        <span>Workspace</span>
+                        {renderSortIcon("name")}
+                      </div>
+                    </th>
+                    <th className="sortable-th" onClick={() => handleSort("status")}>
+                      <div className="th-content">
+                        <span>Status</span>
+                        {renderSortIcon("status")}
+                      </div>
+                    </th>
+                    <th className="sortable-th" onClick={() => handleSort("owner")}>
+                      <div className="th-content">
+                        <span>Owner</span>
+                        {renderSortIcon("owner")}
+                      </div>
+                    </th>
+                    <th className="sortable-th" onClick={() => handleSort("members")}>
+                      <div className="th-content">
+                        <span>Members</span>
+                        {renderSortIcon("members")}
+                      </div>
+                    </th>
+                    <th className="sortable-th" onClick={() => handleSort("projects")}>
+                      <div className="th-content">
+                        <span>Projects</span>
+                        {renderSortIcon("projects")}
+                      </div>
+                    </th>
+                    <th className="sortable-th" onClick={() => handleSort("storage")}>
+                      <div className="th-content">
+                        <span>Storage</span>
+                        {renderSortIcon("storage")}
+                      </div>
+                    </th>
+                    <th className="sortable-th" onClick={() => handleSort("created")}>
+                      <div className="th-content">
+                        <span>Created</span>
+                        {renderSortIcon("created")}
+                      </div>
+                    </th>
                     <th style={{ textAlign: "right" }}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredWorkspaces.map((ws) => {
+                  {paginatedWorkspaces.map((ws, idx) => {
                     const isSelected = selectedIds.includes(ws.id);
                     const quota = ws.quota || 100;
                     const storagePercent = Math.min(100, Math.round(((ws.storage || 0) / quota) * 100));
 
                     return (
                       <tr key={ws.id} className={isSelected ? "row-selected" : ""}>
+                        <td style={{ textAlign: "center" }}>
+                          <span className="admin-row-num">
+                            {(currentPage - 1) * pageSize + idx + 1}
+                          </span>
+                        </td>
                         <td style={{ textAlign: "center" }}>
                           <input
                             type="checkbox"
@@ -1001,6 +1135,99 @@ export default function AdminWorkspace() {
                   })}
                 </tbody>
               </table>
+
+              {/* PAGINATION / PAGE SORT SECTION */}
+              {filteredWorkspaces.length > 0 && (
+                <div className="admin-workspace-pagination-bar">
+                  <div className="pagination-info">
+                    <span>
+                      Showing <strong>{(currentPage - 1) * pageSize + 1}</strong> to{" "}
+                      <strong>
+                        {Math.min(currentPage * pageSize, filteredWorkspaces.length)}
+                      </strong>{" "}
+                      of <strong>{filteredWorkspaces.length}</strong> workspaces
+                    </span>
+                    <div className="page-size-selector">
+                      <label htmlFor="wsPageSize">Rows per page:</label>
+                      <select
+                        id="wsPageSize"
+                        value={pageSize}
+                        onChange={(e) => setPageSize(Number(e.target.value))}
+                        aria-label="Rows per page"
+                      >
+                        <option value={5}>5</option>
+                        <option value={8}>8</option>
+                        <option value={10}>10</option>
+                        <option value={20}>20</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="pagination-controls">
+                    <button
+                      type="button"
+                      className="pagination-btn"
+                      onClick={() => setCurrentPage(1)}
+                      disabled={currentPage === 1}
+                      title="First page"
+                      aria-label="First page"
+                    >
+                      <ChevronsLeft size={16} />
+                    </button>
+                    <button
+                      type="button"
+                      className="pagination-btn"
+                      onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                      disabled={currentPage === 1}
+                      title="Previous page"
+                      aria-label="Previous page"
+                    >
+                      <ChevronLeft size={16} />
+                    </button>
+
+                    <div className="pagination-pages">
+                      {Array.from({ length: totalPages }, (_, i) => i + 1)
+                        .filter((p) => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1)
+                        .map((p, idx, arr) => {
+                          const prev = arr[idx - 1];
+                          return (
+                            <React.Fragment key={p}>
+                              {prev && p - prev > 1 && <span className="pagination-ellipsis">...</span>}
+                              <button
+                                type="button"
+                                className={`pagination-page-btn ${currentPage === p ? "active" : ""}`}
+                                onClick={() => setCurrentPage(p)}
+                              >
+                                {p}
+                              </button>
+                            </React.Fragment>
+                          );
+                        })}
+                    </div>
+
+                    <button
+                      type="button"
+                      className="pagination-btn"
+                      onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                      disabled={currentPage === totalPages}
+                      title="Next page"
+                      aria-label="Next page"
+                    >
+                      <ChevronRight size={16} />
+                    </button>
+                    <button
+                      type="button"
+                      className="pagination-btn"
+                      onClick={() => setCurrentPage(totalPages)}
+                      disabled={currentPage === totalPages}
+                      title="Last page"
+                      aria-label="Last page"
+                    >
+                      <ChevronsRight size={16} />
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 

@@ -118,9 +118,22 @@ export default function AdminTopbar({
         document.documentElement.classList.remove("dark");
       }
       localStorage.setItem("teamflow_admin_dark", String(next));
+      localStorage.setItem("teamflow_theme_mode", next ? "dark" : "light");
       window.dispatchEvent(new Event("teamflow_theme_update"));
       return next;
     });
+  };
+
+  const setExplicitTheme = (isDark) => {
+    setDarkMode(isDark);
+    if (isDark) {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+    localStorage.setItem("teamflow_admin_dark", String(isDark));
+    localStorage.setItem("teamflow_theme_mode", isDark ? "dark" : "light");
+    window.dispatchEvent(new Event("teamflow_theme_update"));
   };
 
   // Close dropdowns on click outside
@@ -405,21 +418,23 @@ export default function AdminTopbar({
             )}
           </div>
 
-          {/* THEME TOGGLE PILL (LIGHT / DARK) */}
-          <div className="tfAdminTopbar__themePill" title="Toggle Light / Dark mode">
+          {/* THEME TOGGLE BUTTON / PILL */}
+          <div className="tfAdminTopbar__themePill" title={`Current theme: ${darkMode ? "Dark" : "Light"}. Click to toggle.`}>
             <button
               type="button"
               className={`tfAdminTopbar__themeBtn ${!darkMode ? "active" : ""}`}
-              onClick={() => darkMode && toggleDarkMode()}
+              onClick={() => setExplicitTheme(false)}
               aria-label="Light mode"
+              title="Switch to Light mode"
             >
               <Sun size={15} />
             </button>
             <button
               type="button"
               className={`tfAdminTopbar__themeBtn ${darkMode ? "active" : ""}`}
-              onClick={() => !darkMode && toggleDarkMode()}
+              onClick={() => setExplicitTheme(true)}
               aria-label="Dark mode"
+              title="Switch to Dark mode"
             >
               <Moon size={15} />
             </button>

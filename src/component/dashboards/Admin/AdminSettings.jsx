@@ -32,6 +32,8 @@ import {
   ExternalLink,
   Sliders,
   ShieldAlert,
+  Sun,
+  Moon,
 } from "lucide-react";
 
 import AdminSidebar from "./AdminSidebar.jsx";
@@ -572,6 +574,117 @@ function ToggleRow({ icon: Icon, title, description, checked, onChange, danger }
   );
 }
 
+/* THEME TOGGLE (BIDIRECTIONAL SYNC WITH TOPBAR & APPEARANCE) */
+function ThemeToggleSetting() {
+  const [isDark, setIsDark] = useState(() => {
+    return (
+      localStorage.getItem("teamflow_admin_dark") === "true" ||
+      document.documentElement.classList.contains("dark")
+    );
+  });
+
+  useEffect(() => {
+    const handleSync = () => {
+      const dark =
+        localStorage.getItem("teamflow_admin_dark") === "true" ||
+        document.documentElement.classList.contains("dark");
+      setIsDark(dark);
+    };
+    window.addEventListener("teamflow_theme_update", handleSync);
+    window.addEventListener("storage", handleSync);
+    return () => {
+      window.removeEventListener("teamflow_theme_update", handleSync);
+      window.removeEventListener("storage", handleSync);
+    };
+  }, []);
+
+  const setTheme = (dark) => {
+    setIsDark(dark);
+    if (dark) {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+    localStorage.setItem("teamflow_admin_dark", String(dark));
+    localStorage.setItem("teamflow_theme_mode", dark ? "dark" : "light");
+    window.dispatchEvent(new Event("teamflow_theme_update"));
+  };
+
+  return (
+    <div className="theme-setting-container">
+      <div className="theme-cards-grid">
+        <button
+          type="button"
+          className={`theme-mode-card ${!isDark ? "active" : ""}`}
+          onClick={() => setTheme(false)}
+        >
+          <div className="theme-card-preview light-preview">
+            <div className="preview-topbar" />
+            <div className="preview-body">
+              <div className="preview-sidebar" />
+              <div className="preview-content">
+                <div className="preview-bar" />
+                <div className="preview-boxes" />
+              </div>
+            </div>
+          </div>
+          <div className="theme-card-info">
+            <div className="theme-card-title">
+              <Sun size={16} />
+              <span>Light Mode</span>
+            </div>
+            <p>Crisp daylight SaaS theme</p>
+          </div>
+          {!isDark && <span className="theme-active-tag">Active</span>}
+        </button>
+
+        <button
+          type="button"
+          className={`theme-mode-card ${isDark ? "active" : ""}`}
+          onClick={() => setTheme(true)}
+        >
+          <div className="theme-card-preview dark-preview">
+            <div className="preview-topbar dark" />
+            <div className="preview-body dark">
+              <div className="preview-sidebar dark" />
+              <div className="preview-content dark">
+                <div className="preview-bar dark" />
+                <div className="preview-boxes dark" />
+              </div>
+            </div>
+          </div>
+          <div className="theme-card-info">
+            <div className="theme-card-title">
+              <Moon size={16} />
+              <span>Dark Mode</span>
+            </div>
+            <p>Modern navy theme for low light</p>
+          </div>
+          {isDark && <span className="theme-active-tag">Active</span>}
+        </button>
+      </div>
+
+      <div className="theme-quick-switch-row">
+        <div>
+          <strong>Dark Mode Toggle</strong>
+          <p>Syncs automatically in real time with the topbar toggle button.</p>
+        </div>
+        <button
+          type="button"
+          className={`switch-toggle-btn ${isDark ? "checked" : ""}`}
+          onClick={() => setTheme(!isDark)}
+          aria-label="Toggle dark mode"
+          title={isDark ? "Switch to Light mode" : "Switch to Dark mode"}
+        >
+          <span className="switch-toggle-knob">
+            {isDark ? <Moon size={12} /> : <Sun size={12} />}
+          </span>
+        </button>
+      </div>
+    </div>
+  );
+}
+
 /* 1. GENERAL SETTINGS */
 function GeneralSettings({
   data,
@@ -589,6 +702,14 @@ function GeneralSettings({
         title="General & Organization Identity"
         description="Configure your company branding, subdomain URL, localization, and support contacts."
       />
+
+      {/* THEME & DARK MODE TOGGLE */}
+      <SettingCard
+        title="Admin Interface Theme"
+        description="Toggle between Light Mode and Dark Mode for the entire admin console. Synchronizes seamlessly with the topbar."
+      >
+        <ThemeToggleSetting />
+      </SettingCard>
 
       {/* BRANDING & LOGO */}
       <SettingCard

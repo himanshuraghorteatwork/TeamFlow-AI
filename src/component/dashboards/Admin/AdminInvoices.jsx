@@ -18,7 +18,13 @@ import {
   ShieldCheck,
   Check,
   X,
-  FileSpreadsheet
+  FileSpreadsheet,
+  Plus,
+  Pencil,
+  Trash2,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
 } from "lucide-react";
 import AdminSidebar from "./AdminSidebar.jsx";
 import AdminTopbar from "./AdminTopbar.jsx";
@@ -126,9 +132,75 @@ export default function AdminInvoices() {
 
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [methodFilter, setMethodFilter] = useState("all");
+  const [sortKey, setSortKey] = useState("date");
+  const [sortOrder, setSortOrder] = useState("desc");
   const [selectedInvoice, setSelectedInvoice] = useState(null);
   const [showBillingModal, setShowBillingModal] = useState(false);
+  const [showCreateInvoiceModal, setShowCreateInvoiceModal] = useState(false);
   const [downloadSuccess, setDownloadSuccess] = useState(null);
+
+  const [newInvoiceForm, setNewInvoiceForm] = useState({
+    id: `INV-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 900) + 100).padStart(3, "0")}`,
+    date: new Date().toISOString().slice(0, 10),
+    dueDate: new Date(Date.now() + 14 * 86400000).toISOString().slice(0, 10),
+    description: "Enterprise Monthly Subscription",
+    amount: 399.00,
+    status: "Paid",
+    method: "Visa •••• 4242",
+  });
+
+  const handleSort = (key) => {
+    if (sortKey === key) {
+      setSortOrder(prev => prev === "asc" ? "desc" : "asc");
+    } else {
+      setSortKey(key);
+      setSortOrder("asc");
+    }
+  };
+
+  const renderSortIcon = (key) => {
+    if (sortKey !== key) {
+      return <ArrowUpDown size={13} className="admin-sort-icon muted" />;
+    }
+    return sortOrder === "asc" ? (
+      <ArrowUp size={13} className="admin-sort-icon active" />
+    ) : (
+      <ArrowDown size={13} className="admin-sort-icon active" />
+    );
+  };
+
+  const handleCreateInvoice = (e) => {
+    e.preventDefault();
+    const createdInv = {
+      ...newInvoiceForm,
+      amount: Number(newInvoiceForm.amount) || 0,
+      items: [
+        { name: newInvoiceForm.description, qty: 1, rate: Number(newInvoiceForm.amount) || 0, total: Number(newInvoiceForm.amount) || 0 }
+      ],
+      tax: 0.00,
+      pdfUrl: "#"
+    };
+    setInvoices([createdInv, ...invoices]);
+    setShowCreateInvoiceModal(false);
+    setDownloadSuccess(`Created invoice ${createdInv.id}`);
+    setTimeout(() => setDownloadSuccess(null), 3000);
+  };
+
+  const deleteInvoice = (id) => {
+    if (!window.confirm(`Delete statement "${id}"?`)) return;
+    setInvoices(invoices.filter(i => i.id !== id));
+  };
+
+  const toggleInvoiceStatus = (id) => {
+    setInvoices(invoices.map(i => {
+      if (i.id === id) {
+        const nextStatus = i.status === "Paid" ? "Pending" : i.status === "Pending" ? "Refunded" : "Paid";
+        return { ...i, status: nextStatus };
+      }
+      return i;
+    }));
+  };
 
   const [billingInfo, setBillingInfo] = useState(() => {
     try {
@@ -162,14 +234,34 @@ export default function AdminInvoices() {
   }, [invoices]);
 
   const filteredInvoices = useMemo(() => {
-    return invoices.filter(inv => {
+    const list = invoices.filter(inv => {
       const matchesSearch = inv.id.toLowerCase().includes(search.toLowerCase()) ||
         inv.description.toLowerCase().includes(search.toLowerCase()) ||
         inv.method.toLowerCase().includes(search.toLowerCase());
       const matchesStatus = statusFilter === "all" || inv.status.toLowerCase() === statusFilter.toLowerCase();
-      return matchesSearch && matchesStatus;
+      const matchesMethod = methodFilter === "all" || inv.method.toLowerCase().includes(methodFilter.toLowerCase());
+      return matchesSearch && matchesStatus && matchesMethod;
     });
-  }, [invoices, search, statusFilter]);
+
+    return [...list].sort((a, b) => {
+      let valA = a[sortKey];
+      let valB = b[sortKey];
+
+      if (valA === undefined || valA === null) valA = "";
+      if (valB === undefined || valB === null) valB = "";
+
+      if (typeof valA === "number" && typeof valB === "number") {
+        return sortOrder === "asc" ? valA - valB : valB - valA;
+      }
+
+      valA = String(valA).toLowerCase();
+      valB = String(valB).toLowerCase();
+
+      if (valA < valB) return sortOrder === "asc" ? -1 : 1;
+      if (valA > valB) return sortOrder === "asc" ? 1 : -1;
+      return 0;
+    });
+  }, [invoices, search, statusFilter, methodFilter, sortKey, sortOrder]);
 
   const totalSpent = useMemo(() => {
     return invoices
@@ -266,9 +358,13 @@ Support: billing@teamflow.ai | https://teamflow.ai
                 <FileSpreadsheet size={16} />
                 Export CSV
               </button>
-              <button className="admin-invoices-btn-primary" onClick={() => setShowBillingModal(true)}>
+              <button className="admin-invoices-btn-primary" onClick={() => setShowCreateInvoiceModal(true)}>
+                <Plus size={16} />
+                Generate Statement
+              </button>
+              <button className="admin-invoices-btn-secondary" onClick={() => setShowBillingModal(true)}>
                 <Building size={16} />
-                Billing Information
+                Billing Info
               </button>
             </div>
           </div>
@@ -360,6 +456,53 @@ Support: billing@teamflow.ai | https://teamflow.ai
                     <option value="refunded">Refunded</option>
                   </select>
                 </div>
+
+                <div className="filter-select-wrapper">
+                  <select
+                    value={methodFilter}
+                    onChange={(e) => setMethodFilter(e.target.value)}
+                    aria-label="Filter payment method"
+                  >
+                    <option value="all">All Payment Methods</option>
+                    <option value="visa">Visa</option>
+                    <option value="mastercard">MasterCard</option>
+                    <option value="bank">Bank Transfer</option>
+                    <option value="stripe">Stripe</option>
+                  </select>
+                </div>
+
+                <div className="filter-select-wrapper">
+                  <select
+                    value={`${sortKey}-${sortOrder}`}
+                    onChange={(e) => {
+                      const [k, ord] = e.target.value.split("-");
+                      setSortKey(k);
+                      setSortOrder(ord);
+                    }}
+                    aria-label="Sort statements"
+                  >
+                    <option value="date-desc">Sort: Date (Newest)</option>
+                    <option value="date-asc">Sort: Date (Oldest)</option>
+                    <option value="amount-desc">Sort: Amount (High to Low)</option>
+                    <option value="amount-asc">Sort: Amount (Low to High)</option>
+                    <option value="status-asc">Sort: Status</option>
+                  </select>
+                </div>
+
+                {(search || statusFilter !== "all" || methodFilter !== "all") && (
+                  <button
+                    type="button"
+                    className="clear-filters-btn"
+                    onClick={() => {
+                      setSearch("");
+                      setStatusFilter("all");
+                      setMethodFilter("all");
+                    }}
+                  >
+                    <X size={13} />
+                    Clear Filters
+                  </button>
+                )}
               </div>
             </div>
 
@@ -368,28 +511,64 @@ Support: billing@teamflow.ai | https://teamflow.ai
               <table className="admin-invoices-table">
                 <thead>
                   <tr>
-                    <th>INVOICE</th>
-                    <th>BILLING DATE</th>
-                    <th>DESCRIPTION</th>
-                    <th>PAYMENT METHOD</th>
-                    <th>AMOUNT</th>
-                    <th>STATUS</th>
+                    <th style={{ width: 48, textAlign: "center" }}>#</th>
+                    <th className="sortable-th" onClick={() => handleSort("id")}>
+                      <div className="th-content">
+                        <span>INVOICE</span>
+                        {renderSortIcon("id")}
+                      </div>
+                    </th>
+                    <th className="sortable-th" onClick={() => handleSort("date")}>
+                      <div className="th-content">
+                        <span>BILLING DATE</span>
+                        {renderSortIcon("date")}
+                      </div>
+                    </th>
+                    <th className="sortable-th" onClick={() => handleSort("description")}>
+                      <div className="th-content">
+                        <span>DESCRIPTION</span>
+                        {renderSortIcon("description")}
+                      </div>
+                    </th>
+                    <th className="sortable-th" onClick={() => handleSort("method")}>
+                      <div className="th-content">
+                        <span>PAYMENT METHOD</span>
+                        {renderSortIcon("method")}
+                      </div>
+                    </th>
+                    <th className="sortable-th" onClick={() => handleSort("amount")}>
+                      <div className="th-content">
+                        <span>AMOUNT</span>
+                        {renderSortIcon("amount")}
+                      </div>
+                    </th>
+                    <th className="sortable-th" onClick={() => handleSort("status")}>
+                      <div className="th-content">
+                        <span>STATUS</span>
+                        {renderSortIcon("status")}
+                      </div>
+                    </th>
                     <th style={{ textAlign: "right" }}>ACTIONS</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredInvoices.length === 0 ? (
                     <tr>
-                      <td colSpan="7" className="empty-row">
+                      <td colSpan="8" className="empty-row">
                         <FileText size={32} />
                         <p>No invoices match your search or filter.</p>
                       </td>
                     </tr>
                   ) : (
-                    filteredInvoices.map((inv) => (
+                    filteredInvoices.map((inv, idx) => (
                       <tr key={inv.id}>
+                        <td style={{ textAlign: "center" }}>
+                          <span className="admin-row-num">{idx + 1}</span>
+                        </td>
                         <td>
-                          <span className="invoice-id-badge">{inv.id}</span>
+                          <span className="invoice-id-badge clickable-badge" onClick={() => setSelectedInvoice(inv)}>
+                            {inv.id}
+                          </span>
                         </td>
                         <td>{inv.date}</td>
                         <td className="description-cell">
@@ -415,6 +594,13 @@ Support: billing@teamflow.ai | https://teamflow.ai
                           <div className="row-actions">
                             <button
                               className="action-btn"
+                              title="Toggle Status (Paid / Pending / Refunded)"
+                              onClick={() => toggleInvoiceStatus(inv.id)}
+                            >
+                              <Clock size={14} />
+                            </button>
+                            <button
+                              className="action-btn"
                               title="View Invoice Details"
                               onClick={() => setSelectedInvoice(inv)}
                             >
@@ -428,6 +614,13 @@ Support: billing@teamflow.ai | https://teamflow.ai
                             >
                               <Download size={15} />
                               <span>Receipt</span>
+                            </button>
+                            <button
+                              className="action-btn delete"
+                              title="Delete Statement"
+                              onClick={() => deleteInvoice(inv.id)}
+                            >
+                              <Trash2 size={15} />
                             </button>
                           </div>
                         </td>
@@ -637,6 +830,100 @@ Support: billing@teamflow.ai | https://teamflow.ai
                 </button>
                 <button type="submit" className="admin-invoices-btn-primary">
                   Save Billing Info
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* CREATE INVOICE MODAL */}
+      {showCreateInvoiceModal && (
+        <div className="admin-invoices-modal-overlay" onClick={() => setShowCreateInvoiceModal(false)}>
+          <div className="admin-invoices-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>Generate New Statement / Invoice</h3>
+              <button className="close-btn" onClick={() => setShowCreateInvoiceModal(false)}>
+                <X size={18} />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateInvoice}>
+              <div className="modal-body">
+                <div className="form-group">
+                  <label>Invoice Statement ID</label>
+                  <input
+                    type="text"
+                    value={newInvoiceForm.id}
+                    onChange={(e) => setNewInvoiceForm({ ...newInvoiceForm, id: e.target.value })}
+                    required
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Plan / Charge Description</label>
+                  <input
+                    type="text"
+                    value={newInvoiceForm.description}
+                    onChange={(e) => setNewInvoiceForm({ ...newInvoiceForm, description: e.target.value })}
+                    required
+                  />
+                </div>
+
+                <div className="form-row-two" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                  <div className="form-group">
+                    <label>Amount ($ USD)</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={newInvoiceForm.amount}
+                      onChange={(e) => setNewInvoiceForm({ ...newInvoiceForm, amount: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Status</label>
+                    <select
+                      value={newInvoiceForm.status}
+                      onChange={(e) => setNewInvoiceForm({ ...newInvoiceForm, status: e.target.value })}
+                    >
+                      <option value="Paid">Paid</option>
+                      <option value="Pending">Pending</option>
+                      <option value="Refunded">Refunded</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="form-row-two" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                  <div className="form-group">
+                    <label>Billing Date</label>
+                    <input
+                      type="date"
+                      value={newInvoiceForm.date}
+                      onChange={(e) => setNewInvoiceForm({ ...newInvoiceForm, date: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Payment Method</label>
+                    <select
+                      value={newInvoiceForm.method}
+                      onChange={(e) => setNewInvoiceForm({ ...newInvoiceForm, method: e.target.value })}
+                    >
+                      <option value="Visa •••• 4242">Visa •••• 4242</option>
+                      <option value="Mastercard •••• 8821">Mastercard •••• 8821</option>
+                      <option value="ACH Bank Transfer">ACH Bank Transfer</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div className="modal-footer">
+                <button type="button" className="admin-invoices-btn-secondary" onClick={() => setShowCreateInvoiceModal(false)}>
+                  Cancel
+                </button>
+                <button type="submit" className="admin-invoices-btn-primary">
+                  Generate Statement
                 </button>
               </div>
             </form>

@@ -22,7 +22,10 @@ import {
   HardDrive,
   Calendar,
   Layers,
-  ArrowUpRight
+  ArrowUpRight,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
 } from "lucide-react";
 import AdminSidebar from "./AdminSidebar.jsx";
 import AdminTopbar from "./AdminTopbar.jsx";
@@ -51,6 +54,8 @@ export default function AdminReports() {
   const [typeFilter, setTypeFilter] = useState("All");
   const [statusFilter, setStatusFilter] = useState("All");
   const [formatFilter, setFormatFilter] = useState("All");
+  const [sortKey, setSortKey] = useState("createdAt");
+  const [sortOrder, setSortOrder] = useState("desc");
 
   const [showGenerator, setShowGenerator] = useState(false);
   const [selectedReport, setSelectedReport] = useState(null);
@@ -70,17 +75,65 @@ export default function AdminReports() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(reports));
   }, [reports]);
 
+  const handleSort = (key) => {
+    if (sortKey === key) {
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    } else {
+      setSortKey(key);
+      setSortOrder("asc");
+    }
+  };
+
+  const renderSortIcon = (key) => {
+    if (sortKey !== key) {
+      return <ArrowUpDown size={13} className="sort-icon muted" />;
+    }
+    return sortOrder === "asc" ? (
+      <ArrowUp size={13} className="sort-icon active" />
+    ) : (
+      <ArrowDown size={13} className="sort-icon active" />
+    );
+  };
+
   const filteredReports = useMemo(() => {
-    return reports.filter((r) => {
-      const matchesSearch =
-        r.name.toLowerCase().includes(search.toLowerCase()) ||
-        r.id.toLowerCase().includes(search.toLowerCase());
-      const matchesType = typeFilter === "All" || r.type === typeFilter;
-      const matchesStatus = statusFilter === "All" || r.status.toLowerCase() === statusFilter.toLowerCase();
-      const matchesFormat = formatFilter === "All" || r.format.toLowerCase() === formatFilter.toLowerCase();
-      return matchesSearch && matchesType && matchesStatus && matchesFormat;
-    });
-  }, [reports, search, typeFilter, statusFilter, formatFilter]);
+    return [...reports]
+      .filter((r) => {
+        const matchesSearch =
+          r.name.toLowerCase().includes(search.toLowerCase()) ||
+          r.id.toLowerCase().includes(search.toLowerCase());
+        const matchesType = typeFilter === "All" || r.type === typeFilter;
+        const matchesStatus =
+          statusFilter === "All" ||
+          r.status.toLowerCase() === statusFilter.toLowerCase();
+        const matchesFormat =
+          formatFilter === "All" ||
+          r.format.toLowerCase() === formatFilter.toLowerCase();
+        return matchesSearch && matchesType && matchesStatus && matchesFormat;
+      })
+      .sort((a, b) => {
+        let valA = a[sortKey];
+        let valB = b[sortKey];
+
+        if (sortKey === "records") {
+          return sortOrder === "asc"
+            ? Number(a.records) - Number(b.records)
+            : Number(b.records) - Number(a.records);
+        }
+
+        if (sortKey === "createdAt") {
+          const timeA = new Date(a.createdAt).getTime() || 0;
+          const timeB = new Date(b.createdAt).getTime() || 0;
+          return sortOrder === "asc" ? timeA - timeB : timeB - timeA;
+        }
+
+        if (typeof valA === "string") valA = valA.toLowerCase();
+        if (typeof valB === "string") valB = valB.toLowerCase();
+
+        if (valA < valB) return sortOrder === "asc" ? -1 : 1;
+        if (valA > valB) return sortOrder === "asc" ? 1 : -1;
+        return 0;
+      });
+  }, [reports, search, typeFilter, statusFilter, formatFilter, sortKey, sortOrder]);
 
   const totalRecords = useMemo(() => {
     return reports.reduce((acc, r) => acc + (Number(r.records) || 0), 0);
@@ -374,6 +427,41 @@ export default function AdminReports() {
                     <option value="pdf">PDF</option>
                   </select>
                 </div>
+
+                <div className="filter-select">
+                  <select
+                    value={`${sortKey}-${sortOrder}`}
+                    onChange={(e) => {
+                      const [k, ord] = e.target.value.split("-");
+                      setSortKey(k);
+                      setSortOrder(ord);
+                    }}
+                    aria-label="Sort reports"
+                  >
+                    <option value="createdAt-desc">Sort: Newest First</option>
+                    <option value="createdAt-asc">Sort: Oldest First</option>
+                    <option value="name-asc">Sort: Name (A to Z)</option>
+                    <option value="name-desc">Sort: Name (Z to A)</option>
+                    <option value="records-desc">Sort: Records (High to Low)</option>
+                    <option value="records-asc">Sort: Records (Low to High)</option>
+                  </select>
+                </div>
+
+                {(search || typeFilter !== "All" || statusFilter !== "All" || formatFilter !== "All") && (
+                  <button
+                    type="button"
+                    className="clear-filters-btn"
+                    onClick={() => {
+                      setSearch("");
+                      setTypeFilter("All");
+                      setStatusFilter("All");
+                      setFormatFilter("All");
+                    }}
+                  >
+                    <X size={13} />
+                    Clear Filters
+                  </button>
+                )}
               </div>
             </div>
 
@@ -382,27 +470,56 @@ export default function AdminReports() {
               <table className="admin-reports-table">
                 <thead>
                   <tr>
-                    <th>REPORT NAME</th>
-                    <th>CATEGORY</th>
+                    <th style={{ width: 48, textAlign: "center" }}>#</th>
+                    <th className="sortable-th" onClick={() => handleSort("name")}>
+                      <div className="th-content">
+                        <span>REPORT NAME</span>
+                        {renderSortIcon("name")}
+                      </div>
+                    </th>
+                    <th className="sortable-th" onClick={() => handleSort("type")}>
+                      <div className="th-content">
+                        <span>CATEGORY</span>
+                        {renderSortIcon("type")}
+                      </div>
+                    </th>
                     <th>TIME PERIOD</th>
-                    <th>GENERATED BY</th>
-                    <th>RECORDS & SIZE</th>
+                    <th className="sortable-th" onClick={() => handleSort("createdBy")}>
+                      <div className="th-content">
+                        <span>GENERATED BY</span>
+                        {renderSortIcon("createdBy")}
+                      </div>
+                    </th>
+                    <th className="sortable-th" onClick={() => handleSort("records")}>
+                      <div className="th-content">
+                        <span>RECORDS & SIZE</span>
+                        {renderSortIcon("records")}
+                      </div>
+                    </th>
                     <th>FORMAT</th>
-                    <th>STATUS</th>
+                    <th className="sortable-th" onClick={() => handleSort("status")}>
+                      <div className="th-content">
+                        <span>STATUS</span>
+                        {renderSortIcon("status")}
+                      </div>
+                    </th>
                     <th style={{ textAlign: "right" }}>ACTIONS</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredReports.length === 0 ? (
                     <tr>
-                      <td colSpan="8" className="empty-cell">
+                      <td colSpan="9" className="empty-cell">
                         <FileText size={32} />
                         <p>No reports match your filters or search query.</p>
                       </td>
                     </tr>
                   ) : (
-                    filteredReports.map((report) => (
+                    filteredReports.map((report, idx) => (
                       <tr key={report.id}>
+                        <td style={{ textAlign: "center" }}>
+                          <span className="admin-row-num">{idx + 1}</span>
+                        </td>
                         <td>
                           <div className="report-name-cell">
                             <span className="report-icon-chip">

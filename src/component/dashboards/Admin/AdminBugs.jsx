@@ -16,6 +16,9 @@ import {
   User,
   Check,
   Eye,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
 } from "lucide-react";
 
 import AdminSidebar from "./AdminSidebar.jsx";
@@ -97,6 +100,29 @@ export default function AdminBugs() {
   const [search, setSearch] = useState("");
   const [severityFilter, setSeverityFilter] = useState("All");
   const [statusFilter, setStatusFilter] = useState("All");
+  const [sortKey, setSortKey] = useState("severity");
+  const [sortOrder, setSortOrder] = useState("asc");
+
+  // Column sort toggle handler
+  const handleSort = (key) => {
+    if (sortKey === key) {
+      setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"));
+    } else {
+      setSortKey(key);
+      setSortOrder("asc");
+    }
+  };
+
+  const renderSortIcon = (key) => {
+    if (sortKey !== key) {
+      return <ArrowUpDown size={13} className="admin-sort-icon muted" />;
+    }
+    return sortOrder === "asc" ? (
+      <ArrowUp size={13} className="admin-sort-icon active" />
+    ) : (
+      <ArrowDown size={13} className="admin-sort-icon active" />
+    );
+  };
 
   // Modals
   const [showModal, setShowModal] = useState(false);
@@ -134,7 +160,9 @@ export default function AdminBugs() {
   };
 
   const filteredBugs = useMemo(() => {
-    return bugs.filter((b) => {
+    const severityRank = { Critical: 1, High: 2, Medium: 3, Low: 4 };
+
+    const list = bugs.filter((b) => {
       const term = search.trim().toLowerCase();
       const matchesSearch =
         !term ||
@@ -147,7 +175,28 @@ export default function AdminBugs() {
 
       return matchesSearch && matchesSeverity && matchesStatus;
     });
-  }, [bugs, search, severityFilter, statusFilter]);
+
+    return [...list].sort((a, b) => {
+      if (sortKey === "severity") {
+        const rankA = severityRank[a.severity] || 99;
+        const rankB = severityRank[b.severity] || 99;
+        return sortOrder === "asc" ? rankA - rankB : rankB - rankA;
+      }
+
+      let valA = a[sortKey];
+      let valB = b[sortKey];
+
+      if (valA === undefined || valA === null) valA = "";
+      if (valB === undefined || valB === null) valB = "";
+
+      valA = String(valA).toLowerCase();
+      valB = String(valB).toLowerCase();
+
+      if (valA < valB) return sortOrder === "asc" ? -1 : 1;
+      if (valA > valB) return sortOrder === "asc" ? 1 : -1;
+      return 0;
+    });
+  }, [bugs, search, severityFilter, statusFilter, sortKey, sortOrder]);
 
   const stats = useMemo(() => {
     const total = bugs.length;
@@ -291,6 +340,38 @@ export default function AdminBugs() {
                   <option key={st} value={st}>{st}</option>
                 ))}
               </select>
+
+              <select
+                value={`${sortKey}-${sortOrder}`}
+                onChange={(e) => {
+                  const [k, ord] = e.target.value.split("-");
+                  setSortKey(k);
+                  setSortOrder(ord);
+                }}
+                aria-label="Sort bugs"
+              >
+                <option value="severity-asc">Sort: Severity (Critical First)</option>
+                <option value="severity-desc">Sort: Severity (Low First)</option>
+                <option value="createdAt-desc">Sort: Reported (Newest)</option>
+                <option value="createdAt-asc">Sort: Reported (Oldest)</option>
+                <option value="title-asc">Sort: Title (A to Z)</option>
+                <option value="status-asc">Sort: Status</option>
+              </select>
+
+              {(search || severityFilter !== "All" || statusFilter !== "All") && (
+                <button
+                  type="button"
+                  className="clear-filters-btn"
+                  onClick={() => {
+                    setSearch("");
+                    setSeverityFilter("All");
+                    setStatusFilter("All");
+                  }}
+                >
+                  <X size={13} />
+                  Clear Filters
+                </button>
+              )}
             </div>
           </section>
 
@@ -299,18 +380,52 @@ export default function AdminBugs() {
             <table className="admin-bugs-table">
               <thead>
                 <tr>
-                  <th>Bug Description</th>
-                  <th>Project</th>
-                  <th>Severity</th>
-                  <th>Status</th>
-                  <th>Assignee</th>
-                  <th>Reported</th>
+                  <th style={{ width: 48, textAlign: "center" }}>#</th>
+                  <th className="sortable-th" onClick={() => handleSort("title")}>
+                    <div className="th-content">
+                      <span>Bug Description</span>
+                      {renderSortIcon("title")}
+                    </div>
+                  </th>
+                  <th className="sortable-th" onClick={() => handleSort("project")}>
+                    <div className="th-content">
+                      <span>Project</span>
+                      {renderSortIcon("project")}
+                    </div>
+                  </th>
+                  <th className="sortable-th" onClick={() => handleSort("severity")}>
+                    <div className="th-content">
+                      <span>Severity</span>
+                      {renderSortIcon("severity")}
+                    </div>
+                  </th>
+                  <th className="sortable-th" onClick={() => handleSort("status")}>
+                    <div className="th-content">
+                      <span>Status</span>
+                      {renderSortIcon("status")}
+                    </div>
+                  </th>
+                  <th className="sortable-th" onClick={() => handleSort("assignee")}>
+                    <div className="th-content">
+                      <span>Assignee</span>
+                      {renderSortIcon("assignee")}
+                    </div>
+                  </th>
+                  <th className="sortable-th" onClick={() => handleSort("createdAt")}>
+                    <div className="th-content">
+                      <span>Reported</span>
+                      {renderSortIcon("createdAt")}
+                    </div>
+                  </th>
                   <th style={{ textAlign: "right" }}>Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {filteredBugs.map((b) => (
+                {filteredBugs.map((b, idx) => (
                   <tr key={b.id}>
+                    <td style={{ textAlign: "center" }}>
+                      <span className="admin-row-num">{idx + 1}</span>
+                    </td>
                     <td>
                       <div className="bug-title-cell">
                         <strong className="clickable" onClick={() => setViewingBug(b)}>{b.title}</strong>
@@ -337,6 +452,9 @@ export default function AdminBugs() {
                             <Check size={14} />
                           </button>
                         )}
+                        <button type="button" className="action-btn" title="View details" onClick={() => setViewingBug(b)}>
+                          <Eye size={15} />
+                        </button>
                         <button type="button" className="action-btn" title="Edit" onClick={() => openEditModal(b)}>
                           <Pencil size={15} />
                         </button>

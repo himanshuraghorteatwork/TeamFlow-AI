@@ -104,6 +104,27 @@ export default function AdminAppearance() {
     applyAccentColor(hex);
   };
 
+  // External theme listener (sync with Topbar & Settings)
+  useEffect(() => {
+    const handleExternalTheme = () => {
+      const isDark =
+        localStorage.getItem("teamflow_admin_dark") === "true" ||
+        document.documentElement.classList.contains("dark");
+      const storedMode = localStorage.getItem("teamflow_theme_mode") || (isDark ? "dark" : "light");
+      setAppearance((prev) => ({
+        ...prev,
+        themeMode: storedMode,
+      }));
+    };
+
+    window.addEventListener("teamflow_theme_update", handleExternalTheme);
+    window.addEventListener("storage", handleExternalTheme);
+    return () => {
+      window.removeEventListener("teamflow_theme_update", handleExternalTheme);
+      window.removeEventListener("storage", handleExternalTheme);
+    };
+  }, []);
+
   // System mode listener
   useEffect(() => {
     if (appearance.themeMode === "system") {

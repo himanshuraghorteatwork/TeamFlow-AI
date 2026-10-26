@@ -15,6 +15,11 @@ import {
   RotateCcw,
   Pin,
   Calendar,
+  Grid2X2,
+  List,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
 } from "lucide-react";
 
 import AdminSidebar from "./AdminSidebar.jsx";
@@ -39,10 +44,34 @@ export default function AdminAnnouncements() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [audienceFilter, setAudienceFilter] = useState("All");
+  const [viewMode, setViewMode] = useState("table"); // 'table' | 'feed'
+  const [sortKey, setSortKey] = useState("date");
+  const [sortOrder, setSortOrder] = useState("desc");
   const [showModal, setShowModal] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
   const [viewingItem, setViewingItem] = useState(null);
   const [toast, setToast] = useState(null);
+
+  // Column sort toggle handler
+  const handleSort = (key) => {
+    if (sortKey === key) {
+      setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"));
+    } else {
+      setSortKey(key);
+      setSortOrder("asc");
+    }
+  };
+
+  const renderSortIcon = (key) => {
+    if (sortKey !== key) {
+      return <ArrowUpDown size={13} className="admin-sort-icon muted" />;
+    }
+    return sortOrder === "asc" ? (
+      <ArrowUp size={13} className="admin-sort-icon active" />
+    ) : (
+      <ArrowDown size={13} className="admin-sort-icon active" />
+    );
+  };
 
   const [form, setForm] = useState({
     title: "",
@@ -70,13 +99,43 @@ export default function AdminAnnouncements() {
   };
 
   const filteredAnnouncements = useMemo(() => {
-    return announcements.filter((a) => {
+    const priorityRank = { Urgent: 1, Important: 2, Normal: 3 };
+
+    const list = announcements.filter((a) => {
       const term = search.trim().toLowerCase();
       const matchesSearch = !term || a.title?.toLowerCase().includes(term) || a.content?.toLowerCase().includes(term);
       const matchesAudience = audienceFilter === "All" || a.audience === audienceFilter;
       return matchesSearch && matchesAudience;
     });
-  }, [announcements, search, audienceFilter]);
+
+    return [...list].sort((a, b) => {
+      // If sorting by priority
+      if (sortKey === "priority") {
+        const rankA = priorityRank[a.priority] || 99;
+        const rankB = priorityRank[b.priority] || 99;
+        return sortOrder === "asc" ? rankA - rankB : rankB - rankA;
+      }
+
+      // If sorting by pinned
+      if (sortKey === "pinned") {
+        const valA = a.pinned ? 1 : 0;
+        const valB = b.pinned ? 1 : 0;
+        return sortOrder === "asc" ? valA - valB : valB - valA;
+      }
+
+      let valA = a[sortKey];
+      let valB = b[sortKey];
+      if (valA === undefined || valA === null) valA = "";
+      if (valB === undefined || valB === null) valB = "";
+
+      valA = String(valA).toLowerCase();
+      valB = String(valB).toLowerCase();
+
+      if (valA < valB) return sortOrder === "asc" ? -1 : 1;
+      if (valA > valB) return sortOrder === "asc" ? 1 : -1;
+      return 0;
+    });
+  }, [announcements, search, audienceFilter, sortKey, sortOrder]);
 
   const stats = useMemo(() => {
     const total = announcements.length;
@@ -212,48 +271,228 @@ export default function AdminAnnouncements() {
               {search && <button type="button" className="clear-btn" onClick={() => setSearch("")}><X size={14} /></button>}
             </div>
 
-            <select value={audienceFilter} onChange={(e) => setAudienceFilter(e.target.value)}>
-              <option value="All">All Audiences</option>
-              {AUDIENCES.map((aud) => (
-                <option key={aud} value={aud}>{aud}</option>
-              ))}
-            </select>
+            <div className="admin-ann-controls">
+              <select value={audienceFilter} onChange={(e) => setAudienceFilter(e.target.value)}>
+                <option value="All">All Audiences</option>
+                {AUDIENCES.map((aud) => (
+                  <option key={aud} value={aud}>{aud}</option>
+                ))}
+              </select>
+
+              <select
+                value={`${sortKey}-${sortOrder}`}
+                onChange={(e) => {
+                  const [k, ord] = e.target.value.split("-");
+                  setSortKey(k);
+                  setSortOrder(ord);
+                }}
+                aria-label="Sort announcements"
+              >
+                <option value="date-desc">Sort: Date (Newest)</option>
+                <option value="date-asc">Sort: Date (Oldest)</option>
+                <option value="priority-asc">Sort: Priority (Urgent First)</option>
+                <option value="title-asc">Sort: Title (A to Z)</option>
+                <option value="pinned-desc">Sort: Pinned First</option>
+              </select>
+
+              {(search || audienceFilter !== "All") && (
+                <button
+                  type="button"
+                  className="clear-filters-btn"
+                  onClick={() => {
+                    setSearch("");
+                    setAudienceFilter("All");
+                  }}
+                >
+                  <X size={13} />
+                  Clear Filters
+                </button>
+              )}
+
+              <div className="view-switch">
+                <button
+                  type="button"
+                  className={`view-btn ${viewMode === "table" ? "active" : ""}`}
+                  onClick={() => setViewMode("table")}
+                  title="Table view"
+                >
+                  <List size={16} />
+                </button>
+                <button
+                  type="button"
+                  className={`view-btn ${viewMode === "feed" ? "active" : ""}`}
+                  onClick={() => setViewMode("feed")}
+                  title="Feed view"
+                >
+                  <Grid2X2 size={16} />
+                </button>
+              </div>
+            </div>
           </section>
 
-          {/* ANNOUNCEMENTS LIST */}
-          <div className="announcements-feed">
-            {filteredAnnouncements.map((a) => (
-              <div key={a.id} className={`announcement-card ${a.pinned ? "pinned" : ""}`}>
-                <div className="ann-header">
-                  <div className="ann-header-left">
-                    {a.pinned && <span className="pinned-badge"><Pin size={12} /> Pinned</span>}
-                    <span className={`priority-badge ${a.priority?.toLowerCase()}`}>{a.priority}</span>
-                    <span className="audience-badge">{a.audience}</span>
+          {/* TABLE VIEW (PRIMARY) */}
+          {viewMode === "table" ? (
+            <div className="admin-ann-table-wrap">
+              <table className="admin-ann-table">
+                <thead>
+                  <tr>
+                    <th style={{ width: 48, textAlign: "center" }}>#</th>
+                    <th className="sortable-th" onClick={() => handleSort("title")}>
+                      <div className="th-content">
+                        <span>Announcement</span>
+                        {renderSortIcon("title")}
+                      </div>
+                    </th>
+                    <th className="sortable-th" onClick={() => handleSort("audience")}>
+                      <div className="th-content">
+                        <span>Audience</span>
+                        {renderSortIcon("audience")}
+                      </div>
+                    </th>
+                    <th className="sortable-th" onClick={() => handleSort("priority")}>
+                      <div className="th-content">
+                        <span>Priority</span>
+                        {renderSortIcon("priority")}
+                      </div>
+                    </th>
+                    <th className="sortable-th" onClick={() => handleSort("pinned")}>
+                      <div className="th-content">
+                        <span>Pin Status</span>
+                        {renderSortIcon("pinned")}
+                      </div>
+                    </th>
+                    <th className="sortable-th" onClick={() => handleSort("author")}>
+                      <div className="th-content">
+                        <span>Author</span>
+                        {renderSortIcon("author")}
+                      </div>
+                    </th>
+                    <th className="sortable-th" onClick={() => handleSort("date")}>
+                      <div className="th-content">
+                        <span>Date</span>
+                        {renderSortIcon("date")}
+                      </div>
+                    </th>
+                    <th style={{ textAlign: "right" }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredAnnouncements.map((a, idx) => (
+                    <tr key={a.id} className={a.pinned ? "row-pinned" : ""}>
+                      <td style={{ textAlign: "center" }}>
+                        <span className="admin-row-num">{idx + 1}</span>
+                      </td>
+                      <td>
+                        <div className="ann-title-cell">
+                          <strong className="clickable-title" onClick={() => setViewingItem(a)}>
+                            {a.title}
+                          </strong>
+                          <small>{a.content?.substring(0, 65)}...</small>
+                        </div>
+                      </td>
+                      <td>
+                        <span className="audience-badge">{a.audience}</span>
+                      </td>
+                      <td>
+                        <span className={`priority-badge ${a.priority?.toLowerCase()}`}>
+                          {a.priority}
+                        </span>
+                      </td>
+                      <td>
+                        {a.pinned ? (
+                          <span className="pinned-badge"><Pin size={12} /> Pinned</span>
+                        ) : (
+                          <span className="unpinned-text">Normal</span>
+                        )}
+                      </td>
+                      <td>{a.author || "Amit Sharma"}</td>
+                      <td>{a.date || "Oct 2026"}</td>
+                      <td style={{ textAlign: "right" }}>
+                        <div className="table-actions">
+                          <button
+                            type="button"
+                            className={`action-btn ${a.pinned ? "active-pin" : ""}`}
+                            title={a.pinned ? "Unpin notice" : "Pin notice to top"}
+                            onClick={() => togglePin(a.id)}
+                          >
+                            <Pin size={14} />
+                          </button>
+                          <button
+                            type="button"
+                            className="action-btn"
+                            title="View details"
+                            onClick={() => setViewingItem(a)}
+                          >
+                            <Eye size={15} />
+                          </button>
+                          <button
+                            type="button"
+                            className="action-btn"
+                            title="Edit announcement"
+                            onClick={() => openEditModal(a)}
+                          >
+                            <Pencil size={15} />
+                          </button>
+                          <button
+                            type="button"
+                            className="action-btn delete"
+                            title="Delete announcement"
+                            onClick={() => deleteItem(a.id)}
+                          >
+                            <Trash2 size={15} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+
+              {filteredAnnouncements.length === 0 && (
+                <div className="admin-ann-empty">
+                  <Megaphone size={40} />
+                  <h3>No announcements found</h3>
+                  <p>Try clearing filters or search query.</p>
+                </div>
+              )}
+            </div>
+          ) : (
+            /* ANNOUNCEMENTS FEED VIEW */
+            <div className="announcements-feed">
+              {filteredAnnouncements.map((a, idx) => (
+                <div key={a.id} className={`announcement-card ${a.pinned ? "pinned" : ""}`}>
+                  <div className="ann-header">
+                    <div className="ann-header-left">
+                      <span className="admin-row-num sm">{idx + 1}</span>
+                      {a.pinned && <span className="pinned-badge"><Pin size={12} /> Pinned</span>}
+                      <span className={`priority-badge ${a.priority?.toLowerCase()}`}>{a.priority}</span>
+                      <span className="audience-badge">{a.audience}</span>
+                    </div>
+
+                    <div className="ann-actions">
+                      <button type="button" className="action-btn" title="Pin / Unpin" onClick={() => togglePin(a.id)}>
+                        <Pin size={14} />
+                      </button>
+                      <button type="button" className="action-btn" title="Edit" onClick={() => openEditModal(a)}>
+                        <Pencil size={14} />
+                      </button>
+                      <button type="button" className="action-btn delete" title="Delete" onClick={() => deleteItem(a.id)}>
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
                   </div>
 
-                  <div className="ann-actions">
-                    <button type="button" className="action-btn" title="Pin / Unpin" onClick={() => togglePin(a.id)}>
-                      <Pin size={14} />
-                    </button>
-                    <button type="button" className="action-btn" title="Edit" onClick={() => openEditModal(a)}>
-                      <Pencil size={14} />
-                    </button>
-                    <button type="button" className="action-btn delete" title="Delete" onClick={() => deleteItem(a.id)}>
-                      <Trash2 size={14} />
-                    </button>
+                  <h3 onClick={() => setViewingItem(a)} className="clickable-title">{a.title}</h3>
+                  <p className="ann-text">{a.content}</p>
+
+                  <div className="ann-footer">
+                    <span>Posted by <strong>{a.author || "Amit Sharma"}</strong></span>
+                    <span className="ann-date">{a.date || "Oct 2026"}</span>
                   </div>
                 </div>
-
-                <h3 onClick={() => setViewingItem(a)} className="clickable-title">{a.title}</h3>
-                <p className="ann-text">{a.content}</p>
-
-                <div className="ann-footer">
-                  <span>Posted by <strong>{a.author || "Amit Sharma"}</strong></span>
-                  <span className="ann-date">{a.date || "Oct 2026"}</span>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </main>
       </div>
 

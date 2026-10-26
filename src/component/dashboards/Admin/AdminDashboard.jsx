@@ -16,6 +16,17 @@ import {
   Lightbulb,
   FileText,
   Layers,
+  Plus,
+  Download,
+  Activity,
+  CheckCircle2,
+  Zap,
+  BarChart3,
+  PieChart,
+  SlidersHorizontal,
+  Filter,
+  ArrowUpDown,
+  X,
 } from "lucide-react";
 
 import AdminSidebar from "./AdminSidebar.jsx";
@@ -747,6 +758,26 @@ export default function AdminDashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [dateFilter, setDateFilter] = useState("This Month");
   const [dateDropdownOpen, setDateDropdownOpen] = useState(false);
+  const [customDateModalOpen, setCustomDateModalOpen] = useState(false);
+  const [customStartDate, setCustomStartDate] = useState("2024-10-01");
+  const [customEndDate, setCustomEndDate] = useState("2024-10-31");
+  const [toast, setToast] = useState(null);
+
+  // INDEPENDENT GRAPH / SECTION FILTERS
+  const [taskDateFilter, setTaskDateFilter] = useState("This Month");
+  const [taskChartType, setTaskChartType] = useState("donut"); // 'donut' | 'bars' | 'list'
+  
+  const [projectProgressFilter, setProjectProgressFilter] = useState("all");
+  const [projectProgressSort, setProjectProgressSort] = useState("highest"); // 'highest' | 'lowest' | 'name'
+
+  const [recentProjectsFilter, setRecentProjectsFilter] = useState("all");
+  const [recentProjectsSort, setRecentProjectsSort] = useState("recent");
+
+  const [activityFilter, setActivityFilter] = useState("all");
+  const [activitySort, setActivitySort] = useState("newest");
+
+  const [aiDateFilter, setAiDateFilter] = useState("This Month");
+  const [aiChartType, setAiChartType] = useState("bar"); // 'bar' | 'distribution' | 'summary'
 
   // Timeframe presets for the header dropdown
   const DATE_PRESETS = [
@@ -758,10 +789,20 @@ export default function AdminDashboard() {
     { id: "All Time", label: "All Time (Complete History)" },
   ];
 
-  // Active dataset derived directly from selected dateFilter
+  // Active global dataset derived from selected dateFilter
   const activeDataset = useMemo(() => {
     return TIMEFRAME_DATA[dateFilter] || TIMEFRAME_DATA["This Month"];
   }, [dateFilter]);
+
+  // Task Status Overview independent dataset
+  const taskStatusDataset = useMemo(() => {
+    return TIMEFRAME_DATA[taskDateFilter] || activeDataset;
+  }, [taskDateFilter, activeDataset]);
+
+  // AI Usage independent dataset
+  const aiDataset = useMemo(() => {
+    return TIMEFRAME_DATA[aiDateFilter] || activeDataset;
+  }, [aiDateFilter, activeDataset]);
 
   // Tasks state that allows interactive checking per timeframe
   const [tasksState, setTasksState] = useState(() => activeDataset.tasks);
@@ -770,6 +811,14 @@ export default function AdminDashboard() {
   useEffect(() => {
     setTasksState(activeDataset.tasks);
   }, [activeDataset]);
+
+  // Auto-dismiss toast
+  useEffect(() => {
+    if (toast) {
+      const t = setTimeout(() => setToast(null), 3000);
+      return () => clearTimeout(t);
+    }
+  }, [toast]);
 
   // Toggle tasks interactively
   const toggleTask = (taskId) => {
@@ -848,13 +897,58 @@ export default function AdminDashboard() {
      DYNAMIC SVG DONUT CALCULATIONS (R = 54, C ~ 339.292)
   ========================================================= */
   const C = 2 * Math.PI * 54;
-  const statusCounts = activeDataset.taskStatus;
-  const total = Math.max(1, statusCounts.total);
+  const taskStatusCounts = taskStatusDataset.taskStatus;
+  const taskTotal = Math.max(1, taskStatusCounts.total);
 
-  const p1 = (statusCounts.completed / total) * C;
-  const p2 = (statusCounts.inProgress / total) * C;
-  const p3 = (statusCounts.todo / total) * C;
-  const p4 = (statusCounts.overdue / total) * C;
+  const p1 = (taskStatusCounts.completed / taskTotal) * C;
+  const p2 = (taskStatusCounts.inProgress / taskTotal) * C;
+  const p3 = (taskStatusCounts.todo / taskTotal) * C;
+  const p4 = (taskStatusCounts.overdue / taskTotal) * C;
+
+  // Filtered & Sorted Project Progress
+  const filteredProgressProjects = useMemo(() => {
+    let list = [...activeDataset.projects];
+    if (projectProgressFilter !== "all") {
+      list = list.filter((p) => p.status.toLowerCase().replace(/\s+/g, "-") === projectProgressFilter);
+    }
+    list.sort((a, b) => {
+      if (projectProgressSort === "highest") return b.progress - a.progress;
+      if (projectProgressSort === "lowest") return a.progress - b.progress;
+      if (projectProgressSort === "name") return a.name.localeCompare(b.name);
+      return 0;
+    });
+    return list;
+  }, [activeDataset.projects, projectProgressFilter, projectProgressSort]);
+
+  // Filtered & Sorted Recent Projects Table
+  const filteredRecentProjects = useMemo(() => {
+    let list = [...activeDataset.projects];
+    if (recentProjectsFilter !== "all") {
+      list = list.filter((p) => p.status.toLowerCase().replace(/\s+/g, "-") === recentProjectsFilter);
+    }
+    list.sort((a, b) => {
+      if (recentProjectsSort === "progress-desc") return b.progress - a.progress;
+      if (recentProjectsSort === "progress-asc") return a.progress - b.progress;
+      if (recentProjectsSort === "name") return a.name.localeCompare(b.name);
+      return 0;
+    });
+    return list;
+  }, [activeDataset.projects, recentProjectsFilter, recentProjectsSort]);
+
+  // Filtered & Sorted Organization Activities
+  const filteredActivities = useMemo(() => {
+    let list = [...activeDataset.activities];
+    if (activityFilter !== "all") {
+      list = list.filter((act) =>
+        act.action.toLowerCase().includes(activityFilter.toLowerCase()) ||
+        act.details.toLowerCase().includes(activityFilter.toLowerCase())
+      );
+    }
+    if (activitySort === "oldest") {
+      return [...list].reverse();
+    }
+    return list;
+  }, [activeDataset.activities, activityFilter, activitySort]);
 
   return (
     <div className="tfAdminDashboard">
@@ -906,6 +1000,18 @@ export default function AdminDashboard() {
                       <span>{p.label}</span>
                     </button>
                   ))}
+                  <div className="tfAdminDashboard__dateMenuDivider" />
+                  <button
+                    type="button"
+                    className="tfAdminDashboard__dateMenuItem custom-range-btn"
+                    onClick={() => {
+                      setDateDropdownOpen(false);
+                      setCustomDateModalOpen(true);
+                    }}
+                  >
+                    <SlidersHorizontal size={14} />
+                    <span>Custom Date Range...</span>
+                  </button>
                 </div>
               )}
             </div>
@@ -1011,12 +1117,27 @@ export default function AdminDashboard() {
             {/* 1. DYNAMIC TASK STATUS OVERVIEW */}
             <article className="tfAdminDashboard__card">
               <div className="tfAdminDashboard__cardHeader">
-                <h2>Task Status Overview</h2>
-                <div className="tfAdminDashboard__cardSelectWrap">
+                <div className="tfAdminDashboard__cardHeaderTitle">
+                  <h2>Task Status Overview</h2>
+                  <span className="tfAdminDashboard__badgeTag">{taskTotal} tasks</span>
+                </div>
+                <div className="tfAdminDashboard__cardActionsGroup">
                   <select
-                    value={dateFilter}
-                    onChange={(e) => setDateFilter(e.target.value)}
+                    value={taskChartType}
+                    onChange={(e) => setTaskChartType(e.target.value)}
+                    className="tfAdminDashboard__cardSelect sm"
+                    title="Switch chart representation"
+                  >
+                    <option value="donut">🍩 Donut</option>
+                    <option value="bars">📊 Bars</option>
+                    <option value="list">📋 List</option>
+                  </select>
+
+                  <select
+                    value={taskDateFilter}
+                    onChange={(e) => setTaskDateFilter(e.target.value)}
                     className="tfAdminDashboard__cardSelect"
+                    title="Filter Task Status by date"
                   >
                     <option value="This Month">This Month</option>
                     <option value="Today">Today</option>
@@ -1028,146 +1149,248 @@ export default function AdminDashboard() {
                 </div>
               </div>
 
-              <div className="tfAdminDashboard__taskOverview">
-                {/* DYNAMIC SVG DONUT CHART */}
-                <div className="tfAdminDashboard__donutWrapper">
-                  <svg className="tfAdminDashboard__donutSvg" viewBox="0 0 150 150">
-                    <circle
-                      cx="75"
-                      cy="75"
-                      r="54"
-                      fill="none"
-                      stroke="#f1f5f9"
-                      strokeWidth="16"
-                    />
-                    {/* Overdue (Red) */}
-                    {statusCounts.overdue > 0 && (
+              {taskChartType === "donut" && (
+                <div className="tfAdminDashboard__taskOverview">
+                  {/* DYNAMIC SVG DONUT CHART */}
+                  <div className="tfAdminDashboard__donutWrapper">
+                    <svg className="tfAdminDashboard__donutSvg" viewBox="0 0 150 150">
                       <circle
                         cx="75"
                         cy="75"
                         r="54"
                         fill="none"
-                        stroke="#ef4444"
+                        stroke="#f1f5f9"
                         strokeWidth="16"
-                        strokeDasharray={`${p4} ${C - p4}`}
-                        strokeDashoffset={-(p1 + p2 + p3)}
-                        transform="rotate(-90 75 75)"
                       />
-                    )}
-                    {/* To Do (Amber) */}
-                    {statusCounts.todo > 0 && (
-                      <circle
-                        cx="75"
-                        cy="75"
-                        r="54"
-                        fill="none"
-                        stroke="#f59e0b"
-                        strokeWidth="16"
-                        strokeDasharray={`${p3} ${C - p3}`}
-                        strokeDashoffset={-(p1 + p2)}
-                        transform="rotate(-90 75 75)"
-                      />
-                    )}
-                    {/* In Progress (Blue) */}
-                    {statusCounts.inProgress > 0 && (
-                      <circle
-                        cx="75"
-                        cy="75"
-                        r="54"
-                        fill="none"
-                        stroke="#3b82f6"
-                        strokeWidth="16"
-                        strokeDasharray={`${p2} ${C - p2}`}
-                        strokeDashoffset={-p1}
-                        transform="rotate(-90 75 75)"
-                      />
-                    )}
-                    {/* Completed (Green) */}
-                    {statusCounts.completed > 0 && (
-                      <circle
-                        cx="75"
-                        cy="75"
-                        r="54"
-                        fill="none"
-                        stroke="#10b981"
-                        strokeWidth="16"
-                        strokeDasharray={`${p1} ${C - p1}`}
-                        strokeDashoffset="0"
-                        transform="rotate(-90 75 75)"
-                      />
-                    )}
-                  </svg>
-                  <div className="tfAdminDashboard__donutCenter">
-                    <strong>{statusCounts.total}</strong>
-                    <span>Total Tasks</span>
+                      {/* Overdue (Red) */}
+                      {taskStatusCounts.overdue > 0 && (
+                        <circle
+                          cx="75"
+                          cy="75"
+                          r="54"
+                          fill="none"
+                          stroke="#ef4444"
+                          strokeWidth="16"
+                          strokeDasharray={`${p4} ${C - p4}`}
+                          strokeDashoffset={-(p1 + p2 + p3)}
+                          transform="rotate(-90 75 75)"
+                        />
+                      )}
+                      {/* To Do (Amber) */}
+                      {taskStatusCounts.todo > 0 && (
+                        <circle
+                          cx="75"
+                          cy="75"
+                          r="54"
+                          fill="none"
+                          stroke="#f59e0b"
+                          strokeWidth="16"
+                          strokeDasharray={`${p3} ${C - p3}`}
+                          strokeDashoffset={-(p1 + p2)}
+                          transform="rotate(-90 75 75)"
+                        />
+                      )}
+                      {/* In Progress (Blue) */}
+                      {taskStatusCounts.inProgress > 0 && (
+                        <circle
+                          cx="75"
+                          cy="75"
+                          r="54"
+                          fill="none"
+                          stroke="#3b82f6"
+                          strokeWidth="16"
+                          strokeDasharray={`${p2} ${C - p2}`}
+                          strokeDashoffset={-p1}
+                          transform="rotate(-90 75 75)"
+                        />
+                      )}
+                      {/* Completed (Green) */}
+                      {taskStatusCounts.completed > 0 && (
+                        <circle
+                          cx="75"
+                          cy="75"
+                          r="54"
+                          fill="none"
+                          stroke="#10b981"
+                          strokeWidth="16"
+                          strokeDasharray={`${p1} ${C - p1}`}
+                          strokeDashoffset="0"
+                          transform="rotate(-90 75 75)"
+                        />
+                      )}
+                    </svg>
+                    <div className="tfAdminDashboard__donutCenter">
+                      <strong>{taskStatusCounts.total}</strong>
+                      <span>Total Tasks</span>
+                    </div>
+                  </div>
+
+                  {/* DYNAMIC LEGEND TABLE */}
+                  <div className="tfAdminDashboard__legend">
+                    <div className="tfAdminDashboard__legendRow">
+                      <span>
+                        <i className="tfAdminDashboard__legendDot tfAdminDashboard__legendDot--completed" />
+                        Completed
+                      </span>
+                      <div className="tfAdminDashboard__legendValues">
+                        <strong>{taskStatusCounts.completed}</strong>
+                        <span className="tfAdminDashboard__legendPct">{taskStatusCounts.completedPct}%</span>
+                      </div>
+                    </div>
+
+                    <div className="tfAdminDashboard__legendRow">
+                      <span>
+                        <i className="tfAdminDashboard__legendDot tfAdminDashboard__legendDot--progress" />
+                        In Progress
+                      </span>
+                      <div className="tfAdminDashboard__legendValues">
+                        <strong>{taskStatusCounts.inProgress}</strong>
+                        <span className="tfAdminDashboard__legendPct">{taskStatusCounts.inProgressPct}%</span>
+                      </div>
+                    </div>
+
+                    <div className="tfAdminDashboard__legendRow">
+                      <span>
+                        <i className="tfAdminDashboard__legendDot tfAdminDashboard__legendDot--todo" />
+                        To Do
+                      </span>
+                      <div className="tfAdminDashboard__legendValues">
+                        <strong>{taskStatusCounts.todo}</strong>
+                        <span className="tfAdminDashboard__legendPct">{taskStatusCounts.todoPct}%</span>
+                      </div>
+                    </div>
+
+                    <div className="tfAdminDashboard__legendRow">
+                      <span>
+                        <i className="tfAdminDashboard__legendDot tfAdminDashboard__legendDot--overdue" />
+                        Overdue
+                      </span>
+                      <div className="tfAdminDashboard__legendValues">
+                        <strong>{taskStatusCounts.overdue}</strong>
+                        <span className="tfAdminDashboard__legendPct">{taskStatusCounts.overduePct}%</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
+              )}
 
-                {/* DYNAMIC LEGEND TABLE */}
-                <div className="tfAdminDashboard__legend">
-                  <div className="tfAdminDashboard__legendRow">
-                    <span>
-                      <i className="tfAdminDashboard__legendDot tfAdminDashboard__legendDot--completed" />
-                      Completed
-                    </span>
-                    <div className="tfAdminDashboard__legendValues">
-                      <strong>{statusCounts.completed}</strong>
-                      <span className="tfAdminDashboard__legendPct">{statusCounts.completedPct}%</span>
+              {taskChartType === "bars" && (
+                <div className="tfAdminDashboard__statusBarsContainer">
+                  <div className="status-bar-row">
+                    <div className="bar-label-group">
+                      <span className="bar-name">Completed</span>
+                      <strong className="bar-value text-green">{taskStatusCounts.completed} ({taskStatusCounts.completedPct}%)</strong>
+                    </div>
+                    <div className="bar-track">
+                      <div className="bar-fill bg-green" style={{ width: `${taskStatusCounts.completedPct}%` }} />
                     </div>
                   </div>
 
-                  <div className="tfAdminDashboard__legendRow">
-                    <span>
-                      <i className="tfAdminDashboard__legendDot tfAdminDashboard__legendDot--progress" />
-                      In Progress
-                    </span>
-                    <div className="tfAdminDashboard__legendValues">
-                      <strong>{statusCounts.inProgress}</strong>
-                      <span className="tfAdminDashboard__legendPct">{statusCounts.inProgressPct}%</span>
+                  <div className="status-bar-row">
+                    <div className="bar-label-group">
+                      <span className="bar-name">In Progress</span>
+                      <strong className="bar-value text-blue">{taskStatusCounts.inProgress} ({taskStatusCounts.inProgressPct}%)</strong>
+                    </div>
+                    <div className="bar-track">
+                      <div className="bar-fill bg-blue" style={{ width: `${taskStatusCounts.inProgressPct}%` }} />
                     </div>
                   </div>
 
-                  <div className="tfAdminDashboard__legendRow">
-                    <span>
-                      <i className="tfAdminDashboard__legendDot tfAdminDashboard__legendDot--todo" />
-                      To Do
-                    </span>
-                    <div className="tfAdminDashboard__legendValues">
-                      <strong>{statusCounts.todo}</strong>
-                      <span className="tfAdminDashboard__legendPct">{statusCounts.todoPct}%</span>
+                  <div className="status-bar-row">
+                    <div className="bar-label-group">
+                      <span className="bar-name">To Do</span>
+                      <strong className="bar-value text-amber">{taskStatusCounts.todo} ({taskStatusCounts.todoPct}%)</strong>
+                    </div>
+                    <div className="bar-track">
+                      <div className="bar-fill bg-amber" style={{ width: `${taskStatusCounts.todoPct}%` }} />
                     </div>
                   </div>
 
-                  <div className="tfAdminDashboard__legendRow">
-                    <span>
-                      <i className="tfAdminDashboard__legendDot tfAdminDashboard__legendDot--overdue" />
-                      Overdue
-                    </span>
-                    <div className="tfAdminDashboard__legendValues">
-                      <strong>{statusCounts.overdue}</strong>
-                      <span className="tfAdminDashboard__legendPct">{statusCounts.overduePct}%</span>
+                  <div className="status-bar-row">
+                    <div className="bar-label-group">
+                      <span className="bar-name">Overdue</span>
+                      <strong className="bar-value text-red">{taskStatusCounts.overdue} ({taskStatusCounts.overduePct}%)</strong>
+                    </div>
+                    <div className="bar-track">
+                      <div className="bar-fill bg-red" style={{ width: `${taskStatusCounts.overduePct}%` }} />
                     </div>
                   </div>
                 </div>
-              </div>
+              )}
+
+              {taskChartType === "list" && (
+                <div className="tfAdminDashboard__statusListContainer">
+                  <div className="status-list-card green-card">
+                    <CheckCircle2 size={16} />
+                    <div className="status-list-text">
+                      <strong>Completed Tasks</strong>
+                      <small>Successfully delivered</small>
+                    </div>
+                    <span className="status-count-badge green">{taskStatusCounts.completed}</span>
+                  </div>
+
+                  <div className="status-list-card blue-card">
+                    <Activity size={16} />
+                    <div className="status-list-text">
+                      <strong>In Progress</strong>
+                      <small>Actively worked on</small>
+                    </div>
+                    <span className="status-count-badge blue">{taskStatusCounts.inProgress}</span>
+                  </div>
+
+                  <div className="status-list-card amber-card">
+                    <ListChecks size={16} />
+                    <div className="status-list-text">
+                      <strong>To Do Backlog</strong>
+                      <small>Pending start</small>
+                    </div>
+                    <span className="status-count-badge amber">{taskStatusCounts.todo}</span>
+                  </div>
+
+                  <div className="status-list-card red-card">
+                    <Zap size={16} />
+                    <div className="status-list-text">
+                      <strong>Overdue Tasks</strong>
+                      <small>Past SLA target date</small>
+                    </div>
+                    <span className="status-count-badge red">{taskStatusCounts.overdue}</span>
+                  </div>
+                </div>
+              )}
             </article>
 
             {/* 2. DYNAMIC PROJECT PROGRESS */}
             <article className="tfAdminDashboard__card">
               <div className="tfAdminDashboard__cardHeader">
                 <h2>Project Progress</h2>
-                <button
-                  type="button"
-                  onClick={() => navigate("/admin/projects")}
-                  className="tfAdminDashboard__viewAllBtn"
-                >
-                  View all
-                  <ArrowRight size={13} />
-                </button>
+                <div className="tfAdminDashboard__cardActionsGroup">
+                  <select
+                    value={projectProgressFilter}
+                    onChange={(e) => setProjectProgressFilter(e.target.value)}
+                    className="tfAdminDashboard__cardSelect sm"
+                    title="Filter by status"
+                  >
+                    <option value="all">All Statuses</option>
+                    <option value="on-track">On Track</option>
+                    <option value="in-progress">In Progress</option>
+                    <option value="at-risk">At Risk</option>
+                    <option value="delayed">Delayed</option>
+                  </select>
+                  <select
+                    value={projectProgressSort}
+                    onChange={(e) => setProjectProgressSort(e.target.value)}
+                    className="tfAdminDashboard__cardSelect sm"
+                    title="Sort projects"
+                  >
+                    <option value="highest">Progress: High-Low</option>
+                    <option value="lowest">Progress: Low-High</option>
+                    <option value="name">Name A-Z</option>
+                  </select>
+                </div>
               </div>
 
               <div className="tfAdminDashboard__progressList">
-                {activeDataset.projects.slice(0, 4).map((project) => (
+                {filteredProgressProjects.slice(0, 4).map((project) => (
                   <div key={project.id} className="tfAdminDashboard__progressItem">
                     <div>
                       <strong>{project.name}</strong>
@@ -1240,31 +1463,65 @@ export default function AdminDashboard() {
             {/* RECENT PROJECTS TABLE */}
             <article className="tfAdminDashboard__card">
               <div className="tfAdminDashboard__cardHeader">
-                <h2>Recent Projects</h2>
-                <button
-                  type="button"
-                  onClick={() => navigate("/admin/projects")}
-                  className="tfAdminDashboard__viewAllBtn"
-                >
-                  View all
-                  <ArrowRight size={13} />
-                </button>
+                <div className="tfAdminDashboard__cardHeaderTitle">
+                  <h2>Recent Projects</h2>
+                  <span className="tfAdminDashboard__badgeTag">{filteredRecentProjects.length} projects</span>
+                </div>
+                <div className="tfAdminDashboard__cardActionsGroup">
+                  <select
+                    value={recentProjectsFilter}
+                    onChange={(e) => setRecentProjectsFilter(e.target.value)}
+                    className="tfAdminDashboard__cardSelect sm"
+                    title="Filter projects by status"
+                  >
+                    <option value="all">All Statuses</option>
+                    <option value="on-track">On Track</option>
+                    <option value="in-progress">In Progress</option>
+                    <option value="at-risk">At Risk</option>
+                    <option value="delayed">Delayed</option>
+                  </select>
+
+                  <select
+                    value={recentProjectsSort}
+                    onChange={(e) => setRecentProjectsSort(e.target.value)}
+                    className="tfAdminDashboard__cardSelect sm"
+                    title="Sort projects"
+                  >
+                    <option value="recent">Recent</option>
+                    <option value="progress-desc">Progress (High-Low)</option>
+                    <option value="progress-asc">Progress (Low-High)</option>
+                    <option value="name">Name (A-Z)</option>
+                  </select>
+
+                  <button
+                    type="button"
+                    onClick={() => navigate("/admin/projects")}
+                    className="tfAdminDashboard__viewAllBtn"
+                  >
+                    View all
+                    <ArrowRight size={13} />
+                  </button>
+                </div>
               </div>
 
               <div className="tfAdminDashboard__tableScroll">
                 <table className="tfAdminDashboard__table">
                   <thead>
                     <tr>
-                      <th style={{ width: "28%" }}>Project</th>
+                      <th style={{ width: 44, textAlign: "center" }}>#</th>
+                      <th style={{ width: "26%" }}>Project</th>
                       <th style={{ width: "22%" }}>Team</th>
-                      <th style={{ width: "24%" }}>Progress</th>
+                      <th style={{ width: "22%" }}>Progress</th>
                       <th style={{ width: "14%" }}>Status</th>
-                      <th style={{ width: "12%" }}>Due Date</th>
+                      <th style={{ width: "14%" }}>Due Date</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {activeDataset.projects.slice(0, 4).map((project) => (
+                    {filteredRecentProjects.slice(0, 5).map((project, idx) => (
                       <tr key={project.id}>
+                        <td style={{ textAlign: "center" }}>
+                          <span className="admin-row-num">{idx + 1}</span>
+                        </td>
                         <td>
                           <strong>{project.name}</strong>
                         </td>
@@ -1371,30 +1628,62 @@ export default function AdminDashboard() {
             {/* ORGANIZATION ACTIVITY */}
             <article className="tfAdminDashboard__card">
               <div className="tfAdminDashboard__cardHeader">
-                <h2>Organization Activity</h2>
-                <button
-                  type="button"
-                  onClick={() => navigate("/admin/activity")}
-                  className="tfAdminDashboard__viewAllBtn"
-                >
-                  View all
-                  <ArrowRight size={13} />
-                </button>
+                <div className="tfAdminDashboard__cardHeaderTitle">
+                  <h2>Organization Activity</h2>
+                  <span className="tfAdminDashboard__badgeTag">{filteredActivities.length} events</span>
+                </div>
+                <div className="tfAdminDashboard__cardActionsGroup">
+                  <select
+                    value={activityFilter}
+                    onChange={(e) => setActivityFilter(e.target.value)}
+                    className="tfAdminDashboard__cardSelect sm"
+                    title="Filter activities"
+                  >
+                    <option value="all">All Activities</option>
+                    <option value="project">Project Events</option>
+                    <option value="workspace">Workspace Events</option>
+                    <option value="user">User Events</option>
+                    <option value="security">Security Events</option>
+                  </select>
+
+                  <select
+                    value={activitySort}
+                    onChange={(e) => setActivitySort(e.target.value)}
+                    className="tfAdminDashboard__cardSelect sm"
+                    title="Sort activities"
+                  >
+                    <option value="newest">Newest First</option>
+                    <option value="oldest">Oldest First</option>
+                  </select>
+
+                  <button
+                    type="button"
+                    onClick={() => navigate("/admin/activity")}
+                    className="tfAdminDashboard__viewAllBtn"
+                  >
+                    View all
+                    <ArrowRight size={13} />
+                  </button>
+                </div>
               </div>
 
               <div className="tfAdminDashboard__tableScroll">
                 <table className="tfAdminDashboard__table">
                   <thead>
                     <tr>
-                      <th style={{ width: "18%" }}>Time</th>
-                      <th style={{ width: "32%" }}>User</th>
+                      <th style={{ width: 44, textAlign: "center" }}>#</th>
+                      <th style={{ width: "16%" }}>Time</th>
+                      <th style={{ width: "30%" }}>User</th>
                       <th style={{ width: "24%" }}>Action</th>
                       <th style={{ width: "26%" }}>Details</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {activeDataset.activities.slice(0, 5).map((act) => (
+                    {filteredActivities.slice(0, 5).map((act, idx) => (
                       <tr key={act.id}>
+                        <td style={{ textAlign: "center" }}>
+                          <span className="admin-row-num">{idx + 1}</span>
+                        </td>
                         <td>
                           <span className="tfAdminDashboard__timeCell">{act.time}</span>
                         </td>
@@ -1430,12 +1719,29 @@ export default function AdminDashboard() {
             {/* AI USAGE (ORGANIZATION) */}
             <article className="tfAdminDashboard__card">
               <div className="tfAdminDashboard__cardHeader">
-                <h2>AI Usage (Organization)</h2>
-                <div className="tfAdminDashboard__cardSelectWrap">
+                <div className="tfAdminDashboard__cardHeaderTitle">
+                  <h2>AI Usage (Organization)</h2>
+                  <span className="tfAdminDashboard__badgeTag">{aiDataset.aiUsage.totalRequests} reqs</span>
+                </div>
+                <div className="tfAdminDashboard__cardActionsGroup">
+                  {/* CHART FORMAT DROPDOWN */}
                   <select
-                    value={dateFilter}
-                    onChange={(e) => setDateFilter(e.target.value)}
+                    value={aiChartType}
+                    onChange={(e) => setAiChartType(e.target.value)}
+                    className="tfAdminDashboard__cardSelect sm"
+                    title="Switch AI usage representation"
+                  >
+                    <option value="bar">📊 Monthly Bars</option>
+                    <option value="distribution">🍩 Distribution</option>
+                    <option value="summary">📋 Summary</option>
+                  </select>
+
+                  {/* INDEPENDENT DATE RANGE FILTER FOR AI USAGE */}
+                  <select
+                    value={aiDateFilter}
+                    onChange={(e) => setAiDateFilter(e.target.value)}
                     className="tfAdminDashboard__cardSelect"
+                    title="Filter AI Usage by date"
                   >
                     <option value="This Month">This Month</option>
                     <option value="Today">Today</option>
@@ -1448,60 +1754,115 @@ export default function AdminDashboard() {
               </div>
 
               <div className="tfAdminDashboard__aiLayout">
-                {/* LEFT METRIC & MONTHLY BAR CHART */}
+                {/* LEFT METRIC & CHART VIEW */}
                 <div className="tfAdminDashboard__aiUsage">
                   <div className="tfAdminDashboard__aiHeaderBlock">
                     <div className="tfAdminDashboard__aiNumberRow">
                       <span className="tfAdminDashboard__aiBigNum">
-                        {activeDataset.aiUsage.totalRequests}
+                        {aiDataset.aiUsage.totalRequests}
                       </span>
                       <span className="tfAdminDashboard__aiGrowthBadge">
                         <TrendingUp size={11} />
-                        {activeDataset.aiUsage.growth}
+                        {aiDataset.aiUsage.growth}
                       </span>
                     </div>
-                    <span className="tfAdminDashboard__aiLabel">Total AI Requests</span>
+                    <span className="tfAdminDashboard__aiLabel">Total AI Requests ({aiDateFilter})</span>
                   </div>
 
-                  {/* DYNAMIC BAR CHART */}
-                  <div className="tfAdminDashboard__aiChartWrapper">
-                    <div className="tfAdminDashboard__aiYAxis">
-                      <span>15K</span>
-                      <span>10K</span>
-                      <span>5K</span>
-                      <span>0</span>
-                    </div>
-
-                    <div className="tfAdminDashboard__aiBarsContainer">
-                      <div className="tfAdminDashboard__aiGridLines">
-                        <span className="grid-line" />
-                        <span className="grid-line" />
-                        <span className="grid-line" />
-                        <span className="grid-line" />
+                  {aiChartType === "bar" && (
+                    <div className="tfAdminDashboard__aiChartWrapper">
+                      <div className="tfAdminDashboard__aiYAxis">
+                        <span>15K</span>
+                        <span>10K</span>
+                        <span>5K</span>
+                        <span>0</span>
                       </div>
 
-                      <div className="tfAdminDashboard__aiBars">
-                        {activeDataset.aiUsage.monthly.map((m, idx) => (
-                          <div key={idx} className="tfAdminDashboard__aiBarCol">
-                            <div className="tfAdminDashboard__aiBarTrack">
-                              <span
-                                className="tfAdminDashboard__aiBarFill"
-                                style={{ height: `${m.height}%` }}
-                                title={`${m.month}: ${m.height}%`}
-                              />
+                      <div className="tfAdminDashboard__aiBarsContainer">
+                        <div className="tfAdminDashboard__aiGridLines">
+                          <span className="grid-line" />
+                          <span className="grid-line" />
+                          <span className="grid-line" />
+                          <span className="grid-line" />
+                        </div>
+
+                        <div className="tfAdminDashboard__aiBars">
+                          {aiDataset.aiUsage.monthly.map((m, idx) => (
+                            <div key={idx} className="tfAdminDashboard__aiBarCol">
+                              <div className="tfAdminDashboard__aiBarTrack">
+                                <span
+                                  className="tfAdminDashboard__aiBarFill"
+                                  style={{ height: `${m.height}%` }}
+                                  title={`${m.month}: ${m.height}%`}
+                                />
+                              </div>
+                              <span className="tfAdminDashboard__aiMonthLabel">{m.month}</span>
                             </div>
-                            <span className="tfAdminDashboard__aiMonthLabel">{m.month}</span>
-                          </div>
-                        ))}
+                          ))}
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  )}
+
+                  {aiChartType === "distribution" && (
+                    <div className="tfAdminDashboard__aiDistributionView">
+                      <div className="model-alloc-item">
+                        <div className="model-alloc-labels">
+                          <span>Claude 3.5 Sonnet (Coding)</span>
+                          <strong>42% (5,241 reqs)</strong>
+                        </div>
+                        <div className="model-alloc-track">
+                          <div className="model-alloc-fill purple" style={{ width: "42%" }} />
+                        </div>
+                      </div>
+
+                      <div className="model-alloc-item">
+                        <div className="model-alloc-labels">
+                          <span>GPT-4o (Chat & Reasoning)</span>
+                          <strong>38% (4,742 reqs)</strong>
+                        </div>
+                        <div className="model-alloc-track">
+                          <div className="model-alloc-fill blue" style={{ width: "38%" }} />
+                        </div>
+                      </div>
+
+                      <div className="model-alloc-item">
+                        <div className="model-alloc-labels">
+                          <span>TeamFlow Neural Core (Summaries)</span>
+                          <strong>20% (2,497 reqs)</strong>
+                        </div>
+                        <div className="model-alloc-track">
+                          <div className="model-alloc-fill green" style={{ width: "20%" }} />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {aiChartType === "summary" && (
+                    <div className="tfAdminDashboard__aiSummaryCards">
+                      <div className="ai-stat-box">
+                        <span className="stat-label">Total Tokens Processed</span>
+                        <strong className="stat-number">18.4M</strong>
+                        <span className="stat-sub">Across all organization agents</span>
+                      </div>
+                      <div className="ai-stat-box">
+                        <span className="stat-label">Avg GPU Latency</span>
+                        <strong className="stat-number">24ms</strong>
+                        <span className="stat-sub">99.8% within SLA window</span>
+                      </div>
+                      <div className="ai-stat-box">
+                        <span className="stat-label">Est. Cost Savings</span>
+                        <strong className="stat-number">$1,420</strong>
+                        <span className="stat-sub">Compared to manual workload</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* RIGHT: TOP AI FEATURES */}
                 <div className="tfAdminDashboard__aiFeatures">
                   <div className="tfAdminDashboard__aiFeaturesTitle">Top AI Features</div>
-                  {activeDataset.aiUsage.features.map((feat) => (
+                  {aiDataset.aiUsage.features.map((feat) => (
                     <div key={feat.id} className="tfAdminDashboard__aiFeature">
                       <div className="tfAdminDashboard__aiFeatLeft">
                         {renderFeatureIcon(feat.icon)}
@@ -1516,6 +1877,117 @@ export default function AdminDashboard() {
           </section>
         </div>
       </main>
+
+      {/* CUSTOM DATE RANGE MODAL */}
+      {customDateModalOpen && (
+        <div
+          className="tfAdminDashboard__modalOverlay"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setCustomDateModalOpen(false);
+          }}
+        >
+          <div className="tfAdminDashboard__customDateModal">
+            <div className="modal-header">
+              <div className="modal-title-wrap">
+                <CalendarDays size={20} />
+                <h3>Custom Date Range</h3>
+              </div>
+              <button
+                type="button"
+                className="modal-close-btn"
+                onClick={() => setCustomDateModalOpen(false)}
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="modal-body">
+              <p>Select custom start and end dates for analytics and executive metrics.</p>
+
+              <div className="date-inputs-grid">
+                <div className="date-input-group">
+                  <label htmlFor="customStart">Start Date</label>
+                  <input
+                    id="customStart"
+                    type="date"
+                    value={customStartDate}
+                    onChange={(e) => setCustomStartDate(e.target.value)}
+                  />
+                </div>
+
+                <div className="date-input-group">
+                  <label htmlFor="customEnd">End Date</label>
+                  <input
+                    id="customEnd"
+                    type="date"
+                    value={customEndDate}
+                    onChange={(e) => setCustomEndDate(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div className="quick-ranges">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCustomStartDate("2024-10-01");
+                    setCustomEndDate("2024-10-31");
+                  }}
+                >
+                  This Month
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCustomStartDate("2024-09-01");
+                    setCustomEndDate("2024-09-30");
+                  }}
+                >
+                  Last Month
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCustomStartDate("2024-01-01");
+                    setCustomEndDate("2024-10-31");
+                  }}
+                >
+                  Year to Date
+                </button>
+              </div>
+            </div>
+
+            <div className="modal-footer">
+              <button
+                type="button"
+                className="btn-cancel"
+                onClick={() => setCustomDateModalOpen(false)}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="btn-apply"
+                onClick={() => {
+                  setDateFilter("This Month");
+                  setCustomDateModalOpen(false);
+                  setToast(`Custom date range applied: ${customStartDate} to ${customEndDate}`);
+                }}
+              >
+                Apply Date Range
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* TOAST NOTIFICATION */}
+      {toast && (
+        <div className="tfAdminDashboard__toast">
+          <CheckCircle2 size={16} />
+          <span>{toast}</span>
+        </div>
+      )}
     </div>
   );
 }

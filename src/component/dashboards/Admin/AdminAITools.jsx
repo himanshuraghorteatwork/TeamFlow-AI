@@ -17,6 +17,12 @@ import {
   Play,
   Send,
   Layers,
+  Eye,
+  Grid2X2,
+  List,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
 } from "lucide-react";
 
 import AdminSidebar from "./AdminSidebar.jsx";
@@ -38,6 +44,9 @@ export default function AdminAITools() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("All");
+  const [viewMode, setViewMode] = useState("table"); // 'table' | 'grid'
+  const [sortKey, setSortKey] = useState("name");
+  const [sortOrder, setSortOrder] = useState("asc");
 
   // Prompt Playground State
   const [promptInput, setPromptInput] = useState("");
@@ -47,7 +56,29 @@ export default function AdminAITools() {
   // Modals
   const [showModal, setShowModal] = useState(false);
   const [editingTool, setEditingTool] = useState(null);
+  const [viewingTool, setViewingTool] = useState(null);
   const [toast, setToast] = useState(null);
+
+  // Column sort toggle handler
+  const handleSort = (key) => {
+    if (sortKey === key) {
+      setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"));
+    } else {
+      setSortKey(key);
+      setSortOrder("asc");
+    }
+  };
+
+  const renderSortIcon = (key) => {
+    if (sortKey !== key) {
+      return <ArrowUpDown size={13} className="admin-sort-icon muted" />;
+    }
+    return sortOrder === "asc" ? (
+      <ArrowUp size={13} className="admin-sort-icon active" />
+    ) : (
+      <ArrowDown size={13} className="admin-sort-icon active" />
+    );
+  };
 
   const [form, setForm] = useState({
     name: "",
@@ -75,13 +106,37 @@ export default function AdminAITools() {
   };
 
   const filteredTools = useMemo(() => {
-    return tools.filter((t) => {
+    const list = tools.filter((t) => {
       const term = search.trim().toLowerCase();
       const matchesSearch = !term || t.name?.toLowerCase().includes(term) || t.description?.toLowerCase().includes(term);
       const matchesCategory = categoryFilter === "All" || t.category === categoryFilter;
       return matchesSearch && matchesCategory;
     });
-  }, [tools, search, categoryFilter]);
+
+    return [...list].sort((a, b) => {
+      let valA = a[sortKey];
+      let valB = b[sortKey];
+
+      if (valA === undefined || valA === null) valA = "";
+      if (valB === undefined || valB === null) valB = "";
+
+      if (typeof valA === "boolean") {
+        valA = valA ? 1 : 0;
+        valB = valB ? 1 : 0;
+      }
+
+      if (typeof valA === "number" && typeof valB === "number") {
+        return sortOrder === "asc" ? valA - valB : valB - valA;
+      }
+
+      valA = String(valA).toLowerCase();
+      valB = String(valB).toLowerCase();
+
+      if (valA < valB) return sortOrder === "asc" ? -1 : 1;
+      if (valA > valB) return sortOrder === "asc" ? 1 : -1;
+      return 0;
+    });
+  }, [tools, search, categoryFilter, sortKey, sortOrder]);
 
   const stats = useMemo(() => {
     const total = tools.length;
@@ -237,50 +292,225 @@ export default function AdminAITools() {
               {search && <button type="button" className="clear-btn" onClick={() => setSearch("")}><X size={14} /></button>}
             </div>
 
-            <select value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)}>
-              <option value="All">All Categories</option>
-              <option value="Assistant">Assistant</option>
-              <option value="Generation">Generation</option>
-              <option value="Automation">Automation</option>
-              <option value="Analytics">Analytics</option>
-            </select>
+            <div className="admin-ai-controls">
+              <select value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)}>
+                <option value="All">All Categories</option>
+                <option value="Assistant">Assistant</option>
+                <option value="Generation">Generation</option>
+                <option value="Automation">Automation</option>
+                <option value="Analytics">Analytics</option>
+              </select>
+
+              <select
+                value={`${sortKey}-${sortOrder}`}
+                onChange={(e) => {
+                  const [k, ord] = e.target.value.split("-");
+                  setSortKey(k);
+                  setSortOrder(ord);
+                }}
+                aria-label="Sort AI features"
+              >
+                <option value="name-asc">Sort: Name (A to Z)</option>
+                <option value="name-desc">Sort: Name (Z to A)</option>
+                <option value="requests-desc">Sort: Highest Requests</option>
+                <option value="requests-asc">Sort: Lowest Requests</option>
+                <option value="category-asc">Sort: Category</option>
+                <option value="model-asc">Sort: AI Model</option>
+                <option value="enabled-desc">Sort: Active First</option>
+              </select>
+
+              {(search || categoryFilter !== "All") && (
+                <button
+                  type="button"
+                  className="clear-filters-btn"
+                  onClick={() => {
+                    setSearch("");
+                    setCategoryFilter("All");
+                  }}
+                >
+                  <X size={13} />
+                  Clear Filters
+                </button>
+              )}
+
+              <div className="view-switch">
+                <button
+                  type="button"
+                  className={`view-btn ${viewMode === "table" ? "active" : ""}`}
+                  onClick={() => setViewMode("table")}
+                  title="Table view"
+                >
+                  <List size={16} />
+                </button>
+                <button
+                  type="button"
+                  className={`view-btn ${viewMode === "grid" ? "active" : ""}`}
+                  onClick={() => setViewMode("grid")}
+                  title="Grid view"
+                >
+                  <Grid2X2 size={16} />
+                </button>
+              </div>
+            </div>
           </div>
 
-          {/* TOOLS GRID */}
-          <div className="admin-ai-grid">
-            {filteredTools.map((t) => (
-              <div key={t.id} className={`ai-tool-card ${t.enabled ? "" : "disabled"}`}>
-                <div className="tool-card-top">
-                  <div className="tool-card-info">
-                    <div className="tool-avatar"><Bot size={20} /></div>
-                    <div>
-                      <h3>{t.name}</h3>
-                      <span className="tool-model-chip">{t.model || "GPT-4o"}</span>
+          {/* TABLE VIEW (PRIMARY) */}
+          {viewMode === "table" ? (
+            <div className="admin-ai-table-wrap">
+              <table className="admin-ai-table">
+                <thead>
+                  <tr>
+                    <th style={{ width: 48, textAlign: "center" }}>#</th>
+                    <th className="sortable-th" onClick={() => handleSort("name")}>
+                      <div className="th-content">
+                        <span>AI Feature</span>
+                        {renderSortIcon("name")}
+                      </div>
+                    </th>
+                    <th className="sortable-th" onClick={() => handleSort("category")}>
+                      <div className="th-content">
+                        <span>Category</span>
+                        {renderSortIcon("category")}
+                      </div>
+                    </th>
+                    <th className="sortable-th" onClick={() => handleSort("model")}>
+                      <div className="th-content">
+                        <span>Model Engine</span>
+                        {renderSortIcon("model")}
+                      </div>
+                    </th>
+                    <th className="sortable-th" onClick={() => handleSort("enabled")}>
+                      <div className="th-content">
+                        <span>Status</span>
+                        {renderSortIcon("enabled")}
+                      </div>
+                    </th>
+                    <th className="sortable-th" onClick={() => handleSort("requests")}>
+                      <div className="th-content">
+                        <span>Requests</span>
+                        {renderSortIcon("requests")}
+                      </div>
+                    </th>
+                    <th style={{ textAlign: "right" }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredTools.map((t, idx) => (
+                    <tr key={t.id} className={t.enabled ? "" : "row-disabled"}>
+                      <td style={{ textAlign: "center" }}>
+                        <span className="admin-row-num">{idx + 1}</span>
+                      </td>
+                      <td>
+                        <div className="tool-title-cell">
+                          <strong className="clickable-title" onClick={() => setViewingTool(t)}>
+                            {t.name}
+                          </strong>
+                          <small>{t.description?.substring(0, 65)}...</small>
+                        </div>
+                      </td>
+                      <td>
+                        <span className="tool-cat">{t.category}</span>
+                      </td>
+                      <td>
+                        <span className="tool-model-chip">{t.model || "GPT-4o"}</span>
+                      </td>
+                      <td>
+                        <span className={`status-pill status-${t.enabled ? "active" : "inactive"}`}>
+                          <span className="dot" />
+                          {t.enabled ? "Active" : "Disabled"}
+                        </span>
+                      </td>
+                      <td>
+                        <strong>{(t.requests || 120).toLocaleString()}</strong> calls
+                      </td>
+                      <td style={{ textAlign: "right" }}>
+                        <div className="table-actions">
+                          <button
+                            type="button"
+                            className={`power-btn-inline ${t.enabled ? "on" : "off"}`}
+                            title={t.enabled ? "Disable Feature" : "Enable Feature"}
+                            onClick={() => toggleToolEnabled(t.id)}
+                          >
+                            <Power size={13} />
+                          </button>
+                          <button
+                            type="button"
+                            className="action-btn"
+                            title="View details & Prompt"
+                            onClick={() => setViewingTool(t)}
+                          >
+                            <Eye size={15} />
+                          </button>
+                          <button
+                            type="button"
+                            className="action-btn"
+                            title="Edit AI Feature"
+                            onClick={() => openEditModal(t)}
+                          >
+                            <Pencil size={15} />
+                          </button>
+                          <button
+                            type="button"
+                            className="action-btn delete"
+                            title="Delete AI Feature"
+                            onClick={() => deleteTool(t.id)}
+                          >
+                            <Trash2 size={15} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+
+              {filteredTools.length === 0 && (
+                <div className="admin-ai-empty">
+                  <Bot size={40} />
+                  <h3>No AI features found</h3>
+                  <p>Try clearing filters or search query.</p>
+                </div>
+              )}
+            </div>
+          ) : (
+            /* TOOLS GRID */
+            <div className="admin-ai-grid">
+              {filteredTools.map((t, idx) => (
+                <div key={t.id} className={`ai-tool-card ${t.enabled ? "" : "disabled"}`}>
+                  <div className="tool-card-top">
+                    <div className="tool-card-info">
+                      <span className="admin-row-num sm">{idx + 1}</span>
+                      <div className="tool-avatar"><Bot size={20} /></div>
+                      <div>
+                        <h3 className="clickable-title" onClick={() => setViewingTool(t)}>{t.name}</h3>
+                        <span className="tool-model-chip">{t.model || "GPT-4o"}</span>
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      className={`power-btn ${t.enabled ? "on" : "off"}`}
+                      title={t.enabled ? "Disable Feature" : "Enable Feature"}
+                      onClick={() => toggleToolEnabled(t.id)}
+                    >
+                      <Power size={16} />
+                    </button>
+                  </div>
+
+                  <p className="tool-desc">{t.description}</p>
+
+                  <div className="tool-card-footer">
+                    <span className="tool-cat">{t.category}</span>
+                    <div className="tool-actions">
+                      <button type="button" className="action-btn" onClick={() => setViewingTool(t)}><Eye size={14} /></button>
+                      <button type="button" className="action-btn" onClick={() => openEditModal(t)}><Pencil size={14} /></button>
+                      <button type="button" className="action-btn delete" onClick={() => deleteTool(t.id)}><Trash2 size={14} /></button>
                     </div>
                   </div>
-
-                  <button
-                    type="button"
-                    className={`power-btn ${t.enabled ? "on" : "off"}`}
-                    title={t.enabled ? "Disable Feature" : "Enable Feature"}
-                    onClick={() => toggleToolEnabled(t.id)}
-                  >
-                    <Power size={16} />
-                  </button>
                 </div>
-
-                <p className="tool-desc">{t.description}</p>
-
-                <div className="tool-card-footer">
-                  <span className="tool-cat">{t.category}</span>
-                  <div className="tool-actions">
-                    <button type="button" className="action-btn" onClick={() => openEditModal(t)}><Pencil size={14} /></button>
-                    <button type="button" className="action-btn delete" onClick={() => deleteTool(t.id)}><Trash2 size={14} /></button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </main>
       </div>
 
@@ -329,6 +559,66 @@ export default function AdminAITools() {
                 <button type="submit" className="btn-submit">{editingTool ? "Save Changes" : "Provision"}</button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* VIEW TOOL MODAL */}
+      {viewingTool && (
+        <div className="modal-overlay" onMouseDown={(e) => { if (e.target === e.currentTarget) setViewingTool(null); }}>
+          <div className="modal-box ai-view-modal">
+            <div className="modal-header">
+              <div className="modal-header-left">
+                <span className="tool-model-chip">{viewingTool.model || "GPT-4o"}</span>
+                <span className="tool-cat">{viewingTool.category}</span>
+                <span className={`status-pill status-${viewingTool.enabled ? "active" : "inactive"}`}>
+                  <span className="dot" />
+                  {viewingTool.enabled ? "Active in Production" : "Disabled"}
+                </span>
+              </div>
+              <button type="button" className="modal-close" onClick={() => setViewingTool(null)}><X size={20} /></button>
+            </div>
+
+            <div className="view-body" style={{ padding: "16px 0", display: "flex", flexDirection: "column", gap: 14 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <div className="tool-avatar" style={{ width: 42, height: 42 }}><Bot size={24} /></div>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: 18, color: "#0f172a" }}>{viewingTool.name}</h3>
+                  <small style={{ color: "#64748b" }}>Execution count: {(viewingTool.requests || 120).toLocaleString()} requests</small>
+                </div>
+              </div>
+
+              <div style={{ background: "#f8fafc", padding: 14, borderRadius: 8, border: "1px solid #e2e8f0" }}>
+                <strong style={{ fontSize: 12, textTransform: "uppercase", color: "#64748b", display: "block", marginBottom: 6 }}>Description & Capabilities</strong>
+                <p style={{ margin: 0, fontSize: 13.5, color: "#334155", lineHeight: 1.6 }}>{viewingTool.description}</p>
+              </div>
+            </div>
+
+            <div className="modal-actions">
+              <button
+                type="button"
+                className="btn-cancel"
+                onClick={() => {
+                  toggleToolEnabled(viewingTool.id);
+                  setViewingTool(prev => prev ? { ...prev, enabled: !prev.enabled } : null);
+                }}
+              >
+                <Power size={14} />
+                {viewingTool.enabled ? "Disable Feature" : "Enable Feature"}
+              </button>
+              <button
+                type="button"
+                className="btn-submit"
+                onClick={() => {
+                  const toEdit = viewingTool;
+                  setViewingTool(null);
+                  openEditModal(toEdit);
+                }}
+              >
+                <Pencil size={14} />
+                Edit AI Feature
+              </button>
+            </div>
           </div>
         </div>
       )}

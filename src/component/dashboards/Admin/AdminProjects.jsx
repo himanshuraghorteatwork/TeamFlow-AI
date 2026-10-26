@@ -22,6 +22,9 @@ import {
   AlertTriangle,
   Layers,
   Sparkles,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
 } from "lucide-react";
 
 import AdminSidebar from "./AdminSidebar.jsx";
@@ -61,7 +64,30 @@ export default function AdminProjects() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
   const [workspaceFilter, setWorkspaceFilter] = useState("All");
-  const [viewMode, setViewMode] = useState("grid"); // 'grid' | 'table'
+  const [viewMode, setViewMode] = useState("table"); // 'table' | 'grid'
+  const [sortKey, setSortKey] = useState("name");
+  const [sortOrder, setSortOrder] = useState("asc"); // 'asc' | 'desc'
+
+  // Column sort toggle handler
+  const handleSort = (key) => {
+    if (sortKey === key) {
+      setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"));
+    } else {
+      setSortKey(key);
+      setSortOrder("asc");
+    }
+  };
+
+  const renderSortIcon = (key) => {
+    if (sortKey !== key) {
+      return <ArrowUpDown size={13} className="admin-sort-icon muted" />;
+    }
+    return sortOrder === "asc" ? (
+      <ArrowUp size={13} className="admin-sort-icon active" />
+    ) : (
+      <ArrowDown size={13} className="admin-sort-icon active" />
+    );
+  };
 
   // Modals
   const [showModal, setShowModal] = useState(false);
@@ -120,7 +146,7 @@ export default function AdminProjects() {
   }, []);
 
   const filteredProjects = useMemo(() => {
-    return projects.filter((p) => {
+    const list = projects.filter((p) => {
       const term = search.trim().toLowerCase();
       const matchesSearch =
         !term ||
@@ -134,7 +160,26 @@ export default function AdminProjects() {
 
       return matchesSearch && matchesStatus && matchesWorkspace;
     });
-  }, [projects, search, statusFilter, workspaceFilter]);
+
+    return [...list].sort((a, b) => {
+      let valA = a[sortKey];
+      let valB = b[sortKey];
+
+      if (valA === undefined || valA === null) valA = "";
+      if (valB === undefined || valB === null) valB = "";
+
+      if (typeof valA === "number" && typeof valB === "number") {
+        return sortOrder === "asc" ? valA - valB : valB - valA;
+      }
+
+      valA = String(valA).toLowerCase();
+      valB = String(valB).toLowerCase();
+
+      if (valA < valB) return sortOrder === "asc" ? -1 : 1;
+      if (valA > valB) return sortOrder === "asc" ? 1 : -1;
+      return 0;
+    });
+  }, [projects, search, statusFilter, workspaceFilter, sortKey, sortOrder]);
 
   const stats = useMemo(() => {
     const total = projects.length;
@@ -366,6 +411,39 @@ export default function AdminProjects() {
                 ))}
               </select>
 
+              <select
+                value={`${sortKey}-${sortOrder}`}
+                onChange={(e) => {
+                  const [k, ord] = e.target.value.split("-");
+                  setSortKey(k);
+                  setSortOrder(ord);
+                }}
+                aria-label="Sort projects"
+              >
+                <option value="name-asc">Sort: Project Name (A to Z)</option>
+                <option value="name-desc">Sort: Project Name (Z to A)</option>
+                <option value="progress-desc">Sort: Highest Progress</option>
+                <option value="progress-asc">Sort: Lowest Progress</option>
+                <option value="dueDate-asc">Sort: Due Date</option>
+                <option value="priority-asc">Sort: Priority</option>
+                <option value="status-asc">Sort: Status</option>
+              </select>
+
+              {(search || statusFilter !== "All" || workspaceFilter !== "All") && (
+                <button
+                  type="button"
+                  className="clear-filters-btn"
+                  onClick={() => {
+                    setSearch("");
+                    setStatusFilter("All");
+                    setWorkspaceFilter("All");
+                  }}
+                >
+                  <X size={13} />
+                  Clear Filters
+                </button>
+              )}
+
               <div className="view-switch">
                 <button
                   type="button"
@@ -466,19 +544,58 @@ export default function AdminProjects() {
               <table className="admin-projects-table">
                 <thead>
                   <tr>
-                    <th>Project</th>
-                    <th>Workspace</th>
-                    <th>Status</th>
-                    <th>Priority</th>
-                    <th>Progress</th>
-                    <th>Tasks</th>
-                    <th>Due Date</th>
+                    <th style={{ width: 48, textAlign: "center" }}>#</th>
+                    <th className="sortable-th" onClick={() => handleSort("name")}>
+                      <div className="th-content">
+                        <span>Project</span>
+                        {renderSortIcon("name")}
+                      </div>
+                    </th>
+                    <th className="sortable-th" onClick={() => handleSort("workspace")}>
+                      <div className="th-content">
+                        <span>Workspace</span>
+                        {renderSortIcon("workspace")}
+                      </div>
+                    </th>
+                    <th className="sortable-th" onClick={() => handleSort("status")}>
+                      <div className="th-content">
+                        <span>Status</span>
+                        {renderSortIcon("status")}
+                      </div>
+                    </th>
+                    <th className="sortable-th" onClick={() => handleSort("priority")}>
+                      <div className="th-content">
+                        <span>Priority</span>
+                        {renderSortIcon("priority")}
+                      </div>
+                    </th>
+                    <th className="sortable-th" onClick={() => handleSort("progress")}>
+                      <div className="th-content">
+                        <span>Progress</span>
+                        {renderSortIcon("progress")}
+                      </div>
+                    </th>
+                    <th className="sortable-th" onClick={() => handleSort("completedTasks")}>
+                      <div className="th-content">
+                        <span>Tasks</span>
+                        {renderSortIcon("completedTasks")}
+                      </div>
+                    </th>
+                    <th className="sortable-th" onClick={() => handleSort("dueDate")}>
+                      <div className="th-content">
+                        <span>Due Date</span>
+                        {renderSortIcon("dueDate")}
+                      </div>
+                    </th>
                     <th style={{ textAlign: "right" }}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredProjects.map((p) => (
+                  {filteredProjects.map((p, idx) => (
                     <tr key={p.id}>
+                      <td style={{ textAlign: "center" }}>
+                        <span className="admin-row-num">{idx + 1}</span>
+                      </td>
                       <td>
                         <strong className="clickable" onClick={() => setViewingProject(p)}>{p.name}</strong>
                       </td>

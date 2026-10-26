@@ -1581,39 +1581,29 @@
 
 .tfAdminDashboard__table {
   width: 100%;
-
   border-collapse: collapse;
-
   color: #475467;
-
-  font-size: 11px;
+  font-size: 12px;
 }
 
 .tfAdminDashboard__table th {
-  height: 35px;
-
-  padding: 7px 10px;
-
+  height: 38px;
+  padding: 8px 12px;
   border-bottom: 1px solid var(--tf-border);
-
-  color: #667085;
-  background: #fafbfc;
-
-  font-size: 10px;
-  font-weight: 600;
-
+  color: #64748b;
+  background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   text-align: left;
-
   white-space: nowrap;
 }
 
 .tfAdminDashboard__table td {
-  height: 46px;
-
-  padding: 7px 10px;
-
+  height: 48px;
+  padding: 8px 12px;
   border-bottom: 1px solid #f0f2f5;
-
   vertical-align: middle;
 }
 
@@ -1621,15 +1611,33 @@
   border-bottom: 0;
 }
 
+.tfAdminDashboard__table tbody tr {
+  transition: background 0.15s ease;
+}
+
 .tfAdminDashboard__table tbody tr:hover {
-  background: #faf9ff;
+  background: linear-gradient(90deg, rgba(99, 102, 241, 0.04) 0%, rgba(248, 250, 252, 0.9) 100%);
 }
 
 .tfAdminDashboard__table td strong {
-  color: #344054;
-
-  font-size: 11px;
+  color: #1e293b;
+  font-size: 12px;
   font-weight: 600;
+}
+
+.admin-row-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 22px;
+  padding: 0 5px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #6366f1;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(168, 85, 247, 0.08) 100%);
+  border: 1px solid rgba(99, 102, 241, 0.18);
 }
 
 
@@ -3660,4 +3668,757 @@ html.dark .tfAdminDashboard__chartAxisText,
 
 .dark .tfAdminDashboard__aiFeaturesTitle {
   color: #e2e8f0;
+}
+
+/* =========================================================
+   DASHBOARD ENHANCEMENTS: QUICK ACTIONS, HEALTH & GRAPH CONTROLS
+========================================================= */
+
+.tfAdminDashboard__headerActions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.tfAdminDashboard__exportBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 14px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 9px;
+  color: #334155;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.16s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.tfAdminDashboard__exportBtn:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: #6366f1;
+  transform: translateY(-1px);
+}
+
+.tfAdminDashboard__dateMenuDivider {
+  height: 1px;
+  background: #e2e8f0;
+  margin: 4px 0;
+}
+
+.tfAdminDashboard__dateMenuItem.custom-range-btn {
+  color: #6366f1;
+  font-weight: 600;
+}
+
+.tfAdminDashboard__quickActions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-top: -6px;
+  margin-bottom: 6px;
+}
+
+.tfAdminDashboard__quickActionBtn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.tfAdminDashboard__quickActionBtn:hover {
+  border-color: #cbd5e1;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+.tfAdminDashboard__quickActionBtn .quick-action-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.quick-action-icon.ws { background: rgba(99, 102, 241, 0.12); color: #6366f1; }
+.quick-action-icon.user { background: rgba(16, 185, 129, 0.12); color: #10b981; }
+.quick-action-icon.proj { background: rgba(245, 158, 11, 0.12); color: #f59e0b; }
+.quick-action-icon.task { background: rgba(14, 165, 233, 0.12); color: #0ea5e9; }
+.quick-action-icon.rep { background: rgba(168, 85, 247, 0.12); color: #a855f7; }
+
+.tfAdminDashboard__quickActionBtn span:last-child {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.tfAdminDashboard__healthBanner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 18px;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(6, 182, 212, 0.06) 100%);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  border-radius: 11px;
+  flex-wrap: wrap;
+}
+
+.health-banner-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.status-live-beacon {
+  position: relative;
+  width: 12px;
+  height: 12px;
+  display: inline-flex;
+}
+
+.beacon-dot {
+  position: absolute;
+  inset: 1px;
+  background: #10b981;
+  border-radius: 50%;
+}
+
+.beacon-ping {
+  position: absolute;
+  inset: -2px;
+  border-radius: 50%;
+  background: rgba(16, 185, 129, 0.5);
+  animation: beaconPulse 1.8s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+@keyframes beaconPulse {
+  0% { transform: scale(0.9); opacity: 0.8; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+
+.health-text strong {
+  display: block;
+  font-size: 13.5px;
+  color: #065f46;
+}
+
+.health-text small {
+  font-size: 12px;
+  color: #047857;
+}
+
+.health-metrics-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.health-metric-item {
+  font-size: 12.5px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #065f46;
+}
+
+.health-metric-item strong {
+  color: #047857;
+  font-weight: 700;
+}
+
+.health-divider {
+  width: 1px;
+  height: 14px;
+  background: rgba(16, 185, 129, 0.3);
+}
+
+.tfAdminDashboard__cardHeaderTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tfAdminDashboard__badgeTag {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 6px;
+  background: #f1f5f9;
+  color: #64748b;
+  letter-spacing: 0.03em;
+}
+
+.tfAdminDashboard__cardActionsGroup {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.tfAdminDashboard__cardSelect.sm {
+  height: 28px;
+  padding: 0 8px;
+  font-size: 12px;
+}
+
+.tfAdminDashboard__statusBarsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 8px 4px;
+}
+
+.status-bar-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.bar-label-group {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+}
+
+.bar-name {
+  color: #475569;
+  font-weight: 600;
+}
+
+.bar-value {
+  font-size: 12.5px;
+  font-weight: 700;
+}
+
+.bar-value.text-green { color: #10b981; }
+.bar-value.text-blue { color: #3b82f6; }
+.bar-value.text-amber { color: #f59e0b; }
+.bar-value.text-red { color: #ef4444; }
+
+.bar-track {
+  height: 8px;
+  background: #f1f5f9;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.4s ease;
+}
+
+.bar-fill.bg-green { background: #10b981; }
+.bar-fill.bg-blue { background: #3b82f6; }
+.bar-fill.bg-amber { background: #f59e0b; }
+.bar-fill.bg-red { background: #ef4444; }
+
+.tfAdminDashboard__statusListContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.status-list-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+.status-list-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.status-list-text strong {
+  font-size: 13px;
+  color: #0f172a;
+}
+
+.status-list-text small {
+  font-size: 11.5px;
+  color: #64748b;
+}
+
+.status-count-badge {
+  font-size: 13px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+.status-count-badge.green { background: #dcfce7; color: #15803d; }
+.status-count-badge.blue { background: #dbeafe; color: #1d4ed8; }
+.status-count-badge.amber { background: #fef3c7; color: #b45309; }
+.status-count-badge.red { background: #fee2e2; color: #b91c1c; }
+
+.tfAdminDashboard__aiDistributionView {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 12px 0;
+}
+
+.model-alloc-item {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.model-alloc-labels {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+}
+
+.model-alloc-labels span {
+  font-weight: 600;
+  color: #334155;
+}
+
+.model-alloc-labels strong {
+  color: #0f172a;
+}
+
+.model-alloc-track {
+  height: 8px;
+  background: #f1f5f9;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.model-alloc-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.4s ease;
+}
+
+.model-alloc-fill.purple { background: linear-gradient(90deg, #6366f1, #8b5cf6); }
+.model-alloc-fill.blue { background: linear-gradient(90deg, #0284c7, #38bdf8); }
+.model-alloc-fill.green { background: linear-gradient(90deg, #10b981, #34d399); }
+
+.tfAdminDashboard__aiSummaryCards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  padding: 10px 0;
+}
+
+.ai-stat-box {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+}
+
+.ai-stat-box .stat-label {
+  font-size: 11.5px;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.ai-stat-box .stat-number {
+  font-size: 20px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.ai-stat-box .stat-sub {
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+.tfAdminDashboard__modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.5);
+  backdrop-filter: blur(4px);
+  z-index: 99999;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+}
+
+.tfAdminDashboard__customDateModal {
+  width: 100%;
+  max-width: 440px;
+  background: #ffffff;
+  border-radius: 14px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+}
+
+.tfAdminDashboard__customDateModal .modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.modal-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #6366f1;
+}
+
+.modal-title-wrap h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+}
+
+.modal-close-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #94a3b8;
+  display: grid;
+  place-items: center;
+  padding: 4px;
+}
+
+.tfAdminDashboard__customDateModal .modal-body {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.tfAdminDashboard__customDateModal .modal-body p {
+  font-size: 13px;
+  color: #64748b;
+  margin: 0;
+}
+
+.date-inputs-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.date-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.date-input-group label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #475569;
+}
+
+.date-input-group input {
+  padding: 8px 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 7px;
+  font-size: 13px;
+  outline: none;
+}
+
+.quick-ranges {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.quick-ranges button {
+  flex: 1;
+  padding: 6px 10px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+}
+
+.quick-ranges button:hover {
+  background: #ede9fe;
+  color: #4f46e5;
+  border-color: #c7d2fe;
+}
+
+.tfAdminDashboard__customDateModal .modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 14px 20px;
+  background: #f8fafc;
+  border-top: 1px solid #f1f5f9;
+}
+
+.tfAdminDashboard__customDateModal .btn-cancel {
+  padding: 8px 14px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  border-radius: 7px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+}
+
+.tfAdminDashboard__customDateModal .btn-apply {
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  border: none;
+  border-radius: 7px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #ffffff;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(99, 102, 241, 0.35);
+}
+
+.tfAdminDashboard__toast {
+  position: fixed;
+  bottom: 24px;
+  right: 28px;
+  background: #0f172a;
+  color: #f8fafc;
+  padding: 12px 18px;
+  border-radius: 9px;
+  font-size: 13.5px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.25);
+  z-index: 99999;
+  border-left: 4px solid #10b981;
+}
+
+.tfAdminDashboard__toast svg {
+  color: #10b981;
+}
+
+/* =========================================================
+   UNIVERSAL FONT SIZE UPGRADES FOR READABILITY
+========================================================= */
+
+.tfAdminDashboard__cardHeader h2 {
+  font-size: 15.5px !important;
+}
+
+.tfAdminDashboard__table th {
+  font-size: 12px !important;
+  font-weight: 700 !important;
+}
+
+.tfAdminDashboard__table td {
+  font-size: 13.5px !important;
+}
+
+.tfAdminDashboard__dateCell,
+.tfAdminDashboard__timeCell {
+  font-size: 12.5px !important;
+}
+
+.tfAdminDashboard__legendRow span {
+  font-size: 13px !important;
+}
+
+.tfAdminDashboard__legendValues strong {
+  font-size: 13.5px !important;
+}
+
+.tfAdminDashboard__legendPct {
+  font-size: 12px !important;
+}
+
+.tfAdminDashboard__progressItem strong {
+  font-size: 13.5px !important;
+}
+
+.tfAdminDashboard__progressItem span {
+  font-size: 13px !important;
+}
+
+.tfAdminDashboard__memberInfo strong {
+  font-size: 13.5px !important;
+}
+
+.tfAdminDashboard__memberInfo span {
+  font-size: 12px !important;
+}
+
+.tfAdminDashboard__taskText strong {
+  font-size: 13.5px !important;
+}
+
+.tfAdminDashboard__taskText span {
+  font-size: 12px !important;
+}
+
+.tfAdminDashboard__taskDue {
+  font-size: 12px !important;
+}
+
+.tfAdminDashboard__activityUserText strong {
+  font-size: 13.5px !important;
+}
+
+.tfAdminDashboard__activityUserText small {
+  font-size: 12px !important;
+}
+
+.tfAdminDashboard__activityDetail {
+  font-size: 12.5px !important;
+}
+
+.tfAdminDashboard__aiFeature span {
+  font-size: 13px !important;
+}
+
+.tfAdminDashboard__aiFeature strong {
+  font-size: 13px !important;
+}
+
+/* DARK MODE OVERRIDES FOR NEW ELEMENTS */
+.dark .tfAdminDashboard__exportBtn {
+  background: #1e293b;
+  border-color: #334155;
+  color: #f8fafc;
+}
+
+.dark .tfAdminDashboard__quickActionBtn {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+.dark .tfAdminDashboard__quickActionBtn span:last-child {
+  color: #f8fafc;
+}
+
+.dark .tfAdminDashboard__healthBanner {
+  background: rgba(16, 185, 129, 0.12);
+  border-color: rgba(16, 185, 129, 0.35);
+}
+
+.dark .health-text strong {
+  color: #6ee7b7;
+}
+
+.dark .health-text small {
+  color: #a7f3d0;
+}
+
+.dark .health-metric-item {
+  color: #a7f3d0;
+}
+
+.dark .health-metric-item strong {
+  color: #6ee7b7;
+}
+
+.dark .tfAdminDashboard__badgeTag {
+  background: #334155;
+  color: #cbd5e1;
+}
+
+.dark .status-list-card {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+.dark .status-list-text strong {
+  color: #f8fafc;
+}
+
+.dark .status-list-text small {
+  color: #94a3b8;
+}
+
+.dark .model-alloc-labels span {
+  color: #cbd5e1;
+}
+
+.dark .model-alloc-labels strong {
+  color: #f8fafc;
+}
+
+.dark .ai-stat-box {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+.dark .ai-stat-box .stat-label {
+  color: #94a3b8;
+}
+
+.dark .ai-stat-box .stat-number {
+  color: #f8fafc;
+}
+
+.dark .tfAdminDashboard__customDateModal {
+  background: #0f172a;
+  border-color: #334155;
+}
+
+.dark .tfAdminDashboard__customDateModal .modal-header {
+  border-color: #1e293b;
+}
+
+.dark .modal-title-wrap h3 {
+  color: #f8fafc;
+}
+
+.dark .tfAdminDashboard__customDateModal .modal-body p {
+  color: #94a3b8;
+}
+
+.dark .date-input-group label {
+  color: #cbd5e1;
+}
+
+.dark .date-input-group input {
+  background: #1e293b;
+  border-color: #334155;
+  color: #f8fafc;
+}
+
+.dark .quick-ranges button {
+  background: #1e293b;
+  border-color: #334155;
+  color: #cbd5e1;
+}
+
+.dark .tfAdminDashboard__customDateModal .modal-footer {
+  background: #0b1120;
+  border-color: #1e293b;
+}
+
+.dark .tfAdminDashboard__customDateModal .btn-cancel {
+  background: #1e293b;
+  border-color: #334155;
+  color: #cbd5e1;
 }

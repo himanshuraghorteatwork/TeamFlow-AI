@@ -25,6 +25,9 @@ import {
   Layers,
   Sparkles,
   ChevronDown,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
 } from "lucide-react";
 
 import AdminSidebar from "./AdminSidebar.jsx";
@@ -65,6 +68,8 @@ export default function AdminUsers() {
   const [roleFilter, setRoleFilter] = useState("All Roles");
   const [statusFilter, setStatusFilter] = useState("All Status");
   const [workspaceFilter, setWorkspaceFilter] = useState("All Workspaces");
+  const [sortKey, setSortKey] = useState("name");
+  const [sortOrder, setSortOrder] = useState("asc"); // 'asc' | 'desc'
 
   // Selection & Bulk Actions
   const [selectedIds, setSelectedIds] = useState([]);
@@ -128,9 +133,30 @@ export default function AdminUsers() {
     };
   }, []);
 
-  // Filtered Users List
+  // Column sort toggle handler
+  const handleSort = (key) => {
+    if (sortKey === key) {
+      setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"));
+    } else {
+      setSortKey(key);
+      setSortOrder("asc");
+    }
+  };
+
+  const renderSortIcon = (key) => {
+    if (sortKey !== key) {
+      return <ArrowUpDown size={13} className="admin-sort-icon muted" />;
+    }
+    return sortOrder === "asc" ? (
+      <ArrowUp size={13} className="admin-sort-icon active" />
+    ) : (
+      <ArrowDown size={13} className="admin-sort-icon active" />
+    );
+  };
+
+  // Filtered & Sorted Users List
   const filteredUsers = useMemo(() => {
-    return usersList.filter((user) => {
+    const list = usersList.filter((user) => {
       const term = search.trim().toLowerCase();
       const matchesSearch =
         !term ||
@@ -152,7 +178,19 @@ export default function AdminUsers() {
 
       return matchesSearch && matchesRole && matchesStatus && matchesWorkspace;
     });
-  }, [usersList, search, roleFilter, statusFilter, workspaceFilter]);
+
+    return [...list].sort((a, b) => {
+      let valA = a[sortKey] || "";
+      let valB = b[sortKey] || "";
+
+      if (typeof valA === "string") valA = valA.toLowerCase();
+      if (typeof valB === "string") valB = valB.toLowerCase();
+
+      if (valA < valB) return sortOrder === "asc" ? -1 : 1;
+      if (valA > valB) return sortOrder === "asc" ? 1 : -1;
+      return 0;
+    });
+  }, [usersList, search, roleFilter, statusFilter, workspaceFilter, sortKey, sortOrder]);
 
   // Statistics
   const stats = useMemo(() => {
@@ -523,6 +561,40 @@ export default function AdminUsers() {
                   </option>
                 ))}
               </select>
+
+              <select
+                value={`${sortKey}-${sortOrder}`}
+                onChange={(e) => {
+                  const [k, ord] = e.target.value.split("-");
+                  setSortKey(k);
+                  setSortOrder(ord);
+                }}
+                aria-label="Sort users"
+                className="admin-users-sort-select"
+              >
+                <option value="name-asc">Sort: Name (A to Z)</option>
+                <option value="name-desc">Sort: Name (Z to A)</option>
+                <option value="role-asc">Sort: Role (A to Z)</option>
+                <option value="status-asc">Sort: Status</option>
+                <option value="workspace-asc">Sort: Workspace</option>
+                <option value="joined-desc">Sort: Recently Joined</option>
+              </select>
+
+              {(search || roleFilter !== "All Roles" || statusFilter !== "All Status" || workspaceFilter !== "All Workspaces") && (
+                <button
+                  type="button"
+                  className="admin-users-clear-filters-btn"
+                  onClick={() => {
+                    setSearch("");
+                    setRoleFilter("All Roles");
+                    setStatusFilter("All Status");
+                    setWorkspaceFilter("All Workspaces");
+                  }}
+                >
+                  <X size={13} />
+                  Clear Filters
+                </button>
+              )}
             </div>
           </section>
 
@@ -600,19 +672,50 @@ export default function AdminUsers() {
                         aria-label="Select all users"
                       />
                     </th>
-                    <th>User Member</th>
-                    <th>Role</th>
-                    <th>Department</th>
-                    <th>Workspace</th>
+                    <th style={{ width: 48, textAlign: "center" }}>#</th>
+                    <th className="sortable-th" onClick={() => handleSort("name")}>
+                      <div className="th-content">
+                        <span>User Member</span>
+                        {renderSortIcon("name")}
+                      </div>
+                    </th>
+                    <th className="sortable-th" onClick={() => handleSort("role")}>
+                      <div className="th-content">
+                        <span>Role</span>
+                        {renderSortIcon("role")}
+                      </div>
+                    </th>
+                    <th className="sortable-th" onClick={() => handleSort("department")}>
+                      <div className="th-content">
+                        <span>Department</span>
+                        {renderSortIcon("department")}
+                      </div>
+                    </th>
+                    <th className="sortable-th" onClick={() => handleSort("workspace")}>
+                      <div className="th-content">
+                        <span>Workspace</span>
+                        {renderSortIcon("workspace")}
+                      </div>
+                    </th>
                     <th>Contact</th>
-                    <th>Status</th>
-                    <th>Joined</th>
+                    <th className="sortable-th" onClick={() => handleSort("status")}>
+                      <div className="th-content">
+                        <span>Status</span>
+                        {renderSortIcon("status")}
+                      </div>
+                    </th>
+                    <th className="sortable-th" onClick={() => handleSort("joined")}>
+                      <div className="th-content">
+                        <span>Joined</span>
+                        {renderSortIcon("joined")}
+                      </div>
+                    </th>
                     <th style={{ textAlign: "right" }}>Actions</th>
                   </tr>
                 </thead>
 
                 <tbody>
-                  {filteredUsers.map((user) => {
+                  {filteredUsers.map((user, idx) => {
                     const isSelected = selectedIds.includes(user.id);
                     return (
                       <tr
@@ -626,6 +729,10 @@ export default function AdminUsers() {
                             onChange={() => toggleSelectOne(user.id)}
                             aria-label={`Select ${user.name}`}
                           />
+                        </td>
+
+                        <td style={{ textAlign: "center" }}>
+                          <span className="admin-row-num">{idx + 1}</span>
                         </td>
 
                         {/* USER AVATAR + DETAILS */}

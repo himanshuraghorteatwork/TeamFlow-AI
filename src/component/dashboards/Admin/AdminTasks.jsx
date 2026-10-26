@@ -20,6 +20,9 @@ import {
   List,
   Eye,
   Check,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
 } from "lucide-react";
 
 import AdminSidebar from "./AdminSidebar.jsx";
@@ -54,12 +57,36 @@ export default function AdminTasks() {
   const [statusFilter, setStatusFilter] = useState("All");
   const [priorityFilter, setPriorityFilter] = useState("All");
   const [viewMode, setViewMode] = useState("list"); // 'list' | 'kanban'
+  const [sortKey, setSortKey] = useState("dueDate");
+  const [sortOrder, setSortOrder] = useState("asc"); // 'asc' | 'desc'
 
   // Modals
   const [showModal, setShowModal] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
+  const [viewingTask, setViewingTask] = useState(null);
   const [exportOpen, setExportOpen] = useState(false);
   const [toast, setToast] = useState(null);
+
+  // Column sort toggle handler
+  const handleSort = (key) => {
+    if (sortKey === key) {
+      setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"));
+    } else {
+      setSortKey(key);
+      setSortOrder("asc");
+    }
+  };
+
+  const renderSortIcon = (key) => {
+    if (sortKey !== key) {
+      return <ArrowUpDown size={13} className="admin-sort-icon muted" />;
+    }
+    return sortOrder === "asc" ? (
+      <ArrowUp size={13} className="admin-sort-icon active" />
+    ) : (
+      <ArrowDown size={13} className="admin-sort-icon active" />
+    );
+  };
 
   // Form State
   const [form, setForm] = useState({
@@ -108,7 +135,7 @@ export default function AdminTasks() {
   }, []);
 
   const filteredTasks = useMemo(() => {
-    return tasks.filter((t) => {
+    const list = tasks.filter((t) => {
       const term = search.trim().toLowerCase();
       const matchesSearch =
         !term ||
@@ -121,7 +148,29 @@ export default function AdminTasks() {
 
       return matchesSearch && matchesStatus && matchesPriority;
     });
-  }, [tasks, search, statusFilter, priorityFilter]);
+
+    return [...list].sort((a, b) => {
+      let valA = a[sortKey];
+      let valB = b[sortKey];
+
+      if (valA === undefined || valA === null) valA = "";
+      if (valB === undefined || valB === null) valB = "";
+
+      if (typeof valA === "boolean") valA = valA ? 1 : 0;
+      if (typeof valB === "boolean") valB = valB ? 1 : 0;
+
+      if (typeof valA === "number" && typeof valB === "number") {
+        return sortOrder === "asc" ? valA - valB : valB - valA;
+      }
+
+      valA = String(valA).toLowerCase();
+      valB = String(valB).toLowerCase();
+
+      if (valA < valB) return sortOrder === "asc" ? -1 : 1;
+      if (valA > valB) return sortOrder === "asc" ? 1 : -1;
+      return 0;
+    });
+  }, [tasks, search, statusFilter, priorityFilter, sortKey, sortOrder]);
 
   const stats = useMemo(() => {
     const total = tasks.length;
@@ -330,6 +379,39 @@ export default function AdminTasks() {
                 ))}
               </select>
 
+              <select
+                value={`${sortKey}-${sortOrder}`}
+                onChange={(e) => {
+                  const [k, ord] = e.target.value.split("-");
+                  setSortKey(k);
+                  setSortOrder(ord);
+                }}
+                aria-label="Sort tasks"
+              >
+                <option value="dueDate-asc">Sort: Due Date (Earliest)</option>
+                <option value="dueDate-desc">Sort: Due Date (Latest)</option>
+                <option value="title-asc">Sort: Title (A to Z)</option>
+                <option value="title-desc">Sort: Title (Z to A)</option>
+                <option value="priority-asc">Sort: Priority</option>
+                <option value="status-asc">Sort: Status</option>
+                <option value="assignee-asc">Sort: Assignee</option>
+              </select>
+
+              {(search || statusFilter !== "All" || priorityFilter !== "All") && (
+                <button
+                  type="button"
+                  className="clear-filters-btn"
+                  onClick={() => {
+                    setSearch("");
+                    setStatusFilter("All");
+                    setPriorityFilter("All");
+                  }}
+                >
+                  <X size={13} />
+                  Clear Filters
+                </button>
+              )}
+
               <div className="view-switch">
                 <button
                   type="button"
@@ -365,17 +447,48 @@ export default function AdminTasks() {
                 <thead>
                   <tr>
                     <th style={{ width: 44, textAlign: "center" }}>Done</th>
-                    <th>Task</th>
-                    <th>Project</th>
-                    <th>Assignee</th>
-                    <th>Priority</th>
-                    <th>Status</th>
-                    <th>Due Date</th>
+                    <th style={{ width: 48, textAlign: "center" }}>#</th>
+                    <th className="sortable-th" onClick={() => handleSort("title")}>
+                      <div className="th-content">
+                        <span>Task</span>
+                        {renderSortIcon("title")}
+                      </div>
+                    </th>
+                    <th className="sortable-th" onClick={() => handleSort("project")}>
+                      <div className="th-content">
+                        <span>Project</span>
+                        {renderSortIcon("project")}
+                      </div>
+                    </th>
+                    <th className="sortable-th" onClick={() => handleSort("assignee")}>
+                      <div className="th-content">
+                        <span>Assignee</span>
+                        {renderSortIcon("assignee")}
+                      </div>
+                    </th>
+                    <th className="sortable-th" onClick={() => handleSort("priority")}>
+                      <div className="th-content">
+                        <span>Priority</span>
+                        {renderSortIcon("priority")}
+                      </div>
+                    </th>
+                    <th className="sortable-th" onClick={() => handleSort("status")}>
+                      <div className="th-content">
+                        <span>Status</span>
+                        {renderSortIcon("status")}
+                      </div>
+                    </th>
+                    <th className="sortable-th" onClick={() => handleSort("dueDate")}>
+                      <div className="th-content">
+                        <span>Due Date</span>
+                        {renderSortIcon("dueDate")}
+                      </div>
+                    </th>
                     <th style={{ textAlign: "right" }}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredTasks.map((t) => {
+                  {filteredTasks.map((t, idx) => {
                     const isDone = Boolean(t.completed || t.status === "Completed");
 
                     return (
@@ -385,12 +498,19 @@ export default function AdminTasks() {
                             type="button"
                             className={`check-circle-btn ${isDone ? "checked" : ""}`}
                             onClick={() => toggleTaskComplete(t.id)}
+                            title={isDone ? "Mark as Incomplete" : "Mark as Completed"}
                           >
                             {isDone && <Check size={13} />}
                           </button>
                         </td>
+                        <td style={{ textAlign: "center" }}>
+                          <span className="admin-row-num">{idx + 1}</span>
+                        </td>
                         <td>
-                          <strong className={`task-title ${isDone ? "strikethrough" : ""}`}>
+                          <strong
+                            className={`task-title clickable ${isDone ? "strikethrough" : ""}`}
+                            onClick={() => setViewingTask(t)}
+                          >
                             {t.title}
                           </strong>
                         </td>
@@ -411,10 +531,13 @@ export default function AdminTasks() {
                         <td>{t.dueDate || "-"}</td>
                         <td style={{ textAlign: "right" }}>
                           <div className="table-actions">
-                            <button type="button" className="action-btn" onClick={() => openEditModal(t)}>
+                            <button type="button" className="action-btn" title="View details" onClick={() => setViewingTask(t)}>
+                              <Eye size={15} />
+                            </button>
+                            <button type="button" className="action-btn" title="Edit task" onClick={() => openEditModal(t)}>
                               <Pencil size={15} />
                             </button>
-                            <button type="button" className="action-btn delete" onClick={() => deleteTask(t.id, t.title)}>
+                            <button type="button" className="action-btn delete" title="Delete task" onClick={() => deleteTask(t.id, t.title)}>
                               <Trash2 size={15} />
                             </button>
                           </div>
@@ -530,6 +653,77 @@ export default function AdminTasks() {
                 <button type="submit" className="btn-submit">{editingTask ? "Save Changes" : "Create Task"}</button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+      {/* VIEW TASK MODAL */}
+      {viewingTask && (
+        <div className="modal-overlay" onClick={() => setViewingTask(null)}>
+          <div className="task-view-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <div className="modal-header-left">
+                <span className="project-chip">{viewingTask.project}</span>
+                <span className={`priority-tag priority-${(viewingTask.priority || "Medium").toLowerCase()}`}>
+                  {viewingTask.priority}
+                </span>
+                <span className={`status-pill status-${(viewingTask.status || "To Do").toLowerCase().replace(/\s+/g, "-")}`}>
+                  {viewingTask.status}
+                </span>
+              </div>
+              <button type="button" className="close-btn" onClick={() => setViewingTask(null)}>
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="task-view-body">
+              <h2>{viewingTask.title}</h2>
+              <p className="task-desc">{viewingTask.description || "No specific detailed description entered for this task ticket."}</p>
+
+              <div className="task-details-grid">
+                <div className="detail-item">
+                  <span className="label">Assignee</span>
+                  <strong>{viewingTask.assignee || "Unassigned"}</strong>
+                </div>
+                <div className="detail-item">
+                  <span className="label">Due Date</span>
+                  <strong>{viewingTask.dueDate || "No deadline"}</strong>
+                </div>
+                <div className="detail-item">
+                  <span className="label">Status</span>
+                  <strong>{viewingTask.status}</strong>
+                </div>
+                <div className="detail-item">
+                  <span className="label">Completion</span>
+                  <strong>{viewingTask.completed ? "Completed" : "In Progress"}</strong>
+                </div>
+              </div>
+            </div>
+
+            <div className="modal-footer">
+              <button
+                type="button"
+                className="btn-secondary"
+                onClick={() => {
+                  toggleTaskComplete(viewingTask.id);
+                  setViewingTask(prev => prev ? { ...prev, completed: !prev.completed, status: !prev.completed ? "Completed" : "In Progress" } : null);
+                }}
+              >
+                <Check size={15} />
+                {viewingTask.completed ? "Mark as Incomplete" : "Mark as Completed"}
+              </button>
+              <button
+                type="button"
+                className="btn-primary"
+                onClick={() => {
+                  const taskToEdit = viewingTask;
+                  setViewingTask(null);
+                  openEditModal(taskToEdit);
+                }}
+              >
+                <Pencil size={15} />
+                Edit Task
+              </button>
+            </div>
           </div>
         </div>
       )}

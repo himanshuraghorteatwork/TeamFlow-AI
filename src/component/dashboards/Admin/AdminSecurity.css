@@ -569,6 +569,27 @@
   border-radius: 9px;
   background: #f8fafc;
   border: 1px solid var(--border);
+  transition: background 0.15s ease;
+}
+
+.tfAdminSecurity__sessionItem:hover {
+  background: linear-gradient(90deg, rgba(99, 102, 241, 0.04) 0%, rgba(248, 250, 252, 0.9) 100%);
+}
+
+.admin-row-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 22px;
+  padding: 0 5px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #6366f1;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(168, 85, 247, 0.08) 100%);
+  border: 1px solid rgba(99, 102, 241, 0.18);
+  flex-shrink: 0;
 }
 
 .tfAdminSecurity__sessionItem--current {

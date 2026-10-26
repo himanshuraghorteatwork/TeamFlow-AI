@@ -21,7 +21,11 @@ import {
   X,
   User,
   Paperclip,
-  Sparkles
+  Sparkles,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
+  Trash2,
 } from "lucide-react";
 import AdminSidebar from "./AdminSidebar.jsx";
 import AdminTopbar from "./AdminTopbar.jsx";
@@ -164,6 +168,8 @@ export default function AdminSupport() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
   const [priorityFilter, setPriorityFilter] = useState("All");
+  const [sortKey, setSortKey] = useState("updatedAt");
+  const [sortOrder, setSortOrder] = useState("desc");
 
   const [showNewTicketModal, setShowNewTicketModal] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState(null);
@@ -182,17 +188,64 @@ export default function AdminSupport() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(tickets));
   }, [tickets]);
 
+  const handleSort = (key) => {
+    if (sortKey === key) {
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    } else {
+      setSortKey(key);
+      setSortOrder("asc");
+    }
+  };
+
+  const renderSortIcon = (key) => {
+    if (sortKey !== key) {
+      return <ArrowUpDown size={13} className="sort-icon muted" />;
+    }
+    return sortOrder === "asc" ? (
+      <ArrowUp size={13} className="sort-icon active" />
+    ) : (
+      <ArrowDown size={13} className="sort-icon active" />
+    );
+  };
+
+  const handleDeleteTicket = (id) => {
+    if (window.confirm(`Delete support ticket #${id}?`)) {
+      setTickets((prev) => prev.filter((t) => t.id !== id));
+      if (selectedTicket?.id === id) setSelectedTicket(null);
+      setToast(`Ticket ${id} removed.`);
+      setTimeout(() => setToast(null), 3000);
+    }
+  };
+
   const filteredTickets = useMemo(() => {
-    return tickets.filter((t) => {
-      const matchesSearch =
-        t.subject.toLowerCase().includes(search.toLowerCase()) ||
-        t.id.toLowerCase().includes(search.toLowerCase()) ||
-        t.category.toLowerCase().includes(search.toLowerCase());
-      const matchesStatus = statusFilter === "All" || t.status === statusFilter;
-      const matchesPriority = priorityFilter === "All" || t.priority === priorityFilter;
-      return matchesSearch && matchesStatus && matchesPriority;
-    });
-  }, [tickets, search, statusFilter, priorityFilter]);
+    return [...tickets]
+      .filter((t) => {
+        const matchesSearch =
+          t.subject.toLowerCase().includes(search.toLowerCase()) ||
+          t.id.toLowerCase().includes(search.toLowerCase()) ||
+          t.category.toLowerCase().includes(search.toLowerCase());
+        const matchesStatus = statusFilter === "All" || t.status === statusFilter;
+        const matchesPriority = priorityFilter === "All" || t.priority === priorityFilter;
+        return matchesSearch && matchesStatus && matchesPriority;
+      })
+      .sort((a, b) => {
+        let valA = a[sortKey];
+        let valB = b[sortKey];
+
+        if (sortKey === "updatedAt" || sortKey === "createdAt") {
+          const timeA = new Date(valA).getTime() || 0;
+          const timeB = new Date(valB).getTime() || 0;
+          return sortOrder === "asc" ? timeA - timeB : timeB - timeA;
+        }
+
+        if (typeof valA === "string") valA = valA.toLowerCase();
+        if (typeof valB === "string") valB = valB.toLowerCase();
+
+        if (valA < valB) return sortOrder === "asc" ? -1 : 1;
+        if (valA > valB) return sortOrder === "asc" ? 1 : -1;
+        return 0;
+      });
+  }, [tickets, search, statusFilter, priorityFilter, sortKey, sortOrder]);
 
   const stats = useMemo(() => {
     return {
@@ -267,6 +320,19 @@ export default function AdminSupport() {
       messages: [...selectedTicket.messages, newReply]
     });
     setReplyText("");
+  };
+
+  const handleToggleStatus = (id) => {
+    const ticket = tickets.find((t) => t.id === id);
+    if (!ticket) return;
+    const newStatus = ticket.status === "Resolved" ? "In Progress" : "Resolved";
+    const updated = tickets.map((t) => (t.id === id ? { ...t, status: newStatus } : t));
+    setTickets(updated);
+    if (selectedTicket?.id === id) {
+      setSelectedTicket({ ...selectedTicket, status: newStatus });
+    }
+    setToast(`Ticket #${id} status set to ${newStatus}.`);
+    setTimeout(() => setToast(null), 3000);
   };
 
   const handleMarkResolved = (id) => {
@@ -444,43 +510,102 @@ export default function AdminSupport() {
                       <option value="Low">Low</option>
                     </select>
                   </div>
+
+                  <div className="filter-select">
+                    <select
+                      value={`${sortKey}-${sortOrder}`}
+                      onChange={(e) => {
+                        const [k, ord] = e.target.value.split("-");
+                        setSortKey(k);
+                        setSortOrder(ord);
+                      }}
+                      aria-label="Sort tickets"
+                    >
+                      <option value="updatedAt-desc">Sort: Recently Updated</option>
+                      <option value="updatedAt-asc">Sort: Oldest Updated</option>
+                      <option value="id-desc">Sort: Newest Ticket ID</option>
+                      <option value="subject-asc">Sort: Subject (A to Z)</option>
+                      <option value="priority-asc">Sort: Priority</option>
+                      <option value="status-asc">Sort: Status</option>
+                    </select>
+                  </div>
+
+                  {(search || statusFilter !== "All" || priorityFilter !== "All") && (
+                    <button
+                      type="button"
+                      className="clear-filters-btn"
+                      onClick={() => {
+                        setSearch("");
+                        setStatusFilter("All");
+                        setPriorityFilter("All");
+                      }}
+                    >
+                      <X size={13} />
+                      Clear Filters
+                    </button>
+                  )}
                 </div>
               </div>
 
               {/* Tickets Table */}
               <div className="table-responsive">
                 <table className="admin-support-table">
-                  <colgroup>
-                    <col style={{ width: "11%" }} />
-                    <col style={{ width: "31%" }} />
-                    <col style={{ width: "11%" }} />
-                    <col style={{ width: "13%" }} />
-                    <col style={{ width: "14%" }} />
-                    <col style={{ width: "10%" }} />
-                    <col style={{ width: "10%" }} />
-                  </colgroup>
                   <thead>
                     <tr>
-                      <th>TICKET ID</th>
-                      <th>SUBJECT & CATEGORY</th>
-                      <th>PRIORITY</th>
-                      <th>STATUS</th>
-                      <th>ASSIGNED AGENT</th>
-                      <th>UPDATED</th>
+                      <th style={{ width: 48, textAlign: "center" }}>#</th>
+                      <th className="sortable-th" onClick={() => handleSort("id")}>
+                        <div className="th-content">
+                          <span>TICKET ID</span>
+                          {renderSortIcon("id")}
+                        </div>
+                      </th>
+                      <th className="sortable-th" onClick={() => handleSort("subject")}>
+                        <div className="th-content">
+                          <span>SUBJECT & CATEGORY</span>
+                          {renderSortIcon("subject")}
+                        </div>
+                      </th>
+                      <th className="sortable-th" onClick={() => handleSort("priority")}>
+                        <div className="th-content">
+                          <span>PRIORITY</span>
+                          {renderSortIcon("priority")}
+                        </div>
+                      </th>
+                      <th className="sortable-th" onClick={() => handleSort("status")}>
+                        <div className="th-content">
+                          <span>STATUS</span>
+                          {renderSortIcon("status")}
+                        </div>
+                      </th>
+                      <th className="sortable-th" onClick={() => handleSort("agent")}>
+                        <div className="th-content">
+                          <span>ASSIGNED AGENT</span>
+                          {renderSortIcon("agent")}
+                        </div>
+                      </th>
+                      <th className="sortable-th" onClick={() => handleSort("updatedAt")}>
+                        <div className="th-content">
+                          <span>UPDATED</span>
+                          {renderSortIcon("updatedAt")}
+                        </div>
+                      </th>
                       <th style={{ textAlign: "right" }}>ACTIONS</th>
                     </tr>
                   </thead>
                   <tbody>
                     {filteredTickets.length === 0 ? (
                       <tr>
-                        <td colSpan="7" className="empty-cell">
+                        <td colSpan="8" className="empty-cell">
                           <LifeBuoy size={36} />
                           <p>No support tickets match your filters.</p>
                         </td>
                       </tr>
                     ) : (
-                      filteredTickets.map((t) => (
+                      filteredTickets.map((t, idx) => (
                         <tr key={t.id}>
+                          <td style={{ textAlign: "center" }}>
+                            <span className="admin-row-num">{idx + 1}</span>
+                          </td>
                           <td>
                             <span className="ticket-id-badge">{t.id}</span>
                           </td>
@@ -517,26 +642,46 @@ export default function AdminSupport() {
                           </td>
                           <td style={{ textAlign: "right" }}>
                             <div className="actions-wrap">
+                              {/* REPLY ACTION */}
                               <button
                                 type="button"
-                                className="action-btn view"
+                                className="action-btn-pill action-reply"
                                 onClick={() => setSelectedTicket(t)}
-                                title="View & Reply"
+                                title="View conversation and reply"
                               >
                                 <MessageSquare size={13} />
                                 <span>Reply</span>
                               </button>
-                              {t.status !== "Resolved" && (
-                                <button
-                                  type="button"
-                                  className="action-btn resolve"
-                                  onClick={() => handleMarkResolved(t.id)}
-                                  title="Mark as Resolved"
-                                >
-                                  <Check size={13} />
-                                  <span>Resolve</span>
-                                </button>
-                              )}
+
+                              {/* RESOLVE / RE-OPEN TOGGLE */}
+                              <button
+                                type="button"
+                                className={`action-btn-pill action-toggle ${t.status === "Resolved" ? "resolved" : "open"}`}
+                                onClick={() => handleToggleStatus(t.id)}
+                                title={t.status === "Resolved" ? "Resolved. Click to Re-open" : "Click to mark Resolved"}
+                              >
+                                {t.status === "Resolved" ? (
+                                  <>
+                                    <Check size={13} />
+                                    <span>Resolved</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <Clock size={13} />
+                                    <span>Resolve</span>
+                                  </>
+                                )}
+                              </button>
+
+                              {/* DELETE ACTION */}
+                              <button
+                                type="button"
+                                className="action-btn-pill action-delete"
+                                onClick={() => handleDeleteTicket(t.id)}
+                                title="Delete Ticket"
+                              >
+                                <Trash2 size={13} />
+                              </button>
                             </div>
                           </td>
                         </tr>
@@ -781,8 +926,18 @@ export default function AdminSupport() {
                 </form>
               ) : (
                 <div className="ticket-resolved-notice">
-                  <CheckCircle2 size={18} />
-                  <span>This support ticket has been marked as resolved. You can raise a new ticket if needed.</span>
+                  <div className="notice-left">
+                    <CheckCircle2 size={18} />
+                    <span>This support ticket has been marked as resolved.</span>
+                  </div>
+                  <button
+                    type="button"
+                    className="admin-support-btn-secondary"
+                    onClick={() => handleToggleStatus(selectedTicket.id)}
+                  >
+                    <RotateCcw size={13} />
+                    <span>Re-open Ticket</span>
+                  </button>
                 </div>
               )}
             </div>
