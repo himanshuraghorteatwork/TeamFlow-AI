@@ -25,7 +25,8 @@ import {
   CreditCard,
 } from "lucide-react";
 
-import AdminSidebar from "../../../layouts/AdminSidebar/AdminSidebar.jsx";
+import AdminSidebar from "./AdminSidebar.jsx";
+import AdminTopbar from "./AdminTopbar.jsx";
 
 import {
   initialPlans,
@@ -38,6 +39,7 @@ const PLAN_KEY = "teamflow_admin_plans";
 const SUBSCRIPTION_KEY = "teamflow_admin_subscriptions";
 
 function AdminSubscriptions() {
+  const [mobileOpen, setMobileOpen] = useState(false);
   const [plans, setPlans] = useState(() => {
     try {
       const saved = localStorage.getItem(PLAN_KEY);
@@ -227,54 +229,18 @@ function AdminSubscriptions() {
 
   return (
     <div className="admin-subscriptions-shell">
-      <AdminSidebar />
+      <AdminSidebar mobileOpen={mobileOpen} onClose={() => setMobileOpen(false)} />
 
       <main className="admin-subscriptions-main">
         {/* TOP NAV */}
 
-        <header className="admin-subscriptions-topbar">
-          <div className="admin-subscriptions-global-search">
-            <Search size={17} />
-
-            <input
-              type="text"
-              placeholder="Search users, workspaces, projects, or anything..."
-            />
-
-            <span>Ctrl + K</span>
-          </div>
-
-          <div className="admin-subscriptions-top-actions">
-            <button className="admin-subscriptions-create">
-              <Plus size={18} />
-              Create
-              <ChevronDown size={15} />
-            </button>
-
-            <div className="admin-subscriptions-profile">
-              <div className="admin-subscriptions-avatar">
-                HR
-              </div>
-
-              <div>
-                <strong>Himanshu</strong>
-                <span>Super Administrator</span>
-              </div>
-
-              <ChevronDown size={15} />
-            </div>
-          </div>
-        </header>
+        <AdminTopbar onMobileMenuToggle={() => setMobileOpen(true)} />
 
         <div className="admin-subscriptions-content">
           {/* HEADER */}
 
           <section className="admin-subscriptions-heading">
             <div>
-              <div className="admin-subscriptions-breadcrumb">
-                <BadgeDollarSign size={15} />
-                ADMIN / SUBSCRIPTIONS
-              </div>
 
               <h1>Subscription Management</h1>
 

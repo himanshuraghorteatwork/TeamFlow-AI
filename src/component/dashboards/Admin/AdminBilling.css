@@ -1322,3 +1322,83 @@
     height: 38px;
   }
 }
+
+/* =========================================================
+   DARK MODE SUPPORT FOR ADMIN BILLING
+========================================================= */
+.dark .admin-billing-shell,
+.dark .admin-billing-main {
+  background: #0f172a;
+  color: #f8fafc;
+}
+
+.dark .admin-billing-header h1 {
+  color: #f8fafc;
+}
+
+.dark .admin-billing-header p {
+  color: #94a3b8;
+}
+
+.dark .admin-billing-card,
+.dark .admin-billing-kpi,
+.dark .admin-billing-modal,
+.dark .admin-billing-chart-card,
+.dark .admin-billing-method-card,
+.dark .admin-billing-transactions,
+.dark .admin-billing-item {
+  background: #1e293b;
+  border-color: #334155;
+  color: #f8fafc;
+}
+
+.dark .admin-billing-outline-button {
+  background: #1e293b;
+  border-color: #334155;
+  color: #e2e8f0;
+}
+
+.dark .admin-billing-outline-button:hover {
+  background: #334155;
+  color: #ffffff;
+  border-color: #475569;
+}
+
+.dark .admin-billing-search,
+.dark .admin-billing-filter,
+.dark .admin-billing-input,
+.dark .admin-billing-select {
+  background: #0f172a;
+  border-color: #334155;
+  color: #f8fafc;
+}
+
+.dark .admin-billing-table th {
+  background: #0f172a;
+  border-color: #334155;
+  color: #94a3b8;
+}
+
+.dark .admin-billing-table td {
+  border-color: #334155;
+  color: #cbd5e1;
+}
+
+.dark .admin-billing-table tbody tr:hover {
+  background: rgba(51, 65, 85, 0.4);
+}
+
+.dark .admin-billing-export-dropdown {
+  background: #1e293b;
+  border-color: #334155;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+}
+
+.dark .admin-billing-export-dropdown button {
+  color: #e2e8f0;
+}
+
+.dark .admin-billing-export-dropdown button:hover {
+  background: #334155;
+  color: #ffffff;
+}

@@ -1,751 +1,635 @@
 import React, { useEffect, useMemo, useState } from "react";
 import {
+  FolderKanban,
   Search,
   Plus,
-  Moon,
-  Bell,
-  CircleHelp,
-  ChevronDown,
-  FolderKanban,
-  CircleCheckBig,
-  AlertTriangle,
-  Users,
-  CalendarDays,
-  MoreVertical,
+  Filter,
+  Download,
+  RotateCcw,
+  Grid2X2,
+  List,
   Eye,
   Pencil,
   Trash2,
+  Copy,
+  ChevronDown,
   X,
-  LayoutGrid,
-  List,
-  BriefcaseBusiness,
+  Users,
+  CalendarDays,
+  Building2,
+  CheckCircle2,
+  Clock,
+  AlertTriangle,
+  Layers,
+  Sparkles,
 } from "lucide-react";
 
-import AdminSidebar from "../../../layouts/AdminSidebar/AdminSidebar.jsx";
+import AdminSidebar from "./AdminSidebar.jsx";
+import AdminTopbar from "./AdminTopbar.jsx";
+import { initialAdminProjects } from "./adminProjectsData.js";
 import "./AdminProjects.css";
-
-import {
-  initialAdminProjects,
-  projectStatuses,
-  projectPriorities,
-  workspaceOptions,
-} from "./adminProjectsData.js";
 
 const STORAGE_KEY = "teamflow_admin_projects";
 
-function getStoredProjects() {
+const DEFAULT_WORKSPACES = [
+  "TeamFlow Workspace",
+  "Marketing Team",
+  "Design Studio",
+  "Development Hub",
+  "Research Lab",
+  "Startup Team",
+];
+
+const loadProjects = () => {
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
-
     if (saved) {
-      return JSON.parse(saved);
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
     }
-
-    return initialAdminProjects;
-  } catch {
-    return initialAdminProjects;
+  } catch (e) {
+    console.error(e);
   }
-}
+  return initialAdminProjects;
+};
 
-function AdminProjects() {
-  const [projects, setProjects] = useState(getStoredProjects);
+export default function AdminProjects() {
+  const [projects, setProjects] = useState(loadProjects);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
+  // Filters
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
   const [workspaceFilter, setWorkspaceFilter] = useState("All");
-  const [view, setView] = useState("grid");
+  const [viewMode, setViewMode] = useState("grid"); // 'grid' | 'table'
 
-  const [showProjectModal, setShowProjectModal] = useState(false);
-  const [showDetailsModal, setShowDetailsModal] = useState(false);
-
-  const [selectedProject, setSelectedProject] = useState(null);
+  // Modals
+  const [showModal, setShowModal] = useState(false);
   const [editingProject, setEditingProject] = useState(null);
-  const [menuId, setMenuId] = useState(null);
+  const [viewingProject, setViewingProject] = useState(null);
+  const [exportOpen, setExportOpen] = useState(false);
+  const [toast, setToast] = useState(null);
 
-  const emptyForm = {
+  // Form State
+  const [form, setForm] = useState({
     name: "",
-    workspace: workspaceOptions[0],
-    owner: "",
-    ownerEmail: "",
+    workspace: "TeamFlow Workspace",
+    owner: "Amit Sharma",
     status: "Active",
-    priority: "Medium",
-    members: 1,
-    tasks: 0,
-    completedTasks: 0,
-    dueDate: "",
+    priority: "High",
+    progress: 45,
+    tasks: 10,
+    completedTasks: 4,
+    members: 4,
+    dueDate: "2026-11-30",
     description: "",
-  };
-
-  const [form, setForm] = useState(emptyForm);
+  });
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(projects));
-  }, [projects]);
+    if (toast) {
+      const t = setTimeout(() => setToast(null), 3000);
+      return () => clearTimeout(t);
+    }
+  }, [toast]);
 
-  const stats = useMemo(() => {
-    return {
-      total: projects.length,
+  const showToast = (message, type = "success") => {
+    setToast({ message, type });
+  };
 
-      active: projects.filter((project) => project.status === "Active")
-        .length,
+  const saveProjects = (newProjects) => {
+    setProjects(newProjects);
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(newProjects));
+    } catch (e) {}
+    window.dispatchEvent(new Event("teamflow_data_update"));
+  };
 
-      completed: projects.filter(
-        (project) => project.status === "Completed"
-      ).length,
-
-      attention: projects.filter(
-        (project) =>
-          project.status === "On Hold" || project.status === "Overdue"
-      ).length,
+  useEffect(() => {
+    const handleSync = () => {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) setProjects(JSON.parse(saved));
+      } catch (e) {}
     };
-  }, [projects]);
+    window.addEventListener("storage", handleSync);
+    window.addEventListener("teamflow_data_update", handleSync);
+    return () => {
+      window.removeEventListener("storage", handleSync);
+      window.removeEventListener("teamflow_data_update", handleSync);
+    };
+  }, []);
 
   const filteredProjects = useMemo(() => {
-    return projects.filter((project) => {
-      const query = search.toLowerCase().trim();
-
+    return projects.filter((p) => {
+      const term = search.trim().toLowerCase();
       const matchesSearch =
-        !query ||
-        project.name.toLowerCase().includes(query) ||
-        project.workspace.toLowerCase().includes(query) ||
-        project.owner.toLowerCase().includes(query);
+        !term ||
+        p.name?.toLowerCase().includes(term) ||
+        p.owner?.toLowerCase().includes(term) ||
+        p.workspace?.toLowerCase().includes(term);
 
-      const matchesStatus =
-        statusFilter === "All" || project.status === statusFilter;
-
+      const matchesStatus = statusFilter === "All" || p.status === statusFilter;
       const matchesWorkspace =
-        workspaceFilter === "All" ||
-        project.workspace === workspaceFilter;
+        workspaceFilter === "All" || p.workspace === workspaceFilter;
 
       return matchesSearch && matchesStatus && matchesWorkspace;
     });
   }, [projects, search, statusFilter, workspaceFilter]);
 
-  const calculateProgress = (project) => {
-    if (!project.tasks) return 0;
-
-    return Math.min(
-      100,
-      Math.round((project.completedTasks / project.tasks) * 100)
-    );
-  };
+  const stats = useMemo(() => {
+    const total = projects.length;
+    const active = projects.filter((p) => p.status === "Active").length;
+    const completed = projects.filter((p) => p.status === "Completed").length;
+    const onHold = projects.filter((p) => p.status === "On Hold").length;
+    return { total, active, completed, onHold };
+  }, [projects]);
 
   const openCreateModal = () => {
     setEditingProject(null);
-    setForm(emptyForm);
-    setShowProjectModal(true);
-  };
-
-  const openEditModal = (project) => {
-    setEditingProject(project);
     setForm({
-      name: project.name,
-      workspace: project.workspace,
-      owner: project.owner,
-      ownerEmail: project.ownerEmail,
-      status: project.status,
-      priority: project.priority,
-      members: project.members,
-      tasks: project.tasks,
-      completedTasks: project.completedTasks,
-      dueDate: project.dueDate,
-      description: project.description,
+      name: "",
+      workspace: "TeamFlow Workspace",
+      owner: "Amit Sharma",
+      status: "Active",
+      priority: "High",
+      progress: 20,
+      tasks: 8,
+      completedTasks: 2,
+      members: 4,
+      dueDate: "2026-11-30",
+      description: "",
     });
-
-    setMenuId(null);
-    setShowProjectModal(true);
+    setShowModal(true);
   };
 
-  const handleFormChange = (event) => {
-    const { name, value } = event.target;
-
-    setForm((previous) => ({
-      ...previous,
-      [name]: value,
-    }));
+  const openEditModal = (p) => {
+    setEditingProject(p);
+    setForm({
+      name: p.name || "",
+      workspace: p.workspace || "TeamFlow Workspace",
+      owner: p.owner || "Amit Sharma",
+      status: p.status || "Active",
+      priority: p.priority || "Medium",
+      progress: p.progress || 0,
+      tasks: p.tasks || 0,
+      completedTasks: p.completedTasks || 0,
+      members: p.members || 1,
+      dueDate: p.dueDate || "",
+      description: p.description || "",
+    });
+    setShowModal(true);
   };
 
-  const saveProject = (event) => {
-    event.preventDefault();
+  const handleFormChange = (e) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+  };
 
-    if (!form.name.trim() || !form.owner.trim()) {
-      alert("Project name and owner are required.");
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!form.name.trim()) {
+      alert("Project name is required.");
       return;
     }
 
-    const totalTasks = Number(form.tasks) || 0;
-
-    const completedTasks = Math.min(
-      Number(form.completedTasks) || 0,
-      totalTasks
-    );
-
     if (editingProject) {
-      setProjects((previous) =>
-        previous.map((project) =>
-          project.id === editingProject.id
-            ? {
-                ...project,
-                ...form,
-                members: Number(form.members) || 0,
-                tasks: totalTasks,
-                completedTasks,
-              }
-            : project
-        )
+      const updated = projects.map((p) =>
+        p.id === editingProject.id
+          ? {
+              ...p,
+              ...form,
+              members: Number(form.members) || 1,
+              tasks: Number(form.tasks) || 0,
+              completedTasks: Number(form.completedTasks) || 0,
+              progress: Number(form.progress) || 0,
+            }
+          : p
       );
+      saveProjects(updated);
+      showToast(`Project "${form.name}" updated successfully.`);
     } else {
       const newProject = {
         id: Date.now(),
         ...form,
-        members: Number(form.members) || 0,
-        tasks: totalTasks,
-        completedTasks,
+        members: Number(form.members) || 1,
+        tasks: Number(form.tasks) || 0,
+        completedTasks: Number(form.completedTasks) || 0,
+        progress: Number(form.progress) || 0,
         createdAt: new Date().toISOString().split("T")[0],
       };
-
-      setProjects((previous) => [newProject, ...previous]);
+      saveProjects([newProject, ...projects]);
+      showToast(`Project "${form.name}" created successfully.`);
     }
 
-    setShowProjectModal(false);
-    setEditingProject(null);
-    setForm(emptyForm);
+    setShowModal(false);
   };
 
-  const deleteProject = (id) => {
-    const confirmed = window.confirm(
-      "Are you sure you want to delete this project?"
-    );
-
+  const deleteProject = (id, name) => {
+    const confirmed = window.confirm(`Delete project "${name}"?`);
     if (!confirmed) return;
-
-    setProjects((previous) =>
-      previous.filter((project) => project.id !== id)
-    );
-
-    setMenuId(null);
+    saveProjects(projects.filter((p) => p.id !== id));
+    showToast(`Project deleted.`);
   };
 
-  const viewProject = (project) => {
-    setSelectedProject(project);
-    setShowDetailsModal(true);
-    setMenuId(null);
+  const exportCSV = () => {
+    const headers = ["ID", "Name", "Workspace", "Status", "Priority", "Progress(%)", "Tasks", "Due Date", "Owner"];
+    const rows = filteredProjects.map((p) => [
+      p.id,
+      `"${p.name}"`,
+      `"${p.workspace}"`,
+      `"${p.status}"`,
+      `"${p.priority}"`,
+      p.progress,
+      `${p.completedTasks || 0}/${p.tasks || 0}`,
+      `"${p.dueDate}"`,
+      `"${p.owner}"`,
+    ]);
+    const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), ...rows.map((e) => e.join(","))].join("\n");
+    const link = document.createElement("a");
+    link.href = encodeURI(csvContent);
+    link.download = `teamflow_projects_${Date.now()}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setExportOpen(false);
+    showToast("Exported projects to CSV.");
   };
 
-  const resetDemoData = () => {
-    const confirmed = window.confirm(
-      "Reset all project data to the original demo projects?"
-    );
+  const exportJSON = () => {
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(filteredProjects, null, 2));
+    const link = document.createElement("a");
+    link.href = dataStr;
+    link.download = `teamflow_projects_${Date.now()}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setExportOpen(false);
+    showToast("Exported projects to JSON.");
+  };
 
+  const resetDemo = () => {
+    const confirmed = window.confirm("Reset projects database to demo defaults?");
     if (!confirmed) return;
-
-    setProjects(initialAdminProjects);
-    localStorage.removeItem(STORAGE_KEY);
+    saveProjects(initialAdminProjects);
+    showToast("Projects reset to demo defaults.");
   };
 
   return (
-    <div className="admin-projects-page">
-      <AdminSidebar />
+    <div className="admin-projects-app">
+      <AdminSidebar mobileOpen={mobileOpen} onClose={() => setMobileOpen(false)} />
 
-      <main className="admin-projects-main">
-        {/* TOPBAR */}
+      <div className="admin-projects-main">
+        <AdminTopbar
+          onMobileMenuToggle={() => setMobileOpen(true)}
+          onCreateProject={openCreateModal}
+        />
 
-        <header className="admin-projects-topbar">
-          <div className="admin-projects-global-search">
-            <Search size={18} />
-
-            <input
-              type="text"
-              placeholder="Search users, workspaces, projects, or anything..."
-            />
-
-            <span>Ctrl + K</span>
+        {toast && (
+          <div className={`admin-projects-toast toast--${toast.type}`}>
+            <CheckCircle2 size={16} />
+            <span>{toast.message}</span>
           </div>
+        )}
 
-          <div className="admin-projects-top-actions">
-            <button
-              className="admin-projects-create-top"
-              type="button"
-              onClick={openCreateModal}
-            >
-              <Plus size={18} />
-              Create
-              <ChevronDown size={16} />
-            </button>
-
-            <button
-              className="admin-projects-icon-button"
-              type="button"
-              aria-label="Theme"
-            >
-              <Moon size={19} />
-            </button>
-
-            <button
-              className="admin-projects-icon-button notification"
-              type="button"
-              aria-label="Notifications"
-            >
-              <Bell size={19} />
-              <span>12</span>
-            </button>
-
-            <button
-              className="admin-projects-icon-button"
-              type="button"
-              aria-label="Help"
-            >
-              <CircleHelp size={19} />
-            </button>
-
-            <div className="admin-projects-profile">
-              <div className="admin-projects-avatar">HR</div>
-
-              <div>
-                <strong>Himanshu</strong>
-                <small>Super Administrator</small>
-              </div>
-
-              <ChevronDown size={16} />
-            </div>
-          </div>
-        </header>
-
-        {/* CONTENT */}
-
-        <div className="admin-projects-content">
+        <main className="admin-projects-content">
+          {/* HEADING */}
           <section className="admin-projects-heading">
             <div>
-              <div className="admin-projects-breadcrumb">
-                <FolderKanban size={16} />
-                ADMIN / PROJECTS
-              </div>
-
               <h1>Project Management</h1>
-
-              <p>
-                Monitor and manage projects across every TeamFlow AI
-                workspace.
-              </p>
+              <p>Monitor project roadmaps, track milestone deliverables, and orchestrate cross-functional teams.</p>
             </div>
 
-            <button
-              className="admin-projects-primary-button"
-              type="button"
-              onClick={openCreateModal}
-            >
-              <Plus size={18} />
-              Create Project
-            </button>
+            <div className="admin-projects-heading-actions">
+              <div className="admin-projects-dropdown-wrap">
+                <button
+                  type="button"
+                  className="btn-secondary"
+                  onClick={() => setExportOpen((prev) => !prev)}
+                >
+                  <Download size={15} />
+                  <span>Export</span>
+                  <ChevronDown size={14} />
+                </button>
+
+                {exportOpen && (
+                  <div className="export-menu">
+                    <button type="button" onClick={exportCSV}>Export as CSV (.csv)</button>
+                    <button type="button" onClick={exportJSON}>Export as JSON (.json)</button>
+                  </div>
+                )}
+              </div>
+
+              <button type="button" className="btn-primary" onClick={openCreateModal}>
+                <Plus size={17} />
+                <span>Create Project</span>
+              </button>
+            </div>
           </section>
 
           {/* STATS */}
-
           <section className="admin-projects-stats">
-            <StatCard
-              icon={<FolderKanban size={23} />}
-              title="Total Projects"
-              value={stats.total}
-              subtitle="Across all workspaces"
-              type="purple"
-            />
-
-            <StatCard
-              icon={<BriefcaseBusiness size={23} />}
-              title="Active Projects"
-              value={stats.active}
-              subtitle="Currently running"
-              type="green"
-            />
-
-            <StatCard
-              icon={<CircleCheckBig size={23} />}
-              title="Completed"
-              value={stats.completed}
-              subtitle="Successfully completed"
-              type="blue"
-            />
-
-            <StatCard
-              icon={<AlertTriangle size={23} />}
-              title="Needs Attention"
-              value={stats.attention}
-              subtitle="On hold or overdue"
-              type="red"
-            />
+            <StatCard icon={<FolderKanban size={22} />} title="Total Projects" value={stats.total} type="purple" desc="Across all workspaces" />
+            <StatCard icon={<Clock size={22} />} title="Active Projects" value={stats.active} type="blue" desc="Currently in progress" />
+            <StatCard icon={<CheckCircle2 size={22} />} title="Completed Projects" value={stats.completed} type="green" desc="Shipped milestones" />
+            <StatCard icon={<AlertTriangle size={22} />} title="On Hold" value={stats.onHold} type="amber" desc="Blocked or paused" />
           </section>
 
-          {/* FILTERS */}
-
-          <section className="admin-projects-filters">
-            <div className="admin-project-search">
-              <Search size={18} />
-
+          {/* TOOLBAR */}
+          <section className="admin-projects-toolbar">
+            <div className="admin-projects-search">
+              <Search size={17} />
               <input
                 type="text"
+                placeholder="Search projects by name, owner, or workspace..."
                 value={search}
-                onChange={(event) => setSearch(event.target.value)}
-                placeholder="Search project name, workspace or owner..."
+                onChange={(e) => setSearch(e.target.value)}
               />
+              {search && (
+                <button type="button" className="clear-btn" onClick={() => setSearch("")}>
+                  <X size={14} />
+                </button>
+              )}
             </div>
 
-            <select
-              value={statusFilter}
-              onChange={(event) => setStatusFilter(event.target.value)}
-            >
-              <option value="All">All Status</option>
+            <div className="admin-projects-controls">
+              <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+                <option value="All">All Statuses</option>
+                <option value="Active">Active</option>
+                <option value="Completed">Completed</option>
+                <option value="On Hold">On Hold</option>
+              </select>
 
-              {projectStatuses.map((status) => (
-                <option key={status} value={status}>
-                  {status}
-                </option>
-              ))}
-            </select>
+              <select value={workspaceFilter} onChange={(e) => setWorkspaceFilter(e.target.value)}>
+                <option value="All">All Workspaces</option>
+                {DEFAULT_WORKSPACES.map((ws) => (
+                  <option key={ws} value={ws}>{ws}</option>
+                ))}
+              </select>
 
-            <select
-              value={workspaceFilter}
-              onChange={(event) => setWorkspaceFilter(event.target.value)}
-            >
-              <option value="All">All Workspaces</option>
-
-              {workspaceOptions.map((workspace) => (
-                <option key={workspace} value={workspace}>
-                  {workspace}
-                </option>
-              ))}
-            </select>
-
-            <div className="admin-project-view-buttons">
-              <button
-                className={view === "grid" ? "active" : ""}
-                type="button"
-                onClick={() => setView("grid")}
-              >
-                <LayoutGrid size={18} />
-              </button>
-
-              <button
-                className={view === "list" ? "active" : ""}
-                type="button"
-                onClick={() => setView("list")}
-              >
-                <List size={19} />
-              </button>
+              <div className="view-switch">
+                <button
+                  type="button"
+                  className={`view-btn ${viewMode === "grid" ? "active" : ""}`}
+                  onClick={() => setViewMode("grid")}
+                >
+                  <Grid2X2 size={16} />
+                </button>
+                <button
+                  type="button"
+                  className={`view-btn ${viewMode === "table" ? "active" : ""}`}
+                  onClick={() => setViewMode("table")}
+                >
+                  <List size={16} />
+                </button>
+              </div>
             </div>
           </section>
 
-          <div className="admin-projects-result-row">
-            <span>
-              Showing <strong>{filteredProjects.length}</strong> projects
-            </span>
-
-            <button type="button" onClick={resetDemoData}>
+          {/* META HEADER */}
+          <div className="admin-projects-meta-header">
+            <span>Showing {filteredProjects.length} of {projects.length} projects</span>
+            <button type="button" className="reset-btn" onClick={resetDemo}>
+              <RotateCcw size={14} />
               Reset Demo Data
             </button>
           </div>
 
-          {/* PROJECTS */}
+          {/* GRID VIEW */}
+          {viewMode === "grid" ? (
+            <div className="admin-projects-grid">
+              {filteredProjects.map((p) => {
+                const progress = p.progress !== undefined ? p.progress : 50;
 
-          {filteredProjects.length === 0 ? (
-            <div className="admin-projects-empty">
-              <FolderKanban size={45} />
+                return (
+                  <div key={p.id} className="admin-projects-card">
+                    <div className="card-top">
+                      <div className="card-top-left">
+                        <div className="project-avatar">
+                          {p.name.charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                          <h3 className="clickable" onClick={() => setViewingProject(p)}>{p.name}</h3>
+                          <div className="project-sub">{p.workspace}</div>
+                        </div>
+                      </div>
 
-              <h3>No projects found</h3>
+                      <span className={`status-pill status-${(p.status || "Active").toLowerCase().replace(/\s+/g, "-")}`}>
+                        {p.status}
+                      </span>
+                    </div>
 
-              <p>Try changing your search or filters.</p>
+                    <div className="project-progress-wrap">
+                      <div className="progress-labels">
+                        <span>Progress</span>
+                        <strong>{progress}%</strong>
+                      </div>
+                      <div className="progress-bar">
+                        <div className="progress-fill" style={{ width: `${progress}%` }} />
+                      </div>
+                    </div>
+
+                    <div className="card-meta-row">
+                      <div className="meta-item">
+                        <Users size={14} />
+                        <span>{p.members || 3} members</span>
+                      </div>
+                      <div className="meta-item">
+                        <CalendarDays size={14} />
+                        <span>Due {p.dueDate || "Nov 2026"}</span>
+                      </div>
+                    </div>
+
+                    <div className="card-footer">
+                      <span className={`priority-tag priority-${(p.priority || "Medium").toLowerCase()}`}>
+                        {p.priority} Priority
+                      </span>
+
+                      <div className="card-actions">
+                        <button type="button" className="action-btn" title="View" onClick={() => setViewingProject(p)}>
+                          <Eye size={15} />
+                        </button>
+                        <button type="button" className="action-btn" title="Edit" onClick={() => openEditModal(p)}>
+                          <Pencil size={15} />
+                        </button>
+                        <button type="button" className="action-btn delete" title="Delete" onClick={() => deleteProject(p.id, p.name)}>
+                          <Trash2 size={15} />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           ) : (
-            <section
-              className={`admin-projects-grid ${
-                view === "list" ? "list-view" : ""
-              }`}
-            >
-              {filteredProjects.map((project) => (
-                <ProjectCard
-                  key={project.id}
-                  project={project}
-                  progress={calculateProgress(project)}
-                  menuId={menuId}
-                  setMenuId={setMenuId}
-                  onView={() => viewProject(project)}
-                  onEdit={() => openEditModal(project)}
-                  onDelete={() => deleteProject(project.id)}
-                />
-              ))}
-            </section>
+            /* TABLE VIEW */
+            <div className="admin-projects-table-wrap">
+              <table className="admin-projects-table">
+                <thead>
+                  <tr>
+                    <th>Project</th>
+                    <th>Workspace</th>
+                    <th>Status</th>
+                    <th>Priority</th>
+                    <th>Progress</th>
+                    <th>Tasks</th>
+                    <th>Due Date</th>
+                    <th style={{ textAlign: "right" }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredProjects.map((p) => (
+                    <tr key={p.id}>
+                      <td>
+                        <strong className="clickable" onClick={() => setViewingProject(p)}>{p.name}</strong>
+                      </td>
+                      <td>{p.workspace}</td>
+                      <td>
+                        <span className={`status-pill status-${(p.status || "Active").toLowerCase().replace(/\s+/g, "-")}`}>
+                          {p.status}
+                        </span>
+                      </td>
+                      <td>
+                        <span className={`priority-tag priority-${(p.priority || "Medium").toLowerCase()}`}>
+                          {p.priority}
+                        </span>
+                      </td>
+                      <td>
+                        <div className="table-progress">
+                          <span>{p.progress || 0}%</span>
+                          <div className="progress-bar sm">
+                            <div className="progress-fill" style={{ width: `${p.progress || 0}%` }} />
+                          </div>
+                        </div>
+                      </td>
+                      <td>{p.completedTasks || 0} / {p.tasks || 0}</td>
+                      <td>{p.dueDate || "-"}</td>
+                      <td style={{ textAlign: "right" }}>
+                        <div className="table-actions">
+                          <button type="button" className="action-btn" onClick={() => setViewingProject(p)}>
+                            <Eye size={15} />
+                          </button>
+                          <button type="button" className="action-btn" onClick={() => openEditModal(p)}>
+                            <Pencil size={15} />
+                          </button>
+                          <button type="button" className="action-btn delete" onClick={() => deleteProject(p.id, p.name)}>
+                            <Trash2 size={15} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
-        </div>
-      </main>
+
+          {filteredProjects.length === 0 && (
+            <div className="admin-projects-empty">
+              <FolderKanban size={44} />
+              <h3>No projects found</h3>
+              <p>Try modifying your search filter or status selection.</p>
+            </div>
+          )}
+        </main>
+      </div>
 
       {/* CREATE / EDIT MODAL */}
-
-      {showProjectModal && (
-        <div className="admin-project-modal-overlay">
-          <div className="admin-project-modal">
-            <div className="admin-project-modal-header">
-              <div>
-                <h2>
-                  {editingProject ? "Edit Project" : "Create New Project"}
-                </h2>
-
-                <p>
-                  {editingProject
-                    ? "Update project information."
-                    : "Create a project inside a TeamFlow AI workspace."}
-                </p>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => setShowProjectModal(false)}
-              >
-                <X size={21} />
-              </button>
+      {showModal && (
+        <div className="modal-overlay" onMouseDown={(e) => { if (e.target === e.currentTarget) setShowModal(false); }}>
+          <div className="modal-box">
+            <div className="modal-header">
+              <h2>{editingProject ? "Edit Project" : "Create New Project"}</h2>
+              <button type="button" className="modal-close" onClick={() => setShowModal(false)}><X size={20} /></button>
             </div>
-
-            <form onSubmit={saveProject}>
-              <div className="admin-project-form-grid">
-                <FormField label="Project Name">
-                  <input
-                    name="name"
-                    value={form.name}
-                    onChange={handleFormChange}
-                    placeholder="Example: TeamFlow Mobile App"
-                    required
-                  />
-                </FormField>
-
-                <FormField label="Workspace">
-                  <select
-                    name="workspace"
-                    value={form.workspace}
-                    onChange={handleFormChange}
-                  >
-                    {workspaceOptions.map((workspace) => (
-                      <option key={workspace} value={workspace}>
-                        {workspace}
-                      </option>
-                    ))}
-                  </select>
-                </FormField>
-
-                <FormField label="Project Owner">
-                  <input
-                    name="owner"
-                    value={form.owner}
-                    onChange={handleFormChange}
-                    placeholder="Owner name"
-                    required
-                  />
-                </FormField>
-
-                <FormField label="Owner Email">
-                  <input
-                    name="ownerEmail"
-                    type="email"
-                    value={form.ownerEmail}
-                    onChange={handleFormChange}
-                    placeholder="owner@company.com"
-                  />
-                </FormField>
-
-                <FormField label="Status">
-                  <select
-                    name="status"
-                    value={form.status}
-                    onChange={handleFormChange}
-                  >
-                    {projectStatuses.map((status) => (
-                      <option key={status} value={status}>
-                        {status}
-                      </option>
-                    ))}
-                  </select>
-                </FormField>
-
-                <FormField label="Priority">
-                  <select
-                    name="priority"
-                    value={form.priority}
-                    onChange={handleFormChange}
-                  >
-                    {projectPriorities.map((priority) => (
-                      <option key={priority} value={priority}>
-                        {priority}
-                      </option>
-                    ))}
-                  </select>
-                </FormField>
-
-                <FormField label="Members">
-                  <input
-                    name="members"
-                    type="number"
-                    min="0"
-                    value={form.members}
-                    onChange={handleFormChange}
-                  />
-                </FormField>
-
-                <FormField label="Total Tasks">
-                  <input
-                    name="tasks"
-                    type="number"
-                    min="0"
-                    value={form.tasks}
-                    onChange={handleFormChange}
-                  />
-                </FormField>
-
-                <FormField label="Completed Tasks">
-                  <input
-                    name="completedTasks"
-                    type="number"
-                    min="0"
-                    value={form.completedTasks}
-                    onChange={handleFormChange}
-                  />
-                </FormField>
-
-                <FormField label="Due Date">
-                  <input
-                    name="dueDate"
-                    type="date"
-                    value={form.dueDate}
-                    onChange={handleFormChange}
-                  />
-                </FormField>
+            <form onSubmit={handleSubmit} className="modal-form">
+              <div className="form-group">
+                <label>Project Name <span className="req">*</span></label>
+                <input name="name" value={form.name} onChange={handleFormChange} placeholder="e.g. Mobile App Redesign" required />
               </div>
 
-              <FormField label="Description">
-                <textarea
-                  name="description"
-                  value={form.description}
-                  onChange={handleFormChange}
-                  rows="4"
-                  placeholder="Describe the project..."
-                />
-              </FormField>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Workspace</label>
+                  <select name="workspace" value={form.workspace} onChange={handleFormChange}>
+                    {DEFAULT_WORKSPACES.map((ws) => (
+                      <option key={ws} value={ws}>{ws}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label>Project Lead / Owner</label>
+                  <input name="owner" value={form.owner} onChange={handleFormChange} placeholder="e.g. Amit Sharma" />
+                </div>
+              </div>
 
-              <div className="admin-project-modal-actions">
-                <button
-                  className="cancel"
-                  type="button"
-                  onClick={() => setShowProjectModal(false)}
-                >
-                  Cancel
-                </button>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Status</label>
+                  <select name="status" value={form.status} onChange={handleFormChange}>
+                    <option value="Active">Active</option>
+                    <option value="Completed">Completed</option>
+                    <option value="On Hold">On Hold</option>
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label>Priority</label>
+                  <select name="priority" value={form.priority} onChange={handleFormChange}>
+                    <option value="Critical">Critical</option>
+                    <option value="High">High</option>
+                    <option value="Medium">Medium</option>
+                    <option value="Low">Low</option>
+                  </select>
+                </div>
+              </div>
 
-                <button className="save" type="submit">
-                  {editingProject ? "Save Changes" : "Create Project"}
-                </button>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Progress (%)</label>
+                  <input type="number" name="progress" min="0" max="100" value={form.progress} onChange={handleFormChange} />
+                </div>
+                <div className="form-group">
+                  <label>Due Date</label>
+                  <input type="date" name="dueDate" value={form.dueDate} onChange={handleFormChange} />
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label>Description</label>
+                <textarea name="description" rows={3} value={form.description} onChange={handleFormChange} placeholder="Project objectives and scope..." />
+              </div>
+
+              <div className="modal-actions">
+                <button type="button" className="btn-cancel" onClick={() => setShowModal(false)}>Cancel</button>
+                <button type="submit" className="btn-submit">{editingProject ? "Save Changes" : "Create Project"}</button>
               </div>
             </form>
           </div>
         </div>
       )}
 
-      {/* DETAILS */}
-
-      {showDetailsModal && selectedProject && (
-        <div className="admin-project-modal-overlay">
-          <div className="admin-project-details-modal">
-            <div className="admin-project-modal-header">
-              <div>
-                <span className="admin-project-detail-label">
-                  PROJECT DETAILS
-                </span>
-
-                <h2>{selectedProject.name}</h2>
-
-                <p>{selectedProject.workspace}</p>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => setShowDetailsModal(false)}
-              >
-                <X size={21} />
-              </button>
+      {/* VIEW MODAL */}
+      {viewingProject && (
+        <div className="modal-overlay" onMouseDown={(e) => { if (e.target === e.currentTarget) setViewingProject(null); }}>
+          <div className="modal-box">
+            <div className="modal-header">
+              <h2>Project Overview</h2>
+              <button type="button" className="modal-close" onClick={() => setViewingProject(null)}><X size={20} /></button>
             </div>
-
-            <div className="admin-project-detail-status">
-              <span
-                className={`project-status status-${selectedProject.status
-                  .toLowerCase()
-                  .replaceAll(" ", "-")}`}
-              >
-                {selectedProject.status}
-              </span>
-
-              <span
-                className={`project-priority priority-${selectedProject.priority.toLowerCase()}`}
-              >
-                {selectedProject.priority} Priority
-              </span>
-            </div>
-
-            <p className="admin-project-description">
-              {selectedProject.description}
-            </p>
-
-            <div className="admin-project-detail-grid">
-              <DetailItem
-                label="Owner"
-                value={selectedProject.owner}
-              />
-
-              <DetailItem
-                label="Owner Email"
-                value={selectedProject.ownerEmail || "Not provided"}
-              />
-
-              <DetailItem
-                label="Members"
-                value={selectedProject.members}
-              />
-
-              <DetailItem
-                label="Total Tasks"
-                value={selectedProject.tasks}
-              />
-
-              <DetailItem
-                label="Completed Tasks"
-                value={selectedProject.completedTasks}
-              />
-
-              <DetailItem
-                label="Due Date"
-                value={selectedProject.dueDate || "No due date"}
-              />
-            </div>
-
-            <div className="admin-project-detail-progress">
-              <div>
-                <span>Project Progress</span>
-
-                <strong>
-                  {calculateProgress(selectedProject)}%
-                </strong>
-              </div>
-
-              <div className="project-progress-track">
-                <div
-                  style={{
-                    width: `${calculateProgress(selectedProject)}%`,
-                  }}
-                />
+            <div className="view-body">
+              <h3>{viewingProject.name}</h3>
+              <p>{viewingProject.description || "Active organization project."}</p>
+              <div className="view-grid">
+                <div><label>Workspace</label><span>{viewingProject.workspace}</span></div>
+                <div><label>Owner</label><span>{viewingProject.owner}</span></div>
+                <div><label>Status</label><span>{viewingProject.status}</span></div>
+                <div><label>Priority</label><span>{viewingProject.priority}</span></div>
+                <div><label>Progress</label><span>{viewingProject.progress}%</span></div>
+                <div><label>Due Date</label><span>{viewingProject.dueDate || "-"}</span></div>
               </div>
             </div>
-
-            <button
-              className="admin-project-details-close"
-              type="button"
-              onClick={() => setShowDetailsModal(false)}
-            >
-              Close
-            </button>
+            <div className="modal-actions">
+              <button type="button" className="btn-submit" onClick={() => setViewingProject(null)}>Close</button>
+            </div>
           </div>
         </div>
       )}
@@ -753,177 +637,15 @@ function AdminProjects() {
   );
 }
 
-function StatCard({ icon, title, value, subtitle, type }) {
+function StatCard({ icon, title, value, type, desc }) {
   return (
-    <article className="admin-project-stat-card">
-      <div className={`admin-project-stat-icon ${type}`}>
-        {icon}
+    <div className={`admin-projects-stat-card stat-${type}`}>
+      <div className={`stat-icon ${type}`}>{icon}</div>
+      <div className="stat-info">
+        <span className="stat-label">{title}</span>
+        <strong className="stat-value">{value}</strong>
+        <small className="stat-desc">{desc}</small>
       </div>
-
-      <div>
-        <span>{title}</span>
-        <strong>{value}</strong>
-        <small>{subtitle}</small>
-      </div>
-    </article>
-  );
-}
-
-function ProjectCard({
-  project,
-  progress,
-  menuId,
-  setMenuId,
-  onView,
-  onEdit,
-  onDelete,
-}) {
-  return (
-    <article className="admin-project-card">
-      <div className="admin-project-card-top">
-        <div className="admin-project-title-area">
-          <div className="admin-project-folder">
-            <FolderKanban size={21} />
-          </div>
-
-          <div>
-            <h3>{project.name}</h3>
-            <span>{project.workspace}</span>
-          </div>
-        </div>
-
-        <div className="admin-project-menu-wrapper">
-          <button
-            type="button"
-            onClick={() =>
-              setMenuId(menuId === project.id ? null : project.id)
-            }
-          >
-            <MoreVertical size={19} />
-          </button>
-
-          {menuId === project.id && (
-            <div className="admin-project-dropdown">
-              <button type="button" onClick={onView}>
-                <Eye size={16} />
-                View
-              </button>
-
-              <button type="button" onClick={onEdit}>
-                <Pencil size={16} />
-                Edit
-              </button>
-
-              <button
-                className="delete"
-                type="button"
-                onClick={onDelete}
-              >
-                <Trash2 size={16} />
-                Delete
-              </button>
-            </div>
-          )}
-        </div>
-      </div>
-
-      <div className="admin-project-badges">
-        <span
-          className={`project-status status-${project.status
-            .toLowerCase()
-            .replaceAll(" ", "-")}`}
-        >
-          {project.status}
-        </span>
-
-        <span
-          className={`project-priority priority-${project.priority.toLowerCase()}`}
-        >
-          {project.priority}
-        </span>
-      </div>
-
-      <p className="admin-project-card-description">
-        {project.description}
-      </p>
-
-      <div className="admin-project-owner">
-        <div>
-          {project.owner
-            .split(" ")
-            .map((name) => name[0])
-            .join("")
-            .slice(0, 2)}
-        </div>
-
-        <span>
-          <small>Project Owner</small>
-          <strong>{project.owner}</strong>
-        </span>
-      </div>
-
-      <div className="admin-project-card-metrics">
-        <div>
-          <Users size={17} />
-
-          <span>
-            <strong>{project.members}</strong>
-            Members
-          </span>
-        </div>
-
-        <div>
-          <FolderKanban size={17} />
-
-          <span>
-            <strong>{project.tasks}</strong>
-            Tasks
-          </span>
-        </div>
-      </div>
-
-      <div className="admin-project-progress">
-        <div>
-          <span>Progress</span>
-          <strong>{progress}%</strong>
-        </div>
-
-        <div className="project-progress-track">
-          <div style={{ width: `${progress}%` }} />
-        </div>
-      </div>
-
-      <div className="admin-project-card-footer">
-        <span>
-          <CalendarDays size={15} />
-          {project.dueDate || "No due date"}
-        </span>
-
-        <button type="button" onClick={onView}>
-          <Eye size={16} />
-          View Project
-        </button>
-      </div>
-    </article>
-  );
-}
-
-function FormField({ label, children }) {
-  return (
-    <label className="admin-project-form-field">
-      <span>{label}</span>
-      {children}
-    </label>
-  );
-}
-
-function DetailItem({ label, value }) {
-  return (
-    <div className="admin-project-detail-item">
-      <span>{label}</span>
-      <strong>{value}</strong>
     </div>
   );
 }
-
-export default AdminProjects;

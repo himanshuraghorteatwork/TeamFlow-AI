@@ -1,68 +1,144 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
-  Search,
-  Plus,
-  Moon,
-  Bell,
-  CircleHelp,
-  ChevronDown,
   Users,
   UserCheck,
   UserX,
   ShieldCheck,
-  MoreVertical,
+  Search,
+  Plus,
+  Filter,
+  Download,
+  RotateCcw,
+  Pencil,
+  Trash2,
+  CheckCircle2,
   X,
   Mail,
   Building2,
-  Trash2,
-  Pencil,
+  Phone,
+  Briefcase,
+  MoreVertical,
+  Check,
+  AlertCircle,
+  Eye,
+  Shield,
+  Layers,
+  Sparkles,
+  ChevronDown,
 } from "lucide-react";
 
-import AdminSidebar from "../../../layouts/AdminSidebar/AdminSidebar.jsx";
+import AdminSidebar from "./AdminSidebar.jsx";
+import AdminTopbar from "./AdminTopbar.jsx";
 import { initialUsers } from "./adminUsersData.js";
 import "./AdminUsers.css";
 
 const STORAGE_KEY = "teamflow_admin_users";
 
+const DEFAULT_WORKSPACES = [
+  "TeamFlow Workspace",
+  "Marketing Team",
+  "Design Studio",
+  "Development Hub",
+  "Research Lab",
+  "Startup Team",
+];
+
+const DEFAULT_ROLES = ["Admin", "Team Lead", "Member", "Viewer"];
+
 const loadUsers = () => {
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
-    return saved ? JSON.parse(saved) : initialUsers;
-  } catch {
-    return initialUsers;
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    }
+  } catch (e) {
+    console.error("Error loading admin users:", e);
   }
+  return initialUsers;
 };
 
-function AdminUsers() {
+export default function AdminUsers() {
   const [usersList, setUsersList] = useState(loadUsers);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("All Roles");
   const [statusFilter, setStatusFilter] = useState("All Status");
+  const [workspaceFilter, setWorkspaceFilter] = useState("All Workspaces");
+
+  // Selection & Bulk Actions
+  const [selectedIds, setSelectedIds] = useState([]);
+
+  // Modals
   const [showModal, setShowModal] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
+  const [viewingUser, setViewingUser] = useState(null);
   const [openMenu, setOpenMenu] = useState(null);
+  const [exportOpen, setExportOpen] = useState(false);
+  const [toast, setToast] = useState(null);
 
+  // Form State
   const [form, setForm] = useState({
     name: "",
     email: "",
     role: "Member",
     workspace: "TeamFlow Workspace",
+    department: "Engineering",
     status: "Active",
+    phone: "+1 (555) 019-2834",
   });
 
-  const saveUsers = (newUsers) => {
-    setUsersList(newUsers);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(newUsers));
+  // Toast auto-dismiss
+  useEffect(() => {
+    if (toast) {
+      const t = setTimeout(() => setToast(null), 3000);
+      return () => clearTimeout(t);
+    }
+  }, [toast]);
+
+  const showToast = (message, type = "success") => {
+    setToast({ message, type });
   };
 
+  // Sync users to localStorage and trigger global update
+  const saveUsers = (newUsers) => {
+    setUsersList(newUsers);
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(newUsers));
+    } catch (e) {
+      console.error("Failed to save users:", e);
+    }
+    window.dispatchEvent(new Event("teamflow_data_update"));
+  };
+
+  // Listen to external data changes
+  useEffect(() => {
+    const handleSync = () => {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) setUsersList(JSON.parse(saved));
+      } catch (e) {}
+    };
+
+    window.addEventListener("storage", handleSync);
+    window.addEventListener("teamflow_data_update", handleSync);
+    return () => {
+      window.removeEventListener("storage", handleSync);
+      window.removeEventListener("teamflow_data_update", handleSync);
+    };
+  }, []);
+
+  // Filtered Users List
   const filteredUsers = useMemo(() => {
     return usersList.filter((user) => {
-      const term = search.toLowerCase();
-
+      const term = search.trim().toLowerCase();
       const matchesSearch =
-        user.name.toLowerCase().includes(term) ||
-        user.email.toLowerCase().includes(term) ||
-        user.workspace.toLowerCase().includes(term);
+        !term ||
+        (user.name && user.name.toLowerCase().includes(term)) ||
+        (user.email && user.email.toLowerCase().includes(term)) ||
+        (user.workspace && user.workspace.toLowerCase().includes(term)) ||
+        (user.department && user.department.toLowerCase().includes(term)) ||
+        (user.role && user.role.toLowerCase().includes(term));
 
       const matchesRole =
         roleFilter === "All Roles" || user.role === roleFilter;
@@ -70,381 +146,612 @@ function AdminUsers() {
       const matchesStatus =
         statusFilter === "All Status" || user.status === statusFilter;
 
-      return matchesSearch && matchesRole && matchesStatus;
+      const matchesWorkspace =
+        workspaceFilter === "All Workspaces" ||
+        user.workspace === workspaceFilter;
+
+      return matchesSearch && matchesRole && matchesStatus && matchesWorkspace;
     });
-  }, [usersList, search, roleFilter, statusFilter]);
+  }, [usersList, search, roleFilter, statusFilter, workspaceFilter]);
 
-  const stats = {
-    total: usersList.length,
-    active: usersList.filter((u) => u.status === "Active").length,
-    inactive: usersList.filter((u) => u.status !== "Active").length,
-    admins: usersList.filter((u) => u.role === "Admin").length,
-  };
+  // Statistics
+  const stats = useMemo(() => {
+    const total = usersList.length;
+    const active = usersList.filter((u) => u.status === "Active").length;
+    const inactive = usersList.filter((u) => u.status !== "Active").length;
+    const admins = usersList.filter(
+      (u) => u.role === "Admin" || u.role === "Super Admin"
+    ).length;
+    return { total, active, inactive, admins };
+  }, [usersList]);
 
+  // Open Add Modal
   const openAddModal = () => {
     setEditingUser(null);
-
     setForm({
       name: "",
       email: "",
       role: "Member",
       workspace: "TeamFlow Workspace",
+      department: "Engineering",
       status: "Active",
+      phone: "+1 (555) " + Math.floor(100 + Math.random() * 900) + "-" + Math.floor(1000 + Math.random() * 9000),
     });
-
+    setOpenMenu(null);
     setShowModal(true);
   };
 
+  // Open Edit Modal
   const openEditModal = (user) => {
     setEditingUser(user);
-
     setForm({
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      workspace: user.workspace,
-      status: user.status,
+      name: user.name || "",
+      email: user.email || "",
+      role: user.role || "Member",
+      workspace: user.workspace || "TeamFlow Workspace",
+      department: user.department || "Engineering",
+      status: user.status || "Active",
+      phone: user.phone || "+1 (555) 019-2834",
     });
-
     setOpenMenu(null);
     setShowModal(true);
   };
 
   const handleFormChange = (event) => {
     const { name, value } = event.target;
-
-    setForm((previous) => ({
-      ...previous,
-      [name]: value,
-    }));
+    setForm((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = (event) => {
     event.preventDefault();
-
     if (!form.name.trim() || !form.email.trim()) {
-      alert("Please enter name and email.");
+      alert("Please enter a valid full name and email.");
       return;
     }
 
-    if (editingUser) {
-      const updatedUsers = usersList.map((user) =>
-        user.id === editingUser.id
-          ? {
-              ...user,
-              ...form,
-              initials: form.name
-                .split(" ")
-                .map((word) => word[0])
-                .join("")
-                .substring(0, 2)
-                .toUpperCase(),
-            }
-          : user
-      );
+    const initials = form.name
+      .trim()
+      .split(" ")
+      .map((w) => w[0])
+      .join("")
+      .substring(0, 2)
+      .toUpperCase() || "U";
 
-      saveUsers(updatedUsers);
+    if (editingUser) {
+      const updated = usersList.map((u) =>
+        u.id === editingUser.id
+          ? {
+              ...u,
+              ...form,
+              initials,
+            }
+          : u
+      );
+      saveUsers(updated);
+      showToast(`User "${form.name}" updated successfully.`);
     } else {
       const newUser = {
         id: Date.now(),
         ...form,
-        initials: form.name
-          .split(" ")
-          .map((word) => word[0])
-          .join("")
-          .substring(0, 2)
-          .toUpperCase(),
+        initials,
         joined: new Date().toLocaleDateString("en-US", {
           month: "short",
           day: "2-digit",
           year: "numeric",
         }),
       };
-
       saveUsers([newUser, ...usersList]);
+      showToast(`User "${form.name}" created successfully.`);
     }
 
     setShowModal(false);
   };
 
-  const deleteUser = (id) => {
+  const deleteUser = (id, userName) => {
     const confirmed = window.confirm(
-      "Are you sure you want to delete this user?"
+      `Are you sure you want to delete user "${userName || "this user"}"? This action cannot be undone.`
     );
-
     if (!confirmed) return;
 
-    saveUsers(usersList.filter((user) => user.id !== id));
+    const remaining = usersList.filter((u) => u.id !== id);
+    saveUsers(remaining);
+    setSelectedIds((prev) => prev.filter((item) => item !== id));
     setOpenMenu(null);
+    showToast(`User deleted.`);
   };
 
   const toggleUserStatus = (id) => {
-    const updated = usersList.map((user) =>
-      user.id === id
-        ? {
-            ...user,
-            status: user.status === "Active" ? "Suspended" : "Active",
-          }
-        : user
-    );
-
+    const updated = usersList.map((u) => {
+      if (u.id === id) {
+        const nextStatus = u.status === "Active" ? "Suspended" : "Active";
+        return { ...u, status: nextStatus };
+      }
+      return u;
+    });
     saveUsers(updated);
     setOpenMenu(null);
+    showToast("User status updated.");
+  };
+
+  // Bulk Selection
+  const toggleSelectAll = () => {
+    if (selectedIds.length === filteredUsers.length && filteredUsers.length > 0) {
+      setSelectedIds([]);
+    } else {
+      setSelectedIds(filteredUsers.map((u) => u.id));
+    }
+  };
+
+  const toggleSelectOne = (id) => {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+  };
+
+  const handleBulkStatus = (status) => {
+    if (selectedIds.length === 0) return;
+    const updated = usersList.map((u) =>
+      selectedIds.includes(u.id) ? { ...u, status } : u
+    );
+    saveUsers(updated);
+    setSelectedIds([]);
+    showToast(`${selectedIds.length} users marked as ${status}.`);
+  };
+
+  const handleBulkDelete = () => {
+    if (selectedIds.length === 0) return;
+    const confirmed = window.confirm(
+      `Permanently delete ${selectedIds.length} selected users?`
+    );
+    if (!confirmed) return;
+
+    const remaining = usersList.filter((u) => !selectedIds.includes(u.id));
+    saveUsers(remaining);
+    setSelectedIds([]);
+    showToast(`${selectedIds.length} users deleted.`);
+  };
+
+  // Export
+  const exportUsersCSV = () => {
+    const headers = ["ID", "Name", "Email", "Role", "Workspace", "Status", "Joined"];
+    const rows = filteredUsers.map((u) => [
+      u.id,
+      `"${u.name}"`,
+      `"${u.email}"`,
+      `"${u.role}"`,
+      `"${u.workspace}"`,
+      `"${u.status}"`,
+      `"${u.joined}"`,
+    ]);
+    const csvContent =
+      "data:text/csv;charset=utf-8," +
+      [headers.join(","), ...rows.map((e) => e.join(","))].join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `teamflow_users_${Date.now()}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setExportOpen(false);
+    showToast("Exported users to CSV.");
+  };
+
+  const exportUsersJSON = () => {
+    const dataStr =
+      "data:text/json;charset=utf-8," +
+      encodeURIComponent(JSON.stringify(filteredUsers, null, 2));
+    const link = document.createElement("a");
+    link.setAttribute("href", dataStr);
+    link.setAttribute("download", `teamflow_users_${Date.now()}.json`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setExportOpen(false);
+    showToast("Exported users to JSON.");
+  };
+
+  const resetDemoData = () => {
+    const confirmed = window.confirm(
+      "Reset user management database to factory demo data?"
+    );
+    if (!confirmed) return;
+    saveUsers(initialUsers);
+    setSelectedIds([]);
+    showToast("User database reset to demo defaults.");
   };
 
   return (
     <div className="admin-users-app">
-      <AdminSidebar />
+      {/* SIDEBAR */}
+      <AdminSidebar
+        mobileOpen={mobileOpen}
+        onClose={() => setMobileOpen(false)}
+      />
 
       <div className="admin-users-main">
-        {/* TOPBAR */}
-        <header className="admin-users-topbar">
-          <div className="admin-users-global-search">
-            <Search size={18} />
+        {/* UNIFIED TOPBAR */}
+        <AdminTopbar
+          onMobileMenuToggle={() => setMobileOpen(true)}
+          onInviteUser={openAddModal}
+        />
 
-            <input
-              type="text"
-              placeholder="Search users, workspaces, projects..."
-            />
-
-            <span>Ctrl + K</span>
+        {/* TOAST NOTIFICATION */}
+        {toast && (
+          <div className={`admin-users-toast admin-users-toast--${toast.type}`}>
+            <CheckCircle2 size={16} />
+            <span>{toast.message}</span>
           </div>
+        )}
 
-          <div className="admin-users-top-actions">
-            <button className="admin-users-create" onClick={openAddModal}>
-              <Plus size={18} />
-              Create
-              <ChevronDown size={15} />
-            </button>
-
-            <button className="admin-users-icon-button">
-              <Moon size={18} />
-            </button>
-
-            <button className="admin-users-icon-button notification-button">
-              <Bell size={18} />
-              <span className="notification-count">12</span>
-            </button>
-
-            <button className="admin-users-icon-button">
-              <CircleHelp size={18} />
-            </button>
-
-            <div className="admin-users-profile">
-              <div className="admin-users-avatar">HR</div>
-
-              <div>
-                <strong>Himanshu</strong>
-                <small>Super Administrator</small>
-              </div>
-
-              <ChevronDown size={16} />
-            </div>
-          </div>
-        </header>
-
-        {/* PAGE */}
+        {/* PAGE CONTENT */}
         <main className="admin-users-content">
-          <div className="admin-users-heading">
+          {/* HEADING */}
+          <section className="admin-users-heading">
             <div>
-              <span className="admin-users-breadcrumb">
-                USERS / MANAGEMENT
-              </span>
-
               <h1>User Management</h1>
-
               <p>
-                Manage users, roles, permissions and account access across
-                TeamFlow AI.
+                Configure user credentials, manage role assignments, monitor
+                account statuses, and enforce organizational privileges.
               </p>
             </div>
 
-            <button className="admin-users-add-button" onClick={openAddModal}>
-              <Plus size={18} />
-              Add User
-            </button>
-          </div>
+            <div className="admin-users-heading-actions">
+              {/* EXPORT DROPDOWN */}
+              <div className="admin-users-dropdown-wrapper">
+                <button
+                  type="button"
+                  className="admin-users-export-btn"
+                  onClick={() => setExportOpen((prev) => !prev)}
+                >
+                  <Download size={16} />
+                  <span>Export</span>
+                  <ChevronDown size={14} />
+                </button>
 
-          {/* STATS */}
+                {exportOpen && (
+                  <div className="admin-users-export-menu">
+                    <button type="button" onClick={exportUsersCSV}>
+                      Export as CSV (.csv)
+                    </button>
+                    <button type="button" onClick={exportUsersJSON}>
+                      Export as JSON (.json)
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* ADD USER BUTTON */}
+              <button
+                type="button"
+                className="admin-users-add-button"
+                onClick={openAddModal}
+              >
+                <Plus size={18} />
+                <span>Add User</span>
+              </button>
+            </div>
+          </section>
+
+          {/* STATS KPI CARDS */}
           <section className="admin-users-stats">
             <StatCard
               icon={<Users size={22} />}
               title="Total Users"
               value={stats.total}
               type="purple"
-              description="Across TeamFlow AI"
+              description="Registered organization accounts"
             />
-
             <StatCard
               icon={<UserCheck size={22} />}
               title="Active Users"
               value={stats.active}
               type="green"
-              description="Currently active"
+              description="Operational with full access"
             />
-
             <StatCard
               icon={<UserX size={22} />}
-              title="Inactive / Suspended"
+              title="Suspended / Inactive"
               value={stats.inactive}
               type="red"
-              description="Require attention"
+              description="Requires administrative review"
             />
-
             <StatCard
               icon={<ShieldCheck size={22} />}
               title="Administrators"
               value={stats.admins}
               type="blue"
-              description="Admin accounts"
+              description="Privileged administrative role"
             />
           </section>
 
-          {/* FILTERS */}
+          {/* TOOLBAR: SEARCH & FILTERS */}
           <section className="admin-users-filter-card">
             <div className="admin-users-search">
               <Search size={18} />
-
               <input
                 type="text"
                 value={search}
-                onChange={(event) => setSearch(event.target.value)}
-                placeholder="Search name, email or workspace..."
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search by name, email, role, or workspace..."
               />
+              {search && (
+                <button
+                  type="button"
+                  className="admin-users-clear-search"
+                  onClick={() => setSearch("")}
+                >
+                  <X size={14} />
+                </button>
+              )}
             </div>
 
-            <select
-              value={roleFilter}
-              onChange={(event) => setRoleFilter(event.target.value)}
-            >
-              <option>All Roles</option>
-              <option>Admin</option>
-              <option>Team Lead</option>
-              <option>Member</option>
-            </select>
+            <div className="admin-users-filter-group">
+              <select
+                value={roleFilter}
+                onChange={(e) => setRoleFilter(e.target.value)}
+                aria-label="Filter by role"
+              >
+                <option value="All Roles">All Roles</option>
+                {DEFAULT_ROLES.map((role) => (
+                  <option key={role} value={role}>
+                    {role}
+                  </option>
+                ))}
+              </select>
 
-            <select
-              value={statusFilter}
-              onChange={(event) => setStatusFilter(event.target.value)}
-            >
-              <option>All Status</option>
-              <option>Active</option>
-              <option>Inactive</option>
-              <option>Suspended</option>
-            </select>
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                aria-label="Filter by status"
+              >
+                <option value="All Status">All Statuses</option>
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive</option>
+                <option value="Suspended">Suspended</option>
+              </select>
+
+              <select
+                value={workspaceFilter}
+                onChange={(e) => setWorkspaceFilter(e.target.value)}
+                aria-label="Filter by workspace"
+              >
+                <option value="All Workspaces">All Workspaces</option>
+                {DEFAULT_WORKSPACES.map((ws) => (
+                  <option key={ws} value={ws}>
+                    {ws}
+                  </option>
+                ))}
+              </select>
+            </div>
           </section>
 
-          <div className="admin-users-result">
-            Showing {filteredUsers.length} users
+          {/* BULK ACTION BAR */}
+          {selectedIds.length > 0 && (
+            <div className="admin-users-bulk-bar">
+              <div className="admin-users-bulk-info">
+                <strong>{selectedIds.length}</strong> users selected
+              </div>
+              <div className="admin-users-bulk-buttons">
+                <button
+                  type="button"
+                  className="bulk-btn bulk-activate"
+                  onClick={() => handleBulkStatus("Active")}
+                >
+                  <UserCheck size={15} />
+                  Activate
+                </button>
+                <button
+                  type="button"
+                  className="bulk-btn bulk-suspend"
+                  onClick={() => handleBulkStatus("Suspended")}
+                >
+                  <UserX size={15} />
+                  Suspend
+                </button>
+                <button
+                  type="button"
+                  className="bulk-btn bulk-delete"
+                  onClick={handleBulkDelete}
+                >
+                  <Trash2 size={15} />
+                  Delete Selected
+                </button>
+                <button
+                  type="button"
+                  className="bulk-btn bulk-cancel"
+                  onClick={() => setSelectedIds([])}
+                >
+                  Deselect All
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* TABLE META HEADER */}
+          <div className="admin-users-meta-header">
+            <span>
+              Showing {filteredUsers.length} of {usersList.length} users
+            </span>
+            <button
+              type="button"
+              className="admin-users-reset-btn"
+              onClick={resetDemoData}
+            >
+              <RotateCcw size={14} />
+              Reset Demo Data
+            </button>
           </div>
 
-          {/* TABLE */}
+          {/* USERS TABLE */}
           <section className="admin-users-table-card">
             <div className="admin-users-table-wrapper">
               <table className="admin-users-table">
                 <thead>
                   <tr>
-                    <th>User</th>
+                    <th style={{ width: 44, textAlign: "center" }}>
+                      <input
+                        type="checkbox"
+                        checked={
+                          selectedIds.length === filteredUsers.length &&
+                          filteredUsers.length > 0
+                        }
+                        onChange={toggleSelectAll}
+                        aria-label="Select all users"
+                      />
+                    </th>
+                    <th>User Member</th>
                     <th>Role</th>
+                    <th>Department</th>
                     <th>Workspace</th>
+                    <th>Contact</th>
                     <th>Status</th>
                     <th>Joined</th>
-                    <th>Action</th>
+                    <th style={{ textAlign: "right" }}>Actions</th>
                   </tr>
                 </thead>
 
                 <tbody>
-                  {filteredUsers.map((user) => (
-                    <tr key={user.id}>
-                      <td>
-                        <div className="admin-users-user-cell">
-                          <div className="admin-users-user-avatar">
-                            {user.initials}
+                  {filteredUsers.map((user) => {
+                    const isSelected = selectedIds.includes(user.id);
+                    return (
+                      <tr
+                        key={user.id}
+                        className={isSelected ? "row-selected" : ""}
+                      >
+                        <td style={{ textAlign: "center" }}>
+                          <input
+                            type="checkbox"
+                            checked={isSelected}
+                            onChange={() => toggleSelectOne(user.id)}
+                            aria-label={`Select ${user.name}`}
+                          />
+                        </td>
+
+                        {/* USER AVATAR + DETAILS */}
+                        <td>
+                          <div className="admin-users-user-cell">
+                            <div className="admin-users-user-avatar">
+                              {user.initials || "U"}
+                            </div>
+                            <div className="admin-users-user-text">
+                              <strong
+                                className="user-clickable-name"
+                                onClick={() => setViewingUser(user)}
+                              >
+                                {user.name}
+                              </strong>
+                              <span>{user.email}</span>
+                            </div>
                           </div>
+                        </td>
 
-                          <div>
-                            <strong>{user.name}</strong>
-                            <span>{user.email}</span>
-                          </div>
-                        </div>
-                      </td>
-
-                      <td>
-                        <span
-                          className={`admin-users-role role-${user.role
-                            .toLowerCase()
-                            .replace(" ", "-")}`}
-                        >
-                          {user.role}
-                        </span>
-                      </td>
-
-                      <td>
-                        <div className="admin-users-workspace">
-                          <Building2 size={16} />
-                          {user.workspace}
-                        </div>
-                      </td>
-
-                      <td>
-                        <span
-                          className={`admin-users-status status-${user.status.toLowerCase()}`}
-                        >
-                          <span />
-                          {user.status}
-                        </span>
-                      </td>
-
-                      <td>{user.joined}</td>
-
-                      <td className="admin-users-action-cell">
-                        <button
-                          className="admin-users-menu-button"
-                          onClick={() =>
-                            setOpenMenu(
-                              openMenu === user.id ? null : user.id
+                        {/* ROLE WITH QUICK SELECT */}
+                        <td>
+                          <span
+                            className={`admin-users-role role-${(
+                              user.role || "Member"
                             )
-                          }
-                        >
-                          <MoreVertical size={18} />
-                        </button>
+                              .toLowerCase()
+                              .replace(/\s+/g, "-")}`}
+                          >
+                            {user.role}
+                          </span>
+                        </td>
 
-                        {openMenu === user.id && (
-                          <div className="admin-users-dropdown">
-                            <button onClick={() => openEditModal(user)}>
-                              <Pencil size={15} />
-                              Edit User
-                            </button>
+                        {/* DEPARTMENT */}
+                        <td>
+                          <span className="admin-users-dept-badge">
+                            {user.department || "Engineering"}
+                          </span>
+                        </td>
 
+                        {/* WORKSPACE */}
+                        <td>
+                          <div className="admin-users-workspace">
+                            <Building2 size={15} />
+                            <span>{user.workspace || "TeamFlow Workspace"}</span>
+                          </div>
+                        </td>
+
+                        {/* CONTACT / PHONE */}
+                        <td>
+                          <span className="admin-users-phone-text">
+                            {user.phone || "+1 (555) 019-2834"}
+                          </span>
+                        </td>
+
+                        {/* STATUS */}
+                        <td>
+                          <span
+                            className={`admin-users-status status-${(
+                              user.status || "Active"
+                            ).toLowerCase()}`}
+                          >
+                            <span className="status-dot" />
+                            {user.status || "Active"}
+                          </span>
+                        </td>
+
+                        {/* JOINED DATE */}
+                        <td>
+                          <span className="admin-users-date">
+                            {user.joined || "Oct 21, 2026"}
+                          </span>
+                        </td>
+
+                        {/* ACTIONS */}
+                        <td className="admin-users-action-cell">
+                          <div className="admin-users-inline-actions">
                             <button
-                              onClick={() => toggleUserStatus(user.id)}
+                              type="button"
+                              className="action-icon-btn view"
+                              title="View details"
+                              onClick={() => setViewingUser(user)}
                             >
-                              <UserCheck size={15} />
-                              {user.status === "Active"
-                                ? "Suspend User"
-                                : "Activate User"}
+                              <Eye size={15} />
                             </button>
-
                             <button
-                              className="delete"
-                              onClick={() => deleteUser(user.id)}
+                              type="button"
+                              className="action-icon-btn edit"
+                              title="Edit user"
+                              onClick={() => openEditModal(user)}
+                            >
+                              <Pencil size={15} />
+                            </button>
+                            <button
+                              type="button"
+                              className="action-icon-btn delete"
+                              title="Delete user"
+                              onClick={() => deleteUser(user.id, user.name)}
                             >
                               <Trash2 size={15} />
-                              Delete User
                             </button>
                           </div>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
 
               {filteredUsers.length === 0 && (
                 <div className="admin-users-empty">
-                  <Users size={42} />
-                  <h3>No users found</h3>
-                  <p>Try changing your search or filters.</p>
+                  <Users size={44} />
+                  <h3>No users match your criteria</h3>
+                  <p>Try adjusting your search query, status, or role filter.</p>
+                  <button
+                    type="button"
+                    className="admin-users-clear-filters-btn"
+                    onClick={() => {
+                      setSearch("");
+                      setRoleFilter("All Roles");
+                      setStatusFilter("All Status");
+                      setWorkspaceFilter("All Workspaces");
+                    }}
+                  >
+                    Clear All Filters
+                  </button>
                 </div>
               )}
             </div>
@@ -452,120 +759,251 @@ function AdminUsers() {
         </main>
       </div>
 
-      {/* MODAL */}
+      {/* ADD / EDIT USER MODAL */}
       {showModal && (
         <div
           className="admin-users-modal-overlay"
-          onMouseDown={(event) => {
-            if (event.target === event.currentTarget) {
-              setShowModal(false);
-            }
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget) setShowModal(false);
           }}
         >
-          <div className="admin-users-modal">
+          <div className="admin-users-modal" role="dialog" aria-modal="true">
             <div className="admin-users-modal-header">
               <div>
-                <h2>{editingUser ? "Edit User" : "Add New User"}</h2>
+                <h2>{editingUser ? "Edit User Account" : "Add New User"}</h2>
                 <p>
                   {editingUser
-                    ? "Update user account information."
-                    : "Create a new TeamFlow AI user."}
+                    ? "Update organizational role, status, and permissions."
+                    : "Create a new TeamFlow AI credential with assigned privileges."}
                 </p>
               </div>
-
-              <button onClick={() => setShowModal(false)}>
+              <button
+                type="button"
+                className="admin-users-modal-close"
+                onClick={() => setShowModal(false)}
+                aria-label="Close modal"
+              >
                 <X size={20} />
               </button>
             </div>
 
-            <form onSubmit={handleSubmit}>
-              <label>
-                Full Name
+            <form onSubmit={handleSubmit} className="admin-users-form">
+              <div className="admin-users-form-group">
+                <label>
+                  Full Name <span className="req">*</span>
+                </label>
                 <div className="admin-users-input">
                   <Users size={17} />
-
                   <input
                     name="name"
                     value={form.name}
                     onChange={handleFormChange}
-                    placeholder="Enter full name"
+                    placeholder="e.g. John Doe"
+                    required
                   />
                 </div>
-              </label>
+              </div>
 
-              <label>
-                Email Address
+              <div className="admin-users-form-group">
+                <label>
+                  Work Email <span className="req">*</span>
+                </label>
                 <div className="admin-users-input">
                   <Mail size={17} />
-
                   <input
                     type="email"
                     name="email"
                     value={form.email}
                     onChange={handleFormChange}
                     placeholder="name@company.com"
+                    required
                   />
                 </div>
-              </label>
+              </div>
 
               <div className="admin-users-form-row">
-                <label>
-                  Role
+                <div className="admin-users-form-group">
+                  <label>Role</label>
                   <select
                     name="role"
                     value={form.role}
                     onChange={handleFormChange}
                   >
-                    <option>Admin</option>
-                    <option>Team Lead</option>
-                    <option>Member</option>
+                    {DEFAULT_ROLES.map((r) => (
+                      <option key={r} value={r}>
+                        {r}
+                      </option>
+                    ))}
                   </select>
-                </label>
+                </div>
 
-                <label>
-                  Status
+                <div className="admin-users-form-group">
+                  <label>Account Status</label>
                   <select
                     name="status"
                     value={form.status}
                     onChange={handleFormChange}
                   >
-                    <option>Active</option>
-                    <option>Inactive</option>
-                    <option>Suspended</option>
+                    <option value="Active">Active</option>
+                    <option value="Inactive">Inactive</option>
+                    <option value="Suspended">Suspended</option>
                   </select>
-                </label>
+                </div>
               </div>
 
-              <label>
-                Workspace
-                <select
-                  name="workspace"
-                  value={form.workspace}
-                  onChange={handleFormChange}
-                >
-                  <option>TeamFlow Workspace</option>
-                  <option>Marketing Team</option>
-                  <option>Design Studio</option>
-                  <option>Development Hub</option>
-                  <option>Research Lab</option>
-                  <option>Startup Team</option>
-                </select>
-              </label>
+              <div className="admin-users-form-row">
+                <div className="admin-users-form-group">
+                  <label>Assigned Workspace</label>
+                  <select
+                    name="workspace"
+                    value={form.workspace}
+                    onChange={handleFormChange}
+                  >
+                    {DEFAULT_WORKSPACES.map((ws) => (
+                      <option key={ws} value={ws}>
+                        {ws}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="admin-users-form-group">
+                  <label>Department</label>
+                  <div className="admin-users-input">
+                    <Briefcase size={17} />
+                    <input
+                      name="department"
+                      value={form.department}
+                      onChange={handleFormChange}
+                      placeholder="e.g. Engineering"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="admin-users-form-group">
+                <label>Contact Phone</label>
+                <div className="admin-users-input">
+                  <Phone size={17} />
+                  <input
+                    name="phone"
+                    value={form.phone}
+                    onChange={handleFormChange}
+                    placeholder="+1 (555) 000-0000"
+                  />
+                </div>
+              </div>
 
               <div className="admin-users-modal-actions">
                 <button
                   type="button"
-                  className="admin-users-cancel"
+                  className="admin-users-cancel-btn"
                   onClick={() => setShowModal(false)}
                 >
                   Cancel
                 </button>
-
-                <button type="submit" className="admin-users-save">
-                  {editingUser ? "Save Changes" : "Add User"}
+                <button type="submit" className="admin-users-save-btn">
+                  {editingUser ? "Save Changes" : "Create User"}
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* VIEW USER DETAILS MODAL */}
+      {viewingUser && (
+        <div
+          className="admin-users-modal-overlay"
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget) setViewingUser(null);
+          }}
+        >
+          <div className="admin-users-modal view-modal">
+            <div className="admin-users-modal-header">
+              <div>
+                <h2>User Profile Overview</h2>
+                <p>Complete organizational credential records.</p>
+              </div>
+              <button
+                type="button"
+                className="admin-users-modal-close"
+                onClick={() => setViewingUser(null)}
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="admin-users-view-body">
+              <div className="admin-users-view-hero">
+                <div className="admin-users-view-avatar">
+                  {viewingUser.initials || "U"}
+                </div>
+                <div>
+                  <h3>{viewingUser.name}</h3>
+                  <p>{viewingUser.email}</p>
+                  <div className="admin-users-view-badges">
+                    <span
+                      className={`admin-users-role role-${(
+                        viewingUser.role || "Member"
+                      )
+                        .toLowerCase()
+                        .replace(/\s+/g, "-")}`}
+                    >
+                      {viewingUser.role}
+                    </span>
+                    <span
+                      className={`admin-users-status status-${(
+                        viewingUser.status || "Active"
+                      ).toLowerCase()}`}
+                    >
+                      <span className="status-dot" />
+                      {viewingUser.status}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="admin-users-view-grid">
+                <div className="view-grid-item">
+                  <label>Workspace</label>
+                  <span>{viewingUser.workspace || "TeamFlow Workspace"}</span>
+                </div>
+                <div className="view-grid-item">
+                  <label>Department</label>
+                  <span>{viewingUser.department || "Engineering"}</span>
+                </div>
+                <div className="view-grid-item">
+                  <label>Joined Date</label>
+                  <span>{viewingUser.joined || "Oct 21, 2026"}</span>
+                </div>
+                <div className="view-grid-item">
+                  <label>Phone</label>
+                  <span>{viewingUser.phone || "+1 (555) 019-2834"}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="admin-users-modal-actions">
+              <button
+                type="button"
+                className="admin-users-cancel-btn"
+                onClick={() => {
+                  const userToEdit = viewingUser;
+                  setViewingUser(null);
+                  openEditModal(userToEdit);
+                }}
+              >
+                <Pencil size={15} /> Edit User
+              </button>
+              <button
+                type="button"
+                className="admin-users-save-btn"
+                onClick={() => setViewingUser(null)}
+              >
+                Close
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -575,16 +1013,13 @@ function AdminUsers() {
 
 function StatCard({ icon, title, value, type, description }) {
   return (
-    <div className="admin-users-stat-card">
+    <div className={`admin-users-stat-card stat-${type}`}>
       <div className={`admin-users-stat-icon ${type}`}>{icon}</div>
-
-      <div>
-        <span>{title}</span>
-        <strong>{value}</strong>
-        <small>{description}</small>
+      <div className="admin-users-stat-info">
+        <span className="admin-users-stat-label">{title}</span>
+        <strong className="admin-users-stat-value">{value}</strong>
+        <small className="admin-users-stat-desc">{description}</small>
       </div>
     </div>
   );
 }
-
-export default AdminUsers;

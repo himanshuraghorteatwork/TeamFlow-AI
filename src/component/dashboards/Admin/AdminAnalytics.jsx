@@ -1,39 +1,32 @@
-import React, {
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
-
+import React, { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-
 import {
-  Search,
-  Plus,
-  ChevronDown,
   BarChart3,
+  TrendingUp,
   Users,
   Building2,
   FolderKanban,
-  DollarSign,
-  TrendingUp,
+  CircleDollarSign,
   Activity,
   Download,
   RefreshCw,
   ArrowUpRight,
-  CircleDollarSign,
   CheckCircle2,
   Zap,
-  Database,
   HardDrive,
-  Bot,
-  Settings,
-  LogOut,
-  X,
+  Cpu,
+  Clock,
+  Sparkles,
+  ChevronRight,
+  Search,
+  Filter,
+  ArrowUp,
+  ArrowDown,
+  Layers,
+  FileSpreadsheet
 } from "lucide-react";
-
-import AdminSidebar from "../../../layouts/AdminSidebar/AdminSidebar.jsx";
-
+import AdminSidebar from "./AdminSidebar.jsx";
+import AdminTopbar from "./AdminTopbar.jsx";
 import {
   analyticsSummary,
   growthData,
@@ -42,2267 +35,822 @@ import {
   planDistribution,
   activityData,
   topWorkspaces,
-  systemMetrics,
+  systemMetrics
 } from "./adminAnalyticsData.js";
-
 import "./AdminAnalytics.css";
 
-/* =========================================================
-   STORAGE HELPER
-========================================================= */
-
-function readStorage(keys, fallback = []) {
-  for (const key of keys) {
-    try {
-      const value = localStorage.getItem(key);
-
-      if (!value) continue;
-
-      const parsed = JSON.parse(value);
-
-      if (Array.isArray(parsed)) {
-        return parsed;
-      }
-    } catch {
-      // Continue to next key.
-    }
-  }
-
-  return fallback;
-}
-
-/* =========================================================
-   ADMIN ANALYTICS
-========================================================= */
-
-function AdminAnalytics() {
+export default function AdminAnalytics() {
   const navigate = useNavigate();
-  const globalSearchRef = useRef(null);
-
+  const [mobileOpen, setMobileOpen] = useState(false);
   const [range, setRange] = useState("30 Days");
-  const [search, setSearch] = useState("");
-  const [globalSearch, setGlobalSearch] = useState("");
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [lastRefreshed, setLastRefreshed] = useState(new Date());
+  const [chartMetric, setChartMetric] = useState("both"); // 'both' | 'users' | 'active'
+  const [workspaceSearch, setWorkspaceSearch] = useState("");
+  const [deptFilter, setDeptFilter] = useState("all");
+  const [hoveredPoint, setHoveredPoint] = useState(null);
+  const [hoveredBar, setHoveredBar] = useState(null);
+  const [selectedDonutDept, setSelectedDonutDept] = useState(null);
 
-  const [workspaceType, setWorkspaceType] =
-    useState("All");
+  // Growth Data based on range
+  const currentGrowth = useMemo(() => {
+    return growthData[range] || growthData["30 Days"];
+  }, [range]);
 
-  const [lastUpdated, setLastUpdated] =
-    useState(new Date());
+  // Filtered Top Workspaces
+  const filteredWorkspaces = useMemo(() => {
+    return topWorkspaces.filter(ws => {
+      const matchesSearch = ws.name.toLowerCase().includes(workspaceSearch.toLowerCase()) ||
+        ws.department.toLowerCase().includes(workspaceSearch.toLowerCase());
+      const matchesDept = deptFilter === "all" || ws.department.toLowerCase() === deptFilter.toLowerCase();
+      return matchesSearch && matchesDept;
+    });
+  }, [workspaceSearch, deptFilter]);
 
-  const [dataVersion, setDataVersion] =
-    useState(0);
-
-  const [createOpen, setCreateOpen] =
-    useState(false);
-
-  const [profileOpen, setProfileOpen] =
-    useState(false);
-
-  const [searchOpen, setSearchOpen] =
-    useState(false);
-
-  const [refreshing, setRefreshing] =
-    useState(false);
-
-  /* =======================================================
-     LIVE DATA
-  ======================================================= */
-
-  const liveUsers = useMemo(
-    () => (dataVersion, readStorage(["teamflow_admin_users", "teamflow_users"], [])),
-    [dataVersion]
-  );
-
-  const liveWorkspaces = useMemo(
-    () => (dataVersion, readStorage(["teamflow_admin_workspaces", "teamflow_workspaces"], topWorkspaces)),
-    [dataVersion]
-  );
-
-  const liveProjects = useMemo(
-    () => (dataVersion, readStorage(["teamflow_admin_projects", "teamflow_projects"], [])),
-    [dataVersion]
-  );
-
-  const liveTasks = useMemo(() => {
-    void dataVersion;
-    const savedTasks = readStorage(
-      ["teamflow_admin_tasks"],
-      []
-    );
-
-    if (savedTasks.length) {
-      return savedTasks;
-    }
-
-    const nestedTasks =
-      liveProjects.flatMap((project) =>
-        Array.isArray(project.tasks)
-          ? project.tasks
-          : []
-      );
-
-    return nestedTasks;
-  }, [liveProjects, dataVersion]);
-
-  const liveTransactions = useMemo(
-    () => (dataVersion, readStorage(["teamflow_admin_transactions"], [])),
-    [dataVersion]
-  );
-
-  /* =======================================================
-     SUMMARY
-  ======================================================= */
-
-  const summary = useMemo(() => {
-    const paidRevenue =
-      liveTransactions
-        .filter(
-          (transaction) =>
-            String(
-              transaction.status || ""
-            ).toLowerCase() === "paid"
-        )
-        .reduce(
-          (sum, transaction) =>
-            sum +
-            Number(
-              transaction.amount || 0
-            ),
-          0
-        );
-
-    const activeUserCount =
-      liveUsers.filter((user) => {
-        const status = String(
-          user.status || "active"
-        ).toLowerCase();
-
-        return status === "active";
-      }).length;
-
-    return {
-      totalUsers:
-        liveUsers.length ||
-        analyticsSummary.totalUsers,
-
-      activeUsers:
-        liveUsers.length
-          ? activeUserCount
-          : analyticsSummary.activeUsers,
-
-      totalWorkspaces:
-        liveWorkspaces.length ||
-        analyticsSummary.totalWorkspaces,
-
-      totalProjects:
-        liveProjects.length ||
-        analyticsSummary.totalProjects,
-
-      totalTasks:
-        liveTasks.length ||
-        analyticsSummary.totalTasks,
-
-      monthlyRevenue:
-        paidRevenue ||
-        analyticsSummary.monthlyRevenue,
-    };
-  }, [
-    liveUsers,
-    liveWorkspaces,
-    liveProjects,
-    liveTasks,
-    liveTransactions,
-  ]);
-
-  /* =======================================================
-     GROWTH DATA
-  ======================================================= */
-
-  const currentGrowthData =
-    growthData[range] ||
-    growthData["30 Days"];
-
-  /* =======================================================
-     LIVE WORKSPACE TABLE
-  ======================================================= */
-
-  const analyticsWorkspaces =
-    useMemo(() => {
-      if (
-        !liveWorkspaces.length
-      ) {
-        return topWorkspaces;
-      }
-
-      return liveWorkspaces.map(
-        (workspace, index) => ({
-          id:
-            workspace.id ??
-            index + 1,
-
-          name:
-            workspace.name ||
-            `Workspace ${index + 1}`,
-
-          owner:
-            workspace.owner ||
-            workspace.ownerName ||
-            "TeamFlow Admin",
-
-          members: Number(
-            workspace.members || 0
-          ),
-
-          projects: Number(
-            workspace.projects ||
-              workspace.projectCount ||
-              0
-          ),
-
-          tasks: Number(
-            workspace.tasks ||
-              workspace.taskCount ||
-              0
-          ),
-
-          storage: Number(
-            workspace.storage || 0
-          ),
-
-          plan:
-            workspace.plan || "Free",
-
-          growth: Number(
-            workspace.growth ||
-              0
-          ),
-        })
-      );
-    }, [liveWorkspaces]);
-
-  const filteredWorkspaces =
-    useMemo(() => {
-      return analyticsWorkspaces.filter(
-        (workspace) => {
-          const query = search
-            .toLowerCase()
-            .trim();
-
-          const matchesSearch =
-            !query ||
-            String(
-              workspace.name
-            )
-              .toLowerCase()
-              .includes(query) ||
-            String(
-              workspace.owner
-            )
-              .toLowerCase()
-              .includes(query);
-
-          const matchesPlan =
-            workspaceType === "All" ||
-            workspace.plan ===
-              workspaceType;
-
-          return (
-            matchesSearch &&
-            matchesPlan
-          );
-        }
-      );
-    }, [
-      search,
-      workspaceType,
-      analyticsWorkspaces,
-    ]);
-
-  /* =======================================================
-     GLOBAL SEARCH
-  ======================================================= */
-
-  const searchItems = useMemo(
-    () => [
-      {
-        name: "Dashboard",
-        description:
-          "Admin dashboard overview",
-        path: "/admin/dashboard",
-        icon: Activity,
-      },
-      {
-        name: "Users",
-        description: `${summary.totalUsers.toLocaleString()} users`,
-        path: "/admin/users",
-        icon: Users,
-      },
-      {
-        name: "Workspaces",
-        description: `${summary.totalWorkspaces.toLocaleString()} workspaces`,
-        path: "/admin/workspaces",
-        icon: Building2,
-      },
-      {
-        name: "Projects",
-        description: `${summary.totalProjects.toLocaleString()} projects`,
-        path: "/admin/projects",
-        icon: FolderKanban,
-      },
-      {
-        name: "Tasks",
-        description: `${summary.totalTasks.toLocaleString()} tasks`,
-        path: "/admin/tasks",
-        icon: CheckCircle2,
-      },
-      {
-        name: "Billing & Payments",
-        description:
-          "Revenue and payments",
-        path: "/admin/billing",
-        icon: DollarSign,
-      },
-      {
-        name: "Subscriptions",
-        description:
-          "Subscription plans",
-        path: "/admin/subscriptions",
-        icon: CircleDollarSign,
-      },
-      {
-        name: "Analytics",
-        description:
-          "Platform analytics",
-        path: "/admin/analytics",
-        icon: BarChart3,
-      },
-      {
-        name: "Reports",
-        description:
-          "Analytics reports",
-        path: "/admin/reports",
-        icon: TrendingUp,
-      },
-      {
-        name: "Settings",
-        description:
-          "Platform settings",
-        path: "/admin/settings",
-        icon: Settings,
-      },
-    ],
-    [summary]
-  );
-
-  const globalResults =
-    useMemo(() => {
-      const query = globalSearch
-        .trim()
-        .toLowerCase();
-
-      if (!query) return [];
-
-      return searchItems.filter(
-        (item) =>
-          `${item.name} ${item.description}`
-            .toLowerCase()
-            .includes(query)
-      );
-    }, [
-      globalSearch,
-      searchItems,
-    ]);
-
-  /* =======================================================
-     REFRESH
-  ======================================================= */
-
-  const refreshAnalytics = () => {
-    setRefreshing(true);
-
-    setDataVersion(
-      (current) => current + 1
-    );
-
-    setLastUpdated(new Date());
-
-    window.setTimeout(() => {
-      setRefreshing(false);
-    }, 500);
+  const handleRefresh = () => {
+    setIsRefreshing(true);
+    setTimeout(() => {
+      setLastRefreshed(new Date());
+      setIsRefreshing(false);
+    }, 650);
   };
 
-  /* =======================================================
-     AUTO REFRESH
-  ======================================================= */
-
-  useEffect(() => {
-    const interval = window.setInterval(
-      () => {
-        setDataVersion(
-          (current) =>
-            current + 1
-        );
-
-        setLastUpdated(new Date());
-      },
-      15000
-    );
-
-    return () =>
-      window.clearInterval(interval);
-  }, []);
-
-  /* =======================================================
-     STORAGE CHANGES
-  ======================================================= */
-
-  useEffect(() => {
-    const handleStorage = () => {
-      setDataVersion(
-        (current) =>
-          current + 1
-      );
-
-      setLastUpdated(new Date());
-    };
-
-    window.addEventListener(
-      "storage",
-      handleStorage
-    );
-
-    return () =>
-      window.removeEventListener(
-        "storage",
-        handleStorage
-      );
-  }, []);
-
-  /* =======================================================
-     CTRL + K / ESC
-  ======================================================= */
-
-  useEffect(() => {
-    const handleKeyboard = (
-      event
-    ) => {
-      if (
-        (event.ctrlKey ||
-          event.metaKey) &&
-        event.key.toLowerCase() ===
-          "k"
-      ) {
-        event.preventDefault();
-
-        globalSearchRef.current?.focus();
-
-        setSearchOpen(true);
-      }
-
-      if (
-        event.key === "Escape"
-      ) {
-        setSearchOpen(false);
-        setCreateOpen(false);
-        setProfileOpen(false);
-      }
-    };
-
-    window.addEventListener(
-      "keydown",
-      handleKeyboard
-    );
-
-    return () =>
-      window.removeEventListener(
-        "keydown",
-        handleKeyboard
-      );
-  }, []);
-
-  /* =======================================================
-     NAVIGATION
-  ======================================================= */
-
-  const goTo = (path) => {
-    setCreateOpen(false);
-    setProfileOpen(false);
-    setSearchOpen(false);
-    setGlobalSearch("");
-
-    navigate(path);
-  };
-
-  /* =======================================================
-     EXPORT CSV
-  ======================================================= */
-
-  const exportAnalytics = () => {
-    const headers = [
-      "Workspace",
-      "Owner",
-      "Members",
-      "Projects",
-      "Tasks",
-      "Storage",
-      "Plan",
-      "Growth",
+  const handleExportCSV = () => {
+    const headers = ["Metric", "Value", "Trend", "Timeframe"];
+    const rows = [
+      ["Total Users", analyticsSummary.totalUsers, "+14.2%", range],
+      ["Active Users", analyticsSummary.activeUsers, "+11.8%", range],
+      ["Total Workspaces", analyticsSummary.totalWorkspaces, "+8.5%", range],
+      ["Active Projects", analyticsSummary.totalProjects, "+9.1%", range],
+      ["Monthly Recurring Revenue ($)", analyticsSummary.monthlyRevenue, "+12.4%", range],
+      ["SLA Uptime", "99.98%", "Optimal", "Trailing 30 Days"]
     ];
 
-    const rows =
-      filteredWorkspaces.map(
-        (workspace) => [
-          workspace.name,
-          workspace.owner,
-          workspace.members,
-          workspace.projects,
-          workspace.tasks,
-          `${workspace.storage}%`,
-          workspace.plan,
-          `${workspace.growth}%`,
-        ]
-      );
-
-    const csv = [
-      headers,
-      ...rows,
-    ]
-      .map((row) =>
-        row
-          .map(
-            (value) =>
-              `"${String(
-                value
-              ).replace(
-                /"/g,
-                '""'
-              )}"`
-          )
-          .join(",")
-      )
-      .join("\n");
-
-    const blob = new Blob(
-      [csv],
-      {
-        type: "text/csv;charset=utf-8;",
-      }
-    );
-
-    const url =
-      URL.createObjectURL(blob);
-
-    const link =
-      document.createElement("a");
-
+    const csvContent = [headers.join(","), ...rows.map(r => r.join(","))].join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
     link.href = url;
-
-    link.download =
-      `teamflow-analytics-${range
-        .toLowerCase()
-        .replaceAll(
-          " ",
-          "-"
-        )}.csv`;
-
-    document.body.appendChild(
-      link
-    );
-
+    link.download = `teamflow_analytics_${new Date().toISOString().slice(0, 10)}.csv`;
     link.click();
-
-    document.body.removeChild(
-      link
-    );
-
     URL.revokeObjectURL(url);
   };
 
-  /* =======================================================
-     LOGOUT
-  ======================================================= */
+  // SVG Line Chart coordinates calculation
+  const chartWidth = 720;
+  const chartHeight = 220;
+  const chartPadding = { top: 20, right: 25, bottom: 35, left: 45 };
 
-  const logout = () => {
-    localStorage.removeItem(
-      "teamflow_admin"
-    );
+  const maxVal = useMemo(() => {
+    const allVals = currentGrowth.flatMap(d => [d.users, d.active]);
+    return Math.max(...allVals, 100) * 1.15;
+  }, [currentGrowth]);
 
-    localStorage.removeItem(
-      "teamflow_admin_logged_in"
-    );
+  const pointsUsers = useMemo(() => {
+    const innerW = chartWidth - chartPadding.left - chartPadding.right;
+    const innerH = chartHeight - chartPadding.top - chartPadding.bottom;
+    const step = innerW / Math.max(currentGrowth.length - 1, 1);
 
-    sessionStorage.removeItem(
-      "teamflow_admin"
-    );
+    return currentGrowth.map((d, i) => {
+      const x = chartPadding.left + i * step;
+      const y = chartPadding.top + innerH - (d.users / maxVal) * innerH;
+      return { x, y, ...d };
+    });
+  }, [currentGrowth, maxVal]);
 
-    navigate("/login");
+  const pointsActive = useMemo(() => {
+    const innerW = chartWidth - chartPadding.left - chartPadding.right;
+    const innerH = chartHeight - chartPadding.top - chartPadding.bottom;
+    const step = innerW / Math.max(currentGrowth.length - 1, 1);
+
+    return currentGrowth.map((d, i) => {
+      const x = chartPadding.left + i * step;
+      const y = chartPadding.top + innerH - (d.active / maxVal) * innerH;
+      return { x, y, ...d };
+    });
+  }, [currentGrowth, maxVal]);
+
+  const makePath = (points) => {
+    if (points.length === 0) return "";
+    return points.reduce((acc, pt, i) => {
+      if (i === 0) return `M ${pt.x} ${pt.y}`;
+      // Smooth cubic bezier curve
+      const prev = points[i - 1];
+      const cx1 = prev.x + (pt.x - prev.x) / 2;
+      const cy1 = prev.y;
+      const cx2 = prev.x + (pt.x - prev.x) / 2;
+      const cy2 = pt.y;
+      return `${acc} C ${cx1} ${cy1}, ${cx2} ${cy2}, ${pt.x} ${pt.y}`;
+    }, "");
   };
 
+  const lineUsers = useMemo(() => makePath(pointsUsers), [pointsUsers]);
+  const lineActive = useMemo(() => makePath(pointsActive), [pointsActive]);
+
+  const areaUsers = useMemo(() => {
+    if (pointsUsers.length === 0) return "";
+    const bottomY = chartHeight - chartPadding.bottom;
+    const firstX = pointsUsers[0].x;
+    const lastX = pointsUsers[pointsUsers.length - 1].x;
+    return `${lineUsers} L ${lastX} ${bottomY} L ${firstX} ${bottomY} Z`;
+  }, [lineUsers, pointsUsers]);
+
+  const areaActive = useMemo(() => {
+    if (pointsActive.length === 0) return "";
+    const bottomY = chartHeight - chartPadding.bottom;
+    const firstX = pointsActive[0].x;
+    const lastX = pointsActive[pointsActive.length - 1].x;
+    return `${lineActive} L ${lastX} ${bottomY} L ${firstX} ${bottomY} Z`;
+  }, [lineActive, pointsActive]);
+
+  // Donut chart total
+  const totalWorkspaceCount = useMemo(() => {
+    return workspaceDistribution.reduce((acc, item) => acc + item.value, 0);
+  }, []);
+
+  const donutColors = ["#6366f1", "#06b6d4", "#10b981", "#f59e0b", "#ec4899", "#8b5cf6"];
+
   return (
-    <div className="admin-analytics-shell">
-      <AdminSidebar />
+    <div className="admin-analytics-app">
+      <AdminSidebar mobileOpen={mobileOpen} onClose={() => setMobileOpen(false)} />
 
       <main className="admin-analytics-main">
-        {/* =============================================
-            TOPBAR
-        ============================================== */}
-
-        <header className="admin-analytics-topbar">
-          <div className="admin-analytics-global-search-wrapper">
-            <div className="admin-analytics-global-search">
-              <Search size={17} />
-
-              <input
-                ref={
-                  globalSearchRef
-                }
-                type="text"
-                value={globalSearch}
-                placeholder="Search users, workspaces, projects, or anything..."
-                onFocus={() =>
-                  setSearchOpen(
-                    true
-                  )
-                }
-                onChange={(
-                  event
-                ) => {
-                  setGlobalSearch(
-                    event.target
-                      .value
-                  );
-
-                  setSearchOpen(
-                    true
-                  );
-                }}
-              />
-
-              {globalSearch ? (
-                <button
-                  type="button"
-                  className="admin-analytics-clear-search"
-                  onClick={() =>
-                    setGlobalSearch(
-                      ""
-                    )
-                  }
-                >
-                  <X size={14} />
-                </button>
-              ) : (
-                <span>Ctrl + K</span>
-              )}
-            </div>
-
-            {searchOpen &&
-              globalSearch && (
-                <div className="admin-analytics-search-results">
-                  {globalResults.length >
-                  0 ? (
-                    globalResults.map(
-                      (item) => {
-                        const Icon =
-                          item.icon;
-
-                        return (
-                          <button
-                            type="button"
-                            key={
-                              item.path
-                            }
-                            onClick={() =>
-                              goTo(
-                                item.path
-                              )
-                            }
-                          >
-                            <div className="admin-analytics-search-result-icon">
-                              <Icon
-                                size={
-                                  16
-                                }
-                              />
-                            </div>
-
-                            <span>
-                              <strong>
-                                {
-                                  item.name
-                                }
-                              </strong>
-
-                              <small>
-                                {
-                                  item.description
-                                }
-                              </small>
-                            </span>
-
-                            <ArrowUpRight
-                              size={14}
-                            />
-                          </button>
-                        );
-                      }
-                    )
-                  ) : (
-                    <div className="admin-analytics-search-empty">
-                      <Search
-                        size={20}
-                      />
-
-                      <strong>
-                        No results
-                        found
-                      </strong>
-
-                      <span>
-                        Try another
-                        search.
-                      </span>
-                    </div>
-                  )}
-                </div>
-              )}
-          </div>
-
-          <div className="admin-analytics-top-actions">
-            {/* CREATE */}
-
-            <div className="admin-analytics-dropdown">
-              <button
-                type="button"
-                className="admin-analytics-create"
-                onClick={() => {
-                  setCreateOpen(
-                    !createOpen
-                  );
-
-                  setProfileOpen(
-                    false
-                  );
-                }}
-              >
-                <Plus size={17} />
-                Create
-                <ChevronDown
-                  size={14}
-                />
-              </button>
-
-              {createOpen && (
-                <div className="admin-analytics-create-menu">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      goTo(
-                        "/admin/workspaces"
-                      )
-                    }
-                  >
-                    <Building2
-                      size={16}
-                    />
-                    New Workspace
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() =>
-                      goTo(
-                        "/admin/users"
-                      )
-                    }
-                  >
-                    <Users
-                      size={16}
-                    />
-                    New User
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() =>
-                      goTo(
-                        "/admin/projects"
-                      )
-                    }
-                  >
-                    <FolderKanban
-                      size={16}
-                    />
-                    New Project
-                  </button>
-                </div>
-              )}
-            </div>
-
-            {/* PROFILE */}
-
-            <div className="admin-analytics-dropdown">
-              <button
-                type="button"
-                className="admin-analytics-profile"
-                onClick={() => {
-                  setProfileOpen(
-                    !profileOpen
-                  );
-
-                  setCreateOpen(
-                    false
-                  );
-                }}
-              >
-                <div className="admin-analytics-avatar">
-                  HR
-                </div>
-
-                <div>
-                  <strong>
-                    Himanshu
-                  </strong>
-
-                  <span>
-                    Super
-                    Administrator
-                  </span>
-                </div>
-
-                <ChevronDown
-                  size={15}
-                />
-              </button>
-
-              {profileOpen && (
-                <div className="admin-analytics-profile-menu">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      goTo(
-                        "/admin/settings"
-                      )
-                    }
-                  >
-                    <Settings
-                      size={15}
-                    />
-                    Settings
-                  </button>
-
-                  <button
-                    type="button"
-                    className="danger"
-                    onClick={logout}
-                  >
-                    <LogOut
-                      size={15}
-                    />
-                    Logout
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        </header>
-
-        {/* =============================================
-            CONTENT
-        ============================================== */}
+        <AdminTopbar onMobileMenuToggle={() => setMobileOpen(true)} />
 
         <div className="admin-analytics-content">
-          {/* HEADING */}
-
-          <section className="admin-analytics-heading">
+          {/* Header Section */}
+          <div className="admin-analytics-header">
             <div>
-              <div className="admin-analytics-breadcrumb">
-                <BarChart3
-                  size={15}
-                />
+              <div className="admin-analytics-title-row">
+                <h1>Analytics & Performance</h1>
+                <div className="live-status-pill">
+                  <span className="pulse-dot" />
+                  <span>Live telemetry</span>
+                  <span className="timestamp">
+                    Updated {lastRefreshed.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
+                  </span>
+                </div>
+              </div>
+              <p>Real-time organizational insights, user adoption rates, velocity trends, and platform metrics.</p>
+            </div>
 
-                ADMIN / ANALYTICS
+            <div className="admin-analytics-header-actions">
+              <div className="range-selector">
+                {["7 Days", "30 Days", "90 Days"].map((r) => (
+                  <button
+                    key={r}
+                    className={`range-btn ${range === r ? "active" : ""}`}
+                    onClick={() => setRange(r)}
+                  >
+                    {r}
+                  </button>
+                ))}
               </div>
 
-              <h1>
-                Analytics Overview
-              </h1>
+              <button
+                className={`admin-analytics-btn-secondary ${isRefreshing ? "spin" : ""}`}
+                onClick={handleRefresh}
+                title="Refresh Analytics Data"
+              >
+                <RefreshCw size={15} />
+                <span>{isRefreshing ? "Syncing..." : "Refresh"}</span>
+              </button>
 
-              <p>
-                Monitor platform
-                growth, engagement,
-                revenue and workspace
-                performance.
-              </p>
+              <button className="admin-analytics-btn-primary" onClick={handleExportCSV}>
+                <FileSpreadsheet size={15} />
+                <span>Export CSV</span>
+              </button>
+            </div>
+          </div>
 
-              <div className="admin-analytics-live-indicator">
-                <i />
-
-                <span>
-                  Live analytics
+          {/* KPI Cards Row */}
+          <div className="admin-analytics-kpi-grid">
+            <div className="admin-analytics-kpi-card">
+              <div className="kpi-top">
+                <span className="kpi-label">Total Users</span>
+                <div className="kpi-icon-box purple">
+                  <Users size={18} />
+                </div>
+              </div>
+              <div className="kpi-val-row">
+                <span className="kpi-val">{analyticsSummary.totalUsers.toLocaleString()}</span>
+                <span className="kpi-badge positive">
+                  <ArrowUp size={12} /> +14.2%
                 </span>
-
-                <small>
-                  Updated{" "}
-                  {lastUpdated.toLocaleTimeString(
-                    [],
-                    {
-                      hour:
-                        "2-digit",
-                      minute:
-                        "2-digit",
-                    }
-                  )}
-                </small>
+              </div>
+              <div className="kpi-subtext">
+                <strong>{analyticsSummary.activeUsers}</strong> active now ({Math.round((analyticsSummary.activeUsers / analyticsSummary.totalUsers) * 100)}% engagement)
               </div>
             </div>
 
-            <div className="admin-analytics-heading-actions">
-              <select
-                value={range}
-                onChange={(
-                  event
-                ) =>
-                  setRange(
-                    event.target
-                      .value
-                  )
-                }
-              >
-                <option>
-                  7 Days
-                </option>
-
-                <option>
-                  30 Days
-                </option>
-
-                <option>
-                  90 Days
-                </option>
-              </select>
-
-              <button
-                type="button"
-                className="admin-analytics-secondary-button"
-                onClick={
-                  refreshAnalytics
-                }
-                disabled={
-                  refreshing
-                }
-              >
-                <RefreshCw
-                  size={15}
-                  className={
-                    refreshing
-                      ? "admin-analytics-spin"
-                      : ""
-                  }
-                />
-
-                {refreshing
-                  ? "Refreshing..."
-                  : "Refresh"}
-              </button>
-
-              <button
-                type="button"
-                className="admin-analytics-primary-button"
-                onClick={
-                  exportAnalytics
-                }
-              >
-                <Download
-                  size={15}
-                />
-                Export Report
-              </button>
+            <div className="admin-analytics-kpi-card">
+              <div className="kpi-top">
+                <span className="kpi-label">Active Workspaces</span>
+                <div className="kpi-icon-box blue">
+                  <Building2 size={18} />
+                </div>
+              </div>
+              <div className="kpi-val-row">
+                <span className="kpi-val">{analyticsSummary.totalWorkspaces.toLocaleString()}</span>
+                <span className="kpi-badge positive">
+                  <ArrowUp size={12} /> +8.5%
+                </span>
+              </div>
+              <div className="kpi-subtext">Across 6 organizational departments</div>
             </div>
-          </section>
 
-          {/* =============================================
-              KPI
-          ============================================== */}
+            <div className="admin-analytics-kpi-card">
+              <div className="kpi-top">
+                <span className="kpi-label">Total Projects</span>
+                <div className="kpi-icon-box green">
+                  <FolderKanban size={18} />
+                </div>
+              </div>
+              <div className="kpi-val-row">
+                <span className="kpi-val">{analyticsSummary.totalProjects.toLocaleString()}</span>
+                <span className="kpi-badge positive">
+                  <ArrowUp size={12} /> +9.1%
+                </span>
+              </div>
+              <div className="kpi-subtext">3,421 tasks tracked with 94% on-time velocity</div>
+            </div>
 
-          <section className="admin-analytics-kpis">
-            <KpiCard
-              title="Total Users"
-              value={summary.totalUsers.toLocaleString()}
-              change="+12.4%"
-              description="vs previous period"
-              icon={Users}
-              type="purple"
-              onClick={() =>
-                goTo(
-                  "/admin/users"
-                )
-              }
-            />
+            <div className="admin-analytics-kpi-card">
+              <div className="kpi-top">
+                <span className="kpi-label">Monthly Revenue (MRR)</span>
+                <div className="kpi-icon-box amber">
+                  <CircleDollarSign size={18} />
+                </div>
+              </div>
+              <div className="kpi-val-row">
+                <span className="kpi-val">${analyticsSummary.monthlyRevenue.toLocaleString()}</span>
+                <span className="kpi-badge positive">
+                  <ArrowUp size={12} /> +12.4%
+                </span>
+              </div>
+              <div className="kpi-subtext">Enterprise tiers driving 58% of growth</div>
+            </div>
 
-            <KpiCard
-              title="Active Users"
-              value={summary.activeUsers.toLocaleString()}
-              change="+8.7%"
-              description={`${Math.round(
-                (summary.activeUsers /
-                  Math.max(
-                    summary.totalUsers,
-                    1
-                  )) *
-                  100
-              )}% engagement`}
-              icon={Activity}
-              type="blue"
-              onClick={() =>
-                goTo(
-                  "/admin/users"
-                )
-              }
-            />
+            <div className="admin-analytics-kpi-card">
+              <div className="kpi-top">
+                <span className="kpi-label">System Uptime</span>
+                <div className="kpi-icon-box teal">
+                  <Activity size={18} />
+                </div>
+              </div>
+              <div className="kpi-val-row">
+                <span className="kpi-val">99.98%</span>
+                <span className="kpi-badge positive">
+                  <CheckCircle2 size={12} /> SLA Met
+                </span>
+              </div>
+              <div className="kpi-subtext">Avg latency 48ms • Zero security incidents</div>
+            </div>
+          </div>
 
-            <KpiCard
-              title="Workspaces"
-              value={summary.totalWorkspaces.toLocaleString()}
-              change="+8.6%"
-              description="Active platform spaces"
-              icon={Building2}
-              type="green"
-              onClick={() =>
-                goTo(
-                  "/admin/workspaces"
-                )
-              }
-            />
-
-            <KpiCard
-              title="Projects"
-              value={summary.totalProjects.toLocaleString()}
-              change="+24%"
-              description="vs previous period"
-              icon={
-                FolderKanban
-              }
-              type="orange"
-              onClick={() =>
-                goTo(
-                  "/admin/projects"
-                )
-              }
-            />
-
-            <KpiCard
-              title="Monthly Revenue"
-              value={`$${summary.monthlyRevenue.toLocaleString()}`}
-              change="+32%"
-              description="Recurring revenue"
-              icon={DollarSign}
-              type="pink"
-              onClick={() =>
-                goTo(
-                  "/admin/billing"
-                )
-              }
-            />
-          </section>
-
-          {/* =============================================
-              CHART ROW 1
-          ============================================== */}
-
-          <section className="admin-analytics-grid admin-analytics-grid-main">
-            <ChartCard
-              title="User Growth"
-              subtitle={`Total vs active users · ${range}`}
-              icon={
-                TrendingUp
-              }
-              className="admin-analytics-growth-card"
-            >
-              <LineChart
-                data={
-                  currentGrowthData
-                }
-              />
-            </ChartCard>
-
-            <ChartCard
-              title="Workspace Distribution"
-              subtitle="Workspaces by department"
-              icon={Building2}
-            >
-              <DonutChart
-                data={
-                  workspaceDistribution
-                }
-              />
-            </ChartCard>
-          </section>
-
-          {/* =============================================
-              CHART ROW 2
-          ============================================== */}
-
-          <section className="admin-analytics-grid admin-analytics-grid-three">
-            <ChartCard
-              title="Revenue Growth"
-              subtitle="Monthly recurring revenue"
-              icon={
-                CircleDollarSign
-              }
-            >
-              <RevenueChart
-                data={
-                  revenueData
-                }
-              />
-            </ChartCard>
-
-            <ChartCard
-              title="Plan Distribution"
-              subtitle="Subscriptions by plan"
-              icon={BarChart3}
-            >
-              <PlanDistribution
-                data={
-                  planDistribution
-                }
-              />
-            </ChartCard>
-
-            <ChartCard
-              title="Project Activity"
-              subtitle="Weekly platform activity"
-              icon={Zap}
-            >
-              <ActivityChart
-                data={
-                  activityData
-                }
-              />
-            </ChartCard>
-          </section>
-
-          {/* =============================================
-              WORKSPACE + HEALTH
-          ============================================== */}
-
-          <section className="admin-analytics-bottom-grid">
-            {/* WORKSPACE TABLE */}
-
-            <article className="admin-analytics-card">
-              <div className="admin-analytics-card-header">
+          {/* Main Visualizations Grid */}
+          <div className="admin-analytics-main-grid">
+            {/* User Growth Line Chart */}
+            <div className="admin-analytics-card growth-chart-card">
+              <div className="card-header">
                 <div>
-                  <h3>
-                    Top Performing
-                    Workspaces
-                  </h3>
+                  <h3>User Growth & Daily Active Telemetry</h3>
+                  <p>Tracking registered members vs active concurrent sessions over time</p>
+                </div>
+                <div className="chart-controls">
+                  <div className="metric-toggle">
+                    <button
+                      className={chartMetric === "both" ? "active" : ""}
+                      onClick={() => setChartMetric("both")}
+                    >
+                      All
+                    </button>
+                    <button
+                      className={chartMetric === "users" ? "active" : ""}
+                      onClick={() => setChartMetric("users")}
+                    >
+                      Registered
+                    </button>
+                    <button
+                      className={chartMetric === "active" ? "active" : ""}
+                      onClick={() => setChartMetric("active")}
+                    >
+                      Active
+                    </button>
+                  </div>
+                </div>
+              </div>
 
-                  <p>
-                    Workspaces ranked
-                    by activity and
-                    growth
-                  </p>
+              <div className="chart-legend">
+                {(chartMetric === "both" || chartMetric === "users") && (
+                  <div className="legend-item">
+                    <span className="legend-color-dot purple" />
+                    <span>Total Members</span>
+                  </div>
+                )}
+                {(chartMetric === "both" || chartMetric === "active") && (
+                  <div className="legend-item">
+                    <span className="legend-color-dot cyan" />
+                    <span>Active Sessions</span>
+                  </div>
+                )}
+              </div>
+
+              {/* SVG Curve Chart */}
+              <div className="svg-chart-container">
+                <svg
+                  viewBox={`0 0 ${chartWidth} ${chartHeight}`}
+                  className="interactive-svg-chart"
+                >
+                  <defs>
+                    <linearGradient id="purpleGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#6366f1" stopOpacity="0.32" />
+                      <stop offset="100%" stopColor="#6366f1" stopOpacity="0.01" />
+                    </linearGradient>
+                    <linearGradient id="cyanGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#06b6d4" stopOpacity="0.32" />
+                      <stop offset="100%" stopColor="#06b6d4" stopOpacity="0.01" />
+                    </linearGradient>
+                  </defs>
+
+                  {/* Horizontal Gridlines */}
+                  {[0, 0.25, 0.5, 0.75, 1].map((pct, i) => {
+                    const y = chartPadding.top + (chartHeight - chartPadding.top - chartPadding.bottom) * pct;
+                    const val = Math.round(maxVal * (1 - pct));
+                    return (
+                      <g key={i}>
+                        <line
+                          x1={chartPadding.left}
+                          y1={y}
+                          x2={chartWidth - chartPadding.right}
+                          y2={y}
+                          stroke="currentColor"
+                          strokeDasharray="4 4"
+                          className="chart-gridline"
+                        />
+                        <text
+                          x={chartPadding.left - 8}
+                          y={y + 4}
+                          textAnchor="end"
+                          className="chart-axis-label"
+                        >
+                          {val}
+                        </text>
+                      </g>
+                    );
+                  })}
+
+                  {/* Areas */}
+                  {(chartMetric === "both" || chartMetric === "users") && (
+                    <path d={areaUsers} fill="url(#purpleGradient)" />
+                  )}
+                  {(chartMetric === "both" || chartMetric === "active") && (
+                    <path d={areaActive} fill="url(#cyanGradient)" />
+                  )}
+
+                  {/* Lines */}
+                  {(chartMetric === "both" || chartMetric === "users") && (
+                    <path d={lineUsers} fill="none" stroke="#6366f1" strokeWidth="2.5" />
+                  )}
+                  {(chartMetric === "both" || chartMetric === "active") && (
+                    <path d={lineActive} fill="none" stroke="#06b6d4" strokeWidth="2.5" />
+                  )}
+
+                  {/* Interactive Points and Labels */}
+                  {pointsUsers.map((pt, i) => (
+                    <g key={i}>
+                      <text
+                        x={pt.x}
+                        y={chartHeight - 12}
+                        textAnchor="middle"
+                        className="chart-axis-label"
+                      >
+                        {pt.label}
+                      </text>
+
+                      {/* Hover Trigger Vertical line */}
+                      {hoveredPoint === i && (
+                        <line
+                          x1={pt.x}
+                          y1={chartPadding.top}
+                          x2={pt.x}
+                          y2={chartHeight - chartPadding.bottom}
+                          stroke="#94a3b8"
+                          strokeDasharray="3 3"
+                          strokeWidth="1.2"
+                        />
+                      )}
+
+                      {/* Target circles */}
+                      {(chartMetric === "both" || chartMetric === "users") && (
+                        <circle
+                          cx={pt.x}
+                          cy={pt.y}
+                          r={hoveredPoint === i ? 5.5 : 3.5}
+                          fill="#ffffff"
+                          stroke="#6366f1"
+                          strokeWidth="2.5"
+                          style={{ cursor: "pointer", transition: "all 0.15s ease" }}
+                        />
+                      )}
+
+                      {(chartMetric === "both" || chartMetric === "active") && (
+                        <circle
+                          cx={pointsActive[i].x}
+                          cy={pointsActive[i].y}
+                          r={hoveredPoint === i ? 5.5 : 3.5}
+                          fill="#ffffff"
+                          stroke="#06b6d4"
+                          strokeWidth="2.5"
+                          style={{ cursor: "pointer", transition: "all 0.15s ease" }}
+                        />
+                      )}
+
+                      {/* Invisible hover overlay column */}
+                      <rect
+                        x={pt.x - 20}
+                        y={chartPadding.top}
+                        width={40}
+                        height={chartHeight - chartPadding.top - chartPadding.bottom}
+                        fill="transparent"
+                        style={{ cursor: "pointer" }}
+                        onMouseEnter={() => setHoveredPoint(i)}
+                        onMouseLeave={() => setHoveredPoint(null)}
+                      />
+                    </g>
+                  ))}
+                </svg>
+
+                {/* Tooltip Overlay */}
+                {hoveredPoint !== null && (
+                  <div
+                    className="chart-hover-tooltip"
+                    style={{
+                      left: `${(pointsUsers[hoveredPoint].x / chartWidth) * 100}%`,
+                      top: "20px"
+                    }}
+                  >
+                    <div className="tooltip-title">{pointsUsers[hoveredPoint].label}</div>
+                    <div className="tooltip-item purple">
+                      <span>Total Users:</span>
+                      <strong>{pointsUsers[hoveredPoint].users}</strong>
+                    </div>
+                    <div className="tooltip-item cyan">
+                      <span>Active Sessions:</span>
+                      <strong>{pointsUsers[hoveredPoint].active}</strong>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Department Workspace Donut Chart */}
+            <div className="admin-analytics-card donut-chart-card">
+              <div className="card-header">
+                <div>
+                  <h3>Workspaces by Department</h3>
+                  <p>Resource utilization by business unit</p>
+                </div>
+              </div>
+
+              <div className="donut-content-layout">
+                {/* Visual Conic Donut */}
+                <div className="donut-circle-container">
+                  <div
+                    className="donut-circle"
+                    style={{
+                      background: `conic-gradient(
+                        #6366f1 0% 38%,
+                        #06b6d4 38% 62%,
+                        #10b981 62% 78%,
+                        #f59e0b 78% 88%,
+                        #ec4899 88% 95%,
+                        #8b5cf6 95% 100%
+                      )`
+                    }}
+                  >
+                    <div className="donut-center-hole">
+                      <span className="donut-total-count">{totalWorkspaceCount}</span>
+                      <span className="donut-total-label">Workspaces</span>
+                    </div>
+                  </div>
                 </div>
 
-                <button
-                  type="button"
-                  className="admin-analytics-card-action"
-                  onClick={() =>
-                    goTo(
-                      "/admin/workspaces"
-                    )
-                  }
-                >
-                  View all
+                {/* Legend & Breakdown List */}
+                <div className="donut-legend-list">
+                  {workspaceDistribution.map((item, index) => {
+                    const color = donutColors[index % donutColors.length];
+                    const percent = Math.round((item.value / totalWorkspaceCount) * 100);
+                    const isSelected = selectedDonutDept === item.name;
 
-                  <ArrowUpRight
-                    size={14}
-                  />
+                    return (
+                      <div
+                        key={item.name}
+                        className={`donut-legend-row ${isSelected ? "selected" : ""}`}
+                        onMouseEnter={() => setSelectedDonutDept(item.name)}
+                        onMouseLeave={() => setSelectedDonutDept(null)}
+                      >
+                        <div className="legend-left">
+                          <span className="dot" style={{ background: color }} />
+                          <span className="name">{item.name}</span>
+                        </div>
+                        <div className="legend-right">
+                          <span className="val">{item.value} units</span>
+                          <span className="pct">({percent}%)</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Three-Column Insights Row */}
+          <div className="admin-analytics-three-grid">
+            {/* Revenue Trend Bars */}
+            <div className="admin-analytics-card">
+              <div className="card-header">
+                <div>
+                  <h3>Monthly Revenue Trend</h3>
+                  <p>Recurring billing cash flow</p>
+                </div>
+                <CircleDollarSign size={18} className="text-muted" />
+              </div>
+
+              <div className="revenue-bars-container">
+                {revenueData.map((item, index) => {
+                  const maxRev = Math.max(...revenueData.map(r => r.revenue));
+                  const heightPct = Math.round((item.revenue / maxRev) * 100);
+                  const isHovered = hoveredBar === index;
+
+                  return (
+                    <div
+                      key={item.month}
+                      className="rev-col-wrapper"
+                      onMouseEnter={() => setHoveredBar(index)}
+                      onMouseLeave={() => setHoveredBar(null)}
+                    >
+                      {isHovered && (
+                        <div className="bar-tooltip">
+                          ${(item.revenue / 1000).toFixed(1)}k
+                        </div>
+                      )}
+                      <div className="rev-bar-track">
+                        <div
+                          className={`rev-bar-fill ${isHovered ? "active" : ""}`}
+                          style={{ height: `${heightPct}%` }}
+                        />
+                      </div>
+                      <span className="rev-col-label">{item.month}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Plan Distribution */}
+            <div className="admin-analytics-card">
+              <div className="card-header">
+                <div>
+                  <h3>Subscription Tier Mix</h3>
+                  <p>Paid seats vs enterprise licenses</p>
+                </div>
+                <Layers size={18} className="text-muted" />
+              </div>
+
+              <div className="plan-bars-list">
+                {planDistribution.map((plan) => {
+                  const totalPlans = planDistribution.reduce((a, b) => a + b.value, 0);
+                  const pct = Math.round((plan.value / totalPlans) * 100);
+
+                  return (
+                    <div key={plan.name} className="plan-item-box">
+                      <div className="plan-header-row">
+                        <div className="plan-name-badge">
+                          <span className={`plan-dot ${plan.name.toLowerCase()}`} />
+                          <span className="plan-title">{plan.name}</span>
+                        </div>
+                        <div className="plan-nums">
+                          <strong>{plan.value}</strong>
+                          <span className="pct">({pct}%)</span>
+                        </div>
+                      </div>
+                      <div className="plan-progress-track">
+                        <div
+                          className={`plan-progress-fill ${plan.name.toLowerCase()}`}
+                          style={{ width: `${pct}%` }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Weekly Velocity Activity */}
+            <div className="admin-analytics-card">
+              <div className="card-header">
+                <div>
+                  <h3>Weekly Task Activity</h3>
+                  <p>Daily volume of created vs completed tasks</p>
+                </div>
+                <Zap size={18} className="text-muted" />
+              </div>
+
+              <div className="activity-bars-container">
+                {activityData.map((act) => {
+                  const maxAct = 120;
+                  const createdH = Math.round((act.created / maxAct) * 100);
+                  const doneH = Math.round((act.completed / maxAct) * 100);
+
+                  return (
+                    <div key={act.day} className="act-col-wrapper">
+                      <div className="act-dual-bars">
+                        <div
+                          className="act-bar created"
+                          style={{ height: `${createdH}%` }}
+                          title={`Created: ${act.created}`}
+                        />
+                        <div
+                          className="act-bar done"
+                          style={{ height: `${doneH}%` }}
+                          title={`Completed: ${act.completed}`}
+                        />
+                      </div>
+                      <span className="act-col-label">{act.day}</span>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div className="activity-footer-legend">
+                <div className="legend-item">
+                  <span className="legend-box purple" />
+                  <span>Created</span>
+                </div>
+                <div className="legend-item">
+                  <span className="legend-box emerald" />
+                  <span>Completed</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom Grid: Workspaces Performance & System Metrics */}
+          <div className="admin-analytics-bottom-grid">
+            {/* Top Workspaces Table */}
+            <div className="admin-analytics-card workspace-table-card">
+              <div className="card-header">
+                <div>
+                  <h3>Top Performing Workspaces</h3>
+                  <p>Workspaces ranked by team member engagement and output</p>
+                </div>
+                <button
+                  className="table-action-link"
+                  onClick={() => navigate("/admin/workspaces")}
+                >
+                  <span>View All Workspaces</span>
+                  <ArrowUpRight size={15} />
                 </button>
               </div>
 
-              <div className="admin-analytics-workspace-toolbar">
-                <div>
-                  <Search
-                    size={15}
-                  />
-
+              {/* Table Toolbar */}
+              <div className="table-toolbar">
+                <div className="table-search">
+                  <Search size={15} />
                   <input
-                    value={search}
-                    onChange={(
-                      event
-                    ) =>
-                      setSearch(
-                        event.target
-                          .value
-                      )
-                    }
-                    placeholder="Search workspace..."
+                    type="text"
+                    placeholder="Search top workspaces..."
+                    value={workspaceSearch}
+                    onChange={(e) => setWorkspaceSearch(e.target.value)}
                   />
-
-                  {search && (
-                    <button
-                      type="button"
-                      className="admin-analytics-table-search-clear"
-                      onClick={() =>
-                        setSearch(
-                          ""
-                        )
-                      }
-                    >
-                      <X
-                        size={13}
-                      />
-                    </button>
-                  )}
                 </div>
 
-                <select
-                  value={
-                    workspaceType
-                  }
-                  onChange={(
-                    event
-                  ) =>
-                    setWorkspaceType(
-                      event.target
-                        .value
-                    )
-                  }
-                >
-                  <option value="All">
-                    All Plans
-                  </option>
-
-                  <option value="Free">
-                    Free
-                  </option>
-
-                  <option value="Pro">
-                    Pro
-                  </option>
-
-                  <option value="Business">
-                    Business
-                  </option>
-
-                  <option value="Enterprise">
-                    Enterprise
-                  </option>
-                </select>
+                <div className="table-filter">
+                  <Filter size={14} />
+                  <select
+                    value={deptFilter}
+                    onChange={(e) => setDeptFilter(e.target.value)}
+                  >
+                    <option value="all">All Departments</option>
+                    <option value="engineering">Engineering</option>
+                    <option value="product">Product</option>
+                    <option value="marketing">Marketing</option>
+                    <option value="sales">Sales</option>
+                    <option value="operations">Operations</option>
+                  </select>
+                </div>
               </div>
 
-              <div className="admin-analytics-table-wrapper">
+              <div className="table-container">
                 <table className="admin-analytics-table">
                   <thead>
                     <tr>
-                      <th>
-                        WORKSPACE
-                      </th>
-
-                      <th>
-                        MEMBERS
-                      </th>
-
-                      <th>
-                        PROJECTS
-                      </th>
-
-                      <th>
-                        TASKS
-                      </th>
-
-                      <th>
-                        PLAN
-                      </th>
-
-                      <th>
-                        GROWTH
-                      </th>
+                      <th>WORKSPACE</th>
+                      <th>DEPARTMENT</th>
+                      <th>PLAN</th>
+                      <th>MEMBERS</th>
+                      <th>STORAGE USED</th>
+                      <th>HEALTH SCORE</th>
                     </tr>
                   </thead>
-
                   <tbody>
-                    {filteredWorkspaces.length >
-                    0 ? (
-                      filteredWorkspaces.map(
-                        (
-                          workspace
-                        ) => (
-                          <tr
-                            key={
-                              workspace.id
-                            }
-                            onClick={() =>
-                              goTo(
-                                "/admin/workspaces"
-                              )
-                            }
-                          >
-                            <td>
-                              <div className="admin-analytics-workspace-name">
-                                <div>
-                                  {workspace.name
-                                    .charAt(
-                                      0
-                                    )
-                                    .toUpperCase()}
-                                </div>
-
-                                <span>
-                                  <strong>
-                                    {
-                                      workspace.name
-                                    }
-                                  </strong>
-
-                                  <small>
-                                    {
-                                      workspace.owner
-                                    }
-                                  </small>
-                                </span>
-                              </div>
-                            </td>
-
-                            <td>
-                              {
-                                workspace.members
-                              }
-                            </td>
-
-                            <td>
-                              {
-                                workspace.projects
-                              }
-                            </td>
-
-                            <td>
-                              {
-                                workspace.tasks
-                              }
-                            </td>
-
-                            <td>
-                              <span
-                                className={`admin-analytics-plan ${String(
-                                  workspace.plan
-                                ).toLowerCase()}`}
-                              >
-                                {
-                                  workspace.plan
-                                }
-                              </span>
-                            </td>
-
-                            <td>
-                              <span className="admin-analytics-growth">
-                                <TrendingUp
-                                  size={
-                                    12
-                                  }
-                                />
-
-                                {
-                                  workspace.growth
-                                }
-                                %
-                              </span>
-                            </td>
-                          </tr>
-                        )
-                      )
-                    ) : (
+                    {filteredWorkspaces.length === 0 ? (
                       <tr>
-                        <td
-                          colSpan="6"
-                          className="admin-analytics-no-results"
-                        >
-                          No workspaces
-                          match your
-                          filters.
+                        <td colSpan="6" className="empty-cell">
+                          No workspaces match your query.
                         </td>
                       </tr>
+                    ) : (
+                      filteredWorkspaces.map((ws) => (
+                        <tr key={ws.name}>
+                          <td>
+                            <div className="workspace-name-cell">
+                              <span className="ws-avatar">{ws.name.slice(0, 2).toUpperCase()}</span>
+                              <span className="ws-title">{ws.name}</span>
+                            </div>
+                          </td>
+                          <td>
+                            <span className="dept-pill">{ws.department}</span>
+                          </td>
+                          <td>
+                            <span className={`plan-badge ${ws.plan.toLowerCase()}`}>{ws.plan}</span>
+                          </td>
+                          <td>
+                            <span className="members-count">{ws.users} seats</span>
+                          </td>
+                          <td>
+                            <div className="storage-meter">
+                              <div className="meter-track">
+                                <div
+                                  className="meter-fill"
+                                  style={{ width: `${Math.min(ws.storage, 100)}%` }}
+                                />
+                              </div>
+                              <span className="meter-val">{ws.storage}%</span>
+                            </div>
+                          </td>
+                          <td>
+                            <div className="health-score-cell">
+                              <span className="score-val">{ws.activity}%</span>
+                              <span className="score-status good">Optimal</span>
+                            </div>
+                          </td>
+                        </tr>
+                      ))
                     )}
                   </tbody>
                 </table>
               </div>
-            </article>
+            </div>
 
-            {/* SYSTEM HEALTH */}
-
-            <article className="admin-analytics-card">
-              <div className="admin-analytics-card-header">
+            {/* System Health Card */}
+            <div className="admin-analytics-card system-health-card">
+              <div className="card-header">
                 <div>
-                  <h3>
-                    System Performance
-                  </h3>
-
-                  <p>
-                    Live service health
-                    overview
-                  </p>
+                  <h3>Infrastructure Telemetry</h3>
+                  <p>Resource utilization & uptime</p>
                 </div>
-
-                <span className="admin-analytics-system-live">
-                  <i />
-                  LIVE
-                </span>
+                <Cpu size={18} className="text-muted" />
               </div>
 
-              <div className="admin-analytics-health-list">
-                {systemMetrics.map(
-                  (
-                    metric,
-                    index
-                  ) => (
-                    <SystemMetric
-                      key={
-                        metric.name
-                      }
-                      metric={
-                        metric
-                      }
-                      index={
-                        index
-                      }
-                    />
-                  )
-                )}
+              <div className="system-metrics-list">
+                {systemMetrics.map((metric) => {
+                  let statusColor = "green";
+                  if (metric.value > 80) statusColor = "amber";
+                  if (metric.value > 90) statusColor = "red";
+
+                  return (
+                    <div key={metric.name} className="system-metric-row">
+                      <div className="metric-info-row">
+                        <span className="metric-name">{metric.name}</span>
+                        <div className="metric-val-wrap">
+                          <span className={`metric-tag ${statusColor}`}>
+                            {metric.value < 75 ? "Normal" : metric.value < 85 ? "Moderate" : "High"}
+                          </span>
+                          <strong className="metric-percent">{metric.value}%</strong>
+                        </div>
+                      </div>
+                      <div className="metric-track">
+                        <div
+                          className={`metric-fill ${statusColor}`}
+                          style={{ width: `${metric.value}%` }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
 
-              <div className="admin-analytics-health-summary">
-                <div>
-                  <CheckCircle2
-                    size={19}
-                  />
-                </div>
-
-                <span>
-                  <strong>
-                    All systems
-                    operational
-                  </strong>
-
-                  <small>
-                    No incidents
-                    reported
-                  </small>
-                </span>
+              <div className="system-status-footer">
+                <CheckCircle2 size={16} className="text-success" />
+                <span>All platform clusters operating within normal limits.</span>
               </div>
-            </article>
-          </section>
-
-          <div className="admin-analytics-updated">
-            <span className="admin-analytics-live-dot" />
-
-            Live data · Last updated{" "}
-            {lastUpdated.toLocaleTimeString(
-              [],
-              {
-                hour: "2-digit",
-                minute: "2-digit",
-                second:
-                  "2-digit",
-              }
-            )}
+            </div>
           </div>
         </div>
       </main>
     </div>
   );
 }
-
-/* =========================================================
-   KPI CARD
-========================================================= */
-
-function KpiCard({
-  title,
-  value,
-  change,
-  description,
-  icon: Icon,
-  type,
-  onClick,
-}) {
-  return (
-    <button
-      type="button"
-      className="admin-analytics-kpi"
-      onClick={onClick}
-    >
-      <div
-        className={`admin-analytics-kpi-icon ${type}`}
-      >
-        <Icon size={20} />
-      </div>
-
-      <div className="admin-analytics-kpi-info">
-        <span>{title}</span>
-
-        <strong>{value}</strong>
-
-        <small>
-          <b>{change}</b>{" "}
-          {description}
-        </small>
-      </div>
-
-      <TrendingUp className="admin-analytics-kpi-trend" />
-
-      <ArrowUpRight className="admin-analytics-kpi-arrow" />
-    </button>
-  );
-}
-
-/* =========================================================
-   CHART CARD
-========================================================= */
-
-function ChartCard({
-  title,
-  subtitle,
-  icon: Icon,
-  children,
-  className = "",
-}) {
-  return (
-    <article
-      className={`admin-analytics-card ${className}`}
-    >
-      <div className="admin-analytics-card-header">
-        <div>
-          <h3>
-            <Icon size={17} />
-            {title}
-          </h3>
-
-          <p>{subtitle}</p>
-        </div>
-
-        <span className="admin-analytics-chart-live">
-          <i />
-          Live
-        </span>
-      </div>
-
-      {children}
-    </article>
-  );
-}
-
-/* =========================================================
-   LINE CHART
-========================================================= */
-
-function LineChart({ data }) {
-  const [hovered, setHovered] =
-    useState(null);
-
-  const width = 700;
-  const height = 230;
-  const padding = 35;
-
-  const maxValue =
-    Math.max(
-      ...data.flatMap(
-        (item) => [
-          item.users,
-          item.active,
-        ]
-      ),
-      1
-    ) * 1.12;
-
-  const getX = (index) =>
-    padding +
-    (index *
-      (width - padding * 2)) /
-      Math.max(
-        data.length - 1,
-        1
-      );
-
-  const getY = (value) =>
-    height -
-    padding -
-    (value / maxValue) *
-      (height - padding * 2);
-
-  const userPoints = data
-    .map(
-      (item, index) =>
-        `${getX(
-          index
-        )},${getY(
-          item.users
-        )}`
-    )
-    .join(" ");
-
-  const activePoints = data
-    .map(
-      (item, index) =>
-        `${getX(
-          index
-        )},${getY(
-          item.active
-        )}`
-    )
-    .join(" ");
-
-  return (
-    <div className="admin-analytics-line-chart">
-      <div className="admin-analytics-chart-legend">
-        <span>
-          <i className="users" />
-          Total Users
-        </span>
-
-        <span>
-          <i className="active" />
-          Active Users
-        </span>
-      </div>
-
-      <div className="admin-analytics-svg-wrapper">
-        <svg
-          viewBox={`0 0 ${width} ${height}`}
-          preserveAspectRatio="none"
-        >
-          {[0, 1, 2, 3, 4].map(
-            (line) => {
-              const y =
-                padding +
-                (line *
-                  (height -
-                    padding *
-                      2)) /
-                  4;
-
-              return (
-                <line
-                  key={line}
-                  x1={padding}
-                  y1={y}
-                  x2={
-                    width -
-                    padding
-                  }
-                  y2={y}
-                  className="admin-analytics-grid-line"
-                />
-              );
-            }
-          )}
-
-          <polyline
-            points={userPoints}
-            className="admin-analytics-users-line"
-          />
-
-          <polyline
-            points={activePoints}
-            className="admin-analytics-active-line"
-          />
-
-          {data.map(
-            (item, index) => (
-              <React.Fragment
-                key={
-                  item.label
-                }
-              >
-                <circle
-                  cx={getX(
-                    index
-                  )}
-                  cy={getY(
-                    item.users
-                  )}
-                  r={
-                    hovered?.index ===
-                      index &&
-                    hovered?.type ===
-                      "users"
-                      ? 7
-                      : 4
-                  }
-                  className="admin-analytics-user-point"
-                  onMouseEnter={() =>
-                    setHovered({
-                      index,
-                      type: "users",
-                      item,
-                    })
-                  }
-                  onMouseLeave={() =>
-                    setHovered(
-                      null
-                    )
-                  }
-                />
-
-                <circle
-                  cx={getX(
-                    index
-                  )}
-                  cy={getY(
-                    item.active
-                  )}
-                  r={
-                    hovered?.index ===
-                      index &&
-                    hovered?.type ===
-                      "active"
-                      ? 7
-                      : 4
-                  }
-                  className="admin-analytics-active-point"
-                  onMouseEnter={() =>
-                    setHovered({
-                      index,
-                      type: "active",
-                      item,
-                    })
-                  }
-                  onMouseLeave={() =>
-                    setHovered(
-                      null
-                    )
-                  }
-                />
-              </React.Fragment>
-            )
-          )}
-        </svg>
-
-        {hovered && (
-          <div
-            className="admin-analytics-chart-tooltip"
-            style={{
-              left: `${Math.min(
-                Math.max(
-                  (getX(
-                    hovered.index
-                  ) /
-                    width) *
-                    100,
-                  10
-                ),
-                86
-              )}%`,
-              top: `${Math.max(
-                (getY(
-                  hovered.type ===
-                    "users"
-                    ? hovered.item
-                        .users
-                    : hovered.item
-                        .active
-                ) /
-                  height) *
-                  100 -
-                  8,
-                5
-              )}%`,
-            }}
-          >
-            <strong>
-              {
-                hovered.item
-                  .label
-              }
-            </strong>
-
-            <span>
-              Total:{" "}
-              {hovered.item.users.toLocaleString()}
-            </span>
-
-            <span>
-              Active:{" "}
-              {hovered.item.active.toLocaleString()}
-            </span>
-          </div>
-        )}
-      </div>
-
-      <div className="admin-analytics-chart-labels">
-        {data.map((item) => (
-          <span key={item.label}>
-            {item.label}
-          </span>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-/* =========================================================
-   DONUT CHART
-========================================================= */
-
-function DonutChart({ data }) {
-  const [selected, setSelected] =
-    useState(null);
-
-  const total = data.reduce(
-    (sum, item) =>
-      sum + item.value,
-    0
-  );
-
-  const colors = [
-    "#6338f5",
-    "#168df7",
-    "#08b978",
-    "#ff9f1a",
-    "#f33b65",
-    "#c6cad4",
-  ];
-
-    const gradient = data
-    .reduce(
-      (acc, item, index) => {
-        const prevTotal = acc.sum;
-        const nextTotal = prevTotal + item.value;
-        const start = (prevTotal / total) * 100;
-        const end = (nextTotal / total) * 100;
-        return {
-          sum: nextTotal,
-          segments: [...acc.segments, `${colors[index]} ${start}% ${end}%`],
-        };
-      },
-      { sum: 0, segments: [] }
-    )
-    .segments.join(",");
-
-  const activeItem =
-    data.find(
-      (item) =>
-        item.name === selected
-    );
-
-  return (
-    <div className="admin-analytics-donut-layout">
-      <div
-        className={`admin-analytics-donut ${
-          selected
-            ? "is-active"
-            : ""
-        }`}
-        style={{
-          background: `conic-gradient(${gradient})`,
-        }}
-      >
-        <div>
-          <strong>
-            {activeItem
-              ? activeItem.value
-              : total}
-          </strong>
-
-          <span>
-            {activeItem
-              ? activeItem.name
-              : "Total Workspaces"}
-          </span>
-        </div>
-      </div>
-
-      <div className="admin-analytics-donut-legend">
-        {data.map(
-          (item, index) => (
-            <button
-              type="button"
-              key={item.name}
-              className={
-                selected ===
-                item.name
-                  ? "active"
-                  : ""
-              }
-              onMouseEnter={() =>
-                setSelected(
-                  item.name
-                )
-              }
-              onMouseLeave={() =>
-                setSelected(null)
-              }
-              onFocus={() =>
-                setSelected(
-                  item.name
-                )
-              }
-              onBlur={() =>
-                setSelected(null)
-              }
-            >
-              <span>
-                <i
-                  style={{
-                    background:
-                      colors[
-                        index
-                      ],
-                  }}
-                />
-
-                {item.name}
-              </span>
-
-              <strong>
-                {item.value} (
-                {Math.round(
-                  (item.value /
-                    total) *
-                    100
-                )}
-                %)
-              </strong>
-            </button>
-          )
-        )}
-      </div>
-    </div>
-  );
-}
-
-/* =========================================================
-   REVENUE
-========================================================= */
-
-function RevenueChart({ data }) {
-  const [hovered, setHovered] =
-    useState(null);
-
-  const max = Math.max(
-    ...data.map(
-      (item) => item.revenue
-    ),
-    1
-  );
-
-  return (
-    <div className="admin-analytics-revenue-chart">
-      <div className="admin-analytics-revenue-bars">
-        {data.map(
-          (item, index) => (
-            <div
-              className="admin-analytics-revenue-column"
-              key={item.month}
-              onMouseEnter={() =>
-                setHovered(index)
-              }
-              onMouseLeave={() =>
-                setHovered(null)
-              }
-            >
-              <span className="admin-analytics-bar-value">
-                $
-                {(
-                  item.revenue /
-                  1000
-                ).toFixed(1)}
-                k
-              </span>
-
-              <div
-                className={`admin-analytics-revenue-bar ${
-                  hovered ===
-                  index
-                    ? "active"
-                    : ""
-                }`}
-                style={{
-                  height: `${
-                    (item.revenue /
-                      max) *
-                    150
-                  }px`,
-                }}
-              />
-
-              <small>
-                {item.month}
-              </small>
-
-              {hovered ===
-                index && (
-                <div className="admin-analytics-bar-tooltip">
-                  <strong>
-                    {item.month}
-                  </strong>
-
-                  <span>
-                    $
-                    {item.revenue.toLocaleString()}
-                  </span>
-                </div>
-              )}
-            </div>
-          )
-        )}
-      </div>
-    </div>
-  );
-}
-
-/* =========================================================
-   PLAN DISTRIBUTION
-========================================================= */
-
-function PlanDistribution({
-  data,
-}) {
-  const [hovered, setHovered] =
-    useState(null);
-
-  const total = data.reduce(
-    (sum, item) =>
-      sum + item.value,
-    0
-  );
-
-  return (
-    <div className="admin-analytics-plan-list">
-      {data.map((item) => {
-        const percentage =
-          Math.round(
-            (item.value /
-              total) *
-              100
-          );
-
-        return (
-          <div
-            className={`admin-analytics-plan-row ${
-              hovered ===
-              item.name
-                ? "active"
-                : ""
-            }`}
-            key={item.name}
-            onMouseEnter={() =>
-              setHovered(
-                item.name
-              )
-            }
-            onMouseLeave={() =>
-              setHovered(null)
-            }
-          >
-            <div>
-              <span>
-                {item.name}
-              </span>
-
-              <strong>
-                {item.value}
-              </strong>
-            </div>
-
-            <div className="admin-analytics-progress">
-              <span
-                className={item.name.toLowerCase()}
-                style={{
-                  width: `${percentage}%`,
-                }}
-              />
-            </div>
-
-            <small>
-              {percentage}%
-            </small>
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
-/* =========================================================
-   ACTIVITY
-========================================================= */
-
-function ActivityChart({ data }) {
-  const [hovered, setHovered] =
-    useState(null);
-
-  const max = Math.max(
-    ...data.flatMap(
-      (item) => [
-        item.created,
-        item.updated,
-        item.completed,
-      ]
-    ),
-    1
-  );
-
-  return (
-    <div className="admin-analytics-activity">
-      <div className="admin-analytics-activity-bars">
-        {data.map(
-          (item, index) => (
-            <div
-              className="admin-analytics-activity-column"
-              key={item.day}
-              onMouseEnter={() =>
-                setHovered(index)
-              }
-              onMouseLeave={() =>
-                setHovered(null)
-              }
-            >
-              <div
-                className={`admin-analytics-activity-bar-group ${
-                  hovered ===
-                  index
-                    ? "active"
-                    : ""
-                }`}
-              >
-                <span
-                  className="created"
-                  style={{
-                    height: `${
-                      (item.created /
-                        max) *
-                      125
-                    }px`,
-                  }}
-                />
-
-                <span
-                  className="updated"
-                  style={{
-                    height: `${
-                      (item.updated /
-                        max) *
-                      125
-                    }px`,
-                  }}
-                />
-
-                <span
-                  className="completed"
-                  style={{
-                    height: `${
-                      (item.completed /
-                        max) *
-                      125
-                    }px`,
-                  }}
-                />
-              </div>
-
-              <small>
-                {item.day}
-              </small>
-
-              {hovered ===
-                index && (
-                <div className="admin-analytics-activity-tooltip">
-                  <strong>
-                    {item.day}
-                  </strong>
-
-                  <span>
-                    Created:{" "}
-                    {
-                      item.created
-                    }
-                  </span>
-
-                  <span>
-                    Updated:{" "}
-                    {
-                      item.updated
-                    }
-                  </span>
-
-                  <span>
-                    Completed:{" "}
-                    {
-                      item.completed
-                    }
-                  </span>
-                </div>
-              )}
-            </div>
-          )
-        )}
-      </div>
-
-      <div className="admin-analytics-activity-legend">
-        <span>
-          <i className="created" />
-          Created
-        </span>
-
-        <span>
-          <i className="updated" />
-          Updated
-        </span>
-
-        <span>
-          <i className="completed" />
-          Completed
-        </span>
-      </div>
-    </div>
-  );
-}
-
-/* =========================================================
-   SYSTEM METRIC
-========================================================= */
-
-function SystemMetric({
-  metric,
-  index,
-}) {
-  const icons = [
-    Activity,
-    Database,
-    Bot,
-    HardDrive,
-  ];
-
-  const Icon =
-    icons[index] || Activity;
-
-  return (
-    <div className="admin-analytics-system-metric">
-      <div className="admin-analytics-system-icon">
-        <Icon size={17} />
-      </div>
-
-      <div className="admin-analytics-system-info">
-        <div>
-          <span>
-            {metric.name}
-          </span>
-
-          <strong>
-            {metric.value}%
-          </strong>
-        </div>
-
-        <div className="admin-analytics-system-progress">
-          <span
-            style={{
-              width: `${metric.value}%`,
-            }}
-          />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-export default AdminAnalytics;

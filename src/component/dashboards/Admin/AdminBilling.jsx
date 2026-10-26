@@ -25,7 +25,8 @@ import {
   BadgeDollarSign,
 } from "lucide-react";
 
-import AdminSidebar from "../../../layouts/AdminSidebar/AdminSidebar.jsx";
+import AdminSidebar from "./AdminSidebar.jsx";
+import AdminTopbar from "./AdminTopbar.jsx";
 
 import {
   initialTransactions,
@@ -38,6 +39,7 @@ import "./AdminBilling.css";
 const STORAGE_KEY = "teamflow_admin_transactions";
 
 function AdminBilling() {
+  const [mobileOpen, setMobileOpen] = useState(false);
   const [transactions, setTransactions] = useState(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
@@ -244,49 +246,12 @@ function AdminBilling() {
 
   return (
     <div className="admin-billing-shell">
-      <AdminSidebar />
+      <AdminSidebar mobileOpen={mobileOpen} onClose={() => setMobileOpen(false)} />
 
       <main className="admin-billing-main">
         {/* ================= TOPBAR ================= */}
 
-        <header className="admin-billing-topbar">
-          <div className="admin-billing-global-search">
-            <Search size={17} />
-
-            <input
-              type="text"
-              placeholder="Search users, workspaces, projects, or anything..."
-            />
-
-            <span>Ctrl + K</span>
-          </div>
-
-          <div className="admin-billing-top-actions">
-            <button
-              type="button"
-              className="admin-billing-create"
-            >
-              <Plus size={18} />
-
-              Create
-
-              <ChevronDown size={15} />
-            </button>
-
-            <div className="admin-billing-profile">
-              <div className="admin-billing-avatar">
-                HR
-              </div>
-
-              <div>
-                <strong>Himanshu</strong>
-                <span>Super Administrator</span>
-              </div>
-
-              <ChevronDown size={15} />
-            </div>
-          </div>
-        </header>
+        <AdminTopbar onMobileMenuToggle={() => setMobileOpen(true)} />
 
         {/* ================= CONTENT ================= */}
 
@@ -295,10 +260,6 @@ function AdminBilling() {
 
           <section className="admin-billing-heading">
             <div>
-              <div className="admin-billing-breadcrumb">
-                <CreditCard size={15} />
-                ADMIN / BILLING & PAYMENTS
-              </div>
 
               <h1>Billing & Payments</h1>
 

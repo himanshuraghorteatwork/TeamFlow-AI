@@ -1,1017 +1,334 @@
-// src/component/AdminAnnouncements/AdminAnnouncements.jsx
-
 import React, { useEffect, useMemo, useState } from "react";
-
 import {
+  Megaphone,
   Search,
   Plus,
-  ChevronDown,
-  Megaphone,
+  Filter,
   Send,
-  Clock3,
-  FileEdit,
   Eye,
-  Users,
-  MoreVertical,
   Pencil,
   Trash2,
   X,
-  Check,
-  CalendarDays,
+  Users,
+  CheckCircle2,
   AlertTriangle,
   RotateCcw,
-  Radio,
+  Pin,
+  Calendar,
 } from "lucide-react";
 
-import AdminSidebar from "../../../layouts/AdminSidebar/AdminSidebar.jsx";
-
+import AdminSidebar from "./AdminSidebar.jsx";
+import AdminTopbar from "./AdminTopbar.jsx";
 import { initialAnnouncements } from "./adminAnnouncementsData.js";
-
 import "./AdminAnnouncements.css";
 
 const STORAGE_KEY = "teamflow_admin_announcements";
 
-function AdminAnnouncements() {
+const AUDIENCES = ["Entire Organization", "Engineering", "Product & Design", "Marketing", "Leadership"];
+const PRIORITIES = ["Normal", "Important", "Urgent"];
+
+export default function AdminAnnouncements() {
   const [announcements, setAnnouncements] = useState(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
-
-      return saved
-        ? JSON.parse(saved)
-        : initialAnnouncements;
-    } catch {
-      return initialAnnouncements;
-    }
+      if (saved) return JSON.parse(saved);
+    } catch (e) {}
+    return initialAnnouncements;
   });
 
+  const [mobileOpen, setMobileOpen] = useState(false);
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState("All");
   const [audienceFilter, setAudienceFilter] = useState("All");
+  const [showModal, setShowModal] = useState(false);
+  const [editingItem, setEditingItem] = useState(null);
+  const [viewingItem, setViewingItem] = useState(null);
+  const [toast, setToast] = useState(null);
 
-  const [selectedAnnouncement, setSelectedAnnouncement] =
-    useState(null);
-
-  const [editingAnnouncement, setEditingAnnouncement] =
-    useState(null);
-
-  const [menuId, setMenuId] = useState(null);
-
-  const [formMode, setFormMode] = useState("create");
+  const [form, setForm] = useState({
+    title: "",
+    content: "",
+    audience: "Entire Organization",
+    priority: "Normal",
+    pinned: false,
+    author: "Amit Sharma",
+  });
 
   useEffect(() => {
-    localStorage.setItem(
-      STORAGE_KEY,
-      JSON.stringify(announcements)
-    );
-  }, [announcements]);
+    if (toast) {
+      const t = setTimeout(() => setToast(null), 3000);
+      return () => clearTimeout(t);
+    }
+  }, [toast]);
+
+  const showToast = (message) => setToast(message);
+
+  const saveAnnouncements = (newItems) => {
+    setAnnouncements(newItems);
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(newItems));
+    } catch (e) {}
+  };
 
   const filteredAnnouncements = useMemo(() => {
-    return announcements.filter((announcement) => {
-      const query = search.toLowerCase().trim();
-
-      const matchesSearch =
-        !query ||
-        announcement.title
-          .toLowerCase()
-          .includes(query) ||
-        announcement.message
-          .toLowerCase()
-          .includes(query) ||
-        announcement.author
-          .toLowerCase()
-          .includes(query);
-
-      const matchesStatus =
-        statusFilter === "All" ||
-        announcement.status === statusFilter;
-
-      const matchesAudience =
-        audienceFilter === "All" ||
-        announcement.audience === audienceFilter;
-
-      return (
-        matchesSearch &&
-        matchesStatus &&
-        matchesAudience
-      );
+    return announcements.filter((a) => {
+      const term = search.trim().toLowerCase();
+      const matchesSearch = !term || a.title?.toLowerCase().includes(term) || a.content?.toLowerCase().includes(term);
+      const matchesAudience = audienceFilter === "All" || a.audience === audienceFilter;
+      return matchesSearch && matchesAudience;
     });
-  }, [
-    announcements,
-    search,
-    statusFilter,
-    audienceFilter,
-  ]);
+  }, [announcements, search, audienceFilter]);
 
-  const publishedCount = announcements.filter(
-    (item) => item.status === "Published"
-  ).length;
+  const stats = useMemo(() => {
+    const total = announcements.length;
+    const pinned = announcements.filter((a) => a.pinned).length;
+    const urgent = announcements.filter((a) => a.priority === "Urgent").length;
+    return { total, pinned, urgent };
+  }, [announcements]);
 
-  const scheduledCount = announcements.filter(
-    (item) => item.status === "Scheduled"
-  ).length;
-
-  const draftCount = announcements.filter(
-    (item) => item.status === "Draft"
-  ).length;
-
-  const totalViews = announcements.reduce(
-    (total, item) => total + Number(item.views || 0),
-    0
-  );
-
-  const createAnnouncement = () => {
-    setFormMode("create");
-
-    setEditingAnnouncement({
-      id: "",
+  const openCreateModal = () => {
+    setEditingItem(null);
+    setForm({
       title: "",
-      message: "",
-      audience: "All Users",
-      priority: "Medium",
-      status: "Draft",
-      author: "Himanshu",
-      createdAt: "",
-      publishDate: "",
-      views: 0,
+      content: "",
+      audience: "Entire Organization",
+      priority: "Normal",
+      pinned: false,
+      author: "Amit Sharma",
     });
+    setShowModal(true);
   };
 
-  const editAnnouncement = (announcement) => {
-    setFormMode("edit");
-
-    setEditingAnnouncement({
-      ...announcement,
+  const openEditModal = (a) => {
+    setEditingItem(a);
+    setForm({
+      title: a.title || "",
+      content: a.content || "",
+      audience: a.audience || "Entire Organization",
+      priority: a.priority || "Normal",
+      pinned: Boolean(a.pinned),
+      author: a.author || "Amit Sharma",
     });
-
-    setMenuId(null);
+    setShowModal(true);
   };
 
-  const saveAnnouncement = () => {
-    if (!editingAnnouncement.title.trim()) {
-      alert("Please enter announcement title.");
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!form.title.trim()) {
+      alert("Title is required.");
       return;
     }
 
-    if (!editingAnnouncement.message.trim()) {
-      alert("Please enter announcement message.");
-      return;
-    }
-
-    if (
-      editingAnnouncement.status === "Scheduled" &&
-      !editingAnnouncement.publishDate
-    ) {
-      alert("Please select a scheduled publish date.");
-      return;
-    }
-
-    if (formMode === "create") {
-      const newAnnouncement = {
-        ...editingAnnouncement,
-
-        id: `ANN-${Date.now()
-          .toString()
-          .slice(-6)}`,
-
-        createdAt: new Date().toLocaleDateString(
-          "en-US",
-          {
-            month: "short",
-            day: "2-digit",
-            year: "numeric",
-          }
-        ),
-
-        publishDate:
-          editingAnnouncement.status === "Published"
-            ? new Date().toLocaleDateString("en-US", {
-                month: "short",
-                day: "2-digit",
-                year: "numeric",
-              })
-            : editingAnnouncement.status === "Draft"
-            ? "—"
-            : editingAnnouncement.publishDate,
-
-        views: 0,
-      };
-
-      setAnnouncements((previous) => [
-        newAnnouncement,
-        ...previous,
-      ]);
+    if (editingItem) {
+      const updated = announcements.map((a) => (a.id === editingItem.id ? { ...a, ...form } : a));
+      saveAnnouncements(updated);
+      showToast("Announcement updated.");
     } else {
-      setAnnouncements((previous) =>
-        previous.map((item) =>
-          item.id === editingAnnouncement.id
-            ? editingAnnouncement
-            : item
-        )
-      );
+      const newItem = {
+        id: Date.now(),
+        ...form,
+        date: new Date().toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" }),
+      };
+      saveAnnouncements([newItem, ...announcements]);
+      showToast("Announcement broadcasted.");
     }
-
-    setEditingAnnouncement(null);
+    setShowModal(false);
   };
 
-  const publishAnnouncement = (id) => {
-    const currentDate = new Date().toLocaleDateString(
-      "en-US",
-      {
-        month: "short",
-        day: "2-digit",
-        year: "numeric",
-      }
-    );
-
-    setAnnouncements((previous) =>
-      previous.map((item) =>
-        item.id === id
-          ? {
-              ...item,
-              status: "Published",
-              publishDate: currentDate,
-            }
-          : item
-      )
-    );
-
-    setMenuId(null);
+  const togglePin = (id) => {
+    const updated = announcements.map((a) => (a.id === id ? { ...a, pinned: !a.pinned } : a));
+    saveAnnouncements(updated);
+    showToast("Pin status updated.");
   };
 
-  const moveToDraft = (id) => {
-    setAnnouncements((previous) =>
-      previous.map((item) =>
-        item.id === id
-          ? {
-              ...item,
-              status: "Draft",
-              publishDate: "—",
-            }
-          : item
-      )
-    );
-
-    setMenuId(null);
-  };
-
-  const deleteAnnouncement = (id) => {
-    const confirmed = window.confirm(
-      "Are you sure you want to delete this announcement?"
-    );
-
+  const deleteItem = (id) => {
+    const confirmed = window.confirm("Delete this announcement?");
     if (!confirmed) return;
-
-    setAnnouncements((previous) =>
-      previous.filter((item) => item.id !== id)
-    );
-
-    setMenuId(null);
-  };
-
-  const openAnnouncement = (announcement) => {
-    setSelectedAnnouncement(announcement);
-
-    if (
-      announcement.status === "Published" &&
-      announcement.views === 0
-    ) {
-      setAnnouncements((previous) =>
-        previous.map((item) =>
-          item.id === announcement.id
-            ? {
-                ...item,
-                views: item.views + 1,
-              }
-            : item
-        )
-      );
-    }
-
-    setMenuId(null);
-  };
-
-  const resetAnnouncements = () => {
-    const confirmed = window.confirm(
-      "Reset announcement demo data?"
-    );
-
-    if (!confirmed) return;
-
-    setAnnouncements(initialAnnouncements);
-    setSearch("");
-    setStatusFilter("All");
-    setAudienceFilter("All");
+    saveAnnouncements(announcements.filter((a) => a.id !== id));
+    showToast("Announcement deleted.");
   };
 
   return (
-    <div className="admin-announcements-shell">
-      <AdminSidebar />
+    <div className="admin-ann-app">
+      <AdminSidebar mobileOpen={mobileOpen} onClose={() => setMobileOpen(false)} />
 
-      <main className="admin-announcements-main">
-        {/* ================= TOPBAR ================= */}
+      <div className="admin-ann-main">
+        <AdminTopbar onMobileMenuToggle={() => setMobileOpen(true)} />
 
-        <header className="admin-announcements-topbar">
-          <div className="admin-announcements-global-search">
-            <Search size={17} />
-
-            <input
-              type="text"
-              placeholder="Search users, workspaces, projects, or anything..."
-            />
-
-            <span>Ctrl + K</span>
+        {toast && (
+          <div className="admin-ann-toast">
+            <CheckCircle2 size={16} />
+            <span>{toast}</span>
           </div>
+        )}
 
-          <div className="admin-announcements-top-actions">
-            <button
-              className="admin-announcements-create-top"
-              onClick={createAnnouncement}
-            >
-              <Plus size={17} />
-              Create
-              <ChevronDown size={14} />
-            </button>
-
-            <div className="admin-announcements-profile">
-              <div className="admin-announcements-avatar">
-                HR
-              </div>
-
-              <div>
-                <strong>Himanshu</strong>
-                <span>Super Administrator</span>
-              </div>
-
-              <ChevronDown size={15} />
-            </div>
-          </div>
-        </header>
-
-        {/* ================= CONTENT ================= */}
-
-        <div className="admin-announcements-content">
-          {/* PAGE HEADER */}
-
-          <section className="admin-announcements-heading">
+        <main className="admin-ann-content">
+          <section className="admin-ann-heading">
             <div>
-              <div className="admin-announcements-breadcrumb">
-                <Megaphone size={15} />
-                ADMIN / ANNOUNCEMENTS
-              </div>
-
-              <h1>Announcements</h1>
-
-              <p>
-                Create and manage platform-wide messages,
-                updates and important notices.
-              </p>
+              <h1>Broadcast Announcements</h1>
+              <p>Publish critical organization notices, company-wide releases, and policy alerts.</p>
             </div>
 
-            <button
-              className="admin-announcements-primary-button"
-              onClick={createAnnouncement}
-            >
-              <Plus size={16} />
-              New Announcement
+            <button type="button" className="btn-primary" onClick={openCreateModal}>
+              <Plus size={17} />
+              <span>Post Announcement</span>
             </button>
           </section>
 
-          {/* ================= STATS ================= */}
-
-          <section className="admin-announcements-stats">
-            <StatCard
-              title="Total Announcements"
-              value={announcements.length}
-              description="All announcements"
-              icon={Megaphone}
-              type="purple"
-            />
-
-            <StatCard
-              title="Published"
-              value={publishedCount}
-              description="Currently published"
-              icon={Send}
-              type="green"
-            />
-
-            <StatCard
-              title="Scheduled"
-              value={scheduledCount}
-              description="Waiting to publish"
-              icon={Clock3}
-              type="blue"
-            />
-
-            <StatCard
-              title="Drafts"
-              value={draftCount}
-              description="Not published"
-              icon={FileEdit}
-              type="orange"
-            />
-
-            <StatCard
-              title="Total Views"
-              value={totalViews.toLocaleString()}
-              description="Announcement reach"
-              icon={Eye}
-              type="pink"
-            />
+          {/* STATS */}
+          <section className="admin-ann-stats">
+            <div className="ann-stat-card">
+              <Megaphone size={22} className="stat-icon purple" />
+              <div>
+                <span>Total Notices</span>
+                <strong>{stats.total}</strong>
+              </div>
+            </div>
+            <div className="ann-stat-card">
+              <Pin size={22} className="stat-icon blue" />
+              <div>
+                <span>Pinned Announcements</span>
+                <strong>{stats.pinned}</strong>
+              </div>
+            </div>
+            <div className="ann-stat-card">
+              <AlertTriangle size={22} className="stat-icon red" />
+              <div>
+                <span>Urgent Alerts</span>
+                <strong>{stats.urgent}</strong>
+              </div>
+            </div>
           </section>
 
-          {/* ================= ANNOUNCEMENT PANEL ================= */}
-
-          <section className="admin-announcements-panel">
-            <div className="admin-announcements-panel-header">
-              <div>
-                <h3>All Announcements</h3>
-                <p>
-                  Manage announcements sent across
-                  TeamFlow AI.
-                </p>
-              </div>
-
-              <button onClick={resetAnnouncements}>
-                <RotateCcw size={14} />
-                Reset Demo Data
-              </button>
+          {/* TOOLBAR */}
+          <section className="admin-ann-toolbar">
+            <div className="admin-ann-search">
+              <Search size={17} />
+              <input
+                type="text"
+                placeholder="Search announcements by title or content..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+              {search && <button type="button" className="clear-btn" onClick={() => setSearch("")}><X size={14} /></button>}
             </div>
 
-            {/* FILTERS */}
-
-            <div className="admin-announcements-toolbar">
-              <div className="admin-announcements-search">
-                <Search size={16} />
-
-                <input
-                  value={search}
-                  onChange={(event) =>
-                    setSearch(event.target.value)
-                  }
-                  placeholder="Search announcements..."
-                />
-              </div>
-
-              <select
-                value={statusFilter}
-                onChange={(event) =>
-                  setStatusFilter(event.target.value)
-                }
-              >
-                <option value="All">
-                  All Status
-                </option>
-                <option value="Published">
-                  Published
-                </option>
-                <option value="Scheduled">
-                  Scheduled
-                </option>
-                <option value="Draft">
-                  Draft
-                </option>
-              </select>
-
-              <select
-                value={audienceFilter}
-                onChange={(event) =>
-                  setAudienceFilter(event.target.value)
-                }
-              >
-                <option value="All">
-                  All Audiences
-                </option>
-                <option value="All Users">
-                  All Users
-                </option>
-                <option value="Admins">
-                  Admins
-                </option>
-                <option value="Workspace Owners">
-                  Workspace Owners
-                </option>
-                <option value="Team Leads">
-                  Team Leads
-                </option>
-                <option value="Members">
-                  Members
-                </option>
-                <option value="Paid Users">
-                  Paid Users
-                </option>
-              </select>
-            </div>
-
-            <div className="admin-announcements-count">
-              Showing {filteredAnnouncements.length} of{" "}
-              {announcements.length} announcements
-            </div>
-
-            {/* ================= CARDS ================= */}
-
-            <div className="admin-announcements-list">
-              {filteredAnnouncements.map(
-                (announcement) => (
-                  <article
-                    className="admin-announcement-card"
-                    key={announcement.id}
-                  >
-                    <div
-                      className={`admin-announcement-icon ${announcement.priority.toLowerCase()}`}
-                    >
-                      <Megaphone size={20} />
-                    </div>
-
-                    <div className="admin-announcement-card-content">
-                      <div className="admin-announcement-title-row">
-                        <div>
-                          <h3>
-                            {announcement.title}
-                          </h3>
-
-                          <div className="admin-announcement-badges">
-                            <StatusBadge
-                              status={
-                                announcement.status
-                              }
-                            />
-
-                            <PriorityBadge
-                              priority={
-                                announcement.priority
-                              }
-                            />
-                          </div>
-                        </div>
-
-                        <div className="admin-announcement-menu-wrap">
-                          <button
-                            className="admin-announcement-more"
-                            onClick={() =>
-                              setMenuId(
-                                menuId ===
-                                  announcement.id
-                                  ? null
-                                  : announcement.id
-                              )
-                            }
-                          >
-                            <MoreVertical
-                              size={18}
-                            />
-                          </button>
-
-                          {menuId ===
-                            announcement.id && (
-                            <div className="admin-announcement-menu">
-                              <button
-                                onClick={() =>
-                                  openAnnouncement(
-                                    announcement
-                                  )
-                                }
-                              >
-                                <Eye size={14} />
-                                View
-                              </button>
-
-                              <button
-                                onClick={() =>
-                                  editAnnouncement(
-                                    announcement
-                                  )
-                                }
-                              >
-                                <Pencil size={14} />
-                                Edit
-                              </button>
-
-                              {announcement.status !==
-                                "Published" && (
-                                <button
-                                  onClick={() =>
-                                    publishAnnouncement(
-                                      announcement.id
-                                    )
-                                  }
-                                >
-                                  <Send size={14} />
-                                  Publish Now
-                                </button>
-                              )}
-
-                              {announcement.status ===
-                                "Published" && (
-                                <button
-                                  onClick={() =>
-                                    moveToDraft(
-                                      announcement.id
-                                    )
-                                  }
-                                >
-                                  <FileEdit
-                                    size={14}
-                                  />
-                                  Move to Draft
-                                </button>
-                              )}
-
-                              <button
-                                className="delete"
-                                onClick={() =>
-                                  deleteAnnouncement(
-                                    announcement.id
-                                  )
-                                }
-                              >
-                                <Trash2 size={14} />
-                                Delete
-                              </button>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-
-                      <p className="admin-announcement-message">
-                        {announcement.message}
-                      </p>
-
-                      <div className="admin-announcement-meta">
-                        <span>
-                          <Users size={13} />
-                          {announcement.audience}
-                        </span>
-
-                        <span>
-                          <CalendarDays size={13} />
-                          {announcement.publishDate}
-                        </span>
-
-                        <span>
-                          <Eye size={13} />
-                          {announcement.views} views
-                        </span>
-
-                        <span>
-                          By {announcement.author}
-                        </span>
-                      </div>
-                    </div>
-                  </article>
-                )
-              )}
-
-              {filteredAnnouncements.length === 0 && (
-                <div className="admin-announcements-empty">
-                  <Megaphone size={45} />
-
-                  <h3>
-                    No announcements found
-                  </h3>
-
-                  <p>
-                    Try changing your search or
-                    filters.
-                  </p>
-
-                  <button
-                    onClick={createAnnouncement}
-                  >
-                    <Plus size={15} />
-                    Create Announcement
-                  </button>
-                </div>
-              )}
-            </div>
+            <select value={audienceFilter} onChange={(e) => setAudienceFilter(e.target.value)}>
+              <option value="All">All Audiences</option>
+              {AUDIENCES.map((aud) => (
+                <option key={aud} value={aud}>{aud}</option>
+              ))}
+            </select>
           </section>
-        </div>
-      </main>
 
-      {/* ================= CREATE / EDIT MODAL ================= */}
+          {/* ANNOUNCEMENTS LIST */}
+          <div className="announcements-feed">
+            {filteredAnnouncements.map((a) => (
+              <div key={a.id} className={`announcement-card ${a.pinned ? "pinned" : ""}`}>
+                <div className="ann-header">
+                  <div className="ann-header-left">
+                    {a.pinned && <span className="pinned-badge"><Pin size={12} /> Pinned</span>}
+                    <span className={`priority-badge ${a.priority?.toLowerCase()}`}>{a.priority}</span>
+                    <span className="audience-badge">{a.audience}</span>
+                  </div>
 
-      {editingAnnouncement && (
-        <div className="admin-announcements-modal-overlay">
-          <div className="admin-announcements-modal">
-            <div className="admin-announcements-modal-header">
-              <div>
-                <h2>
-                  {formMode === "create"
-                    ? "Create Announcement"
-                    : "Edit Announcement"}
-                </h2>
-
-                <p>
-                  Send an update to TeamFlow AI
-                  users.
-                </p>
-              </div>
-
-              <button
-                onClick={() =>
-                  setEditingAnnouncement(null)
-                }
-              >
-                <X size={20} />
-              </button>
-            </div>
-
-            <div className="admin-announcements-form">
-              <label>
-                Announcement Title
-
-                <input
-                  type="text"
-                  value={
-                    editingAnnouncement.title
-                  }
-                  onChange={(event) =>
-                    setEditingAnnouncement({
-                      ...editingAnnouncement,
-                      title: event.target.value,
-                    })
-                  }
-                  placeholder="Enter announcement title"
-                />
-              </label>
-
-              <label>
-                Message
-
-                <textarea
-                  value={
-                    editingAnnouncement.message
-                  }
-                  onChange={(event) =>
-                    setEditingAnnouncement({
-                      ...editingAnnouncement,
-                      message: event.target.value,
-                    })
-                  }
-                  placeholder="Write your announcement..."
-                  rows="6"
-                />
-
-                <small>
-                  {
-                    editingAnnouncement.message
-                      .length
-                  }{" "}
-                  characters
-                </small>
-              </label>
-
-              <div className="admin-announcements-form-grid">
-                <label>
-                  Audience
-
-                  <select
-                    value={
-                      editingAnnouncement.audience
-                    }
-                    onChange={(event) =>
-                      setEditingAnnouncement({
-                        ...editingAnnouncement,
-                        audience:
-                          event.target.value,
-                      })
-                    }
-                  >
-                    <option>All Users</option>
-                    <option>Admins</option>
-                    <option>
-                      Workspace Owners
-                    </option>
-                    <option>Team Leads</option>
-                    <option>Members</option>
-                    <option>Paid Users</option>
-                  </select>
-                </label>
-
-                <label>
-                  Priority
-
-                  <select
-                    value={
-                      editingAnnouncement.priority
-                    }
-                    onChange={(event) =>
-                      setEditingAnnouncement({
-                        ...editingAnnouncement,
-                        priority:
-                          event.target.value,
-                      })
-                    }
-                  >
-                    <option>Low</option>
-                    <option>Medium</option>
-                    <option>High</option>
-                  </select>
-                </label>
-              </div>
-
-              <div className="admin-announcements-form-grid">
-                <label>
-                  Status
-
-                  <select
-                    value={
-                      editingAnnouncement.status
-                    }
-                    onChange={(event) =>
-                      setEditingAnnouncement({
-                        ...editingAnnouncement,
-                        status:
-                          event.target.value,
-                      })
-                    }
-                  >
-                    <option>Draft</option>
-                    <option>Published</option>
-                    <option>Scheduled</option>
-                  </select>
-                </label>
-
-                {editingAnnouncement.status ===
-                  "Scheduled" && (
-                  <label>
-                    Publish Date
-
-                    <input
-                      type="date"
-                      value={
-                        editingAnnouncement.publishDate ===
-                        "—"
-                          ? ""
-                          : editingAnnouncement.publishDate
-                      }
-                      onChange={(event) =>
-                        setEditingAnnouncement({
-                          ...editingAnnouncement,
-                          publishDate:
-                            event.target.value,
-                        })
-                      }
-                    />
-                  </label>
-                )}
-              </div>
-
-              <div className="admin-announcements-preview">
-                <div>
-                  <Radio size={17} />
+                  <div className="ann-actions">
+                    <button type="button" className="action-btn" title="Pin / Unpin" onClick={() => togglePin(a.id)}>
+                      <Pin size={14} />
+                    </button>
+                    <button type="button" className="action-btn" title="Edit" onClick={() => openEditModal(a)}>
+                      <Pencil size={14} />
+                    </button>
+                    <button type="button" className="action-btn delete" title="Delete" onClick={() => deleteItem(a.id)}>
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
                 </div>
 
-                <span>
-                  <strong>
-                    Announcement Preview
-                  </strong>
+                <h3 onClick={() => setViewingItem(a)} className="clickable-title">{a.title}</h3>
+                <p className="ann-text">{a.content}</p>
 
-                  <small>
-                    {editingAnnouncement.title ||
-                      "Your announcement title"}
-
-                    {" — "}
-
-                    {editingAnnouncement.message ||
-                      "Your message will appear here."}
-                  </small>
-                </span>
+                <div className="ann-footer">
+                  <span>Posted by <strong>{a.author || "Amit Sharma"}</strong></span>
+                  <span className="ann-date">{a.date || "Oct 2026"}</span>
+                </div>
               </div>
+            ))}
+          </div>
+        </main>
+      </div>
+
+      {/* MODAL */}
+      {showModal && (
+        <div className="modal-overlay" onMouseDown={(e) => { if (e.target === e.currentTarget) setShowModal(false); }}>
+          <div className="modal-box">
+            <div className="modal-header">
+              <h2>{editingItem ? "Edit Announcement" : "Create Broadcast Announcement"}</h2>
+              <button type="button" className="modal-close" onClick={() => setShowModal(false)}><X size={20} /></button>
             </div>
+            <form onSubmit={handleSubmit} className="modal-form">
+              <div className="form-group">
+                <label>Announcement Title <span className="req">*</span></label>
+                <input name="title" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="e.g. Scheduled Maintenance Window" required />
+              </div>
 
-            <div className="admin-announcements-modal-footer">
-              <button
-                className="admin-announcements-secondary-button"
-                onClick={() =>
-                  setEditingAnnouncement(null)
-                }
-              >
-                Cancel
-              </button>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Audience</label>
+                  <select name="audience" value={form.audience} onChange={(e) => setForm({ ...form, audience: e.target.value })}>
+                    {AUDIENCES.map((aud) => (
+                      <option key={aud} value={aud}>{aud}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label>Priority</label>
+                  <select name="priority" value={form.priority} onChange={(e) => setForm({ ...form, priority: e.target.value })}>
+                    {PRIORITIES.map((p) => (
+                      <option key={p} value={p}>{p}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
 
-              <button
-                className="admin-announcements-primary-button"
-                onClick={saveAnnouncement}
-              >
-                <Check size={15} />
+              <div className="form-group">
+                <label>Message Content</label>
+                <textarea rows={4} value={form.content} onChange={(e) => setForm({ ...form, content: e.target.value })} placeholder="Write your announcement details here..." required />
+              </div>
 
-                {formMode === "create"
-                  ? "Create Announcement"
-                  : "Save Changes"}
-              </button>
-            </div>
+              <div className="form-checkbox">
+                <label>
+                  <input type="checkbox" checked={form.pinned} onChange={(e) => setForm({ ...form, pinned: e.target.checked })} />
+                  Pin this announcement to top
+                </label>
+              </div>
+
+              <div className="modal-actions">
+                <button type="button" className="btn-cancel" onClick={() => setShowModal(false)}>Cancel</button>
+                <button type="submit" className="btn-submit">{editingItem ? "Save Changes" : "Publish Now"}</button>
+              </div>
+            </form>
           </div>
         </div>
       )}
 
-      {/* ================= VIEW MODAL ================= */}
-
-      {selectedAnnouncement && (
-        <div className="admin-announcements-modal-overlay">
-          <div className="admin-announcements-view-modal">
-            <div className="admin-announcements-modal-header">
-              <div>
-                <span className="admin-announcements-view-label">
-                  ANNOUNCEMENT
-                </span>
-
-                <h2>
-                  {selectedAnnouncement.title}
-                </h2>
-              </div>
-
-              <button
-                onClick={() =>
-                  setSelectedAnnouncement(null)
-                }
-              >
-                <X size={20} />
-              </button>
+      {/* VIEW MODAL */}
+      {viewingItem && (
+        <div className="modal-overlay" onMouseDown={(e) => { if (e.target === e.currentTarget) setViewingItem(null); }}>
+          <div className="modal-box">
+            <div className="modal-header">
+              <h2>Announcement</h2>
+              <button type="button" className="modal-close" onClick={() => setViewingItem(null)}><X size={20} /></button>
             </div>
-
-            <div className="admin-announcements-view-body">
-              <div className="admin-announcements-view-icon">
-                <Megaphone size={27} />
-              </div>
-
-              <div className="admin-announcements-view-badges">
-                <StatusBadge
-                  status={
-                    selectedAnnouncement.status
-                  }
-                />
-
-                <PriorityBadge
-                  priority={
-                    selectedAnnouncement.priority
-                  }
-                />
-              </div>
-
-              <p>
-                {selectedAnnouncement.message}
-              </p>
-
-              <div className="admin-announcements-view-info">
-                <InfoRow
-                  label="Audience"
-                  value={
-                    selectedAnnouncement.audience
-                  }
-                />
-
-                <InfoRow
-                  label="Created By"
-                  value={
-                    selectedAnnouncement.author
-                  }
-                />
-
-                <InfoRow
-                  label="Created"
-                  value={
-                    selectedAnnouncement.createdAt
-                  }
-                />
-
-                <InfoRow
-                  label="Publish Date"
-                  value={
-                    selectedAnnouncement.publishDate
-                  }
-                />
-
-                <InfoRow
-                  label="Views"
-                  value={`${selectedAnnouncement.views}`}
-                />
+            <div className="view-body">
+              <h3>{viewingItem.title}</h3>
+              <p style={{ lineHeight: 1.6 }}>{viewingItem.content}</p>
+              <div className="view-footer" style={{ borderTop: "1px solid #e2e8f0", paddingTop: 12, marginTop: 12, display: "flex", justifyContent: "space-between", fontSize: 12, color: "#64748b" }}>
+                <span>Audience: <strong>{viewingItem.audience}</strong></span>
+                <span>Date: <strong>{viewingItem.date}</strong></span>
               </div>
             </div>
-
-            <div className="admin-announcements-modal-footer">
-              <button
-                className="admin-announcements-secondary-button"
-                onClick={() =>
-                  setSelectedAnnouncement(null)
-                }
-              >
-                Close
-              </button>
-
-              <button
-                className="admin-announcements-primary-button"
-                onClick={() => {
-                  editAnnouncement(
-                    selectedAnnouncement
-                  );
-
-                  setSelectedAnnouncement(null);
-                }}
-              >
-                <Pencil size={14} />
-                Edit Announcement
-              </button>
+            <div className="modal-actions">
+              <button type="button" className="btn-submit" onClick={() => setViewingItem(null)}>Close</button>
             </div>
           </div>
         </div>
@@ -1019,66 +336,3 @@ function AdminAnnouncements() {
     </div>
   );
 }
-
-/* ================= SMALL COMPONENTS ================= */
-
-function StatCard({
-  title,
-  value,
-  description,
-  icon: Icon,
-  type,
-}) {
-  return (
-    <article className="admin-announcements-stat-card">
-      <div
-        className={`admin-announcements-stat-icon ${type}`}
-      >
-        <Icon size={20} />
-      </div>
-
-      <div>
-        <span>{title}</span>
-        <strong>{value}</strong>
-        <small>{description}</small>
-      </div>
-    </article>
-  );
-}
-
-function StatusBadge({ status }) {
-  return (
-    <span
-      className={`admin-announcement-status ${status
-        .toLowerCase()
-        .replace(/\s+/g, "-")}`}
-    >
-      {status}
-    </span>
-  );
-}
-
-function PriorityBadge({ priority }) {
-  return (
-    <span
-      className={`admin-announcement-priority ${priority.toLowerCase()}`}
-    >
-      {priority === "High" && (
-        <AlertTriangle size={10} />
-      )}
-
-      {priority} Priority
-    </span>
-  );
-}
-
-function InfoRow({ label, value }) {
-  return (
-    <div className="admin-announcements-info-row">
-      <span>{label}</span>
-      <strong>{value}</strong>
-    </div>
-  );
-}
-
-export default AdminAnnouncements;

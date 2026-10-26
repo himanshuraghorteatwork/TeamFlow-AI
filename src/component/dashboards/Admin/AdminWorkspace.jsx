@@ -1,1211 +1,1179 @@
-import React, {
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
-
-import { useNavigate } from "react-router-dom";
-
+import React, { useEffect, useMemo, useState } from "react";
 import {
-  Search,
-  Plus,
-  ChevronDown,
-  Moon,
-  Sun,
-  Bell,
-  CircleHelp,
   Building2,
   Users,
   FolderKanban,
+  HardDrive,
+  CheckCircle2,
+  Ban,
+  Search,
+  Plus,
+  Filter,
+  Download,
+  RotateCcw,
   Grid2X2,
   List,
-  MoreVertical,
   Eye,
-  Ban,
-  CheckCircle2,
-  X,
-  Settings,
-  LogOut,
-  CheckCheck,
-  RotateCcw,
-  HardDrive,
+  Pencil,
   Trash2,
+  Copy,
+  ChevronDown,
+  X,
+  Mail,
+  User,
+  Shield,
+  Layers,
+  Sparkles,
+  Sliders,
+  Check,
+  AlertCircle,
+  MoreVertical,
 } from "lucide-react";
 
-import AdminSidebar from "../../../layouts/AdminSidebar/AdminSidebar.jsx";
+import AdminSidebar from "./AdminSidebar.jsx";
+import AdminTopbar from "./AdminTopbar.jsx";
 import "./AdminWorkspace.css";
 
-/* =========================================================
-   DEFAULT DATA
-========================================================= */
+const STORAGE_KEY = "teamflow_admin_workspaces";
 
 const DEFAULT_WORKSPACES = [
   {
     id: 1,
     name: "TeamFlow Workspace",
+    slug: "teamflow-main",
     status: "Active",
-    owner: "John Doe",
-    email: "john@company.com",
+    owner: "Amit Sharma",
+    email: "amit@abctech.com",
     members: 24,
     projects: 12,
     storage: 72,
+    quota: 100,
     plan: "Enterprise",
     created: "Oct 21, 2026",
+    description: "Main organization-wide collaboration and engineering hub.",
   },
   {
     id: 2,
     name: "Marketing Team",
+    slug: "marketing-team",
     status: "Active",
     owner: "Sarah Chen",
     email: "sarah@modernlab.com",
     members: 12,
     projects: 8,
     storage: 48,
+    quota: 100,
     plan: "Business",
     created: "Oct 18, 2026",
+    description: "Product marketing campaigns, content generation, and brand assets.",
   },
   {
     id: 3,
     name: "Design Studio",
+    slug: "design-studio",
     status: "Active",
     owner: "Emily Parker",
     email: "emily@designhub.com",
     members: 8,
     projects: 6,
     storage: 61,
+    quota: 100,
     plan: "Pro",
     created: "Oct 15, 2026",
+    description: "UI/UX component design system, wireframes, and creative prototypes.",
   },
   {
     id: 4,
-    name: "Research Lab",
-    status: "Suspended",
-    owner: "Alex Morgan",
-    email: "alex@researchlab.com",
-    members: 18,
-    projects: 9,
-    storage: 83,
+    name: "Development Hub",
+    slug: "development-hub",
+    status: "Active",
+    owner: "David Lee",
+    email: "david@techcorp.com",
+    members: 32,
+    projects: 18,
+    storage: 64,
+    quota: 200,
     plan: "Enterprise",
     created: "Oct 12, 2026",
+    description: "Core backend architecture, cloud microservices, and CI/CD pipelines.",
   },
   {
     id: 5,
-    name: "Development Hub",
-    status: "Active",
-    owner: "David Kim",
-    email: "david@devhub.com",
-    members: 28,
-    projects: 14,
-    storage: 67,
+    name: "Research Lab",
+    slug: "research-lab",
+    status: "Suspended",
+    owner: "Alex Morgan",
+    email: "alex@researchlab.com",
+    members: 16,
+    projects: 9,
+    storage: 88,
+    quota: 100,
     plan: "Business",
     created: "Oct 10, 2026",
+    description: "Machine learning research, synthetic data models, and neural experiments.",
   },
   {
     id: 6,
     name: "Startup Team",
+    slug: "startup-team",
     status: "Inactive",
-    owner: "Lisa Brown",
-    email: "lisa@startup.com",
-    members: 7,
-    projects: 4,
-    storage: 32,
+    owner: "Michael Rodriguez",
+    email: "michael@startup.io",
+    members: 5,
+    projects: 3,
+    storage: 18,
+    quota: 50,
     plan: "Free",
-    created: "Oct 08, 2026",
+    created: "Oct 06, 2026",
+    description: "Early validation playground and lightweight MVP projects.",
   },
 ];
 
-const SEARCH_ITEMS = [
-  { label: "Dashboard", path: "/admin/dashboard" },
-  { label: "Workspaces", path: "/admin/workspaces" },
-  { label: "Users", path: "/admin/users" },
-  { label: "Projects", path: "/admin/projects" },
-  { label: "Tasks", path: "/admin/tasks" },
-  { label: "AI Tools", path: "/admin/ai-tools" },
-  { label: "Billing & Payments", path: "/admin/billing" },
-  { label: "Subscriptions", path: "/admin/subscriptions" },
-  { label: "Analytics", path: "/admin/analytics" },
-  { label: "Announcements", path: "/admin/announcements" },
-  { label: "Reports", path: "/admin/reports" },
-  { label: "Settings", path: "/admin/settings" },
-];
-
-/* =========================================================
-   MAIN COMPONENT
-========================================================= */
-
-function AdminWorkspace() {
-  const navigate = useNavigate();
-
-  const topbarRef = useRef(null);
-  const globalSearchRef = useRef(null);
-
-  /* ================= DATA ================= */
-
-  const [workspaces, setWorkspaces] = useState(() => {
-    try {
-      const saved = localStorage.getItem(
-        "teamflow_admin_workspaces"
-      );
-
-      if (saved) {
-        const parsed = JSON.parse(saved);
-
-        if (Array.isArray(parsed)) {
-          return parsed;
-        }
-      }
-    } catch (error) {
-      console.error("Workspace data error:", error);
+const loadStoredWorkspaces = () => {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
     }
+  } catch (e) {
+    console.error("Failed to load workspaces:", e);
+  }
+  return DEFAULT_WORKSPACES;
+};
 
-    return DEFAULT_WORKSPACES;
-  });
+export default function AdminWorkspace() {
+  const [workspaces, setWorkspaces] = useState(loadStoredWorkspaces);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
-  /* ================= FILTERS ================= */
-
-  const [workspaceSearch, setWorkspaceSearch] = useState("");
+  // Filters & Controls
+  const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
   const [planFilter, setPlanFilter] = useState("All");
-  const [viewMode, setViewMode] = useState("grid");
+  const [sortBy, setSortBy] = useState("recent");
+  const [viewMode, setViewMode] = useState("grid"); // 'grid' | 'table'
 
-  /* ================= TOPBAR ================= */
+  // Selection & Bulk
+  const [selectedIds, setSelectedIds] = useState([]);
 
-  const [globalSearch, setGlobalSearch] = useState("");
-  const [searchOpen, setSearchOpen] = useState(false);
-  const [createOpen, setCreateOpen] = useState(false);
-  const [notificationOpen, setNotificationOpen] = useState(false);
-  const [profileOpen, setProfileOpen] = useState(false);
-  const [helpOpen, setHelpOpen] = useState(false);
-
-  const [darkMode, setDarkMode] = useState(() => {
-    return localStorage.getItem("teamflow_admin_dark") === "true";
-  });
-
-  /* ================= WORKSPACE MENU ================= */
-
-  const [activeMenu, setActiveMenu] = useState(null);
-
-  /* ================= MODALS ================= */
-
+  // Modals
   const [createModal, setCreateModal] = useState(false);
-  const [selectedWorkspace, setSelectedWorkspace] = useState(null);
+  const [editingWorkspace, setEditingWorkspace] = useState(null);
+  const [viewingWorkspace, setViewingWorkspace] = useState(null);
+  const [quotaModal, setQuotaModal] = useState(null); // workspace to adjust quota
+  const [quotaValue, setQuotaValue] = useState(100);
+  const [exportOpen, setExportOpen] = useState(false);
+  const [activeMenuId, setActiveMenuId] = useState(null);
+  const [toast, setToast] = useState(null);
 
-  const [newWorkspace, setNewWorkspace] = useState({
+  // Form
+  const [form, setForm] = useState({
     name: "",
+    slug: "",
     owner: "",
     email: "",
-    plan: "Free",
+    plan: "Pro",
+    storage: 20,
+    quota: 100,
+    members: 5,
+    projects: 2,
+    status: "Active",
+    description: "",
   });
 
-  /* ================= NOTIFICATIONS ================= */
-
-  const [notifications, setNotifications] = useState([
-    {
-      id: 1,
-      title: "New workspace created",
-      message: "Development Hub was added successfully.",
-      time: "2 min ago",
-      read: false,
-    },
-    {
-      id: 2,
-      title: "New member joined",
-      message: "A member joined Marketing Team.",
-      time: "18 min ago",
-      read: false,
-    },
-    {
-      id: 3,
-      title: "Storage warning",
-      message: "Research Lab storage reached 83%.",
-      time: "1 hour ago",
-      read: false,
-    },
-  ]);
-
-  /* =========================================================
-     LOCAL STORAGE
-  ========================================================= */
-
+  // Auto dismiss toast
   useEffect(() => {
-    localStorage.setItem(
-      "teamflow_admin_workspaces",
-      JSON.stringify(workspaces)
-    );
+    if (toast) {
+      const timer = setTimeout(() => setToast(null), 3200);
+      return () => clearTimeout(timer);
+    }
+  }, [toast]);
+
+  const showToast = (message, type = "success") => {
+    setToast({ message, type });
+  };
+
+  // Save to localStorage & notify
+  const saveWorkspaces = (newWorkspaces) => {
+    setWorkspaces(newWorkspaces);
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(newWorkspaces));
+    } catch (e) {
+      console.error(e);
+    }
+    window.dispatchEvent(new Event("teamflow_data_update"));
+  };
+
+  // Storage listener
+  useEffect(() => {
+    const handleSync = () => {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) setWorkspaces(JSON.parse(saved));
+      } catch (e) {}
+    };
+    window.addEventListener("storage", handleSync);
+    window.addEventListener("teamflow_data_update", handleSync);
+    return () => {
+      window.removeEventListener("storage", handleSync);
+      window.removeEventListener("teamflow_data_update", handleSync);
+    };
+  }, []);
+
+  // Filtered & Sorted Workspaces
+  const filteredWorkspaces = useMemo(() => {
+    let result = workspaces.filter((ws) => {
+      const query = search.trim().toLowerCase();
+      const matchesSearch =
+        !query ||
+        ws.name?.toLowerCase().includes(query) ||
+        ws.owner?.toLowerCase().includes(query) ||
+        ws.email?.toLowerCase().includes(query) ||
+        ws.plan?.toLowerCase().includes(query);
+
+      const matchesStatus = statusFilter === "All" || ws.status === statusFilter;
+      const matchesPlan = planFilter === "All" || ws.plan === planFilter;
+
+      return matchesSearch && matchesStatus && matchesPlan;
+    });
+
+    result.sort((a, b) => {
+      if (sortBy === "name-asc") return (a.name || "").localeCompare(b.name || "");
+      if (sortBy === "name-desc") return (b.name || "").localeCompare(a.name || "");
+      if (sortBy === "members") return (b.members || 0) - (a.members || 0);
+      if (sortBy === "storage") return (b.storage || 0) - (a.storage || 0);
+      return (b.id || 0) - (a.id || 0); // default 'recent'
+    });
+
+    return result;
+  }, [workspaces, search, statusFilter, planFilter, sortBy]);
+
+  // Statistics
+  const stats = useMemo(() => {
+    const total = workspaces.length;
+    const active = workspaces.filter((w) => w.status === "Active").length;
+    const suspended = workspaces.filter((w) => w.status === "Suspended").length;
+    const inactive = workspaces.filter((w) => w.status === "Inactive").length;
+    const members = workspaces.reduce((acc, curr) => acc + (Number(curr.members) || 0), 0);
+    const totalStorage = workspaces.reduce((acc, curr) => acc + (Number(curr.storage) || 0), 0);
+    return { total, active, suspended, inactive, members, totalStorage };
   }, [workspaces]);
 
-  useEffect(() => {
-    localStorage.setItem(
-      "teamflow_admin_dark",
-      String(darkMode)
-    );
-  }, [darkMode]);
-
-    const closeMenus = () => {
-    setCreateOpen(false);
-    setNotificationOpen(false);
-    setProfileOpen(false);
-    setSearchOpen(false);
-    setActiveMenu(null);
-  };
-
-  /* =========================================================
-     KEYBOARD SHORTCUTS
-  ========================================================= */
-
-  useEffect(() => {
-    const handleKeyboard = (event) => {
-      if (
-        (event.ctrlKey || event.metaKey) &&
-        event.key.toLowerCase() === "k"
-      ) {
-        event.preventDefault();
-
-        globalSearchRef.current?.focus();
-        setSearchOpen(true);
-      }
-
-      if (event.key === "Escape") {
-        closeMenus();
-        setCreateModal(false);
-        setSelectedWorkspace(null);
-        setHelpOpen(false);
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyboard);
-
-    return () => {
-      window.removeEventListener("keydown", handleKeyboard);
-    };
-  }, []);
-
-  /* =========================================================
-     OUTSIDE CLICK
-  ========================================================= */
-
-  useEffect(() => {
-    const handleOutsideClick = (event) => {
-      if (
-        topbarRef.current &&
-        !topbarRef.current.contains(event.target)
-      ) {
-        setCreateOpen(false);
-        setNotificationOpen(false);
-        setProfileOpen(false);
-        setSearchOpen(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleOutsideClick);
-
-    return () => {
-      document.removeEventListener(
-        "mousedown",
-        handleOutsideClick
-      );
-    };
-  }, []);
-
-  /* =========================================================
-     HELPERS
-  ========================================================= */
-
-  const navigateTo = (path) => {
-    closeMenus();
-    setGlobalSearch("");
-    navigate(path);
-  };
-
-  /* =========================================================
-     GLOBAL SEARCH
-  ========================================================= */
-
-  const globalResults = useMemo(() => {
-    if (!globalSearch.trim()) {
-      return [];
-    }
-
-    return SEARCH_ITEMS.filter((item) =>
-      item.label
-        .toLowerCase()
-        .includes(globalSearch.toLowerCase())
-    );
-  }, [globalSearch]);
-
-  /* =========================================================
-     FILTER WORKSPACES
-  ========================================================= */
-
-  const filteredWorkspaces = useMemo(() => {
-    const query = workspaceSearch.trim().toLowerCase();
-
-    return workspaces.filter((workspace) => {
-      const searchMatch =
-        !query ||
-        workspace.name.toLowerCase().includes(query) ||
-        workspace.owner.toLowerCase().includes(query) ||
-        workspace.email.toLowerCase().includes(query);
-
-      const statusMatch =
-        statusFilter === "All" ||
-        workspace.status === statusFilter;
-
-      const planMatch =
-        planFilter === "All" ||
-        workspace.plan === planFilter;
-
-      return searchMatch && statusMatch && planMatch;
+  // Open Create Modal
+  const openCreateModal = () => {
+    setEditingWorkspace(null);
+    setForm({
+      name: "",
+      slug: "",
+      owner: "Amit Sharma",
+      email: "amit@abctech.com",
+      plan: "Pro",
+      storage: 25,
+      quota: 100,
+      members: 6,
+      projects: 2,
+      status: "Active",
+      description: "",
     });
-  }, [
-    workspaces,
-    workspaceSearch,
-    statusFilter,
-    planFilter,
-  ]);
+    setCreateModal(true);
+  };
 
-  /* =========================================================
-     STATISTICS
-  ========================================================= */
+  // Open Edit Modal
+  const openEditModal = (ws) => {
+    setEditingWorkspace(ws);
+    setForm({
+      name: ws.name || "",
+      slug: ws.slug || "",
+      owner: ws.owner || "",
+      email: ws.email || "",
+      plan: ws.plan || "Pro",
+      storage: ws.storage || 20,
+      quota: ws.quota || 100,
+      members: ws.members || 1,
+      projects: ws.projects || 0,
+      status: ws.status || "Active",
+      description: ws.description || "",
+    });
+    setActiveMenuId(null);
+    setCreateModal(true);
+  };
 
-  const totalWorkspaces = workspaces.length;
+  // Form changes
+  const handleFormChange = (e) => {
+    const { name, value } = e.target;
+    if (name === "name" && !editingWorkspace) {
+      const generatedSlug = value
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/(^-|-$)+/g, "");
+      setForm((prev) => ({ ...prev, name: value, slug: generatedSlug }));
+    } else {
+      setForm((prev) => ({ ...prev, [name]: value }));
+    }
+  };
 
-  const activeWorkspaces = workspaces.filter(
-    (workspace) => workspace.status === "Active"
-  ).length;
-
-  const suspendedWorkspaces = workspaces.filter(
-    (workspace) => workspace.status === "Suspended"
-  ).length;
-
-  const totalMembers = workspaces.reduce(
-    (total, workspace) =>
-      total + Number(workspace.members || 0),
-    0
-  );
-
-  /* =========================================================
-     CREATE WORKSPACE
-  ========================================================= */
-
-  const handleCreateWorkspace = (event) => {
-    event.preventDefault();
-
-    const name = newWorkspace.name.trim();
-    const owner = newWorkspace.owner.trim();
-    const email = newWorkspace.email.trim();
-
-    if (!name || !owner || !email) {
-      alert("Please complete all required fields.");
+  // Submit Form
+  const handleFormSubmit = (e) => {
+    e.preventDefault();
+    if (!form.name.trim() || !form.owner.trim()) {
+      alert("Workspace name and primary owner are required.");
       return;
     }
 
-    const workspace = {
+    if (editingWorkspace) {
+      const updated = workspaces.map((w) =>
+        w.id === editingWorkspace.id
+          ? {
+              ...w,
+              ...form,
+              members: Number(form.members) || 0,
+              projects: Number(form.projects) || 0,
+              storage: Number(form.storage) || 0,
+              quota: Number(form.quota) || 100,
+            }
+          : w
+      );
+      saveWorkspaces(updated);
+      showToast(`Workspace "${form.name}" updated successfully.`);
+    } else {
+      const newWorkspace = {
+        id: Date.now(),
+        ...form,
+        members: Number(form.members) || 1,
+        projects: Number(form.projects) || 0,
+        storage: Number(form.storage) || 10,
+        quota: Number(form.quota) || 100,
+        created: new Date().toLocaleDateString("en-US", {
+          month: "short",
+          day: "2-digit",
+          year: "numeric",
+        }),
+      };
+      saveWorkspaces([newWorkspace, ...workspaces]);
+      showToast(`Workspace "${form.name}" created successfully.`);
+    }
+
+    setCreateModal(false);
+  };
+
+  // Delete Workspace
+  const deleteWorkspace = (id, name) => {
+    const confirmed = window.confirm(
+      `Permanently delete workspace "${name}"? All associated settings will be removed.`
+    );
+    if (!confirmed) return;
+    const remaining = workspaces.filter((w) => w.id !== id);
+    saveWorkspaces(remaining);
+    setSelectedIds((prev) => prev.filter((item) => item !== id));
+    setActiveMenuId(null);
+    showToast(`Workspace deleted.`);
+  };
+
+  // Duplicate Workspace
+  const duplicateWorkspace = (ws) => {
+    const clone = {
+      ...ws,
       id: Date.now(),
-      name,
-      owner,
-      email,
-      status: "Active",
-      members: 1,
-      projects: 0,
-      storage: 0,
-      plan: newWorkspace.plan,
+      name: `${ws.name} (Copy)`,
+      slug: `${ws.slug || "ws"}-copy-${Math.floor(Math.random() * 900)}`,
       created: new Date().toLocaleDateString("en-US", {
         month: "short",
         day: "2-digit",
         year: "numeric",
       }),
     };
-
-    setWorkspaces((current) => [
-      workspace,
-      ...current,
-    ]);
-
-    setNotifications((current) => [
-      {
-        id: Date.now(),
-        title: "Workspace created",
-        message: `${name} was created successfully.`,
-        time: "Just now",
-        read: false,
-      },
-      ...current,
-    ]);
-
-    setNewWorkspace({
-      name: "",
-      owner: "",
-      email: "",
-      plan: "Free",
-    });
-
-    setCreateModal(false);
+    saveWorkspaces([clone, ...workspaces]);
+    setActiveMenuId(null);
+    showToast(`Workspace duplicated.`);
   };
 
-  /* =========================================================
-     WORKSPACE STATUS
-  ========================================================= */
-
+  // Toggle Status
   const toggleStatus = (id) => {
-    setWorkspaces((current) =>
-      current.map((workspace) => {
-        if (workspace.id !== id) {
-          return workspace;
-        }
-
-        return {
-          ...workspace,
-          status:
-            workspace.status === "Active"
-              ? "Suspended"
-              : "Active",
-        };
-      })
-    );
-
-    setActiveMenu(null);
-  };
-
-  /* =========================================================
-     DELETE WORKSPACE
-  ========================================================= */
-
-  const deleteWorkspace = (id) => {
-    const workspace = workspaces.find(
-      (item) => item.id === id
-    );
-
-    if (!workspace) {
-      return;
-    }
-
-    const confirmed = window.confirm(
-      `Delete "${workspace.name}" workspace?`
-    );
-
-    if (!confirmed) {
-      return;
-    }
-
-    setWorkspaces((current) =>
-      current.filter(
-        (workspaceItem) => workspaceItem.id !== id
-      )
-    );
-
-    setActiveMenu(null);
-  };
-
-  /* =========================================================
-     RESET DEMO DATA
-  ========================================================= */
-
-  const resetData = () => {
-    const confirmed = window.confirm(
-      "Reset all workspace demo data?"
-    );
-
-    if (!confirmed) {
-      return;
-    }
-
-    setWorkspaces(DEFAULT_WORKSPACES);
-    setWorkspaceSearch("");
-    setStatusFilter("All");
-    setPlanFilter("All");
-  };
-
-  /* =========================================================
-     NOTIFICATIONS
-  ========================================================= */
-
-  const unreadCount = notifications.filter(
-    (notification) => !notification.read
-  ).length;
-
-  const readNotification = (id) => {
-    setNotifications((current) =>
-      current.map((notification) =>
-        notification.id === id
-          ? { ...notification, read: true }
-          : notification
-      )
-    );
-  };
-
-  const markAllRead = () => {
-    setNotifications((current) =>
-      current.map((notification) => ({
-        ...notification,
-        read: true,
-      }))
-    );
-  };
-
-  /* =========================================================
-     LOGOUT
-  ========================================================= */
-
-  const logout = () => {
-    const confirmed = window.confirm(
-      "Do you want to logout?"
-    );
-
-    if (!confirmed) {
-      return;
-    }
-
-    localStorage.removeItem("teamflow_admin");
-    localStorage.removeItem("teamflow_admin_logged_in");
-    localStorage.removeItem("teamflow_current_user");
-
-    sessionStorage.removeItem("teamflow_admin");
-    sessionStorage.removeItem("teamflow_admin_logged_in");
-
-    navigate("/login", {
-      replace: true,
+    const updated = workspaces.map((w) => {
+      if (w.id === id) {
+        const next = w.status === "Active" ? "Suspended" : "Active";
+        return { ...w, status: next };
+      }
+      return w;
     });
+    saveWorkspaces(updated);
+    setActiveMenuId(null);
+    showToast("Workspace status updated.");
   };
 
-  /* =========================================================
-     RENDER
-  ========================================================= */
+  // Adjust Quota
+  const handleSaveQuota = () => {
+    if (!quotaModal) return;
+    const updated = workspaces.map((w) =>
+      w.id === quotaModal.id ? { ...w, quota: Number(quotaValue) } : w
+    );
+    saveWorkspaces(updated);
+    setQuotaModal(null);
+    showToast(`Storage quota updated to ${quotaValue} GB.`);
+  };
+
+  // Bulk Actions
+  const toggleSelectAll = () => {
+    if (selectedIds.length === filteredWorkspaces.length && filteredWorkspaces.length > 0) {
+      setSelectedIds([]);
+    } else {
+      setSelectedIds(filteredWorkspaces.map((w) => w.id));
+    }
+  };
+
+  const toggleSelectOne = (id) => {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+  };
+
+  const handleBulkStatus = (newStatus) => {
+    if (selectedIds.length === 0) return;
+    const updated = workspaces.map((w) =>
+      selectedIds.includes(w.id) ? { ...w, status: newStatus } : w
+    );
+    saveWorkspaces(updated);
+    setSelectedIds([]);
+    showToast(`${selectedIds.length} workspaces set to ${newStatus}.`);
+  };
+
+  const handleBulkDelete = () => {
+    if (selectedIds.length === 0) return;
+    const confirmed = window.confirm(
+      `Permanently delete ${selectedIds.length} selected workspaces?`
+    );
+    if (!confirmed) return;
+    const remaining = workspaces.filter((w) => !selectedIds.includes(w.id));
+    saveWorkspaces(remaining);
+    setSelectedIds([]);
+    showToast(`${selectedIds.length} workspaces deleted.`);
+  };
+
+  // Exports
+  const exportCSV = () => {
+    const headers = ["ID", "Name", "Slug", "Plan", "Status", "Owner", "Email", "Members", "Projects", "Storage(GB)", "Quota(GB)", "Created"];
+    const rows = filteredWorkspaces.map((w) => [
+      w.id,
+      `"${w.name}"`,
+      `"${w.slug || ""}"`,
+      `"${w.plan}"`,
+      `"${w.status}"`,
+      `"${w.owner}"`,
+      `"${w.email}"`,
+      w.members,
+      w.projects,
+      w.storage,
+      w.quota || 100,
+      `"${w.created}"`,
+    ]);
+    const csvContent =
+      "data:text/csv;charset=utf-8," +
+      [headers.join(","), ...rows.map((e) => e.join(","))].join("\n");
+    const link = document.createElement("a");
+    link.href = encodeURI(csvContent);
+    link.download = `teamflow_workspaces_${Date.now()}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setExportOpen(false);
+    showToast("Exported workspaces to CSV.");
+  };
+
+  const exportJSON = () => {
+    const dataStr =
+      "data:text/json;charset=utf-8," +
+      encodeURIComponent(JSON.stringify(filteredWorkspaces, null, 2));
+    const link = document.createElement("a");
+    link.href = dataStr;
+    link.download = `teamflow_workspaces_${Date.now()}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setExportOpen(false);
+    showToast("Exported workspaces to JSON.");
+  };
+
+  const resetToDemo = () => {
+    const confirmed = window.confirm("Reset workspaces database to factory demo defaults?");
+    if (!confirmed) return;
+    saveWorkspaces(DEFAULT_WORKSPACES);
+    setSelectedIds([]);
+    showToast("Reset to demo workspaces.");
+  };
 
   return (
-    <div
-      className={`admin-workspace-app ${
-        darkMode ? "dark" : ""
-      }`}
-    >
-      <AdminSidebar />
+    <div className="admin-workspace-app">
+      {/* SIDEBAR */}
+      <AdminSidebar
+        mobileOpen={mobileSidebarOpen}
+        onClose={() => setMobileSidebarOpen(false)}
+      />
 
       <div className="admin-workspace-main">
-        {/* TOPBAR */}
+        {/* UNIFIED TOPBAR */}
+        <AdminTopbar
+          onMobileMenuToggle={() => setMobileSidebarOpen(true)}
+          onCreateWorkspace={openCreateModal}
+        />
 
-        <header
-          ref={topbarRef}
-          className="admin-workspace-topbar"
-        >
-          {/* GLOBAL SEARCH */}
-
-          <div className="admin-workspace-global-search-wrapper">
-            <div className="admin-workspace-global-search">
-              <Search size={18} />
-
-              <input
-                ref={globalSearchRef}
-                value={globalSearch}
-                placeholder="Search workspaces, users, projects..."
-                onFocus={() => setSearchOpen(true)}
-                onChange={(event) => {
-                  setGlobalSearch(event.target.value);
-                  setSearchOpen(true);
-                }}
-              />
-
-              {globalSearch ? (
-                <button
-                  type="button"
-                  className="admin-workspace-search-clear"
-                  onClick={() => setGlobalSearch("")}
-                >
-                  <X size={14} />
-                </button>
-              ) : (
-                <span>Ctrl + K</span>
-              )}
-            </div>
-
-            {searchOpen && globalSearch && (
-              <div className="admin-workspace-search-results">
-                {globalResults.length > 0 ? (
-                  globalResults.map((item) => (
-                    <button
-                      type="button"
-                      key={item.path}
-                      onClick={() => navigateTo(item.path)}
-                    >
-                      <Search size={15} />
-                      {item.label}
-                    </button>
-                  ))
-                ) : (
-                  <p>No results found</p>
-                )}
-              </div>
-            )}
+        {/* TOAST */}
+        {toast && (
+          <div className={`admin-workspace-toast toast--${toast.type}`}>
+            <CheckCircle2 size={16} />
+            <span>{toast.message}</span>
           </div>
+        )}
 
-          {/* TOPBAR ACTIONS */}
-
-          <div className="admin-workspace-top-actions">
-            {/* CREATE MENU */}
-
-            <div className="admin-workspace-top-dropdown">
-              <button
-                type="button"
-                className="admin-workspace-create-top"
-                onClick={() => {
-                  setCreateOpen((current) => !current);
-                  setNotificationOpen(false);
-                  setProfileOpen(false);
-                }}
-              >
-                <Plus size={17} />
-                <span>Create</span>
-                <ChevronDown size={14} />
-              </button>
-
-              {createOpen && (
-                <div className="admin-workspace-create-menu">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      closeMenus();
-                      setCreateModal(true);
-                    }}
-                  >
-                    <Building2 size={17} />
-
-                    <span>
-                      <strong>Workspace</strong>
-                      <small>
-                        Create a new workspace
-                      </small>
-                    </span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() =>
-                      navigateTo("/admin/users")
-                    }
-                  >
-                    <Users size={17} />
-
-                    <span>
-                      <strong>User</strong>
-                      <small>Manage platform users</small>
-                    </span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() =>
-                      navigateTo("/admin/projects")
-                    }
-                  >
-                    <FolderKanban size={17} />
-
-                    <span>
-                      <strong>Project</strong>
-                      <small>Manage projects</small>
-                    </span>
-                  </button>
-                </div>
-              )}
-            </div>
-
-            {/* DARK MODE */}
-
-            <button
-              type="button"
-              className={`admin-workspace-icon-btn ${
-                darkMode ? "active" : ""
-              }`}
-              title={darkMode ? "Light Mode" : "Dark Mode"}
-              onClick={() =>
-                setDarkMode((current) => !current)
-              }
-            >
-              {darkMode ? (
-                <Sun size={18} />
-              ) : (
-                <Moon size={18} />
-              )}
-            </button>
-
-            {/* NOTIFICATIONS */}
-
-            <div className="admin-workspace-top-dropdown">
-              <button
-                type="button"
-                className={`admin-workspace-icon-btn notification ${
-                  notificationOpen ? "active" : ""
-                }`}
-                onClick={() => {
-                  setNotificationOpen(
-                    (current) => !current
-                  );
-                  setCreateOpen(false);
-                  setProfileOpen(false);
-                }}
-              >
-                <Bell size={18} />
-
-                {unreadCount > 0 && (
-                  <span>{unreadCount}</span>
-                )}
-              </button>
-
-              {notificationOpen && (
-                <div className="admin-workspace-notification-menu">
-                  <div className="admin-workspace-notification-header">
-                    <div>
-                      <strong>Notifications</strong>
-                      <small>
-                        {unreadCount} unread
-                      </small>
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={markAllRead}
-                    >
-                      <CheckCheck size={13} />
-                      Mark all read
-                    </button>
-                  </div>
-
-                  {notifications.map((notification) => (
-                    <button
-                      type="button"
-                      key={notification.id}
-                      className={`admin-workspace-notification-item ${
-                        !notification.read ? "unread" : ""
-                      }`}
-                      onClick={() =>
-                        readNotification(notification.id)
-                      }
-                    >
-                      <span className="admin-workspace-notification-item-icon">
-                        <Bell size={14} />
-                      </span>
-
-                      <span className="admin-workspace-notification-item-content">
-                        <strong>
-                          {notification.title}
-                        </strong>
-
-                        <small>
-                          {notification.message}
-                        </small>
-
-                        <em>{notification.time}</em>
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* HELP */}
-
-            <button
-              type="button"
-              className="admin-workspace-icon-btn"
-              onClick={() => setHelpOpen(true)}
-            >
-              <CircleHelp size={18} />
-            </button>
-
-            {/* PROFILE */}
-
-            <div className="admin-workspace-top-dropdown">
-              <button
-                type="button"
-                className="admin-workspace-profile"
-                onClick={() => {
-                  setProfileOpen((current) => !current);
-                  setCreateOpen(false);
-                  setNotificationOpen(false);
-                }}
-              >
-                <div className="admin-workspace-avatar">
-                  HR
-                </div>
-
-                <div>
-                  <strong>Himanshu</strong>
-                  <small>Super Administrator</small>
-                </div>
-
-                <ChevronDown size={15} />
-              </button>
-
-              {profileOpen && (
-                <div className="admin-workspace-profile-menu">
-                  <div className="admin-workspace-profile-menu-header">
-                    <span className="admin-workspace-profile-menu-avatar">
-                      HR
-                    </span>
-
-                    <div>
-                      <strong>Himanshu</strong>
-                      <small>Super Administrator</small>
-                    </div>
-                  </div>
-
-                  <div className="admin-workspace-profile-divider" />
-
-                  <button
-                    type="button"
-                    onClick={() =>
-                      navigateTo("/admin/settings")
-                    }
-                  >
-                    <Settings size={16} />
-                    Settings
-                  </button>
-
-                  <button
-                    type="button"
-                    className="admin-workspace-logout-btn"
-                    onClick={logout}
-                  >
-                    <LogOut size={16} />
-                    Logout
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        </header>
-
-        {/* PAGE CONTENT */}
-
+        {/* CONTENT */}
         <main className="admin-workspace-content">
           {/* HEADING */}
-
           <section className="admin-workspace-heading">
             <div>
-              <p className="admin-workspace-eyebrow">
-                <Building2 size={14} />
-                ADMIN / WORKSPACES
-              </p>
-
-              <h1>Workspace Management</h1>
-
+              <h1>Workspaces</h1>
               <p>
-                Manage and monitor every TeamFlow AI workspace.
+                Provision multi-tenant team workspaces, manage storage quotas, monitor usage, and configure access privileges.
               </p>
             </div>
 
-            <button
-              type="button"
-              className="admin-workspace-primary-btn"
-              onClick={() => setCreateModal(true)}
-            >
-              <Plus size={17} />
-              Create Workspace
-            </button>
+            <div className="admin-workspace-heading-actions">
+              {/* EXPORT MENU */}
+              <div className="admin-workspace-dropdown-wrap">
+                <button
+                  type="button"
+                  className="admin-workspace-btn-secondary"
+                  onClick={() => setExportOpen((prev) => !prev)}
+                >
+                  <Download size={15} />
+                  <span>Export</span>
+                  <ChevronDown size={14} />
+                </button>
+
+                {exportOpen && (
+                  <div className="admin-workspace-export-menu">
+                    <button type="button" onClick={exportCSV}>
+                      Export as CSV (.csv)
+                    </button>
+                    <button type="button" onClick={exportJSON}>
+                      Export as JSON (.json)
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* CREATE WORKSPACE BUTTON */}
+              <button
+                type="button"
+                className="admin-workspace-btn-primary"
+                onClick={openCreateModal}
+              >
+                <Plus size={17} />
+                <span>Create Workspace</span>
+              </button>
+            </div>
           </section>
 
-          {/* STATISTICS */}
-
+          {/* STATS ROW (4 CARDS) */}
           <section className="admin-workspace-stats">
             <StatCard
-              icon={<Building2 size={21} />}
-              color="purple"
+              icon={<Building2 size={22} />}
               title="Total Workspaces"
-              value={totalWorkspaces}
-              description="Across TeamFlow AI"
+              value={stats.total}
+              type="purple"
+              description="Active tenant partitions"
             />
-
             <StatCard
-              icon={<CheckCircle2 size={21} />}
-              color="green"
+              icon={<CheckCircle2 size={22} />}
               title="Active Workspaces"
-              value={activeWorkspaces}
-              description="Currently operational"
+              value={stats.active}
+              type="green"
+              description={`${Math.round((stats.active / (stats.total || 1)) * 100)}% operational`}
             />
-
             <StatCard
-              icon={<Ban size={21} />}
-              color="red"
-              title="Suspended"
-              value={suspendedWorkspaces}
-              description="Require attention"
+              icon={<Ban size={22} />}
+              title="Suspended / Inactive"
+              value={stats.suspended + stats.inactive}
+              type="red"
+              description="Requires administrative review"
             />
-
             <StatCard
-              icon={<Users size={21} />}
-              color="blue"
-              title="Total Members"
-              value={totalMembers}
+              icon={<Users size={22} />}
+              title="Assigned Members"
+              value={stats.members}
+              type="blue"
               description="Across all workspaces"
             />
           </section>
 
-          {/* FILTER TOOLBAR */}
-
+          {/* TOOLBAR */}
           <section className="admin-workspace-toolbar">
             <div className="admin-workspace-search">
               <Search size={17} />
-
               <input
-                value={workspaceSearch}
-                placeholder="Search workspace name, owner or email..."
-                onChange={(event) =>
-                  setWorkspaceSearch(event.target.value)
-                }
+                type="text"
+                placeholder="Search workspaces by name, owner, email, or plan..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
               />
-
-              {workspaceSearch && (
+              {search && (
                 <button
                   type="button"
-                  className="admin-workspace-search-clear"
-                  onClick={() => setWorkspaceSearch("")}
+                  className="admin-workspace-clear-btn"
+                  onClick={() => setSearch("")}
                 >
                   <X size={14} />
                 </button>
               )}
             </div>
 
-            <select
-              value={statusFilter}
-              onChange={(event) =>
-                setStatusFilter(event.target.value)
-              }
-            >
-              <option value="All">All Status</option>
-              <option value="Active">Active</option>
-              <option value="Suspended">Suspended</option>
-              <option value="Inactive">Inactive</option>
-            </select>
-
-            <select
-              value={planFilter}
-              onChange={(event) =>
-                setPlanFilter(event.target.value)
-              }
-            >
-              <option value="All">All Plans</option>
-              <option value="Free">Free</option>
-              <option value="Pro">Pro</option>
-              <option value="Business">Business</option>
-              <option value="Enterprise">Enterprise</option>
-            </select>
-
-            <div className="admin-workspace-view-buttons">
-              <button
-                type="button"
-                className={
-                  viewMode === "grid" ? "active" : ""
-                }
-                onClick={() => setViewMode("grid")}
-                title="Grid view"
+            <div className="admin-workspace-controls">
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                aria-label="Filter by Status"
               >
-                <Grid2X2 size={16} />
-              </button>
+                <option value="All">All Statuses</option>
+                <option value="Active">Active</option>
+                <option value="Suspended">Suspended</option>
+                <option value="Inactive">Inactive</option>
+              </select>
 
-              <button
-                type="button"
-                className={
-                  viewMode === "list" ? "active" : ""
-                }
-                onClick={() => setViewMode("list")}
-                title="List view"
+              <select
+                value={planFilter}
+                onChange={(e) => setPlanFilter(e.target.value)}
+                aria-label="Filter by Plan"
               >
-                <List size={17} />
-              </button>
+                <option value="All">All Plans</option>
+                <option value="Free">Free</option>
+                <option value="Pro">Pro</option>
+                <option value="Business">Business</option>
+                <option value="Enterprise">Enterprise</option>
+              </select>
+
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                aria-label="Sort Workspaces"
+              >
+                <option value="recent">Recently Created</option>
+                <option value="name-asc">Name (A-Z)</option>
+                <option value="name-desc">Name (Z-A)</option>
+                <option value="members">Most Members</option>
+                <option value="storage">Highest Storage</option>
+              </select>
+
+              {/* VIEW SWITCHER */}
+              <div className="admin-workspace-view-switch">
+                <button
+                  type="button"
+                  className={`view-btn ${viewMode === "grid" ? "active" : ""}`}
+                  onClick={() => setViewMode("grid")}
+                  aria-label="Grid view"
+                >
+                  <Grid2X2 size={16} />
+                </button>
+                <button
+                  type="button"
+                  className={`view-btn ${viewMode === "table" ? "active" : ""}`}
+                  onClick={() => setViewMode("table")}
+                  aria-label="Table view"
+                >
+                  <List size={16} />
+                </button>
+              </div>
             </div>
           </section>
 
-          {/* RESULTS */}
+          {/* BULK ACTION BAR */}
+          {selectedIds.length > 0 && (
+            <div className="admin-workspace-bulk-bar">
+              <div className="bulk-info">
+                <strong>{selectedIds.length}</strong> workspaces selected
+              </div>
+              <div className="bulk-actions">
+                <button
+                  type="button"
+                  className="bulk-btn bulk-activate"
+                  onClick={() => handleBulkStatus("Active")}
+                >
+                  <CheckCircle2 size={15} />
+                  Activate
+                </button>
+                <button
+                  type="button"
+                  className="bulk-btn bulk-suspend"
+                  onClick={() => handleBulkStatus("Suspended")}
+                >
+                  <Ban size={15} />
+                  Suspend
+                </button>
+                <button
+                  type="button"
+                  className="bulk-btn bulk-delete"
+                  onClick={handleBulkDelete}
+                >
+                  <Trash2 size={15} />
+                  Delete Selected
+                </button>
+                <button
+                  type="button"
+                  className="bulk-btn bulk-cancel"
+                  onClick={() => setSelectedIds([])}
+                >
+                  Deselect All
+                </button>
+              </div>
+            </div>
+          )}
 
-          <div className="admin-workspace-result-row">
+          {/* META HEADER */}
+          <div className="admin-workspace-meta-header">
             <span>
-              Showing {filteredWorkspaces.length} workspace
-              {filteredWorkspaces.length !== 1 ? "s" : ""}
+              Showing {filteredWorkspaces.length} of {workspaces.length} workspaces
             </span>
-
             <button
               type="button"
-              onClick={resetData}
+              className="admin-workspace-reset-btn"
+              onClick={resetToDemo}
             >
-              <RotateCcw size={13} />
+              <RotateCcw size={14} />
               Reset Demo Data
             </button>
           </div>
 
-          {/* WORKSPACE CARDS */}
+          {/* GRID VIEW */}
+          {viewMode === "grid" ? (
+            <div className="admin-workspace-grid">
+              {filteredWorkspaces.map((ws) => {
+                const isSelected = selectedIds.includes(ws.id);
+                const quota = ws.quota || 100;
+                const storagePercent = Math.min(100, Math.round(((ws.storage || 0) / quota) * 100));
 
-          {filteredWorkspaces.length > 0 ? (
-            <section
-              className={`admin-workspace-grid ${
-                viewMode === "list"
-                  ? "admin-workspace-list-mode"
-                  : ""
-              }`}
-            >
-              {filteredWorkspaces.map((workspace) => (
-                <WorkspaceCard
-                  key={workspace.id}
-                  workspace={workspace}
-                  activeMenu={activeMenu}
-                  setActiveMenu={setActiveMenu}
-                  onView={() => {
-                    setSelectedWorkspace(workspace);
-                    setActiveMenu(null);
-                  }}
-                  onStatus={() =>
-                    toggleStatus(workspace.id)
-                  }
-                  onDelete={() =>
-                    deleteWorkspace(workspace.id)
-                  }
-                />
-              ))}
-            </section>
+                return (
+                  <div
+                    key={ws.id}
+                    className={`admin-workspace-card ${isSelected ? "card-selected" : ""}`}
+                  >
+                    {/* CARD HEADER */}
+                    <div className="admin-workspace-card-header">
+                      <div className="card-header-left">
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() => toggleSelectOne(ws.id)}
+                          aria-label={`Select ${ws.name}`}
+                        />
+                        <div className="admin-workspace-avatar">
+                          {ws.name.charAt(0).toUpperCase()}
+                        </div>
+                        <div className="admin-workspace-title-area">
+                          <h3
+                            className="clickable-title"
+                            onClick={() => setViewingWorkspace(ws)}
+                          >
+                            {ws.name}
+                          </h3>
+                          <div className="admin-workspace-tags">
+                            <span className={`status-badge status-${(ws.status || "Active").toLowerCase()}`}>
+                              <span className="dot" />
+                              {ws.status}
+                            </span>
+                            <span className={`plan-badge plan-${(ws.plan || "Pro").toLowerCase()}`}>
+                              {ws.plan}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* MORE MENU */}
+                      <div className="card-menu-wrap">
+                        <button
+                          type="button"
+                          className="card-menu-btn"
+                          onClick={() => setActiveMenuId(activeMenuId === ws.id ? null : ws.id)}
+                          aria-label="More actions"
+                        >
+                          <MoreVertical size={16} />
+                        </button>
+
+                        {activeMenuId === ws.id && (
+                          <div className="card-menu-dropdown">
+                            <button type="button" onClick={() => { setViewingWorkspace(ws); setActiveMenuId(null); }}>
+                              <Eye size={14} /> View Details
+                            </button>
+                            <button type="button" onClick={() => openEditModal(ws)}>
+                              <Pencil size={14} /> Edit Workspace
+                            </button>
+                            <button type="button" onClick={() => duplicateWorkspace(ws)}>
+                              <Copy size={14} /> Duplicate
+                            </button>
+                            <button type="button" onClick={() => { setQuotaModal(ws); setQuotaValue(ws.quota || 100); setActiveMenuId(null); }}>
+                              <Sliders size={14} /> Adjust Quota
+                            </button>
+                            <button type="button" onClick={() => toggleStatus(ws.id)}>
+                              {ws.status === "Active" ? <Ban size={14} /> : <CheckCircle2 size={14} />}
+                              {ws.status === "Active" ? "Suspend Workspace" : "Activate Workspace"}
+                            </button>
+                            <button type="button" className="menu-danger" onClick={() => deleteWorkspace(ws.id, ws.name)}>
+                              <Trash2 size={14} /> Delete
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* OWNER ROW */}
+                    <div className="admin-workspace-owner-row">
+                      <div className="owner-avatar">
+                        {(ws.owner || "U").charAt(0).toUpperCase()}
+                      </div>
+                      <div className="owner-text">
+                        <strong>{ws.owner}</strong>
+                        <span>{ws.email}</span>
+                      </div>
+                    </div>
+
+                    {/* METRICS (MEMBERS & PROJECTS) */}
+                    <div className="admin-workspace-metrics-row">
+                      <div className="metric-box">
+                        <Users size={16} />
+                        <span><strong>{ws.members}</strong> Members</span>
+                      </div>
+                      <div className="metric-box">
+                        <FolderKanban size={16} />
+                        <span><strong>{ws.projects}</strong> Projects</span>
+                      </div>
+                    </div>
+
+                    {/* STORAGE PROGRESS */}
+                    <div className="admin-workspace-storage-area">
+                      <div className="storage-labels">
+                        <span><HardDrive size={13} /> Storage</span>
+                        <strong>{ws.storage} GB / {quota} GB ({storagePercent}%)</strong>
+                      </div>
+                      <div className="storage-track">
+                        <div
+                          className={`storage-fill ${storagePercent > 80 ? "critical" : storagePercent > 60 ? "warning" : ""}`}
+                          style={{ width: `${storagePercent}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    {/* CARD FOOTER */}
+                    <div className="admin-workspace-card-footer">
+                      <span className="created-date">Created {ws.created}</span>
+                      <div className="card-quick-actions">
+                        <button
+                          type="button"
+                          className="quick-btn"
+                          title="View Details"
+                          onClick={() => setViewingWorkspace(ws)}
+                        >
+                          <Eye size={15} />
+                        </button>
+                        <button
+                          type="button"
+                          className="quick-btn"
+                          title="Edit Workspace"
+                          onClick={() => openEditModal(ws)}
+                        >
+                          <Pencil size={15} />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           ) : (
+            /* TABLE VIEW */
+            <div className="admin-workspace-table-wrap">
+              <table className="admin-workspace-table">
+                <thead>
+                  <tr>
+                    <th style={{ width: 44, textAlign: "center" }}>
+                      <input
+                        type="checkbox"
+                        checked={selectedIds.length === filteredWorkspaces.length && filteredWorkspaces.length > 0}
+                        onChange={toggleSelectAll}
+                        aria-label="Select all"
+                      />
+                    </th>
+                    <th>Workspace</th>
+                    <th>Status</th>
+                    <th>Owner</th>
+                    <th>Members</th>
+                    <th>Projects</th>
+                    <th>Storage</th>
+                    <th>Created</th>
+                    <th style={{ textAlign: "right" }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredWorkspaces.map((ws) => {
+                    const isSelected = selectedIds.includes(ws.id);
+                    const quota = ws.quota || 100;
+                    const storagePercent = Math.min(100, Math.round(((ws.storage || 0) / quota) * 100));
+
+                    return (
+                      <tr key={ws.id} className={isSelected ? "row-selected" : ""}>
+                        <td style={{ textAlign: "center" }}>
+                          <input
+                            type="checkbox"
+                            checked={isSelected}
+                            onChange={() => toggleSelectOne(ws.id)}
+                            aria-label={`Select ${ws.name}`}
+                          />
+                        </td>
+                        <td>
+                          <div className="table-ws-cell">
+                            <div className="admin-workspace-avatar sm">
+                              {ws.name.charAt(0).toUpperCase()}
+                            </div>
+                            <div>
+                              <strong
+                                className="clickable-title"
+                                onClick={() => setViewingWorkspace(ws)}
+                              >
+                                {ws.name}
+                              </strong>
+                              <span className={`plan-badge plan-${(ws.plan || "Pro").toLowerCase()}`}>
+                                {ws.plan}
+                              </span>
+                            </div>
+                          </div>
+                        </td>
+                        <td>
+                          <span className={`status-badge status-${(ws.status || "Active").toLowerCase()}`}>
+                            <span className="dot" />
+                            {ws.status}
+                          </span>
+                        </td>
+                        <td>
+                          <div className="table-owner-cell">
+                            <strong>{ws.owner}</strong>
+                            <span>{ws.email}</span>
+                          </div>
+                        </td>
+                        <td>{ws.members}</td>
+                        <td>{ws.projects}</td>
+                        <td>
+                          <div className="table-storage-cell">
+                            <span>{ws.storage} / {quota} GB ({storagePercent}%)</span>
+                            <div className="storage-track sm">
+                              <div
+                                className={`storage-fill ${storagePercent > 80 ? "critical" : storagePercent > 60 ? "warning" : ""}`}
+                                style={{ width: `${storagePercent}%` }}
+                              />
+                            </div>
+                          </div>
+                        </td>
+                        <td>{ws.created}</td>
+                        <td style={{ textAlign: "right" }}>
+                          <div className="table-actions">
+                            <button
+                              type="button"
+                              className="quick-btn"
+                              title="View"
+                              onClick={() => setViewingWorkspace(ws)}
+                            >
+                              <Eye size={15} />
+                            </button>
+                            <button
+                              type="button"
+                              className="quick-btn"
+                              title="Edit"
+                              onClick={() => openEditModal(ws)}
+                            >
+                              <Pencil size={15} />
+                            </button>
+                            <button
+                              type="button"
+                              className="quick-btn delete"
+                              title="Delete"
+                              onClick={() => deleteWorkspace(ws.id, ws.name)}
+                            >
+                              <Trash2 size={15} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {filteredWorkspaces.length === 0 && (
             <div className="admin-workspace-empty">
-              <Building2 size={40} />
-
+              <Building2 size={44} />
               <h3>No workspaces found</h3>
-
-              <p>
-                Try changing your search or filters.
-              </p>
-
+              <p>Try adjusting your search criteria, status, or plan filter.</p>
               <button
                 type="button"
+                className="admin-workspace-clear-btn-solid"
                 onClick={() => {
-                  setWorkspaceSearch("");
+                  setSearch("");
                   setStatusFilter("All");
                   setPlanFilter("All");
                 }}
               >
-                Clear Filters
+                Clear All Filters
               </button>
             </div>
           )}
         </main>
       </div>
 
-      {/* =====================================================
-          CREATE WORKSPACE MODAL
-      ===================================================== */}
-
+      {/* CREATE / EDIT MODAL */}
       {createModal && (
         <div
           className="admin-workspace-modal-overlay"
-          onMouseDown={(event) => {
-            if (event.target === event.currentTarget) {
-              setCreateModal(false);
-            }
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget) setCreateModal(false);
           }}
         >
-          <div className="admin-workspace-modal">
+          <div className="admin-workspace-modal" role="dialog" aria-modal="true">
             <div className="admin-workspace-modal-header">
               <div>
-                <h2>Create Workspace</h2>
+                <h2>{editingWorkspace ? "Edit Workspace" : "Create New Workspace"}</h2>
                 <p>
-                  Create and configure a new TeamFlow AI workspace.
+                  {editingWorkspace
+                    ? "Update tenant configurations, quotas, and owner assignments."
+                    : "Provision a multi-tenant workspace with custom quotas."}
                 </p>
               </div>
-
               <button
                 type="button"
+                className="modal-close-btn"
                 onClick={() => setCreateModal(false)}
+                aria-label="Close modal"
               >
-                <X size={17} />
+                <X size={20} />
               </button>
             </div>
 
-            <form
-              className="admin-workspace-form"
-              onSubmit={handleCreateWorkspace}
-            >
-              <label>
-                Workspace Name
-
+            <form onSubmit={handleFormSubmit} className="admin-workspace-form">
+              <div className="form-group">
+                <label>
+                  Workspace Name <span className="req">*</span>
+                </label>
                 <input
-                  type="text"
+                  name="name"
+                  value={form.name}
+                  onChange={handleFormChange}
+                  placeholder="e.g. Design Studio"
                   required
-                  placeholder="Engineering Team"
-                  value={newWorkspace.name}
-                  onChange={(event) =>
-                    setNewWorkspace({
-                      ...newWorkspace,
-                      name: event.target.value,
-                    })
-                  }
                 />
-              </label>
-
-              <div className="admin-workspace-form-grid">
-                <label>
-                  Owner Name
-
-                  <input
-                    type="text"
-                    required
-                    placeholder="John Doe"
-                    value={newWorkspace.owner}
-                    onChange={(event) =>
-                      setNewWorkspace({
-                        ...newWorkspace,
-                        owner: event.target.value,
-                      })
-                    }
-                  />
-                </label>
-
-                <label>
-                  Owner Email
-
-                  <input
-                    type="email"
-                    required
-                    placeholder="john@company.com"
-                    value={newWorkspace.email}
-                    onChange={(event) =>
-                      setNewWorkspace({
-                        ...newWorkspace,
-                        email: event.target.value,
-                      })
-                    }
-                  />
-                </label>
               </div>
 
-              <label>
-                Subscription Plan
+              <div className="form-group">
+                <label>Slug / Identifier</label>
+                <input
+                  name="slug"
+                  value={form.slug}
+                  onChange={handleFormChange}
+                  placeholder="design-studio"
+                />
+              </div>
 
-                <select
-                  value={newWorkspace.plan}
-                  onChange={(event) =>
-                    setNewWorkspace({
-                      ...newWorkspace,
-                      plan: event.target.value,
-                    })
-                  }
-                >
-                  <option value="Free">Free</option>
-                  <option value="Pro">Pro</option>
-                  <option value="Business">Business</option>
-                  <option value="Enterprise">Enterprise</option>
-                </select>
-              </label>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>
+                    Owner Name <span className="req">*</span>
+                  </label>
+                  <input
+                    name="owner"
+                    value={form.owner}
+                    onChange={handleFormChange}
+                    placeholder="e.g. Sarah Chen"
+                    required
+                  />
+                </div>
 
-              <div className="admin-workspace-modal-actions">
+                <div className="form-group">
+                  <label>
+                    Owner Email <span className="req">*</span>
+                  </label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={form.email}
+                    onChange={handleFormChange}
+                    placeholder="name@company.com"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Subscription Plan</label>
+                  <select name="plan" value={form.plan} onChange={handleFormChange}>
+                    <option value="Free">Free Plan</option>
+                    <option value="Pro">Pro Plan</option>
+                    <option value="Business">Business Plan</option>
+                    <option value="Enterprise">Enterprise Plan</option>
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <label>Status</label>
+                  <select name="status" value={form.status} onChange={handleFormChange}>
+                    <option value="Active">Active</option>
+                    <option value="Suspended">Suspended</option>
+                    <option value="Inactive">Inactive</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Storage Quota (GB)</label>
+                  <input
+                    type="number"
+                    name="quota"
+                    min="10"
+                    max="1000"
+                    value={form.quota}
+                    onChange={handleFormChange}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Initial Members</label>
+                  <input
+                    type="number"
+                    name="members"
+                    min="1"
+                    max="500"
+                    value={form.members}
+                    onChange={handleFormChange}
+                  />
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label>Description</label>
+                <textarea
+                  name="description"
+                  rows={3}
+                  value={form.description}
+                  onChange={handleFormChange}
+                  placeholder="Describe workspace purpose and target department..."
+                />
+              </div>
+
+              <div className="modal-actions">
                 <button
                   type="button"
-                  className="admin-workspace-cancel"
+                  className="btn-cancel"
                   onClick={() => setCreateModal(false)}
                 >
                   Cancel
                 </button>
-
-                <button
-                  type="submit"
-                  className="admin-workspace-save"
-                >
-                  <Plus size={15} />
-                  Create Workspace
+                <button type="submit" className="btn-submit">
+                  {editingWorkspace ? "Save Changes" : "Create Workspace"}
                 </button>
               </div>
             </form>
@@ -1213,136 +1181,157 @@ function AdminWorkspace() {
         </div>
       )}
 
-      {/* =====================================================
-          WORKSPACE DETAILS MODAL
-      ===================================================== */}
-
-      {selectedWorkspace && (
+      {/* VIEW DETAILS MODAL */}
+      {viewingWorkspace && (
         <div
           className="admin-workspace-modal-overlay"
-          onMouseDown={(event) => {
-            if (event.target === event.currentTarget) {
-              setSelectedWorkspace(null);
-            }
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget) setViewingWorkspace(null);
           }}
         >
-          <div className="admin-workspace-details">
-            <button
-              type="button"
-              className="admin-workspace-details-close"
-              onClick={() => setSelectedWorkspace(null)}
-            >
-              <X size={17} />
-            </button>
-
-            <div className="admin-workspace-details-logo">
-              {selectedWorkspace.name
-                .charAt(0)
-                .toUpperCase()}
+          <div className="admin-workspace-modal view-modal">
+            <div className="admin-workspace-modal-header">
+              <div>
+                <h2>Workspace Overview</h2>
+                <p>Detailed organizational tenant telemetry.</p>
+              </div>
+              <button
+                type="button"
+                className="modal-close-btn"
+                onClick={() => setViewingWorkspace(null)}
+              >
+                <X size={20} />
+              </button>
             </div>
 
-            <h2>{selectedWorkspace.name}</h2>
+            <div className="view-modal-body">
+              <div className="view-hero">
+                <div className="admin-workspace-avatar lg">
+                  {viewingWorkspace.name.charAt(0).toUpperCase()}
+                </div>
+                <div>
+                  <h3>{viewingWorkspace.name}</h3>
+                  <p>{viewingWorkspace.description || "Multi-tenant workspace."}</p>
+                  <div className="view-badges">
+                    <span className={`status-badge status-${(viewingWorkspace.status || "Active").toLowerCase()}`}>
+                      <span className="dot" />
+                      {viewingWorkspace.status}
+                    </span>
+                    <span className={`plan-badge plan-${(viewingWorkspace.plan || "Pro").toLowerCase()}`}>
+                      {viewingWorkspace.plan}
+                    </span>
+                  </div>
+                </div>
+              </div>
 
-            <StatusBadge
-              status={selectedWorkspace.status}
-            />
-
-            <div className="admin-workspace-details-grid">
-              <Detail
-                label="Owner"
-                value={selectedWorkspace.owner}
-              />
-
-              <Detail
-                label="Email"
-                value={selectedWorkspace.email}
-              />
-
-              <Detail
-                label="Members"
-                value={selectedWorkspace.members}
-              />
-
-              <Detail
-                label="Projects"
-                value={selectedWorkspace.projects}
-              />
-
-              <Detail
-                label="Plan"
-                value={selectedWorkspace.plan}
-              />
-
-              <Detail
-                label="Storage"
-                value={`${selectedWorkspace.storage}%`}
-              />
-
-              <Detail
-                label="Created"
-                value={selectedWorkspace.created}
-              />
-
-              <Detail
-                label="Status"
-                value={selectedWorkspace.status}
-              />
+              <div className="view-details-grid">
+                <div className="detail-item">
+                  <label>Primary Owner</label>
+                  <span>{viewingWorkspace.owner}</span>
+                </div>
+                <div className="detail-item">
+                  <label>Contact Email</label>
+                  <span>{viewingWorkspace.email}</span>
+                </div>
+                <div className="detail-item">
+                  <label>Assigned Members</label>
+                  <span>{viewingWorkspace.members} seats</span>
+                </div>
+                <div className="detail-item">
+                  <label>Active Projects</label>
+                  <span>{viewingWorkspace.projects} projects</span>
+                </div>
+                <div className="detail-item">
+                  <label>Storage Utilization</label>
+                  <span>{viewingWorkspace.storage} GB / {viewingWorkspace.quota || 100} GB</span>
+                </div>
+                <div className="detail-item">
+                  <label>Created Date</label>
+                  <span>{viewingWorkspace.created}</span>
+                </div>
+              </div>
             </div>
 
-            <button
-              type="button"
-              className="admin-workspace-save"
-              onClick={() => setSelectedWorkspace(null)}
-            >
-              Close
-            </button>
+            <div className="modal-actions">
+              <button
+                type="button"
+                className="btn-cancel"
+                onClick={() => {
+                  const target = viewingWorkspace;
+                  setViewingWorkspace(null);
+                  openEditModal(target);
+                }}
+              >
+                <Pencil size={15} /> Edit Workspace
+              </button>
+              <button
+                type="button"
+                className="btn-submit"
+                onClick={() => setViewingWorkspace(null)}
+              >
+                Done
+              </button>
+            </div>
           </div>
         </div>
       )}
 
-      {/* =====================================================
-          HELP MODAL
-      ===================================================== */}
-
-      {helpOpen && (
+      {/* ADJUST QUOTA MODAL */}
+      {quotaModal && (
         <div
           className="admin-workspace-modal-overlay"
-          onMouseDown={(event) => {
-            if (event.target === event.currentTarget) {
-              setHelpOpen(false);
-            }
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget) setQuotaModal(null);
           }}
         >
-          <div className="admin-workspace-help-card">
-            <button
-              type="button"
-              className="admin-workspace-help-close"
-              onClick={() => setHelpOpen(false)}
-            >
-              <X size={17} />
-            </button>
+          <div className="admin-workspace-modal sm">
+            <div className="admin-workspace-modal-header">
+              <div>
+                <h2>Adjust Storage Quota</h2>
+                <p>Change allocated disk quota for {quotaModal.name}.</p>
+              </div>
+              <button
+                type="button"
+                className="modal-close-btn"
+                onClick={() => setQuotaModal(null)}
+              >
+                <X size={20} />
+              </button>
+            </div>
 
-            <span className="admin-workspace-help-icon">
-              <CircleHelp size={25} />
-            </span>
+            <div className="admin-workspace-form">
+              <div className="form-group">
+                <label>Storage Quota: <strong>{quotaValue} GB</strong></label>
+                <input
+                  type="range"
+                  min="20"
+                  max="1000"
+                  step="10"
+                  value={quotaValue}
+                  onChange={(e) => setQuotaValue(e.target.value)}
+                />
+                <small style={{ color: "#64748b", marginTop: 4 }}>
+                  Current usage: {quotaModal.storage} GB
+                </small>
+              </div>
 
-            <h2>TeamFlow AI Support</h2>
-
-            <p>
-              Need help managing users, workspaces,
-              subscriptions or platform settings?
-              Contact the TeamFlow AI support team.
-            </p>
-
-            <button
-              type="button"
-              onClick={() => {
-                window.location.href =
-                  "mailto:support@teamflow.ai?subject=TeamFlow AI Admin Support";
-              }}
-            >
-              Contact Support
-            </button>
+              <div className="modal-actions">
+                <button
+                  type="button"
+                  className="btn-cancel"
+                  onClick={() => setQuotaModal(null)}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  className="btn-submit"
+                  onClick={handleSaveQuota}
+                >
+                  Save Quota
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
@@ -1350,230 +1339,15 @@ function AdminWorkspace() {
   );
 }
 
-/* =========================================================
-   STAT CARD
-========================================================= */
-
-function StatCard({
-  icon,
-  color,
-  title,
-  value,
-  description,
-}) {
+function StatCard({ icon, title, value, type, description }) {
   return (
-    <div className="admin-workspace-stat-card">
-      <div className={`admin-workspace-stat-icon ${color}`}>
-        {icon}
-      </div>
-
-      <div>
-        <span>{title}</span>
-        <strong>{value}</strong>
-        <small>{description}</small>
+    <div className={`admin-workspace-stat-card stat-${type}`}>
+      <div className={`admin-workspace-stat-icon ${type}`}>{icon}</div>
+      <div className="admin-workspace-stat-info">
+        <span className="admin-workspace-stat-label">{title}</span>
+        <strong className="admin-workspace-stat-value">{value}</strong>
+        <small className="admin-workspace-stat-desc">{description}</small>
       </div>
     </div>
   );
 }
-
-/* =========================================================
-   WORKSPACE CARD
-========================================================= */
-
-function WorkspaceCard({
-  workspace,
-  activeMenu,
-  setActiveMenu,
-  onView,
-  onStatus,
-  onDelete,
-}) {
-  return (
-    <article className="admin-workspace-card">
-      <div className="admin-workspace-card-header">
-        <div className="admin-workspace-title-area">
-          <div className="admin-workspace-card-logo">
-            {workspace.name.charAt(0).toUpperCase()}
-          </div>
-
-          <div>
-            <h3>{workspace.name}</h3>
-
-            <StatusBadge status={workspace.status} />
-          </div>
-        </div>
-
-        <div className="admin-workspace-menu-container">
-          <button
-            type="button"
-            className="admin-workspace-menu-button"
-            onClick={() =>
-              setActiveMenu(
-                activeMenu === workspace.id
-                  ? null
-                  : workspace.id
-              )
-            }
-            aria-label={`Actions for ${workspace.name}`}
-          >
-            <MoreVertical size={17} />
-          </button>
-
-          {activeMenu === workspace.id && (
-            <div className="admin-workspace-dropdown">
-              <button
-                type="button"
-                onClick={onView}
-              >
-                <Eye size={15} />
-                View
-              </button>
-
-              <button
-                type="button"
-                onClick={onStatus}
-              >
-                {workspace.status === "Active" ? (
-                  <>
-                    <Ban size={15} />
-                    Suspend
-                  </>
-                ) : (
-                  <>
-                    <CheckCircle2 size={15} />
-                    Activate
-                  </>
-                )}
-              </button>
-
-              <button
-                type="button"
-                className="danger"
-                onClick={onDelete}
-              >
-                <Trash2 size={15} />
-                Delete
-              </button>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* OWNER */}
-
-      <div className="admin-workspace-owner">
-        <div className="admin-workspace-owner-avatar">
-          {workspace.owner.charAt(0).toUpperCase()}
-        </div>
-
-        <div>
-          <strong>{workspace.owner}</strong>
-          <span>{workspace.email}</span>
-        </div>
-      </div>
-
-      {/* STATISTICS */}
-
-      <div className="admin-workspace-card-stats">
-        <div>
-          <Users size={15} />
-
-          <span>
-            <strong>{workspace.members}</strong>
-            Members
-          </span>
-        </div>
-
-        <div>
-          <FolderKanban size={15} />
-
-          <span>
-            <strong>{workspace.projects}</strong>
-            Projects
-          </span>
-        </div>
-      </div>
-
-      {/* STORAGE */}
-
-      <div className="admin-workspace-storage">
-        <div>
-          <span>
-            <HardDrive size={13} />
-            Storage
-          </span>
-
-          <strong>{workspace.storage}%</strong>
-        </div>
-
-        <div className="admin-workspace-storage-track">
-          <span
-            style={{
-              width: `${workspace.storage}%`,
-            }}
-          />
-        </div>
-      </div>
-
-      {/* META */}
-
-      <div className="admin-workspace-card-meta">
-        <PlanBadge plan={workspace.plan} />
-
-        <small>Created {workspace.created}</small>
-      </div>
-
-      <button
-        type="button"
-        className="admin-workspace-view-btn"
-        onClick={onView}
-      >
-        <Eye size={14} />
-        View Workspace
-      </button>
-    </article>
-  );
-}
-
-/* =========================================================
-   STATUS BADGE
-========================================================= */
-
-function StatusBadge({ status }) {
-  return (
-    <span
-      className={`admin-workspace-status ${status.toLowerCase()}`}
-    >
-      {status}
-    </span>
-  );
-}
-
-/* =========================================================
-   PLAN BADGE
-========================================================= */
-
-function PlanBadge({ plan }) {
-  return (
-    <span
-      className={`admin-workspace-plan ${plan.toLowerCase()}`}
-    >
-      {plan}
-    </span>
-  );
-}
-
-/* =========================================================
-   DETAIL ITEM
-========================================================= */
-
-function Detail({ label, value }) {
-  return (
-    <div className="admin-workspace-detail-item">
-      <span>{label}</span>
-      <strong>{value}</strong>
-    </div>
-  );
-}
-
-export default AdminWorkspace;

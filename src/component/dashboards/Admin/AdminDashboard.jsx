@@ -1,2119 +1,1521 @@
-import React, {
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
-
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useMemo, useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 
 import {
-  Search,
-  Plus,
-  ChevronDown,
-  Moon,
-  Sun,
-  Bell,
-  CircleHelp,
+  CalendarDays,
   Users,
   Building2,
   FolderKanban,
   ListChecks,
-  DollarSign,
-  Bot,
-  Activity,
-  ArrowUpRight,
-  RefreshCw,
-  Settings,
-  LogOut,
-  X,
-  CheckCircle2,
-  CreditCard,
-  Zap,
   TrendingUp,
+  ArrowRight,
+  Check,
+  ChevronDown,
+  Sparkles,
+  MessageSquare,
+  Lightbulb,
+  FileText,
+  Layers,
 } from "lucide-react";
 
-import AdminSidebar from "../../../layouts/AdminSidebar/AdminSidebar.jsx";
-
-import {
-  fallbackUsers,
-  fallbackWorkspaces,
-  fallbackProjects,
-  fallbackTasks,
-  fallbackTransactions,
-  fallbackGrowth,
-  systemHealth,
-} from "./adminDashboardData.js";
-
+import AdminSidebar from "./AdminSidebar.jsx";
+import AdminTopbar from "./AdminTopbar.jsx";
 import "./AdminDashboard.css";
 
 /* =========================================================
-   LOCAL STORAGE
+   TIMEFRAME DATA MATRIX
+   Dynamic data that responds to user selection
 ========================================================= */
 
-function readStorage(keys, fallback) {
-  for (const key of keys) {
-    try {
-      const value = localStorage.getItem(key);
+const TIMEFRAME_DATA = {
+  "This Month": {
+    label: "Oct 1, 2024 - Oct 31, 2024",
+    stats: {
+      users: 48,
+      usersTrend: "↑ 12%",
+      usersSub: "+ 5 this month",
+      workspaces: 6,
+      workspacesTrend: "↑ 20%",
+      workspacesSub: "+ 1 this month",
+      projects: 12,
+      projectsTrend: "↑ 9%",
+      projectsSub: "+ 1 this month",
+      tasks: 248,
+      tasksTrend: "↑ 15%",
+      tasksSub: "+ 32 this month",
+    },
+    taskStatus: {
+      total: 248,
+      completed: 120,
+      completedPct: 48,
+      inProgress: 68,
+      inProgressPct: 27,
+      todo: 45,
+      todoPct: 18,
+      overdue: 15,
+      overduePct: 6,
+    },
+    projects: [
+      {
+        id: 1,
+        name: "TeamFlow Website",
+        progress: 85,
+        status: "On Track",
+        dueDate: "Oct 25, 2024",
+        team: [
+          { name: "Priya Patel", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=faces" },
+          { name: "Rahul Sharma", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=faces" },
+          { name: "Sneha Gupta", avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces" },
+        ],
+        extraTeamCount: 3,
+        color: "#10b981",
+      },
+      {
+        id: 2,
+        name: "Mobile App",
+        progress: 62,
+        status: "In Progress",
+        dueDate: "Nov 10, 2024",
+        team: [
+          { name: "Abhishek Verma", avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=faces" },
+          { name: "Priya Patel", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=faces" },
+          { name: "Rahul Sharma", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=faces" },
+        ],
+        extraTeamCount: 5,
+        color: "#3b82f6",
+      },
+      {
+        id: 3,
+        name: "AI Integration",
+        progress: 40,
+        status: "At Risk",
+        dueDate: "Nov 18, 2024",
+        team: [
+          { name: "David Lee", avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=faces" },
+          { name: "Sneha Gupta", avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces" },
+        ],
+        extraTeamCount: 4,
+        color: "#f59e0b",
+      },
+      {
+        id: 4,
+        name: "Marketing Portal",
+        progress: 25,
+        status: "Delayed",
+        dueDate: "Dec 05, 2024",
+        team: [
+          { name: "Elena Rostova", avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop&crop=faces" },
+          { name: "Alex Rivera", avatar: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=100&h=100&fit=crop&crop=faces" },
+        ],
+        extraTeamCount: 2,
+        color: "#ef4444",
+      },
+    ],
+    tasks: [
+      { id: 1, title: "Review UI design", project: "TeamFlow Website", priority: "High", dueDisplay: "Today", completed: false },
+      { id: 2, title: "API integration testing", project: "Mobile App", priority: "Medium", dueDisplay: "Tomorrow", completed: false },
+      { id: 3, title: "Update project documentation", project: "AI Integration", priority: "Low", dueDisplay: "Oct 26", completed: false },
+      { id: 4, title: "Team meeting preparation", project: "Internal", priority: "Medium", dueDisplay: "Oct 28", completed: false },
+    ],
+    activities: [
+      { id: 1, time: "10:42 AM", user: "Priya Patel", role: "Team Lead", avatarColor: "#3b82f6", letter: "P", action: "Created a project", details: "TeamFlow Website" },
+      { id: 2, time: "10:20 AM", user: "Rahul Sharma", role: "Developer", avatarColor: "#6366f1", letter: "R", action: "Invited a user", details: "sneha@abc.com" },
+      { id: 3, time: "09:55 AM", user: "Sneha Gupta", role: "Designer", avatarColor: "#f97316", letter: "S", action: "Updated task status", details: "UI Design - In Progress" },
+      { id: 4, time: "09:32 AM", user: "Abhishek Verma", role: "Developer", avatarColor: "#06b6d4", letter: "A", action: "Added a comment", details: "API integration issue" },
+      { id: 5, time: "09:10 AM", user: "Priya Patel", role: "Team Lead", avatarColor: "#3b82f6", letter: "P", action: "Created a workspace", details: "Development Team" },
+    ],
+    aiUsage: {
+      totalRequests: "12,480",
+      growth: "↑ 18%",
+      monthly: [
+        { month: "Jan", height: 18 },
+        { month: "Feb", height: 26 },
+        { month: "Mar", height: 35 },
+        { month: "Apr", height: 44 },
+        { month: "May", height: 52 },
+        { month: "Jun", height: 60 },
+        { month: "Jul", height: 68 },
+        { month: "Aug", height: 78 },
+        { month: "Sep", height: 88 },
+        { month: "Oct", height: 98 },
+      ],
+      features: [
+        { id: 1, name: "Chat Assistant", percentage: 42, color: "#f97316", icon: "chat" },
+        { id: 2, name: "Task Suggestions", percentage: 24, color: "#3b82f6", icon: "task" },
+        { id: 3, name: "Content Generation", percentage: 18, color: "#10b981", icon: "content" },
+        { id: 4, name: "Summaries", percentage: 10, color: "#f59e0b", icon: "summary" },
+        { id: 5, name: "Other", percentage: 6, color: "#8b5cf6", icon: "other" },
+      ],
+    },
+  },
 
-      if (value) {
-        const parsed = JSON.parse(value);
+  "Today": {
+    label: "Today (Oct 26, 2024)",
+    stats: {
+      users: 48,
+      usersTrend: "↑ 6%",
+      usersSub: "18 active members",
+      workspaces: 6,
+      workspacesTrend: "↑ 10%",
+      workspacesSub: "4 units active",
+      projects: 8,
+      projectsTrend: "↑ 4%",
+      projectsSub: "3 sprints updated",
+      tasks: 18,
+      tasksTrend: "↑ 18%",
+      tasksSub: "+ 10 closed today",
+    },
+    taskStatus: {
+      total: 18,
+      completed: 10,
+      completedPct: 56,
+      inProgress: 5,
+      inProgressPct: 28,
+      todo: 3,
+      todoPct: 16,
+      overdue: 0,
+      overduePct: 0,
+    },
+    projects: [
+      {
+        id: 1,
+        name: "TeamFlow Website",
+        progress: 88,
+        status: "On Track",
+        dueDate: "Today 6:00 PM",
+        team: [
+          { name: "Priya Patel", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=faces" },
+          { name: "Rahul Sharma", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=faces" },
+        ],
+        extraTeamCount: 3,
+        color: "#10b981",
+      },
+      {
+        id: 2,
+        name: "Mobile App",
+        progress: 64,
+        status: "In Progress",
+        dueDate: "Today 8:00 PM",
+        team: [
+          { name: "Abhishek Verma", avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=faces" },
+          { name: "Rahul Sharma", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=faces" },
+        ],
+        extraTeamCount: 4,
+        color: "#3b82f6",
+      },
+      {
+        id: 3,
+        name: "AI Integration",
+        progress: 42,
+        status: "At Risk",
+        dueDate: "Review Due",
+        team: [
+          { name: "David Lee", avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=faces" },
+        ],
+        extraTeamCount: 3,
+        color: "#f59e0b",
+      },
+      {
+        id: 4,
+        name: "Marketing Portal",
+        progress: 25,
+        status: "Delayed",
+        dueDate: "Pending Assets",
+        team: [
+          { name: "Elena Rostova", avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop&crop=faces" },
+        ],
+        extraTeamCount: 2,
+        color: "#ef4444",
+      },
+    ],
+    tasks: [
+      { id: 1, title: "Review UI design", project: "TeamFlow Website", priority: "High", dueDisplay: "Today", completed: true },
+      { id: 2, title: "API integration testing", project: "Mobile App", priority: "Medium", dueDisplay: "Today", completed: false },
+      { id: 3, title: "Deploy staging build", project: "Mobile App", priority: "High", dueDisplay: "Today", completed: true },
+      { id: 4, title: "Team sync standup", project: "Internal", priority: "Low", dueDisplay: "Today", completed: true },
+    ],
+    activities: [
+      { id: 1, time: "10:42 AM", user: "Priya Patel", role: "Team Lead", avatarColor: "#3b82f6", letter: "P", action: "Created a project", details: "TeamFlow Website" },
+      { id: 2, time: "10:20 AM", user: "Rahul Sharma", role: "Developer", avatarColor: "#6366f1", letter: "R", action: "Invited a user", details: "sneha@abc.com" },
+      { id: 3, time: "09:55 AM", user: "Sneha Gupta", role: "Designer", avatarColor: "#f97316", letter: "S", action: "Updated task status", details: "UI Design - In Progress" },
+      { id: 4, time: "09:32 AM", user: "Abhishek Verma", role: "Developer", avatarColor: "#06b6d4", letter: "A", action: "Added a comment", details: "API integration issue" },
+      { id: 5, time: "09:10 AM", user: "Priya Patel", role: "Team Lead", avatarColor: "#3b82f6", letter: "P", action: "Created a workspace", details: "Development Team" },
+    ],
+    aiUsage: {
+      totalRequests: "620",
+      growth: "↑ 8%",
+      monthly: [
+        { month: "8 AM", height: 20 },
+        { month: "9 AM", height: 35 },
+        { month: "10 AM", height: 60 },
+        { month: "11 AM", height: 80 },
+        { month: "12 PM", height: 50 },
+        { month: "1 PM", height: 45 },
+        { month: "2 PM", height: 75 },
+        { month: "3 PM", height: 90 },
+        { month: "4 PM", height: 85 },
+        { month: "Now", height: 100 },
+      ],
+      features: [
+        { id: 1, name: "Chat Assistant", percentage: 48, color: "#f97316", icon: "chat" },
+        { id: 2, name: "Task Suggestions", percentage: 22, color: "#3b82f6", icon: "task" },
+        { id: 3, name: "Content Generation", percentage: 16, color: "#10b981", icon: "content" },
+        { id: 4, name: "Summaries", percentage: 10, color: "#f59e0b", icon: "summary" },
+        { id: 5, name: "Other", percentage: 4, color: "#8b5cf6", icon: "other" },
+      ],
+    },
+  },
 
-        if (Array.isArray(parsed)) {
-          return parsed;
-        }
-      }
-    } catch {
-      // Try next storage key.
-    }
-  }
+  "Yesterday": {
+    label: "Yesterday (Oct 25, 2024)",
+    stats: {
+      users: 48,
+      usersTrend: "↑ 5%",
+      usersSub: "16 active sessions",
+      workspaces: 6,
+      workspacesTrend: "↑ 8%",
+      workspacesSub: "4 units active",
+      projects: 8,
+      projectsTrend: "↑ 5%",
+      projectsSub: "2 milestones closed",
+      tasks: 24,
+      tasksTrend: "↑ 20%",
+      tasksSub: "+ 16 completed",
+    },
+    taskStatus: {
+      total: 24,
+      completed: 16,
+      completedPct: 67,
+      inProgress: 5,
+      inProgressPct: 21,
+      todo: 3,
+      todoPct: 12,
+      overdue: 0,
+      overduePct: 0,
+    },
+    projects: [
+      {
+        id: 1,
+        name: "TeamFlow Website",
+        progress: 85,
+        status: "On Track",
+        dueDate: "Oct 25, 2024",
+        team: [
+          { name: "Priya Patel", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=faces" },
+          { name: "Rahul Sharma", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=faces" },
+        ],
+        extraTeamCount: 3,
+        color: "#10b981",
+      },
+      {
+        id: 2,
+        name: "Mobile App",
+        progress: 60,
+        status: "In Progress",
+        dueDate: "Nov 10, 2024",
+        team: [
+          { name: "Abhishek Verma", avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=faces" },
+          { name: "Rahul Sharma", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=faces" },
+        ],
+        extraTeamCount: 4,
+        color: "#3b82f6",
+      },
+      {
+        id: 3,
+        name: "AI Integration",
+        progress: 38,
+        status: "At Risk",
+        dueDate: "Nov 18, 2024",
+        team: [
+          { name: "David Lee", avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=faces" },
+        ],
+        extraTeamCount: 3,
+        color: "#f59e0b",
+      },
+      {
+        id: 4,
+        name: "Marketing Portal",
+        progress: 24,
+        status: "Delayed",
+        dueDate: "Dec 05, 2024",
+        team: [
+          { name: "Elena Rostova", avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop&crop=faces" },
+        ],
+        extraTeamCount: 2,
+        color: "#ef4444",
+      },
+    ],
+    tasks: [
+      { id: 1, title: "Auth token refresh", project: "Backend API", priority: "High", dueDisplay: "Yesterday", completed: true },
+      { id: 2, title: "Component library review", project: "TeamFlow Website", priority: "Medium", dueDisplay: "Yesterday", completed: true },
+      { id: 3, title: "Staging database migration", project: "Backend API", priority: "High", dueDisplay: "Yesterday", completed: true },
+      { id: 4, title: "Sprint retrospectives", project: "Internal", priority: "Low", dueDisplay: "Yesterday", completed: true },
+    ],
+    activities: [
+      { id: 1, time: "Yesterday 5:15 PM", user: "Rahul Sharma", role: "Developer", avatarColor: "#6366f1", letter: "R", action: "Merged PR #142", details: "Fix WebSocket reconnects" },
+      { id: 2, time: "Yesterday 3:40 PM", user: "Priya Patel", role: "Team Lead", avatarColor: "#3b82f6", letter: "P", action: "Approved release", details: "v2.4.0-rc1" },
+      { id: 3, time: "Yesterday 2:10 PM", user: "Sneha Gupta", role: "Designer", avatarColor: "#f97316", letter: "S", action: "Uploaded assets", details: "Figma SaaS Design Kit" },
+      { id: 4, time: "Yesterday 11:30 AM", user: "Abhishek Verma", role: "Developer", avatarColor: "#06b6d4", letter: "A", action: "Closed issue", details: "Ticket #409 resolved" },
+      { id: 5, time: "Yesterday 9:00 AM", user: "Priya Patel", role: "Team Lead", avatarColor: "#3b82f6", letter: "P", action: "Sprint kickoff", details: "Sprint 42 Plan" },
+    ],
+    aiUsage: {
+      totalRequests: "840",
+      growth: "↑ 12%",
+      monthly: [
+        { month: "8 AM", height: 18 },
+        { month: "10 AM", height: 42 },
+        { month: "12 PM", height: 68 },
+        { month: "2 PM", height: 85 },
+        { month: "4 PM", height: 80 },
+        { month: "6 PM", height: 62 },
+        { month: "8 PM", height: 48 },
+        { month: "10 PM", height: 32 },
+        { month: "11 PM", height: 22 },
+        { month: "Close", height: 15 },
+      ],
+      features: [
+        { id: 1, name: "Chat Assistant", percentage: 44, color: "#f97316", icon: "chat" },
+        { id: 2, name: "Task Suggestions", percentage: 26, color: "#3b82f6", icon: "task" },
+        { id: 3, name: "Content Generation", percentage: 15, color: "#10b981", icon: "content" },
+        { id: 4, name: "Summaries", percentage: 10, color: "#f59e0b", icon: "summary" },
+        { id: 5, name: "Other", percentage: 5, color: "#8b5cf6", icon: "other" },
+      ],
+    },
+  },
 
-  return fallback;
-}
+  "7 Days": {
+    label: "Last 7 Days (Oct 20 - Oct 26, 2024)",
+    stats: {
+      users: 48,
+      usersTrend: "↑ 10%",
+      usersSub: "+ 2 new members",
+      workspaces: 6,
+      workspacesTrend: "↑ 15%",
+      workspacesSub: "6 active units",
+      projects: 10,
+      projectsTrend: "↑ 8%",
+      projectsSub: "+ 1 this week",
+      tasks: 72,
+      tasksTrend: "↑ 14%",
+      tasksSub: "+ 38 closed this week",
+    },
+    taskStatus: {
+      total: 72,
+      completed: 38,
+      completedPct: 53,
+      inProgress: 20,
+      inProgressPct: 28,
+      todo: 11,
+      todoPct: 15,
+      overdue: 3,
+      overduePct: 4,
+    },
+    projects: [
+      {
+        id: 1,
+        name: "TeamFlow Website",
+        progress: 85,
+        status: "On Track",
+        dueDate: "Oct 25, 2024",
+        team: [
+          { name: "Priya Patel", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=faces" },
+          { name: "Rahul Sharma", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=faces" },
+        ],
+        extraTeamCount: 3,
+        color: "#10b981",
+      },
+      {
+        id: 2,
+        name: "Mobile App",
+        progress: 62,
+        status: "In Progress",
+        dueDate: "Nov 10, 2024",
+        team: [
+          { name: "Abhishek Verma", avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=faces" },
+          { name: "Priya Patel", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=faces" },
+        ],
+        extraTeamCount: 5,
+        color: "#3b82f6",
+      },
+      {
+        id: 3,
+        name: "AI Integration",
+        progress: 40,
+        status: "At Risk",
+        dueDate: "Nov 18, 2024",
+        team: [
+          { name: "David Lee", avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=faces" },
+        ],
+        extraTeamCount: 4,
+        color: "#f59e0b",
+      },
+      {
+        id: 4,
+        name: "Marketing Portal",
+        progress: 25,
+        status: "Delayed",
+        dueDate: "Dec 05, 2024",
+        team: [
+          { name: "Elena Rostova", avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop&crop=faces" },
+        ],
+        extraTeamCount: 2,
+        color: "#ef4444",
+      },
+    ],
+    tasks: [
+      { id: 1, title: "Review UI design", project: "TeamFlow Website", priority: "High", dueDisplay: "Today", completed: false },
+      { id: 2, title: "API integration testing", project: "Mobile App", priority: "Medium", dueDisplay: "Tomorrow", completed: false },
+      { id: 3, title: "Update project documentation", project: "AI Integration", priority: "Low", dueDisplay: "Oct 26", completed: false },
+      { id: 4, title: "Team meeting preparation", project: "Internal", priority: "Medium", dueDisplay: "Oct 28", completed: false },
+    ],
+    activities: [
+      { id: 1, time: "Oct 26", user: "Priya Patel", role: "Team Lead", avatarColor: "#3b82f6", letter: "P", action: "Created a project", details: "TeamFlow Website" },
+      { id: 2, time: "Oct 25", user: "Rahul Sharma", role: "Developer", avatarColor: "#6366f1", letter: "R", action: "Invited a user", details: "sneha@abc.com" },
+      { id: 3, time: "Oct 24", user: "Sneha Gupta", role: "Designer", avatarColor: "#f97316", letter: "S", action: "Updated task status", details: "UI Design - In Progress" },
+      { id: 4, time: "Oct 23", user: "Abhishek Verma", role: "Developer", avatarColor: "#06b6d4", letter: "A", action: "Added a comment", details: "API integration issue" },
+      { id: 5, time: "Oct 22", user: "Priya Patel", role: "Team Lead", avatarColor: "#3b82f6", letter: "P", action: "Created a workspace", details: "Development Team" },
+    ],
+    aiUsage: {
+      totalRequests: "4,150",
+      growth: "↑ 14%",
+      monthly: [
+        { month: "Mon", height: 38 },
+        { month: "Tue", height: 52 },
+        { month: "Wed", height: 65 },
+        { month: "Thu", height: 80 },
+        { month: "Fri", height: 92 },
+        { month: "Sat", height: 42 },
+        { month: "Sun", height: 58 },
+        { month: "Mon", height: 74 },
+        { month: "Tue", height: 88 },
+        { month: "Today", height: 100 },
+      ],
+      features: [
+        { id: 1, name: "Chat Assistant", percentage: 45, color: "#f97316", icon: "chat" },
+        { id: 2, name: "Task Suggestions", percentage: 25, color: "#3b82f6", icon: "task" },
+        { id: 3, name: "Content Generation", percentage: 17, color: "#10b981", icon: "content" },
+        { id: 4, name: "Summaries", percentage: 9, color: "#f59e0b", icon: "summary" },
+        { id: 5, name: "Other", percentage: 4, color: "#8b5cf6", icon: "other" },
+      ],
+    },
+  },
 
-/* =========================================================
-   LINE CHART
-========================================================= */
+  "Last Month": {
+    label: "Last Month (Sep 1 - Sep 30, 2024)",
+    stats: {
+      users: 43,
+      usersTrend: "↑ 10%",
+      usersSub: "+ 4 in September",
+      workspaces: 5,
+      workspacesTrend: "↑ 15%",
+      workspacesSub: "+ 1 in September",
+      projects: 11,
+      projectsTrend: "↑ 8%",
+      projectsSub: "+ 2 in September",
+      tasks: 216,
+      tasksTrend: "↑ 12%",
+      tasksSub: "+ 28 in September",
+    },
+    taskStatus: {
+      total: 216,
+      completed: 112,
+      completedPct: 52,
+      inProgress: 58,
+      inProgressPct: 27,
+      todo: 36,
+      todoPct: 17,
+      overdue: 10,
+      overduePct: 4,
+    },
+    projects: [
+      {
+        id: 1,
+        name: "TeamFlow Website",
+        progress: 65,
+        status: "In Progress",
+        dueDate: "Sep 30, 2024",
+        team: [
+          { name: "Priya Patel", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=faces" },
+          { name: "Rahul Sharma", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=faces" },
+        ],
+        extraTeamCount: 3,
+        color: "#10b981",
+      },
+      {
+        id: 2,
+        name: "Mobile App",
+        progress: 45,
+        status: "In Progress",
+        dueDate: "Oct 15, 2024",
+        team: [
+          { name: "Abhishek Verma", avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=faces" },
+        ],
+        extraTeamCount: 3,
+        color: "#3b82f6",
+      },
+      {
+        id: 3,
+        name: "AI Integration",
+        progress: 20,
+        status: "At Risk",
+        dueDate: "Oct 30, 2024",
+        team: [
+          { name: "David Lee", avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=faces" },
+        ],
+        extraTeamCount: 2,
+        color: "#f59e0b",
+      },
+      {
+        id: 4,
+        name: "Marketing Portal",
+        progress: 10,
+        status: "On Track",
+        dueDate: "Nov 15, 2024",
+        team: [
+          { name: "Elena Rostova", avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop&crop=faces" },
+        ],
+        extraTeamCount: 2,
+        color: "#ef4444",
+      },
+    ],
+    tasks: [
+      { id: 1, title: "Database schema migration", project: "Backend API", priority: "High", dueDisplay: "Sep 28", completed: true },
+      { id: 2, title: "OAuth 2.0 implementation", project: "Backend API", priority: "Critical", dueDisplay: "Sep 25", completed: true },
+      { id: 3, title: "Figma wireframe design", project: "TeamFlow Website", priority: "Medium", dueDisplay: "Sep 22", completed: true },
+      { id: 4, title: "Quarterly planning sync", project: "Internal", priority: "Low", dueDisplay: "Sep 20", completed: true },
+    ],
+    activities: [
+      { id: 1, time: "Sep 30", user: "Priya Patel", role: "Team Lead", avatarColor: "#3b82f6", letter: "P", action: "Closed milestone", details: "Sprint 40 Release" },
+      { id: 2, time: "Sep 28", user: "Rahul Sharma", role: "Developer", avatarColor: "#6366f1", letter: "R", action: "Completed task", details: "Database migration" },
+      { id: 3, time: "Sep 24", user: "Sneha Gupta", role: "Designer", avatarColor: "#f97316", letter: "S", action: "Published component", details: "SaaS Design System" },
+      { id: 4, time: "Sep 20", user: "Abhishek Verma", role: "Developer", avatarColor: "#06b6d4", letter: "A", action: "Created repository", details: "teamflow-core-api" },
+      { id: 5, time: "Sep 15", user: "Priya Patel", role: "Team Lead", avatarColor: "#3b82f6", letter: "P", action: "Created a workspace", details: "Research Lab" },
+    ],
+    aiUsage: {
+      totalRequests: "10,240",
+      growth: "↑ 15%",
+      monthly: [
+        { month: "W1", height: 32 },
+        { month: "W2", height: 48 },
+        { month: "W3", height: 68 },
+        { month: "W4", height: 82 },
+        { month: "Sep 10", height: 58 },
+        { month: "Sep 15", height: 72 },
+        { month: "Sep 20", height: 88 },
+        { month: "Sep 25", height: 82 },
+        { month: "Sep 28", height: 92 },
+        { month: "Sep 30", height: 98 },
+      ],
+      features: [
+        { id: 1, name: "Chat Assistant", percentage: 40, color: "#f97316", icon: "chat" },
+        { id: 2, name: "Task Suggestions", percentage: 25, color: "#3b82f6", icon: "task" },
+        { id: 3, name: "Content Generation", percentage: 18, color: "#10b981", icon: "content" },
+        { id: 4, name: "Summaries", percentage: 11, color: "#f59e0b", icon: "summary" },
+        { id: 5, name: "Other", percentage: 6, color: "#8b5cf6", icon: "other" },
+      ],
+    },
+  },
 
-function LineChart({ data }) {
-  const width = 650;
-  const height = 210;
+  "All Time": {
+    label: "All Time (Complete History)",
+    stats: {
+      users: 54,
+      usersTrend: "↑ 28%",
+      usersSub: "Total registered",
+      workspaces: 6,
+      workspacesTrend: "↑ 20%",
+      workspacesSub: "Active organizations",
+      projects: 16,
+      projectsTrend: "↑ 33%",
+      projectsSub: "Lifetime projects",
+      tasks: 480,
+      tasksTrend: "↑ 45%",
+      tasksSub: "+ 285 tasks completed",
+    },
+    taskStatus: {
+      total: 480,
+      completed: 285,
+      completedPct: 59,
+      inProgress: 115,
+      inProgressPct: 24,
+      todo: 62,
+      todoPct: 13,
+      overdue: 18,
+      overduePct: 4,
+    },
+    projects: [
+      {
+        id: 1,
+        name: "TeamFlow Website",
+        progress: 100,
+        status: "On Track",
+        dueDate: "Completed",
+        team: [
+          { name: "Priya Patel", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=faces" },
+          { name: "Rahul Sharma", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=faces" },
+        ],
+        extraTeamCount: 3,
+        color: "#10b981",
+      },
+      {
+        id: 2,
+        name: "Mobile App",
+        progress: 75,
+        status: "In Progress",
+        dueDate: "Nov 10, 2024",
+        team: [
+          { name: "Abhishek Verma", avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=faces" },
+        ],
+        extraTeamCount: 5,
+        color: "#3b82f6",
+      },
+      {
+        id: 3,
+        name: "AI Integration",
+        progress: 55,
+        status: "At Risk",
+        dueDate: "Nov 18, 2024",
+        team: [
+          { name: "David Lee", avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=faces" },
+        ],
+        extraTeamCount: 4,
+        color: "#f59e0b",
+      },
+      {
+        id: 4,
+        name: "Marketing Portal",
+        progress: 40,
+        status: "Delayed",
+        dueDate: "Dec 05, 2024",
+        team: [
+          { name: "Elena Rostova", avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop&crop=faces" },
+        ],
+        extraTeamCount: 2,
+        color: "#ef4444",
+      },
+    ],
+    tasks: [
+      { id: 1, title: "Review UI design", project: "TeamFlow Website", priority: "High", dueDisplay: "Today", completed: false },
+      { id: 2, title: "API integration testing", project: "Mobile App", priority: "Medium", dueDisplay: "Tomorrow", completed: false },
+      { id: 3, title: "Update project documentation", project: "AI Integration", priority: "Low", dueDisplay: "Oct 26", completed: false },
+      { id: 4, title: "Team meeting preparation", project: "Internal", priority: "Medium", dueDisplay: "Oct 28", completed: false },
+    ],
+    activities: [
+      { id: 1, time: "Oct 26", user: "Priya Patel", role: "Team Lead", avatarColor: "#3b82f6", letter: "P", action: "Created a project", details: "TeamFlow Website" },
+      { id: 2, time: "Oct 25", user: "Rahul Sharma", role: "Developer", avatarColor: "#6366f1", letter: "R", action: "Invited a user", details: "sneha@abc.com" },
+      { id: 3, time: "Oct 20", user: "Sneha Gupta", role: "Designer", avatarColor: "#f97316", letter: "S", action: "Updated task status", details: "UI Design - In Progress" },
+      { id: 4, time: "Oct 15", user: "Abhishek Verma", role: "Developer", avatarColor: "#06b6d4", letter: "A", action: "Added a comment", details: "API integration issue" },
+      { id: 5, time: "Oct 01", user: "Priya Patel", role: "Team Lead", avatarColor: "#3b82f6", letter: "P", action: "Created a workspace", details: "Development Team" },
+    ],
+    aiUsage: {
+      totalRequests: "48,920",
+      growth: "↑ 32%",
+      monthly: [
+        { month: "Q1", height: 25 },
+        { month: "Q2", height: 45 },
+        { month: "Q3", height: 65 },
+        { month: "Q4", height: 85 },
+        { month: "Jul", height: 60 },
+        { month: "Aug", height: 75 },
+        { month: "Sep", height: 90 },
+        { month: "Oct", height: 98 },
+        { month: "Nov", height: 80 },
+        { month: "Peak", height: 100 },
+      ],
+      features: [
+        { id: 1, name: "Chat Assistant", percentage: 46, color: "#f97316", icon: "chat" },
+        { id: 2, name: "Task Suggestions", percentage: 24, color: "#3b82f6", icon: "task" },
+        { id: 3, name: "Content Generation", percentage: 17, color: "#10b981", icon: "content" },
+        { id: 4, name: "Summaries", percentage: 9, color: "#f59e0b", icon: "summary" },
+        { id: 5, name: "Other", percentage: 4, color: "#8b5cf6", icon: "other" },
+      ],
+    },
+  },
+};
 
-  const paddingX = 28;
-  const paddingTop = 20;
-  const paddingBottom = 25;
+const TEAM_MEMBERS_DATA = [
+  { id: 1, name: "Priya Patel", role: "Team Lead", status: "Online", color: "#3b82f6", letter: "P" },
+  { id: 2, name: "Rahul Sharma", role: "Developer", status: "Online", color: "#6366f1", letter: "R" },
+  { id: 3, name: "Sneha Gupta", role: "Designer", status: "In a meeting", color: "#f97316", letter: "S" },
+  { id: 4, name: "Abhishek Verma", role: "Developer", status: "Offline", color: "#06b6d4", letter: "A" },
+];
 
-  const [hovered, setHovered] = useState(null);
-
-  const maxValue = Math.max(
-    ...data.flatMap((item) => [
-      Number(item.users || 0),
-      Number(item.active || 0),
-    ]),
-    1
-  );
-
-  const getPoint = (item, index, key) => {
-    const x =
-      paddingX +
-      (index * (width - paddingX * 2)) /
-        Math.max(data.length - 1, 1);
-
-    const y =
-      height -
-      paddingBottom -
-      (Number(item[key] || 0) / maxValue) *
-        (height - paddingTop - paddingBottom);
-
-    return {
-      x,
-      y,
-    };
-  };
-
-  const createPoints = (key) =>
-    data
-      .map((item, index) => {
-        const point = getPoint(
-          item,
-          index,
-          key
-        );
-
-        return `${point.x},${point.y}`;
-      })
-      .join(" ");
-
-  return (
-    <div className="tf-live-line-chart">
-      <svg
-        viewBox={`0 0 ${width} ${height}`}
-        preserveAspectRatio="none"
-      >
-        {[0, 1, 2, 3].map((line) => {
-          const y = 40 + line * 42;
-
-          return (
-            <line
-              key={line}
-              x1="0"
-              x2={width}
-              y1={y}
-              y2={y}
-              className="tf-chart-grid-line"
-            />
-          );
-        })}
-
-        <polyline
-          points={createPoints("users")}
-          className="tf-users-line"
-        />
-
-        <polyline
-          points={createPoints("active")}
-          className="tf-active-line"
-        />
-
-        {data.map((item, index) => {
-          const usersPoint = getPoint(
-            item,
-            index,
-            "users"
-          );
-
-          const activePoint = getPoint(
-            item,
-            index,
-            "active"
-          );
-
-          return (
-            <React.Fragment key={item.label}>
-              <circle
-                cx={usersPoint.x}
-                cy={usersPoint.y}
-                r="5"
-                className="tf-users-point"
-                onMouseEnter={() =>
-                  setHovered({
-                    ...item,
-                    x: usersPoint.x,
-                    y: usersPoint.y,
-                  })
-                }
-                onMouseLeave={() =>
-                  setHovered(null)
-                }
-              >
-                <title>
-                  {item.label}: {item.users} users
-                </title>
-              </circle>
-
-              <circle
-                cx={activePoint.x}
-                cy={activePoint.y}
-                r="4"
-                className="tf-active-point"
-                onMouseEnter={() =>
-                  setHovered({
-                    ...item,
-                    x: activePoint.x,
-                    y: activePoint.y,
-                  })
-                }
-                onMouseLeave={() =>
-                  setHovered(null)
-                }
-              >
-                <title>
-                  {item.label}: {item.active} active
-                </title>
-              </circle>
-            </React.Fragment>
-          );
-        })}
-
-        {hovered && (
-          <g className="tf-svg-tooltip">
-            <rect
-              x={Math.min(
-                hovered.x + 8,
-                520
-              )}
-              y={Math.max(
-                hovered.y - 58,
-                5
-              )}
-              width="115"
-              height="48"
-              rx="7"
-            />
-
-            <text
-              x={Math.min(
-                hovered.x + 18,
-                530
-              )}
-              y={Math.max(
-                hovered.y - 39,
-                24
-              )}
-            >
-              {hovered.label}
-            </text>
-
-            <text
-              x={Math.min(
-                hovered.x + 18,
-                530
-              )}
-              y={Math.max(
-                hovered.y - 23,
-                40
-              )}
-            >
-              Users: {hovered.users}
-            </text>
-
-            <text
-              x={Math.min(
-                hovered.x + 18,
-                530
-              )}
-              y={Math.max(
-                hovered.y - 9,
-                54
-              )}
-            >
-              Active: {hovered.active}
-            </text>
-          </g>
-        )}
-      </svg>
-
-      <div className="tf-chart-labels">
-        {data.map((item) => (
-          <span key={item.label}>
-            {item.label}
-          </span>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-/* =========================================================
-   DONUT CHART
-========================================================= */
-
-function DonutChart({ workspaces }) {
-  const [selectedSegment, setSelectedSegment] =
-    useState(null);
-
-  const distribution = useMemo(() => {
-    const result = {};
-
-    workspaces.forEach((workspace) => {
-      const category =
-        workspace.category ||
-        workspace.type ||
-        "Other";
-
-      result[category] =
-        (result[category] || 0) + 1;
-    });
-
-    return Object.entries(result);
-  }, [workspaces]);
-
-  const total = Math.max(
-    workspaces.length,
-    1
-  );
-
-  let offset = 0;
-
-  const segments = distribution.map(
-    ([name, value], index) => {
-      const percentage =
-        (value / total) * 100;
-
-      const segment = {
-        name,
-        value,
-        percentage,
-        offset,
-        index,
-      };
-
-      offset += percentage;
-
-      return segment;
-    }
-  );
-
-  const selected = segments.find(
-    (segment) =>
-      segment.name === selectedSegment
-  );
-
-  return (
-    <div className="tf-workspace-distribution">
-      <div className="tf-donut-wrapper">
-        <svg viewBox="0 0 42 42">
-          <circle
-            cx="21"
-            cy="21"
-            r="15.9155"
-            className="tf-donut-background"
-          />
-
-          {segments.map((segment) => (
-            <circle
-              key={segment.name}
-              cx="21"
-              cy="21"
-              r="15.9155"
-              className={`tf-donut-segment tf-donut-${
-                segment.index % 6
-              } ${
-                selectedSegment ===
-                segment.name
-                  ? "selected"
-                  : ""
-              }`}
-              strokeDasharray={`${
-                segment.percentage
-              } ${
-                100 -
-                segment.percentage
-              }`}
-              strokeDashoffset={
-                -segment.offset
-              }
-              onMouseEnter={() =>
-                setSelectedSegment(
-                  segment.name
-                )
-              }
-              onMouseLeave={() =>
-                setSelectedSegment(null)
-              }
-            >
-              <title>
-                {segment.name}:{" "}
-                {segment.value} (
-                {segment.percentage.toFixed(
-                  1
-                )}
-                %)
-              </title>
-            </circle>
-          ))}
-        </svg>
-
-        <div className="tf-donut-center">
-          {selected ? (
-            <>
-              <strong>
-                {selected.value}
-              </strong>
-
-              <span>
-                {selected.name}
-              </span>
-            </>
-          ) : (
-            <>
-              <strong>
-                {workspaces.length}
-              </strong>
-
-              <span>
-                Workspaces
-              </span>
-            </>
-          )}
-        </div>
-      </div>
-
-      <div className="tf-donut-legend">
-        {segments.map((segment) => (
-          <div
-            key={segment.name}
-            onMouseEnter={() =>
-              setSelectedSegment(
-                segment.name
-              )
-            }
-            onMouseLeave={() =>
-              setSelectedSegment(null)
-            }
-          >
-            <span
-              className={`tf-legend-dot tf-legend-${
-                segment.index % 6
-              }`}
-            />
-
-            <span>
-              {segment.name}
-            </span>
-
-            <strong>
-              {segment.value}
-            </strong>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-/* =========================================================
-   ACTIVITY CHART
-========================================================= */
-
-function ActivityChart({ data }) {
-  const [hoveredDay, setHoveredDay] =
-    useState(null);
-
-  const max = Math.max(
-    ...data.map(
-      (item) =>
-        Number(item.completed || 0) +
-        Number(item.progress || 0) +
-        Number(item.todo || 0)
-    ),
-    1
-  );
-
-  return (
-    <div className="tf-activity-chart">
-      {data.map((item) => {
-        const total =
-          Number(item.completed || 0) +
-          Number(item.progress || 0) +
-          Number(item.todo || 0);
-
-        const height =
-          (total / max) * 100;
-
-        return (
-          <div
-            className="tf-activity-column"
-            key={item.label}
-            onMouseEnter={() =>
-              setHoveredDay(item.label)
-            }
-            onMouseLeave={() =>
-              setHoveredDay(null)
-            }
-          >
-            <div
-              className={`tf-activity-stack ${
-                hoveredDay === item.label
-                  ? "active"
-                  : ""
-              }`}
-              style={{
-                height: `${Math.max(
-                  height,
-                  10
-                )}%`,
-              }}
-            >
-              <span
-                className="tf-activity-completed"
-                style={{
-                  flex:
-                    item.completed ||
-                    0.1,
-                }}
-              />
-
-              <span
-                className="tf-activity-progress"
-                style={{
-                  flex:
-                    item.progress ||
-                    0.1,
-                }}
-              />
-
-              <span
-                className="tf-activity-todo"
-                style={{
-                  flex:
-                    item.todo ||
-                    0.1,
-                }}
-              />
-            </div>
-
-            <small>
-              {item.label}
-            </small>
-
-            {hoveredDay ===
-              item.label && (
-              <div className="tf-bar-tooltip">
-                <strong>
-                  {item.label}
-                </strong>
-
-                <span>
-                  Completed:{" "}
-                  {item.completed}
-                </span>
-
-                <span>
-                  In progress:{" "}
-                  {item.progress}
-                </span>
-
-                <span>
-                  To do: {item.todo}
-                </span>
-              </div>
-            )}
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
-/* =========================================================
-   MAIN DASHBOARD
-========================================================= */
-
-function AdminDashboard() {
+export default function AdminDashboard() {
   const navigate = useNavigate();
-  const searchRef = useRef(null);
+  const location = useLocation();
 
-  const [search, setSearch] =
-    useState("");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [dateFilter, setDateFilter] = useState("This Month");
+  const [dateDropdownOpen, setDateDropdownOpen] = useState(false);
 
-  const [showSearch, setShowSearch] =
-    useState(false);
-
-  const [createOpen, setCreateOpen] =
-    useState(false);
-
-  const [
-    notificationOpen,
-    setNotificationOpen,
-  ] = useState(false);
-
-  const [profileOpen, setProfileOpen] =
-    useState(false);
-
-  const [darkMode, setDarkMode] =
-    useState(false);
-
-  const [period, setPeriod] =
-    useState("30");
-
-  const [lastUpdated, setLastUpdated] =
-    useState(new Date());
-
-  const [dataVersion, setDataVersion] =
-    useState(0);
-
-  const [
-    notifications,
-    setNotifications,
-  ] = useState([
-    {
-      id: 1,
-      text: "New workspace created",
-      time: "2 min ago",
-      read: false,
-    },
-    {
-      id: 2,
-      text: "Enterprise payment received",
-      time: "18 min ago",
-      read: false,
-    },
-    {
-      id: 3,
-      text: "New user joined TeamFlow AI",
-      time: "42 min ago",
-      read: false,
-    },
-  ]);
-
-  /* =======================================================
-     LIVE DATA
-  ======================================================= */
-
-  const users = useMemo(
-    () => (dataVersion, readStorage(["teamflow_admin_users", "teamflow_users"], fallbackUsers)),
-    [dataVersion]
-  );
-
-  const workspaces = useMemo(
-    () => (dataVersion, readStorage(["teamflow_admin_workspaces", "teamflow_workspaces"], fallbackWorkspaces)),
-    [dataVersion]
-  );
-
-  const projects = useMemo(
-    () => (dataVersion, readStorage(["teamflow_projects", "teamflow_admin_projects"], fallbackProjects)),
-    [dataVersion]
-  );
-
-  const tasks = useMemo(() => {
-    void dataVersion;
-    const directTasks = readStorage(
-      ["teamflow_admin_tasks"],
-      []
-    );
-
-    if (directTasks.length) {
-      return directTasks;
-    }
-
-    const projectTasks =
-      projects.flatMap((project) =>
-        Array.isArray(project.tasks)
-          ? project.tasks
-          : []
-      );
-
-    return projectTasks.length
-      ? projectTasks
-      : fallbackTasks;
-  }, [projects, dataVersion]);
-
-  const transactions = useMemo(
-    () => (dataVersion, readStorage(["teamflow_admin_transactions"], fallbackTransactions)),
-    [dataVersion]
-  );
-
-  /* =======================================================
-     KPI
-  ======================================================= */
-
-  const revenue = useMemo(
-    () =>
-      transactions
-        .filter(
-          (transaction) =>
-            String(transaction.status).toLowerCase() === "paid"
-        )
-        .reduce(
-          (sum, transaction) =>
-            sum + Number(transaction.amount || 0),
-          0
-        ),
-    [transactions]
-  );
-
-  const aiCredits = useMemo(() => {
-    void dataVersion;
-    try {
-      const tools = JSON.parse(
-        localStorage.getItem(
-          "teamflow_admin_ai_tools"
-        ) || "[]"
-      );
-
-      if (!Array.isArray(tools)) {
-        return 0;
-      }
-
-      return tools.reduce(
-        (sum, tool) =>
-          sum +
-          Number(
-            tool.requests ||
-              tool.usage ||
-              0
-          ),
-        0
-      );
-    } catch {
-      return 0;
-    }
-  }, [dataVersion]);
-
-  const completedTasks =
-    tasks.filter(
-      (task) =>
-        String(task.status)
-          .trim()
-          .toLowerCase() ===
-        "completed"
-    ).length;
-
-  const activeProjects =
-    projects.filter(
-      (project) =>
-        String(project.status)
-          .trim()
-          .toLowerCase() !==
-        "completed"
-    ).length;
-
-  /* =======================================================
-     USER GROWTH
-  ======================================================= */
-
-  const growthData = useMemo(() => {
-    try {
-      const saved = JSON.parse(
-        localStorage.getItem(
-          "teamflow_admin_growth"
-        ) || "[]"
-      );
-
-      if (
-        Array.isArray(saved) &&
-        saved.length
-      ) {
-        return saved;
-      }
-    } catch {
-      // Use fallback.
-    }
-
-    const multiplier =
-      period === "7"
-        ? 0.85
-        : period === "90"
-          ? 1.18
-          : 1;
-
-    return fallbackGrowth.map(
-      (item) => ({
-        ...item,
-
-        users: Math.round(
-          item.users * multiplier
-        ),
-
-        active: Math.round(
-          item.active * multiplier
-        ),
-      })
-    );
-  }, [period]);
-
-  /* =======================================================
-     PROJECT ACTIVITY
-  ======================================================= */
-
-  const liveProjectActivity =
-    useMemo(() => {
-      try {
-        const saved = JSON.parse(
-          localStorage.getItem(
-            "teamflow_admin_project_activity"
-          ) || "[]"
-        );
-
-        if (
-          Array.isArray(saved) &&
-          saved.length
-        ) {
-          return saved;
-        }
-      } catch {
-        // Generate from tasks.
-      }
-
-      const completed =
-        tasks.filter(
-          (task) =>
-            String(task.status)
-              .trim()
-              .toLowerCase() ===
-            "completed"
-        ).length;
-
-      const progress =
-        tasks.filter((task) => {
-          const status = String(
-            task.status
-          )
-            .trim()
-            .toLowerCase();
-
-          return (
-            status ===
-              "in progress" ||
-            status === "progress"
-          );
-        }).length;
-
-      const todo =
-        tasks.filter((task) => {
-          const status = String(
-            task.status
-          )
-            .trim()
-            .toLowerCase();
-
-          return [
-            "to do",
-            "todo",
-            "pending",
-            "review",
-          ].includes(status);
-        }).length;
-
-      const labels = [
-        "Mon",
-        "Tue",
-        "Wed",
-        "Thu",
-        "Fri",
-        "Sat",
-        "Sun",
-      ];
-
-      const factors = [
-        0.55,
-        0.68,
-        0.61,
-        0.82,
-        0.7,
-        0.9,
-        1,
-      ];
-
-      return labels.map(
-        (label, index) => ({
-          label,
-
-          completed: Math.max(
-            1,
-            Math.round(
-              completed *
-                factors[index]
-            )
-          ),
-
-          progress: Math.max(
-            1,
-            Math.round(
-              progress *
-                factors[index]
-            )
-          ),
-
-          todo: Math.max(
-            1,
-            Math.round(
-              todo *
-                factors[index]
-            )
-          ),
-        })
-      );
-    }, [tasks]);
-
-  /* =======================================================
-     SEARCH
-  ======================================================= */
-
-  const searchItems = [
-    {
-      title: "Users",
-      subtitle: `${users.length} users`,
-      path: "/admin/users",
-    },
-    {
-      title: "Workspaces",
-      subtitle: `${workspaces.length} workspaces`,
-      path: "/admin/workspaces",
-    },
-    {
-      title: "Projects",
-      subtitle: `${projects.length} projects`,
-      path: "/admin/projects",
-    },
-    {
-      title: "Tasks",
-      subtitle: `${tasks.length} tasks`,
-      path: "/admin/tasks",
-    },
-    {
-      title: "Analytics",
-      subtitle: "Platform analytics",
-      path: "/admin/analytics",
-    },
-    {
-      title: "Billing",
-      subtitle: "Billing & payments",
-      path: "/admin/billing",
-    },
-    {
-      title: "Reports",
-      subtitle: "Platform reports",
-      path: "/admin/reports",
-    },
-    {
-      title: "Settings",
-      subtitle: "Platform settings",
-      path: "/admin/settings",
-    },
+  // Timeframe presets for the header dropdown
+  const DATE_PRESETS = [
+    { id: "This Month", label: "Oct 1, 2024 - Oct 31, 2024" },
+    { id: "Today", label: "Today (Oct 26, 2024)" },
+    { id: "Yesterday", label: "Yesterday (Oct 25, 2024)" },
+    { id: "7 Days", label: "Last 7 Days (Oct 20 - Oct 26, 2024)" },
+    { id: "Last Month", label: "Last Month (Sep 1 - Sep 30, 2024)" },
+    { id: "All Time", label: "All Time (Complete History)" },
   ];
 
-  const filteredSearch =
-    search.trim() === ""
-      ? []
-      : searchItems.filter((item) =>
-          `${item.title} ${item.subtitle}`
-            .toLowerCase()
-            .includes(
-              search.toLowerCase()
-            )
+  // Active dataset derived directly from selected dateFilter
+  const activeDataset = useMemo(() => {
+    return TIMEFRAME_DATA[dateFilter] || TIMEFRAME_DATA["This Month"];
+  }, [dateFilter]);
+
+  // Tasks state that allows interactive checking per timeframe
+  const [tasksState, setTasksState] = useState(() => activeDataset.tasks);
+
+  // Synchronize tasks when timeframe changes
+  useEffect(() => {
+    setTasksState(activeDataset.tasks);
+  }, [activeDataset]);
+
+  // Toggle tasks interactively
+  const toggleTask = (taskId) => {
+    setTasksState((prev) =>
+      prev.map((t) => (t.id === taskId ? { ...t, completed: !t.completed } : t))
+    );
+  };
+
+  // Status badge styling helper
+  const getStatusBadge = (status) => {
+    switch (status) {
+      case "On Track":
+        return <span className="tfAdminDashboard__status tfAdminDashboard__status--on-track">On Track</span>;
+      case "In Progress":
+        return <span className="tfAdminDashboard__status tfAdminDashboard__status--in-progress">In Progress</span>;
+      case "At Risk":
+        return <span className="tfAdminDashboard__status tfAdminDashboard__status--at-risk">At Risk</span>;
+      case "Delayed":
+        return <span className="tfAdminDashboard__status tfAdminDashboard__status--delayed">Delayed</span>;
+      default:
+        return <span className="tfAdminDashboard__status">{status}</span>;
+    }
+  };
+
+  // Priority badge helper
+  const getPriorityBadge = (priority) => {
+    switch (priority) {
+      case "High":
+        return <span className="tfAdminDashboard__priority tfAdminDashboard__priority--high">● High</span>;
+      case "Medium":
+        return <span className="tfAdminDashboard__priority tfAdminDashboard__priority--medium">● Medium</span>;
+      case "Low":
+        return <span className="tfAdminDashboard__priority tfAdminDashboard__priority--low">● Low</span>;
+      default:
+        return <span className="tfAdminDashboard__priority">● {priority}</span>;
+    }
+  };
+
+  // Feature icon helper
+  const renderFeatureIcon = (type) => {
+    switch (type) {
+      case "chat":
+        return (
+          <span className="tfAdminDashboard__featIcon" style={{ background: "#ffedd5", color: "#ea580c" }}>
+            <MessageSquare size={13} />
+          </span>
         );
-
-  /* =======================================================
-     REFRESH
-  ======================================================= */
-
-  const refreshDashboard = () => {
-    setDataVersion(
-      (value) => value + 1
-    );
-
-    setLastUpdated(new Date());
+      case "task":
+        return (
+          <span className="tfAdminDashboard__featIcon" style={{ background: "#dbeafe", color: "#2563eb" }}>
+            <Lightbulb size={13} />
+          </span>
+        );
+      case "content":
+        return (
+          <span className="tfAdminDashboard__featIcon" style={{ background: "#dcfce7", color: "#16a34a" }}>
+            <FileText size={13} />
+          </span>
+        );
+      case "summary":
+        return (
+          <span className="tfAdminDashboard__featIcon" style={{ background: "#fef3c7", color: "#d97706" }}>
+            <Layers size={13} />
+          </span>
+        );
+      default:
+        return (
+          <span className="tfAdminDashboard__featIcon" style={{ background: "#ede9fe", color: "#7c3aed" }}>
+            <Sparkles size={13} />
+          </span>
+        );
+    }
   };
 
-  useEffect(() => {
-    const handleStorage = () => {
-      refreshDashboard();
-    };
+  /* =========================================================
+     DYNAMIC SVG DONUT CALCULATIONS (R = 54, C ~ 339.292)
+  ========================================================= */
+  const C = 2 * Math.PI * 54;
+  const statusCounts = activeDataset.taskStatus;
+  const total = Math.max(1, statusCounts.total);
 
-    window.addEventListener(
-      "storage",
-      handleStorage
-    );
-
-    const interval = setInterval(
-      refreshDashboard,
-      15000
-    );
-
-    return () => {
-      window.removeEventListener(
-        "storage",
-        handleStorage
-      );
-
-      clearInterval(interval);
-    };
-  }, []);
-
-  /* =======================================================
-     KEYBOARD
-  ======================================================= */
-
-  useEffect(() => {
-    const handleKey = (event) => {
-      if (
-        (event.ctrlKey ||
-          event.metaKey) &&
-        event.key.toLowerCase() ===
-          "k"
-      ) {
-        event.preventDefault();
-
-        searchRef.current?.focus();
-        setShowSearch(true);
-      }
-
-      if (event.key === "Escape") {
-        setShowSearch(false);
-        setCreateOpen(false);
-        setNotificationOpen(false);
-        setProfileOpen(false);
-      }
-    };
-
-    window.addEventListener(
-      "keydown",
-      handleKey
-    );
-
-    return () =>
-      window.removeEventListener(
-        "keydown",
-        handleKey
-      );
-  }, []);
-
-  /* =======================================================
-     ACTIONS
-  ======================================================= */
-
-  const goTo = (path) => {
-    setCreateOpen(false);
-    setNotificationOpen(false);
-    setProfileOpen(false);
-    setShowSearch(false);
-
-    navigate(path);
-  };
-
-  const unreadCount =
-    notifications.filter(
-      (item) => !item.read
-    ).length;
-
-  const markAllRead = () => {
-    setNotifications((current) =>
-      current.map((item) => ({
-        ...item,
-        read: true,
-      }))
-    );
-  };
-
-  const logout = () => {
-    localStorage.removeItem(
-      "teamflow_admin"
-    );
-
-    localStorage.removeItem(
-      "teamflow_admin_logged_in"
-    );
-
-    sessionStorage.removeItem(
-      "teamflow_admin"
-    );
-
-    navigate("/login");
-  };
+  const p1 = (statusCounts.completed / total) * C;
+  const p2 = (statusCounts.inProgress / total) * C;
+  const p3 = (statusCounts.todo / total) * C;
+  const p4 = (statusCounts.overdue / total) * C;
 
   return (
-    <div
-      className={`tf-admin-dashboard ${
-        darkMode
-          ? "tf-admin-dashboard-dark"
-          : ""
-      }`}
-    >
-      <AdminSidebar />
+    <div className="tfAdminDashboard">
+      {/* SIDEBAR */}
+      <AdminSidebar mobileOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-      <div className="tf-admin-dashboard-main">
-        {/* TOP BAR */}
+      {/* MAIN CONTAINER */}
+      <main className="tfAdminDashboard__main">
+        {/* TOPBAR */}
+        <AdminTopbar onMobileMenuToggle={() => setSidebarOpen(true)} />
 
-        <header className="tf-admin-topbar">
-          <div className="tf-admin-search-wrap">
-            <div className="tf-admin-search">
-              <Search size={18} />
-
-              <input
-                ref={searchRef}
-                value={search}
-                placeholder="Search users, workspaces, projects, or anything..."
-                onFocus={() =>
-                  setShowSearch(true)
-                }
-                onChange={(event) => {
-                  setSearch(
-                    event.target.value
-                  );
-
-                  setShowSearch(true);
-                }}
-              />
-
-              {search ? (
-                <button
-                  type="button"
-                  onClick={() =>
-                    setSearch("")
-                  }
-                >
-                  <X size={15} />
-                </button>
-              ) : (
-                <kbd>Ctrl + K</kbd>
-              )}
+        {/* DASHBOARD CONTENT BODY */}
+        <div className="tfAdminDashboard__content">
+          {/* ===============================================
+              PAGE HEADER: GREETING & DYNAMIC DATE TIMEFRAME
+          =============================================== */}
+          <section className="tfAdminDashboard__pageHeader">
+            <div>
+              <h1>Welcome back, Amit! 👋</h1>
+              <p>Here's an overview of your organization's activity today.</p>
             </div>
 
-            {showSearch &&
-              search && (
-                <div className="tf-search-results">
-                  {filteredSearch.length ? (
-                    filteredSearch.map(
-                      (item) => (
-                        <button
-                          key={
-                            item.path
-                          }
-                          type="button"
-                          onClick={() =>
-                            goTo(
-                              item.path
-                            )
-                          }
-                        >
-                          <Search
-                            size={16}
-                          />
-
-                          <span>
-                            <strong>
-                              {
-                                item.title
-                              }
-                            </strong>
-
-                            <small>
-                              {
-                                item.subtitle
-                              }
-                            </small>
-                          </span>
-
-                          <ArrowUpRight
-                            size={14}
-                          />
-                        </button>
-                      )
-                    )
-                  ) : (
-                    <p>
-                      No matching
-                      results
-                    </p>
-                  )}
-                </div>
-              )}
-          </div>
-
-          <div className="tf-topbar-actions">
-            {/* CREATE */}
-
-            <div className="tf-dropdown-wrap">
+            <div className="tfAdminDashboard__dateWrapper">
               <button
                 type="button"
-                className="tf-create-btn"
-                onClick={() => {
-                  setCreateOpen(
-                    !createOpen
-                  );
-
-                  setNotificationOpen(
-                    false
-                  );
-
-                  setProfileOpen(false);
-                }}
+                className="tfAdminDashboard__dateButton"
+                onClick={() => setDateDropdownOpen((prev) => !prev)}
+                title="Filter dashboard by timeframe"
               >
-                <Plus size={18} />
-                Create
-                <ChevronDown
-                  size={15}
-                />
+                <CalendarDays size={16} />
+                <span>{activeDataset.label}</span>
+                <ChevronDown size={14} className={dateDropdownOpen ? "tf-rotate-180" : ""} />
               </button>
 
-              {createOpen && (
-                <div className="tf-create-menu">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      goTo(
-                        "/admin/workspaces"
-                      )
-                    }
-                  >
-                    <Building2
-                      size={17}
-                    />
-                    Workspace
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() =>
-                      goTo(
-                        "/admin/users"
-                      )
-                    }
-                  >
-                    <Users size={17} />
-                    User
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() =>
-                      goTo(
-                        "/admin/projects"
-                      )
-                    }
-                  >
-                    <FolderKanban
-                      size={17}
-                    />
-                    Project
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() =>
-                      goTo(
-                        "/admin/tasks"
-                      )
-                    }
-                  >
-                    <ListChecks
-                      size={17}
-                    />
-                    Task
-                  </button>
-                </div>
-              )}
-            </div>
-
-            {/* REFRESH */}
-
-            <button
-              type="button"
-              className="tf-top-icon"
-              title="Refresh dashboard"
-              onClick={
-                refreshDashboard
-              }
-            >
-              <RefreshCw size={17} />
-            </button>
-
-            {/* DARK MODE */}
-
-            <button
-              type="button"
-              className="tf-top-icon"
-              title="Toggle dark mode"
-              onClick={() =>
-                setDarkMode(
-                  !darkMode
-                )
-              }
-            >
-              {darkMode ? (
-                <Sun size={17} />
-              ) : (
-                <Moon size={17} />
-              )}
-            </button>
-
-            {/* NOTIFICATIONS */}
-
-            <div className="tf-dropdown-wrap">
-              <button
-                type="button"
-                className="tf-top-icon tf-bell"
-                onClick={() => {
-                  setNotificationOpen(
-                    !notificationOpen
-                  );
-
-                  setCreateOpen(false);
-                  setProfileOpen(false);
-                }}
-              >
-                <Bell size={17} />
-
-                {unreadCount > 0 && (
-                  <span>
-                    {unreadCount}
-                  </span>
-                )}
-              </button>
-
-              {notificationOpen && (
-                <div className="tf-notification-menu">
-                  <div className="tf-notification-head">
-                    <div>
-                      <strong>
-                        Notifications
-                      </strong>
-
-                      <small>
-                        {unreadCount}{" "}
-                        unread
-                      </small>
-                    </div>
-
+              {dateDropdownOpen && (
+                <div className="tfAdminDashboard__dateMenu">
+                  <div className="tfAdminDashboard__dateMenuTitle">Select Timeframe</div>
+                  {DATE_PRESETS.map((p) => (
                     <button
+                      key={p.id}
                       type="button"
-                      onClick={
-                        markAllRead
-                      }
+                      className={`tfAdminDashboard__dateMenuItem ${dateFilter === p.id ? "active" : ""}`}
+                      onClick={() => {
+                        setDateFilter(p.id);
+                        setDateDropdownOpen(false);
+                      }}
                     >
-                      Mark all read
+                      <Check size={14} className={dateFilter === p.id ? "tf-check-visible" : "tf-check-hidden"} />
+                      <span>{p.label}</span>
                     </button>
-                  </div>
-
-                  {notifications.map(
-                    (item) => (
-                      <div
-                        key={item.id}
-                        className={`tf-notification-row ${
-                          !item.read
-                            ? "unread"
-                            : ""
-                        }`}
-                      >
-                        <span className="tf-notification-icon">
-                          <Bell
-                            size={14}
-                          />
-                        </span>
-
-                        <div>
-                          <strong>
-                            {item.text}
-                          </strong>
-
-                          <small>
-                            {item.time}
-                          </small>
-                        </div>
-                      </div>
-                    )
-                  )}
+                  ))}
                 </div>
               )}
             </div>
+          </section>
 
-            {/* HELP */}
-
+          {/* ===============================================
+              ROW 1: 4 DYNAMIC KPI CARDS
+          =============================================== */}
+          <section className="tfAdminDashboard__statsGrid">
+            {/* TOTAL USERS */}
             <button
               type="button"
-              className="tf-top-icon"
-              onClick={() =>
-                alert(
-                  "TeamFlow AI Admin Support"
-                )
-              }
+              className="tfAdminDashboard__statCard"
+              onClick={() => navigate("/admin/users")}
             >
-              <CircleHelp
-                size={17}
-              />
-            </button>
-
-            {/* PROFILE */}
-
-            <div className="tf-dropdown-wrap">
-              <button
-                type="button"
-                className="tf-admin-profile"
-                onClick={() => {
-                  setProfileOpen(
-                    !profileOpen
-                  );
-
-                  setCreateOpen(false);
-
-                  setNotificationOpen(
-                    false
-                  );
-                }}
-              >
-                <span className="tf-profile-avatar">
-                  HR
-                </span>
-
-                <span>
-                  <strong>
-                    Himanshu
-                  </strong>
-
-                  <small>
-                    Super
-                    Administrator
-                  </small>
-                </span>
-
-                <ChevronDown
-                  size={15}
-                />
-              </button>
-
-              {profileOpen && (
-                <div className="tf-profile-menu">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      goTo(
-                        "/admin/settings"
-                      )
-                    }
-                  >
-                    <Settings
-                      size={16}
-                    />
-                    Settings
-                  </button>
-
-                  <button
-                    type="button"
-                    className="danger"
-                    onClick={logout}
-                  >
-                    <LogOut
-                      size={16}
-                    />
-                    Logout
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        </header>
-
-        {/* CONTENT */}
-
-        <main className="tf-dashboard-content">
-          {/* HERO */}
-
-          <section className="tf-dashboard-hero">
-            <div className="tf-hero-copy">
-              <span className="tf-eyebrow">
-                ADMIN DASHBOARD
+              <span className="tfAdminDashboard__statIcon tfAdminDashboard__statIcon--purple">
+                <Users size={22} />
               </span>
-
-              <h1>
-                Welcome back,{" "}
-                <span>Admin!</span> 👋
-              </h1>
-
-              <p>
-                Here's what's happening
-                across TeamFlow AI today.
-              </p>
-
-              <div className="tf-live-status">
-                <span />
-
-                Live data
-
-                <small>
-                  Updated{" "}
-                  {lastUpdated.toLocaleTimeString(
-                    [],
-                    {
-                      hour: "2-digit",
-                      minute:
-                        "2-digit",
-                    }
-                  )}
-                </small>
+              <div className="tfAdminDashboard__statContent">
+                <span>Total Users</span>
+                <div>
+                  <strong>{activeDataset.stats.users}</strong>
+                  <small>
+                    <TrendingUp size={11} />
+                    {activeDataset.stats.usersTrend}
+                  </small>
+                </div>
+                <p>{activeDataset.stats.usersSub}</p>
               </div>
-            </div>
-
-            <div className="tf-hero-actions">
-              <HeroAction
-                icon={<Users />}
-                title="Manage Users"
-                text={`${users.length} registered users`}
-                onClick={() =>
-                  goTo(
-                    "/admin/users"
-                  )
-                }
-              />
-
-              <HeroAction
-                icon={<Activity />}
-                title="Monitor Usage"
-                text={`${activeProjects} active projects`}
-                onClick={() =>
-                  goTo(
-                    "/admin/analytics"
-                  )
-                }
-              />
-
-              <HeroAction
-                icon={<Settings />}
-                title="Platform Settings"
-                text="Configure your platform"
-                onClick={() =>
-                  goTo(
-                    "/admin/settings"
-                  )
-                }
-              />
-
-              <HeroAction
-                icon={<TrendingUp />}
-                title="View Reports"
-                text="View detailed reports"
-                onClick={() =>
-                  goTo(
-                    "/admin/reports"
-                  )
-                }
-              />
-            </div>
-
-            <div className="tf-hero-visual">
-              <div className="tf-hero-orbit" />
-
-              <div className="tf-hero-bot">
-                <Bot size={34} />
-              </div>
-            </div>
-          </section>
-
-          {/* KPI CARDS */}
-
-          <section className="tf-kpi-grid">
-            <StatCard
-              icon={<Users />}
-              label="Total Users"
-              value={users.length}
-              note="Registered users"
-              path="/admin/users"
-              goTo={goTo}
-            />
-
-            <StatCard
-              icon={<Building2 />}
-              label="Workspaces"
-              value={
-                workspaces.length
-              }
-              note="Platform workspaces"
-              path="/admin/workspaces"
-              goTo={goTo}
-            />
-
-            <StatCard
-              icon={
-                <FolderKanban />
-              }
-              label="Projects"
-              value={projects.length}
-              note={`${activeProjects} active`}
-              path="/admin/projects"
-              goTo={goTo}
-            />
-
-            <StatCard
-              icon={<ListChecks />}
-              label="Tasks"
-              value={tasks.length}
-              note={`${completedTasks} completed`}
-              path="/admin/tasks"
-              goTo={goTo}
-            />
-
-            <StatCard
-              icon={<DollarSign />}
-              label="Revenue"
-              value={`$${revenue.toLocaleString()}`}
-              note="Successful payments"
-              path="/admin/billing"
-              goTo={goTo}
-            />
-
-            <StatCard
-              icon={<Zap />}
-              label="AI Requests"
-              value={
-                aiCredits
-                  ? aiCredits.toLocaleString()
-                  : "0"
-              }
-              note="AI platform usage"
-              path="/admin/ai-tools"
-              goTo={goTo}
-            />
-          </section>
-
-          {/* CHARTS */}
-
-          <section className="tf-dashboard-chart-grid">
-            {/* USER GROWTH */}
-
-            <div className="tf-dashboard-card tf-growth-panel">
-              <CardHeader
-                title="User Growth"
-                subtitle="Total users vs active users"
-              >
-                <select
-                  value={period}
-                  onChange={(event) =>
-                    setPeriod(
-                      event.target
-                        .value
-                    )
-                  }
-                >
-                  <option value="7">
-                    Last 7 Days
-                  </option>
-
-                  <option value="30">
-                    Last 30 Days
-                  </option>
-
-                  <option value="90">
-                    Last 90 Days
-                  </option>
-                </select>
-              </CardHeader>
-
-              <div className="tf-chart-legend-inline">
-                <span>
-                  <i className="blue" />
-                  Total users
-                </span>
-
-                <span>
-                  <i className="purple" />
-                  Active users
-                </span>
-              </div>
-
-              <LineChart
-                data={growthData}
-              />
-            </div>
-
-            {/* WORKSPACE DISTRIBUTION */}
-
-            <div className="tf-dashboard-card">
-              <CardHeader
-                title="Workspace Distribution"
-                subtitle="Workspace categories"
-              >
-                <button
-                  type="button"
-                  className="tf-view-link"
-                  onClick={() =>
-                    goTo(
-                      "/admin/workspaces"
-                    )
-                  }
-                >
-                  View
-
-                  <ArrowUpRight
-                    size={13}
-                  />
-                </button>
-              </CardHeader>
-
-              <DonutChart
-                workspaces={
-                  workspaces
-                }
-              />
-            </div>
-
-            {/* PROJECT ACTIVITY */}
-
-            <div className="tf-dashboard-card">
-              <CardHeader
-                title="Project Activity"
-                subtitle="Weekly task activity"
-              >
-                <button
-                  type="button"
-                  className="tf-view-link"
-                  onClick={() =>
-                    goTo(
-                      "/admin/projects"
-                    )
-                  }
-                >
-                  View
-
-                  <ArrowUpRight
-                    size={13}
-                  />
-                </button>
-              </CardHeader>
-
-              <ActivityChart
-                data={
-                  liveProjectActivity
-                }
-              />
-
-              <div className="tf-activity-legend">
-                <span>
-                  <i className="completed" />
-                  Completed
-                </span>
-
-                <span>
-                  <i className="progress" />
-                  In progress
-                </span>
-
-                <span>
-                  <i className="todo" />
-                  To do
-                </span>
-              </div>
-            </div>
-          </section>
-
-          {/* LOWER */}
-
-          <section className="tf-lower-grid">
-            {/* USERS */}
-
-            <div className="tf-dashboard-card">
-              <CardHeader
-                title="Recent Users"
-                subtitle="Latest platform members"
-              >
-                <button
-                  type="button"
-                  className="tf-view-link"
-                  onClick={() =>
-                    goTo(
-                      "/admin/users"
-                    )
-                  }
-                >
-                  View all
-                </button>
-              </CardHeader>
-
-              <div className="tf-list">
-                {users
-                  .slice(0, 4)
-                  .map(
-                    (
-                      user,
-                      index
-                    ) => (
-                      <button
-                        type="button"
-                        key={
-                          user.id ||
-                          index
-                        }
-                        onClick={() =>
-                          goTo(
-                            "/admin/users"
-                          )
-                        }
-                      >
-                        <span className="tf-list-avatar">
-                          {String(
-                            user.name ||
-                              "U"
-                          )
-                            .charAt(0)
-                            .toUpperCase()}
-                        </span>
-
-                        <span className="tf-list-info">
-                          <strong>
-                            {user.name ||
-                              "User"}
-                          </strong>
-
-                          <small>
-                            {user.email ||
-                              "TeamFlow member"}
-                          </small>
-                        </span>
-
-                        <span className="tf-role-pill">
-                          {user.role ||
-                            "User"}
-                        </span>
-                      </button>
-                    )
-                  )}
-              </div>
-            </div>
+            </button>
 
             {/* WORKSPACES */}
+            <button
+              type="button"
+              className="tfAdminDashboard__statCard"
+              onClick={() => navigate("/admin/workspaces")}
+            >
+              <span className="tfAdminDashboard__statIcon tfAdminDashboard__statIcon--blue">
+                <Building2 size={22} />
+              </span>
+              <div className="tfAdminDashboard__statContent">
+                <span>Workspaces</span>
+                <div>
+                  <strong>{activeDataset.stats.workspaces}</strong>
+                  <small>
+                    <TrendingUp size={11} />
+                    {activeDataset.stats.workspacesTrend}
+                  </small>
+                </div>
+                <p>{activeDataset.stats.workspacesSub}</p>
+              </div>
+            </button>
 
-            <div className="tf-dashboard-card">
-              <CardHeader
-                title="Recent Workspaces"
-                subtitle="Active team spaces"
-              >
+            {/* PROJECTS */}
+            <button
+              type="button"
+              className="tfAdminDashboard__statCard"
+              onClick={() => navigate("/admin/projects")}
+            >
+              <span className="tfAdminDashboard__statIcon tfAdminDashboard__statIcon--indigo">
+                <FolderKanban size={22} />
+              </span>
+              <div className="tfAdminDashboard__statContent">
+                <span>Projects</span>
+                <div>
+                  <strong>{activeDataset.stats.projects}</strong>
+                  <small>
+                    <TrendingUp size={11} />
+                    {activeDataset.stats.projectsTrend}
+                  </small>
+                </div>
+                <p>{activeDataset.stats.projectsSub}</p>
+              </div>
+            </button>
+
+            {/* TOTAL TASKS */}
+            <button
+              type="button"
+              className="tfAdminDashboard__statCard"
+              onClick={() => navigate("/admin/tasks")}
+            >
+              <span className="tfAdminDashboard__statIcon tfAdminDashboard__statIcon--green">
+                <ListChecks size={22} />
+              </span>
+              <div className="tfAdminDashboard__statContent">
+                <span>Total Tasks</span>
+                <div>
+                  <strong>{activeDataset.stats.tasks}</strong>
+                  <small>
+                    <TrendingUp size={11} />
+                    {activeDataset.stats.tasksTrend}
+                  </small>
+                </div>
+                <p>{activeDataset.stats.tasksSub}</p>
+              </div>
+            </button>
+          </section>
+
+          {/* ===============================================
+              ROW 2: TASK STATUS | PROJECT PROGRESS | TEAM MEMBERS
+          =============================================== */}
+          <section className="tfAdminDashboard__grid tfAdminDashboard__grid--3">
+            {/* 1. DYNAMIC TASK STATUS OVERVIEW */}
+            <article className="tfAdminDashboard__card">
+              <div className="tfAdminDashboard__cardHeader">
+                <h2>Task Status Overview</h2>
+                <div className="tfAdminDashboard__cardSelectWrap">
+                  <select
+                    value={dateFilter}
+                    onChange={(e) => setDateFilter(e.target.value)}
+                    className="tfAdminDashboard__cardSelect"
+                  >
+                    <option value="This Month">This Month</option>
+                    <option value="Today">Today</option>
+                    <option value="Yesterday">Yesterday</option>
+                    <option value="7 Days">Last 7 Days</option>
+                    <option value="Last Month">Last Month</option>
+                    <option value="All Time">All Time</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="tfAdminDashboard__taskOverview">
+                {/* DYNAMIC SVG DONUT CHART */}
+                <div className="tfAdminDashboard__donutWrapper">
+                  <svg className="tfAdminDashboard__donutSvg" viewBox="0 0 150 150">
+                    <circle
+                      cx="75"
+                      cy="75"
+                      r="54"
+                      fill="none"
+                      stroke="#f1f5f9"
+                      strokeWidth="16"
+                    />
+                    {/* Overdue (Red) */}
+                    {statusCounts.overdue > 0 && (
+                      <circle
+                        cx="75"
+                        cy="75"
+                        r="54"
+                        fill="none"
+                        stroke="#ef4444"
+                        strokeWidth="16"
+                        strokeDasharray={`${p4} ${C - p4}`}
+                        strokeDashoffset={-(p1 + p2 + p3)}
+                        transform="rotate(-90 75 75)"
+                      />
+                    )}
+                    {/* To Do (Amber) */}
+                    {statusCounts.todo > 0 && (
+                      <circle
+                        cx="75"
+                        cy="75"
+                        r="54"
+                        fill="none"
+                        stroke="#f59e0b"
+                        strokeWidth="16"
+                        strokeDasharray={`${p3} ${C - p3}`}
+                        strokeDashoffset={-(p1 + p2)}
+                        transform="rotate(-90 75 75)"
+                      />
+                    )}
+                    {/* In Progress (Blue) */}
+                    {statusCounts.inProgress > 0 && (
+                      <circle
+                        cx="75"
+                        cy="75"
+                        r="54"
+                        fill="none"
+                        stroke="#3b82f6"
+                        strokeWidth="16"
+                        strokeDasharray={`${p2} ${C - p2}`}
+                        strokeDashoffset={-p1}
+                        transform="rotate(-90 75 75)"
+                      />
+                    )}
+                    {/* Completed (Green) */}
+                    {statusCounts.completed > 0 && (
+                      <circle
+                        cx="75"
+                        cy="75"
+                        r="54"
+                        fill="none"
+                        stroke="#10b981"
+                        strokeWidth="16"
+                        strokeDasharray={`${p1} ${C - p1}`}
+                        strokeDashoffset="0"
+                        transform="rotate(-90 75 75)"
+                      />
+                    )}
+                  </svg>
+                  <div className="tfAdminDashboard__donutCenter">
+                    <strong>{statusCounts.total}</strong>
+                    <span>Total Tasks</span>
+                  </div>
+                </div>
+
+                {/* DYNAMIC LEGEND TABLE */}
+                <div className="tfAdminDashboard__legend">
+                  <div className="tfAdminDashboard__legendRow">
+                    <span>
+                      <i className="tfAdminDashboard__legendDot tfAdminDashboard__legendDot--completed" />
+                      Completed
+                    </span>
+                    <div className="tfAdminDashboard__legendValues">
+                      <strong>{statusCounts.completed}</strong>
+                      <span className="tfAdminDashboard__legendPct">{statusCounts.completedPct}%</span>
+                    </div>
+                  </div>
+
+                  <div className="tfAdminDashboard__legendRow">
+                    <span>
+                      <i className="tfAdminDashboard__legendDot tfAdminDashboard__legendDot--progress" />
+                      In Progress
+                    </span>
+                    <div className="tfAdminDashboard__legendValues">
+                      <strong>{statusCounts.inProgress}</strong>
+                      <span className="tfAdminDashboard__legendPct">{statusCounts.inProgressPct}%</span>
+                    </div>
+                  </div>
+
+                  <div className="tfAdminDashboard__legendRow">
+                    <span>
+                      <i className="tfAdminDashboard__legendDot tfAdminDashboard__legendDot--todo" />
+                      To Do
+                    </span>
+                    <div className="tfAdminDashboard__legendValues">
+                      <strong>{statusCounts.todo}</strong>
+                      <span className="tfAdminDashboard__legendPct">{statusCounts.todoPct}%</span>
+                    </div>
+                  </div>
+
+                  <div className="tfAdminDashboard__legendRow">
+                    <span>
+                      <i className="tfAdminDashboard__legendDot tfAdminDashboard__legendDot--overdue" />
+                      Overdue
+                    </span>
+                    <div className="tfAdminDashboard__legendValues">
+                      <strong>{statusCounts.overdue}</strong>
+                      <span className="tfAdminDashboard__legendPct">{statusCounts.overduePct}%</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </article>
+
+            {/* 2. DYNAMIC PROJECT PROGRESS */}
+            <article className="tfAdminDashboard__card">
+              <div className="tfAdminDashboard__cardHeader">
+                <h2>Project Progress</h2>
                 <button
                   type="button"
-                  className="tf-view-link"
-                  onClick={() =>
-                    goTo(
-                      "/admin/workspaces"
-                    )
-                  }
+                  onClick={() => navigate("/admin/projects")}
+                  className="tfAdminDashboard__viewAllBtn"
                 >
                   View all
+                  <ArrowRight size={13} />
                 </button>
-              </CardHeader>
+              </div>
 
-              <div className="tf-list">
-                {workspaces
-                  .slice(0, 4)
-                  .map(
-                    (
-                      workspace,
-                      index
-                    ) => (
-                      <button
-                        type="button"
-                        key={
-                          workspace.id ||
-                          index
-                        }
-                        onClick={() =>
-                          goTo(
-                            "/admin/workspaces"
-                          )
+              <div className="tfAdminDashboard__progressList">
+                {activeDataset.projects.slice(0, 4).map((project) => (
+                  <div key={project.id} className="tfAdminDashboard__progressItem">
+                    <div>
+                      <strong>{project.name}</strong>
+                      <span>{project.progress}%</span>
+                    </div>
+                    <div className="tfAdminDashboard__progressTrack">
+                      <span
+                        style={{
+                          width: `${project.progress}%`,
+                          backgroundColor: project.color || "#6366f1",
+                        }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </article>
+
+            {/* 3. TEAM MEMBERS */}
+            <article className="tfAdminDashboard__card">
+              <div className="tfAdminDashboard__cardHeader">
+                <h2>Team Members</h2>
+                <button
+                  type="button"
+                  onClick={() => navigate("/admin/users")}
+                  className="tfAdminDashboard__viewAllBtn"
+                >
+                  View all
+                  <ArrowRight size={13} />
+                </button>
+              </div>
+
+              <div className="tfAdminDashboard__memberList">
+                {TEAM_MEMBERS_DATA.map((member) => (
+                  <div key={member.id} className="tfAdminDashboard__member">
+                    <span
+                      className="tfAdminDashboard__memberAvatar"
+                      style={{
+                        background: `${member.color}15`,
+                        color: member.color,
+                        borderColor: `${member.color}30`,
+                      }}
+                    >
+                      {member.letter}
+                    </span>
+
+                    <div className="tfAdminDashboard__memberInfo">
+                      <strong>{member.name}</strong>
+                      <span>{member.role}</span>
+                    </div>
+
+                    <div
+                      className={`tfAdminDashboard__memberStatus tfAdminDashboard__memberStatus--${member.status
+                        .toLowerCase()
+                        .replace(/\s+/g, "-")}`}
+                    >
+                      <i />
+                      <span>{member.status}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </article>
+          </section>
+
+          {/* ===============================================
+              ROW 3: RECENT PROJECTS | MY UPCOMING TASKS
+          =============================================== */}
+          <section className="tfAdminDashboard__grid tfAdminDashboard__grid--projectsTasks">
+            {/* RECENT PROJECTS TABLE */}
+            <article className="tfAdminDashboard__card">
+              <div className="tfAdminDashboard__cardHeader">
+                <h2>Recent Projects</h2>
+                <button
+                  type="button"
+                  onClick={() => navigate("/admin/projects")}
+                  className="tfAdminDashboard__viewAllBtn"
+                >
+                  View all
+                  <ArrowRight size={13} />
+                </button>
+              </div>
+
+              <div className="tfAdminDashboard__tableScroll">
+                <table className="tfAdminDashboard__table">
+                  <thead>
+                    <tr>
+                      <th style={{ width: "28%" }}>Project</th>
+                      <th style={{ width: "22%" }}>Team</th>
+                      <th style={{ width: "24%" }}>Progress</th>
+                      <th style={{ width: "14%" }}>Status</th>
+                      <th style={{ width: "12%" }}>Due Date</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {activeDataset.projects.slice(0, 4).map((project) => (
+                      <tr key={project.id}>
+                        <td>
+                          <strong>{project.name}</strong>
+                        </td>
+                        <td>
+                          <div className="tfAdminDashboard__avatarStack">
+                            {project.team?.slice(0, 3).map((tm, idx) => (
+                              <span
+                                key={idx}
+                                className="tfAdminDashboard__stackedAvatar"
+                                title={tm.name}
+                              >
+                                {tm.avatar ? (
+                                  <img src={tm.avatar} alt={tm.name} />
+                                ) : (
+                                  tm.name.charAt(0)
+                                )}
+                              </span>
+                            ))}
+                            {project.extraTeamCount > 0 && (
+                              <span className="tfAdminDashboard__stackedBadge">
+                                +{project.extraTeamCount}
+                              </span>
+                            )}
+                          </div>
+                        </td>
+                        <td>
+                          <div className="tfAdminDashboard__tableProgress">
+                            <div>
+                              <span
+                                style={{
+                                  width: `${project.progress}%`,
+                                  backgroundColor: project.color || "#6366f1",
+                                }}
+                              />
+                            </div>
+                            <small>{project.progress}%</small>
+                          </div>
+                        </td>
+                        <td>{getStatusBadge(project.status)}</td>
+                        <td>
+                          <span className="tfAdminDashboard__dateCell">{project.dueDate}</span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </article>
+
+            {/* MY UPCOMING TASKS */}
+            <article className="tfAdminDashboard__card">
+              <div className="tfAdminDashboard__cardHeader">
+                <h2>My Upcoming Tasks</h2>
+                <button
+                  type="button"
+                  onClick={() => navigate("/admin/tasks")}
+                  className="tfAdminDashboard__viewAllBtn"
+                >
+                  View all
+                  <ArrowRight size={13} />
+                </button>
+              </div>
+
+              <div className="tfAdminDashboard__taskList">
+                {tasksState.slice(0, 4).map((task) => (
+                  <div key={task.id} className="tfAdminDashboard__task">
+                    <button
+                      type="button"
+                      className={`tfAdminDashboard__taskCheck ${task.completed ? "active" : ""}`}
+                      onClick={() => toggleTask(task.id)}
+                      aria-label="Toggle task completion"
+                    >
+                      {task.completed && <Check size={12} strokeWidth={3} />}
+                    </button>
+
+                    <div className="tfAdminDashboard__taskInfo">
+                      <strong
+                        style={
+                          task.completed
+                            ? { textDecoration: "line-through", opacity: 0.6 }
+                            : undefined
                         }
                       >
-                        <span className="tf-workspace-icon">
-                          <Building2
-                            size={15}
-                          />
-                        </span>
+                        {task.title}
+                      </strong>
+                      <span>{task.project}</span>
+                    </div>
 
-                        <span className="tf-list-info">
-                          <strong>
-                            {
-                              workspace.name
-                            }
-                          </strong>
+                    {getPriorityBadge(task.priority)}
 
-                          <small>
-                            {workspace.category ||
-                              "Workspace"}
-                          </small>
-                        </span>
-
-                        <span className="tf-members">
-                          {workspace.members ||
-                            0}{" "}
-                          members
-                        </span>
-                      </button>
-                    )
-                  )}
+                    <span className="tfAdminDashboard__taskDue">
+                      {task.dueDisplay || task.dueDate}
+                    </span>
+                  </div>
+                ))}
               </div>
-            </div>
+            </article>
+          </section>
 
-            {/* SYSTEM HEALTH */}
+          {/* ===============================================
+              ROW 4: ORGANIZATION ACTIVITY | AI USAGE
+          =============================================== */}
+          <section className="tfAdminDashboard__grid tfAdminDashboard__grid--bottom">
+            {/* ORGANIZATION ACTIVITY */}
+            <article className="tfAdminDashboard__card">
+              <div className="tfAdminDashboard__cardHeader">
+                <h2>Organization Activity</h2>
+                <button
+                  type="button"
+                  onClick={() => navigate("/admin/activity")}
+                  className="tfAdminDashboard__viewAllBtn"
+                >
+                  View all
+                  <ArrowRight size={13} />
+                </button>
+              </div>
 
-            <div className="tf-dashboard-card">
-              <CardHeader
-                title="System Health"
-                subtitle="Live platform services"
-              >
-                <span className="tf-operational">
-                  <CheckCircle2
-                    size={12}
-                  />
-                  Operational
-                </span>
-              </CardHeader>
+              <div className="tfAdminDashboard__tableScroll">
+                <table className="tfAdminDashboard__table">
+                  <thead>
+                    <tr>
+                      <th style={{ width: "18%" }}>Time</th>
+                      <th style={{ width: "32%" }}>User</th>
+                      <th style={{ width: "24%" }}>Action</th>
+                      <th style={{ width: "26%" }}>Details</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {activeDataset.activities.slice(0, 5).map((act) => (
+                      <tr key={act.id}>
+                        <td>
+                          <span className="tfAdminDashboard__timeCell">{act.time}</span>
+                        </td>
+                        <td>
+                          <div className="tfAdminDashboard__activityUser">
+                            <span
+                              className="tfAdminDashboard__activityAvatar"
+                              style={{
+                                background: `${act.avatarColor || "#6366f1"}15`,
+                                color: act.avatarColor || "#6366f1",
+                                borderColor: `${act.avatarColor || "#6366f1"}30`,
+                              }}
+                            >
+                              {act.letter || act.user.charAt(0)}
+                            </span>
+                            <div className="tfAdminDashboard__activityUserText">
+                              <strong>{act.user}</strong>
+                              <small>({act.role})</small>
+                            </div>
+                          </div>
+                        </td>
+                        <td>{act.action}</td>
+                        <td>
+                          <span className="tfAdminDashboard__activityDetail">{act.details}</span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </article>
 
-              <div className="tf-health-list">
-                {systemHealth.map(
-                  (health) => (
-                    <div
-                      className="tf-health-row"
-                      key={
-                        health.label
-                      }
-                    >
-                      <div className="tf-health-top">
-                        <span>
-                          <strong>
-                            {
-                              health.label
-                            }
-                          </strong>
+            {/* AI USAGE (ORGANIZATION) */}
+            <article className="tfAdminDashboard__card">
+              <div className="tfAdminDashboard__cardHeader">
+                <h2>AI Usage (Organization)</h2>
+                <div className="tfAdminDashboard__cardSelectWrap">
+                  <select
+                    value={dateFilter}
+                    onChange={(e) => setDateFilter(e.target.value)}
+                    className="tfAdminDashboard__cardSelect"
+                  >
+                    <option value="This Month">This Month</option>
+                    <option value="Today">Today</option>
+                    <option value="Yesterday">Yesterday</option>
+                    <option value="7 Days">Last 7 Days</option>
+                    <option value="Last Month">Last Month</option>
+                    <option value="All Time">All Time</option>
+                  </select>
+                </div>
+              </div>
 
-                          <small>
-                            {
-                              health.status
-                            }
-                          </small>
-                        </span>
+              <div className="tfAdminDashboard__aiLayout">
+                {/* LEFT METRIC & MONTHLY BAR CHART */}
+                <div className="tfAdminDashboard__aiUsage">
+                  <div className="tfAdminDashboard__aiHeaderBlock">
+                    <div className="tfAdminDashboard__aiNumberRow">
+                      <span className="tfAdminDashboard__aiBigNum">
+                        {activeDataset.aiUsage.totalRequests}
+                      </span>
+                      <span className="tfAdminDashboard__aiGrowthBadge">
+                        <TrendingUp size={11} />
+                        {activeDataset.aiUsage.growth}
+                      </span>
+                    </div>
+                    <span className="tfAdminDashboard__aiLabel">Total AI Requests</span>
+                  </div>
 
-                        <strong>
-                          {health.value}%
-                        </strong>
+                  {/* DYNAMIC BAR CHART */}
+                  <div className="tfAdminDashboard__aiChartWrapper">
+                    <div className="tfAdminDashboard__aiYAxis">
+                      <span>15K</span>
+                      <span>10K</span>
+                      <span>5K</span>
+                      <span>0</span>
+                    </div>
+
+                    <div className="tfAdminDashboard__aiBarsContainer">
+                      <div className="tfAdminDashboard__aiGridLines">
+                        <span className="grid-line" />
+                        <span className="grid-line" />
+                        <span className="grid-line" />
+                        <span className="grid-line" />
                       </div>
 
-                      <div className="tf-health-track">
-                        <span
-                          style={{
-                            width: `${health.value}%`,
-                          }}
-                        />
+                      <div className="tfAdminDashboard__aiBars">
+                        {activeDataset.aiUsage.monthly.map((m, idx) => (
+                          <div key={idx} className="tfAdminDashboard__aiBarCol">
+                            <div className="tfAdminDashboard__aiBarTrack">
+                              <span
+                                className="tfAdminDashboard__aiBarFill"
+                                style={{ height: `${m.height}%` }}
+                                title={`${m.month}: ${m.height}%`}
+                              />
+                            </div>
+                            <span className="tfAdminDashboard__aiMonthLabel">{m.month}</span>
+                          </div>
+                        ))}
                       </div>
                     </div>
-                  )
-                )}
+                  </div>
+                </div>
+
+                {/* RIGHT: TOP AI FEATURES */}
+                <div className="tfAdminDashboard__aiFeatures">
+                  <div className="tfAdminDashboard__aiFeaturesTitle">Top AI Features</div>
+                  {activeDataset.aiUsage.features.map((feat) => (
+                    <div key={feat.id} className="tfAdminDashboard__aiFeature">
+                      <div className="tfAdminDashboard__aiFeatLeft">
+                        {renderFeatureIcon(feat.icon)}
+                        <span>{feat.name}</span>
+                      </div>
+                      <strong>{feat.percentage}%</strong>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
+            </article>
           </section>
-
-          {/* SUMMARY */}
-
-          <section className="tf-summary-strip">
-            <div>
-              <CreditCard
-                size={19}
-              />
-
-              <span>
-                <small>
-                  Successful Revenue
-                </small>
-
-                <strong>
-                  $
-                  {revenue.toLocaleString()}
-                </strong>
-              </span>
-            </div>
-
-            <div>
-              <ListChecks
-                size={19}
-              />
-
-              <span>
-                <small>
-                  Task Completion
-                </small>
-
-                <strong>
-                  {tasks.length
-                    ? Math.round(
-                        (completedTasks /
-                          tasks.length) *
-                          100
-                      )
-                    : 0}
-                  %
-                </strong>
-              </span>
-            </div>
-
-            <div>
-              <FolderKanban
-                size={19}
-              />
-
-              <span>
-                <small>
-                  Active Projects
-                </small>
-
-                <strong>
-                  {activeProjects}
-                </strong>
-              </span>
-            </div>
-
-            <div>
-              <Activity size={19} />
-
-              <span>
-                <small>
-                  System Status
-                </small>
-
-                <strong>
-                  Healthy
-                </strong>
-              </span>
-            </div>
-          </section>
-        </main>
-      </div>
+        </div>
+      </main>
     </div>
   );
 }
-
-/* =========================================================
-   STAT CARD
-========================================================= */
-
-function StatCard({
-  icon,
-  label,
-  value,
-  note,
-  path,
-  goTo,
-}) {
-  return (
-    <button
-      type="button"
-      className="tf-stat-card"
-      onClick={() => goTo(path)}
-    >
-      <div className="tf-stat-header">
-        <span className="tf-stat-icon">
-          {icon}
-        </span>
-
-        <ArrowUpRight
-          className="tf-stat-arrow"
-          size={15}
-        />
-      </div>
-
-      <span className="tf-stat-label">
-        {label}
-      </span>
-
-      <strong>{value}</strong>
-
-      <small>{note}</small>
-    </button>
-  );
-}
-
-/* =========================================================
-   HERO ACTION
-========================================================= */
-
-function HeroAction({
-  icon,
-  title,
-  text,
-  onClick,
-}) {
-  return (
-    <button
-      type="button"
-      className="tf-hero-action"
-      onClick={onClick}
-    >
-      <span>{icon}</span>
-
-      <div>
-        <strong>{title}</strong>
-        <small>{text}</small>
-      </div>
-
-      <ArrowUpRight size={14} />
-    </button>
-  );
-}
-
-/* =========================================================
-   CARD HEADER
-========================================================= */
-
-function CardHeader({
-  title,
-  subtitle,
-  children,
-}) {
-  return (
-    <div className="tf-card-header">
-      <div>
-        <h3>{title}</h3>
-        <p>{subtitle}</p>
-      </div>
-
-      {children}
-    </div>
-  );
-}
-
-export default AdminDashboard;

@@ -59,10 +59,23 @@ import AdminBilling from "./component/dashboards/Admin/AdminBilling.jsx";
 import AdminProjects from "./component/dashboards/Admin/AdminProjects.jsx";
 import AdminReports from "./component/dashboards/Admin/AdminReports.jsx";
 import AdminSettings from "./component/dashboards/Admin/AdminSettings.jsx";
+import AdminSupport from "./component/dashboards/Admin/AdminSupport.jsx";
 import AdminSubscriptions from "./component/dashboards/Admin/AdminSubscriptions.jsx";
 import AdminTasks from "./component/dashboards/Admin/AdminTasks.jsx";
 import AdminUsers from "./component/dashboards/Admin/AdminUsers.jsx";
 import AdminWorkspace from "./component/dashboards/Admin/AdminWorkspace.jsx";
+import AdminProfile from "./component/dashboards/Admin/AdminProfile.jsx";
+import AdminAccountSettings from "./component/dashboards/Admin/AdminAccountSettings.jsx";
+import AdminAppearance from "./component/dashboards/Admin/AdminAppearance.jsx";
+import AdminNotifications from "./component/dashboards/Admin/AdminNotifications.jsx";
+import AdminSecurity from "./component/dashboards/Admin/AdminSecurity.jsx";
+import AdminRoles from "./component/dashboards/Admin/AdminRoles.jsx";
+import AdminBugs from "./component/dashboards/Admin/AdminBugs.jsx";
+import AdminCalendar from "./component/dashboards/Admin/AdminCalendar.jsx";
+import AdminChat from "./component/dashboards/Admin/AdminChat.jsx";
+import AdminAIUsage from "./component/dashboards/Admin/AdminAIUsage.jsx";
+import AdminActivityLogs from "./component/dashboards/Admin/AdminActivityLogs.jsx";
+import AdminInvoices from "./component/dashboards/Admin/AdminInvoices.jsx";
 
 /* TEAM LEAD LAYOUT AND PAGES */
 import TeamLeadLayout from "./component/dashboards/TeamLead/TeamLeadLayout.jsx";
@@ -128,6 +141,22 @@ function App() {
       <Route path="/admin/announcements" element={<AdminAnnouncements />} />
       <Route path="/admin/reports" element={<AdminReports />} />
       <Route path="/admin/settings" element={<AdminSettings />} />
+        <Route path="/admin/support" element={<AdminSupport />} />
+        <Route path="/admin/help" element={<AdminSupport />} />
+      <Route path="/admin/roles" element={<AdminRoles />} />
+      <Route path="/admin/bugs" element={<AdminBugs />} />
+      <Route path="/admin/calendar" element={<AdminCalendar />} />
+      <Route path="/admin/chat" element={<AdminChat />} />
+      <Route path="/admin/ai-usage" element={<AdminAIUsage />} />
+      <Route path="/admin/activity" element={<AdminActivityLogs />} />
+      <Route path="/admin/activity-logs" element={<AdminActivityLogs />} />
+      <Route path="/admin/invoices" element={<AdminInvoices />} />
+      {/* ADMIN PROFILE DROPDOWN ROUTES */}
+      <Route path="/admin/profile" element={<AdminProfile />} />
+      <Route path="/admin/account-settings" element={<AdminAccountSettings />} />
+      <Route path="/admin/appearance" element={<AdminAppearance />} />
+      <Route path="/admin/notifications" element={<AdminNotifications />} />
+      <Route path="/admin/security" element={<AdminSecurity />} />
 
       {/* EMPLOYEE ROUTES */}
       <Route

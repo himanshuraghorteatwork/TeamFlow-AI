@@ -1,278 +1,209 @@
-// src/component/dashboards/Admin/adminDashboardData.js
+export const ADMIN_STORAGE_KEY = "teamflow_admin_dashboard_v2";
 
-export const fallbackUsers = [
-  {
+export const defaultAdminData = {
+  organization: {
     id: 1,
-    name: "John Doe",
-    email: "john@company.com",
-    role: "Admin",
-    status: "Active",
+    name: "ABC Technologies",
+    adminName: "Amit Sharma",
+    adminEmail: "amit@abctech.com",
   },
-  {
-    id: 2,
-    name: "Sarah Chen",
-    email: "sarah@modernlab.com",
-    role: "User",
-    status: "Active",
-  },
-  {
-    id: 3,
-    name: "Michael Rodriguez",
-    email: "michael@company.com",
-    role: "User",
-    status: "Active",
-  },
-  {
-    id: 4,
-    name: "Emily Parker",
-    email: "emily@designhub.com",
-    role: "User",
-    status: "Active",
-  },
-];
 
-export const fallbackWorkspaces = [
-  {
-    id: 1,
-    name: "TeamFlow Workspace",
-    members: 24,
-    category: "Development",
-  },
-  {
-    id: 2,
-    name: "Marketing Team",
-    members: 12,
-    category: "Marketing",
-  },
-  {
-    id: 3,
-    name: "Design Studio",
-    members: 8,
-    category: "Design",
-  },
-  {
-    id: 4,
-    name: "Research Lab",
-    members: 18,
-    category: "Research",
-  },
-  {
-    id: 5,
-    name: "Development Hub",
-    members: 28,
-    category: "Development",
-  },
-  {
-    id: 6,
-    name: "Startup Team",
-    members: 7,
-    category: "Other",
-  },
-];
+  users: [
+    {
+      id: 1,
+      name: "Priya Patel",
+      email: "priya@abc.com",
+      role: "Team Lead",
+      status: "Online",
+    },
+    {
+      id: 2,
+      name: "Rahul Sharma",
+      email: "rahul@abc.com",
+      role: "Developer",
+      status: "Online",
+    },
+    {
+      id: 3,
+      name: "Sneha Gupta",
+      email: "sneha@abc.com",
+      role: "Designer",
+      status: "In a meeting",
+    },
+    {
+      id: 4,
+      name: "Abhishek Verma",
+      email: "abhishek@abc.com",
+      role: "Developer",
+      status: "Offline",
+    },
+  ],
 
-export const fallbackProjects = [
-  {
-    id: 1,
-    name: "TeamFlow AI",
-    status: "Active",
-    progress: 78,
-  },
-  {
-    id: 2,
-    name: "Backend API",
-    status: "Active",
-    progress: 64,
-  },
-  {
-    id: 3,
-    name: "Mobile App",
-    status: "Active",
-    progress: 45,
-  },
-  {
-    id: 4,
-    name: "Marketing Website",
-    status: "Completed",
-    progress: 100,
-  },
-  {
-    id: 5,
-    name: "AI Assistant",
-    status: "Active",
-    progress: 58,
-  },
-];
+  workspaces: [
+    { id: 1, name: "Development Team", members: 12 },
+    { id: 2, name: "Design Team", members: 7 },
+    { id: 3, name: "Marketing", members: 8 },
+    { id: 4, name: "Mobile Team", members: 9 },
+    { id: 5, name: "AI Team", members: 6 },
+    { id: 6, name: "Internal", members: 6 },
+  ],
 
-export const fallbackTasks = [
-  {
-    id: 1,
-    title: "Dashboard UI",
-    status: "Completed",
-  },
-  {
-    id: 2,
-    title: "Admin API",
-    status: "In Progress",
-  },
-  {
-    id: 3,
-    title: "AI integration",
-    status: "In Progress",
-  },
-  {
-    id: 4,
-    title: "Testing",
-    status: "Review",
-  },
-  {
-    id: 5,
-    title: "Billing page",
-    status: "Completed",
-  },
-  {
-    id: 6,
-    title: "Analytics",
-    status: "To Do",
-  },
-  {
-    id: 7,
-    title: "Workspace module",
-    status: "To Do",
-  },
-  {
-    id: 8,
-    title: "User management",
-    status: "In Progress",
-  },
-];
+  projects: [
+    {
+      id: 1,
+      name: "TeamFlow Website",
+      progress: 85,
+      status: "On Track",
+      dueDate: "2026-11-10",
+    },
+    {
+      id: 2,
+      name: "Mobile App",
+      progress: 62,
+      status: "In Progress",
+      dueDate: "2026-11-18",
+    },
+    {
+      id: 3,
+      name: "AI Integration",
+      progress: 40,
+      status: "At Risk",
+      dueDate: "2026-11-25",
+    },
+    {
+      id: 4,
+      name: "Marketing Portal",
+      progress: 25,
+      status: "Delayed",
+      dueDate: "2026-12-05",
+    },
+  ],
 
-export const fallbackTransactions = [
-  {
-    id: 1,
-    amount: 249,
-    status: "Paid",
-  },
-  {
-    id: 2,
-    amount: 99,
-    status: "Paid",
-  },
-  {
-    id: 3,
-    amount: 49,
-    status: "Pending",
-  },
-  {
-    id: 4,
-    amount: 99,
-    status: "Failed",
-  },
-  {
-    id: 5,
-    amount: 249,
-    status: "Paid",
-  },
-  {
-    id: 6,
-    amount: 348,
-    status: "Paid",
-  },
-];
+  tasks: [
+    {
+      id: 1,
+      title: "Review UI design",
+      project: "TeamFlow Website",
+      priority: "High",
+      status: "In Progress",
+      due: "Today",
+    },
+    {
+      id: 2,
+      title: "API integration testing",
+      project: "Mobile App",
+      priority: "Medium",
+      status: "To Do",
+      due: "Tomorrow",
+    },
+    {
+      id: 3,
+      title: "Update project documentation",
+      project: "AI Integration",
+      priority: "Low",
+      status: "Completed",
+      due: "Oct 28",
+    },
+    {
+      id: 4,
+      title: "Team meeting preparation",
+      project: "Internal",
+      priority: "Medium",
+      status: "To Do",
+      due: "Oct 30",
+    },
+  ],
 
-// Used when no saved analytics history exists.
-export const fallbackGrowth = [
-  {
-    label: "May",
-    users: 620,
-    active: 430,
-  },
-  {
-    label: "Jun",
-    users: 710,
-    active: 510,
-  },
-  {
-    label: "Jul",
-    users: 825,
-    active: 590,
-  },
-  {
-    label: "Aug",
-    users: 930,
-    active: 690,
-  },
-  {
-    label: "Sep",
-    users: 1080,
-    active: 810,
-  },
-  {
-    label: "Oct",
-    users: 1248,
-    active: 960,
-  },
-];
+  activities: [
+    {
+      id: 1,
+      time: "10:42 AM",
+      user: "Priya Patel",
+      role: "Team Lead",
+      action: "Created a project",
+      details: "TeamFlow Website",
+    },
+    {
+      id: 2,
+      time: "10:20 AM",
+      user: "Rahul Sharma",
+      role: "Developer",
+      action: "Joined workspace",
+      details: "Development Team",
+    },
+    {
+      id: 3,
+      time: "09:55 AM",
+      user: "Sneha Gupta",
+      role: "Designer",
+      action: "Updated task status",
+      details: "UI Design → In Progress",
+    },
+    {
+      id: 4,
+      time: "09:32 AM",
+      user: "Abhishek Verma",
+      role: "Developer",
+      action: "Added a comment",
+      details: "API integration issue",
+    },
+  ],
 
-// Used as fallback if no live task data is available.
-export const projectActivity = [
-  {
-    label: "Mon",
-    completed: 18,
-    progress: 24,
-    todo: 20,
+  aiUsage: {
+    requests: 12480,
+    growth: 18,
+    features: [
+      { name: "Chat Assistant", percentage: 42 },
+      { name: "Task Suggestions", percentage: 24 },
+      { name: "Content Generation", percentage: 18 },
+      { name: "Summaries", percentage: 10 },
+      { name: "Other", percentage: 6 },
+    ],
+    monthly: [2100, 3200, 4100, 5000, 5800, 6700, 7900, 9100, 10800, 12480],
   },
-  {
-    label: "Tue",
-    completed: 27,
-    progress: 31,
-    todo: 28,
-  },
-  {
-    label: "Wed",
-    completed: 15,
-    progress: 22,
-    todo: 17,
-  },
-  {
-    label: "Thu",
-    completed: 21,
-    progress: 29,
-    todo: 24,
-  },
-  {
-    label: "Fri",
-    completed: 13,
-    progress: 20,
-    todo: 18,
-  },
-  {
-    label: "Sat",
-    completed: 17,
-    progress: 24,
-    todo: 22,
-  },
-  {
-    label: "Sun",
-    completed: 25,
-    progress: 32,
-    todo: 29,
-  },
-];
+};
 
-export const systemHealth = [
-  {
-    label: "API Server",
-    value: 99.9,
-    status: "Operational",
-  },
-  {
-    label: "Database",
-    value: 98.7,
-    status: "Operational",
-  },
-  {
-    label: "AI Services",
-    value: 99.2,
-    status: "Operational",
-  },
-];
+export function loadAdminData() {
+  try {
+    const stored = localStorage.getItem(ADMIN_STORAGE_KEY);
+
+    if (!stored) {
+      localStorage.setItem(
+        ADMIN_STORAGE_KEY,
+        JSON.stringify(defaultAdminData)
+      );
+
+      return JSON.parse(JSON.stringify(defaultAdminData));
+    }
+
+    const parsed = JSON.parse(stored);
+
+    return {
+      ...defaultAdminData,
+      ...parsed,
+      organization: {
+        ...defaultAdminData.organization,
+        ...(parsed.organization || {}),
+      },
+      aiUsage: {
+        ...defaultAdminData.aiUsage,
+        ...(parsed.aiUsage || {}),
+      },
+    };
+  } catch (error) {
+    console.error("Unable to load Admin Dashboard data:", error);
+
+    return JSON.parse(JSON.stringify(defaultAdminData));
+  }
+}
+
+export function saveAdminData(data) {
+  try {
+    localStorage.setItem(
+      ADMIN_STORAGE_KEY,
+      JSON.stringify(data)
+    );
+  } catch (error) {
+    console.error("Unable to save Admin Dashboard data:", error);
+  }
+}
