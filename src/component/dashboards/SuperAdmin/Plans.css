@@ -1,6 +1,14 @@
 /* ==========================================================================
-   TEAMFLOW AI — SUPER ADMIN PLANS CSS
+   TEAMFLOW AI — SUPER ADMIN PLANS & PRICING MATRIX CSS
+   Ultra-polished, interactive SaaS pricing cards, colored status & actions,
+   and clean portaled modal form styling with complete dark mode support
    ========================================================================== */
+
+.plans-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
 
 .sa-plans-page {
   display: flex;
@@ -8,44 +16,70 @@
   gap: 16px;
 }
 
+/* ==========================================================================
+   BILLING CYCLE TOGGLE (Monthly vs Annual)
+   ========================================================================== */
 .sa-billing-toggle {
   display: inline-flex;
   align-items: center;
-  background: #ffffff;
-  border: 1px solid var(--sa-border);
-  border-radius: var(--sa-radius-md);
+  background: var(--sa-surface, #ffffff);
+  border: 1px solid var(--sa-border, #e2e8f0);
+  border-radius: var(--sa-radius-md, 8px);
   padding: 3px;
-  gap: 2px;
+  gap: 3px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
 .sa-billing-tab {
   border: 0;
   background: transparent;
-  padding: 6px 12px;
+  padding: 6px 14px;
   font-family: inherit;
   font-size: 12px;
-  font-weight: 550;
-  color: var(--sa-text-muted);
-  border-radius: var(--sa-radius-sm);
+  font-weight: 650;
+  color: var(--sa-text-muted, #64748b);
+  border-radius: var(--sa-radius-sm, 6px);
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sa-billing-tab:hover {
+  color: var(--sa-text-main, #0f172a);
 }
 
 .sa-billing-tab.is-active {
-  background: var(--sa-primary);
+  background: var(--sa-primary, #3b66ff);
   color: #ffffff;
-  box-shadow: 0 1px 3px rgba(59, 102, 255, 0.25);
+  box-shadow: 0 2px 6px rgba(59, 102, 255, 0.28);
 }
 
-/* Allocation Bar */
+.sa-discount-chip {
+  background: #dcfce7;
+  color: #15803d;
+  font-size: 10.5px;
+  font-weight: 750;
+  padding: 1px 6px;
+  border-radius: 999px;
+  letter-spacing: 0.2px;
+}
+
+/* ==========================================================================
+   LIVE TENANT ALLOCATION RIBBON
+   ========================================================================== */
 .sa-plan-distribution-card {
-  padding: 16px 20px;
+  padding: 18px 20px;
+  border-radius: var(--sa-radius-lg, 12px);
+  border: 1px solid var(--sa-border, #e2e8f0);
+  background: var(--sa-surface, #ffffff);
 }
 
 .sa-total-tag {
-  color: var(--sa-text-muted);
+  color: var(--sa-text-muted, #64748b);
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .sa-alloc-bar-wrapper {
@@ -60,7 +94,7 @@
   width: 100%;
   border-radius: 6px;
   overflow: hidden;
-  background: #edf2f7;
+  background: var(--sa-bg, #edf2f7);
 }
 
 .sa-alloc-segment {
@@ -83,42 +117,241 @@
 }
 
 .sa-alloc-dot {
-  width: 9px;
-  height: 9px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
+  flex-shrink: 0;
 }
 
 .sa-alloc-name {
-  font-weight: 600;
-  color: var(--sa-text-main);
+  font-weight: 700;
+  color: var(--sa-text-main, #0f172a);
 }
 
 .sa-alloc-subtext {
-  color: var(--sa-text-muted);
+  color: var(--sa-text-muted, #64748b);
+  font-size: 11.5px;
 }
 
-/* 4 Plans Grid */
+/* ==========================================================================
+   VIEW SWITCHER (Table vs Cards)
+   ========================================================================== */
+.sa-view-switcher {
+  display: inline-flex;
+  align-items: center;
+  background: var(--sa-surface, #ffffff);
+  border: 1px solid var(--sa-border, #e2e8f0);
+  border-radius: var(--sa-radius-md, 8px);
+  padding: 3px;
+  gap: 2px;
+}
+
+.sa-view-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border: 0;
+  background: transparent;
+  color: var(--sa-text-muted, #64748b);
+  font-size: 12px;
+  font-weight: 650;
+  border-radius: var(--sa-radius-sm, 6px);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.sa-view-btn:hover {
+  color: var(--sa-text-main, #0f172a);
+}
+
+.sa-view-btn.is-active {
+  background: var(--sa-primary, #3b66ff);
+  color: #ffffff;
+  box-shadow: 0 1px 3px rgba(59, 102, 255, 0.25);
+}
+
+/* ==========================================================================
+   COLOR-CODED TIER STATUS BADGES (Active vs Inactive)
+   ========================================================================== */
+.plans-page .sap-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 11px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 750;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.plans-page .sap-status-pill.is-active,
+.plans-page .sap-status-pill.valid {
+  background: #dcfce7 !important;
+  color: #15803d !important;
+  border: 1px solid #86efac !important;
+}
+
+.plans-page .sap-status-pill.is-active .sap-status-dot,
+.plans-page .sap-status-pill.valid .sap-status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #16a34a !important;
+  box-shadow: 0 0 0 2.5px rgba(22, 163, 74, 0.25);
+}
+
+.plans-page .sap-status-pill.is-suspended,
+.plans-page .sap-status-pill.locked,
+.plans-page .sap-status-pill.is-inactive {
+  background: #fee2e2 !important;
+  color: #b91c1c !important;
+  border: 1px solid #fca5a5 !important;
+}
+
+.plans-page .sap-status-pill.is-suspended .sap-status-dot,
+.plans-page .sap-status-pill.locked .sap-status-dot,
+.plans-page .sap-status-pill.is-inactive .sap-status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #dc2626 !important;
+  box-shadow: 0 0 0 2.5px rgba(220, 38, 38, 0.25);
+}
+
+/* ==========================================================================
+   COLORFUL ACTION BUTTONS IN TABLE
+   Edit (Blue), Pause/Lock (Amber), Activate (Emerald), Delete (Red)
+   ========================================================================== */
+.plans-page .sap-action-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.plans-page .sa-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  outline: none;
+}
+
+.plans-page .sa-action-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* Edit Plan Button (Blue) */
+.plans-page .sa-action-btn.btn-edit-plan {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+  color: #2563eb;
+}
+
+.plans-page .sa-action-btn.btn-edit-plan:hover {
+  background: #dbeafe;
+  border-color: #93c5fd;
+  color: #1d4ed8;
+}
+
+/* Pause Plan Button (Amber) */
+.plans-page .sa-action-btn.btn-pause-plan {
+  background: #fffbeb;
+  border-color: #fde68a;
+  color: #d97706;
+}
+
+.plans-page .sa-action-btn.btn-pause-plan:hover {
+  background: #fef3c7;
+  border-color: #fcd34d;
+  color: #b45309;
+}
+
+/* Activate Plan Button (Emerald) */
+.plans-page .sa-action-btn.btn-activate-plan {
+  background: #ecfdf5;
+  border-color: #a7f3d0;
+  color: #059669;
+}
+
+.plans-page .sa-action-btn.btn-activate-plan:hover {
+  background: #d1fae5;
+  border-color: #6ee7b7;
+  color: #047857;
+}
+
+/* Delete Plan Button (Rose Red) */
+.plans-page .sa-action-btn.btn-delete-plan {
+  background: #fef2f2;
+  border-color: #fecaca;
+  color: #ef4444;
+}
+
+.plans-page .sa-action-btn.btn-delete-plan:hover {
+  background: #fee2e2;
+  border-color: #fca5a5;
+  color: #dc2626;
+}
+
+/* ==========================================================================
+   INTERACTIVE CARDS SECTION (Visual Cards Grid)
+   Symmetrical 4-column layout with rich hover transitions & full features
+   ========================================================================== */
 .sa-plans-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+}
+
+@media (max-width: 1280px) {
+  .sa-plans-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .sa-plans-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .sa-plan-tier-card {
   position: relative;
   display: flex;
   flex-direction: column;
-  padding: 24px 20px;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  padding: 24px 22px 20px;
+  border-radius: var(--sa-radius-lg, 14px);
+  border: 1px solid var(--sa-border, #e2e8f0);
+  background: var(--sa-surface, #ffffff);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: transform 0.22s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.22s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.22s ease;
+  overflow: hidden;
 }
 
 .sa-plan-tier-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--sa-shadow-md);
+  transform: translateY(-4px);
+  box-shadow: 0 14px 28px -4px rgba(15, 23, 42, 0.1);
+  border-color: #cbd5e1;
 }
 
-.sa-plan-tier-card.has-badge {
-  border-color: #cbd5e1;
+.sa-plan-tier-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--tier-accent, #3b66ff);
 }
 
 .sa-plan-badge-pill {
@@ -128,79 +361,151 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 3px 8px;
-  border-radius: var(--sa-radius-full);
+  padding: 3px 9px;
+  border-radius: 999px;
   font-size: 11px;
-  font-weight: 650;
+  font-weight: 750;
   border: 1px solid transparent;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.sa-plan-card-header {
+  margin-top: 6px;
+  margin-bottom: 12px;
+}
+
+.sa-plan-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
 }
 
 .sa-plan-card-header h3 {
-  margin: 0 0 4px 0;
-  font-size: 18px;
-  font-weight: 750;
+  margin: 0;
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: -0.2px;
 }
 
-.sa-plan-card-header p {
-  margin: 0 0 16px 0;
+.sa-plan-tagline {
+  margin: 0;
   font-size: 12px;
-  color: var(--sa-text-muted);
-  line-height: 1.4;
+  color: var(--sa-text-secondary, #475569);
+  line-height: 1.45;
   min-height: 34px;
 }
 
+/* Price Block */
 .sa-plan-price-block {
   display: flex;
-  align-items: baseline;
+  flex-direction: column;
   gap: 4px;
-  margin-bottom: 16px;
-  padding-bottom: 14px;
-  border-bottom: 1px solid var(--sa-border-subtle);
+  margin-bottom: 14px;
+  padding: 12px 14px;
+  background: var(--sa-bg, #f8fafc);
+  border-radius: var(--sa-radius-md, 8px);
+  border: 1px solid var(--sa-border-subtle, #f1f5f9);
 }
 
 .sa-plan-price-num {
   display: flex;
   align-items: baseline;
+  gap: 2px;
 }
 
 .sa-price-currency {
   font-size: 18px;
-  font-weight: 700;
-  color: var(--sa-text-main);
-  margin-right: 2px;
+  font-weight: 750;
+  color: var(--sa-text-main, #0f172a);
 }
 
 .sa-price-digits {
   font-size: 28px;
-  font-weight: 800;
-  color: var(--sa-text-main);
+  font-weight: 850;
+  color: var(--sa-text-main, #0f172a);
   line-height: 1;
+  letter-spacing: -0.5px;
 }
 
 .sa-price-suffix {
   font-size: 12px;
-  color: var(--sa-text-muted);
+  color: var(--sa-text-muted, #64748b);
+  font-weight: 600;
 }
 
+.sa-price-savings-note {
+  font-size: 11px;
+  color: #15803d;
+  font-weight: 700;
+}
+
+/* Specs pills row */
+.sa-plan-specs-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.sa-spec-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 650;
+  color: var(--sa-text-main, #1e293b);
+  background: var(--sa-surface, #ffffff);
+  border: 1px solid var(--sa-border, #e2e8f0);
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+/* Features List in Card */
+.sa-plan-feature-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+  flex: 1;
+}
+
+.sa-plan-feature-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--sa-text-main, #1e293b);
+  line-height: 1.4;
+}
+
+.sa-feature-check {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* Card Progress & Subscriber count */
 .sa-plan-subscribers-bar {
-  margin-bottom: 18px;
+  margin-bottom: 14px;
+  padding-top: 10px;
+  border-top: 1px solid var(--sa-border-subtle, #f1f5f9);
 }
 
 .sa-sub-header {
   display: flex;
   justify-content: space-between;
   font-size: 11.5px;
-  margin-bottom: 6px;
-  color: var(--sa-text-muted);
+  margin-bottom: 5px;
+  color: var(--sa-text-muted, #64748b);
 }
 
 .sa-sub-header strong {
-  color: var(--sa-text-main);
+  color: var(--sa-text-main, #0f172a);
 }
 
 .sa-sub-progress {
   height: 6px;
-  background: #edf2f7;
+  background: var(--sa-bg, #edf2f7);
   border-radius: 4px;
   overflow: hidden;
 }
@@ -208,61 +513,191 @@
 .sa-sub-progress-fill {
   height: 100%;
   border-radius: 4px;
+  transition: width 0.3s ease;
 }
 
-.sa-plan-features-list {
-  flex: 1;
-  margin-bottom: 20px;
-}
-
-.sa-feat-heading {
-  margin: 0 0 10px 0;
-  font-size: 10.5px;
-  font-weight: 700;
-  color: var(--sa-text-light);
-  letter-spacing: 0.5px;
-}
-
-.sa-plan-features-list ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.sa-plan-features-list li {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  font-size: 12px;
-  color: var(--sa-text-main);
-  line-height: 1.4;
-}
-
-.sa-check-icon {
-  flex-shrink: 0;
-  margin-top: 1px;
-}
-
+/* Card Footer */
 .sa-plan-card-footer {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding-top: 12px;
-  border-top: 1px solid var(--sa-border-subtle);
+  border-top: 1px solid var(--sa-border-subtle, #f1f5f9);
+  margin-top: auto;
 }
 
-@media (max-width: 1200px) {
-  .sa-plans-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
+.sa-plan-actions-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
-@media (max-width: 600px) {
-  .sa-plans-grid {
-    grid-template-columns: 1fr;
-  }
+/* ==========================================================================
+   EDIT / CREATE PLAN MODAL FORM (Clean Portaled Dialog)
+   ========================================================================== */
+.sa-plan-modal-content {
+  background: #ffffff;
+  border-radius: 14px;
+  width: 100%;
+  max-width: 640px;
+  max-height: 90vh;
+  overflow-y: auto;
+  border: 1px solid var(--sa-border, #e2e8f0);
+  box-shadow: 0 24px 48px -12px rgba(15, 23, 42, 0.25);
+  display: flex;
+  flex-direction: column;
 }
 
+.sa-plan-features-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-height: 48px;
+  padding: 8px 10px;
+  background: var(--sa-bg, #f8fafc);
+  border: 1px solid var(--sa-border, #e2e8f0);
+  border-radius: 8px;
+  max-height: 160px;
+  overflow-y: auto;
+}
+
+.sa-feature-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 8px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+  border-radius: 6px;
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+.sa-feature-chip-remove {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  opacity: 0.7;
+  transition: opacity 0.15s ease;
+}
+
+.sa-feature-chip-remove:hover {
+  opacity: 1;
+}
+
+/* Color Presets Picker */
+.sa-color-preset-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.sa-color-circle {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid #ffffff;
+  cursor: pointer;
+  box-shadow: 0 0 0 1px #cbd5e1;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.sa-color-circle:hover {
+  transform: scale(1.15);
+}
+
+.sa-color-circle.is-selected {
+  transform: scale(1.2);
+  box-shadow: 0 0 0 2px var(--sa-primary, #3b66ff);
+}
+
+/* ==========================================================================
+   DARK MODE OVERRIDES
+   ========================================================================== */
+.sa-dark-mode .sa-billing-toggle,
+.sa-dark-mode .sa-view-switcher {
+  background: #131d35 !important;
+  border-color: #202e4c !important;
+}
+
+.sa-dark-mode .sa-plan-distribution-card {
+  background: #131d35 !important;
+  border-color: #202e4c !important;
+}
+
+.sa-dark-mode .sa-plan-tier-card {
+  background: #131d35 !important;
+  border-color: #202e4c !important;
+}
+
+.sa-dark-mode .sa-plan-tier-card:hover {
+  border-color: #334876 !important;
+  box-shadow: 0 14px 28px -4px rgba(0, 0, 0, 0.45) !important;
+}
+
+.sa-dark-mode .sa-plan-price-block {
+  background: #172442 !important;
+  border-color: #233355 !important;
+}
+
+.sa-dark-mode .sa-spec-pill {
+  background: #172442 !important;
+  border-color: #233355 !important;
+  color: #cbd5e1 !important;
+}
+
+.sa-dark-mode .sa-plan-subscribers-bar,
+.sa-dark-mode .sa-plan-card-footer {
+  border-top-color: #1f2d4d !important;
+}
+
+.sa-dark-mode .sa-sub-progress,
+.sa-dark-mode .sa-alloc-bar {
+  background: #1f2d4d !important;
+}
+
+.sa-dark-mode .plans-page .sa-action-btn.btn-edit-plan {
+  background: rgba(59, 102, 255, 0.18) !important;
+  border-color: rgba(59, 102, 255, 0.35) !important;
+  color: #93c5fd !important;
+}
+
+.sa-dark-mode .plans-page .sa-action-btn.btn-pause-plan {
+  background: rgba(245, 158, 11, 0.18) !important;
+  border-color: rgba(245, 158, 11, 0.35) !important;
+  color: #fbbf24 !important;
+}
+
+.sa-dark-mode .plans-page .sa-action-btn.btn-activate-plan {
+  background: rgba(16, 185, 129, 0.18) !important;
+  border-color: rgba(16, 185, 129, 0.35) !important;
+  color: #34d399 !important;
+}
+
+.sa-dark-mode .plans-page .sa-action-btn.btn-delete-plan {
+  background: rgba(239, 68, 68, 0.18) !important;
+  border-color: rgba(239, 68, 68, 0.35) !important;
+  color: #f87171 !important;
+}
+
+.sa-dark-mode .sa-plan-modal-content {
+  background: #131d35 !important;
+  border-color: #202e4c !important;
+}
+
+.sa-dark-mode .sa-plan-features-container {
+  background: #172442 !important;
+  border-color: #233355 !important;
+}
+
+.sa-dark-mode .sa-feature-chip {
+  background: rgba(59, 102, 255, 0.2) !important;
+  color: #93c5fd !important;
+  border-color: rgba(59, 102, 255, 0.4) !important;
+}

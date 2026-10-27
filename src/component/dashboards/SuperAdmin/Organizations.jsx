@@ -1,4 +1,3 @@
-
 import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { useSearchParams } from "react-router-dom";
@@ -25,6 +24,12 @@ import {
   ShieldCheck,
   Sparkles,
   Trash2,
+  Lock,
+  Unlock,
+  RefreshCw,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
 } from "lucide-react";
 import "./SuperAdminCommon.css";
 import "./Organizations.css";
@@ -34,14 +39,16 @@ const STORAGE_KEY = "teamflow_superadmin_organizations";
 const initialOrganizations = [
   { id: "ORG-1001", name: "Acme Corporation", email: "admin@acmecorp.com", domain: "acmecorp.com", plan: "Enterprise", users: 1240, status: "Active", createdAt: "2026-10-12", color: "violet" },
   { id: "ORG-1002", name: "BrightLabs", email: "hello@brightlabs.io", domain: "brightlabs.io", plan: "Professional", users: 856, status: "Active", createdAt: "2026-10-10", color: "blue" },
-  { id: "ORG-1003", name: "NovaTech Solutions", email: "team@novatech.com", domain: "novatech.com", plan: "Professional", users: 642, status: "Active", createdAt: "2026-10-08", color: "orange" },
+  { id: "ORG-1003", name: "NovaTech Solutions", email: "team@novatech.com", domain: "novatech.com", plan: "Business", users: 642, status: "Active", createdAt: "2026-10-08", color: "orange" },
   { id: "ORG-1004", name: "PixelCraft Studio", email: "contact@pixelcraft.co", domain: "pixelcraft.co", plan: "Starter", users: 128, status: "Pending", createdAt: "2026-10-06", color: "pink" },
   { id: "ORG-1005", name: "Vertex Digital", email: "hello@vertexdigital.io", domain: "vertexdigital.io", plan: "Enterprise", users: 1085, status: "Active", createdAt: "2026-10-03", color: "green" },
   { id: "ORG-1006", name: "CloudNine Technologies", email: "admin@cloudnine.dev", domain: "cloudnine.dev", plan: "Starter", users: 74, status: "Suspended", createdAt: "2026-09-28", color: "blue" },
-  { id: "ORG-1007", name: "Orbit Creative", email: "team@orbitcreative.co", domain: "orbitcreative.co", plan: "Professional", users: 319, status: "Active", createdAt: "2026-09-22", color: "pink" },
+  { id: "ORG-1007", name: "Orbit Creative", email: "team@orbitcreative.co", domain: "orbitcreative.co", plan: "Business", users: 319, status: "Active", createdAt: "2026-09-22", color: "pink" },
   { id: "ORG-1008", name: "Summit Works", email: "contact@summitworks.com", domain: "summitworks.com", plan: "Starter", users: 92, status: "Pending", createdAt: "2026-09-18", color: "orange" },
   { id: "ORG-1009", name: "BluePeak Systems", email: "admin@bluepeak.io", domain: "bluepeak.io", plan: "Enterprise", users: 1530, status: "Active", createdAt: "2026-09-12", color: "violet" },
   { id: "ORG-1010", name: "Greenfield Labs", email: "hello@greenfieldlabs.com", domain: "greenfieldlabs.com", plan: "Professional", users: 247, status: "Active", createdAt: "2026-09-05", color: "green" },
+  { id: "ORG-1011", name: "PulseWave Analytics", email: "contact@pulsewave.ai", domain: "pulsewave.ai", plan: "Business", users: 512, status: "Active", createdAt: "2026-08-20", color: "blue" },
+  { id: "ORG-1012", name: "OmniCore Retail", email: "support@omnicore.io", domain: "omnicore.io", plan: "Professional", users: 430, status: "Active", createdAt: "2026-08-14", color: "orange" },
 ];
 
 const colors = ["violet", "blue", "orange", "pink", "green"];
@@ -51,6 +58,7 @@ const emptyForm = {
   email: "",
   domain: "",
   plan: "Starter",
+  users: 10,
   status: "Active",
 };
 
@@ -109,7 +117,32 @@ function Organizations() {
   const [resetConfirmOpen, setResetConfirmOpen] = useState(false);
   const [deleteConfirmOrg, setDeleteConfirmOrg] = useState(null);
 
-  const pageSize = 6;
+  // Enterprise Table Features
+  const [selectedIds, setSelectedIds] = useState(new Set());
+  const [density, setDensity] = useState("standard");
+  const [pageSize, setPageSize] = useState(10);
+  const [sortField, setSortField] = useState("name");
+  const [sortOrder, setSortOrder] = useState("asc");
+
+  const handleSort = (field) => {
+    if (sortField === field) {
+      setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"));
+    } else {
+      setSortField(field);
+      setSortOrder("asc");
+    }
+  };
+
+  const renderSortIcon = (field) => {
+    if (sortField !== field) {
+      return <ArrowUpDown size={12} className="sap-sort-icon" />;
+    }
+    return sortOrder === "asc" ? (
+      <ArrowUp size={12} className="sap-sort-icon is-active" />
+    ) : (
+      <ArrowDown size={12} className="sap-sort-icon is-active" />
+    );
+  };
 
   // Persist demo data in this browser.
   useEffect(() => {
@@ -171,13 +204,30 @@ function Organizations() {
     });
   }, [organizations, search, statusFilter, planFilter]);
 
+  const sortedOrganizations = useMemo(() => {
+    let list = [...filteredOrganizations];
+    list.sort((a, b) => {
+      let valA = a[sortField];
+      let valB = b[sortField];
+      if (typeof valA === "number" && typeof valB === "number") {
+        return sortOrder === "asc" ? valA - valB : valB - valA;
+      }
+      valA = String(valA || "").toLowerCase();
+      valB = String(valB || "").toLowerCase();
+      if (valA < valB) return sortOrder === "asc" ? -1 : 1;
+      if (valA > valB) return sortOrder === "asc" ? 1 : -1;
+      return 0;
+    });
+    return list;
+  }, [filteredOrganizations, sortField, sortOrder]);
+
   const totalPages = Math.max(
     1,
-    Math.ceil(filteredOrganizations.length / pageSize)
+    Math.ceil(sortedOrganizations.length / pageSize)
   );
   const safePage = Math.min(currentPage, totalPages);
 
-  const paginatedOrganizations = filteredOrganizations.slice(
+  const paginatedOrganizations = sortedOrganizations.slice(
     (safePage - 1) * pageSize,
     safePage * pageSize
   );
@@ -224,6 +274,31 @@ function Organizations() {
     setSearchParams({}, { replace: true });
   };
 
+  const handleSelectAll = (e) => {
+    if (e.target.checked) {
+      setSelectedIds(new Set(paginatedOrganizations.map((o) => o.id)));
+    } else {
+      setSelectedIds(new Set());
+    }
+  };
+
+  const handleSelectOne = (id) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const handleBatchStatus = (newStatus) => {
+    setOrganizations((prev) =>
+      prev.map((o) => (selectedIds.has(o.id) ? { ...o, status: newStatus } : o))
+    );
+    notify(`Updated ${selectedIds.size} organizations to ${newStatus}.`);
+    setSelectedIds(new Set());
+  };
+
   const openAddModal = () => {
     setForm(emptyForm);
     setFormError("");
@@ -237,6 +312,7 @@ function Organizations() {
       email: org.email,
       domain: org.domain,
       plan: org.plan,
+      users: org.users || 1,
       status: org.status,
     });
 
@@ -252,508 +328,551 @@ function Organizations() {
     }));
   };
 
-  const handleSave = (event) => {
+  const validateForm = () => {
+    if (!form.name.trim()) return "Please enter an organization name.";
+    if (!form.email.trim()) return "Please enter a primary contact email.";
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim()))
+      return "Please enter a valid email address.";
+    if (!form.domain.trim()) return "Please enter the workspace domain.";
+    if (!form.users || Number(form.users) < 1)
+      return "Please enter a valid seat count (minimum 1 user).";
+    return "";
+  };
+
+  const saveOrganization = (event) => {
     event.preventDefault();
-    setFormError("");
 
-    const name = form.name.trim();
-    const email = form.email.trim().toLowerCase();
-    const domain = form.domain
-      .trim()
-      .toLowerCase()
-      .replace(/^https?:\/\//, "")
-      .replace(/\/.*$/, "");
-
-    if (!name || !email || !domain) {
-      setFormError("Please complete all required fields.");
+    const error = validateForm();
+    if (error) {
+      setFormError(error);
       return;
     }
 
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setFormError("Enter a valid contact email address.");
-      return;
+    if (modal?.mode === "add") {
+      const newOrganization = {
+        id: `ORG-${Math.floor(1000 + Math.random() * 9000)}`,
+        name: form.name.trim(),
+        email: form.email.trim(),
+        domain: form.domain.trim().toLowerCase(),
+        plan: form.plan,
+        users: Number(form.users) || 1,
+        status: form.status,
+        createdAt: new Date().toISOString().slice(0, 10),
+        color: colors[organizations.length % colors.length],
+      };
+
+      setOrganizations((current) => [newOrganization, ...current]);
+      notify(`Organization ${newOrganization.name} has been added.`);
     }
 
-    if (
-      !/^(?=.{1,253}$)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$/i.test(
-        domain
-      )
-    ) {
-      setFormError("Enter a valid domain, such as example.com.");
-      return;
-    }
-
-    const editingId = modal.mode === "edit" ? modal.organization.id : null;
-
-    const duplicate = organizations.some(
-      (org) =>
-        org.id !== editingId &&
-        (org.name.toLowerCase() === name.toLowerCase() ||
-          org.email.toLowerCase() === email ||
-          org.domain.toLowerCase() === domain)
-    );
-
-    if (duplicate) {
-      setFormError(
-        "An organization with this name, email, or domain already exists."
-      );
-      return;
-    }
-
-    if (modal.mode === "edit") {
-      setOrganizations((previous) =>
-        previous.map((org) =>
-          org.id === editingId
+    if (modal?.mode === "edit" && modal.organization) {
+      setOrganizations((current) =>
+        current.map((org) =>
+          org.id === modal.organization.id
             ? {
                 ...org,
-                name,
-                email,
-                domain,
+                name: form.name.trim(),
+                email: form.email.trim(),
+                domain: form.domain.trim().toLowerCase(),
                 plan: form.plan,
+                users: Number(form.users) || org.users || 1,
                 status: form.status,
-                initials: makeInitials(name),
               }
             : org
         )
       );
 
-      notify(`${name} was updated in demo data.`);
-    } else {
-      const newOrg = {
-        id: `ORG-${Date.now().toString().slice(-8)}`,
-        name,
-        email,
-        domain,
-        plan: form.plan,
-        status: form.status,
-        users: 0,
-        createdAt: new Date().toISOString().slice(0, 10),
-        initials: makeInitials(name),
-        color: colors[organizations.length % colors.length],
-      };
-
-      setOrganizations((previous) => [newOrg, ...previous]);
-      clearFilters();
-      notify(`${name} was added to the demo organization list.`);
+      notify(`Organization ${form.name} has been updated.`);
     }
 
     setModal(null);
     setForm(emptyForm);
+    setFormError("");
   };
 
   const toggleStatus = (org) => {
-    const nextStatus = org.status === "Suspended" ? "Active" : "Suspended";
+    const nextStatus = org.status === "Active" ? "Suspended" : "Active";
 
-    setOrganizations((previous) =>
-      previous.map((item) =>
+    setOrganizations((current) =>
+      current.map((item) =>
         item.id === org.id ? { ...item, status: nextStatus } : item
       )
     );
 
     setMenuId(null);
-    notify(`${org.name} is now marked ${nextStatus.toLowerCase()}.`);
+    notify(
+      `${org.name} is now ${nextStatus === "Active" ? "active" : "suspended"}.`
+    );
   };
 
   const confirmDeleteOrganization = () => {
     if (!deleteConfirmOrg) return;
 
-    const name = deleteConfirmOrg.name;
-
-    setOrganizations((previous) =>
-      previous.filter((org) => org.id !== deleteConfirmOrg.id)
+    setOrganizations((current) =>
+      current.filter((org) => org.id !== deleteConfirmOrg.id)
     );
 
+    notify(`Organization ${deleteConfirmOrg.name} has been deleted.`);
     setDeleteConfirmOrg(null);
-    setMenuId(null);
-    notify(`${name} was removed from demo data.`);
-  };
-
-  const exportOrganizations = () => {
-    const headers = [
-      "Organization ID",
-      "Organization Name",
-      "Contact Email",
-      "Domain",
-      "Plan",
-      "Users",
-      "Status",
-      "Created At",
-    ];
-
-    const rows = filteredOrganizations.map((org) => [
-      org.id,
-      org.name,
-      org.email,
-      org.domain,
-      org.plan,
-      org.users,
-      org.status,
-      org.createdAt,
-    ]);
-
-    const escapeCsv = (value) =>
-      `"${String(value ?? "").replace(/"/g, '""')}"`;
-
-    const csv = [headers, ...rows]
-      .map((row) => row.map(escapeCsv).join(","))
-      .join("\r\n");
-
-    const blob = new Blob(["\uFEFF" + csv], {
-      type: "text/csv;charset=utf-8;",
-    });
-
-    const url = URL.createObjectURL(blob);
-    const anchor = document.createElement("a");
-
-    anchor.href = url;
-    anchor.download = "teamflow-organizations-demo.csv";
-    document.body.appendChild(anchor);
-    anchor.click();
-    anchor.remove();
-    URL.revokeObjectURL(url);
-
-    notify("Organization CSV export started.");
-  };
-
-  const resetDemoData = () => {
-    setMenuId(null);
-    setResetConfirmOpen(true);
   };
 
   const confirmResetDemoData = () => {
     setOrganizations(initialOrganizations);
-    clearFilters();
+    setSearch("");
+    setStatusFilter("All");
+    setPlanFilter("All");
     setCurrentPage(1);
-    setMenuId(null);
+    setSearchParams({}, { replace: true });
     setResetConfirmOpen(false);
-
     notify("Organization demo data has been reset.");
   };
 
-  return (
-    <main className="org-page" onClick={() => menuId && setMenuId(null)}>
-      <header className="org-page-header">
-        <div className="org-header-copy">
-          <div className="org-title-row">
-            <div>
-              <h1>Organizations</h1>
-              <p>
-                Manage the organizations registered on your TeamFlow AI
-                platform.
-              </p>
-            </div>
+  const exportOrganizations = () => {
+    const rows = [
+      ["ID", "Organization", "Domain", "Email", "Plan", "Users", "Status", "Created At"],
+      ...filteredOrganizations.map((org) => [
+        org.id,
+        org.name,
+        org.domain,
+        org.email,
+        org.plan,
+        org.users,
+        org.status,
+        org.createdAt,
+      ]),
+    ];
 
-            <span className="org-demo-badge">
-              <span /> Demo environment
-            </span>
-          </div>
+    const csvContent = rows
+      .map((row) =>
+        row.map((val) => `"${String(val || "").replace(/"/g, '""')}"`).join(",")
+      )
+      .join("\n");
+
+    const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `teamflow_organizations_${Date.now()}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+    notify(`Exported ${filteredOrganizations.length} organizations to CSV.`);
+  };
+
+  return (
+    <main className="sa-page-container org-page" onClick={() => menuId && setMenuId(null)}>
+      {/* 1. Header with SAP Master Badge */}
+      <section className="sap-header-panel">
+        <div className="sap-header-left">
+          <h1>Organization Directory</h1>
+          <p className="sap-header-subtitle">
+            Enterprise multi-tenant directory, subscription plan allocation, domain governance, and tenant lifecycle.
+          </p>
         </div>
 
-        <div className="org-header-actions">
+        <div className="sap-header-actions">
           <button
             type="button"
-            className="org-button org-button-secondary"
+            className="sa-btn sa-btn-secondary"
             onClick={exportOrganizations}
           >
-            <Download size={16} /> Export CSV
+            <Download size={15} /> Export Directory
           </button>
 
           <button
             type="button"
-            className="org-button org-button-primary"
+            className="sa-btn sa-btn-primary"
             onClick={openAddModal}
           >
-            <Plus size={17} /> Add organization
+            <Plus size={16} /> New Organization
           </button>
         </div>
-      </header>
+      </section>
 
-      {toast && (
-        <div className="org-toast" role="status">
-          <CheckCircle2 size={18} />
-          <span>{toast}</span>
-          <button
-            type="button"
-            aria-label="Dismiss message"
-            onClick={() => setToast("")}
-          >
-            <X size={16} />
-          </button>
-        </div>
-      )}
-
-      <section className="org-stats-grid" aria-label="Organization statistics">
-        <article className="org-stat-card">
-          <div className="org-stat-top">
-            <span className="org-stat-icon purple">
-              <Building2 size={20} />
-            </span>
-            <span className="org-stat-caption">Directory</span>
+      {/* 2. Top 4 KPI Telemetry Cards */}
+      <section className="sap-kpi-grid">
+        <article className="sa-kpi-card">
+          <div className="sa-kpi-icon-box blue">
+            <Building2 size={24} strokeWidth={2.2} />
           </div>
-          <p>Total organizations</p>
-          <strong>{organizations.length.toLocaleString("en-US")}</strong>
-          <span className="org-stat-foot">Organizations in demo data</span>
+          <div className="sa-kpi-body">
+            <p className="sa-kpi-title">Total Tenants</p>
+            <div className="sa-kpi-val-row">
+              <span className="sa-kpi-value">{organizations.length}</span>
+              <span className="sa-kpi-trend positive">100% Bound</span>
+            </div>
+            <span className="sa-kpi-subtitle">Registered tenant organizations</span>
+          </div>
         </article>
 
-        <article className="org-stat-card">
-          <div className="org-stat-top">
-            <span className="org-stat-icon green">
-              <CheckCircle2 size={20} />
-            </span>
-            <span className="org-stat-caption">Operational</span>
+        <article className="sa-kpi-card">
+          <div className="sa-kpi-icon-box green">
+            <CheckCircle2 size={24} strokeWidth={2.2} />
           </div>
-          <p>Active organizations</p>
-          <strong>{activeCount.toLocaleString("en-US")}</strong>
-          <span className="org-stat-foot">Currently marked active</span>
+          <div className="sa-kpi-body">
+            <p className="sa-kpi-title">Active Organizations</p>
+            <div className="sa-kpi-val-row">
+              <span className="sa-kpi-value">{activeCount}</span>
+              <span className="sa-kpi-trend positive">Operational</span>
+            </div>
+            <span className="sa-kpi-subtitle">Unrestricted platform access</span>
+          </div>
         </article>
 
-        <article className="org-stat-card">
-          <div className="org-stat-top">
-            <span className="org-stat-icon orange">
-              <CalendarDays size={20} />
-            </span>
-            <span className="org-stat-caption">Review</span>
+        <article className="sa-kpi-card">
+          <div className="sa-kpi-icon-box amber">
+            <CalendarDays size={24} strokeWidth={2.2} />
           </div>
-          <p>Pending organizations</p>
-          <strong>{pendingCount.toLocaleString("en-US")}</strong>
-          <span className="org-stat-foot">Awaiting review in demo data</span>
+          <div className="sa-kpi-body">
+            <p className="sa-kpi-title">Pending Review</p>
+            <div className="sa-kpi-val-row">
+              <span className="sa-kpi-value">{pendingCount}</span>
+              <span className="sa-kpi-trend negative">Verification</span>
+            </div>
+            <span className="sa-kpi-subtitle">Awaiting domain approval</span>
+          </div>
         </article>
 
-        <article className="org-stat-card">
-          <div className="org-stat-top">
-            <span className="org-stat-icon blue">
-              <Users size={20} />
-            </span>
-            <span className="org-stat-caption">Platform reach</span>
+        <article className="sa-kpi-card">
+          <div className="sa-kpi-icon-box purple">
+            <Users size={24} strokeWidth={2.2} />
           </div>
-          <p>Total organization users</p>
-          <strong>{totalUsers.toLocaleString("en-US")}</strong>
-          <span className="org-stat-foot">
-            {suspendedCount} suspended organizations
-          </span>
+          <div className="sa-kpi-body">
+            <p className="sa-kpi-title">Total Active Users</p>
+            <div className="sa-kpi-val-row">
+              <span className="sa-kpi-value">{totalUsers.toLocaleString()}</span>
+              <span className="sa-kpi-trend positive">Enrolled</span>
+            </div>
+            <span className="sa-kpi-subtitle">Across all tenant domains</span>
+          </div>
         </article>
       </section>
 
-      <section className="org-table-panel">
-        <div className="org-table-heading">
-          <div>
-            <div className="org-section-kicker">
-              <Sparkles size={14} /> ORGANIZATION DIRECTORY
-            </div>
-            <h2>
-              All organizations{" "}
-              <span className="org-count-pill">
-                {filteredOrganizations.length}
-              </span>
-            </h2>
-            <p>
-              Review accounts, manage subscriptions, and update organization
-              status.
-            </p>
-          </div>
-
-          <button
-            type="button"
-            className="org-reset-button"
-            onClick={resetDemoData}
-          >
-            <RotateCcw size={15} /> Reset demo data
-          </button>
+      {toast && (
+        <div className="sa-toast-banner">
+          <CheckCircle2 size={16} /> {toast}
         </div>
+      )}
 
-        <div className="org-toolbar">
-          <label className="org-search">
-            <Search size={18} />
-
-            <input
-              type="search"
-              placeholder="Search name, email, domain or ID..."
-              value={search}
-              onChange={(event) => updateSearch(event.target.value)}
-              aria-label="Search organizations"
-            />
-
-            {search && (
+      {/* 3. The Master Data Table Card */}
+      <section className="sap-table-card">
+        {/* Selection Batch Actions Bar */}
+        {selectedIds.size > 0 && (
+          <div className="sap-batch-banner">
+            <span>
+              <strong>{selectedIds.size}</strong> organization records selected
+            </span>
+            <div className="sap-batch-actions">
               <button
                 type="button"
-                aria-label="Clear search"
-                onClick={() => updateSearch("")}
+                className="sa-btn sa-btn-secondary sa-btn-sm"
+                onClick={() => handleBatchStatus("Active")}
               >
-                <X size={15} />
+                <Unlock size={13} /> Activate Selected
               </button>
-            )}
-          </label>
+              <button
+                type="button"
+                className="sa-btn sa-btn-secondary sa-btn-sm"
+                onClick={() => handleBatchStatus("Suspended")}
+              >
+                <Lock size={13} /> Suspend Selected
+              </button>
+              <button
+                type="button"
+                className="sa-btn sa-btn-secondary sa-btn-sm"
+                onClick={exportOrganizations}
+              >
+                <Download size={13} /> Export Selected
+              </button>
+              <button
+                type="button"
+                className="sa-btn sa-btn-danger sa-btn-sm"
+                onClick={() => {
+                  const count = selectedIds.size;
+                  setOrganizations((prev) => prev.filter((o) => !selectedIds.has(o.id)));
+                  notify(`Deleted ${count} selected organizations.`);
+                  setSelectedIds(new Set());
+                }}
+              >
+                <Trash2 size={13} /> Delete Selected
+              </button>
+              <button
+                type="button"
+                className="sa-btn sa-btn-sm"
+                style={{ background: "transparent", color: "inherit", border: 0 }}
+                onClick={() => setSelectedIds(new Set())}
+              >
+                Clear
+              </button>
+            </div>
+          </div>
+        )}
 
-          <label className="org-filter">
-            <SlidersHorizontal size={16} />
+        {/* Toolbar & Filter Bar */}
+        <div className="sap-toolbar">
+          <div className="sap-toolbar-left">
+            <div className="sap-search-input">
+              <Search size={15} style={{ color: "var(--sa-text-muted)" }} />
+              <input
+                type="text"
+                placeholder="Search Organization ID, Name, Domain, Email..."
+                value={search}
+                onChange={(e) => updateSearch(e.target.value)}
+              />
+            </div>
+
             <select
+              className="sap-filter-select"
               value={statusFilter}
-              onChange={(event) => {
-                setStatusFilter(event.target.value);
+              onChange={(e) => {
+                setStatusFilter(e.target.value);
                 setCurrentPage(1);
               }}
-              aria-label="Filter by status"
             >
-              <option value="All">All statuses</option>
-              <option value="Active">Active</option>
-              <option value="Pending">Pending</option>
-              <option value="Suspended">Suspended</option>
+              <option value="All">Status: All Statuses</option>
+              <option value="Active">00 - Active (Operational)</option>
+              <option value="Pending">01 - Pending Review</option>
+              <option value="Suspended">02 - Suspended (Locked)</option>
             </select>
-          </label>
 
-          <label className="org-filter">
             <select
+              className="sap-filter-select"
               value={planFilter}
-              onChange={(event) => {
-                setPlanFilter(event.target.value);
+              onChange={(e) => {
+                setPlanFilter(e.target.value);
                 setCurrentPage(1);
               }}
-              aria-label="Filter by subscription plan"
             >
-              <option value="All">All plans</option>
-              <option value="Starter">Starter</option>
-              <option value="Professional">Professional</option>
-              <option value="Enterprise">Enterprise</option>
+              <option value="All">Plan Tier: All Plans</option>
+              <option value="Starter">Starter Tier</option>
+              <option value="Professional">Professional Tier</option>
+              <option value="Business">Business Tier</option>
+              <option value="Enterprise">Enterprise Tier</option>
             </select>
-          </label>
+          </div>
+
+          <div className="sap-toolbar-right">
+            {/* Table Density Switcher */}
+            <button
+              type="button"
+              className="sap-icon-btn"
+              onClick={() => setDensity((d) => (d === "standard" ? "compact" : "standard"))}
+              title={`Switch density (currently ${density})`}
+            >
+              <SlidersHorizontal size={15} />
+            </button>
+
+            {/* Reset Filters */}
+            <button
+              type="button"
+              className="sap-icon-btn"
+              onClick={clearFilters}
+              title="Reset all filters"
+            >
+              <RefreshCw size={15} />
+            </button>
+
+            <button
+              type="button"
+              className="sa-btn sa-btn-secondary sa-btn-sm"
+              onClick={() => setResetConfirmOpen(true)}
+              title="Reset demo data"
+            >
+              <RotateCcw size={13} /> Reset Demo Data
+            </button>
+          </div>
         </div>
 
-        <div className="org-table-scroll">
-          <table className="org-table">
+        {/* 4. The Master Data Grid Table */}
+        <div className="sap-table-wrapper">
+          <table className={`sap-grid is-${density}`}>
             <thead>
               <tr>
-                <th>ORGANIZATION</th>
-                <th>SUBSCRIPTION</th>
-                <th>USERS</th>
-                <th>STATUS</th>
-                <th>CREATED</th>
-                <th>
-                  <span className="org-sr-only">Actions</span>
+                <th style={{ width: 38, textAlign: "center" }}>
+                  <input
+                    type="checkbox"
+                    checked={
+                      paginatedOrganizations.length > 0 &&
+                      paginatedOrganizations.every((o) => selectedIds.has(o.id))
+                    }
+                    onChange={handleSelectAll}
+                  />
                 </th>
+                <th className="sap-sortable-th" onClick={() => handleSort("id")}>
+                  <span className="sap-th-content">Tenant ID {renderSortIcon("id")}</span>
+                </th>
+                <th className="sap-sortable-th" onClick={() => handleSort("name")}>
+                  <span className="sap-th-content">Organization &amp; Domain {renderSortIcon("name")}</span>
+                </th>
+                <th className="sap-sortable-th" onClick={() => handleSort("email")}>
+                  <span className="sap-th-content">Contact Email {renderSortIcon("email")}</span>
+                </th>
+                <th className="sap-sortable-th" onClick={() => handleSort("plan")}>
+                  <span className="sap-th-content">Subscription Plan {renderSortIcon("plan")}</span>
+                </th>
+                <th className="sap-sortable-th" onClick={() => handleSort("users")}>
+                  <span className="sap-th-content">Enrolled Users {renderSortIcon("users")}</span>
+                </th>
+                <th className="sap-sortable-th" onClick={() => handleSort("status")}>
+                  <span className="sap-th-content">Tenant Status {renderSortIcon("status")}</span>
+                </th>
+                <th className="sap-sortable-th" onClick={() => handleSort("createdAt")}>
+                  <span className="sap-th-content">Creation Date {renderSortIcon("createdAt")}</span>
+                </th>
+                <th style={{ textAlign: "right" }}>Actions</th>
               </tr>
             </thead>
-
             <tbody>
-              {paginatedOrganizations.map((org) => (
-                <tr key={org.id}>
-                  <td>
-                    <div className="org-name-cell">
-                      <div className={`org-avatar ${org.color}`}>
-                        {org.initials || makeInitials(org.name)}
-                      </div>
-                      <div className="org-name-info">
-                        <strong>{org.name}</strong>
-                        <span>{org.email}</span>
-                        <small>{org.id}</small>
-                      </div>
-                    </div>
-                  </td>
+              {paginatedOrganizations.map((org) => {
+                const isSelected = selectedIds.has(org.id);
+                return (
+                  <tr key={org.id} className={isSelected ? "is-selected" : ""}>
+                    <td style={{ textAlign: "center" }}>
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => handleSelectOne(org.id)}
+                      />
+                    </td>
 
-                  <td>
-                    <span className={`org-plan-tag ${org.plan.toLowerCase()}`}>
-                      {org.plan}
-                    </span>
-                  </td>
+                    {/* Monospace Tenant ID */}
+                    <td>
+                      <span className="sap-id-cell">{org.id}</span>
+                    </td>
 
-                  <td>
-                    <span className="org-user-count">
-                      <Users size={14} />
-                      {Number(org.users || 0).toLocaleString("en-US")}
-                    </span>
-                  </td>
-
-                  <td>
-                    <span className={`org-status-tag ${org.status.toLowerCase()}`}>
-                      <span />
-                      {org.status}
-                    </span>
-                  </td>
-
-                  <td className="org-date-cell">{formatDate(org.createdAt)}</td>
-
-                  <td>
-                    <div
-                      className="org-row-menu-wrap"
-                      onClick={(event) => event.stopPropagation()}
-                    >
-                      <button
-                        type="button"
-                        className="org-row-menu-trigger"
-                        aria-label={`Actions for ${org.name}`}
-                        aria-expanded={menuId === org.id}
-                        onClick={() =>
-                          setMenuId((current) =>
-                            current === org.id ? null : org.id
-                          )
-                        }
+                    {/* Organization & Domain */}
+                    <td>
+                      <div
+                        className="sap-user-badge"
+                        style={{ cursor: "pointer" }}
+                        title="Click to view organization details"
+                        onClick={() => setModal({ mode: "view", organization: org })}
                       >
-                        <MoreHorizontal size={19} />
-                      </button>
-
-                      {menuId === org.id && (
-                        <div className="org-row-menu">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setModal({ mode: "view", organization: org });
-                              setMenuId(null);
-                            }}
-                          >
-                            <Eye size={15} /> View details
-                          </button>
-
-                          <button
-                            type="button"
-                            onClick={() => openEditModal(org)}
-                          >
-                            <Pencil size={15} /> Edit organization
-                          </button>
-
-                          <button
-                            type="button"
-                            className={
-                              org.status === "Suspended"
-                                ? "org-menu-activate"
-                                : "org-menu-danger"
-                            }
-                            onClick={() => toggleStatus(org)}
-                          >
-                            {org.status === "Suspended" ? (
-                              <CheckCircle2 size={15} />
-                            ) : (
-                              <Ban size={15} />
-                            )}
-                            {org.status === "Suspended" ? "Reactivate" : "Suspend"}
-                          </button>
-
-                          <button
-                            type="button"
-                            className="org-menu-danger"
-                            onClick={() => {
-                              setDeleteConfirmOrg(org);
-                              setMenuId(null);
-                            }}
-                          >
-                            <Trash2 size={15} /> Delete organization
-                          </button>
+                        <div className={`sap-avatar-circle ${org.color || "blue"}`}>
+                          {org.initials || makeInitials(org.name)}
                         </div>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))}
+                        <div className="sap-user-info">
+                          <strong>{org.name}</strong>
+                          <span style={{ display: "inline-flex", alignItems: "center", gap: 3 }}>
+                            <Globe size={11} /> {org.domain}
+                          </span>
+                        </div>
+                      </div>
+                    </td>
+
+                    {/* Email */}
+                    <td>
+                      <span style={{ color: "var(--sa-text-secondary)", fontSize: "12px" }}>
+                        {org.email}
+                      </span>
+                    </td>
+
+                    {/* Plan Tier Badge */}
+                    <td>
+                      <span
+                        className={`sap-role-badge ${
+                          org.plan === "Enterprise"
+                            ? "enterprise"
+                            : org.plan === "Business"
+                            ? "business"
+                            : org.plan === "Professional"
+                            ? "professional"
+                            : "starter"
+                        }`}
+                      >
+                        {org.plan}
+                      </span>
+                    </td>
+
+                    {/* Users count */}
+                    <td>
+                      <div style={{ display: "flex", alignItems: "center", gap: 5, fontWeight: 600 }}>
+                        <Users size={13} style={{ color: "var(--sa-text-muted)" }} />
+                        {Number(org.users || 0).toLocaleString()}
+                      </div>
+                    </td>
+
+                    {/* Status Pill */}
+                    <td>
+                      <span
+                        className={`sap-status-pill ${
+                          org.status === "Active"
+                            ? "valid"
+                            : org.status === "Suspended"
+                            ? "locked"
+                            : "pending"
+                        }`}
+                      >
+                        <span className="sap-status-dot" />
+                        {org.status}
+                      </span>
+                    </td>
+
+                    {/* Created Date */}
+                    <td>
+                      <span style={{ color: "var(--sa-text-muted)", fontSize: "12px" }}>
+                        {formatDate(org.createdAt)}
+                      </span>
+                    </td>
+
+                    {/* Actions */}
+                    <td style={{ textAlign: "right" }}>
+                      <div className="sap-action-group" style={{ justifyContent: "flex-end" }}>
+                        <button
+                          type="button"
+                          className="sap-table-btn"
+                          title="View Organization"
+                          onClick={() => setModal({ mode: "view", organization: org })}
+                        >
+                          <Eye size={14} />
+                        </button>
+                        <button
+                          type="button"
+                          className="sap-table-btn"
+                          title="Edit Organization"
+                          onClick={() => openEditModal(org)}
+                        >
+                          <Pencil size={14} />
+                        </button>
+                        <button
+                          type="button"
+                          className="sap-table-btn"
+                          title={org.status === "Suspended" ? "Activate" : "Suspend"}
+                          onClick={() => toggleStatus(org)}
+                        >
+                          {org.status === "Suspended" ? (
+                            <CheckCircle2 size={14} style={{ color: "#16a34a" }} />
+                          ) : (
+                            <Ban size={14} style={{ color: "#d97706" }} />
+                          )}
+                        </button>
+                        <button
+                          type="button"
+                          className="sap-table-btn danger"
+                          title="Delete Organization"
+                          onClick={() => setDeleteConfirmOrg(org)}
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
 
               {paginatedOrganizations.length === 0 && (
                 <tr>
-                  <td colSpan={6}>
-                    <div className="org-empty-state">
-                      <div>
-                        <Search size={23} />
-                      </div>
-                      <strong>No organizations found</strong>
-                      <p>Try changing your search or filter selections.</p>
-                      <button type="button" onClick={clearFilters}>
-                        Clear all filters
+                  <td colSpan={9} style={{ textAlign: "center", padding: "40px 20px" }}>
+                    <div style={{ color: "var(--sa-text-muted)", fontSize: 13 }}>
+                      <strong>No organizations found matching your search.</strong>
+                      <p style={{ margin: "6px 0 12px", fontSize: 12 }}>Try clearing or adjusting your active filter options.</p>
+                      <button
+                        type="button"
+                        className="sa-btn sa-btn-secondary sa-btn-sm"
+                        onClick={clearFilters}
+                      >
+                        Clear All Filters
                       </button>
                     </div>
                   </td>
@@ -763,52 +882,78 @@ function Organizations() {
           </table>
         </div>
 
-        <footer className="org-table-footer">
-          <span>
-            Showing{" "}
-            {filteredOrganizations.length ? (safePage - 1) * pageSize + 1 : 0}
-            –{Math.min(safePage * pageSize, filteredOrganizations.length)} of{" "}
-            {filteredOrganizations.length} organizations
-          </span>
+        {/* 5. Footer Bar */}
+        <footer className="sap-footer-bar">
+          <div className="sap-footer-counts" style={{ display: "flex", alignItems: "center", gap: 14 }}>
+            <span>
+              Showing {filteredOrganizations.length ? (safePage - 1) * pageSize + 1 : 0}–
+              {Math.min(safePage * pageSize, filteredOrganizations.length)} of{" "}
+              {filteredOrganizations.length} organizations
+            </span>
+            <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "#64748b" }}>
+              <span>Rows per page:</span>
+              <select
+                className="sap-filter-select"
+                style={{ padding: "3px 6px", fontSize: 12, height: 26 }}
+                value={pageSize}
+                onChange={(e) => {
+                  setPageSize(Number(e.target.value));
+                  setCurrentPage(1);
+                }}
+              >
+                <option value={5}>5</option>
+                <option value={10}>10</option>
+                <option value={20}>20</option>
+                <option value={50}>50</option>
+              </select>
+            </div>
+          </div>
 
-          <div className="org-pagination">
+          <div className="sap-pagination">
             <button
               type="button"
-              aria-label="Previous page"
+              className="sap-page-btn"
               disabled={safePage <= 1}
-              onClick={() =>
-                setCurrentPage((page) => Math.max(1, page - 1))
-              }
+              onClick={() => setCurrentPage(1)}
+              title="First Page"
             >
-              <ChevronLeft size={17} />
+              «
             </button>
-
-            <span>
+            <button
+              type="button"
+              className="sap-page-btn"
+              disabled={safePage <= 1}
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              title="Previous Page"
+            >
+              ‹
+            </button>
+            <span style={{ padding: "0 8px", fontWeight: 600 }}>
               Page {safePage} of {totalPages}
             </span>
-
             <button
               type="button"
-              aria-label="Next page"
+              className="sap-page-btn"
               disabled={safePage >= totalPages}
-              onClick={() =>
-                setCurrentPage((page) => Math.min(totalPages, page + 1))
-              }
+              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+              title="Next Page"
             >
-              <ChevronRight size={17} />
+              ›
+            </button>
+            <button
+              type="button"
+              className="sap-page-btn"
+              disabled={safePage >= totalPages}
+              onClick={() => setCurrentPage(totalPages)}
+              title="Last Page"
+            >
+              »
             </button>
           </div>
         </footer>
       </section>
 
-      <div className="org-demo-note">
-        <ShieldCheck size={16} />
-        <span>
-          <strong>Demo mode:</strong> organization changes are saved in this
-          browser only. Connect your API to manage real organizations.
-        </span>
-      </div>
-
+      {/* MODALS */}
       {modal && typeof document !== "undefined" && createPortal(
         <div
           className="org-modal-backdrop"
@@ -862,158 +1007,173 @@ function Organizations() {
                   setFormError("");
                 }}
               >
-                <X size={19} />
+                <X size={18} />
               </button>
             </header>
 
-            {modal.mode === "view" ? (
-              <div className="org-details-content">
-                <div className="org-details-identity">
-                  <div
-                    className={`org-avatar org-avatar-large ${modal.organization.color}`}
-                  >
-                    {makeInitials(modal.organization.name)}
+            {modal.mode === "view" && modal.organization && (
+              <div className="org-details-body">
+                <div className="org-details-hero">
+                  <div className={`org-avatar large ${modal.organization.color}`}>
+                    {modal.organization.initials ||
+                      makeInitials(modal.organization.name)}
                   </div>
-
                   <div>
                     <h3>{modal.organization.name}</h3>
                     <span>{modal.organization.id}</span>
                   </div>
-
-                  <span
-                    className={`org-status-tag ${modal.organization.status.toLowerCase()}`}
-                  >
-                    <span />
-                    {modal.organization.status}
-                  </span>
                 </div>
 
                 <div className="org-details-grid">
                   <div className="org-detail-item">
-                    <span><Mail size={15} /> Contact email</span>
-                    <strong>{modal.organization.email}</strong>
+                    <small>Primary Contact</small>
+                    <p>{modal.organization.email}</p>
                   </div>
 
                   <div className="org-detail-item">
-                    <span><Globe size={15} /> Domain</span>
-                    <strong>{modal.organization.domain}</strong>
+                    <small>Workspace Domain</small>
+                    <p>{modal.organization.domain}</p>
                   </div>
 
                   <div className="org-detail-item">
-                    <span><ShieldCheck size={15} /> Subscription plan</span>
-                    <strong>{modal.organization.plan}</strong>
+                    <small>Subscription Tier</small>
+                    <p>{modal.organization.plan}</p>
                   </div>
 
                   <div className="org-detail-item">
-                    <span><Users size={15} /> Registered users</span>
-                    <strong>
-                      {Number(modal.organization.users || 0).toLocaleString("en-US")}
-                    </strong>
+                    <small>Enrolled Users</small>
+                    <p>{Number(modal.organization.users).toLocaleString()}</p>
                   </div>
 
                   <div className="org-detail-item">
-                    <span><CalendarDays size={15} /> Created on</span>
-                    <strong>{formatDate(modal.organization.createdAt)}</strong>
+                    <small>Operational Status</small>
+                    <p>{modal.organization.status}</p>
+                  </div>
+
+                  <div className="org-detail-item">
+                    <small>Registration Date</small>
+                    <p>{formatDate(modal.organization.createdAt)}</p>
                   </div>
                 </div>
 
-                <div className="org-modal-actions">
+                <div className="org-modal-footer">
                   <button
                     type="button"
-                    className="org-button org-button-secondary"
-                    onClick={() => setModal(null)}
+                    className="sa-btn sa-btn-secondary"
+                    onClick={() => {
+                      setModal(null);
+                      setFormError("");
+                    }}
                   >
                     Close
                   </button>
-
                   <button
                     type="button"
-                    className="org-button org-button-primary"
+                    className="sa-btn sa-btn-primary"
                     onClick={() => openEditModal(modal.organization)}
                   >
-                    <Pencil size={15} /> Edit organization
+                    <Pencil size={14} /> Edit Organization
                   </button>
                 </div>
               </div>
-            ) : (
-              <form onSubmit={handleSave}>
+            )}
+
+            {modal.mode !== "view" && (
+              <form onSubmit={saveOrganization} className="org-form">
                 {formError && (
                   <div className="org-form-error" role="alert">
                     <AlertCircle size={16} />
-                    {formError}
+                    <span>{formError}</span>
                   </div>
                 )}
 
-                <div className="org-form-grid">
-                  <label className="org-form-field org-form-full">
-                    <span>Organization name <b>*</b></span>
-                    <input
-                      name="name"
-                      value={form.name}
-                      onChange={handleFormChange}
-                      placeholder="e.g. Acme Corporation"
-                      maxLength={100}
-                      required
-                      autoFocus
-                    />
-                  </label>
+                <label className="org-form-field">
+                  <span>Organization Name *</span>
+                  <input
+                    type="text"
+                    name="name"
+                    value={form.name}
+                    onChange={handleFormChange}
+                    placeholder="e.g. Acme Corporation"
+                    required
+                  />
+                </label>
 
+                <div className="org-form-row">
                   <label className="org-form-field">
-                    <span>Contact email <b>*</b></span>
+                    <span>Contact Email *</span>
                     <input
-                      name="email"
                       type="email"
+                      name="email"
                       value={form.email}
                       onChange={handleFormChange}
-                      placeholder="admin@example.com"
-                      maxLength={150}
+                      placeholder="admin@acmecorp.com"
                       required
                     />
                   </label>
 
                   <label className="org-form-field">
-                    <span>Website domain <b>*</b></span>
+                    <span>Workspace Domain *</span>
                     <input
+                      type="text"
                       name="domain"
                       value={form.domain}
                       onChange={handleFormChange}
-                      placeholder="example.com"
-                      maxLength={253}
+                      placeholder="acmecorp.com"
                       required
                     />
                   </label>
+                </div>
 
+                <div className="org-form-row">
                   <label className="org-form-field">
-                    <span>Subscription plan</span>
+                    <span>Subscription Plan</span>
                     <select
                       name="plan"
                       value={form.plan}
                       onChange={handleFormChange}
                     >
-                      <option>Starter</option>
-                      <option>Professional</option>
-                      <option>Enterprise</option>
+                      <option value="Starter">Starter Tier</option>
+                      <option value="Professional">Professional Tier</option>
+                      <option value="Business">Business Tier</option>
+                      <option value="Enterprise">Enterprise Tier</option>
                     </select>
                   </label>
 
                   <label className="org-form-field">
-                    <span>Organization status</span>
+                    <span>Enrolled Users (Seat Count) *</span>
+                    <input
+                      type="number"
+                      name="users"
+                      min="1"
+                      max="100000"
+                      value={form.users}
+                      onChange={handleFormChange}
+                      placeholder="e.g. 50"
+                      required
+                    />
+                  </label>
+                </div>
+
+                <div className="org-form-row">
+                  <label className="org-form-field">
+                    <span>Account Status</span>
                     <select
                       name="status"
                       value={form.status}
                       onChange={handleFormChange}
                     >
-                      <option>Active</option>
-                      <option>Pending</option>
-                      <option>Suspended</option>
+                      <option value="Active">Active</option>
+                      <option value="Pending">Pending</option>
+                      <option value="Suspended">Suspended</option>
                     </select>
                   </label>
                 </div>
 
-                <div className="org-modal-actions">
+                <div className="org-modal-footer">
                   <button
                     type="button"
-                    className="org-button org-button-secondary"
+                    className="sa-btn sa-btn-secondary"
                     onClick={() => {
                       setModal(null);
                       setFormError("");
@@ -1021,16 +1181,8 @@ function Organizations() {
                   >
                     Cancel
                   </button>
-
-                  <button
-                    type="submit"
-                    className="org-button org-button-primary"
-                  >
-                    {modal.mode === "edit" ? (
-                      <><CheckCircle2 size={16} /> Save changes</>
-                    ) : (
-                      <><Plus size={16} /> Add organization</>
-                    )}
+                  <button type="submit" className="sa-btn sa-btn-primary">
+                    {modal.mode === "add" ? "Create Organization" : "Save Changes"}
                   </button>
                 </div>
               </form>
@@ -1040,6 +1192,7 @@ function Organizations() {
         document.body
       )}
 
+      {/* RESET CONFIRMATION DIALOG */}
       {resetConfirmOpen && typeof document !== "undefined" && createPortal(
         <div
           className="org-modal-backdrop org-reset-backdrop"
@@ -1054,22 +1207,21 @@ function Organizations() {
             role="alertdialog"
             aria-modal="true"
             aria-labelledby="org-reset-title"
-            aria-describedby="org-reset-description"
           >
             <div className="org-reset-icon">
               <RotateCcw size={24} />
             </div>
 
             <h2 id="org-reset-title">Reset demo data?</h2>
-            <p id="org-reset-description">
+            <p>
               This restores the original sample organizations and removes
-              organizations added in this browser. This action cannot be undone.
+              organizations added in this browser.
             </p>
 
             <div className="org-reset-actions">
               <button
                 type="button"
-                className="org-button org-button-secondary"
+                className="sa-btn sa-btn-secondary"
                 onClick={() => setResetConfirmOpen(false)}
               >
                 Cancel
@@ -1077,10 +1229,10 @@ function Organizations() {
 
               <button
                 type="button"
-                className="org-button org-reset-confirm"
+                className="sa-btn sa-btn-primary"
                 onClick={confirmResetDemoData}
               >
-                Reset data
+                Reset Data
               </button>
             </div>
           </section>
@@ -1088,6 +1240,7 @@ function Organizations() {
         document.body
       )}
 
+      {/* DELETE CONFIRMATION DIALOG */}
       {deleteConfirmOrg && typeof document !== "undefined" && createPortal(
         <div
           className="org-modal-backdrop org-reset-backdrop"
@@ -1110,14 +1263,14 @@ function Organizations() {
             <h2 id="org-delete-title">Delete organization?</h2>
             <p>
               Are you sure you want to remove{" "}
-              <strong>{deleteConfirmOrg.name}</strong> from the demo directory?
+              <strong>{deleteConfirmOrg.name}</strong> from the tenant directory?
               This action cannot be undone.
             </p>
 
             <div className="org-reset-actions">
               <button
                 type="button"
-                className="org-button org-button-secondary"
+                className="sa-btn sa-btn-secondary"
                 onClick={() => setDeleteConfirmOrg(null)}
               >
                 Cancel
@@ -1125,10 +1278,10 @@ function Organizations() {
 
               <button
                 type="button"
-                className="org-button org-reset-confirm"
+                className="sa-btn sa-btn-danger"
                 onClick={confirmDeleteOrganization}
               >
-                Delete organization
+                Delete Organization
               </button>
             </div>
           </section>

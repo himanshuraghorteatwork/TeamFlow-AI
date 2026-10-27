@@ -197,29 +197,44 @@
 }
 
 /* 4. The SAP Data Grid Table */
+.users-page .sap-table-wrapper,
 .sap-table-wrapper {
   width: 100%;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
 
+@media (max-width: 992px) {
+  .users-page .sap-table-wrapper,
+  .sap-table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+.users-page .sap-grid,
 .sap-grid {
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
   font-size: 12px;
   text-align: left;
+  table-layout: auto;
 }
 
 /* Compact vs Standard Density */
+.users-page .sap-grid.is-compact th,
+.users-page .sap-grid.is-compact td,
 .sap-grid.is-compact th,
 .sap-grid.is-compact td {
-  padding: 8px 12px;
+  padding: 8px 10px;
 }
 
+.users-page .sap-grid.is-standard th,
+.users-page .sap-grid.is-standard td,
 .sap-grid.is-standard th,
 .sap-grid.is-standard td {
-  padding: 12px 14px;
+  padding: 10px 12px;
 }
 
 .sap-grid thead th {
@@ -303,6 +318,53 @@
   flex-shrink: 0;
   color: #ffffff;
   background: linear-gradient(135deg, #3b66ff, #1d4ed8);
+}
+
+.sap-avatar-circle.blue { background: linear-gradient(135deg, #3b66ff, #1d4ed8); }
+.sap-avatar-circle.purple { background: linear-gradient(135deg, #8b5cf6, #6d28d9); }
+.sap-avatar-circle.emerald { background: linear-gradient(135deg, #10b981, #047857); }
+.sap-avatar-circle.amber { background: linear-gradient(135deg, #f59e0b, #b45309); }
+.sap-avatar-circle.pink { background: linear-gradient(135deg, #ec4899, #be185d); }
+.sap-avatar-circle.indigo { background: linear-gradient(135deg, #6366f1, #4338ca); }
+
+.sap-user-badge {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: transform 0.15s ease;
+}
+
+.sap-user-badge:hover strong {
+  color: var(--sa-primary, #3b66ff);
+}
+
+/* Interactive Column Headers in SAP Grid */
+.sap-sortable-th {
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+.sap-sortable-th:hover {
+  color: var(--sa-primary, #3b66ff) !important;
+  background-color: var(--sa-primary-light, rgba(59, 102, 255, 0.06));
+}
+
+.sap-th-content {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sap-sort-icon {
+  opacity: 0.45;
+  transition: opacity 0.15s ease;
+}
+
+.sap-sortable-th:hover .sap-sort-icon,
+.sap-sort-icon.is-active {
+  opacity: 1;
+  color: var(--sa-primary, #3b66ff);
 }
 
 .sap-user-info strong {
@@ -547,4 +609,142 @@
   background: rgba(59, 102, 255, 0.2) !important;
   border-color: rgba(59, 102, 255, 0.35) !important;
   color: #7093ff !important;
+}
+
+/* Modal Title Icon Box */
+.sap-modal-title-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  background: var(--sa-primary-light, #eff3fe);
+  color: var(--sa-primary, #3b66ff);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* User Details Modal Styles */
+.user-details-hero {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  border-radius: 12px;
+  background: var(--sa-bg, #f8fafc);
+  border: 1px solid var(--sa-border, #e2e8f0);
+  margin-bottom: 16px;
+}
+
+.sap-avatar-circle.large {
+  width: 52px;
+  height: 52px;
+  font-size: 18px;
+  font-weight: 750;
+  border-radius: 14px;
+}
+
+.user-details-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.user-detail-card {
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: var(--sa-bg, #f8fafc);
+  border: 1px solid var(--sa-border, #e2e8f0);
+}
+
+.user-detail-card small {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--sa-text-muted, #64748b);
+  margin-bottom: 4px;
+  letter-spacing: 0.04em;
+}
+
+.user-detail-card p {
+  margin: 0;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--sa-text-main, #0f172a);
+  word-break: break-word;
+}
+
+/* Responsive Modal Layout */
+@media (max-width: 640px) {
+  .user-details-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Modal Overrides for Dark Mode */
+.sa-dark-mode .user-details-hero,
+body.sa-dark-mode .user-details-hero,
+.sa-dark-mode .user-detail-card,
+body.sa-dark-mode .user-detail-card {
+  background: #172442 !important;
+  border-color: #1f2d4d !important;
+}
+
+.sa-dark-mode .user-detail-card p,
+body.sa-dark-mode .user-detail-card p {
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .user-detail-card small,
+body.sa-dark-mode .user-detail-card small {
+  color: #94a3b8 !important;
+}
+
+.sa-dark-mode .sap-modal-title-icon,
+body.sa-dark-mode .sap-modal-title-icon {
+  background: #172442 !important;
+  color: #6088ff !important;
+}
+
+.sa-dark-mode .sa-modal-backdrop,
+body.sa-dark-mode .sa-modal-backdrop {
+  background: rgba(11, 17, 32, 0.68) !important;
+  backdrop-filter: blur(4px) !important;
+}
+
+.sa-dark-mode .sa-modal-content,
+body.sa-dark-mode .sa-modal-content {
+  background: #111c35 !important;
+  border-color: #1f2d4d !important;
+  color: #f8fafc !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6) !important;
+}
+
+.sa-dark-mode .sa-modal-header,
+body.sa-dark-mode .sa-modal-header {
+  border-bottom-color: #1f2d4d !important;
+}
+
+.sa-dark-mode .sa-modal-header h3,
+body.sa-dark-mode .sa-modal-header h3 {
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .sa-modal-close,
+body.sa-dark-mode .sa-modal-close {
+  background: #172442 !important;
+  border-color: #1f2d4d !important;
+  color: #94a3b8 !important;
+}
+
+.sa-dark-mode .sa-modal-close:hover,
+body.sa-dark-mode .sa-modal-close:hover {
+  background: #202f52 !important;
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .sa-modal-footer,
+body.sa-dark-mode .sa-modal-footer {
+  border-top-color: #1f2d4d !important;
 }

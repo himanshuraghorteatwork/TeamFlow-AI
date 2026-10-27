@@ -17,6 +17,12 @@ import {
   Code2,
   Palette,
   Mail,
+  Search,
+  ChevronLeft,
+  ChevronRight,
+  RefreshCw,
+  Download,
+  CheckCircle2,
 } from "lucide-react";
 import "./SuperAdminCommon.css";
 import "./SuperAdminDashboard.css";
@@ -78,11 +84,17 @@ const DASHBOARD_DATA_BY_RANGE = {
       { name: "NextGen Solutions", plan: "Business Plan", users: 42, status: "Active", time: "2 days ago", icon: Mail, color: "pink" },
     ],
     recentActivities: [
-      { time: "10:42 AM", initial: "H", user: "Himanshu", role: "(Super Admin)", action: "Changed SMTP config", details: "Updated email settings", color: "blue" },
-      { time: "10:31 AM", initial: "R", user: "Rahul Sharma", role: "(Admin)", action: "Invited user", details: "priya@abc.com", color: "light-blue" },
-      { time: "10:20 AM", initial: "H", user: "Himanshu", role: "(Super Admin)", action: "Suspended organization", details: "XYZ Software", color: "blue" },
-      { time: "09:55 AM", initial: "A", user: "Amit Verma", role: "(Admin)", action: "Changed plan", details: "Pro → Business", color: "sky" },
-      { time: "09:32 AM", initial: "P", user: "System", role: "", action: "AI usage limit updated", details: "Increased limit to 50,000", color: "lavender" },
+      { time: "10:42 AM", initial: "H", user: "Himanshu", role: "(Super Admin)", action: "Changed SMTP config", details: "Updated email settings to AWS SES", color: "blue", status: "Success" },
+      { time: "10:31 AM", initial: "R", user: "Rahul Sharma", role: "(Admin)", action: "Invited user", details: "priya@abc.com assigned to Engineering", color: "light-blue", status: "Success" },
+      { time: "10:20 AM", initial: "H", user: "Himanshu", role: "(Super Admin)", action: "Suspended organization", details: "XYZ Software flagged for policy audit", color: "blue", status: "Warning" },
+      { time: "09:55 AM", initial: "A", user: "Amit Verma", role: "(Admin)", action: "Changed plan", details: "Pro → Business annual tier upgrade", color: "sky", status: "Success" },
+      { time: "09:32 AM", initial: "P", user: "System", role: "", action: "AI usage limit updated", details: "Increased quota to 50,000 tokens", color: "lavender", status: "Success" },
+      { time: "09:15 AM", initial: "N", user: "Neha Sen", role: "(Admin)", action: "Generated Tax Invoice", details: "Invoice #INV-2024-1082 (₹24,999)", color: "pink", status: "Success" },
+      { time: "08:50 AM", initial: "H", user: "Himanshu", role: "(Super Admin)", action: "Rotated JWT Secret", details: "Zero-downtime Auth cluster token refresh", color: "blue", status: "Success" },
+      { time: "08:22 AM", initial: "K", user: "Karan Johar", role: "(Admin)", action: "Exported audit report", details: "CSV format downloaded (94 records)", color: "sky", status: "Success" },
+      { time: "07:45 AM", initial: "P", user: "System", role: "", action: "Daily DB snapshot", details: "PostgreSQL automated backup to S3", color: "lavender", status: "Success" },
+      { time: "07:10 AM", initial: "H", user: "Himanshu", role: "(Super Admin)", action: "Added custom role", details: "Billing Operations Lead with settlement rights", color: "blue", status: "Success" },
+      { time: "06:30 AM", initial: "P", user: "System", role: "", action: "Health probe check", details: "All 6 production microservices operational", color: "green", status: "Success" },
     ],
   },
   "Last 30 Days": {
@@ -125,11 +137,16 @@ const DASHBOARD_DATA_BY_RANGE = {
       { name: "Startup Labs", plan: "Free Plan", users: 5, status: "Trial", time: "3 weeks ago", icon: TriangleAlert, color: "orange" },
     ],
     recentActivities: [
-      { time: "Yesterday", initial: "H", user: "Himanshu", role: "(Super Admin)", action: "Backup executed", details: "All DB clusters verified", color: "blue" },
-      { time: "3 days ago", initial: "N", user: "Neha Sen", role: "(Admin)", action: "Upgraded plan", details: "Free → Pro Tier", color: "sky" },
-      { time: "5 days ago", initial: "H", user: "Himanshu", role: "(Super Admin)", action: "Rotated API key", details: "Gemini 2.0 Flash production", color: "blue" },
-      { time: "1 week ago", initial: "V", user: "Vikram Mehta", role: "(Admin)", action: "Invited 5 users", details: "vikram@novatech.io", color: "lavender" },
-      { time: "2 weeks ago", initial: "P", user: "System", role: "", action: "Auto-renewed license", details: "Business Plan (ABC Tech)", color: "light-blue" },
+      { time: "Yesterday", initial: "H", user: "Himanshu", role: "(Super Admin)", action: "Backup executed", details: "All DB clusters verified & snapshotted", color: "blue", status: "Success" },
+      { time: "3 days ago", initial: "N", user: "Neha Sen", role: "(Admin)", action: "Upgraded plan", details: "Free → Pro Tier (NovaTech Solutions)", color: "sky", status: "Success" },
+      { time: "5 days ago", initial: "H", user: "Himanshu", role: "(Super Admin)", action: "Rotated API key", details: "Gemini 2.0 Flash production keys re-issued", color: "blue", status: "Success" },
+      { time: "1 week ago", initial: "V", user: "Vikram Mehta", role: "(Admin)", action: "Invited 5 users", details: "vikram@novatech.io seat allocations", color: "lavender", status: "Success" },
+      { time: "2 weeks ago", initial: "P", user: "System", role: "", action: "Auto-renewed license", details: "Business Plan (ABC Technologies)", color: "light-blue", status: "Success" },
+      { time: "2 weeks ago", initial: "A", user: "Amit Verma", role: "(Admin)", action: "Updated 2FA Policy", details: "Enforced mandatory TOTP for all managers", color: "sky", status: "Success" },
+      { time: "3 weeks ago", initial: "H", user: "Himanshu", role: "(Super Admin)", action: "Added webhook", details: "Stripe payout settlement webhook registered", color: "blue", status: "Success" },
+      { time: "3 weeks ago", initial: "P", user: "System", role: "", action: "Security scan passed", details: "Zero high or critical vulnerabilities found", color: "green", status: "Success" },
+      { time: "4 weeks ago", initial: "R", user: "Rahul Sharma", role: "(Admin)", action: "Onboarded client", details: "Startup Labs trial setup completed", color: "orange", status: "Success" },
+      { time: "4 weeks ago", initial: "H", user: "Himanshu", role: "(Super Admin)", action: "Rate limit adjusted", details: "Increased OpenAI GPT-4o burst window", color: "blue", status: "Success" },
     ],
   },
   "This Quarter": {
@@ -170,11 +187,14 @@ const DASHBOARD_DATA_BY_RANGE = {
       { name: "NextGen Solutions", plan: "Business Plan", users: 42, status: "Active", time: "Oct 02", icon: Mail, color: "pink" },
     ],
     recentActivities: [
-      { time: "Sep 28", initial: "H", user: "Himanshu", role: "(Super Admin)", action: "Quarterly Audit", details: "SOC2 Compliance passed", color: "blue" },
-      { time: "Sep 15", initial: "R", user: "Rahul Sharma", role: "(Admin)", action: "Added Workspace", details: "Product Team Alpha", color: "light-blue" },
-      { time: "Aug 30", initial: "A", user: "Amit Verma", role: "(Admin)", action: "Upgraded seat count", details: "Added 15 new seats", color: "sky" },
-      { time: "Aug 18", initial: "P", user: "System", role: "", action: "Database migrated", details: "Upgraded to PostgreSQL 16", color: "lavender" },
-      { time: "Aug 02", initial: "H", user: "Himanshu", role: "(Super Admin)", action: "Onboarded Enterprise", details: "NovaTech Solutions", color: "blue" },
+      { time: "Sep 28", initial: "H", user: "Himanshu", role: "(Super Admin)", action: "Quarterly Audit", details: "SOC2 Type II Compliance verification passed", color: "blue", status: "Success" },
+      { time: "Sep 15", initial: "R", user: "Rahul Sharma", role: "(Admin)", action: "Added Workspace", details: "Product Team Alpha workspace created", color: "light-blue", status: "Success" },
+      { time: "Aug 30", initial: "A", user: "Amit Verma", role: "(Admin)", action: "Upgraded seat count", details: "Allocated 15 new developer seats", color: "sky", status: "Success" },
+      { time: "Aug 18", initial: "P", user: "System", role: "", action: "Database migrated", details: "Zero-loss migration to PostgreSQL 16 cluster", color: "lavender", status: "Success" },
+      { time: "Aug 02", initial: "H", user: "Himanshu", role: "(Super Admin)", action: "Onboarded Enterprise", details: "NovaTech Solutions enterprise provisioning", color: "blue", status: "Success" },
+      { time: "Jul 24", initial: "N", user: "Neha Sen", role: "(Admin)", action: "Custom Domain Connected", details: "app.novatech.io verified with SSL certificate", color: "pink", status: "Success" },
+      { time: "Jul 10", initial: "H", user: "Himanshu", role: "(Super Admin)", action: "Updated CORS Policy", details: "Restricted origin domains to authorized tenants", color: "blue", status: "Success" },
+      { time: "Jul 01", initial: "P", user: "System", role: "", action: "Q3 License Reset", details: "Refreshed platform AI quota counters", color: "green", status: "Success" },
     ],
   },
   "This Year": {
@@ -217,11 +237,13 @@ const DASHBOARD_DATA_BY_RANGE = {
       { name: "NextGen Solutions", plan: "Business Plan", users: 42, status: "Active", time: "Jun 30", icon: Mail, color: "pink" },
     ],
     recentActivities: [
-      { time: "Oct 24", initial: "H", user: "Himanshu", role: "(Super Admin)", action: "Platform update v2.4", details: "AI Gateway and Multi-tenant routing", color: "blue" },
-      { time: "Jul 15", initial: "R", user: "Rahul Sharma", role: "(Admin)", action: "Created Org", details: "ABC Technologies", color: "light-blue" },
-      { time: "May 10", initial: "H", user: "Himanshu", role: "(Super Admin)", action: "Stripe Connect enabled", details: "Automated billing settlements", color: "blue" },
-      { time: "Mar 04", initial: "P", user: "System", role: "", action: "Annual Security Audit", details: "Penetration tests passed", color: "lavender" },
-      { time: "Jan 01", initial: "H", user: "Himanshu", role: "(Super Admin)", action: "System initialized", details: "TeamFlow AI v2.0 launched", color: "blue" },
+      { time: "Oct 24", initial: "H", user: "Himanshu", role: "(Super Admin)", action: "Platform update v2.4", details: "AI Gateway and Multi-tenant routing deployed", color: "blue", status: "Success" },
+      { time: "Jul 15", initial: "R", user: "Rahul Sharma", role: "(Admin)", action: "Created Org", details: "ABC Technologies company profile configured", color: "light-blue", status: "Success" },
+      { time: "May 10", initial: "H", user: "Himanshu", role: "(Super Admin)", action: "Stripe Connect enabled", details: "Automated billing settlements pipeline live", color: "blue", status: "Success" },
+      { time: "Mar 04", initial: "P", user: "System", role: "", action: "Annual Security Audit", details: "Zero findings in penetration tests report", color: "lavender", status: "Success" },
+      { time: "Jan 01", initial: "H", user: "Himanshu", role: "(Super Admin)", action: "System initialized", details: "TeamFlow AI Enterprise v2.0 launched", color: "blue", status: "Success" },
+      { time: "Feb 18", initial: "K", user: "Karan Johar", role: "(Admin)", action: "SAML SSO Configured", details: "Okta identity provider integration live", color: "sky", status: "Success" },
+      { time: "Jun 12", initial: "A", user: "Amit Verma", role: "(Admin)", action: "Custom Webhook Trigger", details: "Slack notification alerts configured", color: "sky", status: "Success" },
     ],
   },
   "Today": {
@@ -265,11 +287,13 @@ const DASHBOARD_DATA_BY_RANGE = {
       { name: "XYZ Software", plan: "Pro Plan", users: 26, status: "Active", time: "5 hours ago", icon: Code2, color: "blue" },
     ],
     recentActivities: [
-      { time: "10:42 AM", initial: "H", user: "Himanshu", role: "(Super Admin)", action: "Changed SMTP config", details: "Updated email settings", color: "blue" },
-      { time: "10:31 AM", initial: "R", user: "Rahul Sharma", role: "(Admin)", action: "Invited user", details: "priya@abc.com", color: "light-blue" },
-      { time: "10:20 AM", initial: "H", user: "Himanshu", role: "(Super Admin)", action: "Suspended organization", details: "XYZ Software", color: "blue" },
-      { time: "09:55 AM", initial: "A", user: "Amit Verma", role: "(Admin)", action: "Changed plan", details: "Pro → Business", color: "sky" },
-      { time: "09:32 AM", initial: "P", user: "System", role: "", action: "AI usage limit updated", details: "Increased limit to 50,000", color: "lavender" },
+      { time: "10:42 AM", initial: "H", user: "Himanshu", role: "(Super Admin)", action: "Changed SMTP config", details: "Updated email settings to AWS SES", color: "blue", status: "Success" },
+      { time: "10:31 AM", initial: "R", user: "Rahul Sharma", role: "(Admin)", action: "Invited user", details: "priya@abc.com added to engineering", color: "light-blue", status: "Success" },
+      { time: "10:20 AM", initial: "H", user: "Himanshu", role: "(Super Admin)", action: "Suspended organization", details: "XYZ Software compliance hold", color: "blue", status: "Warning" },
+      { time: "09:55 AM", initial: "A", user: "Amit Verma", role: "(Admin)", action: "Changed plan", details: "Pro → Business annual tier upgrade", color: "sky", status: "Success" },
+      { time: "09:32 AM", initial: "P", user: "System", role: "", action: "AI usage limit updated", details: "Increased limit to 50,000 tokens", color: "lavender", status: "Success" },
+      { time: "09:10 AM", initial: "N", user: "Neha Sen", role: "(Admin)", action: "Generated Tax Invoice", details: "Invoice #INV-2024-1082 (₹24,999)", color: "pink", status: "Success" },
+      { time: "08:45 AM", initial: "P", user: "System", role: "", action: "Health probe check", details: "All 6 services operational with 32ms latency", color: "green", status: "Success" },
     ],
   },
   "Last 7 Days": {
@@ -309,11 +333,12 @@ const DASHBOARD_DATA_BY_RANGE = {
       { name: "DesignHub", plan: "Pro Plan", users: 18, status: "Active", time: "2 days ago", icon: Palette, color: "dark-blue" },
     ],
     recentActivities: [
-      { time: "Today", initial: "H", user: "Himanshu", role: "(Super Admin)", action: "Changed SMTP config", details: "Updated email settings", color: "blue" },
-      { time: "Yesterday", initial: "R", user: "Rahul Sharma", role: "(Admin)", action: "Invited user", details: "priya@abc.com", color: "light-blue" },
-      { time: "3 days ago", initial: "H", user: "Himanshu", role: "(Super Admin)", action: "Suspended organization", details: "XYZ Software", color: "blue" },
-      { time: "5 days ago", initial: "A", user: "Amit Verma", role: "(Admin)", action: "Changed plan", details: "Pro → Business", color: "sky" },
-      { time: "6 days ago", initial: "P", user: "System", role: "", action: "AI usage limit updated", details: "Increased limit to 50,000", color: "lavender" },
+      { time: "Today", initial: "H", user: "Himanshu", role: "(Super Admin)", action: "Changed SMTP config", details: "Updated email settings to AWS SES", color: "blue", status: "Success" },
+      { time: "Yesterday", initial: "R", user: "Rahul Sharma", role: "(Admin)", action: "Invited user", details: "priya@abc.com added to organization", color: "light-blue", status: "Success" },
+      { time: "3 days ago", initial: "H", user: "Himanshu", role: "(Super Admin)", action: "Suspended organization", details: "XYZ Software policy compliance review", color: "blue", status: "Warning" },
+      { time: "5 days ago", initial: "A", user: "Amit Verma", role: "(Admin)", action: "Changed plan", details: "Pro → Business upgrade confirmed", color: "sky", status: "Success" },
+      { time: "6 days ago", initial: "P", user: "System", role: "", action: "AI usage limit updated", details: "Increased limit to 50,000 tokens", color: "lavender", status: "Success" },
+      { time: "7 days ago", initial: "K", user: "Karan Johar", role: "(Admin)", action: "Invited 3 developers", details: "Backend team seat allocation", color: "pink", status: "Success" },
     ],
   },
 };
@@ -742,7 +767,25 @@ function SuperAdminDashboard() {
   const [dateMenuOpen, setDateMenuOpen] = useState(false);
   const [customStart, setCustomStart] = useState("2024-10-01");
   const [customEnd, setCustomEnd] = useState("2024-10-31");
+  const [toast, setToast] = useState("");
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [activitySearch, setActivitySearch] = useState("");
+  const [activityRowsPerPage, setActivityRowsPerPage] = useState(5);
+  const [activityPage, setActivityPage] = useState(1);
   const dateDropdownRef = useRef(null);
+
+  const showToast = (msg) => {
+    setToast(msg);
+    setTimeout(() => setToast(""), 3000);
+  };
+
+  const handleRefresh = () => {
+    setIsRefreshing(true);
+    setTimeout(() => {
+      setIsRefreshing(false);
+      showToast("Live telemetry and system KPIs refreshed.");
+    }, 600);
+  };
 
   // Close date menu when clicking outside
   useEffect(() => {
@@ -828,12 +871,70 @@ function SuperAdminDashboard() {
     const label = `${customStart} - ${customEnd}`;
     setDateFilter(label);
     setDateMenuOpen(false);
+    showToast(`Custom date range applied: ${label}`);
   };
+
+  const handleExportSummary = () => {
+    const kpis = currentData.kpis;
+    const csvContent = [
+      ["Executive Metric", "Current Value", "Growth Trend", "Period Comparison"],
+      ["Active Organizations", kpis.organizations.value, kpis.organizations.trend, kpis.organizations.sub],
+      ["Total Active Users", kpis.users.value, kpis.users.trend, kpis.users.sub],
+      ["Monthly Recurring Revenue", kpis.revenue.value, kpis.revenue.trend, kpis.revenue.sub],
+      ["Active Subscriptions", kpis.subscriptions.value, kpis.subscriptions.trend, kpis.subscriptions.sub],
+      [],
+      ["Subscription Plan Tier", "Percentage", "Active Accounts"],
+      ...currentData.plans.map((p) => [p.name, `${p.percent}%`, p.count]),
+      [],
+      ["Activity Timestamp", "User Identity", "Role", "Operational Action", "Event Details", "Audit Status"],
+      ...currentData.recentActivities.map((a) => [
+        a.time,
+        a.user,
+        a.role || "System",
+        a.action,
+        a.details,
+        a.status || "Success",
+      ]),
+    ]
+      .map((row) => row.map((v) => `"${String(v || "").replace(/"/g, '""')}"`).join(","))
+      .join("\n");
+
+    const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `teamflow-dashboard-summary-${dateFilter.toLowerCase().replace(/[^a-z0-9]/g, "-")}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+    showToast("Dashboard executive summary exported successfully.");
+  };
+
+  // Filtered & Paged Activities
+  const filteredActivities = useMemo(() => {
+    const list = currentData.recentActivities || [];
+    if (!activitySearch.trim()) return list;
+    const q = activitySearch.toLowerCase();
+    return list.filter(
+      (a) =>
+        a.user.toLowerCase().includes(q) ||
+        a.action.toLowerCase().includes(q) ||
+        a.details.toLowerCase().includes(q)
+    );
+  }, [currentData, activitySearch]);
+
+  const totalActivityPages = Math.max(1, Math.ceil(filteredActivities.length / activityRowsPerPage));
+  const currentActivityPage = Math.min(activityPage, totalActivityPages);
+  const pagedActivities = filteredActivities.slice(
+    (currentActivityPage - 1) * activityRowsPerPage,
+    currentActivityPage * activityRowsPerPage
+  );
 
   return (
     <div className="sa-page-container sa-dashboard-root">
       {/* 1. Header Row */}
-      <section className="sa-page-header">
+      <section className="sa-page-header sap-header-panel">
         <div className="sa-page-header-left">
           <h1>
             Welcome back, Himanshu <span className="sa-wave-emoji">👋</span>
@@ -841,7 +942,32 @@ function SuperAdminDashboard() {
           <p>Here's what's happening with TeamFlow AI today.</p>
         </div>
 
-        <div className="sa-page-header-actions">
+        <div className="sa-page-header-actions" style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+          {/* Refresh live telemetry button */}
+          <button
+            type="button"
+            className="sa-btn sa-btn-secondary"
+            onClick={handleRefresh}
+            title="Refresh live dashboard metrics"
+            style={{ display: "inline-flex", alignItems: "center", gap: 6 }}
+          >
+            <RefreshCw size={14} className={isRefreshing ? "sa-spin" : ""} />
+            <span>Refresh</span>
+          </button>
+
+          {/* Export Executive Summary CSV */}
+          <button
+            type="button"
+            className="sa-btn sa-btn-secondary"
+            onClick={handleExportSummary}
+            title="Export dashboard metrics & activity report as CSV"
+            style={{ display: "inline-flex", alignItems: "center", gap: 6 }}
+          >
+            <Download size={14} />
+            <span>Export Report</span>
+          </button>
+
+          {/* Date Selector */}
           <div className="sa-date-selector-wrapper" ref={dateDropdownRef}>
             <button
               type="button"
@@ -872,6 +998,7 @@ function SuperAdminDashboard() {
                     onClick={() => {
                       setDateFilter(item);
                       setDateMenuOpen(false);
+                      showToast(`Date range set to ${item}`);
                     }}
                   >
                     {item}
@@ -912,7 +1039,14 @@ function SuperAdminDashboard() {
       {/* 2. Top 4 KPI Stat Cards (Live with selected Date Range) */}
       <section className="sa-kpi-grid">
         {/* Organizations */}
-        <article className="sa-kpi-card">
+        <article
+          className="sa-kpi-card is-clickable"
+          role="button"
+          tabIndex={0}
+          title="Click to view all Organizations"
+          onClick={() => navigate("/superadmin/organizations")}
+          onKeyDown={(e) => e.key === "Enter" && navigate("/superadmin/organizations")}
+        >
           <div className="sa-kpi-icon-box blue">
             <Users size={24} strokeWidth={2.2} />
           </div>
@@ -929,7 +1063,14 @@ function SuperAdminDashboard() {
         </article>
 
         {/* Total Users */}
-        <article className="sa-kpi-card">
+        <article
+          className="sa-kpi-card is-clickable"
+          role="button"
+          tabIndex={0}
+          title="Click to view all Platform Users"
+          onClick={() => navigate("/superadmin/users")}
+          onKeyDown={(e) => e.key === "Enter" && navigate("/superadmin/users")}
+        >
           <div className="sa-kpi-icon-box sky">
             <User size={24} strokeWidth={2.2} />
           </div>
@@ -946,7 +1087,14 @@ function SuperAdminDashboard() {
         </article>
 
         {/* Monthly Revenue */}
-        <article className="sa-kpi-card">
+        <article
+          className="sa-kpi-card is-clickable"
+          role="button"
+          tabIndex={0}
+          title="Click to view Billing & Payments"
+          onClick={() => navigate("/superadmin/billing")}
+          onKeyDown={(e) => e.key === "Enter" && navigate("/superadmin/billing")}
+        >
           <div className="sa-kpi-icon-box green">
             <span className="sa-kpi-currency-symbol">₹</span>
           </div>
@@ -963,7 +1111,14 @@ function SuperAdminDashboard() {
         </article>
 
         {/* Active Subscriptions */}
-        <article className="sa-kpi-card">
+        <article
+          className="sa-kpi-card is-clickable"
+          role="button"
+          tabIndex={0}
+          title="Click to view Subscriptions Matrix"
+          onClick={() => navigate("/superadmin/subscriptions")}
+          onKeyDown={(e) => e.key === "Enter" && navigate("/superadmin/subscriptions")}
+        >
           <div className="sa-kpi-icon-box amber">
             <Crown size={24} strokeWidth={2.2} />
           </div>
@@ -1051,7 +1206,13 @@ function SuperAdminDashboard() {
             {currentData.recentOrganizations.map((org) => {
               const Icon = org.icon;
               return (
-                <div key={org.name} className="sa-recent-org-item">
+                <div
+                  key={org.name}
+                  className="sa-recent-org-item"
+                  style={{ cursor: "pointer" }}
+                  title={`View ${org.name} in Organizations`}
+                  onClick={() => navigate("/superadmin/organizations")}
+                >
                   <div className={`sa-org-avatar-icon ${org.color}`}>
                     <Icon size={18} strokeWidth={2.1} />
                   </div>
@@ -1078,7 +1239,17 @@ function SuperAdminDashboard() {
         {/* AI Usage */}
         <article className="sa-card sa-panel-card">
           <div className="sa-card-header">
-            <h3>AI Usage</h3>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <h3>AI Usage</h3>
+              <button
+                type="button"
+                className="sa-card-link"
+                style={{ fontSize: 11.5 }}
+                onClick={() => navigate("/superadmin/ai-usage")}
+              >
+                Telemetry <ArrowRight size={11} />
+              </button>
+            </div>
             <div className="sa-select-filter">
               <select
                 value={aiUsageFilter}
@@ -1145,56 +1316,155 @@ function SuperAdminDashboard() {
         </article>
       </section>
 
-      {/* 5. Bottom Table: Recent Activity */}
-      <section className="sa-card sa-activity-card">
-        <div className="sa-card-header">
-          <h3>Recent Activity</h3>
-          <button
-            type="button"
-            className="sa-card-link"
-            onClick={() => navigate("/superadmin/activity-logs")}
-          >
-            View all <ArrowRight size={13} />
-          </button>
+      {/* 5. Bottom Table: Recent Activity Audit Stream */}
+      <section className="sap-table-card sa-activity-card">
+        <div className="sa-card-header" style={{ padding: "16px 20px", flexWrap: "wrap", gap: 12 }}>
+          <div>
+            <h3 style={{ margin: 0, fontSize: 16 }}>Recent Activity Audit Stream</h3>
+            <span style={{ fontSize: 12, color: "var(--sa-text-muted, #64748b)" }}>
+              Real-time audit log of platform operations and administrative actions
+            </span>
+          </div>
+
+          <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+            {/* Live Search Input */}
+            <div className="sa-activity-search-wrap">
+              <Search size={14} className="sa-activity-search-icon" />
+              <input
+                type="text"
+                placeholder="Search audit activities..."
+                value={activitySearch}
+                onChange={(e) => {
+                  setActivitySearch(e.target.value);
+                  setActivityPage(1);
+                }}
+                className="sa-activity-search-input"
+              />
+            </div>
+
+            {/* Rows Per Page Dropdown */}
+            <div className="sa-select-filter">
+              <select
+                value={activityRowsPerPage}
+                onChange={(e) => {
+                  setActivityRowsPerPage(Number(e.target.value));
+                  setActivityPage(1);
+                }}
+                title="Select number of visible rows"
+              >
+                <option value={5}>5 rows</option>
+                <option value={10}>10 rows</option>
+                <option value={15}>15 rows</option>
+              </select>
+              <ChevronDown size={13} className="sa-chevron" />
+            </div>
+
+            <button
+              type="button"
+              className="sa-card-link"
+              onClick={() => navigate("/superadmin/activity-logs")}
+            >
+              View all logs <ArrowRight size={13} />
+            </button>
+          </div>
         </div>
 
-        <div className="sa-table-wrapper">
-          <table className="sa-table">
+        <div className="sa-table-wrapper" style={{ overflowX: "auto" }}>
+          <table className="sap-grid sa-table" style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
               <tr>
-                <th style={{ width: "12%" }}>Time</th>
-                <th style={{ width: "26%" }}>User</th>
-                <th style={{ width: "24%" }}>Action</th>
-                <th style={{ width: "26%" }}>Details</th>
-                <th style={{ width: "12%" }}>Status</th>
+                <th style={{ width: "14%" }}>Time</th>
+                <th style={{ width: "24%" }}>User</th>
+                <th style={{ width: "26%" }}>Action</th>
+                <th style={{ width: "24%" }}>Details</th>
+                <th style={{ width: "12%", textAlign: "center" }}>Status</th>
               </tr>
             </thead>
             <tbody>
-              {currentData.recentActivities.map((act, index) => (
-                <tr key={`${act.time}-${index}`}>
-                  <td className="sa-time-cell">{act.time}</td>
-                  <td>
-                    <div className="sa-user-badge">
-                      <span className={`sa-avatar-circle ${act.color}`}>
-                        {act.initial}
+              {pagedActivities.length > 0 ? (
+                pagedActivities.map((act, index) => (
+                  <tr key={`${act.time}-${act.user}-${index}`}>
+                    <td className="sa-time-cell">{act.time}</td>
+                    <td>
+                      <div className="sa-user-badge">
+                        <span className={`sa-avatar-circle ${act.color}`}>
+                          {act.initial}
+                        </span>
+                        <span>
+                          <strong>{act.user}</strong>{" "}
+                          <span className="sa-role-text">{act.role}</span>
+                        </span>
+                      </div>
+                    </td>
+                    <td className="sa-action-cell">{act.action}</td>
+                    <td className="sa-details-cell">{act.details}</td>
+                    <td style={{ textAlign: "center" }}>
+                      <span className={`sa-pill ${act.status === "Warning" ? "sa-pill-trial" : "sa-pill-success"}`}>
+                        {act.status || "Success"}
                       </span>
-                      <span>
-                        <strong>{act.user}</strong>{" "}
-                        <span className="sa-role-text">{act.role}</span>
-                      </span>
-                    </div>
-                  </td>
-                  <td className="sa-action-cell">{act.action}</td>
-                  <td className="sa-details-cell">{act.details}</td>
-                  <td>
-                    <span className="sa-pill sa-pill-success">Success</span>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={5} style={{ textAlign: "center", padding: "32px 16px", color: "var(--sa-text-muted, #64748b)" }}>
+                    No activity logs found matching "{activitySearch}".
                   </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>
+
+        {/* Unified Pagination & Count Footer Bar */}
+        <div className="sap-footer-bar">
+          <div className="sap-footer-counts">
+            Showing{" "}
+            <strong>
+              {filteredActivities.length === 0
+                ? 0
+                : (currentActivityPage - 1) * activityRowsPerPage + 1}
+            </strong>{" "}
+            to{" "}
+            <strong>
+              {Math.min(currentActivityPage * activityRowsPerPage, filteredActivities.length)}
+            </strong>{" "}
+            of <strong>{filteredActivities.length}</strong> activities
+          </div>
+
+          <div className="sap-pagination">
+            <button
+              type="button"
+              className="sap-page-btn"
+              disabled={currentActivityPage <= 1}
+              onClick={() => setActivityPage((p) => Math.max(1, p - 1))}
+              title="Previous page"
+            >
+              <ChevronLeft size={14} />
+            </button>
+            <span style={{ fontSize: 12, padding: "0 6px", fontWeight: 600 }}>
+              Page {currentActivityPage} of {totalActivityPages}
+            </span>
+            <button
+              type="button"
+              className="sap-page-btn"
+              disabled={currentActivityPage >= totalActivityPages}
+              onClick={() => setActivityPage((p) => Math.min(totalActivityPages, p + 1))}
+              title="Next page"
+            >
+              <ChevronRight size={14} />
+            </button>
+          </div>
+        </div>
       </section>
+
+      {/* Floating Action Toast */}
+      {toast && (
+        <div className="sa-toast-popup">
+          <CheckCircle2 size={16} color="#10b981" />
+          <span>{toast}</span>
+        </div>
+      )}
     </div>
   );
 }

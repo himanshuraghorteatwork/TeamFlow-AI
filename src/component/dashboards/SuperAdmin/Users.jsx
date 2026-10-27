@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
+import { useSearchParams } from "react-router-dom";
 import {
   Users as UsersIcon,
   UserCheck,
@@ -25,11 +27,47 @@ import {
   Download,
   SlidersHorizontal,
   ShieldAlert,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
+  RotateCcw,
 } from "lucide-react";
 import "./SuperAdminCommon.css";
 import "./Users.css";
 
 const STORAGE_KEY = "teamflow_superadmin_users";
+
+const AVATAR_COLORS = ["blue", "purple", "emerald", "amber", "indigo", "pink"];
+
+const REGISTERED_ORGANIZATIONS = [
+  { name: "Acme Technologies", defaultCompanyCode: "1000 - ACME IN" },
+  { name: "Bright Solutions", defaultCompanyCode: "2000 - BRIGHT UK" },
+  { name: "CloudNine Labs", defaultCompanyCode: "3000 - CLOUD SG" },
+  { name: "Nova Digital", defaultCompanyCode: "4000 - NOVA US" },
+  { name: "DesignHub", defaultCompanyCode: "5000 - DESIGN US" },
+  { name: "NextGen Solutions", defaultCompanyCode: "6000 - NEXTGEN IN" },
+  { name: "PixelCraft Studio", defaultCompanyCode: "7000 - PIXEL US" },
+  { name: "Vertex Digital", defaultCompanyCode: "8000 - VERTEX EU" },
+  { name: "BluePeak Systems", defaultCompanyCode: "9000 - BLUEPEAK US" },
+  { name: "OmniCore Retail", defaultCompanyCode: "9500 - OMNI US" },
+];
+
+const ALL_COMPANY_CODES = [
+  "1000 - ACME IN",
+  "1100 - ACME US",
+  "2000 - BRIGHT UK",
+  "2100 - BRIGHT EU",
+  "3000 - CLOUD SG",
+  "3100 - CLOUD US",
+  "4000 - NOVA US",
+  "4100 - NOVA UK",
+  "5000 - DESIGN US",
+  "6000 - NEXTGEN IN",
+  "7000 - PIXEL US",
+  "8000 - VERTEX EU",
+  "9000 - BLUEPEAK US",
+  "9500 - OMNI US",
+];
 
 /* =========================================================================
    SAP MASTER DATA USER REPOSITORY
@@ -49,6 +87,7 @@ const INITIAL_USERS = [
     twoFactor: "Enforced",
     lastLogin: "Today, 10:45 AM",
     joinedAt: "2026-10-02",
+    color: "blue",
   },
   {
     id: "USR-1002",
@@ -63,6 +102,7 @@ const INITIAL_USERS = [
     twoFactor: "Enforced",
     lastLogin: "Today, 09:15 AM",
     joinedAt: "2026-10-05",
+    color: "purple",
   },
   {
     id: "USR-1003",
@@ -77,6 +117,7 @@ const INITIAL_USERS = [
     twoFactor: "Enforced",
     lastLogin: "Yesterday, 17:30",
     joinedAt: "2026-10-07",
+    color: "emerald",
   },
   {
     id: "USR-1004",
@@ -91,6 +132,7 @@ const INITIAL_USERS = [
     twoFactor: "Pending",
     lastLogin: "3 days ago",
     joinedAt: "2026-09-18",
+    color: "amber",
   },
   {
     id: "USR-1005",
@@ -105,6 +147,7 @@ const INITIAL_USERS = [
     twoFactor: "Enforced",
     lastLogin: "Today, 11:10 AM",
     joinedAt: "2026-10-12",
+    color: "indigo",
   },
   {
     id: "USR-1006",
@@ -119,6 +162,7 @@ const INITIAL_USERS = [
     twoFactor: "Enforced",
     lastLogin: "Yesterday, 14:22",
     joinedAt: "2026-10-15",
+    color: "pink",
   },
   {
     id: "USR-1007",
@@ -133,6 +177,7 @@ const INITIAL_USERS = [
     twoFactor: "Pending",
     lastLogin: "1 week ago",
     joinedAt: "2026-09-24",
+    color: "amber",
   },
   {
     id: "USR-1008",
@@ -147,6 +192,7 @@ const INITIAL_USERS = [
     twoFactor: "Enforced",
     lastLogin: "Today, 08:40 AM",
     joinedAt: "2026-10-19",
+    color: "purple",
   },
   {
     id: "USR-1009",
@@ -161,6 +207,7 @@ const INITIAL_USERS = [
     twoFactor: "Enforced",
     lastLogin: "Oct 24, 2026",
     joinedAt: "2026-10-21",
+    color: "blue",
   },
   {
     id: "USR-1010",
@@ -175,6 +222,7 @@ const INITIAL_USERS = [
     twoFactor: "Enforced",
     lastLogin: "Oct 25, 2026",
     joinedAt: "2026-10-23",
+    color: "emerald",
   },
   {
     id: "USR-1011",
@@ -189,6 +237,7 @@ const INITIAL_USERS = [
     twoFactor: "Pending",
     lastLogin: "Today, 07:50 AM",
     joinedAt: "2026-10-24",
+    color: "pink",
   },
   {
     id: "USR-1012",
@@ -203,6 +252,7 @@ const INITIAL_USERS = [
     twoFactor: "Enforced",
     lastLogin: "Today, 11:45 AM",
     joinedAt: "2026-10-25",
+    color: "indigo",
   },
 ];
 
@@ -210,12 +260,16 @@ const EMPTY_FORM = {
   name: "",
   email: "",
   organization: "",
+  companyCode: "",
   department: "CC-ENG-402 (Engineering)",
   role: "Member",
   status: "Active",
+  twoFactor: "Enforced",
 };
 
 export default function Users() {
+  const [searchParams, setSearchParams] = useSearchParams();
+
   const [users, setUsers] = useState(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
@@ -227,7 +281,7 @@ export default function Users() {
     return INITIAL_USERS;
   });
 
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(() => searchParams.get("search") || "");
   const [roleFilter, setRoleFilter] = useState("All");
   const [statusFilter, setStatusFilter] = useState("All");
   const [organizationFilter, setOrganizationFilter] = useState("All");
@@ -242,6 +296,31 @@ export default function Users() {
   const [errors, setErrors] = useState({});
   const [toast, setToast] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
+  const [resetConfirmOpen, setResetConfirmOpen] = useState(false);
+
+  // Sorting State
+  const [sortField, setSortField] = useState("name");
+  const [sortOrder, setSortOrder] = useState("asc");
+
+  const handleSort = (field) => {
+    if (sortField === field) {
+      setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"));
+    } else {
+      setSortField(field);
+      setSortOrder("asc");
+    }
+  };
+
+  const renderSortIcon = (field) => {
+    if (sortField !== field) {
+      return <ArrowUpDown size={12} className="sap-sort-icon" />;
+    }
+    return sortOrder === "asc" ? (
+      <ArrowUp size={12} className="sap-sort-icon is-active" />
+    ) : (
+      <ArrowDown size={12} className="sap-sort-icon is-active" />
+    );
+  };
 
   useEffect(() => {
     try {
@@ -257,11 +336,77 @@ export default function Users() {
     return () => clearTimeout(t);
   }, [toast]);
 
+  // Synchronize URL query parameter with search
+  useEffect(() => {
+    const urlSearch = searchParams.get("search") || "";
+    setSearch((current) => (current === urlSearch ? current : urlSearch));
+    setPage(1);
+  }, [searchParams]);
+
+  // Close modals on Escape key press
+  useEffect(() => {
+    if (!modal && !deleteTarget && !resetConfirmOpen) return undefined;
+
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        setModal(null);
+        setDeleteTarget(null);
+        setResetConfirmOpen(false);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [modal, deleteTarget, resetConfirmOpen]);
+
   const notify = (msg) => setToast(msg);
 
+  const updateSearch = (value) => {
+    setSearch(value);
+    setPage(1);
+
+    const next = new URLSearchParams(searchParams);
+    if (value.trim()) {
+      next.set("search", value);
+    } else {
+      next.delete("search");
+    }
+    setSearchParams(next, { replace: true });
+  };
+
+  const clearAllFilters = () => {
+    setSearch("");
+    setOrganizationFilter("All");
+    setRoleFilter("All");
+    setStatusFilter("All");
+    setMfaFilter("All");
+    setPage(1);
+    setSearchParams({}, { replace: true });
+  };
+
   const organizations = useMemo(() => {
-    return Array.from(new Set(users.map((u) => u.organization).filter(Boolean)));
+    const set = new Set(REGISTERED_ORGANIZATIONS.map((o) => o.name));
+    users.forEach((u) => {
+      if (u.organization) set.add(u.organization);
+    });
+    return Array.from(set);
   }, [users]);
+
+  const availableOrganizations = useMemo(() => {
+    const set = new Set(REGISTERED_ORGANIZATIONS.map((o) => o.name));
+    users.forEach((u) => {
+      if (u.organization) set.add(u.organization);
+    });
+    return Array.from(set);
+  }, [users]);
+
+  const availableCompanyCodes = useMemo(() => {
+    const codes = new Set(ALL_COMPANY_CODES);
+    if (form.companyCode) codes.add(form.companyCode);
+    const matched = REGISTERED_ORGANIZATIONS.find((o) => o.name === form.organization);
+    if (matched && matched.defaultCompanyCode) codes.add(matched.defaultCompanyCode);
+    return Array.from(codes);
+  }, [form.organization, form.companyCode]);
 
   const filteredUsers = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -280,9 +425,26 @@ export default function Users() {
     });
   }, [users, search, roleFilter, statusFilter, organizationFilter, mfaFilter]);
 
-  const totalPages = Math.max(1, Math.ceil(filteredUsers.length / pageSize));
+  const sortedUsers = useMemo(() => {
+    let list = [...filteredUsers];
+    list.sort((a, b) => {
+      let valA = a[sortField];
+      let valB = b[sortField];
+      if (typeof valA === "number" && typeof valB === "number") {
+        return sortOrder === "asc" ? valA - valB : valB - valA;
+      }
+      valA = String(valA || "").toLowerCase();
+      valB = String(valB || "").toLowerCase();
+      if (valA < valB) return sortOrder === "asc" ? -1 : 1;
+      if (valA > valB) return sortOrder === "asc" ? 1 : -1;
+      return 0;
+    });
+    return list;
+  }, [filteredUsers, sortField, sortOrder]);
+
+  const totalPages = Math.max(1, Math.ceil(sortedUsers.length / pageSize));
   const currentPage = Math.min(page, totalPages);
-  const paginatedUsers = filteredUsers.slice(
+  const paginatedUsers = sortedUsers.slice(
     (currentPage - 1) * pageSize,
     currentPage * pageSize
   );
@@ -294,7 +456,7 @@ export default function Users() {
   // Selection handlers
   const handleSelectAll = (e) => {
     if (e.target.checked) {
-      setSelectedIds(new Set(filteredUsers.map((u) => u.id)));
+      setSelectedIds(new Set(paginatedUsers.map((u) => u.id)));
     } else {
       setSelectedIds(new Set());
     }
@@ -328,11 +490,19 @@ export default function Users() {
     setSelectedIds(new Set());
   };
 
+  const handleBatchDelete = () => {
+    if (selectedIds.size === 0) return;
+    const count = selectedIds.size;
+    setUsers((prev) => prev.filter((u) => !selectedIds.has(u.id)));
+    notify(`Deleted ${count} user master records.`);
+    setSelectedIds(new Set());
+  };
+
   // Export to CSV
   const handleExportCSV = () => {
     const targetUsers = selectedIds.size > 0
-      ? filteredUsers.filter((u) => selectedIds.has(u.id))
-      : filteredUsers;
+      ? sortedUsers.filter((u) => selectedIds.has(u.id))
+      : sortedUsers;
 
     const headers = [
       "User ID",
@@ -364,14 +534,24 @@ export default function Users() {
       u.joinedAt,
     ]);
 
-    const csvContent =
-      "data:text/csv;charset=utf-8,\uFEFF" +
-      [headers.join(","), ...rows.map((e) => e.map((x) => `"${x}"`).join(","))].join("\n");
+    const csvContent = [
+      headers.map((h) => `"${h}"`).join(","),
+      ...rows.map((row) =>
+        row.map((val) => `"${String(val || "").replace(/"/g, '""')}"`).join(",")
+      ),
+    ].join("\n");
 
+    const blob = new Blob(["\uFEFF" + csvContent], {
+      type: "text/csv;charset=utf-8;",
+    });
+    const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
-    link.href = encodeURI(csvContent);
+    link.href = url;
     link.download = `SAP_USER_MASTER_EXPORT_${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(link);
     link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
     notify(`Exported ${targetUsers.length} user records to CSV.`);
   };
 
@@ -395,7 +575,8 @@ export default function Users() {
     setSelectedUser(null);
     setForm({
       ...EMPTY_FORM,
-      organization: organizations[0] || "Acme Technologies",
+      organization: "Acme Technologies",
+      companyCode: "1000 - ACME IN",
     });
     setErrors({});
     setModal("add");
@@ -403,13 +584,17 @@ export default function Users() {
 
   const openEditModal = (user) => {
     setSelectedUser(user);
+    const userOrg = user.organization || "Acme Technologies";
+    const matched = REGISTERED_ORGANIZATIONS.find((o) => o.name === userOrg);
     setForm({
       name: user.name || "",
       email: user.email || "",
-      organization: user.organization || "",
+      organization: userOrg,
+      companyCode: user.companyCode || (matched ? matched.defaultCompanyCode : "1000 - ACME IN"),
       department: user.department || "CC-ENG-402 (Engineering)",
       role: user.role || "Member",
       status: user.status || "Active",
+      twoFactor: user.twoFactor || "Enforced",
     });
     setErrors({});
     setModal("edit");
@@ -417,27 +602,37 @@ export default function Users() {
 
   const saveUserForm = (e) => {
     e.preventDefault();
-    if (!form.name.trim() || !form.email.trim()) {
-      setErrors({ name: !form.name.trim() ? "Name required" : "", email: !form.email.trim() ? "Email required" : "" });
+    const newErrors = {};
+    if (!form.name.trim()) newErrors.name = "Full employee name is required.";
+    if (!form.email.trim()) newErrors.email = "Email address is required.";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim()))
+      newErrors.email = "Please enter a valid email address.";
+    if (!form.organization.trim()) newErrors.organization = "Organization is required.";
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
       return;
     }
 
     if (modal === "add") {
-      const nextId = `USR-${Date.now().toString().slice(-4)}`;
+      const nextId = `USR-${Math.floor(1000 + Math.random() * 9000)}`;
       const nextPernr = `80${Math.floor(1000 + Math.random() * 9000)}`;
       const newUser = {
         id: nextId,
         pernr: nextPernr,
         name: form.name.trim(),
         email: form.email.trim(),
-        organization: form.organization,
-        companyCode: `${Math.floor(1000 + Math.random() * 4000)} - ${form.organization.slice(0, 4).toUpperCase()} GLOBAL`,
+        organization: form.organization.trim(),
+        companyCode:
+          form.companyCode.trim() ||
+          `${Math.floor(1000 + Math.random() * 4000)} - ${form.organization.slice(0, 4).toUpperCase()} GLOBAL`,
         department: form.department,
         role: form.role,
         status: form.status,
-        twoFactor: "Enforced",
+        twoFactor: form.twoFactor || "Enforced",
         lastLogin: "Never logged in",
         joinedAt: new Date().toISOString().slice(0, 10),
+        color: AVATAR_COLORS[users.length % AVATAR_COLORS.length],
       };
       setUsers([newUser, ...users]);
       notify(`User ${newUser.name} created [${newUser.id}].`);
@@ -449,15 +644,17 @@ export default function Users() {
                 ...u,
                 name: form.name.trim(),
                 email: form.email.trim(),
-                organization: form.organization,
+                organization: form.organization.trim(),
+                companyCode: form.companyCode.trim() || u.companyCode,
                 department: form.department,
                 role: form.role,
                 status: form.status,
+                twoFactor: form.twoFactor || u.twoFactor || "Enforced",
               }
             : u
         )
       );
-      notify(`User ${selectedUser.id} updated.`);
+      notify(`User master record ${selectedUser.id} updated.`);
     }
 
     setModal(null);
@@ -468,10 +665,7 @@ export default function Users() {
       {/* 1. SAP Master Header Bar */}
       <section className="sap-header-panel">
         <div className="sap-header-left">
-          <h1>
-            User Master Data Directory
-            <span className="sap-system-badge">SAP-USR · CLIENT 100</span>
-          </h1>
+          <h1>User Master Data Directory</h1>
           <p className="sap-header-subtitle">
             Enterprise identity directory, SAP authorization roles, cost centers, and 2FA access control.
           </p>
@@ -593,6 +787,13 @@ export default function Users() {
               </button>
               <button
                 type="button"
+                className="sa-btn sa-btn-danger sa-btn-sm"
+                onClick={handleBatchDelete}
+              >
+                <Trash2 size={13} /> Delete Selected
+              </button>
+              <button
+                type="button"
                 className="sa-btn sa-btn-sm"
                 style={{ background: "transparent", color: "inherit", border: 0 }}
                 onClick={() => setSelectedIds(new Set())}
@@ -612,10 +813,7 @@ export default function Users() {
                 type="text"
                 placeholder="Search Personnel No, User ID, Name, Cost Center..."
                 value={search}
-                onChange={(e) => {
-                  setSearch(e.target.value);
-                  setPage(1);
-                }}
+                onChange={(e) => updateSearch(e.target.value)}
               />
             </div>
 
@@ -691,17 +889,20 @@ export default function Users() {
             <button
               type="button"
               className="sap-icon-btn"
-              onClick={() => {
-                setSearch("");
-                setOrganizationFilter("All");
-                setRoleFilter("All");
-                setStatusFilter("All");
-                setMfaFilter("All");
-                setPage(1);
-              }}
+              onClick={clearAllFilters}
               title="Reset all filters"
             >
               <RefreshCw size={15} />
+            </button>
+
+            {/* Reset Demo Data Button */}
+            <button
+              type="button"
+              className="sa-btn sa-btn-secondary sa-btn-sm"
+              onClick={() => setResetConfirmOpen(true)}
+              title="Reset demo user records"
+            >
+              <RotateCcw size={13} /> Reset Demo Data
             </button>
           </div>
         </div>
@@ -721,15 +922,27 @@ export default function Users() {
                     onChange={handleSelectAll}
                   />
                 </th>
-                <th>Personnel / User ID</th>
-                <th>Employee & Account</th>
-                <th>Company Code & Org</th>
-                <th>Cost Center / Dept</th>
-                <th>Authorization Role</th>
-                <th>2FA Security</th>
-                <th>Account Status</th>
-                <th>Valid From</th>
-                <th>Last Logon</th>
+                <th className="sap-sortable-th" onClick={() => handleSort("id")}>
+                  <span className="sap-th-content">Personnel ID {renderSortIcon("id")}</span>
+                </th>
+                <th className="sap-sortable-th" onClick={() => handleSort("name")}>
+                  <span className="sap-th-content">Employee &amp; Account {renderSortIcon("name")}</span>
+                </th>
+                <th className="sap-sortable-th" onClick={() => handleSort("organization")}>
+                  <span className="sap-th-content">Organization &amp; Code {renderSortIcon("organization")}</span>
+                </th>
+                <th className="sap-sortable-th" onClick={() => handleSort("department")}>
+                  <span className="sap-th-content">Cost Center / Dept {renderSortIcon("department")}</span>
+                </th>
+                <th className="sap-sortable-th" onClick={() => handleSort("role")}>
+                  <span className="sap-th-content">Role {renderSortIcon("role")}</span>
+                </th>
+                <th className="sap-sortable-th" onClick={() => handleSort("status")}>
+                  <span className="sap-th-content">Status &amp; 2FA {renderSortIcon("status")}</span>
+                </th>
+                <th className="sap-sortable-th" onClick={() => handleSort("lastLogin")}>
+                  <span className="sap-th-content">Last Logon {renderSortIcon("lastLogin")}</span>
+                </th>
                 <th style={{ textAlign: "right" }}>Actions</th>
               </tr>
             </thead>
@@ -754,8 +967,16 @@ export default function Users() {
 
                     {/* User & Identity */}
                     <td>
-                      <div className="sap-user-badge">
-                        <div className="sap-avatar-circle">
+                      <div
+                        className="sap-user-badge"
+                        style={{ cursor: "pointer" }}
+                        title="Click to view user master details"
+                        onClick={() => {
+                          setSelectedUser(u);
+                          setModal("details");
+                        }}
+                      >
+                        <div className={`sap-avatar-circle ${u.color || "blue"}`}>
                           {u.name.split(" ").map((n) => n[0]).join("").slice(0, 2)}
                         </div>
                         <div className="sap-user-info">
@@ -768,7 +989,7 @@ export default function Users() {
                     {/* Company Code & Organization */}
                     <td>
                       <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                        <Building2 size={14} style={{ color: "var(--sa-primary)" }} />
+                        <Building2 size={14} style={{ color: "var(--sa-primary)", flexShrink: 0 }} />
                         <div>
                           <strong>{u.organization}</strong>
                           <div style={{ fontSize: 10.5, color: "var(--sa-text-muted)" }}>
@@ -800,28 +1021,21 @@ export default function Users() {
                       </span>
                     </td>
 
-                    {/* 2FA Security Status */}
+                    {/* Status Pill & 2FA */}
                     <td>
-                      <span className={`sap-mfa-badge ${u.twoFactor === "Enforced" ? "enforced" : ""}`}>
-                        <ShieldCheck size={13} /> {u.twoFactor || "Enforced"}
-                      </span>
-                    </td>
-
-                    {/* Status Pill */}
-                    <td>
-                      <span
-                        className={`sap-status-pill ${
-                          u.status === "Active" ? "valid" : "locked"
-                        }`}
-                      >
-                        <span className="sap-status-dot" />
-                        {u.status === "Active" ? "00 - Valid" : "02 - Locked"}
-                      </span>
-                    </td>
-
-                    {/* Valid From Date */}
-                    <td style={{ color: "var(--sa-text-muted)", fontSize: 11.5 }}>
-                      {u.joinedAt}
+                      <div style={{ display: "flex", flexDirection: "column", gap: 3, alignItems: "flex-start" }}>
+                        <span
+                          className={`sap-status-pill ${
+                            u.status === "Active" ? "valid" : "locked"
+                          }`}
+                        >
+                          <span className="sap-status-dot" />
+                          {u.status === "Active" ? "00 - Valid" : "02 - Locked"}
+                        </span>
+                        <span className={`sap-mfa-badge ${u.twoFactor === "Enforced" ? "enforced" : ""}`} style={{ fontSize: 10.5 }}>
+                          <ShieldCheck size={11} /> {u.twoFactor || "Enforced"}
+                        </span>
+                      </div>
                     </td>
 
                     {/* Last Logon */}
@@ -875,8 +1089,20 @@ export default function Users() {
 
               {paginatedUsers.length === 0 && (
                 <tr>
-                  <td colSpan={11} style={{ textAlign: "center", padding: "36px", color: "var(--sa-text-muted)" }}>
-                    No SAP master user records found matching the specified search criteria.
+                  <td colSpan={9} style={{ textAlign: "center", padding: "40px 20px" }}>
+                    <div style={{ color: "var(--sa-text-muted)", fontSize: 13 }}>
+                      <strong>No SAP master user records found matching your search.</strong>
+                      <p style={{ margin: "6px 0 12px", fontSize: 12 }}>
+                        Try clearing or adjusting your active filter options.
+                      </p>
+                      <button
+                        type="button"
+                        className="sa-btn sa-btn-secondary sa-btn-sm"
+                        onClick={clearAllFilters}
+                      >
+                        Clear All Filters
+                      </button>
+                    </div>
                   </td>
                 </tr>
               )}
@@ -886,37 +1112,31 @@ export default function Users() {
 
         {/* 5. SAP Master Footer & Pagination */}
         <div className="sap-footer-bar">
-          <div className="sap-footer-counts">
+          <div className="sap-footer-counts" style={{ display: "flex", alignItems: "center", gap: 14 }}>
             <span>
-              Displaying <strong>{paginatedUsers.length > 0 ? (currentPage - 1) * pageSize + 1 : 0}</strong> -{" "}
-              <strong>{Math.min(currentPage * pageSize, filteredUsers.length)}</strong> of{" "}
-              <strong>{filteredUsers.length}</strong> master records
-              {filteredUsers.length !== users.length && ` (filtered from ${users.length} total)`}
+              Displaying <strong>{paginatedUsers.length > 0 ? (currentPage - 1) * pageSize + 1 : 0}</strong>–
+              <strong>{Math.min(currentPage * pageSize, sortedUsers.length)}</strong> of{" "}
+              <strong>{sortedUsers.length}</strong> master records
+              {sortedUsers.length !== users.length && ` (filtered from ${users.length} total)`}
             </span>
 
-            <span style={{ margin: "0 6px", color: "var(--sa-border)" }}>|</span>
-
-            <span>Rows per page:</span>
-            <select
-              value={pageSize}
-              onChange={(e) => {
-                setPageSize(Number(e.target.value));
-                setPage(1);
-              }}
-              style={{
-                background: "transparent",
-                border: "1px solid var(--sa-border)",
-                borderRadius: 4,
-                padding: "2px 6px",
-                fontSize: 11.5,
-                color: "inherit",
-              }}
-            >
-              <option value={5}>5</option>
-              <option value={10}>10</option>
-              <option value={20}>20</option>
-              <option value={50}>50</option>
-            </select>
+            <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "#64748b" }}>
+              <span>Rows per page:</span>
+              <select
+                className="sap-filter-select"
+                style={{ padding: "3px 6px", fontSize: 12, height: 26 }}
+                value={pageSize}
+                onChange={(e) => {
+                  setPageSize(Number(e.target.value));
+                  setPage(1);
+                }}
+              >
+                <option value={5}>5</option>
+                <option value={10}>10</option>
+                <option value={20}>20</option>
+                <option value={50}>50</option>
+              </select>
+            </div>
           </div>
 
           <div className="sap-pagination">
@@ -939,16 +1159,9 @@ export default function Users() {
               <ChevronLeft size={14} />
             </button>
 
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((pNum) => (
-              <button
-                key={pNum}
-                type="button"
-                className={`sap-page-btn ${pNum === currentPage ? "is-active" : ""}`}
-                onClick={() => setPage(pNum)}
-              >
-                {pNum}
-              </button>
-            ))}
+            <span style={{ padding: "0 8px", fontWeight: 650 }}>
+              Page {currentPage} of {totalPages}
+            </span>
 
             <button
               type="button"
@@ -972,63 +1185,111 @@ export default function Users() {
         </div>
       </section>
 
-      {/* 6. View Details Modal */}
-      {modal === "details" && selectedUser && (
-        <div className="sa-modal-backdrop">
-          <div className="sa-modal-content" style={{ maxWidth: 540 }}>
+      {/* 6. View Details Modal (Portaled) */}
+      {modal === "details" && selectedUser && typeof document !== "undefined" && createPortal(
+        <div
+          className="sa-modal-backdrop"
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget) setModal(null);
+          }}
+        >
+          <div className="sa-modal-content user-details-modal" style={{ maxWidth: 580 }}>
             <div className="sa-modal-header">
-              <div>
-                <h3 style={{ margin: 0 }}>SAP Master Record: {selectedUser.name}</h3>
-                <span style={{ fontSize: 11.5, color: "var(--sa-text-muted)" }}>
-                  Personnel No: {selectedUser.pernr || "802100"} · {selectedUser.id}
-                </span>
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <div className="sap-modal-title-icon">
+                  <UsersIcon size={22} />
+                </div>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: 17, fontWeight: 700 }}>User Master Record</h3>
+                  <span style={{ fontSize: 12, color: "var(--sa-text-muted)" }}>
+                    Personnel No: {selectedUser.pernr || "802100"} · ID: {selectedUser.id}
+                  </span>
+                </div>
               </div>
-              <button type="button" className="sa-modal-close" onClick={() => setModal(null)}>
+              <button
+                type="button"
+                className="sa-modal-close"
+                onClick={() => setModal(null)}
+                aria-label="Close dialog"
+              >
                 <X size={18} />
               </button>
             </div>
 
             <div className="sa-modal-body">
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-                <div>
-                  <label style={{ fontSize: 11, color: "var(--sa-text-muted)", display: "block" }}>Company Code</label>
-                  <strong>{selectedUser.companyCode || "1000 - ACME IN"}</strong>
+              {/* User Hero Banner */}
+              <div className="user-details-hero">
+                <div className={`sap-avatar-circle large ${selectedUser.color || "blue"}`}>
+                  {selectedUser.name.split(" ").map((n) => n[0]).join("").slice(0, 2)}
                 </div>
                 <div>
-                  <label style={{ fontSize: 11, color: "var(--sa-text-muted)", display: "block" }}>Organization</label>
-                  <strong>{selectedUser.organization}</strong>
+                  <h4 style={{ margin: 0, fontSize: 16, fontWeight: 700 }}>{selectedUser.name}</h4>
+                  <div style={{ fontSize: 12, color: "var(--sa-text-muted)", marginTop: 2 }}>
+                    {selectedUser.email}
+                  </div>
+                  <div style={{ display: "flex", gap: 6, marginTop: 6, flexWrap: "wrap" }}>
+                    <span className={`sap-role-badge ${selectedUser.role === "Admin" ? "admin" : selectedUser.role === "Manager" ? "lead" : "member"}`}>
+                      {selectedUser.role}
+                    </span>
+                    <span className={`sap-status-pill ${selectedUser.status === "Active" ? "valid" : "locked"}`}>
+                      <span className="sap-status-dot" /> {selectedUser.status === "Active" ? "00 - Valid" : "02 - Locked"}
+                    </span>
+                  </div>
                 </div>
-                <div>
-                  <label style={{ fontSize: 11, color: "var(--sa-text-muted)", display: "block" }}>Department / Cost Center</label>
-                  <strong>{selectedUser.department || "CC-ENG-402 (Engineering)"}</strong>
+              </div>
+
+              {/* User Details Grid */}
+              <div className="user-details-grid">
+                <div className="user-detail-card">
+                  <small>Company Code</small>
+                  <p>{selectedUser.companyCode || "1000 - ACME IN"}</p>
                 </div>
-                <div>
-                  <label style={{ fontSize: 11, color: "var(--sa-text-muted)", display: "block" }}>Authorization Role</label>
-                  <strong>{selectedUser.role}</strong>
+                <div className="user-detail-card">
+                  <small>Organization</small>
+                  <p>{selectedUser.organization}</p>
                 </div>
-                <div>
-                  <label style={{ fontSize: 11, color: "var(--sa-text-muted)", display: "block" }}>Email Address</label>
-                  <span>{selectedUser.email}</span>
+                <div className="user-detail-card">
+                  <small>Cost Center &amp; Dept</small>
+                  <p>{selectedUser.department || "CC-ENG-402 (Engineering)"}</p>
                 </div>
-                <div>
-                  <label style={{ fontSize: 11, color: "var(--sa-text-muted)", display: "block" }}>2FA Status</label>
-                  <span className="sap-mfa-badge enforced"><ShieldCheck size={13} /> {selectedUser.twoFactor || "Enforced"}</span>
+                <div className="user-detail-card">
+                  <small>2FA Security</small>
+                  <p style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                    <ShieldCheck size={14} style={{ color: selectedUser.twoFactor === "Enforced" ? "#10b981" : "#f59e0b" }} />
+                    {selectedUser.twoFactor || "Enforced"}
+                  </p>
                 </div>
-                <div>
-                  <label style={{ fontSize: 11, color: "var(--sa-text-muted)", display: "block" }}>Account Status</label>
-                  <span className={`sap-status-pill ${selectedUser.status === "Active" ? "valid" : "locked"}`}>
-                    <span className="sap-status-dot" /> {selectedUser.status === "Active" ? "00 - Valid" : "02 - Locked"}
-                  </span>
+                <div className="user-detail-card">
+                  <small>Valid From</small>
+                  <p>{selectedUser.joinedAt}</p>
                 </div>
-                <div>
-                  <label style={{ fontSize: 11, color: "var(--sa-text-muted)", display: "block" }}>Last Logon</label>
-                  <span>{selectedUser.lastLogin || "Today, 10:45 AM"}</span>
+                <div className="user-detail-card">
+                  <small>Last Logon Session</small>
+                  <p>{selectedUser.lastLogin || "Today, 10:45 AM"}</p>
                 </div>
               </div>
             </div>
 
             <div className="sa-modal-footer">
-              <button type="button" className="sa-btn sa-btn-secondary" onClick={() => setModal(null)}>
+              <button
+                type="button"
+                className="sa-btn sa-btn-secondary"
+                onClick={() => {
+                  toggleUserStatus(selectedUser);
+                  setSelectedUser((prev) => ({
+                    ...prev,
+                    status: prev.status === "Active" ? "Suspended" : "Active",
+                  }));
+                }}
+              >
+                {selectedUser.status === "Active" ? <Lock size={13} /> : <Unlock size={13} />}
+                {selectedUser.status === "Active" ? "Lock Account" : "Unlock Account"}
+              </button>
+              <button
+                type="button"
+                className="sa-btn sa-btn-secondary"
+                onClick={() => setModal(null)}
+              >
                 Close
               </button>
               <button
@@ -1039,20 +1300,45 @@ export default function Users() {
                   openEditModal(selectedUser);
                 }}
               >
-                Edit Master Data
+                <Pencil size={13} /> Edit Master Data
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
-      {/* 7. Create / Edit User Modal */}
-      {(modal === "add" || modal === "edit") && (
-        <div className="sa-modal-backdrop">
-          <div className="sa-modal-content" style={{ maxWidth: 520 }}>
+      {/* 7. Create / Edit User Modal (Portaled) */}
+      {(modal === "add" || modal === "edit") && typeof document !== "undefined" && createPortal(
+        <div
+          className="sa-modal-backdrop"
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget) setModal(null);
+          }}
+        >
+          <div className="sa-modal-content user-form-modal" style={{ maxWidth: 540 }}>
             <div className="sa-modal-header">
-              <h3>{modal === "add" ? "Create SAP Master User Record" : "Edit Master Record"}</h3>
-              <button type="button" className="sa-modal-close" onClick={() => setModal(null)}>
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <div className="sap-modal-title-icon">
+                  {modal === "add" ? <UserPlus size={22} /> : <Pencil size={22} />}
+                </div>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: 17, fontWeight: 700 }}>
+                    {modal === "add" ? "Create SAP Master User Record" : "Edit Master User Record"}
+                  </h3>
+                  <span style={{ fontSize: 12, color: "var(--sa-text-muted)" }}>
+                    {modal === "add"
+                      ? "Enter employee master attributes, company code, and cost center."
+                      : `Updating attributes for ${selectedUser?.id}`}
+                  </span>
+                </div>
+              </div>
+              <button
+                type="button"
+                className="sa-modal-close"
+                onClick={() => setModal(null)}
+                aria-label="Close dialog"
+              >
                 <X size={18} />
               </button>
             </div>
@@ -1060,7 +1346,7 @@ export default function Users() {
             <form onSubmit={saveUserForm}>
               <div className="sa-modal-body">
                 <div className="sa-form-group">
-                  <label>Full Employee Name</label>
+                  <label>Full Employee Name *</label>
                   <input
                     type="text"
                     className="sa-form-input"
@@ -1073,7 +1359,7 @@ export default function Users() {
                 </div>
 
                 <div className="sa-form-group">
-                  <label>Enterprise Email Address</label>
+                  <label>Enterprise Email Address *</label>
                   <input
                     type="email"
                     className="sa-form-input"
@@ -1085,20 +1371,53 @@ export default function Users() {
                   {errors.email && <span style={{ color: "#ef4444", fontSize: 11 }}>{errors.email}</span>}
                 </div>
 
-                <div className="sa-form-group">
-                  <label>Tenant Organization</label>
-                  <input
-                    type="text"
-                    className="sa-form-input"
-                    value={form.organization}
-                    onChange={(e) => setForm({ ...form, organization: e.target.value })}
-                    placeholder="e.g. Acme Technologies"
-                    required
-                  />
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                  <div className="sa-form-group">
+                    <label>Tenant Organization *</label>
+                    <select
+                      className="sa-form-select"
+                      value={form.organization}
+                      onChange={(e) => {
+                        const newOrg = e.target.value;
+                        const matched = REGISTERED_ORGANIZATIONS.find((o) => o.name === newOrg);
+                        setForm((prev) => ({
+                          ...prev,
+                          organization: newOrg,
+                          companyCode: matched ? matched.defaultCompanyCode : prev.companyCode,
+                        }));
+                      }}
+                      required
+                    >
+                      {availableOrganizations.map((orgName) => (
+                        <option key={orgName} value={orgName}>
+                          {orgName}
+                        </option>
+                      ))}
+                    </select>
+                    {errors.organization && (
+                      <span style={{ color: "#ef4444", fontSize: 11 }}>{errors.organization}</span>
+                    )}
+                  </div>
+
+                  <div className="sa-form-group">
+                    <label>Company Code *</label>
+                    <select
+                      className="sa-form-select"
+                      value={form.companyCode}
+                      onChange={(e) => setForm((prev) => ({ ...prev, companyCode: e.target.value }))}
+                      required
+                    >
+                      {availableCompanyCodes.map((code) => (
+                        <option key={code} value={code}>
+                          {code}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
 
                 <div className="sa-form-group">
-                  <label>Cost Center & Department</label>
+                  <label>Cost Center &amp; Department</label>
                   <select
                     className="sa-form-select"
                     value={form.department}
@@ -1110,6 +1429,8 @@ export default function Users() {
                     <option value="CC-FIN-104 (Finance)">CC-FIN-104 (Finance)</option>
                     <option value="CC-MKT-301 (Marketing)">CC-MKT-301 (Marketing)</option>
                     <option value="CC-HR-501 (People & Culture)">CC-HR-501 (People & Culture)</option>
+                    <option value="CC-AUD-901 (Compliance Audit)">CC-AUD-901 (Compliance Audit)</option>
+                    <option value="CC-DES-102 (Creative Design)">CC-DES-102 (Creative Design)</option>
                   </select>
                 </div>
 
@@ -1139,6 +1460,18 @@ export default function Users() {
                     </select>
                   </div>
                 </div>
+
+                <div className="sa-form-group">
+                  <label>Two-Factor Authentication (2FA)</label>
+                  <select
+                    className="sa-form-select"
+                    value={form.twoFactor || "Enforced"}
+                    onChange={(e) => setForm({ ...form, twoFactor: e.target.value })}
+                  >
+                    <option value="Enforced">Enforced (Hardware Key / Authenticator)</option>
+                    <option value="Pending">Pending (User Setup Required)</option>
+                  </select>
+                </div>
               </div>
 
               <div className="sa-modal-footer">
@@ -1146,31 +1479,43 @@ export default function Users() {
                   Cancel
                 </button>
                 <button type="submit" className="sa-btn sa-btn-primary">
-                  {modal === "add" ? "Save Master Record" : "Update Record"}
+                  {modal === "add" ? "Create Master Record" : "Save Changes"}
                 </button>
               </div>
             </form>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
-      {/* 8. Delete Confirmation Modal */}
-      {deleteTarget && (
-        <div className="sa-modal-backdrop">
+      {/* 8. Delete Confirmation Modal (Portaled) */}
+      {deleteTarget && typeof document !== "undefined" && createPortal(
+        <div
+          className="sa-modal-backdrop"
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget) setDeleteTarget(null);
+          }}
+        >
           <div className="sa-modal-content" style={{ maxWidth: 440 }}>
             <div className="sa-modal-header">
-              <h3 style={{ color: "#ef4444", display: "flex", alignItems: "center", gap: 8 }}>
-                <ShieldAlert size={18} /> Confirm Master Record Deletion
+              <h3 style={{ color: "#ef4444", display: "flex", alignItems: "center", gap: 8, margin: 0 }}>
+                <ShieldAlert size={20} /> Confirm Master Record Deletion
               </h3>
-              <button type="button" className="sa-modal-close" onClick={() => setDeleteTarget(null)}>
+              <button
+                type="button"
+                className="sa-modal-close"
+                onClick={() => setDeleteTarget(null)}
+                aria-label="Close dialog"
+              >
                 <X size={18} />
               </button>
             </div>
 
             <div className="sa-modal-body">
-              <p style={{ margin: 0 }}>
+              <p style={{ margin: 0, fontSize: 13, lineHeight: 1.5 }}>
                 Are you sure you want to permanently delete master record for{" "}
-                <strong>{deleteTarget.name}</strong> ({deleteTarget.id})? All authorization tokens and company cost center bindings will be purged.
+                <strong>{deleteTarget.name}</strong> ({deleteTarget.id})? All authorization tokens,
+                personnel number ({deleteTarget.pernr || "802100"}), and cost center bindings will be purged.
               </p>
             </div>
 
@@ -1183,7 +1528,70 @@ export default function Users() {
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
+      )}
+
+      {/* 9. Reset Demo Data Confirmation Modal (Portaled) */}
+      {resetConfirmOpen && typeof document !== "undefined" && createPortal(
+        <div
+          className="sa-modal-backdrop"
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget) setResetConfirmOpen(false);
+          }}
+        >
+          <div className="sa-modal-content" style={{ maxWidth: 420, textAlign: "center", padding: "24px" }}>
+            <div
+              style={{
+                width: 50,
+                height: 50,
+                borderRadius: "50%",
+                background: "var(--sa-primary-light, #eff3fe)",
+                color: "var(--sa-primary, #3b66ff)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                margin: "0 auto 16px",
+              }}
+            >
+              <RotateCcw size={24} />
+            </div>
+
+            <h3 style={{ margin: "0 0 8px", fontSize: 18, fontWeight: 700 }}>Reset Demo Users?</h3>
+            <p style={{ margin: "0 0 20px", fontSize: 13, color: "var(--sa-text-muted)", lineHeight: 1.5 }}>
+              This restores the original 12 enterprise user master records and discards any demo users created in this browser session.
+            </p>
+
+            <div style={{ display: "flex", justifyContent: "center", gap: 10 }}>
+              <button
+                type="button"
+                className="sa-btn sa-btn-secondary"
+                onClick={() => setResetConfirmOpen(false)}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="sa-btn sa-btn-primary"
+                onClick={() => {
+                  setUsers(INITIAL_USERS);
+                  setSearch("");
+                  setRoleFilter("All");
+                  setStatusFilter("All");
+                  setOrganizationFilter("All");
+                  setMfaFilter("All");
+                  setPage(1);
+                  setSearchParams({}, { replace: true });
+                  setResetConfirmOpen(false);
+                  notify("User master demo data reset to default.");
+                }}
+              >
+                Reset Demo Data
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
       )}
     </div>
   );

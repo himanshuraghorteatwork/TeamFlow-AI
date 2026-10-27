@@ -1,50 +1,1131 @@
 /* ==========================================================================
-   TEAMFLOW AI — SUPER ADMIN EMAIL CONFIG CSS
+   TEAMFLOW AI — SUPER ADMIN SMTP & EMAIL CONFIGURATION STYLESHEET
    ========================================================================== */
 
 .sa-email-page {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
 }
 
-.sa-smtp-form-card {
-  padding: 20px 24px;
+/* ==========================================================================
+   1. SMTP SETTINGS CARD & PRESET SELECTORS
+   ========================================================================== */
+
+.sa-smtp-settings-card {
+  padding: 22px 24px 24px !important;
+  border-radius: 14px !important;
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04) !important;
 }
 
-.sa-smtp-fields-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
-  margin-top: 10px;
-}
-
-.sa-smtp-footer-actions {
+.sa-smtp-header-row {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: space-between;
   gap: 16px;
-  margin-top: 20px;
-  padding-top: 16px;
-  border-top: 1px solid var(--sa-border-subtle);
+  flex-wrap: wrap;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #f1f5f9;
 }
 
-.sa-save-success-msg {
+.sa-smtp-header-row h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 750;
+  color: #0f172a;
+  letter-spacing: -0.2px;
+}
+
+.sa-smtp-header-sub {
+  margin: 3px 0 0;
+  font-size: 12.5px;
+  color: #64748b;
+}
+
+.sa-relay-status-chip {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  color: #10b981;
-  font-size: 12.5px;
-  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(59, 102, 255, 0.1);
+  color: #3b66ff;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
 }
 
-.sa-email-logs-card {
-  padding: 18px 20px 14px;
+/* Spin animation for testing */
+.spin-animation {
+  animation: saSpin 1s linear infinite;
 }
 
-@media (max-width: 1000px) {
-  .sa-smtp-fields-grid {
-    grid-template-columns: 1fr;
+@keyframes saSpin {
+  100% {
+    transform: rotate(360deg);
   }
 }
 
+/* Handshake Verified Banner */
+.sa-ping-success-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+  padding: 12px 16px;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  border-radius: 9px;
+  animation: saFadeIn 0.2s ease both;
+}
+
+.sa-ping-banner-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sa-ping-banner-left strong {
+  display: block;
+  font-size: 13px;
+  color: #047857;
+}
+
+.sa-ping-banner-left p {
+  margin: 2px 0 0;
+  font-size: 11.5px;
+  color: #065f46;
+}
+
+.sa-ping-banner-left code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-weight: 650;
+}
+
+.sa-ping-time {
+  font-size: 11px;
+  font-weight: 600;
+  color: #059669;
+}
+
+/* One-Click Presets Grid */
+.sa-smtp-presets-section {
+  margin-top: 18px;
+}
+
+.sa-field-label {
+  display: block;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  margin-bottom: 8px;
+}
+
+.sa-presets-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 10px;
+}
+
+.sa-preset-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 10px 12px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 9px;
+  cursor: pointer;
+  transition: all 0.16s ease;
+  text-align: left;
+}
+
+.sa-preset-card:hover {
+  background: #ffffff;
+  border-color: #cbd5e1;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
+  transform: translateY(-1px);
+}
+
+.sa-preset-card.is-selected {
+  background: #ffffff;
+  border-color: #3b66ff;
+  box-shadow: 0 0 0 2px rgba(59, 102, 255, 0.2);
+}
+
+.sa-preset-card-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sa-preset-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.sa-preset-card strong {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.sa-preset-badge {
+  font-size: 10px;
+  font-weight: 600;
+  color: #64748b;
+}
+
+/* ==========================================================================
+   2. MAIN SMTP CONFIGURATION FORM
+   ========================================================================== */
+
+.sa-smtp-main-form {
+  margin-top: 20px;
+}
+
+.sa-smtp-form-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.sa-span-2 {
+  grid-column: span 2;
+}
+
+.sa-span-full {
+  grid-column: 1 / -1;
+}
+
+.sa-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.sa-form-field label {
+  font-size: 12px;
+  font-weight: 650;
+  color: #334155;
+}
+
+.sa-form-field label .req {
+  color: #dc2626;
+  font-weight: 700;
+}
+
+.sa-text-input,
+.sa-select-input {
+  width: 100%;
+  height: 38px;
+  padding: 0 12px;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #0f172a;
+  font-size: 13px;
+  font-family: inherit;
+  transition: all 0.15s ease;
+  box-sizing: border-box;
+}
+
+.sa-text-input:focus,
+.sa-select-input:focus {
+  outline: none;
+  border-color: #3b66ff;
+  box-shadow: 0 0 0 3px rgba(59, 102, 255, 0.15);
+}
+
+.sa-field-hint {
+  font-size: 11px;
+  color: #64748b;
+  line-height: 1.35;
+}
+
+/* Password with Toggle */
+.sa-password-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.sa-text-input.has-toggle {
+  padding-right: 38px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.sa-pwd-toggle-btn {
+  position: absolute;
+  right: 6px;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.sa-pwd-toggle-btn:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+/* Outgoing Envelope Preview Box */
+.sa-envelope-preview-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  margin-top: 4px;
+}
+
+.sa-envelope-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #475569;
+}
+
+.sa-envelope-chip {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 12px;
+  padding: 3px 10px;
+  border-radius: 6px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #1e293b;
+}
+
+/* DNS Authentication Status Strip */
+.sa-dns-auth-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 18px;
+  padding: 12px 14px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 9px;
+}
+
+.sa-dns-auth-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 11.5px;
+}
+
+.sa-dns-status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  margin-top: 4px;
+  flex-shrink: 0;
+}
+
+.sa-dns-status-dot.valid {
+  background: #10b981;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.25);
+}
+
+.sa-dns-auth-item strong {
+  display: inline;
+  color: #0f172a;
+  font-weight: 700;
+}
+
+.sa-dns-auth-item code {
+  display: block;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 10px;
+  color: #64748b;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 220px;
+  margin: 1px 0;
+}
+
+.sa-auth-tag {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 650;
+  color: #059669;
+}
+
+/* Form Action Footer */
+.sa-smtp-footer-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid #edf2f7;
+}
+
+.sa-save-success-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #059669;
+  font-size: 12.5px;
+  font-weight: 650;
+}
+
+/* ==========================================================================
+   3. EMAIL DELIVERY TELEMETRY LOGS TABLE & ACTION BUTTONS
+   ========================================================================== */
+
+.eml-user-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.eml-user-name {
+  font-size: 13px;
+  color: #0f172a;
+}
+
+.eml-user-sub {
+  font-size: 11.5px;
+  color: #64748b;
+}
+
+.eml-subject-text {
+  font-size: 13px;
+  font-weight: 550;
+  color: #1e293b;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.eml-template-tag {
+  display: inline-block;
+  margin-top: 3px;
+  font-size: 10.5px;
+  font-weight: 650;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  color: #475569;
+}
+
+/* Latency Chip */
+.eml-latency-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 6px;
+}
+
+.eml-latency-pill.is-fast {
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+}
+
+.eml-latency-pill.is-slow {
+  background: #fffbeb;
+  color: #b45309;
+  border: 1px solid #fde68a;
+}
+
+/* Status Pills */
+@keyframes emlPulseDot {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.3);
+    opacity: 0.7;
+  }
+}
+
+.eml-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.eml-status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* Delivered */
+.eml-status-pill.status-delivered {
+  background: #ecfdf5 !important;
+  color: #047857 !important;
+  border: 1px solid #a7f3d0 !important;
+}
+
+.eml-status-pill.status-delivered .eml-status-dot {
+  background: #10b981 !important;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.25) !important;
+}
+
+/* Bounced */
+.eml-status-pill.status-bounced {
+  background: #fef2f2 !important;
+  color: #b91c1c !important;
+  border: 1px solid #fecaca !important;
+}
+
+.eml-status-pill.status-bounced .eml-status-dot {
+  background: #ef4444 !important;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.25) !important;
+}
+
+/* Deferred */
+.eml-status-pill.status-deferred {
+  background: #fffbeb !important;
+  color: #b45309 !important;
+  border: 1px solid #fde68a !important;
+}
+
+.eml-status-pill.status-deferred .eml-status-dot {
+  background: #f59e0b !important;
+  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.25) !important;
+  animation: emlPulseDot 2s infinite ease-in-out;
+}
+
+/* Colored Action Buttons */
+.eml-action-group {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.eml-action-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background: transparent;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  flex-shrink: 0;
+}
+
+/* Inspect Forensics (Blue) */
+.eml-action-btn.btn-view {
+  background: #eff6ff;
+  color: #2563eb;
+  border-color: #bfdbfe;
+}
+
+.eml-action-btn.btn-view:hover {
+  background: #2563eb;
+  color: #ffffff;
+  border-color: #2563eb;
+  box-shadow: 0 3px 8px rgba(37, 99, 235, 0.3);
+  transform: translateY(-1px);
+}
+
+/* Resend Message (Amber) */
+.eml-action-btn.btn-resend {
+  background: #fffbeb;
+  color: #d97706;
+  border-color: #fde68a;
+}
+
+.eml-action-btn.btn-resend:hover {
+  background: #d97706;
+  color: #ffffff;
+  border-color: #d97706;
+  box-shadow: 0 3px 8px rgba(217, 119, 6, 0.3);
+  transform: translateY(-1px);
+}
+
+/* ==========================================================================
+   4. DIAGNOSTIC FORENSICS MODAL
+   ========================================================================== */
+
+.sa-forensics-modal-dialog {
+  width: min(100%, 650px);
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 25px 65px rgba(15, 23, 42, 0.3);
+  border: 1px solid #cbd5e1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: saModalSlide 0.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.sa-forensics-header {
+  padding: 16px 22px;
+  background: #ffffff;
+  border-bottom: 1px solid #edf2f7;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.sa-forensics-icon-box {
+  width: 38px;
+  height: 38px;
+  border-radius: 9px;
+  background: #eff6ff;
+  border: 1px solid #dbeafe;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sa-forensics-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 750;
+  color: #0f172a;
+}
+
+.sa-forensics-subtitle {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: #64748b;
+}
+
+.sa-forensics-body {
+  padding: 20px 22px;
+  max-height: calc(85vh - 130px);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background: #f8fafc;
+}
+
+.sa-forensics-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.sa-forensic-card {
+  padding: 14px 16px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sa-card-heading {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 750;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  border-bottom: 1px solid #f1f5f9;
+  padding-bottom: 6px;
+}
+
+.sa-forensic-field {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sa-forensic-field label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.sa-forensic-field strong {
+  font-size: 13px;
+  color: #0f172a;
+}
+
+.sa-forensic-field .mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 11.5px;
+  color: #334155;
+  word-break: break-all;
+}
+
+.sa-forensic-field .subject {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.sa-forensic-field .sub {
+  font-size: 11.5px;
+  color: #64748b;
+}
+
+/* Terminal Response Block */
+.sa-smtp-response-block {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.sa-smtp-response-header {
+  padding: 10px 14px;
+  background: #f1f5f9;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  font-weight: 700;
+  color: #334155;
+}
+
+.sa-copy-diag-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #475569;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.sa-copy-diag-btn:hover {
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+.sa-smtp-terminal-code {
+  padding: 14px 16px;
+  background: #0b1120;
+  color: #94a3b8;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 11.5px;
+  line-height: 1.6;
+}
+
+.terminal-line {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.terminal-line .prefix {
+  color: #3b66ff;
+  font-weight: 800;
+}
+
+.terminal-line.is-highlight {
+  color: #4ade80;
+  font-weight: 700;
+  margin-top: 4px;
+  padding-top: 4px;
+  border-top: 1px dashed rgba(255, 255, 255, 0.15);
+}
+
+.sa-smtp-terminal-code.is-bounced .terminal-line.is-highlight {
+  color: #f87171;
+}
+
+.sa-smtp-terminal-code.is-deferred .terminal-line.is-highlight {
+  color: #facc15;
+}
+
+.sa-forensics-footer {
+  padding: 14px 22px;
+  background: #ffffff;
+  border-top: 1px solid #edf2f7;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+/* ==========================================================================
+   5. SEND TEST EMAIL MODAL
+   ========================================================================== */
+
+.sa-test-email-dialog {
+  width: min(100%, 480px);
+  background: #ffffff;
+  border-radius: 14px;
+  box-shadow: 0 25px 65px rgba(15, 23, 42, 0.3);
+  border: 1px solid #cbd5e1;
+  overflow: hidden;
+  animation: saModalSlide 0.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.sa-test-modal-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid #edf2f7;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.sa-test-icon-box {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: #eff6ff;
+  border: 1px solid #dbeafe;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sa-test-modal-body {
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.sa-test-info-callout {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 12px;
+  background: #eff6ff;
+  border: 1px solid #dbeafe;
+  border-radius: 8px;
+  font-size: 11.5px;
+  color: #1e40af;
+  line-height: 1.4;
+}
+
+.sa-test-modal-footer {
+  padding: 14px 20px;
+  background: #f8fafc;
+  border-top: 1px solid #edf2f7;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+/* ==========================================================================
+   6. DARK MODE SUPPORT (.sa-dark-mode)
+   ========================================================================== */
+
+.sa-dark-mode .sa-smtp-settings-card {
+  background: #111c35 !important;
+  border-color: #1f2d4d !important;
+}
+
+.sa-dark-mode .sa-smtp-header-row {
+  border-bottom-color: #1f2d4d !important;
+}
+
+.sa-dark-mode .sa-smtp-header-row h3 {
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .sa-smtp-header-sub {
+  color: #94a3b8 !important;
+}
+
+.sa-dark-mode .sa-field-label {
+  color: #cbd5e1 !important;
+}
+
+.sa-dark-mode .sa-preset-card {
+  background: #15223e !important;
+  border-color: #233355 !important;
+}
+
+.sa-dark-mode .sa-preset-card:hover {
+  background: #192440 !important;
+  border-color: #3b66ff !important;
+}
+
+.sa-dark-mode .sa-preset-card.is-selected {
+  background: #192440 !important;
+  border-color: #3b66ff !important;
+}
+
+.sa-dark-mode .sa-preset-card strong {
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .sa-preset-badge {
+  color: #94a3b8 !important;
+}
+
+.sa-dark-mode .sa-form-field label {
+  color: #cbd5e1 !important;
+}
+
+.sa-dark-mode .sa-field-hint {
+  color: #94a3b8 !important;
+}
+
+.sa-dark-mode .sa-text-input,
+.sa-dark-mode .sa-select-input {
+  background: #15223e !important;
+  border-color: #28395f !important;
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .sa-pwd-toggle-btn {
+  color: #94a3b8 !important;
+}
+
+.sa-dark-mode .sa-pwd-toggle-btn:hover {
+  background: #233355 !important;
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .sa-envelope-preview-box {
+  background: #15223e !important;
+  border-color: #233355 !important;
+}
+
+.sa-dark-mode .sa-envelope-meta {
+  color: #cbd5e1 !important;
+}
+
+.sa-dark-mode .sa-envelope-chip {
+  background: #192440 !important;
+  border-color: #28395f !important;
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .sa-dns-auth-strip {
+  background: #15223e !important;
+  border-color: #233355 !important;
+}
+
+.sa-dark-mode .sa-dns-auth-item strong {
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .sa-dns-auth-item code {
+  color: #94a3b8 !important;
+}
+
+.sa-dark-mode .sa-smtp-footer-bar {
+  border-top-color: #1f2d4d !important;
+}
+
+.sa-dark-mode .eml-user-name {
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .eml-user-sub {
+  color: #94a3b8 !important;
+}
+
+.sa-dark-mode .eml-subject-text {
+  color: #e2e8f0 !important;
+}
+
+.sa-dark-mode .eml-template-tag {
+  background: #192440 !important;
+  border-color: #28395f !important;
+  color: #cbd5e1 !important;
+}
+
+/* Action Buttons in Dark Mode */
+.sa-dark-mode .eml-action-btn.btn-view {
+  background: rgba(59, 102, 255, 0.15) !important;
+  border-color: rgba(59, 102, 255, 0.3) !important;
+  color: #818cf8 !important;
+}
+
+.sa-dark-mode .eml-action-btn.btn-view:hover {
+  background: #3b66ff !important;
+  color: #ffffff !important;
+}
+
+.sa-dark-mode .eml-action-btn.btn-resend {
+  background: rgba(245, 158, 11, 0.15) !important;
+  border-color: rgba(245, 158, 11, 0.3) !important;
+  color: #facc15 !important;
+}
+
+.sa-dark-mode .eml-action-btn.btn-resend:hover {
+  background: #d97706 !important;
+  color: #ffffff !important;
+}
+
+/* Status Pills in Dark Mode */
+.sa-dark-mode .eml-status-pill.status-delivered {
+  background: rgba(16, 185, 129, 0.16) !important;
+  color: #6ee7b7 !important;
+  border-color: rgba(16, 185, 129, 0.35) !important;
+}
+
+.sa-dark-mode .eml-status-pill.status-delivered .eml-status-dot {
+  background: #10b981 !important;
+  box-shadow: 0 0 0 2.5px rgba(16, 185, 129, 0.3) !important;
+}
+
+.sa-dark-mode .eml-status-pill.status-bounced {
+  background: rgba(239, 68, 68, 0.16) !important;
+  color: #fca5a5 !important;
+  border-color: rgba(239, 68, 68, 0.35) !important;
+}
+
+.sa-dark-mode .eml-status-pill.status-bounced .eml-status-dot {
+  background: #ef4444 !important;
+  box-shadow: 0 0 0 2.5px rgba(239, 68, 68, 0.3) !important;
+}
+
+.sa-dark-mode .eml-status-pill.status-deferred {
+  background: rgba(245, 158, 11, 0.16) !important;
+  color: #fcd34d !important;
+  border-color: rgba(245, 158, 11, 0.35) !important;
+}
+
+.sa-dark-mode .eml-status-pill.status-deferred .eml-status-dot {
+  background: #f59e0b !important;
+  box-shadow: 0 0 0 2.5px rgba(245, 158, 11, 0.3) !important;
+}
+
+/* Dark Mode Modals */
+.sa-dark-mode .sa-forensics-modal-dialog,
+.sa-dark-mode .sa-test-email-dialog {
+  background: #111c35 !important;
+  border-color: #1f2d4d !important;
+  box-shadow: 0 25px 65px rgba(0, 0, 0, 0.7) !important;
+}
+
+.sa-dark-mode .sa-forensics-header,
+.sa-dark-mode .sa-test-modal-header {
+  background: #15223e !important;
+  border-bottom-color: #1f2d4d !important;
+}
+
+.sa-dark-mode .sa-forensics-title {
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .sa-forensics-subtitle {
+  color: #94a3b8 !important;
+}
+
+.sa-dark-mode .sa-forensics-body {
+  background: #0f172a !important;
+}
+
+.sa-dark-mode .sa-forensic-card {
+  background: #15223e !important;
+  border-color: #233355 !important;
+}
+
+.sa-dark-mode .sa-card-heading {
+  border-bottom-color: #233355 !important;
+  color: #94a3b8 !important;
+}
+
+.sa-dark-mode .sa-forensic-field strong {
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .sa-forensic-field .mono {
+  color: #cbd5e1 !important;
+}
+
+.sa-dark-mode .sa-forensic-field .subject {
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .sa-smtp-response-block {
+  border-color: #233355 !important;
+}
+
+.sa-dark-mode .sa-smtp-response-header {
+  background: #15223e !important;
+  border-bottom-color: #233355 !important;
+  color: #cbd5e1 !important;
+}
+
+.sa-dark-mode .sa-copy-diag-btn {
+  background: #192440 !important;
+  border-color: #28395f !important;
+  color: #cbd5e1 !important;
+}
+
+.sa-dark-mode .sa-forensics-footer,
+.sa-dark-mode .sa-test-modal-footer {
+  background: #15223e !important;
+  border-top-color: #1f2d4d !important;
+}
+
+.sa-dark-mode .sa-test-info-callout {
+  background: rgba(59, 102, 255, 0.15) !important;
+  border-color: rgba(59, 102, 255, 0.3) !important;
+  color: #93c5fd !important;
+}
+
+/* ==========================================================================
+   7. RESPONSIVE MEDIA QUERIES
+   ========================================================================== */
+
+@media (max-width: 900px) {
+  .sa-smtp-form-grid {
+    grid-template-columns: 1fr;
+  }
+  .sa-span-2 {
+    grid-column: span 1;
+  }
+  .sa-dns-auth-strip {
+    grid-template-columns: 1fr;
+  }
+  .sa-forensics-grid {
+    grid-template-columns: 1fr;
+  }
+}

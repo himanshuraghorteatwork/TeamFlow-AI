@@ -1138,3 +1138,39 @@
     transform: none !important;
   }
 }
+
+
+/* Analytics Table Toggle & Filters */
+.analytics-page .sub-plans-view-toggle {
+  display: inline-flex;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 3px;
+  gap: 2px;
+}
+
+.analytics-page .sub-plans-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: #64748b;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.analytics-page .sub-plans-toggle-btn:hover {
+  color: #1e293b;
+}
+
+.analytics-page .sub-plans-toggle-btn.active {
+  background: #ffffff;
+  color: #6366f1;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}

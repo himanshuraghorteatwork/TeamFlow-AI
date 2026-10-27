@@ -50,7 +50,7 @@
 /* Global Super Admin Alignment & Normalization */
 .superadmin-content {
   padding: 22px 28px 28px !important;
-  background: #f5f7fc !important;
+  background: var(--sa-bg, #f5f7fc) !important;
   min-height: calc(100vh - 60px) !important;
 }
 
@@ -226,6 +226,22 @@
 
 .sa-kpi-card:hover {
   box-shadow: var(--sa-shadow-md);
+}
+
+.sa-kpi-card.is-clickable {
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+
+.sa-kpi-card.is-clickable:hover {
+  transform: translateY(-2px);
+  border-color: #3b66ff;
+  box-shadow: 0 10px 20px -4px rgba(59, 102, 255, 0.12), var(--sa-shadow-md);
+}
+
+.sa-kpi-card.is-clickable:active {
+  transform: translateY(0);
 }
 
 .sa-kpi-icon-box {
@@ -889,6 +905,8 @@
    Applied automatically across ALL components, sidebar, and pages when darkMode is on.
    ========================================================================== */
 
+body.sa-dark-mode,
+.sa-dark-mode,
 .superadmin-layout.sa-dark-mode {
   --sa-bg: #0b1120;
   --sa-surface: #111c35;
@@ -1644,4 +1662,1008 @@
 
 .sa-dark-mode .sa-notif-footer-link {
   color: #6088ff !important;
+}
+
+
+/* ==========================================================================
+   ENTERPRISE SAP / SAAS MASTER DATA GRID & TOOLBAR SYSTEM
+   Shared across all Super Admin pages (Users, Email Templates, Organizations,
+   Subscriptions, Invoices, Billing, Plans, Analytics, Logs, Settings, etc.)
+   ========================================================================== */
+
+.sap-header-panel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+
+.sap-header-left h1 {
+  margin: 0 0 4px;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  color: var(--sa-text-main);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sap-system-badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  background: var(--sa-primary-light);
+  color: var(--sa-primary);
+  border: 1px solid rgba(59, 102, 255, 0.2);
+  border-radius: var(--sa-radius-sm);
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+.sap-header-subtitle {
+  margin: 0;
+  font-size: 13px;
+  color: var(--sa-text-muted);
+}
+
+.sap-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.sap-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.sap-table-card {
+  background: var(--sa-surface);
+  border: 1px solid var(--sa-border);
+  border-radius: var(--sa-radius-lg);
+  box-shadow: var(--sa-shadow-sm);
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+
+.sap-batch-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 18px;
+  background: #eff3fe;
+  border-bottom: 1px solid #dbeafe;
+  color: #1e3a8a;
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.sa-dark-mode .sap-batch-banner {
+  background: #172442 !important;
+  border-bottom-color: #233355 !important;
+  color: #93c5fd !important;
+}
+
+.sap-batch-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sap-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--sa-border);
+  flex-wrap: wrap;
+  background: var(--sa-surface);
+}
+
+.sap-toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 280px;
+  flex-wrap: wrap;
+}
+
+.sap-toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sap-search-input {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 280px;
+  background: var(--sa-bg);
+  border: 1px solid var(--sa-border);
+  border-radius: var(--sa-radius-md);
+  padding: 0 10px;
+  height: 36px;
+  color: var(--sa-text-main);
+  transition: all 0.15s ease;
+}
+
+.sap-search-input:focus-within {
+  border-color: var(--sa-primary);
+  background: var(--sa-surface);
+  box-shadow: 0 0 0 3px rgba(59, 102, 255, 0.12);
+}
+
+.sap-search-input input {
+  width: 100%;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: inherit;
+  font-size: 12px;
+  margin-left: 6px;
+}
+
+.sap-filter-select {
+  height: 36px;
+  padding: 0 10px;
+  background: var(--sa-bg);
+  border: 1px solid var(--sa-border);
+  border-radius: var(--sa-radius-md);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--sa-text-main);
+  cursor: pointer;
+  outline: none;
+}
+
+.sap-filter-select:focus {
+  border-color: var(--sa-primary);
+}
+
+.sap-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--sa-border);
+  background: var(--sa-surface);
+  border-radius: var(--sa-radius-md);
+  color: var(--sa-text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.sap-icon-btn:hover {
+  background: var(--sa-bg);
+  color: var(--sa-primary);
+}
+
+.sap-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.sap-grid {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 12px;
+  text-align: left;
+}
+
+.sap-grid.is-compact th,
+.sap-grid.is-compact td {
+  padding: 8px 12px;
+}
+
+.sap-grid.is-standard th,
+.sap-grid.is-standard td {
+  padding: 12px 14px;
+}
+
+.sap-grid thead th {
+  background: #f8fafc;
+  color: var(--sa-text-muted);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid var(--sa-border);
+  white-space: nowrap;
+  user-select: none;
+}
+
+.sap-grid tbody td {
+  border-bottom: 1px solid var(--sa-border-subtle);
+  color: var(--sa-text-main);
+  vertical-align: middle;
+  transition: background 0.1s ease;
+}
+
+.sap-grid tbody tr:hover td {
+  background: #f8faff;
+}
+
+.sap-grid tbody tr.is-selected td {
+  background: #eff3fe;
+}
+
+.sa-dark-mode .sap-grid thead th {
+  background: #172442 !important;
+  color: #94a3b8 !important;
+  border-bottom-color: #1f2d4d !important;
+}
+
+.sa-dark-mode .sap-grid tbody td {
+  border-bottom-color: #1f2d4d !important;
+  color: #e2e8f0 !important;
+}
+
+.sa-dark-mode .sap-grid tbody tr:hover td {
+  background: #15223e !important;
+}
+
+.sa-dark-mode .sap-grid tbody tr.is-selected td {
+  background: #1c2a4b !important;
+}
+
+.sap-id-cell {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 11.5px;
+  font-weight: 650;
+  color: var(--sa-primary);
+  white-space: nowrap;
+}
+
+.sap-user-badge {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sap-avatar-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  flex-shrink: 0;
+  color: #ffffff;
+  background: linear-gradient(135deg, #3b66ff, #1d4ed8);
+}
+
+.sap-user-info strong {
+  display: block;
+  font-size: 12.5px;
+  color: var(--sa-text-main);
+  line-height: 1.25;
+}
+
+.sap-user-info span {
+  display: block;
+  font-size: 11px;
+  color: var(--sa-text-muted);
+}
+
+.sap-role-badge {
+  display: inline-block;
+  padding: 3px 8px;
+  font-size: 11px;
+  font-weight: 650;
+  border-radius: 4px;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+}
+
+.sap-role-badge.super { background: #eff3fe; color: #3b66ff; border: 1px solid #dbeafe; }
+.sap-role-badge.admin { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+.sap-role-badge.manager,
+.sap-role-badge.lead { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
+.sap-role-badge.member { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
+
+.sap-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.sap-status-pill.valid {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.sap-status-pill.locked,
+.sap-status-pill.suspended {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.sap-status-pill.pending {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.sap-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.sap-action-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.sap-table-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--sa-text-muted);
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.sap-table-btn:hover {
+  background: var(--sa-bg);
+  color: var(--sa-primary);
+  border-color: var(--sa-border);
+}
+
+.sap-table-btn.danger:hover {
+  color: #ef4444;
+  border-color: #fca5a5;
+  background: #fee2e2;
+}
+
+.sap-footer-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 18px;
+  border-top: 1px solid var(--sa-border);
+  background: var(--sa-surface);
+  font-size: 12px;
+  color: var(--sa-text-muted);
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.sap-footer-counts {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sap-pagination {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.sap-page-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 28px;
+  padding: 0 6px;
+  font-size: 11.5px;
+  font-weight: 600;
+  border: 1px solid var(--sa-border);
+  background: var(--sa-surface);
+  color: var(--sa-text-main);
+  border-radius: var(--sa-radius-sm);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.sap-page-btn:hover:not(:disabled) {
+  border-color: var(--sa-primary);
+  color: var(--sa-primary);
+}
+
+.sap-page-btn.is-active {
+  background: var(--sa-primary);
+  border-color: var(--sa-primary);
+  color: #ffffff;
+}
+
+.sap-page-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.sa-view-switcher {
+  display: inline-flex;
+  background: var(--sa-bg);
+  border: 1px solid var(--sa-border);
+  border-radius: var(--sa-radius-md);
+  padding: 2px;
+  gap: 2px;
+}
+
+.sa-view-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border-radius: var(--sa-radius-sm);
+  border: none;
+  background: transparent;
+  color: var(--sa-text-muted);
+  font-size: 12px;
+  font-weight: 550;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.sa-view-btn:hover {
+  color: var(--sa-text-main);
+}
+
+.sa-view-btn.is-active {
+  background: var(--sa-surface);
+  color: var(--sa-primary);
+  box-shadow: var(--sa-shadow-sm);
+}
+
+.sa-toast-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  margin-bottom: 16px;
+  background: #dcfce7;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
+  border-radius: var(--sa-radius-md);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* ==========================================================================
+   COMPREHENSIVE ALL-SECTIONS DARK THEME ENHANCEMENTS
+   Ensures seamless rich dark mode across every SuperAdmin section, table, card,
+   modal, input, dropdown, chart, and interactive control.
+   ========================================================================== */
+
+body.sa-dark-mode {
+  background: #0b1120 !important;
+  color: #f8fafc !important;
+}
+
+/* Master SAP Table Cards & Toolbars in Dark Mode */
+.sa-dark-mode .sap-table-card,
+.sa-dark-mode .sa-table-card,
+.sa-dark-mode .users-card,
+.sa-dark-mode .org-card {
+  background: #111c35 !important;
+  border-color: #1f2d4d !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4) !important;
+}
+
+.sa-dark-mode .sap-toolbar {
+  background: #111c35 !important;
+  border-bottom: 1px solid #1f2d4d !important;
+}
+
+.sa-dark-mode .sap-search-input {
+  background: #172442 !important;
+  border-color: #233355 !important;
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .sap-search-input input {
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .sap-search-input input::placeholder {
+  color: #64748b !important;
+}
+
+.sa-dark-mode .sap-filter-select,
+.sa-dark-mode select.sap-filter-select {
+  background: #172442 !important;
+  border-color: #233355 !important;
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .sap-filter-select:focus {
+  border-color: #3b66ff !important;
+}
+
+.sa-dark-mode .sap-icon-btn {
+  background: #172442 !important;
+  border-color: #233355 !important;
+  color: #cbd5e1 !important;
+}
+
+.sa-dark-mode .sap-icon-btn:hover {
+  background: #202f52 !important;
+  border-color: #3b4d75 !important;
+  color: #6088ff !important;
+}
+
+/* SAP Footer Bar & Pagination in Dark Mode */
+.sa-dark-mode .sap-footer-bar,
+.sa-dark-mode .activity-logs-pagination,
+.sa-dark-mode .analytics-table-pagination {
+  background: #0d1527 !important;
+  border-top-color: #1f2d4d !important;
+  color: #94a3b8 !important;
+}
+
+.sa-dark-mode .sap-counter,
+.sa-dark-mode .sap-footer-counts {
+  color: #94a3b8 !important;
+}
+
+.sa-dark-mode .sap-counter strong,
+.sa-dark-mode .sap-footer-counts strong {
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .sap-page-btn {
+  background: #172442 !important;
+  border-color: #233355 !important;
+  color: #cbd5e1 !important;
+}
+
+.sa-dark-mode .sap-page-btn:hover:not(:disabled) {
+  background: #202f52 !important;
+  border-color: #3b66ff !important;
+  color: #6088ff !important;
+}
+
+.sa-dark-mode .sap-page-btn.is-active {
+  background: #3b66ff !important;
+  border-color: #3b66ff !important;
+  color: #ffffff !important;
+}
+
+.sa-dark-mode .sap-page-btn:disabled {
+  opacity: 0.35 !important;
+  background: #141f36 !important;
+  border-color: #1a2744 !important;
+}
+
+/* Table Cells & Identity in Dark Mode */
+.sa-dark-mode .sap-id-cell {
+  background: rgba(59, 102, 255, 0.14) !important;
+  color: #6088ff !important;
+}
+
+.sa-dark-mode .sap-user-badge strong,
+.sa-dark-mode .sap-user-name {
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .sap-user-badge span,
+.sa-dark-mode .sap-user-email {
+  color: #94a3b8 !important;
+}
+
+.sa-dark-mode .sap-avatar-chip {
+  background: #172442 !important;
+  border-color: #233355 !important;
+  color: #cbd5e1 !important;
+}
+
+.sa-dark-mode .sap-table-btn {
+  background: #172442 !important;
+  border-color: #233355 !important;
+  color: #cbd5e1 !important;
+}
+
+.sa-dark-mode .sap-table-btn:hover {
+  background: #202f52 !important;
+  border-color: #3b4d75 !important;
+  color: #6088ff !important;
+}
+
+.sa-dark-mode .sap-table-btn.danger {
+  color: #f87171 !important;
+}
+
+.sa-dark-mode .sap-table-btn.danger:hover {
+  background: rgba(239, 68, 68, 0.2) !important;
+  border-color: rgba(239, 68, 68, 0.4) !important;
+}
+
+/* View Switchers (Table / Cards / Density) */
+.sa-dark-mode .sa-view-switcher,
+.sa-dark-mode .sub-plans-view-toggle {
+  background: #172442 !important;
+  border-color: #233355 !important;
+}
+
+.sa-dark-mode .sa-view-btn,
+.sa-dark-mode .sub-plans-toggle-btn {
+  color: #94a3b8 !important;
+}
+
+.sa-dark-mode .sa-view-btn.is-active,
+.sa-dark-mode .sub-plans-toggle-btn.active {
+  background: #202f52 !important;
+  color: #6088ff !important;
+}
+
+/* Modals & Portals (Rendered into document.body) */
+body.sa-dark-mode .sa-modal-backdrop,
+.sa-dark-mode .sa-modal-backdrop {
+  background: rgba(0, 0, 0, 0.8) !important;
+}
+
+body.sa-dark-mode .sa-modal-content,
+.sa-dark-mode .sa-modal-content {
+  background: #111c35 !important;
+  border-color: #233355 !important;
+  color: #f8fafc !important;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7) !important;
+}
+
+body.sa-dark-mode .sa-modal-header,
+.sa-dark-mode .sa-modal-header {
+  background: #111c35 !important;
+  border-bottom: 1px solid #1f2d4d !important;
+}
+
+body.sa-dark-mode .sa-modal-header h3,
+.sa-dark-mode .sa-modal-header h3 {
+  color: #f8fafc !important;
+}
+
+body.sa-dark-mode .sa-modal-close,
+.sa-dark-mode .sa-modal-close {
+  color: #94a3b8 !important;
+}
+
+body.sa-dark-mode .sa-modal-close:hover,
+.sa-dark-mode .sa-modal-close:hover {
+  background: #172442 !important;
+  color: #ffffff !important;
+}
+
+body.sa-dark-mode .sa-modal-body,
+.sa-dark-mode .sa-modal-body {
+  background: #111c35 !important;
+  color: #e2e8f0 !important;
+}
+
+body.sa-dark-mode .sa-modal-footer,
+.sa-dark-mode .sa-modal-footer {
+  background: #0d1527 !important;
+  border-top: 1px solid #1f2d4d !important;
+}
+
+body.sa-dark-mode .sa-form-group label,
+.sa-dark-mode .sa-form-group label {
+  color: #cbd5e1 !important;
+}
+
+body.sa-dark-mode .sa-form-input,
+body.sa-dark-mode .sa-form-select,
+body.sa-dark-mode .sa-form-textarea,
+.sa-dark-mode .sa-form-input,
+.sa-dark-mode .sa-form-select,
+.sa-dark-mode .sa-form-textarea {
+  background: #172442 !important;
+  border-color: #233355 !important;
+  color: #f8fafc !important;
+}
+
+body.sa-dark-mode .sa-form-input:focus,
+body.sa-dark-mode .sa-form-select:focus,
+body.sa-dark-mode .sa-form-textarea:focus,
+.sa-dark-mode .sa-form-input:focus,
+.sa-dark-mode .sa-form-select:focus,
+.sa-dark-mode .sa-form-textarea:focus {
+  border-color: #3b66ff !important;
+  box-shadow: 0 0 0 3px rgba(59, 102, 255, 0.25) !important;
+}
+
+/* Roles & Responsibility Matrix Cards in Dark Mode */
+.sa-dark-mode .sa-role-summary-card {
+  background: #111c35 !important;
+  border-color: #1f2d4d !important;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35) !important;
+}
+
+.sa-dark-mode .sa-role-card-top h3 {
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .sa-role-desc {
+  color: #94a3b8 !important;
+}
+
+.sa-dark-mode .sa-role-resp-box {
+  background: #0d1527 !important;
+  border-color: #1f2d4d !important;
+}
+
+.sa-dark-mode .sa-role-resp-title {
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .sa-role-resp-list {
+  color: #cbd5e1 !important;
+}
+
+.sa-dark-mode .sa-role-accountability {
+  border-top-color: #1f2d4d !important;
+  color: #94a3b8 !important;
+}
+
+.sa-dark-mode .sa-resp-bar-track {
+  background: #172442 !important;
+}
+
+.sa-dark-mode .sa-resp-score {
+  color: #6088ff !important;
+}
+
+.sa-dark-mode .sa-resp-summary-text strong {
+  color: #f8fafc !important;
+}
+
+/* Subscriptions & Plans Calculator Box in Dark Mode */
+.sa-dark-mode .sub-calc-box,
+.sa-dark-mode .sa-calc-box {
+  background: #0d1527 !important;
+  border-color: #1f2d4d !important;
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .sub-feature-chip,
+.sa-dark-mode .sa-feature-chip {
+  background: #172442 !important;
+  border-color: #233355 !important;
+  color: #cbd5e1 !important;
+}
+
+.sa-dark-mode .sa-sub-progress {
+  background: #172442 !important;
+}
+
+/* Email Templates Visual Builder & Preview in Dark Mode */
+.sa-dark-mode .tpl-visual-card {
+  background: #111c35 !important;
+  border-color: #1f2d4d !important;
+}
+
+.sa-dark-mode .tpl-card-stats-row {
+  background: #0d1527 !important;
+  border-color: #1f2d4d !important;
+}
+
+.sa-dark-mode .tpl-editor-preview-col {
+  background: #0b1120 !important;
+  border-color: #1f2d4d !important;
+}
+
+.sa-dark-mode .tpl-device-tabs {
+  background: #172442 !important;
+  border-color: #233355 !important;
+}
+
+.sa-dark-mode .tpl-device-tab {
+  color: #94a3b8 !important;
+}
+
+.sa-dark-mode .tpl-device-tab.is-active {
+  background: #3b66ff !important;
+  color: #ffffff !important;
+}
+
+.sa-dark-mode .tpl-var-chip {
+  background: rgba(59, 102, 255, 0.15) !important;
+  border-color: rgba(59, 102, 255, 0.3) !important;
+  color: #6088ff !important;
+}
+
+/* Analytics, Settings & Configuration Cards in Dark Mode */
+.sa-dark-mode .sa-settings,
+.sa-dark-mode .sa-settings-tabs,
+.sa-dark-mode .sa-settings-card {
+  background: #111c35 !important;
+  border-color: #1f2d4d !important;
+}
+
+.sa-dark-mode .sa-settings-tab {
+  color: #94a3b8 !important;
+}
+
+.sa-dark-mode .sa-settings-tab.active {
+  background: #202f52 !important;
+  color: #6088ff !important;
+  border-color: #3b4d75 !important;
+}
+
+.sa-dark-mode .sa-settings-row {
+  border-bottom-color: #1f2d4d !important;
+}
+
+.sa-dark-mode .sa-settings-field-title {
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .sa-settings-field-desc {
+  color: #94a3b8 !important;
+}
+
+.sa-dark-mode .analytics-chart-container {
+  background: #111c35 !important;
+  border-color: #1f2d4d !important;
+}
+
+.sa-dark-mode .sa-provider-card {
+  background: #111c35 !important;
+  border-color: #1f2d4d !important;
+}
+
+.sa-dark-mode .sa-provider-header,
+.sa-dark-mode .sa-provider-footer {
+  background: #0d1527 !important;
+  border-color: #1f2d4d !important;
+}
+
+/* 19. Complete Section & Component Dark Mode Coverage */
+.sa-dark-mode .activity-logs-button-light,
+.sa-dark-mode .activity-logs-view-button {
+  background: #172442 !important;
+  border-color: #1f2d4d !important;
+  color: #cbd5e1 !important;
+}
+
+.sa-dark-mode .activity-logs-stat-card,
+.sa-dark-mode .activity-logs-panel {
+  background: #111c35 !important;
+  border-color: #1f2d4d !important;
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .activity-logs-search,
+.sa-dark-mode .activity-logs-filters select {
+  background: #172442 !important;
+  border-color: #1f2d4d !important;
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .analytics-search {
+  background: #172442 !important;
+  border-color: #1f2d4d !important;
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .analytics-page .sub-plans-toggle-btn:hover {
+  color: #ffffff !important;
+  background: #1c2b4e !important;
+}
+
+.sa-dark-mode .analytics-page .sub-plans-toggle-btn.active {
+  background: #3b66ff !important;
+  color: #ffffff !important;
+}
+
+.sa-dark-mode .sa-ann-banner-card {
+  background: #111c35 !important;
+  border-color: #1f2d4d !important;
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .tpl-card-badge-pill {
+  background: rgba(59, 102, 255, 0.18) !important;
+  color: #6088ff !important;
+}
+
+.sa-dark-mode .tpl-preview-viewport {
+  background: #0d1527 !important;
+  border-color: #1f2d4d !important;
+}
+
+.sa-dark-mode .org-row-menu {
+  background: #111c35 !important;
+  border-color: #1f2d4d !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5) !important;
+}
+
+.sa-dark-mode .org-pagination button {
+  background: #172442 !important;
+  border-color: #1f2d4d !important;
+  color: #cbd5e1 !important;
+}
+
+.sa-dark-mode .org-modal-close {
+  background: #172442 !important;
+  border-color: #1f2d4d !important;
+  color: #cbd5e1 !important;
+}
+
+.sa-dark-mode .org-form-field input,
+.sa-dark-mode .org-form-field select {
+  background: #172442 !important;
+  border-color: #1f2d4d !important;
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .org-detail-item {
+  background: #172442 !important;
+  border-color: #1f2d4d !important;
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .sa-settings-sidebar,
+.sa-dark-mode .sa-settings-content {
+  background: #111c35 !important;
+  border-color: #1f2d4d !important;
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .sa-settings-reset {
+  background: #172442 !important;
+  border-color: #1f2d4d !important;
+  color: #cbd5e1 !important;
+}
+
+.sa-dark-mode .subscriptions-plan-action {
+  background: #172442 !important;
+  border-color: #1f2d4d !important;
+  color: #cbd5e1 !important;
+}
+
+.sa-dark-mode .subscriptions-icon-button {
+  background: #172442 !important;
+  border-color: #1f2d4d !important;
+  color: #cbd5e1 !important;
+}
+
+.sa-dark-mode .subscriptions-pagination button {
+  background: #172442 !important;
+  border-color: #1f2d4d !important;
+  color: #cbd5e1 !important;
+}
+
+.sa-dark-mode .subscriptions-pagination {
+  background: #0d1527 !important;
+  border-top-color: #1f2d4d !important;
+  color: #94a3b8 !important;
+}
+
+.sa-dark-mode .subscriptions-form-grid input,
+.sa-dark-mode .subscriptions-form-grid select {
+  background: #172442 !important;
+  border-color: #1f2d4d !important;
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .sa-org-info strong {
+  color: #f8fafc !important;
 }

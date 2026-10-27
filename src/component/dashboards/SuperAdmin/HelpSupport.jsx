@@ -17,6 +17,13 @@ import {
   CalendarDays,
   User,
   ShieldAlert,
+  SlidersHorizontal,
+  RefreshCw,
+  ChevronsLeft,
+  ChevronsRight,
+  ChevronLeft,
+  ChevronRight,
+  Download,
 } from "lucide-react";
 import "./SuperAdminCommon.css";
 import "./HelpSupport.css";
@@ -140,23 +147,17 @@ const INITIAL_TICKETS = [
     org: "NextGen Solutions",
     requester: "Sana Sheikh",
     email: "sana@nextgen.com",
-    subject: "User invitation emails not reaching corporate outlook inboxes",
-    category: "SMTP / Email",
-    priority: "High",
+    subject: "Audit logs missing user invite event timestamps",
+    category: "Audit Logs",
+    priority: "Low",
     status: "Closed",
-    createdAt: "Oct 23, 2024",
+    createdAt: "Oct 22, 2024",
     messages: [
       {
         sender: "Sana Sheikh",
-        role: "HR Lead",
-        time: "Oct 23",
-        text: "Invites sent to @nextgen.com are trapped in quarantine. Have your SPF and DKIM DNS records changed recently?",
-      },
-      {
-        sender: "Super Admin Support",
-        role: "Mail Admin",
-        time: "Oct 23",
-        text: "We refreshed our SendGrid DKIM signatures. Your mail server has approved the relay.",
+        role: "Compliance Officer",
+        time: "Oct 22",
+        text: "We noticed export CSVs from last Tuesday were truncated. Could you confirm timezone synchronization?",
       },
     ],
   },
@@ -168,23 +169,29 @@ function HelpSupport() {
   const [statusFilter, setStatusFilter] = useState("All");
   const [priorityFilter, setPriorityFilter] = useState("All");
   const [categoryFilter, setCategoryFilter] = useState("All");
+  const [density, setDensity] = useState("standard");
+  const [selectedIds, setSelectedIds] = useState(new Set());
+  const [page, setPage] = useState(1);
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [replyText, setReplyText] = useState("");
   const [toast, setToast] = useState("");
 
+  const [pageSize, setPageSize] = useState(10);
+
   const notify = (msg) => {
     setToast(msg);
-    setTimeout(() => setToast(""), 3000);
+    setTimeout(() => setToast(""), 2800);
   };
 
   const filteredTickets = useMemo(() => {
     return tickets.filter((t) => {
-      const q = search.toLowerCase();
+      const q = search.trim().toLowerCase();
       const matchSearch =
         !q ||
         t.id.toLowerCase().includes(q) ||
         t.org.toLowerCase().includes(q) ||
         t.requester.toLowerCase().includes(q) ||
+        t.email.toLowerCase().includes(q) ||
         t.subject.toLowerCase().includes(q);
 
       const matchStatus =
@@ -200,10 +207,19 @@ function HelpSupport() {
     });
   }, [tickets, search, statusFilter, priorityFilter, categoryFilter]);
 
+  const totalPages = Math.max(1, Math.ceil(filteredTickets.length / pageSize));
+  const currentPage = Math.min(page, totalPages);
+  const paginatedTickets = filteredTickets.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
+  );
+
   const metrics = useMemo(() => {
     const open = tickets.filter((t) => t.status === "Open").length;
     const inProg = tickets.filter((t) => t.status === "In Progress").length;
-    const resolved = tickets.filter((t) => t.status === "Resolved" || t.status === "Closed").length;
+    const resolved = tickets.filter(
+      (t) => t.status === "Resolved" || t.status === "Closed"
+    ).length;
     return {
       total: tickets.length,
       open,
@@ -212,6 +228,23 @@ function HelpSupport() {
       resolutionRate: Math.round((resolved / tickets.length) * 100),
     };
   }, [tickets]);
+
+  const handleSelectAll = (e) => {
+    if (e.target.checked) {
+      setSelectedIds(new Set(paginatedTickets.map((t) => t.id)));
+    } else {
+      setSelectedIds(new Set());
+    }
+  };
+
+  const handleSelectOne = (id) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
 
   const handleSendReply = (e) => {
     e.preventDefault();
@@ -243,7 +276,7 @@ function HelpSupport() {
     }));
 
     setReplyText("");
-    notify(`Reply sent on ticket ${selectedTicket.id}. Status set to In Progress.`);
+    notify(`Reply dispatched on ticket ${selectedTicket.id}. Status set to In Progress.`);
   };
 
   const handleUpdateStatus = (id, newStatus) => {
@@ -253,50 +286,71 @@ function HelpSupport() {
     if (selectedTicket && selectedTicket.id === id) {
       setSelectedTicket((prev) => ({ ...prev, status: newStatus }));
     }
-    notify(`Ticket ${id} status marked as ${newStatus}.`);
+    notify(`Ticket ${id} status updated to ${newStatus}.`);
+  };
+
+  const handleExportCSV = () => {
+    const headers = [
+      "Ticket ID",
+      "Organization",
+      "Requester",
+      "Email",
+      "Category",
+      "Priority",
+      "Status",
+      "Created At",
+    ];
+
+    const rows = filteredTickets.map((t) => [
+      t.id,
+      t.org,
+      t.requester,
+      t.email,
+      t.category,
+      t.priority,
+      t.status,
+      t.createdAt,
+    ]);
+
+    const csvContent =
+      "data:text/csv;charset=utf-8,\uFEFF" +
+      [headers, ...rows]
+        .map((r) => r.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(","))
+        .join("\n");
+
+    const link = document.createElement("a");
+    link.href = encodeURI(csvContent);
+    link.download = "teamflow_support_tickets.csv";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    notify("Exported support tickets spreadsheet.");
   };
 
   return (
-    <div className="sa-page-container sa-support-page">
-      {/* 1. Page Header */}
-      <section className="sa-page-header">
-        <div className="sa-page-header-left">
-          <h1>Help & Support Ticket Center</h1>
-          <p>Triage client issues, respond to high-priority incidents, and review SLA resolution times.</p>
+    <div className="help-support-page">
+      {/* 1. SAP Master Header Bar */}
+      <section className="sap-header-panel">
+        <div className="sap-header-left">
+          <h1>Help &amp; Support Ticket Service Desk</h1>
+          <p className="sap-header-subtitle">
+            Enterprise customer support ticketing, SLA resolution monitoring, technical triage, and organization ticket history.
+          </p>
         </div>
 
-        <div className="sa-page-header-actions">
+        <div className="sap-header-actions">
           <button
             type="button"
             className="sa-btn sa-btn-secondary"
-            onClick={() => {
-              const csv = [
-                "Ticket ID,Organization,Requester,Category,Priority,Status,Created At",
-              ]
-                .concat(
-                  tickets.map(
-                    (t) =>
-                      `${t.id},"${t.org}","${t.requester}","${t.category}","${t.priority}","${t.status}","${t.createdAt}"`
-                  )
-                )
-                .join("\n");
-              const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-              const url = URL.createObjectURL(blob);
-              const link = document.createElement("a");
-              link.href = url;
-              link.download = "support_tickets.csv";
-              link.click();
-              URL.revokeObjectURL(url);
-              notify("Exported support tickets to CSV.");
-            }}
+            onClick={handleExportCSV}
           >
-            Export Tickets
+            <Download size={15} /> Export Spreadsheet
           </button>
         </div>
       </section>
 
-      {/* 2. Top 4 KPI Stat Cards */}
-      <section className="sa-kpi-grid">
+      {/* 2. Top 4 Telemetry Cards */}
+      <section className="sap-kpi-grid">
         <article className="sa-kpi-card">
           <div className="sa-kpi-icon-box blue">
             <LifeBuoy size={24} strokeWidth={2.2} />
@@ -318,12 +372,10 @@ function HelpSupport() {
             <Clock size={24} strokeWidth={2.2} />
           </div>
           <div className="sa-kpi-body">
-            <p className="sa-kpi-title">Open Tickets</p>
+            <p className="sa-kpi-title">Active Open Tickets</p>
             <div className="sa-kpi-val-row">
               <span className="sa-kpi-value">{metrics.open}</span>
-              <span className="sa-kpi-trend negative">
-                Requires Action
-              </span>
+              <span className="sa-kpi-trend negative">Requires Action</span>
             </div>
             <span className="sa-kpi-subtitle">{metrics.inProg} currently in progress</span>
           </div>
@@ -334,7 +386,7 @@ function HelpSupport() {
             <CheckCircle2 size={24} strokeWidth={2.2} />
           </div>
           <div className="sa-kpi-body">
-            <p className="sa-kpi-title">Resolution Rate</p>
+            <p className="sa-kpi-title">Resolution SLA</p>
             <div className="sa-kpi-val-row">
               <span className="sa-kpi-value">{metrics.resolutionRate}%</span>
               <span className="sa-kpi-trend positive">
@@ -353,9 +405,7 @@ function HelpSupport() {
             <p className="sa-kpi-title">Avg. First Response</p>
             <div className="sa-kpi-val-row">
               <span className="sa-kpi-value">14m</span>
-              <span className="sa-kpi-trend positive">
-                Optimal
-              </span>
+              <span className="sa-kpi-trend positive">Optimal</span>
             </div>
             <span className="sa-kpi-subtitle">Median response under 25m</span>
           </div>
@@ -368,286 +418,466 @@ function HelpSupport() {
         </div>
       )}
 
-      {/* 3. Tickets Filter & Table Card */}
-      <section className="sa-card sa-tickets-table-card">
-        <div className="sa-filter-bar">
-          <div className="sa-search-box">
-            <Search size={16} />
-            <input
-              type="text"
-              placeholder="Search by ticket ID, organization, user, or issue..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
+      {/* 3. The SAP Table Card */}
+      <section className="sap-table-card">
+        {/* Multi-Selection Batch Actions Bar */}
+        {selectedIds.size > 0 && (
+          <div className="sap-batch-banner">
+            <span>
+              <strong>{selectedIds.size}</strong> tickets selected
+            </span>
+            <div className="sap-batch-actions">
+              <button
+                type="button"
+                className="sa-btn sa-btn-secondary sa-btn-sm"
+                onClick={handleExportCSV}
+              >
+                <Download size={13} /> Export Selected
+              </button>
+              <button
+                type="button"
+                className="sa-btn sa-btn-sm"
+                style={{ background: "transparent", color: "inherit", border: 0 }}
+                onClick={() => setSelectedIds(new Set())}
+              >
+                Clear
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Toolbar & Filter Bar */}
+        <div className="sap-toolbar">
+          <div className="sap-toolbar-left">
+            <div className="sap-search-input">
+              <Search size={15} style={{ color: "var(--sa-text-muted)" }} />
+              <input
+                type="text"
+                placeholder="Search ticket ID, organization, requester, issue subject..."
+                value={search}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setPage(1);
+                }}
+              />
+            </div>
+
+            <select
+              className="sap-filter-select"
+              value={statusFilter}
+              onChange={(e) => {
+                setStatusFilter(e.target.value);
+                setPage(1);
+              }}
+            >
+              <option value="All">Status: All Statuses</option>
+              <option value="Open">Open (Action Needed)</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Resolved">Resolved</option>
+              <option value="Closed">Closed</option>
+            </select>
+
+            <select
+              className="sap-filter-select"
+              value={priorityFilter}
+              onChange={(e) => {
+                setPriorityFilter(e.target.value);
+                setPage(1);
+              }}
+            >
+              <option value="All">Priority: All Priorities</option>
+              <option value="Urgent">Urgent Tier</option>
+              <option value="High">High Tier</option>
+              <option value="Medium">Medium Tier</option>
+              <option value="Low">Low Tier</option>
+            </select>
+
+            <select
+              className="sap-filter-select"
+              value={categoryFilter}
+              onChange={(e) => {
+                setCategoryFilter(e.target.value);
+                setPage(1);
+              }}
+            >
+              <option value="All">Category: All Categories</option>
+              <option value="Technical">Technical / DNS</option>
+              <option value="Billing">Billing &amp; Invoices</option>
+              <option value="AI">AI Integration</option>
+              <option value="Security">Security &amp; SSO</option>
+              <option value="Storage">File Storage</option>
+            </select>
           </div>
 
-          <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
-            <div className="sa-select-filter">
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-              >
-                <option value="All">All Statuses</option>
-                <option value="Open">Open</option>
-                <option value="In Progress">In Progress</option>
-                <option value="Resolved">Resolved</option>
-                <option value="Closed">Closed</option>
-              </select>
-              <ChevronDown size={13} className="sa-chevron" />
-            </div>
+          <div className="sap-toolbar-right">
+            {/* Density Switcher */}
+            <button
+              type="button"
+              className="sap-icon-btn"
+              onClick={() => setDensity((d) => (d === "standard" ? "compact" : "standard"))}
+              title={`Switch density (currently ${density})`}
+            >
+              <SlidersHorizontal size={15} />
+            </button>
 
-            <div className="sa-select-filter">
-              <select
-                value={priorityFilter}
-                onChange={(e) => setPriorityFilter(e.target.value)}
-              >
-                <option value="All">All Priorities</option>
-                <option value="Urgent">Urgent</option>
-                <option value="High">High</option>
-                <option value="Medium">Medium</option>
-                <option value="Low">Low</option>
-              </select>
-              <ChevronDown size={13} className="sa-chevron" />
-            </div>
-
-            <div className="sa-select-filter">
-              <select
-                value={categoryFilter}
-                onChange={(e) => setCategoryFilter(e.target.value)}
-              >
-                <option value="All">All Categories</option>
-                <option value="Technical">Technical</option>
-                <option value="Billing">Billing</option>
-                <option value="AI">AI Integration</option>
-                <option value="Security">Security / SSO</option>
-                <option value="Storage">File Storage</option>
-              </select>
-              <ChevronDown size={13} className="sa-chevron" />
-            </div>
+            {/* Reset Filters */}
+            <button
+              type="button"
+              className="sap-icon-btn"
+              onClick={() => {
+                setSearch("");
+                setStatusFilter("All");
+                setPriorityFilter("All");
+                setCategoryFilter("All");
+                setPage(1);
+              }}
+              title="Reset all filters"
+            >
+              <RefreshCw size={15} />
+            </button>
           </div>
         </div>
 
-        <div className="sa-table-wrapper">
-          <table className="sa-table">
+        {/* 4. The SAP Table Data Grid */}
+        <div className="sap-table-wrapper">
+          <table className={`sap-grid is-${density}`}>
             <thead>
               <tr>
-                <th>Ticket ID</th>
-                <th>Organization & Requester</th>
-                <th>Subject & Issue</th>
+                <th style={{ width: 38, textAlign: "center" }}>
+                  <input
+                    type="checkbox"
+                    checked={
+                      paginatedTickets.length > 0 &&
+                      paginatedTickets.every((t) => selectedIds.has(t.id))
+                    }
+                    onChange={handleSelectAll}
+                  />
+                </th>
+                <th style={{ width: 110 }}>Ticket ID</th>
+                <th>Organization &amp; Requester</th>
+                <th>Subject &amp; Issue Summary</th>
                 <th>Category</th>
                 <th>Priority</th>
-                <th>Created</th>
+                <th>Created At</th>
                 <th>Status</th>
-                <th>Actions</th>
+                <th style={{ textAlign: "right" }}>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {filteredTickets.map((t) => (
-                <tr key={t.id}>
-                  <td>
-                    <strong style={{ color: "#3b66ff" }}>{t.id}</strong>
-                  </td>
-                  <td>
-                    <div className="sa-user-badge">
-                      <div className="sa-org-avatar-icon blue" style={{ width: 28, height: 28 }}>
-                        <Building2 size={14} />
+              {paginatedTickets.map((t) => {
+                const isSelected = selectedIds.has(t.id);
+                return (
+                  <tr key={t.id} className={isSelected ? "is-selected" : ""}>
+                    <td style={{ textAlign: "center" }}>
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => handleSelectOne(t.id)}
+                      />
+                    </td>
+                    <td>
+                      <span className="sap-id-cell">{t.id}</span>
+                    </td>
+                    <td>
+                      <div className="sap-user-badge">
+                        <div className="sap-avatar-chip">
+                          <Building2 size={15} />
+                        </div>
+                        <div className="sap-user-info">
+                          <strong className="sap-user-name">{t.org}</strong>
+                          <span className="sap-user-email">
+                            {t.requester} · {t.email}
+                          </span>
+                        </div>
                       </div>
-                      <div>
-                        <strong>{t.org}</strong>
-                        <div style={{ color: "var(--sa-text-muted)", fontSize: 11 }}>{t.requester}</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td style={{ maxWidth: 300, whiteSpace: "normal" }}>
-                    <div style={{ fontWeight: 600, color: "var(--sa-text-main)", marginBottom: 2 }}>
-                      {t.subject}
-                    </div>
-                    <div style={{ fontSize: 11, color: "var(--sa-text-muted)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                      {t.messages[0]?.text}
-                    </div>
-                  </td>
-                  <td>
-                    <span className="sa-pill sa-pill-neutral">{t.category}</span>
-                  </td>
-                  <td>
-                    <span
-                      className={`sa-pill ${
-                        t.priority === "Urgent"
-                          ? "sa-pill-danger"
-                          : t.priority === "High"
-                          ? "sa-pill-warning"
-                          : t.priority === "Medium"
-                          ? "sa-pill-info"
-                          : "sa-pill-neutral"
-                      }`}
-                    >
-                      {t.priority}
-                    </span>
-                  </td>
-                  <td style={{ color: "var(--sa-text-muted)" }}>{t.createdAt}</td>
-                  <td>
-                    <span
-                      className={`sa-pill ${
-                        t.status === "Open"
-                          ? "sa-pill-warning"
-                          : t.status === "In Progress"
-                          ? "sa-pill-info"
-                          : "sa-pill-success"
-                      }`}
-                    >
-                      {t.status}
-                    </span>
-                  </td>
-                  <td>
-                    <div style={{ display: "flex", gap: "6px" }}>
-                      <button
-                        type="button"
-                        className="sa-btn sa-btn-secondary sa-btn-sm"
-                        onClick={() => setSelectedTicket(t)}
-                        title="View conversation & respond"
+                    </td>
+                    <td style={{ maxWidth: 320 }}>
+                      <strong style={{ fontSize: "13px", color: "var(--sa-text-primary)", display: "block" }}>
+                        {t.subject}
+                      </strong>
+                      <span
+                        style={{
+                          fontSize: "11.5px",
+                          color: "var(--sa-text-muted)",
+                          display: "block",
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                        }}
                       >
-                        <Eye size={13} /> View
-                      </button>
-                      {t.status !== "Resolved" && (
+                        {t.messages[0]?.text}
+                      </span>
+                    </td>
+                    <td>
+                      <span className="sap-role-badge role-member">
+                        {t.category}
+                      </span>
+                    </td>
+                    <td>
+                      <span
+                        className={`sap-role-badge ${
+                          t.priority === "Urgent"
+                            ? "role-admin"
+                            : t.priority === "High"
+                            ? "role-manager"
+                            : "role-member"
+                        }`}
+                      >
+                        {t.priority}
+                      </span>
+                    </td>
+                    <td style={{ color: "var(--sa-text-muted)", fontSize: 12 }}>
+                      {t.createdAt}
+                    </td>
+                    <td>
+                      <span
+                        className={`sap-status-pill ${
+                          t.status === "Open"
+                            ? "is-suspended"
+                            : t.status === "In Progress"
+                            ? "is-pending"
+                            : "is-active"
+                        }`}
+                      >
+                        <span className="sap-status-dot" />
+                        {t.status}
+                      </span>
+                    </td>
+                    <td style={{ textAlign: "right" }}>
+                      <div className="sap-action-group">
                         <button
                           type="button"
-                          className="sa-btn sa-btn-secondary sa-btn-sm"
-                          style={{ color: "#10b981" }}
-                          onClick={() => handleUpdateStatus(t.id, "Resolved")}
-                          title="Mark Resolved"
+                          className="sap-icon-btn"
+                          onClick={() => setSelectedTicket(t)}
+                          title="View Conversation Thread"
                         >
-                          <CheckCircle2 size={13} />
+                          <Eye size={15} />
                         </button>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-              {filteredTickets.length === 0 && (
+                        {t.status !== "Resolved" && (
+                          <button
+                            type="button"
+                            className="sap-icon-btn is-success"
+                            onClick={() => handleUpdateStatus(t.id, "Resolved")}
+                            title="Mark as Resolved"
+                          >
+                            <CheckCircle2 size={15} />
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+              {paginatedTickets.length === 0 && (
                 <tr>
-                  <td colSpan={8} style={{ textAlign: "center", padding: "32px", color: "var(--sa-text-muted)" }}>
-                    No support tickets match the current filters.
+                  <td colSpan="9" style={{ textAlign: "center", padding: "40px" }}>
+                    No support tickets match your search query or filters.
                   </td>
                 </tr>
               )}
             </tbody>
           </table>
         </div>
-      </section>
 
-      {/* 4. Ticket Conversation & Reply Modal */}
-      {selectedTicket && typeof document !== "undefined" && createPortal(
-        <div className="sa-modal-backdrop">
-          <div className="sa-modal-content" style={{ maxWidth: 650 }}>
-            <div className="sa-modal-header">
-              <div>
-                <h3 style={{ margin: "0 0 4px" }}>
-                  {selectedTicket.id}: {selectedTicket.subject}
-                </h3>
-                <span style={{ fontSize: 11.5, color: "var(--sa-text-muted)" }}>
-                  {selectedTicket.org} · Requester: {selectedTicket.requester} ({selectedTicket.email})
-                </span>
-              </div>
-              <button
-                type="button"
-                className="sa-modal-close"
-                onClick={() => setSelectedTicket(null)}
-              >
-                <X size={18} />
-              </button>
+        {/* 5. The SAP Footer Bar */}
+        <div className="sap-footer-bar">
+          <div className="sap-footer-counts" style={{ display: "flex", alignItems: "center", gap: 14 }}>
+            <div className="sap-counter">
+              Showing{" "}
+              <strong>
+                {filteredTickets.length === 0 ? 0 : (currentPage - 1) * pageSize + 1}
+              </strong>{" "}
+              to{" "}
+              <strong>
+                {Math.min(currentPage * pageSize, filteredTickets.length)}
+              </strong>{" "}
+              of <strong>{filteredTickets.length}</strong> inquiries
             </div>
-
-            <div className="sa-modal-body sa-ticket-modal-body">
-              <div className="sa-ticket-tags-row">
-                <span className="sa-pill sa-pill-neutral">Category: {selectedTicket.category}</span>
-                <span
-                  className={`sa-pill ${
-                    selectedTicket.priority === "Urgent"
-                      ? "sa-pill-danger"
-                      : "sa-pill-info"
-                  }`}
-                >
-                  Priority: {selectedTicket.priority}
-                </span>
-                <span
-                  className={`sa-pill ${
-                    selectedTicket.status === "Open"
-                      ? "sa-pill-warning"
-                      : selectedTicket.status === "In Progress"
-                      ? "sa-pill-info"
-                      : "sa-pill-success"
-                  }`}
-                >
-                  Status: {selectedTicket.status}
-                </span>
-              </div>
-
-              {/* Message Thread */}
-              <div className="sa-ticket-thread">
-                {selectedTicket.messages.map((m, i) => (
-                  <div
-                    key={i}
-                    className={`sa-thread-bubble ${
-                      m.role.includes("Super Admin") || m.role.includes("Support")
-                        ? "admin-bubble"
-                        : "user-bubble"
-                    }`}
-                  >
-                    <div className="sa-bubble-header">
-                      <strong>{m.sender}</strong>
-                      <span className="sa-bubble-time">{m.time}</span>
-                    </div>
-                    <p className="sa-bubble-text">{m.text}</p>
-                  </div>
-                ))}
-              </div>
-
-              {/* Reply Box */}
-              <form onSubmit={handleSendReply} className="sa-ticket-reply-form">
-                <textarea
-                  rows={3}
-                  className="sa-form-textarea"
-                  placeholder="Type official response to organization admin..."
-                  value={replyText}
-                  onChange={(e) => setReplyText(e.target.value)}
-                  required
-                />
-
-                <div className="sa-reply-actions-row">
-                  <div style={{ display: "flex", gap: "8px" }}>
-                    {selectedTicket.status !== "Resolved" && (
-                      <button
-                        type="button"
-                        className="sa-btn sa-btn-secondary sa-btn-sm"
-                        style={{ color: "#10b981" }}
-                        onClick={() => handleUpdateStatus(selectedTicket.id, "Resolved")}
-                      >
-                        <CheckCircle2 size={13} /> Mark Resolved
-                      </button>
-                    )}
-                    {selectedTicket.status === "Resolved" && (
-                      <button
-                        type="button"
-                        className="sa-btn sa-btn-secondary sa-btn-sm"
-                        onClick={() => handleUpdateStatus(selectedTicket.id, "In Progress")}
-                      >
-                        Re-open Ticket
-                      </button>
-                    )}
-                  </div>
-
-                  <button type="submit" className="sa-btn sa-btn-primary sa-btn-sm">
-                    <Send size={13} /> Send Official Reply
-                  </button>
-                </div>
-              </form>
+            <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "#64748b" }}>
+              <span>Rows per page:</span>
+              <select
+                className="sap-filter-select"
+                style={{ padding: "3px 6px", fontSize: 12, height: 26 }}
+                value={pageSize}
+                onChange={(e) => {
+                  setPageSize(Number(e.target.value));
+                  setPage(1);
+                }}
+              >
+                <option value={5}>5</option>
+                <option value={10}>10</option>
+                <option value={20}>20</option>
+                <option value={50}>50</option>
+              </select>
             </div>
           </div>
+
+          <div className="sap-pagination">
+            <button
+              type="button"
+              className="sap-page-btn"
+              disabled={currentPage <= 1}
+              onClick={() => setPage(1)}
+              title="First Page"
+            >
+              <ChevronsLeft size={15} />
+            </button>
+            <button
+              type="button"
+              className="sap-page-btn"
+              disabled={currentPage <= 1}
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              title="Previous Page"
+            >
+              <ChevronLeft size={15} />
+            </button>
+            <span className="sap-page-indicator">
+              Page <strong>{currentPage}</strong> of <strong>{totalPages}</strong>
+            </span>
+            <button
+              type="button"
+              className="sap-page-btn"
+              disabled={currentPage >= totalPages}
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              title="Next Page"
+            >
+              <ChevronRight size={15} />
+            </button>
+            <button
+              type="button"
+              className="sap-page-btn"
+              disabled={currentPage >= totalPages}
+              onClick={() => setPage(totalPages)}
+              title="Last Page"
+            >
+              <ChevronsRight size={15} />
+            </button>
+          </div>
         </div>
-      )}
+      </section>
+
+      {/* 6. Ticket Conversation & Reply Modal */}
+      {selectedTicket &&
+        typeof document !== "undefined" &&
+        createPortal(
+          <div className="sa-modal-backdrop" onClick={() => setSelectedTicket(null)}>
+            <div
+              className="sa-modal-content"
+              style={{ maxWidth: 650 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="sa-modal-header">
+                <div>
+                  <h3 style={{ margin: "0 0 4px" }}>
+                    {selectedTicket.id}: {selectedTicket.subject}
+                  </h3>
+                  <span style={{ fontSize: 11.5, color: "var(--sa-text-muted)" }}>
+                    {selectedTicket.org} · Requester: {selectedTicket.requester} (
+                    {selectedTicket.email})
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  className="sa-modal-close"
+                  onClick={() => setSelectedTicket(null)}
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              <div className="sa-modal-body sa-ticket-modal-body">
+                <div className="sa-ticket-tags-row">
+                  <span className="sa-pill sa-pill-neutral">
+                    Category: {selectedTicket.category}
+                  </span>
+                  <span
+                    className={`sa-pill ${
+                      selectedTicket.priority === "Urgent"
+                        ? "sa-pill-danger"
+                        : "sa-pill-info"
+                    }`}
+                  >
+                    Priority: {selectedTicket.priority}
+                  </span>
+                  <span
+                    className={`sa-pill ${
+                      selectedTicket.status === "Open"
+                        ? "sa-pill-warning"
+                        : selectedTicket.status === "In Progress"
+                        ? "sa-pill-info"
+                        : "sa-pill-success"
+                    }`}
+                  >
+                    Status: {selectedTicket.status}
+                  </span>
+                </div>
+
+                {/* Message Thread */}
+                <div className="sa-ticket-thread">
+                  {selectedTicket.messages.map((m, i) => (
+                    <div
+                      key={i}
+                      className={`sa-thread-bubble ${
+                        m.role.includes("Super Admin") || m.role.includes("Support")
+                          ? "admin-bubble"
+                          : "user-bubble"
+                      }`}
+                    >
+                      <div className="sa-bubble-header">
+                        <strong>{m.sender}</strong>
+                        <span className="sa-bubble-time">{m.time}</span>
+                      </div>
+                      <p className="sa-bubble-text">{m.text}</p>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Reply Box */}
+                <form onSubmit={handleSendReply} className="sa-ticket-reply-form">
+                  <textarea
+                    rows={3}
+                    className="sa-form-textarea"
+                    placeholder="Type official enterprise response to organization..."
+                    value={replyText}
+                    onChange={(e) => setReplyText(e.target.value)}
+                    required
+                  />
+
+                  <div className="sa-reply-actions-row">
+                    <div style={{ display: "flex", gap: "8px" }}>
+                      {selectedTicket.status !== "Resolved" && (
+                        <button
+                          type="button"
+                          className="sa-btn sa-btn-secondary sa-btn-sm"
+                          style={{ color: "#10b981" }}
+                          onClick={() => handleUpdateStatus(selectedTicket.id, "Resolved")}
+                        >
+                          <CheckCircle2 size={13} /> Mark Resolved
+                        </button>
+                      )}
+                      {selectedTicket.status === "Resolved" && (
+                        <button
+                          type="button"
+                          className="sa-btn sa-btn-secondary sa-btn-sm"
+                          onClick={() => handleUpdateStatus(selectedTicket.id, "In Progress")}
+                        >
+                          Re-open Ticket
+                        </button>
+                      )}
+                    </div>
+
+                    <button type="submit" className="sa-btn sa-btn-primary sa-btn-sm">
+                      <Send size={13} /> Send Official Reply
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>,
+          document.body
+        )}
     </div>
   );
 }
 
 export default HelpSupport;
-

@@ -4,18 +4,25 @@ import { createPortal } from "react-dom";
 import {
   Activity,
   AlertTriangle,
+  ArrowDown,
+  ArrowUp,
+  ArrowUpDown,
   Building2,
   CalendarDays,
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
   Download,
   Eye,
   Filter,
   LogIn,
   RefreshCw,
+  RotateCcw,
   Search,
   Shield,
+  SlidersHorizontal,
   UserPlus,
   Users,
   X,
@@ -218,6 +225,9 @@ function ActivityLogs() {
   const [category, setCategory] = useState("All categories");
   const [status, setStatus] = useState("All statuses");
   const [dateRange, setDateRange] = useState("all");
+  const [actorType, setActorType] = useState("All actors");
+  const [sortField, setSortField] = useState("date");
+  const [sortOrder, setSortOrder] = useState("desc");
   const [page, setPage] = useState(1);
   const [selectedLog, setSelectedLog] = useState(null);
   const [toast, setToast] = useState("");
@@ -234,14 +244,41 @@ function ActivityLogs() {
     };
   }, [selectedLog]);
 
+  const [pageSize, setPageSize] = useState(10);
+  const [density, setDensity] = useState("standard");
+  const [selectedIds, setSelectedIds] = useState(new Set());
 
-  const pageSize = 8;
+  const handleSelectAll = (e) => {
+    if (e.target.checked) {
+      setSelectedIds(new Set(pageLogs.map((l) => l.id)));
+    } else {
+      setSelectedIds(new Set());
+    }
+  };
+
+  const handleSelectOne = (id) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const handleSort = (field) => {
+    if (sortField === field) {
+      setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"));
+    } else {
+      setSortField(field);
+      setSortOrder("desc");
+    }
+  };
 
   const filteredLogs = useMemo(() => {
     const query = search.trim().toLowerCase();
     const now = new Date();
 
-    return logs.filter((log) => {
+    let result = logs.filter((log) => {
       const matchesSearch =
         !query ||
         [
@@ -260,6 +297,12 @@ function ActivityLogs() {
 
       const matchesStatus = status === "All statuses" || log.status === status;
 
+      const matchesActorType =
+        actorType === "All actors" ||
+        (actorType === "Super Admin" && log.actor.includes("Super Admin")) ||
+        (actorType === "Admin" && !log.actor.includes("Super Admin") && !log.actor.toLowerCase().includes("unknown")) ||
+        (actorType === "Unknown" && log.actor.toLowerCase().includes("unknown"));
+
       const logDate = new Date(log.date);
       const daysOld = (now.getTime() - logDate.getTime()) / 86400000;
 
@@ -273,10 +316,28 @@ function ActivityLogs() {
         matchesSearch &&
         matchesCategory &&
         matchesStatus &&
+        matchesActorType &&
         matchesDate
       );
     });
-  }, [logs, search, category, status, dateRange]);
+
+    result.sort((a, b) => {
+      let valA = a[sortField];
+      let valB = b[sortField];
+      if (sortField === "date") {
+        valA = new Date(valA).getTime();
+        valB = new Date(valB).getTime();
+      } else {
+        if (typeof valA === "string") valA = valA.toLowerCase();
+        if (typeof valB === "string") valB = valB.toLowerCase();
+      }
+      if (valA < valB) return sortOrder === "asc" ? -1 : 1;
+      if (valA > valB) return sortOrder === "asc" ? 1 : -1;
+      return 0;
+    });
+
+    return result;
+  }, [logs, search, category, status, actorType, dateRange, sortField, sortOrder]);
 
   const totalPages = Math.max(1, Math.ceil(filteredLogs.length / pageSize));
   const currentPage = Math.min(page, totalPages);
@@ -287,12 +348,12 @@ function ActivityLogs() {
 
   const stats = useMemo(
     () => ({
-      total: filteredLogs.length,
-      success: filteredLogs.filter((log) => log.status === "Success").length,
-      warnings: filteredLogs.filter((log) => log.status === "Warning").length,
-      categories: new Set(filteredLogs.map((log) => log.category)).size,
+      total: logs.length,
+      success: logs.filter((log) => log.status === "Success").length,
+      warnings: logs.filter((log) => log.status === "Warning").length,
+      categories: new Set(logs.map((log) => log.category)).size,
     }),
-    [filteredLogs]
+    [logs]
   );
 
   const showToast = (message) => {
@@ -305,6 +366,9 @@ function ActivityLogs() {
     setCategory("All categories");
     setStatus("All statuses");
     setDateRange("all");
+    setActorType("All actors");
+    setSortField("date");
+    setSortOrder("desc");
     setPage(1);
   };
 
@@ -376,242 +440,456 @@ function ActivityLogs() {
 
   return (
     <div className="activity-logs-page">
-      <header className="activity-logs-header">
-        <div>
-          <div className="activity-logs-eyebrow">
-            <Shield size={14} />
-            SECURITY &amp; AUDIT
-          </div>
-          <h1>Activity Logs</h1>
-          <p>
-            Track platform events, administrative actions, and security
-            activity in one place.
+      {/* 1. SAP Master Header Bar */}
+      <section className="sap-header-panel">
+        <div className="sap-header-left">
+          <h1>Audit &amp; Security Activity Logs</h1>
+          <p className="sap-header-subtitle">
+            Immutable enterprise event feed, authentication audit trails, security warnings, and administrative action telemetry.
           </p>
         </div>
 
-        <div className="activity-logs-header-actions">
+        <div className="sap-header-actions">
           <button
             type="button"
-            className="activity-logs-button activity-logs-button-light"
+            className="sa-btn sa-btn-secondary"
             onClick={resetFilters}
           >
-            <RefreshCw size={16} />
-            Reset filters
+            <RefreshCw size={15} /> Reset Filters
           </button>
 
           <button
             type="button"
-            className="activity-logs-button activity-logs-button-primary"
+            className="sa-btn sa-btn-primary"
             onClick={exportCsv}
           >
-            <Download size={16} />
-            Export CSV
+            <Download size={15} /> Export Audit Log
           </button>
         </div>
-      </header>
+      </section>
 
-      <section className="activity-logs-stats">
-        <article className="activity-logs-stat-card">
-          <span className="activity-logs-stat-icon purple">
-            <Activity size={20} />
-          </span>
-          <div>
-            <span>Total events</span>
-            <strong>{stats.total}</strong>
-            <small>Available demo records</small>
+      {/* 2. Top 4 Telemetry Cards */}
+      <section className="sap-kpi-grid">
+        <article className="sa-kpi-card">
+          <div className="sa-kpi-icon-box purple">
+            <Activity size={24} strokeWidth={2.2} />
+          </div>
+          <div className="sa-kpi-body">
+            <p className="sa-kpi-title">Total Audit Events</p>
+            <div className="sa-kpi-val-row">
+              <span className="sa-kpi-value">{stats.total}</span>
+              <span className="sa-kpi-trend positive">Immutable</span>
+            </div>
+            <span className="sa-kpi-subtitle">Logged audit records</span>
           </div>
         </article>
 
-        <article className="activity-logs-stat-card">
-          <span className="activity-logs-stat-icon green">
-            <CheckCircle2 size={20} />
-          </span>
-          <div>
-            <span>Successful actions</span>
-            <strong>{stats.success}</strong>
-            <small>Completed events</small>
+        <article className="sa-kpi-card">
+          <div className="sa-kpi-icon-box green">
+            <CheckCircle2 size={24} strokeWidth={2.2} />
+          </div>
+          <div className="sa-kpi-body">
+            <p className="sa-kpi-title">Successful Executions</p>
+            <div className="sa-kpi-val-row">
+              <span className="sa-kpi-value">{stats.success}</span>
+              <span className="sa-kpi-trend positive">100% Verified</span>
+            </div>
+            <span className="sa-kpi-subtitle">Completed system operations</span>
           </div>
         </article>
 
-        <article className="activity-logs-stat-card">
-          <span className="activity-logs-stat-icon amber">
-            <AlertTriangle size={20} />
-          </span>
-          <div>
-            <span>Security warnings</span>
-            <strong>{stats.warnings}</strong>
-            <small>Events to review</small>
+        <article className="sa-kpi-card">
+          <div className="sa-kpi-icon-box red">
+            <AlertTriangle size={24} strokeWidth={2.2} />
+          </div>
+          <div className="sa-kpi-body">
+            <p className="sa-kpi-title">Security Warnings</p>
+            <div className="sa-kpi-val-row">
+              <span className="sa-kpi-value">{stats.warnings}</span>
+              <span className="sa-kpi-trend negative">Requires Action</span>
+            </div>
+            <span className="sa-kpi-subtitle">Failed logins &amp; overrides</span>
           </div>
         </article>
 
-        <article className="activity-logs-stat-card">
-          <span className="activity-logs-stat-icon blue">
-            <Filter size={20} />
-          </span>
-          <div>
-            <span>Event categories</span>
-            <strong>{stats.categories}</strong>
-            <small>Tracked categories</small>
+        <article className="sa-kpi-card">
+          <div className="sa-kpi-icon-box sky">
+            <Filter size={24} strokeWidth={2.2} />
+          </div>
+          <div className="sa-kpi-body">
+            <p className="sa-kpi-title">Active Categories</p>
+            <div className="sa-kpi-val-row">
+              <span className="sa-kpi-value">{stats.categories}</span>
+              <span className="sa-kpi-trend positive">Monitored</span>
+            </div>
+            <span className="sa-kpi-subtitle">Governance modules tracked</span>
           </div>
         </article>
       </section>
 
-      <section className="activity-logs-panel">
-        <div className="activity-logs-panel-heading">
-          <div>
-            <h2>Event history</h2>
-            <p>Search, filter, and inspect platform activity records.</p>
-          </div>
-
-          <span className="activity-logs-demo-badge">
-            <span />
-            Sample data
-          </span>
-        </div>
-
-        <div className="activity-logs-filters">
-          <label className="activity-logs-search">
-            <Search size={17} />
-            <input
-              value={search}
-              onChange={(event) => {
-                setSearch(event.target.value);
-                setPage(1);
-              }}
-              placeholder="Search actor, event, organization, IP..."
-              aria-label="Search activity logs"
-            />
-            {search && (
+      {/* 3. The SAP Audit Data Grid Card */}
+      <section className="sap-table-card">
+        {/* Multi-Selection Batch Actions Bar */}
+        {selectedIds.size > 0 && (
+          <div className="sap-batch-banner">
+            <span>
+              <strong>{selectedIds.size}</strong> event records selected
+            </span>
+            <div className="sap-batch-actions">
               <button
                 type="button"
+                className="sa-btn sa-btn-secondary sa-btn-sm"
+                onClick={exportCsv}
+              >
+                <Download size={13} /> Export Selected
+              </button>
+              <button
+                type="button"
+                className="sa-btn sa-btn-sm"
+                style={{ background: "transparent", color: "inherit", border: 0 }}
+                onClick={() => setSelectedIds(new Set())}
+              >
+                Clear
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Quick Category / Status Tabs */}
+        <div className="sub-quick-tabs">
+          {[
+            { label: "All Events", count: logs.length, type: "all" },
+            { label: "Successful", count: stats.success, type: "status", val: "Success" },
+            { label: "Warnings", count: stats.warnings, type: "status", val: "Warning" },
+            { label: "User Management", count: logs.filter((l) => l.category === "User Management").length, type: "cat", val: "User Management" },
+            { label: "Authentication", count: logs.filter((l) => l.category === "Authentication").length, type: "cat", val: "Authentication" },
+            { label: "Organizations", count: logs.filter((l) => l.category === "Organization").length, type: "cat", val: "Organization" },
+          ].map((tab) => {
+            let isActive = false;
+            if (tab.type === "all") isActive = status === "All statuses" && category === "All categories";
+            else if (tab.type === "status") isActive = status === tab.val;
+            else if (tab.type === "cat") isActive = category === tab.val;
+
+            return (
+              <button
+                key={tab.label}
+                type="button"
+                className={`sub-quick-tab ${isActive ? "active" : ""}`}
                 onClick={() => {
-                  setSearch("");
+                  if (tab.type === "all") {
+                    setStatus("All statuses");
+                    setCategory("All categories");
+                  } else if (tab.type === "status") {
+                    setStatus(tab.val);
+                  } else if (tab.type === "cat") {
+                    setCategory(tab.val);
+                  }
                   setPage(1);
                 }}
-                aria-label="Clear search"
               >
-                <X size={15} />
+                <span>{tab.label}</span>
+                <span className="sub-quick-tab-badge">{tab.count}</span>
               </button>
-            )}
-          </label>
-
-          <select
-            value={category}
-            onChange={(event) => {
-              setCategory(event.target.value);
-              setPage(1);
-            }}
-            aria-label="Filter by category"
-          >
-            {CATEGORY_OPTIONS.map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>
-
-          <select
-            value={status}
-            onChange={(event) => {
-              setStatus(event.target.value);
-              setPage(1);
-            }}
-            aria-label="Filter by status"
-          >
-            <option>All statuses</option>
-            <option>Success</option>
-            <option>Warning</option>
-            <option>Info</option>
-          </select>
-
-          <select
-            value={dateRange}
-            onChange={(event) => {
-              setDateRange(event.target.value);
-              setPage(1);
-            }}
-            aria-label="Filter by date"
-          >
-            <option value="all">All dates</option>
-            <option value="today">Today</option>
-            <option value="7days">Last 7 days</option>
-            <option value="30days">Last 30 days</option>
-          </select>
+            );
+          })}
         </div>
 
-        <div className="activity-logs-table-wrap">
-          <table className="activity-logs-table">
+        {/* Toolbar & Filter Bar */}
+        <div className="sap-toolbar">
+          <div className="sap-toolbar-left">
+            <div className="sap-search-input">
+              <Search size={15} style={{ color: "var(--sa-text-muted)" }} />
+              <input
+                value={search}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setPage(1);
+                }}
+                placeholder="Search event, actor, organization, IP address, ID..."
+              />
+            </div>
+
+            <select
+              className="sap-filter-select"
+              value={category}
+              onChange={(e) => {
+                setCategory(e.target.value);
+                setPage(1);
+              }}
+            >
+              {CATEGORY_OPTIONS.map((option) => (
+                <option key={option} value={option}>
+                  {option === "All categories" ? "Category: All Categories" : option}
+                </option>
+              ))}
+            </select>
+
+            <select
+              className="sap-filter-select"
+              value={status}
+              onChange={(e) => {
+                setStatus(e.target.value);
+                setPage(1);
+              }}
+            >
+              <option value="All statuses">Status: All Statuses</option>
+              <option value="Success">Success (Operational)</option>
+              <option value="Warning">Warning (Review Needed)</option>
+              <option value="Info">Info (Audit Note)</option>
+            </select>
+
+            <select
+              className="sap-filter-select"
+              value={dateRange}
+              onChange={(e) => {
+                setDateRange(e.target.value);
+                setPage(1);
+              }}
+            >
+              <option value="all">Date: All Time</option>
+              <option value="today">Date: Today Only</option>
+              <option value="7days">Date: Last 7 Days</option>
+              <option value="30days">Date: Last 30 Days</option>
+            </select>
+
+            <select
+              className="sap-filter-select"
+              value={actorType}
+              onChange={(e) => {
+                setActorType(e.target.value);
+                setPage(1);
+              }}
+            >
+              <option value="All actors">Actor: All Actors</option>
+              <option value="Super Admin">Super Admin Accounts</option>
+              <option value="Admin">Tenant Admin Accounts</option>
+              <option value="Unknown">Unknown / Gateway System</option>
+            </select>
+          </div>
+
+          <div className="sap-toolbar-right">
+            {/* Table Density Switcher */}
+            <button
+              type="button"
+              className="sap-icon-btn"
+              onClick={() => setDensity((d) => (d === "standard" ? "compact" : "standard"))}
+              title={`Switch density (currently ${density})`}
+            >
+              <SlidersHorizontal size={15} />
+            </button>
+
+            {/* Reset Filters */}
+            <button
+              type="button"
+              className="sap-icon-btn"
+              onClick={resetFilters}
+              title="Reset all filters"
+            >
+              <RefreshCw size={15} />
+            </button>
+          </div>
+        </div>
+
+        {/* 4. The SAP Table Data Grid */}
+        <div className="sap-table-wrapper">
+          <table className={`sap-grid is-${density}`}>
             <thead>
               <tr>
-                <th>Event</th>
-                <th>Actor</th>
-                <th>Target / organization</th>
-                <th>Date &amp; time</th>
-                <th>Status</th>
-                <th aria-label="Actions" />
+                <th style={{ width: 38, textAlign: "center" }}>
+                  <input
+                    type="checkbox"
+                    checked={
+                      pageLogs.length > 0 &&
+                      pageLogs.every((l) => selectedIds.has(l.id))
+                    }
+                    onChange={handleSelectAll}
+                  />
+                </th>
+                <th style={{ width: 110 }}>Log ID</th>
+                <th
+                  onClick={() => handleSort("action")}
+                  style={{ cursor: "pointer", userSelect: "none" }}
+                >
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
+                    Audit Event &amp; Category
+                    {sortField === "action" ? (
+                      sortOrder === "asc" ? <ArrowUp size={13} /> : <ArrowDown size={13} />
+                    ) : (
+                      <ArrowUpDown size={12} opacity={0.4} />
+                    )}
+                  </span>
+                </th>
+                <th
+                  onClick={() => handleSort("actor")}
+                  style={{ cursor: "pointer", userSelect: "none" }}
+                >
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
+                    Actor &amp; Credential
+                    {sortField === "actor" ? (
+                      sortOrder === "asc" ? <ArrowUp size={13} /> : <ArrowDown size={13} />
+                    ) : (
+                      <ArrowUpDown size={12} opacity={0.4} />
+                    )}
+                  </span>
+                </th>
+                <th
+                  onClick={() => handleSort("organization")}
+                  style={{ cursor: "pointer", userSelect: "none" }}
+                >
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
+                    Target &amp; Organization
+                    {sortField === "organization" ? (
+                      sortOrder === "asc" ? <ArrowUp size={13} /> : <ArrowDown size={13} />
+                    ) : (
+                      <ArrowUpDown size={12} opacity={0.4} />
+                    )}
+                  </span>
+                </th>
+                <th
+                  onClick={() => handleSort("ip")}
+                  style={{ cursor: "pointer", userSelect: "none" }}
+                >
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
+                    Origin IP
+                    {sortField === "ip" ? (
+                      sortOrder === "asc" ? <ArrowUp size={13} /> : <ArrowDown size={13} />
+                    ) : (
+                      <ArrowUpDown size={12} opacity={0.4} />
+                    )}
+                  </span>
+                </th>
+                <th
+                  onClick={() => handleSort("date")}
+                  style={{ cursor: "pointer", userSelect: "none" }}
+                >
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
+                    Timestamp
+                    {sortField === "date" ? (
+                      sortOrder === "asc" ? <ArrowUp size={13} /> : <ArrowDown size={13} />
+                    ) : (
+                      <ArrowUpDown size={12} opacity={0.4} />
+                    )}
+                  </span>
+                </th>
+                <th
+                  onClick={() => handleSort("status")}
+                  style={{ cursor: "pointer", userSelect: "none" }}
+                >
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
+                    Result Status
+                    {sortField === "status" ? (
+                      sortOrder === "asc" ? <ArrowUp size={13} /> : <ArrowDown size={13} />
+                    ) : (
+                      <ArrowUpDown size={12} opacity={0.4} />
+                    )}
+                  </span>
+                </th>
+                <th style={{ textAlign: "right" }}>Inspect</th>
               </tr>
             </thead>
 
             <tbody>
               {pageLogs.map((log) => {
                 const ActionIcon = getActionIcon(log.action);
+                const isSelected = selectedIds.has(log.id);
 
                 return (
-                  <tr key={log.id}>
+                  <tr key={log.id} className={isSelected ? "is-selected" : ""}>
+                    <td style={{ textAlign: "center" }}>
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => handleSelectOne(log.id)}
+                      />
+                    </td>
                     <td>
-                      <div className="activity-logs-event-cell">
-                        <span className="activity-logs-event-icon">
-                          <ActionIcon size={17} />
-                        </span>
-                        <div>
-                          <strong>{log.action}</strong>
-                          <span>{log.id} · {log.category}</span>
+                      <span className="sap-id-cell">{log.id}</span>
+                    </td>
+                    <td>
+                      <div className="sap-user-badge">
+                        <div className="sap-avatar-chip" style={{ width: 30, height: 30 }}>
+                          <ActionIcon size={16} />
+                        </div>
+                        <div className="sap-user-info">
+                          <strong className="sap-user-name">{log.action}</strong>
+                          <span className="sap-user-email">{log.category}</span>
                         </div>
                       </div>
                     </td>
 
                     <td>
-                      <div className="activity-logs-actor">
-                        <strong>{log.actor}</strong>
-                        <span>{log.email}</span>
+                      <div>
+                        <strong style={{ fontSize: "13px", color: "var(--sa-text-primary)" }}>
+                          {log.actor}
+                        </strong>
+                        <div style={{ fontSize: "11px", color: "var(--sa-text-muted)" }}>
+                          {log.email}
+                        </div>
                       </div>
                     </td>
 
                     <td>
-                      <div className="activity-logs-target">
-                        <strong>{log.target}</strong>
-                        <span>{log.organization}</span>
-                      </div>
-                    </td>
-
-                    <td>
-                      <div className="activity-logs-date">
-                        <strong>{formatDate(log.date).split(",")[0]}</strong>
-                        <span>
-                          {formatDate(log.date).split(",").slice(1).join(",")}
-                        </span>
+                      <div>
+                        <strong style={{ fontSize: "13px", color: "var(--sa-text-primary)" }}>
+                          {log.target}
+                        </strong>
+                        <div style={{ fontSize: "11px", color: "var(--sa-text-muted)" }}>
+                          {log.organization}
+                        </div>
                       </div>
                     </td>
 
                     <td>
                       <span
-                        className={`activity-logs-status activity-logs-status-${log.status.toLowerCase()}`}
+                        style={{
+                          fontFamily: "ui-monospace, monospace",
+                          fontSize: "12px",
+                          padding: "2px 7px",
+                          borderRadius: "4px",
+                          backgroundColor: "var(--sa-badge-bg, #f1f5f9)",
+                          color: "var(--sa-text-primary, #334155)",
+                          border: "1px solid var(--sa-border-subtle, #e2e8f0)",
+                        }}
                       >
-                        <span />
-                        {log.status}
+                        {log.ip}
                       </span>
                     </td>
 
                     <td>
-                      <button
-                        type="button"
-                        className="activity-logs-view-button"
-                        title="View event details"
-                        aria-label={`View ${log.id}`}
-                        onClick={() => setSelectedLog(log)}
+                      <div style={{ fontSize: "12px", color: "var(--sa-text-primary)" }}>
+                        {formatDate(log.date).split(",")[0]}
+                      </div>
+                      <small style={{ color: "var(--sa-text-muted)", fontSize: "11px" }}>
+                        {formatDate(log.date).split(",").slice(1).join(",")}
+                      </small>
+                    </td>
+
+                    <td>
+                      <span
+                        className={`sap-status-pill ${
+                          log.status === "Success"
+                            ? "is-active"
+                            : log.status === "Warning"
+                            ? "is-suspended"
+                            : "is-active"
+                        }`}
                       >
-                        <Eye size={17} />
-                      </button>
+                        <span className="sap-status-dot" />
+                        {log.status}
+                      </span>
+                    </td>
+
+                    <td style={{ textAlign: "right" }}>
+                      <div className="sap-action-group">
+                        <button
+                          type="button"
+                          className="sap-icon-btn"
+                          title="View event details"
+                          onClick={() => setSelectedLog(log)}
+                        >
+                          <Eye size={15} />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 );
@@ -619,7 +897,7 @@ function ActivityLogs() {
 
               {pageLogs.length === 0 && (
                 <tr>
-                  <td colSpan="6">
+                  <td colSpan="9">
                     <div className="activity-logs-empty">
                       <CalendarDays size={27} />
                       <strong>No activity found</strong>
@@ -635,37 +913,81 @@ function ActivityLogs() {
           </table>
         </div>
 
-        <footer className="activity-logs-pagination">
-          <span>
-            Showing{" "}
-            {filteredLogs.length === 0 ? 0 : (currentPage - 1) * pageSize + 1}
-            {"–"}
-            {Math.min(currentPage * pageSize, filteredLogs.length)} of{" "}
-            {filteredLogs.length} events
-          </span>
+        {/* 5. The SAP Pagination Footer Bar */}
+        <div className="sap-footer-bar">
+          <div className="sap-footer-counts" style={{ display: "flex", alignItems: "center", gap: 14 }}>
+            <div className="sap-counter">
+              Showing{" "}
+              <strong>
+                {filteredLogs.length === 0 ? 0 : (currentPage - 1) * pageSize + 1}
+              </strong>{" "}
+              to{" "}
+              <strong>
+                {Math.min(currentPage * pageSize, filteredLogs.length)}
+              </strong>{" "}
+              of <strong>{filteredLogs.length}</strong> events
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "#64748b" }}>
+              <span>Rows per page:</span>
+              <select
+                className="sap-filter-select"
+                style={{ padding: "3px 6px", fontSize: 12, height: 26 }}
+                value={pageSize}
+                onChange={(e) => {
+                  setPageSize(Number(e.target.value));
+                  setPage(1);
+                }}
+              >
+                <option value={5}>5</option>
+                <option value={10}>10</option>
+                <option value={20}>20</option>
+                <option value={50}>50</option>
+              </select>
+            </div>
+          </div>
 
-          <div>
+          <div className="sap-pagination">
             <button
               type="button"
+              className="sap-page-btn"
               disabled={currentPage <= 1}
-              onClick={() => setPage((value) => value - 1)}
-              aria-label="Previous page"
+              onClick={() => setPage(1)}
+              title="First Page"
             >
-              <ChevronLeft size={17} />
+              <ChevronsLeft size={15} />
             </button>
-            <span>
-              Page {currentPage} of {totalPages}
+            <button
+              type="button"
+              className="sap-page-btn"
+              disabled={currentPage <= 1}
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              title="Previous Page"
+            >
+              <ChevronLeft size={15} />
+            </button>
+            <span className="sap-page-indicator">
+              Page <strong>{currentPage}</strong> of <strong>{totalPages}</strong>
             </span>
             <button
               type="button"
+              className="sap-page-btn"
               disabled={currentPage >= totalPages}
-              onClick={() => setPage((value) => value + 1)}
-              aria-label="Next page"
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              title="Next Page"
             >
-              <ChevronRight size={17} />
+              <ChevronRight size={15} />
+            </button>
+            <button
+              type="button"
+              className="sap-page-btn"
+              disabled={currentPage >= totalPages}
+              onClick={() => setPage(totalPages)}
+              title="Last Page"
+            >
+              <ChevronsRight size={15} />
             </button>
           </div>
-        </footer>
+        </div>
       </section>
 
       <p className="activity-logs-disclaimer">

@@ -182,7 +182,10 @@ function SuperAdminLayout() {
       localStorage.setItem("teamflow_superadmin_dark_mode", String(darkMode));
       if (typeof document !== "undefined") {
         document.body.classList.toggle("sa-dark-mode", Boolean(darkMode));
+        document.documentElement.classList.toggle("sa-dark-mode", Boolean(darkMode));
+        document.documentElement.classList.toggle("dark", Boolean(darkMode));
       }
+      window.dispatchEvent(new Event("teamflow_theme_update"));
     } catch {}
   }, [darkMode]);
 
@@ -468,16 +471,25 @@ function SuperAdminLayout() {
           </div>
 
           <div className="superadmin-topbar-actions">
-            {/* Theme Toggle Sun / Moon */}
+            {/* Theme Toggle Sun / Moon Animated Switch */}
             <button
               type="button"
-              className="superadmin-theme-toggle"
-              onClick={() => setDarkMode((mode) => !mode)}
+              className={`superadmin-theme-toggle ${darkMode ? "is-dark" : "is-light"}`}
+              onClick={() => setDarkMode((prev) => !prev)}
               aria-label={darkMode ? "Switch to light mode" : "Switch to dark mode"}
-              title={darkMode ? "Light mode" : "Dark mode"}
+              title={darkMode ? "Dark mode active · Click for Light mode" : "Light mode active · Click for Dark mode"}
             >
-              <Sun size={16} className="sa-theme-sun" />
-              <Moon size={15} className="sa-theme-moon" />
+              <span className="sa-toggle-track">
+                <Sun size={12} className="sa-toggle-sun-icon" />
+                <Moon size={12} className="sa-toggle-moon-icon" />
+              </span>
+              <span className="sa-toggle-thumb">
+                {darkMode ? (
+                  <Moon size={12} className="sa-thumb-icon-moon" />
+                ) : (
+                  <Sun size={12} className="sa-thumb-icon-sun" />
+                )}
+              </span>
             </button>
 
             {/* Notification Menu with Dropdown */}

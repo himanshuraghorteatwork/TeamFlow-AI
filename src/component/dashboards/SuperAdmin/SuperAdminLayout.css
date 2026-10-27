@@ -98,35 +98,100 @@
   margin-left: auto;
 }
 
+/* Animated Theme Toggle Button */
 .superadmin-theme-toggle {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 58px;
+  height: 30px;
+  padding: 3px;
+  background: #e2e8f0;
+  border: 1px solid #cbd5e1;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.25s ease, border-color 0.25s ease, box-shadow 0.2s ease;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+  user-select: none;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.superadmin-theme-toggle:hover {
+  border-color: #94a3b8;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.08), 0 0 0 3px rgba(59, 102, 255, 0.12);
+}
+
+.superadmin-theme-toggle.is-dark,
+.sa-dark-mode .superadmin-theme-toggle {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.35) !important;
+}
+
+.superadmin-theme-toggle.is-dark:hover,
+.sa-dark-mode .superadmin-theme-toggle:hover {
+  border-color: #475569 !important;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4), 0 0 0 3px rgba(96, 136, 255, 0.2) !important;
+}
+
+.sa-toggle-track {
+  position: absolute;
+  inset: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 7px;
-  width: 58px;
-  height: 29px;
-  padding: 4px 6px;
-  color: #19244d;
-  background: #f0f3fa;
-  border: 0;
-  border-radius: 20px;
-  cursor: pointer;
+  padding: 0 7px;
+  pointer-events: none;
 }
 
-.sa-theme-switch {
+.sa-toggle-sun-icon {
+  color: #f59e0b;
+  opacity: 0.9;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.sa-toggle-moon-icon {
+  color: #94a3b8;
+  opacity: 0.35;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.superadmin-theme-toggle.is-dark .sa-toggle-sun-icon,
+.sa-dark-mode .superadmin-theme-toggle .sa-toggle-sun-icon {
+  opacity: 0.3;
+  color: #64748b;
+}
+
+.superadmin-theme-toggle.is-dark .sa-toggle-moon-icon,
+.sa-dark-mode .superadmin-theme-toggle .sa-toggle-moon-icon {
+  opacity: 0.95;
+  color: #38bdf8;
+}
+
+.sa-toggle-thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
   display: flex;
-  width: 19px;
-  height: 19px;
   align-items: center;
   justify-content: center;
-  background: #10183d;
-  border-radius: 50%;
-  transition: transform 180ms ease;
+  background: #ffffff;
+  color: #f59e0b;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2), 0 1px 2px rgba(0, 0, 0, 0.1);
+  transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
+  z-index: 2;
 }
 
-.sa-theme-switch.is-dark {
-  background: #ffffff;
-  color: #19244d;
+.superadmin-theme-toggle.is-dark .sa-toggle-thumb,
+.sa-dark-mode .superadmin-theme-toggle .sa-toggle-thumb {
+  transform: translateX(28px);
+  background: #0f172a;
+  color: #38bdf8;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1);
 }
 
 .superadmin-notification-menu {
@@ -537,13 +602,10 @@
     gap: 10px;
   }
 
+  /* mobile theme toggle preserved */
   .superadmin-theme-toggle {
-    width: 35px;
-    justify-content: center;
-  }
-
-  .superadmin-theme-toggle > svg {
-    display: none;
+    width: 54px;
+    height: 28px;
   }
 
   .superadmin-notification-button {

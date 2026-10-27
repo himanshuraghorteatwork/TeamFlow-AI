@@ -2151,3 +2151,1783 @@
 .sa-dark-mode .subscriptions-catalogue-row span {
   color: #94a3b8 !important;
 }
+
+/* Quick Status Tabs */
+.sub-quick-tabs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.sub-quick-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #64748b;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.sub-quick-tab:hover {
+  background: #f1f5f9;
+  color: #334155;
+  border-color: #cbd5e1;
+}
+
+.sub-quick-tab.active {
+  background: #6366f1;
+  color: #ffffff;
+  border-color: #6366f1;
+  box-shadow: 0 2px 6px rgba(99, 102, 241, 0.25);
+}
+
+.sub-quick-tab-badge {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 700;
+  background: rgba(0, 0, 0, 0.08);
+  color: inherit;
+}
+
+.sub-quick-tab.active .sub-quick-tab-badge {
+  background: rgba(255, 255, 255, 0.28);
+  color: #ffffff;
+}
+
+/* Plans View Toggle */
+.sub-plans-view-toggle {
+  display: inline-flex;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 3px;
+  gap: 2px;
+}
+
+.sub-plans-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: #64748b;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.sub-plans-toggle-btn:hover {
+  color: #1e293b;
+}
+
+.sub-plans-toggle-btn.active {
+  background: #ffffff;
+  color: #6366f1;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.sub-sortable-th:hover {
+  color: #6366f1;
+  background: rgba(99, 102, 241, 0.04);
+}
+
+.subscriptions-plans-table td {
+  vertical-align: middle;
+}
+
+/* Plans Table Elements */
+.sub-plan-table-desc {
+  color: #475569;
+  font-size: 13px;
+}
+
+.sub-plan-table-standard {
+  font-size: 12px;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+.sub-plan-table-feature-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  border-radius: 5px;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  font-size: 11.5px;
+  color: #334155;
+  font-weight: 500;
+  transition: all 0.15s ease;
+}
+
+.sub-plan-table-feature-tag svg {
+  flex-shrink: 0;
+  color: #16a34a;
+}
+
+/* ==========================================================================
+   REAL SAAS SUBSCRIPTION UI ENHANCEMENTS — VIBRANT & HIGH-CONTRAST
+   ========================================================================== */
+
+/* 1. Plan Tier Badges in Data Grid & Cards */
+.sub-tier-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+  text-transform: capitalize;
+  border: 1px solid transparent;
+  transition: all 0.15s ease;
+}
+
+.sub-tier-badge.tier-enterprise {
+  background: #f5f3ff;
+  color: #7c3aed;
+  border-color: #ddd6fe;
+  box-shadow: 0 1px 2px rgba(124, 58, 237, 0.08);
+}
+
+.sub-tier-badge.tier-business {
+  background: #fffbeb;
+  color: #d97706;
+  border-color: #fde68a;
+  box-shadow: 0 1px 2px rgba(217, 119, 6, 0.08);
+}
+
+.sub-tier-badge.tier-starter {
+  background: #f0f9ff;
+  color: #0284c7;
+  border-color: #bae6fd;
+  box-shadow: 0 1px 2px rgba(2, 132, 199, 0.08);
+}
+
+/* 2. Contract Status Pills (Active, Trial, Past Due, Cancelled) */
+.sub-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3.5px 10px;
+  border-radius: 9999px;
+  font-size: 11.5px;
+  font-weight: 650;
+  white-space: nowrap;
+  border: 1px solid transparent;
+  transition: all 0.15s ease;
+}
+
+.sub-status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: inline-block;
+}
+
+/* Active */
+.sub-status-pill.status-active {
+  background: #ecfdf5;
+  color: #15803d;
+  border-color: #a7f3d0;
+}
+.sub-status-pill.status-active .sub-status-dot {
+  background: #16a34a;
+  box-shadow: 0 0 6px rgba(22, 163, 74, 0.65);
+}
+
+/* Trial */
+.sub-status-pill.status-trial {
+  background: #f0f9ff;
+  color: #0369a1;
+  border-color: #bae6fd;
+}
+.sub-status-pill.status-trial .sub-status-dot {
+  background: #0284c7;
+  box-shadow: 0 0 6px rgba(2, 132, 199, 0.65);
+}
+
+/* Past Due */
+.sub-status-pill.status-past-due {
+  background: #fff7ed;
+  color: #c2410c;
+  border-color: #fed7aa;
+}
+.sub-status-pill.status-past-due .sub-status-dot {
+  background: #ea580c;
+  box-shadow: 0 0 6px rgba(234, 88, 12, 0.65);
+}
+
+/* Cancelled */
+.sub-status-pill.status-cancelled {
+  background: #f8fafc;
+  color: #64748b;
+  border-color: #e2e8f0;
+}
+.sub-status-pill.status-cancelled .sub-status-dot {
+  background: #94a3b8;
+}
+
+/* 3. Payment State Badges (Paid, Trial, Failed) */
+.sub-payment-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 6px;
+  font-size: 11.5px;
+  font-weight: 650;
+  white-space: nowrap;
+  border: 1px solid transparent;
+}
+
+.sub-payment-badge.payment-paid {
+  background: #ecfdf5;
+  color: #15803d;
+  border-color: #bbf7d0;
+}
+
+.sub-payment-badge.payment-trial {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border-color: #bfdbfe;
+}
+
+.sub-payment-badge.payment-failed {
+  background: #fef2f2;
+  color: #b91c1c;
+  border-color: #fecaca;
+}
+
+/* 4. Color-Coded Table Action Buttons */
+.sub-action-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sub-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.16s ease;
+  flex-shrink: 0;
+  outline: none;
+}
+
+.sub-action-btn:hover {
+  transform: translateY(-1px);
+}
+
+.sub-action-btn:active {
+  transform: translateY(0);
+}
+
+/* View Details (Indigo) */
+.sub-action-btn.btn-view {
+  background: #eef2ff;
+  color: #4f46e5;
+  border-color: #e0e7ff;
+}
+.sub-action-btn.btn-view:hover {
+  background: #e0e7ff;
+  color: #4338ca;
+  border-color: #c7d2fe;
+  box-shadow: 0 2px 6px rgba(79, 70, 229, 0.2);
+}
+
+/* Edit Subscription (Blue) */
+.sub-action-btn.btn-edit {
+  background: #eff6ff;
+  color: #2563eb;
+  border-color: #dbeafe;
+}
+.sub-action-btn.btn-edit:hover {
+  background: #dbeafe;
+  color: #1d4ed8;
+  border-color: #bfdbfe;
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.2);
+}
+
+/* Activate / Unlock (Emerald) */
+.sub-action-btn.btn-activate {
+  background: #ecfdf5;
+  color: #15803d;
+  border-color: #d1fae5;
+}
+.sub-action-btn.btn-activate:hover {
+  background: #d1fae5;
+  color: #166534;
+  border-color: #a7f3d0;
+  box-shadow: 0 2px 6px rgba(21, 128, 61, 0.2);
+}
+
+/* Cancel / Terminate (Crimson) */
+.sub-action-btn.btn-cancel {
+  background: #fef2f2 !important;
+  color: #dc2626 !important;
+  border-color: #fee2e2 !important;
+}
+.sub-action-btn.btn-cancel svg {
+  display: block !important;
+  color: #dc2626 !important;
+  stroke: #dc2626 !important;
+  width: 15px !important;
+  height: 15px !important;
+  flex-shrink: 0 !important;
+}
+.sub-action-btn.btn-cancel:hover {
+  background: #fee2e2 !important;
+  color: #b91c1c !important;
+  border-color: #fecaca !important;
+  box-shadow: 0 2px 6px rgba(220, 38, 38, 0.2) !important;
+}
+.sub-action-btn.btn-cancel:hover svg {
+  color: #b91c1c !important;
+  stroke: #b91c1c !important;
+}
+
+/* 5. Quick Status Tabs with Theme Specific Colors */
+.sub-quick-tab.active-all {
+  background: #3b66ff;
+  color: #ffffff;
+  border-color: #3b66ff;
+  box-shadow: 0 2px 8px rgba(59, 102, 255, 0.28);
+}
+.sub-quick-tab.active-all .sub-quick-tab-badge {
+  background: rgba(255, 255, 255, 0.28);
+  color: #ffffff;
+}
+
+.sub-quick-tab.active-active {
+  background: #10b981;
+  color: #ffffff;
+  border-color: #10b981;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.28);
+}
+.sub-quick-tab.active-active .sub-quick-tab-badge {
+  background: rgba(255, 255, 255, 0.28);
+  color: #ffffff;
+}
+
+.sub-quick-tab.active-trial {
+  background: #0284c7;
+  color: #ffffff;
+  border-color: #0284c7;
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.28);
+}
+.sub-quick-tab.active-trial .sub-quick-tab-badge {
+  background: rgba(255, 255, 255, 0.28);
+  color: #ffffff;
+}
+
+.sub-quick-tab.active-past-due {
+  background: #f59e0b;
+  color: #ffffff;
+  border-color: #f59e0b;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.28);
+}
+.sub-quick-tab.active-past-due .sub-quick-tab-badge {
+  background: rgba(255, 255, 255, 0.28);
+  color: #ffffff;
+}
+
+.sub-quick-tab.active-cancelled {
+  background: #64748b;
+  color: #ffffff;
+  border-color: #64748b;
+  box-shadow: 0 2px 8px rgba(100, 116, 139, 0.28);
+}
+.sub-quick-tab.active-cancelled .sub-quick-tab-badge {
+  background: rgba(255, 255, 255, 0.28);
+  color: #ffffff;
+}
+
+/* 6. Interactive SaaS Pricing Cards */
+.sub-pricing-cycle-switch {
+  display: inline-flex;
+  align-items: center;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 9999px;
+  padding: 3px;
+  gap: 2px;
+}
+
+.sub-cycle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 9999px;
+  border: none;
+  background: transparent;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.sub-cycle-btn.active {
+  background: #ffffff;
+  color: #1e293b;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.sub-cycle-savings-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 6px;
+  border-radius: 9999px;
+  background: #dcfce7;
+  color: #15803d;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.subscriptions-plan-card {
+  position: relative;
+  overflow: hidden;
+  border-top: 4px solid transparent;
+}
+
+.subscriptions-plan-card.plan-starter {
+  border-top-color: #0284c7;
+}
+
+.subscriptions-plan-card.plan-business {
+  border-top-color: #6366f1;
+}
+
+.subscriptions-plan-card.plan-enterprise {
+  border-top-color: #7c3aed;
+}
+
+.subscriptions-edit-price-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  background: #f8fafc;
+  color: #475569;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.subscriptions-edit-price-btn:hover {
+  background: #eff6ff;
+  color: #2563eb;
+  border-color: #bfdbfe;
+}
+
+.subscriptions-plan-price-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+/* 7. Portaled Confirmation Modal */
+.sub-confirm-dialog {
+  width: min(100%, 450px) !important;
+  max-width: 450px !important;
+  background: #ffffff !important;
+  border-radius: 14px !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 24px 65px rgba(15, 23, 42, 0.28) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+  animation: subscriptionsModalPop 0.2s cubic-bezier(0.16, 1, 0.3, 1) both !important;
+}
+
+.sub-confirm-header {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  padding: 18px 20px 14px !important;
+}
+
+.sub-confirm-icon-box {
+  width: 42px !important;
+  height: 42px !important;
+  border-radius: 10px !important;
+  background: #fee2e2 !important;
+  color: #dc2626 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
+}
+
+.sub-confirm-header h3 {
+  margin: 0 0 3px 0 !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  color: #0f172a !important;
+}
+
+.sub-confirm-header p {
+  margin: 0 !important;
+  font-size: 12px !important;
+  color: #64748b !important;
+}
+
+.sub-confirm-body {
+  padding: 0 20px 18px !important;
+  font-size: 13px !important;
+  color: #334155 !important;
+  line-height: 1.5 !important;
+}
+
+.sub-confirm-target-box {
+  margin-top: 10px !important;
+  padding: 10px 14px !important;
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 8px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+}
+
+.sub-confirm-footer {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 10px !important;
+  padding: 14px 20px !important;
+  background: #f8fafc !important;
+  border-top: 1px solid #e2e8f0 !important;
+}
+
+/* 8. Dark Mode Adjustments */
+.sa-dark-mode .sub-tier-badge.tier-enterprise {
+  background: rgba(124, 58, 237, 0.16) !important;
+  color: #c4b5fd !important;
+  border-color: rgba(124, 58, 237, 0.4) !important;
+}
+
+.sa-dark-mode .sub-tier-badge.tier-business {
+  background: rgba(217, 119, 6, 0.16) !important;
+  color: #fde047 !important;
+  border-color: rgba(217, 119, 6, 0.4) !important;
+}
+
+.sa-dark-mode .sub-tier-badge.tier-starter {
+  background: rgba(2, 132, 199, 0.16) !important;
+  color: #7dd3fc !important;
+  border-color: rgba(2, 132, 199, 0.4) !important;
+}
+
+.sa-dark-mode .sub-status-pill.status-active {
+  background: rgba(22, 163, 74, 0.16) !important;
+  color: #86efac !important;
+  border-color: rgba(22, 163, 74, 0.4) !important;
+}
+
+.sa-dark-mode .sub-status-pill.status-trial {
+  background: rgba(2, 132, 199, 0.16) !important;
+  color: #7dd3fc !important;
+  border-color: rgba(2, 132, 199, 0.4) !important;
+}
+
+.sa-dark-mode .sub-status-pill.status-past-due {
+  background: rgba(234, 88, 12, 0.16) !important;
+  color: #fdba74 !important;
+  border-color: rgba(234, 88, 12, 0.4) !important;
+}
+
+.sa-dark-mode .sub-status-pill.status-cancelled {
+  background: rgba(100, 116, 139, 0.16) !important;
+  color: #cbd5e1 !important;
+  border-color: rgba(100, 116, 139, 0.4) !important;
+}
+
+.sa-dark-mode .sub-payment-badge.payment-paid {
+  background: rgba(22, 163, 74, 0.16) !important;
+  color: #86efac !important;
+  border-color: rgba(22, 163, 74, 0.35) !important;
+}
+
+.sa-dark-mode .sub-payment-badge.payment-trial {
+  background: rgba(37, 99, 235, 0.16) !important;
+  color: #93c5fd !important;
+  border-color: rgba(37, 99, 235, 0.35) !important;
+}
+
+.sa-dark-mode .sub-payment-badge.payment-failed {
+  background: rgba(220, 38, 38, 0.16) !important;
+  color: #fca5a5 !important;
+  border-color: rgba(220, 38, 38, 0.35) !important;
+}
+
+.sa-dark-mode .sub-action-btn.btn-view {
+  background: rgba(99, 102, 241, 0.15) !important;
+  color: #a5b4fc !important;
+  border-color: rgba(99, 102, 241, 0.3) !important;
+}
+.sa-dark-mode .sub-action-btn.btn-view:hover {
+  background: rgba(99, 102, 241, 0.28) !important;
+  color: #ffffff !important;
+}
+
+.sa-dark-mode .sub-action-btn.btn-edit {
+  background: rgba(37, 99, 235, 0.15) !important;
+  color: #93c5fd !important;
+  border-color: rgba(37, 99, 235, 0.3) !important;
+}
+.sa-dark-mode .sub-action-btn.btn-edit:hover {
+  background: rgba(37, 99, 235, 0.28) !important;
+  color: #ffffff !important;
+}
+
+.sa-dark-mode .sub-action-btn.btn-activate {
+  background: rgba(22, 163, 74, 0.15) !important;
+  color: #86efac !important;
+  border-color: rgba(22, 163, 74, 0.3) !important;
+}
+.sa-dark-mode .sub-action-btn.btn-activate:hover {
+  background: rgba(22, 163, 74, 0.28) !important;
+  color: #ffffff !important;
+}
+
+.sa-dark-mode .sub-action-btn.btn-cancel {
+  background: rgba(220, 38, 38, 0.15) !important;
+  color: #fca5a5 !important;
+  border-color: rgba(220, 38, 38, 0.3) !important;
+}
+.sa-dark-mode .sub-action-btn.btn-cancel svg {
+  color: #fca5a5 !important;
+  stroke: #fca5a5 !important;
+}
+.sa-dark-mode .sub-action-btn.btn-cancel:hover {
+  background: rgba(220, 38, 38, 0.28) !important;
+  color: #ffffff !important;
+}
+.sa-dark-mode .sub-action-btn.btn-cancel:hover svg {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
+}
+
+.sa-dark-mode .sub-pricing-cycle-switch {
+  background: #172442 !important;
+  border-color: #233355 !important;
+}
+
+.sa-dark-mode .sub-cycle-btn {
+  color: #94a3b8 !important;
+}
+
+.sa-dark-mode .sub-cycle-btn.active {
+  background: #233355 !important;
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .subscriptions-plan-card {
+  background: #151f38 !important;
+  border-color: #233355 !important;
+}
+
+.sa-dark-mode .subscriptions-plan-name {
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .subscriptions-plan-price strong {
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .subscriptions-edit-price-btn {
+  background: #1b2746 !important;
+  border-color: #28395f !important;
+  color: #cbd5e1 !important;
+}
+
+.sa-dark-mode .sub-confirm-dialog {
+  background: #151f38 !important;
+  border-color: #233355 !important;
+}
+
+.sa-dark-mode .sub-confirm-header h3 {
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .sub-confirm-body {
+  color: #cbd5e1 !important;
+}
+
+.sa-dark-mode .sub-confirm-target-box {
+  background: #1b2746 !important;
+  border-color: #28395f !important;
+}
+
+.sa-dark-mode .sub-confirm-footer {
+  background: #111a30 !important;
+  border-top-color: #233355 !important;
+}
+
+/* 9. Subscription Form Calculations & Feature Badges */
+.sub-form-calc-box {
+  padding: 12px 16px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 12px;
+  transition: all 0.2s ease;
+}
+
+.sub-form-calc-box.is-yearly {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+}
+
+.sa-dark-mode .sub-form-calc-box {
+  background: #172442 !important;
+  border-color: #233355 !important;
+}
+
+.sa-dark-mode .sub-form-calc-box.is-yearly {
+  background: rgba(22, 163, 74, 0.12) !important;
+  border-color: rgba(22, 163, 74, 0.3) !important;
+}
+
+.sa-dark-mode .subscriptions-form-grid input,
+.sa-dark-mode .subscriptions-form-grid select {
+  background: #172442 !important;
+  border-color: #233355 !important;
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .subscriptions-form-grid label {
+  color: #94a3b8 !important;
+}
+
+
+
+
+
+/* ==========================================================================
+   UNIFIED SUPER ADMIN FORMS DESIGN SYSTEM — HIGH-END & ATTRACTIVE
+   Consistent Inter Font, Unified 13px Labels, 42px Inputs, Responsive Grids
+   ========================================================================== */
+
+/* Unified Modal Base */
+.subscriptions-modal {
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  border-radius: 16px !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 25px 70px -12px rgba(15, 23, 42, 0.25) !important;
+  background: #ffffff !important;
+  color: #0f172a !important;
+}
+
+.subscriptions-modal > header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 18px 24px !important;
+  border-bottom: 1px solid #eef2f7 !important;
+  background: #ffffff !important;
+}
+
+.subscriptions-modal-icon {
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 12px !important;
+  background: #eff3fe !important;
+  color: #3b66ff !important;
+  display: grid !important;
+  place-items: center !important;
+  flex-shrink: 0 !important;
+}
+
+.subscriptions-modal h2 {
+  margin: 0 !important;
+  color: #0f172a !important;
+  font-size: 17.5px !important;
+  font-weight: 750 !important;
+  letter-spacing: -0.3px !important;
+}
+
+.subscriptions-modal header p {
+  margin: 3px 0 0 !important;
+  color: #64748b !important;
+  font-size: 13px !important;
+  font-weight: 450 !important;
+}
+
+.subscriptions-modal .subscriptions-icon-button {
+  width: 34px !important;
+  height: 34px !important;
+  border-radius: 8px !important;
+  border: 1px solid #e2e8f0 !important;
+  background: transparent !important;
+  color: #64748b !important;
+  display: grid !important;
+  place-items: center !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+}
+
+.subscriptions-modal .subscriptions-icon-button:hover {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+.subscriptions-modal > footer,
+.subscriptions-form-modal form > footer {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 10px !important;
+  padding: 16px 24px !important;
+  border-top: 1px solid #eef2f7 !important;
+  background: #fafbfe !important;
+}
+
+/* Subscription Form Layout */
+.subscriptions-form-modal {
+  width: min(100%, 650px) !important;
+  max-width: 650px !important;
+}
+
+.subscriptions-form-modal form {
+  padding: 22px 24px 0 !important;
+}
+
+.subscriptions-form-grid {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 16px !important;
+}
+
+.sub-form-field {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 6px !important;
+  min-width: 0 !important;
+}
+
+.sub-form-field.sub-form-full {
+  grid-column: 1 / -1 !important;
+}
+
+.sub-form-field label,
+.subscriptions-form-grid label {
+  color: #1e293b !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.1px !important;
+}
+
+.subscriptions-form-grid input,
+.subscriptions-form-grid select,
+.sub-form-field input,
+.sub-form-field select {
+  width: 100% !important;
+  min-width: 0 !important;
+  height: 42px !important;
+  min-height: 42px !important;
+  padding: 0 14px !important;
+  border: 1px solid #d1d5db !important;
+  border-radius: 9px !important;
+  outline: none !important;
+  background: #ffffff !important;
+  color: #0f172a !important;
+  font-family: inherit !important;
+  font-size: 13.5px !important;
+  font-weight: 500 !important;
+  transition: all 0.18s ease !important;
+}
+
+.subscriptions-form-grid input:hover,
+.subscriptions-form-grid select:hover,
+.sub-form-field input:hover,
+.sub-form-field select:hover {
+  border-color: #94a3b8 !important;
+}
+
+.subscriptions-form-grid input:focus,
+.subscriptions-form-grid select:focus,
+.sub-form-field input:focus,
+.sub-form-field select:focus {
+  border-color: #3b66ff !important;
+  box-shadow: 0 0 0 3px rgba(59, 102, 255, 0.16) !important;
+}
+
+/* Pricing Calculation Card */
+.sub-calc-box-wrap {
+  grid-column: 1 / -1 !important;
+  margin: 4px 0 2px !important;
+}
+
+.sub-form-calc-card {
+  padding: 14px 18px !important;
+  border-radius: 12px !important;
+  border: 1px solid #e2e8f0 !important;
+  transition: all 0.2s ease !important;
+}
+
+.sub-form-calc-card.is-yearly {
+  background: #f0fdf4 !important;
+  border-color: #bbf7d0 !important;
+}
+
+.sub-form-calc-card.is-monthly {
+  background: #eff6ff !important;
+  border-color: #bfdbfe !important;
+}
+
+.sub-calc-header-row {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  margin-bottom: 6px !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+}
+
+.sub-calc-icon-dot {
+  width: 8px !important;
+  height: 8px !important;
+  border-radius: 50% !important;
+  display: inline-block !important;
+}
+
+.is-yearly .sub-calc-icon-dot {
+  background: #16a34a !important;
+  box-shadow: 0 0 6px rgba(22, 163, 74, 0.6) !important;
+}
+
+.is-monthly .sub-calc-icon-dot {
+  background: #2563eb !important;
+  box-shadow: 0 0 6px rgba(37, 99, 235, 0.6) !important;
+}
+
+.sub-calc-title {
+  font-weight: 650 !important;
+  font-size: 13px !important;
+}
+
+.is-yearly .sub-calc-title {
+  color: #166534 !important;
+}
+
+.is-monthly .sub-calc-title {
+  color: #1e40af !important;
+}
+
+.sub-calc-big-price {
+  font-size: 18px !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.4px !important;
+  font-variant-numeric: tabular-nums !important;
+}
+
+.is-yearly .sub-calc-big-price {
+  color: #15803d !important;
+}
+
+.is-monthly .sub-calc-big-price {
+  color: #2563eb !important;
+}
+
+.sub-calc-save-pill {
+  display: inline-flex !important;
+  align-items: center !important;
+  padding: 2px 8px !important;
+  border-radius: 9999px !important;
+  background: #dcfce7 !important;
+  color: #15803d !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  border: 1px solid #bbf7d0 !important;
+}
+
+.sub-calc-meta-row {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  font-size: 12px !important;
+  flex-wrap: wrap !important;
+  gap: 6px !important;
+}
+
+.is-yearly .sub-calc-meta-row {
+  color: #166534 !important;
+}
+
+.is-monthly .sub-calc-meta-row {
+  color: #1e40af !important;
+}
+
+/* Subscribed Features Section */
+.sub-features-section {
+  grid-column: 1 / -1 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  margin: 6px 0 10px !important;
+}
+
+.sub-features-header {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+}
+
+.sub-features-count {
+  font-size: 12px !important;
+  color: #64748b !important;
+  font-weight: 550 !important;
+}
+
+.sub-quick-link-btn {
+  background: transparent !important;
+  border: 0 !important;
+  color: #3b66ff !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  padding: 0 !important;
+}
+
+.sub-quick-link-btn:hover {
+  text-decoration: underline !important;
+}
+
+.sub-feature-select {
+  width: 100% !important;
+  height: 40px !important;
+  padding: 0 12px !important;
+  border: 1px solid #d1d5db !important;
+  border-radius: 9px !important;
+  background: #ffffff !important;
+  color: #475569 !important;
+  font-size: 13px !important;
+  font-family: inherit !important;
+  cursor: pointer !important;
+  outline: none !important;
+  transition: all 0.15s ease !important;
+}
+
+.sub-feature-select:focus {
+  border-color: #3b66ff !important;
+  box-shadow: 0 0 0 3px rgba(59, 102, 255, 0.15) !important;
+}
+
+.sub-features-chips-container {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+  min-height: 44px !important;
+  padding: 10px !important;
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 10px !important;
+}
+
+.sub-feature-chip {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  padding: 5px 10px !important;
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #1e293b !important;
+  border-radius: 8px !important;
+  font-size: 12px !important;
+  font-weight: 550 !important;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04) !important;
+  transition: all 0.15s ease !important;
+}
+
+.sub-feature-chip:hover {
+  border-color: #3b66ff !important;
+  background: #f8faff !important;
+}
+
+.sub-chip-remove {
+  border: 0 !important;
+  background: transparent !important;
+  color: #94a3b8 !important;
+  cursor: pointer !important;
+  padding: 2px !important;
+  border-radius: 4px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: all 0.15s ease !important;
+}
+
+.sub-chip-remove:hover {
+  background: #fee2e2 !important;
+  color: #dc2626 !important;
+}
+
+/* Edit Plan Price Modal */
+.sub-price-modal {
+  width: min(100%, 470px) !important;
+  max-width: 470px !important;
+}
+
+.sub-price-modal .sub-form-body {
+  padding: 22px 24px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 16px !important;
+}
+
+.sub-field-group {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 6px !important;
+}
+
+.sub-field-label {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  color: #1e293b !important;
+}
+
+.sub-input-static {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 8px 14px !important;
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 9px !important;
+  min-height: 42px !important;
+}
+
+.sub-currency-input-wrap {
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+  width: 100% !important;
+}
+
+.sub-currency-prefix {
+  position: absolute !important;
+  left: 14px !important;
+  font-size: 17px !important;
+  font-weight: 750 !important;
+  color: #3b66ff !important;
+  pointer-events: none !important;
+}
+
+.sub-currency-suffix {
+  position: absolute !important;
+  right: 14px !important;
+  font-size: 12.5px !important;
+  font-weight: 550 !important;
+  color: #64748b !important;
+  pointer-events: none !important;
+}
+
+.sub-currency-input {
+  width: 100% !important;
+  height: 46px !important;
+  padding-left: 34px !important;
+  padding-right: 80px !important;
+  font-size: 18px !important;
+  font-weight: 750 !important;
+  color: #0f172a !important;
+  border: 1px solid #d1d5db !important;
+  border-radius: 9px !important;
+  outline: none !important;
+  font-family: inherit !important;
+  transition: all 0.18s ease !important;
+}
+
+.sub-currency-input:focus {
+  border-color: #3b66ff !important;
+  box-shadow: 0 0 0 3px rgba(59, 102, 255, 0.18) !important;
+}
+
+.sub-currency-input::-webkit-outer-spin-button,
+.sub-currency-input::-webkit-inner-spin-button {
+  -webkit-appearance: none !important;
+  margin: 0 !important;
+}
+
+.sub-currency-input {
+  -moz-appearance: textfield !important;
+}
+
+.sub-preset-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  padding: 4px 10px !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 6px !important;
+  background: #f8fafc !important;
+  color: #475569 !important;
+  font-size: 11.5px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+}
+
+.sub-preset-btn:hover {
+  background: #eff6ff !important;
+  border-color: #bfdbfe !important;
+  color: #2563eb !important;
+}
+
+.sub-field-hint {
+  margin: 0 !important;
+  font-size: 12px !important;
+  color: #64748b !important;
+  line-height: 1.5 !important;
+}
+
+/* Plan Catalogue Modal */
+.sub-catalogue-modal {
+  width: min(100%, 600px) !important;
+  max-width: 600px !important;
+}
+
+.sub-catalogue-card {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 16px !important;
+  padding: 14px 18px !important;
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 12px !important;
+  transition: all 0.18s ease !important;
+}
+
+.sub-catalogue-card:hover {
+  border-color: #cbd5e1 !important;
+  background: #f1f5f9 !important;
+}
+
+.sub-catalogue-note {
+  padding: 12px 16px !important;
+  border-radius: 9px !important;
+  background: #eff6ff !important;
+  border: 1px solid #bfdbfe !important;
+  color: #1e40af !important;
+  font-size: 12.5px !important;
+  line-height: 1.55 !important;
+}
+
+/* Dark Mode Overrides for All Forms */
+.sa-dark-mode .subscriptions-modal,
+.sa-dark-mode .subscriptions-form-modal,
+.sa-dark-mode .sub-price-modal,
+.sa-dark-mode .sub-catalogue-modal,
+.sa-dark-mode .subscriptions-view-modal {
+  background: #151f38 !important;
+  border-color: #233355 !important;
+  color: #f8fafc !important;
+  box-shadow: 0 25px 70px -12px rgba(0, 0, 0, 0.65) !important;
+}
+
+.sa-dark-mode .subscriptions-modal > header {
+  background: #151f38 !important;
+  border-bottom-color: #233355 !important;
+}
+
+.sa-dark-mode .subscriptions-modal-icon {
+  background: rgba(59, 102, 255, 0.2) !important;
+  color: #8bb0ff !important;
+}
+
+.sa-dark-mode .subscriptions-modal h2 {
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .subscriptions-modal header p,
+.sa-dark-mode .sub-field-hint {
+  color: #94a3b8 !important;
+}
+
+.sa-dark-mode .sub-form-field label,
+.sa-dark-mode .subscriptions-form-grid label,
+.sa-dark-mode .sub-field-label {
+  color: #cbd5e1 !important;
+}
+
+.sa-dark-mode .subscriptions-form-grid input,
+.sa-dark-mode .subscriptions-form-grid select,
+.sa-dark-mode .sub-form-field input,
+.sa-dark-mode .sub-form-field select,
+.sa-dark-mode .sub-currency-input,
+.sa-dark-mode .sub-feature-select {
+  background: #192440 !important;
+  border-color: #28395f !important;
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .subscriptions-form-grid input:hover,
+.sa-dark-mode .subscriptions-form-grid select:hover,
+.sa-dark-mode .sub-form-field input:hover,
+.sa-dark-mode .sub-form-field select:hover,
+.sa-dark-mode .sub-currency-input:hover,
+.sa-dark-mode .sub-feature-select:hover {
+  border-color: #3b4d75 !important;
+}
+
+.sa-dark-mode .subscriptions-form-grid input:focus,
+.sa-dark-mode .subscriptions-form-grid select:focus,
+.sa-dark-mode .sub-form-field input:focus,
+.sa-dark-mode .sub-form-field select:focus,
+.sa-dark-mode .sub-currency-input:focus,
+.sa-dark-mode .sub-feature-select:focus {
+  border-color: #3b66ff !important;
+  box-shadow: 0 0 0 3px rgba(59, 102, 255, 0.25) !important;
+}
+
+.sa-dark-mode .subscriptions-form-modal form > footer,
+.sa-dark-mode .subscriptions-modal > footer {
+  background: #111a30 !important;
+  border-top-color: #233355 !important;
+}
+
+.sa-dark-mode .subscriptions-button-light {
+  background: #192440 !important;
+  border-color: #28395f !important;
+  color: #cbd5e1 !important;
+}
+
+.sa-dark-mode .subscriptions-button-light:hover {
+  background: #233355 !important;
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .sub-form-calc-card.is-yearly {
+  background: rgba(22, 163, 74, 0.15) !important;
+  border-color: rgba(22, 163, 74, 0.35) !important;
+}
+
+.sa-dark-mode .sub-form-calc-card.is-yearly .sub-calc-title,
+.sa-dark-mode .sub-form-calc-card.is-yearly .sub-calc-meta-row {
+  color: #86efac !important;
+}
+
+.sa-dark-mode .sub-form-calc-card.is-yearly .sub-calc-big-price {
+  color: #4ade80 !important;
+}
+
+.sa-dark-mode .sub-form-calc-card.is-monthly {
+  background: rgba(59, 102, 255, 0.12) !important;
+  border-color: rgba(59, 102, 255, 0.3) !important;
+}
+
+.sa-dark-mode .sub-form-calc-card.is-monthly .sub-calc-title,
+.sa-dark-mode .sub-form-calc-card.is-monthly .sub-calc-meta-row {
+  color: #93c5fd !important;
+}
+
+.sa-dark-mode .sub-form-calc-card.is-monthly .sub-calc-big-price {
+  color: #60a5fa !important;
+}
+
+.sa-dark-mode .sub-input-static {
+  background: #192440 !important;
+  border-color: #28395f !important;
+}
+
+.sa-dark-mode .sub-preset-btn {
+  background: #192440 !important;
+  border-color: #28395f !important;
+  color: #cbd5e1 !important;
+}
+
+.sa-dark-mode .sub-preset-btn:hover {
+  background: #233355 !important;
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .sub-features-chips-container {
+  background: #111a30 !important;
+  border-color: #233355 !important;
+}
+
+.sa-dark-mode .sub-feature-chip {
+  background: #192440 !important;
+  border-color: #28395f !important;
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .sub-catalogue-card {
+  background: #192440 !important;
+  border-color: #28395f !important;
+}
+
+.sa-dark-mode .sub-catalogue-note {
+  background: rgba(59, 102, 255, 0.12) !important;
+  border-color: rgba(59, 102, 255, 0.3) !important;
+  color: #93c5fd !important;
+}
+
+/* ==========================================================================
+   DARK MODE ENHANCEMENTS: DEMO BILLING NOTICE, PLANS ARCHITECTURE & TABLE
+   ========================================================================== */
+
+/* 1. Demo billing information notice bar (IMAGE 1) */
+.sa-dark-mode .subscriptions-demo-note {
+  background: #111a2e !important;
+  border: 1px solid #1e293b !important;
+  color: #94a3b8 !important;
+}
+
+.sa-dark-mode .subscriptions-demo-note svg {
+  color: #818cf8 !important;
+}
+
+/* 2. Available Plans & Pricing Table mode (IMAGE 2) */
+.sa-dark-mode .sub-plan-table-feature-tag {
+  background: #192440 !important;
+  border-color: #27375a !important;
+  color: #cbd5e1 !important;
+}
+
+.sa-dark-mode .sub-plan-table-feature-tag svg {
+  color: #4ade80 !important;
+}
+
+.sa-dark-mode .sub-plan-table-desc {
+  color: #cbd5e1 !important;
+}
+
+.sa-dark-mode .sub-plan-table-standard {
+  color: #64748b !important;
+}
+
+.sa-dark-mode .subscriptions-plan-popular {
+  background: rgba(99, 102, 241, 0.22) !important;
+  border: 1px solid rgba(129, 140, 248, 0.45) !important;
+  color: #c7d2fe !important;
+}
+
+/* 3. Cards / Table View Toggle */
+.sa-dark-mode .sub-plans-view-toggle {
+  background: #111a2e !important;
+  border-color: #1e293b !important;
+}
+
+.sa-dark-mode .sub-plans-toggle-btn {
+  color: #94a3b8 !important;
+}
+
+.sa-dark-mode .sub-plans-toggle-btn:hover {
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .sub-plans-toggle-btn.active {
+  background: #1e293b !important;
+  color: #818cf8 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* 4. Text buttons and Section Heading */
+.sa-dark-mode .subscriptions-text-button {
+  color: #818cf8 !important;
+}
+
+.sa-dark-mode .subscriptions-text-button:hover {
+  color: #a5b4fc !important;
+}
+
+.sa-dark-mode .subscriptions-section-heading h2 {
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .subscriptions-section-heading p {
+  color: #94a3b8 !important;
+}
+
+.sa-dark-mode .subscriptions-price {
+  color: #f8fafc !important;
+  font-weight: 700 !important;
+}
+
+.sa-dark-mode .subscriptions-billing-cycle {
+  color: #94a3b8 !important;
+}
+
+/* 5. Plans Cards View in Dark Mode */
+.sa-dark-mode .subscriptions-plan-card {
+  background: #111a2e !important;
+  border-color: #1e293b !important;
+}
+
+.sa-dark-mode .subscriptions-plan-featured {
+  border-color: #6366f1 !important;
+  box-shadow: 0 8px 30px rgba(99, 102, 241, 0.25) !important;
+}
+
+.sa-dark-mode .subscriptions-plan-card > p {
+  color: #94a3b8 !important;
+}
+
+.sa-dark-mode .subscriptions-plan-features {
+  border-top-color: #1e293b !important;
+}
+
+.sa-dark-mode .subscriptions-plan-features > div {
+  color: #cbd5e1 !important;
+}
+
+.sa-dark-mode .subscriptions-plan-action {
+  background: #192440 !important;
+  border-color: #28395f !important;
+  color: #cbd5e1 !important;
+}
+
+.sa-dark-mode .subscriptions-plan-action:hover {
+  background: #233355 !important;
+  border-color: #3b82f6 !important;
+  color: #ffffff !important;
+}
+
+.sa-dark-mode .subscriptions-plan-featured .subscriptions-plan-action {
+  background: #3b66ff !important;
+  border-color: #3b66ff !important;
+  color: #ffffff !important;
+}
+
+.sa-dark-mode .subscriptions-plan-featured .subscriptions-plan-action:hover {
+  background: #254edb !important;
+  border-color: #254edb !important;
+}
+
+/* 6. Pagination Controls in Dark Mode */
+.sa-dark-mode .subscriptions-pagination button {
+  background: #192440 !important;
+  border-color: #28395f !important;
+  color: #cbd5e1 !important;
+}
+
+.sa-dark-mode .subscriptions-pagination button:not(:disabled):hover {
+  background: #233355 !important;
+  border-color: #3b82f6 !important;
+  color: #ffffff !important;
+}
+
+.sa-dark-mode .subscriptions-pagination button:disabled {
+  opacity: 0.35 !important;
+  cursor: not-allowed !important;
+}
+
+.sa-dark-mode .subscriptions-pagination > div > span {
+  color: #94a3b8 !important;
+}
+
+
+/* ==========================================================================
+   COMPANY LOGOS & MODAL FOOTER BUTTON POSITIONING FIXES
+   ========================================================================== */
+
+/* 1. Real Dummy Company Logo Container */
+.sub-company-logo-wrap {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 9px !important;
+  overflow: hidden !important;
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08) !important;
+  flex-shrink: 0 !important;
+  transition: transform 0.16s ease, box-shadow 0.16s ease !important;
+}
+
+.sub-company-logo-wrap:hover {
+  transform: scale(1.06) !important;
+  box-shadow: 0 3px 8px rgba(15, 23, 42, 0.14) !important;
+}
+
+.sub-company-logo-wrap.is-vector-brand {
+  border: none !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12) !important;
+}
+
+.sub-company-logo-img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  display: block !important;
+}
+
+.sa-dark-mode .sub-company-logo-wrap {
+  background: #192440 !important;
+  border-color: #28395f !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.45) !important;
+}
+
+/* 2. Universal Modal Footer & Proper Button Positioning */
+.sub-modal-footer,
+.subscriptions-modal footer,
+.subscriptions-modal form > footer,
+.subscriptions-form-modal form > footer,
+.sub-price-modal form > footer,
+.sub-catalogue-modal footer,
+.subscriptions-view-footer,
+.sub-confirm-footer {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 12px !important;
+  padding: 16px 24px !important;
+  border-top: 1px solid #eef2f7 !important;
+  background: #fafbfe !important;
+  border-bottom-left-radius: 12px !important;
+  border-bottom-right-radius: 12px !important;
+  box-sizing: border-box !important;
+  width: 100% !important;
+  margin: 0 !important;
+}
+
+.sub-modal-footer .subscriptions-button,
+.subscriptions-modal footer .subscriptions-button,
+.subscriptions-modal form > footer .subscriptions-button,
+.sub-price-modal form > footer .subscriptions-button {
+  margin: 0 !important;
+  height: 40px !important;
+  padding: 0 20px !important;
+  font-size: 13.5px !important;
+  font-weight: 600 !important;
+  border-radius: 9px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  cursor: pointer !important;
+  transition: all 0.16s ease !important;
+}
+
+.sa-dark-mode .sub-modal-footer,
+.sa-dark-mode .subscriptions-modal footer,
+.sa-dark-mode .subscriptions-modal form > footer,
+.sa-dark-mode .subscriptions-form-modal form > footer,
+.sa-dark-mode .sub-price-modal form > footer,
+.sa-dark-mode .sub-catalogue-modal footer,
+.sa-dark-mode .subscriptions-view-footer,
+.sa-dark-mode .sub-confirm-footer {
+  background: #111a2e !important;
+  border-top-color: #1e293b !important;
+}
+
+/* 3. Preset Buttons in Edit Plan Rate */
+.sub-preset-btn-group {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  flex-wrap: wrap !important;
+  margin: 6px 0 16px !important;
+}
+
+.sub-preset-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  height: 34px !important;
+  padding: 0 14px !important;
+  border-radius: 7px !important;
+  border: 1px solid #d1d5db !important;
+  background: #f8fafc !important;
+  color: #334155 !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+}
+
+.sub-preset-btn:hover {
+  background: #eff6ff !important;
+  border-color: #3b66ff !important;
+  color: #1d4ed8 !important;
+  transform: translateY(-1px) !important;
+}
+
+.sa-dark-mode .sub-preset-btn {
+  background: #192440 !important;
+  border-color: #28395f !important;
+  color: #cbd5e1 !important;
+}
+
+.sa-dark-mode .sub-preset-btn:hover {
+  background: #233355 !important;
+  border-color: #60a5fa !important;
+  color: #ffffff !important;
+}
+
+/* 4. Table Action Buttons Spacing */
+.sub-action-group {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 8px !important;
+}
+
+/* 5. Mobile & Tablet Responsiveness */
+@media (max-width: 640px) {
+  .sub-modal-footer,
+  .subscriptions-modal footer,
+  .subscriptions-modal form > footer,
+  .subscriptions-form-modal form > footer,
+  .sub-price-modal form > footer,
+  .sub-catalogue-modal footer,
+  .subscriptions-view-footer,
+  .sub-confirm-footer {
+    padding: 12px 16px !important;
+    gap: 8px !important;
+    flex-wrap: wrap !important;
+  }
+
+  .sub-modal-footer .subscriptions-button,
+  .subscriptions-modal footer .subscriptions-button,
+  .subscriptions-modal form > footer .subscriptions-button {
+    flex: 1 1 auto !important;
+    height: 38px !important;
+    font-size: 13px !important;
+  }
+
+  .sub-preset-btn-group {
+    gap: 6px !important;
+  }
+
+  .sub-preset-btn {
+    flex: 1 1 auto !important;
+    height: 32px !important;
+    font-size: 11.5px !important;
+  }
+}

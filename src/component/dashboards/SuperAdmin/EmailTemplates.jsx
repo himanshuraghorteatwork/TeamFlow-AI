@@ -28,6 +28,8 @@ import {
   Unlock,
   Building2,
   Users,
+  Trash2,
+  Copy,
 } from "lucide-react";
 import "./SuperAdminCommon.css";
 import "./EmailTemplates.css";
@@ -50,7 +52,12 @@ const INITIAL_TEMPLATES = [
     accentGradient: "linear-gradient(135deg, #352fa8 0%, #4338ca 100%)",
     icon: Sparkles,
     badgeText: "👋 Account Ready",
-    subject: "Welcome to {{company_name}} account for {{organization_name}}",
+    subject: "Welcome to TeamFlow AI account for Acme Technologies",
+    headline: "Welcome to your TeamFlow AI workspace",
+    message: "Your account has been successfully configured for Acme Technologies. You can now log in and access all your workspace tools, team dashboards, and shared resources.\n\nPlease sign in with your work email and set up your permanent credentials.",
+    ctaText: "Sign In to Workspace",
+    ctaUrl: "https://app.teamflow.ai/login",
+    footerNote: "Sent by TeamFlow AI for Acme Technologies",
     trigger: "auth.user.account_provisioned",
     triggerDescription: "Triggered instantly when a new team member account is provisioned",
     engine: "Liquid v5.4",
@@ -69,7 +76,7 @@ const INITIAL_TEMPLATES = [
           <circle cx="21" cy="7" r="2.6" fill="#38bdf8" />
         </svg>
       </div>
-      <span style="font-size: 17px; font-weight: 750; letter-spacing: -0.3px; color: #ffffff;">{{company_name}}</span>
+      <span style="font-size: 17px; font-weight: 750; letter-spacing: -0.3px; color: #ffffff;">TeamFlow AI</span>
     </div>
     <div style="background: rgba(255, 255, 255, 0.18); border-radius: 999px; padding: 4px 12px; font-size: 11.5px; font-weight: 600; color: #ffffff; display: flex; align-items: center; gap: 4px;">
       👋 Account Ready
@@ -79,15 +86,15 @@ const INITIAL_TEMPLATES = [
   <!-- 2. Email Inner Content -->
   <div style="padding: 32px 28px 28px;">
     <div style="font-size: 11px; font-weight: 750; letter-spacing: 0.8px; text-transform: uppercase; color: #4f46e5; margin-bottom: 12px;">
-      WELCOME TO {{company_name}}
+      WELCOME TO TEAMFLOW AI
     </div>
 
     <h1 style="margin: 0 0 16px; font-size: 24px; font-weight: 800; line-height: 1.3; color: #0f172a; letter-spacing: -0.5px;">
-      Your {{company_name}} account for {{organization_name}}
+      Your TeamFlow AI account for Acme Technologies
     </h1>
 
     <p style="font-size: 14px; color: #475569; line-height: 1.55; margin: 0 0 16px;">
-      You have been added to <strong>{{organization_name}}</strong> on <strong>{{company_name}}</strong>.
+      You have been added to <strong>Acme Technologies</strong> on <strong>TeamFlow AI</strong>.
     </p>
 
     <p style="font-size: 13.5px; color: #334155; font-weight: 600; margin: 0 0 12px;">
@@ -101,7 +108,7 @@ const INITIAL_TEMPLATES = [
           EMAIL
         </td>
         <td style="padding: 12px 16px; color: #2563eb; font-weight: 600;">
-          {{user_email}}
+          alex.johnson@acme.com
         </td>
       </tr>
       <tr>
@@ -109,19 +116,19 @@ const INITIAL_TEMPLATES = [
           PASSWORD
         </td>
         <td style="padding: 12px 16px; color: #0f172a; font-family: ui-monospace, SFMono-Regular, monospace; font-weight: 700; font-size: 13.5px;">
-          {{temporary_password}}
+          Sec#992$Kla
         </td>
       </tr>
     </table>
 
     <p style="font-size: 13px; color: #64748b; line-height: 1.5; margin: 0 0 24px;">
-      This password was generated for you and is not shared with anyone else. Use the button below to replace it with one you will remember -- you will be asked for the password above, and then signed in.
+      This password was generated for you securely. Use the button below to replace it with a password you remember, and then access your workspace.
     </p>
 
     <!-- Full-width CTA Button -->
     <div style="margin: 0 0 24px;">
-      <a href="{{login_url}}" style="display: block; width: 100%; box-sizing: border-box; text-align: center; background: #352fa8; color: #ffffff; text-decoration: none; padding: 14px 24px; border-radius: 999px; font-size: 14px; font-weight: 700; box-shadow: 0 4px 14px rgba(53, 47, 168, 0.3);">
-        Set your own password
+      <a href="https://app.teamflow.ai/login" style="display: block; width: 100%; box-sizing: border-box; text-align: center; background: #352fa8; color: #ffffff; text-decoration: none; padding: 14px 24px; border-radius: 999px; font-size: 14px; font-weight: 700; box-shadow: 0 4px 14px rgba(53, 47, 168, 0.3);">
+        Sign In to Workspace
       </a>
     </div>
   </div>
@@ -135,7 +142,7 @@ const INITIAL_TEMPLATES = [
           <circle cx="21" cy="7" r="2.6" fill="#38bdf8" />
         </svg>
       </div>
-      <span>{{company_name}}</span>
+      <span>TeamFlow AI</span>
     </div>
     <div style="font-size: 11px; color: #94a3b8;">
       Sent 26 Oct 2026, 03:00 pm IST (Asia/Kolkata)
@@ -155,7 +162,12 @@ const INITIAL_TEMPLATES = [
     accentGradient: "linear-gradient(135deg, #10b981 0%, #047857 100%)",
     icon: KeyRound,
     badgeText: "🔐 Security Auth",
-    subject: "Reset your {{company_name}} password for {{organization_name}}",
+    subject: "Reset your TeamFlow AI password for NovaTech Solutions",
+    headline: "Password Reset for NovaTech Solutions",
+    message: "We received a request to reset your password for NovaTech Solutions on TeamFlow AI.\n\nClick the button below to choose a new secure password. This reset link is valid for 30 minutes. If you did not request this, you can safely ignore this email.",
+    ctaText: "Choose New Password",
+    ctaUrl: "https://app.teamflow.ai/reset-password",
+    footerNote: "Sent by TeamFlow AI for NovaTech Solutions",
     trigger: "auth.password.reset_requested",
     triggerDescription: "Triggered when user clicks 'Forgot Password' or admin requests credential cycle",
     engine: "Liquid v5.4",
@@ -173,7 +185,7 @@ const INITIAL_TEMPLATES = [
           <circle cx="21" cy="7" r="2.6" fill="#38bdf8" />
         </svg>
       </div>
-      <span style="font-size: 17px; font-weight: 750; color: #ffffff;">{{company_name}}</span>
+      <span style="font-size: 17px; font-weight: 750; color: #ffffff;">TeamFlow AI</span>
     </div>
     <div style="background: rgba(255, 255, 255, 0.18); border-radius: 999px; padding: 4px 12px; font-size: 11.5px; font-weight: 600; color: #ffffff;">
       🔐 Security Auth
@@ -182,26 +194,26 @@ const INITIAL_TEMPLATES = [
 
   <div style="padding: 32px 28px 28px;">
     <div style="font-size: 11px; font-weight: 750; letter-spacing: 0.8px; text-transform: uppercase; color: #059669; margin-bottom: 12px;">
-      PASSWORD SECURITY FROM {{company_name}}
+      PASSWORD SECURITY FROM TEAMFLOW AI
     </div>
 
     <h1 style="margin: 0 0 16px; font-size: 24px; font-weight: 800; line-height: 1.3; color: #0f172a; letter-spacing: -0.5px;">
-      Password Reset for {{organization_name}}
+      Password Reset for NovaTech Solutions
     </h1>
 
     <p style="font-size: 14px; color: #475569; line-height: 1.55; margin: 0 0 16px;">
-      We received a password reset request for your account associated with <strong>{{organization_name}}</strong> on <strong>{{company_name}}</strong>.
+      We received a password reset request for your account associated with <strong>NovaTech Solutions</strong> on <strong>TeamFlow AI</strong>.
     </p>
 
     <!-- Audit Details Table -->
     <table style="width: 100%; border-collapse: collapse; margin: 0 0 20px; font-size: 13px; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; background: #ffffff;">
       <tr style="border-bottom: 1px solid #f1f5f9;">
         <td style="padding: 12px 16px; color: #64748b; font-weight: 700; width: 32%; text-transform: uppercase; font-size: 10.5px;">ACCOUNT</td>
-        <td style="padding: 12px 16px; color: #0f172a; font-weight: 600;">{{user_email}}</td>
+        <td style="padding: 12px 16px; color: #0f172a; font-weight: 600;">alex.johnson@novatech.com</td>
       </tr>
       <tr style="border-bottom: 1px solid #f1f5f9;">
         <td style="padding: 12px 16px; color: #64748b; font-weight: 700; text-transform: uppercase; font-size: 10.5px;">REQUEST IP</td>
-        <td style="padding: 12px 16px; color: #0f172a; font-family: monospace;">{{client_ip}}</td>
+        <td style="padding: 12px 16px; color: #0f172a; font-family: monospace;">192.168.1.42</td>
       </tr>
       <tr>
         <td style="padding: 12px 16px; color: #64748b; font-weight: 700; text-transform: uppercase; font-size: 10.5px;">LINK EXPIRY</td>
@@ -210,13 +222,13 @@ const INITIAL_TEMPLATES = [
     </table>
 
     <div style="margin: 0 0 24px;">
-      <a href="{{reset_url}}" style="display: block; width: 100%; box-sizing: border-box; text-align: center; background: #047857; color: #ffffff; text-decoration: none; padding: 14px 24px; border-radius: 999px; font-size: 14px; font-weight: 700; box-shadow: 0 4px 14px rgba(4, 120, 87, 0.3);">
+      <a href="https://app.teamflow.ai/reset-password" style="display: block; width: 100%; box-sizing: border-box; text-align: center; background: #047857; color: #ffffff; text-decoration: none; padding: 14px 24px; border-radius: 999px; font-size: 14px; font-weight: 700; box-shadow: 0 4px 14px rgba(4, 120, 87, 0.3);">
         Choose new password
       </a>
     </div>
 
     <p style="font-size: 13px; color: #64748b; line-height: 1.5; margin: 0;">
-      If you did not request this, please disregard this email. Your {{company_name}} account remains secure.
+      If you did not request this, please disregard this email. Your TeamFlow AI account remains secure.
     </p>
   </div>
 
@@ -228,7 +240,7 @@ const INITIAL_TEMPLATES = [
           <circle cx="21" cy="7" r="2.6" fill="#38bdf8" />
         </svg>
       </div>
-      <span>{{company_name}}</span>
+      <span>TeamFlow AI</span>
     </div>
     <div style="font-size: 11px; color: #94a3b8;">
       Sent 26 Oct 2026, 03:00 pm IST (Asia/Kolkata)
@@ -248,7 +260,12 @@ const INITIAL_TEMPLATES = [
     accentGradient: "linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%)",
     icon: Receipt,
     badgeText: "🧾 Tax Invoice Settled",
-    subject: "{{company_name}} Tax Invoice #{{invoice_id}} for {{organization_name}}",
+    subject: "TeamFlow AI Tax Invoice #INV-2026-904 for XYZ Software",
+    headline: "Your TeamFlow AI invoice for XYZ Software",
+    message: "Thank you for your business. Payment of ₹7,500 for XYZ Software has been processed successfully by TeamFlow AI.\n\nYour official GST tax invoice INV-2026-904 is available for download in your billing portal.",
+    ctaText: "Download PDF Tax Receipt",
+    ctaUrl: "https://app.teamflow.ai/invoices/INV-2026-904.pdf",
+    footerNote: "Sent by TeamFlow AI for XYZ Software",
     trigger: "billing.invoice.payment_settled",
     triggerDescription: "Triggered upon successful subscription charge or manual invoice generation",
     engine: "Liquid v5.4",
@@ -266,7 +283,7 @@ const INITIAL_TEMPLATES = [
           <circle cx="21" cy="7" r="2.6" fill="#38bdf8" />
         </svg>
       </div>
-      <span style="font-size: 17px; font-weight: 750; color: #ffffff;">{{company_name}}</span>
+      <span style="font-size: 17px; font-weight: 750; color: #ffffff;">TeamFlow AI</span>
     </div>
     <div style="background: rgba(255, 255, 255, 0.18); border-radius: 999px; padding: 4px 12px; font-size: 11.5px; font-weight: 600; color: #ffffff;">
       🧾 Tax Invoice Settled
@@ -275,45 +292,45 @@ const INITIAL_TEMPLATES = [
 
   <div style="padding: 32px 28px 28px;">
     <div style="font-size: 11px; font-weight: 750; letter-spacing: 0.8px; text-transform: uppercase; color: #7c3aed; margin-bottom: 12px;">
-      TAX INVOICE ISSUED BY {{company_name}}
+      TAX INVOICE ISSUED BY TEAMFLOW AI
     </div>
 
     <h1 style="margin: 0 0 16px; font-size: 24px; font-weight: 800; line-height: 1.3; color: #0f172a; letter-spacing: -0.5px;">
-      Your {{company_name}} invoice for {{organization_name}}
+      Your TeamFlow AI invoice for XYZ Software
     </h1>
 
     <p style="font-size: 14px; color: #475569; line-height: 1.55; margin: 0 0 16px;">
-      Thank you for your business. Payment for <strong>{{organization_name}}</strong> has been processed successfully by <strong>{{company_name}}</strong>.
+      Thank you for your business. Payment for <strong>XYZ Software</strong> has been processed successfully by <strong>TeamFlow AI</strong>.
     </p>
 
     <!-- Invoice Data Table -->
     <table style="width: 100%; border-collapse: collapse; margin: 0 0 20px; font-size: 13px; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; background: #ffffff;">
       <tr style="border-bottom: 1px solid #f1f5f9;">
         <td style="padding: 12px 16px; color: #64748b; font-weight: 700; width: 35%; text-transform: uppercase; font-size: 10.5px;">INVOICE NO.</td>
-        <td style="padding: 12px 16px; color: #0f172a; font-weight: 600; font-family: monospace;">{{invoice_id}}</td>
+        <td style="padding: 12px 16px; color: #0f172a; font-weight: 600; font-family: monospace;">INV-2026-904</td>
       </tr>
       <tr style="border-bottom: 1px solid #f1f5f9;">
         <td style="padding: 12px 16px; color: #64748b; font-weight: 700; text-transform: uppercase; font-size: 10.5px;">CUSTOMER COMPANY</td>
-        <td style="padding: 12px 16px; color: #0f172a; font-weight: 600;">{{organization_name}}</td>
+        <td style="padding: 12px 16px; color: #0f172a; font-weight: 600;">XYZ Software</td>
       </tr>
       <tr style="border-bottom: 1px solid #f1f5f9;">
         <td style="padding: 12px 16px; color: #64748b; font-weight: 700; text-transform: uppercase; font-size: 10.5px;">PLAN & PERIOD</td>
-        <td style="padding: 12px 16px; color: #0f172a;">{{plan_name}} ({{billing_period}})</td>
+        <td style="padding: 12px 16px; color: #0f172a;">Business Tier (Monthly)</td>
       </tr>
       <tr style="background: #faf5ff;">
         <td style="padding: 12px 16px; color: #6b21a8; font-weight: 800; text-transform: uppercase; font-size: 11px;">TOTAL PAID</td>
-        <td style="padding: 12px 16px; color: #6b21a8; font-weight: 800; font-size: 15px;">₹{{invoice_amount}}</td>
+        <td style="padding: 12px 16px; color: #6b21a8; font-weight: 800; font-size: 15px;">₹7,500</td>
       </tr>
     </table>
 
     <div style="margin: 0 0 24px;">
-      <a href="{{invoice_pdf_url}}" style="display: block; width: 100%; box-sizing: border-box; text-align: center; background: #6d28d9; color: #ffffff; text-decoration: none; padding: 14px 24px; border-radius: 999px; font-size: 14px; font-weight: 700; box-shadow: 0 4px 14px rgba(109, 40, 217, 0.3);">
+      <a href="https://app.teamflow.ai/invoices/INV-2026-904.pdf" style="display: block; width: 100%; box-sizing: border-box; text-align: center; background: #6d28d9; color: #ffffff; text-decoration: none; padding: 14px 24px; border-radius: 999px; font-size: 14px; font-weight: 700; box-shadow: 0 4px 14px rgba(109, 40, 217, 0.3);">
         Download PDF Tax Receipt
       </a>
     </div>
 
     <p style="font-size: 12px; color: #94a3b8; line-height: 1.5; margin: 0;">
-      GSTIN: 29AAACT9810Q1ZS · Issued by {{company_name}} Finance Division
+      GSTIN: 29AAACT9810Q1ZS · Issued by TeamFlow AI Finance Division
     </p>
   </div>
 
@@ -325,7 +342,7 @@ const INITIAL_TEMPLATES = [
           <circle cx="21" cy="7" r="2.6" fill="#38bdf8" />
         </svg>
       </div>
-      <span>{{company_name}}</span>
+      <span>TeamFlow AI</span>
     </div>
     <div style="font-size: 11px; color: #94a3b8;">
       Sent 26 Oct 2026, 03:00 pm IST (Asia/Kolkata)
@@ -345,7 +362,12 @@ const INITIAL_TEMPLATES = [
     accentGradient: "linear-gradient(135deg, #f59e0b 0%, #b45309 100%)",
     icon: CalendarDays,
     badgeText: "🔄 Upcoming Renewal",
-    subject: "Upcoming {{company_name}} subscription renewal for {{organization_name}}",
+    subject: "Upcoming TeamFlow AI subscription renewal for Apex Software Systems",
+    headline: "Subscription Renewal for Apex Software Systems",
+    message: "This is an advance notice that your TeamFlow AI Enterprise subscription for Apex Software Systems will automatically renew on Nov 24, 2026.\n\nThe scheduled charge of ₹7,500/month will be processed to your primary corporate card on file.",
+    ctaText: "Manage Subscription & Billing",
+    ctaUrl: "https://app.teamflow.ai/billing",
+    footerNote: "Sent by TeamFlow AI for Apex Software Systems",
     trigger: "billing.subscription.renewal_scheduled",
     triggerDescription: "Triggered 7 days prior to automated card renewal charge",
     engine: "Liquid v5.4",
@@ -363,7 +385,7 @@ const INITIAL_TEMPLATES = [
           <circle cx="21" cy="7" r="2.6" fill="#38bdf8" />
         </svg>
       </div>
-      <span style="font-size: 17px; font-weight: 750; color: #ffffff;">{{company_name}}</span>
+      <span style="font-size: 17px; font-weight: 750; color: #ffffff;">TeamFlow AI</span>
     </div>
     <div style="background: rgba(255, 255, 255, 0.18); border-radius: 999px; padding: 4px 12px; font-size: 11.5px; font-weight: 600; color: #ffffff;">
       🔄 Upcoming Renewal
@@ -372,39 +394,39 @@ const INITIAL_TEMPLATES = [
 
   <div style="padding: 32px 28px 28px;">
     <div style="font-size: 11px; font-weight: 750; letter-spacing: 0.8px; text-transform: uppercase; color: #b45309; margin-bottom: 12px;">
-      RENEWAL NOTICE FROM {{company_name}}
+      RENEWAL NOTICE FROM TEAMFLOW AI
     </div>
 
     <h1 style="margin: 0 0 16px; font-size: 24px; font-weight: 800; line-height: 1.3; color: #0f172a; letter-spacing: -0.5px;">
-      Subscription Renewal for {{organization_name}}
+      Subscription Renewal for Apex Software Systems
     </h1>
 
     <p style="font-size: 14px; color: #475569; line-height: 1.55; margin: 0 0 16px;">
-      This is a reminder that your <strong>{{company_name}}</strong> plan for <strong>{{organization_name}}</strong> is scheduled to renew automatically.
+      This is a reminder that your <strong>TeamFlow AI</strong> plan for <strong>Apex Software Systems</strong> is scheduled to renew automatically.
     </p>
 
     <!-- Renewal Table -->
     <table style="width: 100%; border-collapse: collapse; margin: 0 0 20px; font-size: 13px; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; background: #ffffff;">
       <tr style="border-bottom: 1px solid #f1f5f9;">
         <td style="padding: 12px 16px; color: #64748b; font-weight: 700; width: 35%; text-transform: uppercase; font-size: 10.5px;">COMPANY</td>
-        <td style="padding: 12px 16px; color: #0f172a; font-weight: 600;">{{organization_name}}</td>
+        <td style="padding: 12px 16px; color: #0f172a; font-weight: 600;">Apex Software Systems</td>
       </tr>
       <tr style="border-bottom: 1px solid #f1f5f9;">
         <td style="padding: 12px 16px; color: #64748b; font-weight: 700; text-transform: uppercase; font-size: 10.5px;">PLAN & SEATS</td>
-        <td style="padding: 12px 16px; color: #0f172a;">{{plan_name}} ({{active_seats}} seats)</td>
+        <td style="padding: 12px 16px; color: #0f172a;">Enterprise Plan (50 seats)</td>
       </tr>
       <tr style="border-bottom: 1px solid #f1f5f9;">
         <td style="padding: 12px 16px; color: #64748b; font-weight: 700; text-transform: uppercase; font-size: 10.5px;">RENEWAL DATE</td>
-        <td style="padding: 12px 16px; color: #0f172a;">{{renewal_date}}</td>
+        <td style="padding: 12px 16px; color: #0f172a;">Nov 24, 2026</td>
       </tr>
       <tr style="background: #fffbeb;">
         <td style="padding: 12px 16px; color: #92400e; font-weight: 800; text-transform: uppercase; font-size: 11px;">CHARGE AMOUNT</td>
-        <td style="padding: 12px 16px; color: #92400e; font-weight: 800; font-size: 15px;">₹{{renewal_price}}/month</td>
+        <td style="padding: 12px 16px; color: #92400e; font-weight: 800; font-size: 15px;">₹7,500/month</td>
       </tr>
     </table>
 
     <div style="margin: 0 0 24px;">
-      <a href="{{billing_portal_url}}" style="display: block; width: 100%; box-sizing: border-box; text-align: center; background: #b45309; color: #ffffff; text-decoration: none; padding: 14px 24px; border-radius: 999px; font-size: 14px; font-weight: 700; box-shadow: 0 4px 14px rgba(180, 83, 9, 0.3);">
+      <a href="https://app.teamflow.ai/billing" style="display: block; width: 100%; box-sizing: border-box; text-align: center; background: #b45309; color: #ffffff; text-decoration: none; padding: 14px 24px; border-radius: 999px; font-size: 14px; font-weight: 700; box-shadow: 0 4px 14px rgba(180, 83, 9, 0.3);">
         Manage payment methods
       </a>
     </div>
@@ -418,7 +440,7 @@ const INITIAL_TEMPLATES = [
           <circle cx="21" cy="7" r="2.6" fill="#38bdf8" />
         </svg>
       </div>
-      <span>{{company_name}}</span>
+      <span>TeamFlow AI</span>
     </div>
     <div style="font-size: 11px; color: #94a3b8;">
       Sent 26 Oct 2026, 03:00 pm IST (Asia/Kolkata)
@@ -438,7 +460,12 @@ const INITIAL_TEMPLATES = [
     accentGradient: "linear-gradient(135deg, #ef4444 0%, #b91c1c 100%)",
     icon: ShieldAlert,
     badgeText: "🛡️ Security Alert",
-    subject: "[Security Alert] {{company_name}} sign-in from new device for {{organization_name}}",
+    subject: "[Security Alert] TeamFlow AI sign-in from new device for DesignHub",
+    headline: "Unrecognized Sign-in for DesignHub",
+    message: "Your TeamFlow AI account for DesignHub was recently accessed from Chrome on macOS in San Francisco, United States (IP: 142.250.190.46).\n\nIf this was you, no action is needed. If you do not recognize this activity, please terminate active sessions immediately.",
+    ctaText: "Terminate Sessions & Secure Account",
+    ctaUrl: "https://app.teamflow.ai/security",
+    footerNote: "Sent by TeamFlow AI Security Gateway for DesignHub",
     trigger: "security.auth.unrecognized_ip_detected",
     triggerDescription: "Triggered on login from unrecognized device, browser signature, or geographic IP",
     engine: "Liquid v5.4",
@@ -456,7 +483,7 @@ const INITIAL_TEMPLATES = [
           <circle cx="21" cy="7" r="2.6" fill="#38bdf8" />
         </svg>
       </div>
-      <span style="font-size: 17px; font-weight: 750; color: #ffffff;">{{company_name}}</span>
+      <span style="font-size: 17px; font-weight: 750; color: #ffffff;">TeamFlow AI</span>
     </div>
     <div style="background: rgba(255, 255, 255, 0.18); border-radius: 999px; padding: 4px 12px; font-size: 11.5px; font-weight: 600; color: #ffffff;">
       🛡️ Security Alert
@@ -465,39 +492,39 @@ const INITIAL_TEMPLATES = [
 
   <div style="padding: 32px 28px 28px;">
     <div style="font-size: 11px; font-weight: 750; letter-spacing: 0.8px; text-transform: uppercase; color: #dc2626; margin-bottom: 12px;">
-      SECURITY GATEWAY · {{company_name}}
+      SECURITY GATEWAY · TEAMFLOW AI
     </div>
 
     <h1 style="margin: 0 0 16px; font-size: 24px; font-weight: 800; line-height: 1.3; color: #0f172a; letter-spacing: -0.5px;">
-      Unrecognized Sign-in for {{organization_name}}
+      Unrecognized Sign-in for DesignHub
     </h1>
 
     <p style="font-size: 14px; color: #475569; line-height: 1.55; margin: 0 0 16px;">
-      Your <strong>{{company_name}}</strong> account belonging to <strong>{{organization_name}}</strong> was accessed from an unrecognized environment.
+      Your <strong>TeamFlow AI</strong> account belonging to <strong>DesignHub</strong> was accessed from an unrecognized environment.
     </p>
 
     <!-- Sign-in Audit Table -->
     <table style="width: 100%; border-collapse: collapse; margin: 0 0 20px; font-size: 13px; border: 1px solid #fecaca; border-radius: 8px; overflow: hidden; background: #ffffff;">
       <tr style="border-bottom: 1px solid #fee2e2;">
         <td style="padding: 12px 16px; color: #991b1b; font-weight: 700; width: 35%; text-transform: uppercase; font-size: 10.5px;">LOCATION</td>
-        <td style="padding: 12px 16px; color: #0f172a; font-weight: 700;">{{location_city}}, {{location_country}}</td>
+        <td style="padding: 12px 16px; color: #0f172a; font-weight: 700;">San Francisco, United States</td>
       </tr>
       <tr style="border-bottom: 1px solid #fee2e2;">
         <td style="padding: 12px 16px; color: #991b1b; font-weight: 700; text-transform: uppercase; font-size: 10.5px;">IP ADDRESS</td>
-        <td style="padding: 12px 16px; color: #0f172a; font-family: monospace;">{{client_ip}}</td>
+        <td style="padding: 12px 16px; color: #0f172a; font-family: monospace;">142.250.190.46</td>
       </tr>
       <tr style="border-bottom: 1px solid #fee2e2;">
         <td style="padding: 12px 16px; color: #991b1b; font-weight: 700; text-transform: uppercase; font-size: 10.5px;">DEVICE</td>
-        <td style="padding: 12px 16px; color: #0f172a;">{{user_agent}}</td>
+        <td style="padding: 12px 16px; color: #0f172a;">Chrome on macOS</td>
       </tr>
       <tr>
         <td style="padding: 12px 16px; color: #991b1b; font-weight: 700; text-transform: uppercase; font-size: 10.5px;">TIME</td>
-        <td style="padding: 12px 16px; color: #0f172a;">{{login_timestamp}}</td>
+        <td style="padding: 12px 16px; color: #0f172a;">Today, 10:45 AM</td>
       </tr>
     </table>
 
     <div style="margin: 0 0 24px;">
-      <a href="{{terminate_sessions_url}}" style="display: block; width: 100%; box-sizing: border-box; text-align: center; background: #b91c1c; color: #ffffff; text-decoration: none; padding: 14px 24px; border-radius: 999px; font-size: 14px; font-weight: 700; box-shadow: 0 4px 14px rgba(185, 28, 28, 0.3);">
+      <a href="https://app.teamflow.ai/security" style="display: block; width: 100%; box-sizing: border-box; text-align: center; background: #b91c1c; color: #ffffff; text-decoration: none; padding: 14px 24px; border-radius: 999px; font-size: 14px; font-weight: 700; box-shadow: 0 4px 14px rgba(185, 28, 28, 0.3);">
         Terminate sessions & secure account
       </a>
     </div>
@@ -511,7 +538,7 @@ const INITIAL_TEMPLATES = [
           <circle cx="21" cy="7" r="2.6" fill="#38bdf8" />
         </svg>
       </div>
-      <span>{{company_name}}</span>
+      <span>TeamFlow AI</span>
     </div>
     <div style="font-size: 11px; color: #94a3b8;">
       Sent 26 Oct 2026, 03:00 pm IST (Asia/Kolkata)
@@ -531,7 +558,12 @@ const INITIAL_TEMPLATES = [
     accentGradient: "linear-gradient(135deg, #d946ef 0%, #a21caf 100%)",
     icon: Sparkles,
     badgeText: "⚡ AI Quota Alert",
-    subject: "Action Required: {{organization_name}} reached 90% of AI tokens on {{company_name}}",
+    subject: "Action Required: NextGen Solutions reached 90% of AI tokens on TeamFlow AI",
+    headline: "AI Token Limit Warning for NextGen Solutions",
+    message: "Your team at NextGen Solutions has reached 90% of its monthly allocated token quota (4,500,000 / 5,000,000 tokens) on TeamFlow AI.\n\nYour quota will reset automatically on Nov 01, 2026. Add a token booster pack now to prevent any interruption to your AI workflows.",
+    ctaText: "Add Token Booster",
+    ctaUrl: "https://app.teamflow.ai/ai-usage",
+    footerNote: "Sent by TeamFlow AI for NextGen Solutions",
     trigger: "ai.tokens.threshold_exceeded_90",
     triggerDescription: "Triggered when tenant monthly LLM token consumption crosses 90%",
     engine: "Liquid v5.4",
@@ -549,7 +581,7 @@ const INITIAL_TEMPLATES = [
           <circle cx="21" cy="7" r="2.6" fill="#38bdf8" />
         </svg>
       </div>
-      <span style="font-size: 17px; font-weight: 750; color: #ffffff;">{{company_name}}</span>
+      <span style="font-size: 17px; font-weight: 750; color: #ffffff;">TeamFlow AI</span>
     </div>
     <div style="background: rgba(255, 255, 255, 0.18); border-radius: 999px; padding: 4px 12px; font-size: 11.5px; font-weight: 600; color: #ffffff;">
       ⚡ AI Quota Alert
@@ -558,35 +590,35 @@ const INITIAL_TEMPLATES = [
 
   <div style="padding: 32px 28px 28px;">
     <div style="font-size: 11px; font-weight: 750; letter-spacing: 0.8px; text-transform: uppercase; color: #c026d3; margin-bottom: 12px;">
-      AI RUNTIME ENGINE · {{company_name}}
+      AI RUNTIME ENGINE · TEAMFLOW AI
     </div>
 
     <h1 style="margin: 0 0 16px; font-size: 24px; font-weight: 800; line-height: 1.3; color: #0f172a; letter-spacing: -0.5px;">
-      AI Token Limit for {{organization_name}}
+      AI Token Limit for NextGen Solutions
     </h1>
 
     <p style="font-size: 14px; color: #475569; line-height: 1.55; margin: 0 0 16px;">
-      Your team at <strong>{{organization_name}}</strong> has reached 90% of its monthly allocated token quota on <strong>{{company_name}}</strong>.
+      Your team at <strong>NextGen Solutions</strong> has reached 90% of its monthly allocated token quota on <strong>TeamFlow AI</strong>.
     </p>
 
     <!-- AI Consumption Table -->
     <table style="width: 100%; border-collapse: collapse; margin: 0 0 20px; font-size: 13px; border: 1px solid #f5d0fe; border-radius: 8px; overflow: hidden; background: #ffffff;">
       <tr style="border-bottom: 1px solid #fae8ff;">
         <td style="padding: 12px 16px; color: #86198f; font-weight: 700; width: 35%; text-transform: uppercase; font-size: 10.5px;">CONSUMED</td>
-        <td style="padding: 12px 16px; color: #0f172a; font-weight: 700;">{{tokens_consumed}} / {{tokens_limit}}</td>
+        <td style="padding: 12px 16px; color: #0f172a; font-weight: 700;">4,500,000 / 5,000,000</td>
       </tr>
       <tr style="border-bottom: 1px solid #fae8ff;">
         <td style="padding: 12px 16px; color: #86198f; font-weight: 700; text-transform: uppercase; font-size: 10.5px;">REMAINING</td>
-        <td style="padding: 12px 16px; color: #d946ef; font-weight: 700;">{{tokens_remaining}} tokens</td>
+        <td style="padding: 12px 16px; color: #d946ef; font-weight: 700;">500,000 tokens</td>
       </tr>
       <tr>
         <td style="padding: 12px 16px; color: #86198f; font-weight: 700; text-transform: uppercase; font-size: 10.5px;">RESET DATE</td>
-        <td style="padding: 12px 16px; color: #0f172a;">{{quota_reset_date}}</td>
+        <td style="padding: 12px 16px; color: #0f172a;">Nov 01, 2026</td>
       </tr>
     </table>
 
     <div style="margin: 0 0 24px;">
-      <a href="{{boost_tokens_url}}" style="display: block; width: 100%; box-sizing: border-box; text-align: center; background: #a21caf; color: #ffffff; text-decoration: none; padding: 14px 24px; border-radius: 999px; font-size: 14px; font-weight: 700; box-shadow: 0 4px 14px rgba(162, 28, 175, 0.3);">
+      <a href="https://app.teamflow.ai/ai-usage" style="display: block; width: 100%; box-sizing: border-box; text-align: center; background: #a21caf; color: #ffffff; text-decoration: none; padding: 14px 24px; border-radius: 999px; font-size: 14px; font-weight: 700; box-shadow: 0 4px 14px rgba(162, 28, 175, 0.3);">
         Add token booster
       </a>
     </div>
@@ -600,7 +632,7 @@ const INITIAL_TEMPLATES = [
           <circle cx="21" cy="7" r="2.6" fill="#38bdf8" />
         </svg>
       </div>
-      <span>{{company_name}}</span>
+      <span>TeamFlow AI</span>
     </div>
     <div style="font-size: 11px; color: #94a3b8;">
       Sent 26 Oct 2026, 03:00 pm IST (Asia/Kolkata)
@@ -620,7 +652,12 @@ const INITIAL_TEMPLATES = [
     accentGradient: "linear-gradient(135deg, #0ea5e9 0%, #0369a1 100%)",
     icon: Users,
     badgeText: "👥 Team Invite",
-    subject: "{{inviter_name}} invited you to {{organization_name}} on {{company_name}}",
+    subject: "Sarah Connor invited you to CloudNine Tech on TeamFlow AI",
+    headline: "Join CloudNine Tech on TeamFlow AI",
+    message: "Sarah Connor has invited you to collaborate in the workspace for CloudNine Tech as a Developer in the Engineering team.\n\nAccept your invitation below to access shared projects, repositories, and AI assistant tools.",
+    ctaText: "Accept Invitation & Join Workspace",
+    ctaUrl: "https://app.teamflow.ai/invite/accept",
+    footerNote: "Sent by TeamFlow AI for CloudNine Tech",
     trigger: "tenant.workspace.invitation_dispatched",
     triggerDescription: "Triggered when a tenant administrator or team lead invites a new collaborator",
     engine: "Liquid v5.4",
@@ -638,7 +675,7 @@ const INITIAL_TEMPLATES = [
           <circle cx="21" cy="7" r="2.6" fill="#38bdf8" />
         </svg>
       </div>
-      <span style="font-size: 17px; font-weight: 750; color: #ffffff;">{{company_name}}</span>
+      <span style="font-size: 17px; font-weight: 750; color: #ffffff;">TeamFlow AI</span>
     </div>
     <div style="background: rgba(255, 255, 255, 0.18); border-radius: 999px; padding: 4px 12px; font-size: 11.5px; font-weight: 600; color: #ffffff;">
       👥 Team Invite
@@ -647,35 +684,35 @@ const INITIAL_TEMPLATES = [
 
   <div style="padding: 32px 28px 28px;">
     <div style="font-size: 11px; font-weight: 750; letter-spacing: 0.8px; text-transform: uppercase; color: #0284c7; margin-bottom: 12px;">
-      WORKSPACE COLLABORATION · {{company_name}}
+      WORKSPACE COLLABORATION · TEAMFLOW AI
     </div>
 
     <h1 style="margin: 0 0 16px; font-size: 24px; font-weight: 800; line-height: 1.3; color: #0f172a; letter-spacing: -0.5px;">
-      Join {{organization_name}} on {{company_name}}
+      Join CloudNine Tech on TeamFlow AI
     </h1>
 
     <p style="font-size: 14px; color: #475569; line-height: 1.55; margin: 0 0 16px;">
-      <strong>{{inviter_name}}</strong> has invited you to collaborate in the workspace for <strong>{{organization_name}}</strong>.
+      <strong>Sarah Connor</strong> has invited you to collaborate in the workspace for <strong>CloudNine Tech</strong>.
     </p>
 
     <!-- Workspace Details Table -->
     <table style="width: 100%; border-collapse: collapse; margin: 0 0 20px; font-size: 13px; border: 1px solid #bae6fd; border-radius: 8px; overflow: hidden; background: #ffffff;">
       <tr style="border-bottom: 1px solid #e0f2fe;">
         <td style="padding: 12px 16px; color: #0369a1; font-weight: 700; width: 35%; text-transform: uppercase; font-size: 10.5px;">COMPANY</td>
-        <td style="padding: 12px 16px; color: #0f172a; font-weight: 700;">{{organization_name}}</td>
+        <td style="padding: 12px 16px; color: #0f172a; font-weight: 700;">CloudNine Tech</td>
       </tr>
       <tr style="border-bottom: 1px solid #e0f2fe;">
         <td style="padding: 12px 16px; color: #0369a1; font-weight: 700; text-transform: uppercase; font-size: 10.5px;">ASSIGNED ROLE</td>
-        <td style="padding: 12px 16px; color: #0284c7; font-weight: 700;">{{assigned_role}}</td>
+        <td style="padding: 12px 16px; color: #0284c7; font-weight: 700;">Developer</td>
       </tr>
       <tr>
         <td style="padding: 12px 16px; color: #0369a1; font-weight: 700; text-transform: uppercase; font-size: 10.5px;">DEPARTMENT</td>
-        <td style="padding: 12px 16px; color: #0f172a;">{{department_name}}</td>
+        <td style="padding: 12px 16px; color: #0f172a;">Engineering</td>
       </tr>
     </table>
 
     <div style="margin: 0 0 24px;">
-      <a href="{{invite_accept_url}}" style="display: block; width: 100%; box-sizing: border-box; text-align: center; background: #0369a1; color: #ffffff; text-decoration: none; padding: 14px 24px; border-radius: 999px; font-size: 14px; font-weight: 700; box-shadow: 0 4px 14px rgba(3, 105, 161, 0.3);">
+      <a href="https://app.teamflow.ai/invite/accept" style="display: block; width: 100%; box-sizing: border-box; text-align: center; background: #0369a1; color: #ffffff; text-decoration: none; padding: 14px 24px; border-radius: 999px; font-size: 14px; font-weight: 700; box-shadow: 0 4px 14px rgba(3, 105, 161, 0.3);">
         Accept invitation & join workspace
       </a>
     </div>
@@ -689,7 +726,7 @@ const INITIAL_TEMPLATES = [
           <circle cx="21" cy="7" r="2.6" fill="#38bdf8" />
         </svg>
       </div>
-      <span>{{company_name}}</span>
+      <span>TeamFlow AI</span>
     </div>
     <div style="font-size: 11px; color: #94a3b8;">
       Sent 26 Oct 2026, 03:00 pm IST (Asia/Kolkata)
@@ -709,7 +746,12 @@ const INITIAL_TEMPLATES = [
     accentGradient: "linear-gradient(135deg, #64748b 0%, #334155 100%)",
     icon: LayoutTemplate,
     badgeText: "🛠️ Ops Notice",
-    subject: "Notice: Scheduled {{company_name}} Maintenance on {{maintenance_date}}",
+    subject: "Notice: Scheduled TeamFlow AI Maintenance on Nov 15, 2026",
+    headline: "Maintenance Notice for Orbit Creative",
+    message: "TeamFlow AI will conduct scheduled infrastructure maintenance affecting workspaces including Orbit Creative on Nov 15, 2026 between 02:00 AM and 04:00 AM UTC.\n\nDuring this window, services may experience brief intermittent pauses. Real-time system health will be broadcast on status.teamflow.ai.",
+    ctaText: "Check Live Platform Status",
+    ctaUrl: "https://status.teamflow.ai",
+    footerNote: "Sent by TeamFlow AI DevOps Cluster for Orbit Creative",
     trigger: "system.ops.maintenance_broadcast",
     triggerDescription: "Triggered manually or via pipeline before scheduled infrastructure upgrades",
     engine: "Liquid v5.4",
@@ -727,7 +769,7 @@ const INITIAL_TEMPLATES = [
           <circle cx="21" cy="7" r="2.6" fill="#38bdf8" />
         </svg>
       </div>
-      <span style="font-size: 17px; font-weight: 750; color: #ffffff;">{{company_name}}</span>
+      <span style="font-size: 17px; font-weight: 750; color: #ffffff;">TeamFlow AI</span>
     </div>
     <div style="background: rgba(255, 255, 255, 0.18); border-radius: 999px; padding: 4px 12px; font-size: 11.5px; font-weight: 600; color: #ffffff;">
       🛠️ Ops Notice
@@ -736,26 +778,26 @@ const INITIAL_TEMPLATES = [
 
   <div style="padding: 32px 28px 28px;">
     <div style="font-size: 11px; font-weight: 750; letter-spacing: 0.8px; text-transform: uppercase; color: #475569; margin-bottom: 12px;">
-      PLATFORM INFRASTRUCTURE · {{company_name}}
+      PLATFORM INFRASTRUCTURE · TEAMFLOW AI
     </div>
 
     <h1 style="margin: 0 0 16px; font-size: 24px; font-weight: 800; line-height: 1.3; color: #0f172a; letter-spacing: -0.5px;">
-      Maintenance Notice for {{organization_name}}
+      Maintenance Notice for Orbit Creative
     </h1>
 
     <p style="font-size: 14px; color: #475569; line-height: 1.55; margin: 0 0 16px;">
-      <strong>{{company_name}}</strong> will conduct scheduled infrastructure maintenance affecting workspaces including <strong>{{organization_name}}</strong>.
+      <strong>TeamFlow AI</strong> will conduct scheduled infrastructure maintenance affecting workspaces including <strong>Orbit Creative</strong>.
     </p>
 
     <!-- Maintenance Table -->
     <table style="width: 100%; border-collapse: collapse; margin: 0 0 20px; font-size: 13px; border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden; background: #ffffff;">
       <tr style="border-bottom: 1px solid #f1f5f9;">
         <td style="padding: 12px 16px; color: #475569; font-weight: 700; width: 35%; text-transform: uppercase; font-size: 10.5px;">WINDOW</td>
-        <td style="padding: 12px 16px; color: #0f172a; font-weight: 700;">{{maintenance_window}}</td>
+        <td style="padding: 12px 16px; color: #0f172a; font-weight: 700;">02:00 AM - 04:00 AM UTC</td>
       </tr>
       <tr style="border-bottom: 1px solid #f1f5f9;">
         <td style="padding: 12px 16px; color: #475569; font-weight: 700; text-transform: uppercase; font-size: 10.5px;">TENANT</td>
-        <td style="padding: 12px 16px; color: #0f172a;">{{organization_name}}</td>
+        <td style="padding: 12px 16px; color: #0f172a;">Orbit Creative</td>
       </tr>
       <tr>
         <td style="padding: 12px 16px; color: #475569; font-weight: 700; text-transform: uppercase; font-size: 10.5px;">STATUS URL</td>
@@ -778,7 +820,7 @@ const INITIAL_TEMPLATES = [
           <circle cx="21" cy="7" r="2.6" fill="#38bdf8" />
         </svg>
       </div>
-      <span>{{company_name}}</span>
+      <span>TeamFlow AI</span>
     </div>
     <div style="font-size: 11px; color: #94a3b8;">
       Sent 26 Oct 2026, 03:00 pm IST (Asia/Kolkata)
@@ -787,6 +829,121 @@ const INITIAL_TEMPLATES = [
 </div>`,
   },
 ];
+
+
+/* =========================================================================
+   VISUAL EMAIL BUILDER CONFIGURATION & GENERATOR
+   ========================================================================= */
+const BRAND_PRESET_COLORS = [
+  { name: "Indigo", hex: "#352fa8", bg: "#ede9fe" },
+  { name: "Sky", hex: "#0284c7", bg: "#e0f2fe" },
+  { name: "Emerald", hex: "#059669", bg: "#d1fae5" },
+  { name: "Violet", hex: "#7c3aed", bg: "#f3e8ff" },
+  { name: "Rose", hex: "#e11d48", bg: "#ffe4e6" },
+  { name: "Amber", hex: "#d97706", bg: "#fef3c7" },
+];
+
+function interpolateTemplateVariables(text, tpl) {
+  if (!text) return "";
+  const brand = tpl?.companyName?.trim() || "TeamFlow AI";
+  const org = tpl?.organizationName?.trim() || "Acme Technologies";
+  return text
+    .replace(/{{company_name}}/g, brand)
+    .replace(/{{organization_name}}/g, org)
+    .replace(/{{user_name}}/g, "Alex Johnson")
+    .replace(/{{user_email}}/g, "alex.johnson@acme.com")
+    .replace(/{{temporary_password}}/g, "Sec#992$Kla")
+    .replace(/{{temp_password}}/g, "Sec#992$Kla")
+    .replace(/{{invoice_id}}/g, "INV-2026-904")
+    .replace(/{{invoice_amount}}/g, "₹24,999")
+    .replace(/{{renewal_date}}/g, "Nov 30, 2026")
+    .replace(/{{support_email}}/g, "support@teamflow.ai")
+    .replace(/{{login_url}}/g, "#");
+}
+
+function generateEmailHtml(tpl) {
+  const brand = tpl?.companyName?.trim() || (tpl?.isNew ? "Company Name" : "TeamFlow AI");
+  const org = tpl?.organizationName?.trim() || (tpl?.isNew ? "Target Organization" : "Acme Technologies");
+  const color = tpl?.themeColor || "#352fa8";
+  const badge = tpl?.badgeText?.trim();
+  const headline = tpl?.headline?.trim() || (tpl?.isNew ? "Your Email Subject Headline" : (tpl?.name?.trim() || "Welcome to Your Workspace"));
+  const rawMsg = tpl?.message?.trim();
+  const formattedMsg = rawMsg
+    ? rawMsg
+        .split("\n")
+        .filter(Boolean)
+        .map((p) => `<p style="font-size: 14px; color: #475569; line-height: 1.6; margin: 0 0 14px;">${p}</p>`)
+        .join("")
+    : `<p style="font-size: 14px; color: #94a3b8; line-height: 1.6; font-style: italic; margin: 0 0 14px;">(Start typing your email message in the form on the left. Changes will appear live right here.)</p>`;
+  const highlight = tpl?.highlightNote?.trim();
+  const ctaText = tpl?.ctaText?.trim();
+  const ctaUrl = tpl?.ctaUrl?.trim() || "#";
+  const footerNote = tpl?.footerNote?.trim() || `Sent by ${brand} for ${org}`;
+
+  return `<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; width: 100%; margin: 0 auto; background: #ffffff; overflow: hidden; display: flex; flex-direction: column; min-height: 420px;">
+  <div style="background: ${color}; padding: 18px 22px; display: flex; align-items: center; justify-content: space-between; color: #ffffff;">
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <div style="width: 32px; height: 32px; border-radius: 8px; background: rgba(255,255,255,0.22); display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 2px 6px rgba(0,0,0,0.2);">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M8 9H20M14 9V19M11 19H17"/>
+        </svg>
+      </div>
+      <span style="font-size: 17px; font-weight: 750; letter-spacing: -0.3px; color: #ffffff;">${brand}</span>
+    </div>
+    ${badge ? `
+    <div style="background: rgba(255, 255, 255, 0.22); border-radius: 999px; padding: 4px 12px; font-size: 11.5px; font-weight: 600; color: #ffffff;">
+      ${badge}
+    </div>` : ""}
+  </div>
+
+  <div style="padding: 26px 22px 20px; flex: 1;">
+    <div style="font-size: 11px; font-weight: 750; letter-spacing: 0.8px; text-transform: uppercase; color: ${color}; margin-bottom: 10px;">
+      ${org}
+    </div>
+
+    <h1 style="margin: 0 0 14px; font-size: 21px; font-weight: 800; line-height: 1.3; color: #0f172a; letter-spacing: -0.5px;">
+      ${headline}
+    </h1>
+
+    ${formattedMsg}
+
+    ${highlight ? `
+    <div style="background: #f8fafc; border-left: 4px solid ${color}; padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 16px 0 20px; font-size: 13.5px; color: #1e293b; font-weight: 600;">
+      ${highlight}
+    </div>` : ""}
+
+    ${ctaText ? `
+    <div style="margin: 20px 0 22px;">
+      <a href="${ctaUrl}" style="display: block; width: 100%; box-sizing: border-box; text-align: center; background: ${color}; color: #ffffff; text-decoration: none; padding: 12px 22px; border-radius: 999px; font-size: 14px; font-weight: 700; box-shadow: 0 4px 14px rgba(0,0,0,0.15);">
+        ${ctaText}
+      </a>
+    </div>` : ""}
+  </div>
+
+  <div style="background: #f8fafc; padding: 16px 20px; text-align: center; border-top: 1px solid #e2e8f0; font-size: 12px; color: #94a3b8; margin-top: auto;">
+    <div style="margin-bottom: 4px; font-weight: 600; color: #64748b;">${footerNote}</div>
+    <div>Sent via TeamFlow AI Secure Enterprise Delivery</div>
+  </div>
+</div>`;
+}
+
+function prepareTemplateForEdit(tpl) {
+  return {
+    ...tpl,
+    companyName: tpl.companyName || "",
+    organizationName: tpl.organizationName || "",
+    badgeText: tpl.badgeText || "",
+    headline: tpl.headline || "",
+    message: tpl.message || "",
+    highlightNote: tpl.highlightNote || "",
+    ctaText: tpl.ctaText || "",
+    ctaUrl: tpl.ctaUrl || "",
+    footerNote: tpl.footerNote || "",
+    subject: tpl.subject || "",
+    trigger: tpl.trigger || "",
+    name: tpl.name || "",
+  };
+}
 
 function EmailTemplates() {
   const [templates, setTemplates] = useState(INITIAL_TEMPLATES);
@@ -943,22 +1100,88 @@ function EmailTemplates() {
   };
 
   const handleOpenEdit = (tpl) => {
-    setEditingTemplate({ ...tpl });
+    setEditingTemplate({
+      ...prepareTemplateForEdit(tpl),
+      isNew: false,
+    });
     setEditModalOpen(true);
+  };
+
+  const handleOpenCreate = () => {
+    setEditingTemplate({
+      id: `TPL-${1000 + templates.length + 1}`,
+      name: "",
+      companyName: "",
+      organizationName: "",
+      orgCode: "ORG-CUSTOM",
+      category: "Authentication",
+      themeColor: "#352fa8",
+      themeBg: "#ede9fe",
+      accentGradient: "linear-gradient(135deg, #352fa8 0%, #4338ca 100%)",
+      icon: LayoutTemplate,
+      badgeText: "",
+      headline: "",
+      message: "",
+      highlightNote: "",
+      ctaText: "",
+      ctaUrl: "",
+      footerNote: "",
+      subject: "",
+      trigger: "",
+      triggerDescription: "Triggered on custom user lifecycle event",
+      engine: "Liquid v5.4",
+      openRate: 0.0,
+      clickRate: 0.0,
+      status: "Active",
+      lastUpdated: "Just now",
+      lastAuthor: "Himanshu (Super Admin)",
+      isNew: true,
+    });
+    setEditModalOpen(true);
+  };
+
+  const handleDuplicateTemplate = (tpl) => {
+    const copy = {
+      ...tpl,
+      id: `TPL-${1000 + templates.length + 1}`,
+      name: `${tpl.name} (Copy)`,
+      lastUpdated: "Just now",
+      lastAuthor: "Himanshu (Super Admin)",
+    };
+    setTemplates((prev) => [copy, ...prev]);
+    notify(`Duplicated template as "${copy.name}".`);
+  };
+
+  const handleDeleteTemplate = (id) => {
+    setTemplates((prev) => prev.filter((t) => t.id !== id));
+    notify(`Template ${id} deleted.`);
   };
 
   const handleSaveEdit = (e) => {
     e.preventDefault();
     if (!editingTemplate) return;
+    const isCreating = Boolean(editingTemplate.isNew);
+    const finalTemplate = {
+      ...editingTemplate,
+      name: editingTemplate.name?.trim() || "Untitled Template",
+      companyName: editingTemplate.companyName?.trim() || "TeamFlow AI",
+      organizationName: editingTemplate.organizationName?.trim() || "Acme Technologies",
+      subject: editingTemplate.subject?.trim() || "Notification",
+      trigger: editingTemplate.trigger?.trim() || "custom.event.notification",
+      body: generateEmailHtml(editingTemplate),
+      lastUpdated: "Just now",
+      lastAuthor: "Himanshu (Super Admin)",
+    };
+    delete finalTemplate.isNew;
     setTemplates((prev) => {
-      const exists = prev.some((t) => t.id === editingTemplate.id);
+      const exists = prev.some((t) => t.id === finalTemplate.id);
       if (exists) {
-        return prev.map((t) => (t.id === editingTemplate.id ? editingTemplate : t));
+        return prev.map((t) => (t.id === finalTemplate.id ? finalTemplate : t));
       }
-      return [editingTemplate, ...prev];
+      return [finalTemplate, ...prev];
     });
     setEditModalOpen(false);
-    notify(`Template "${editingTemplate.name}" saved successfully.`);
+    notify(isCreating ? "New email template created successfully." : `Template "${finalTemplate.name}" saved successfully.`);
   };
 
   const handleSendTestEmail = (tpl) => {
@@ -970,10 +1193,7 @@ function EmailTemplates() {
       {/* 1. Header with SAP Master Badge */}
       <section className="sap-header-panel">
         <div className="sap-header-left">
-          <h1>
-            Email Notification Templates
-            <span className="sap-system-badge">SAP-TPL · COMM CLIENT 100</span>
-          </h1>
+          <h1>Email Notification Templates</h1>
           <p className="sap-header-subtitle">
             Enterprise transactional notification directory with sender company branding, tenant identification, and structured table data.
           </p>
@@ -991,62 +1211,7 @@ function EmailTemplates() {
           <button
             type="button"
             className="sa-btn sa-btn-primary"
-            onClick={() => {
-              setEditingTemplate({
-                id: `TPL-${1000 + templates.length + 1}`,
-                name: "New Custom Template",
-                companyName: "TeamFlow AI",
-                organizationName: "Acme Technologies",
-                orgCode: "ORG-ACME-1009",
-                category: "Authentication",
-                themeColor: "#352fa8",
-                themeBg: "#ede9fe",
-                accentGradient: "linear-gradient(135deg, #352fa8 0%, #4338ca 100%)",
-                icon: LayoutTemplate,
-                badgeText: "👋 Account Ready",
-                subject: "Your {{company_name}} account for {{organization_name}}",
-                trigger: "custom.event.notification",
-                triggerDescription: "Triggered on custom user lifecycle event",
-                engine: "Liquid v5.4",
-                openRate: 0.0,
-                clickRate: 0.0,
-                status: "Active",
-                lastUpdated: "Just now",
-                lastAuthor: "Himanshu (Super Admin)",
-                body: `<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 580px; margin: 0 auto; background: #ffffff; border-radius: 14px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 4px 20px rgba(0,0,0,0.06);">
-  <div style="background: #352fa8; padding: 18px 24px; display: flex; align-items: center; justify-content: space-between; color: #ffffff;">
-    <div style="display: flex; align-items: center; gap: 10px;">
-      <div style="width: 30px; height: 30px; border-radius: 8px; background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 50%, #f72585 100%); display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 2px 6px rgba(0,0,0,0.25);">
-        <svg width="20" height="20" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: block;">
-          <path d="M8 9H20M14 9V19M11 19H17" stroke="#ffffff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" />
-          <circle cx="21" cy="7" r="2.6" fill="#38bdf8" />
-        </svg>
-      </div>
-      <span style="font-size: 17px; font-weight: 750; color: #ffffff;">{{company_name}}</span>
-    </div>
-    <div style="background: rgba(255, 255, 255, 0.18); border-radius: 999px; padding: 4px 12px; font-size: 11.5px; font-weight: 600; color: #ffffff;">
-      👋 Notification
-    </div>
-  </div>
-  <div style="padding: 32px 28px 28px;">
-    <h2>Hello {{user_name}}!</h2>
-    <p>Your message content from {{company_name}} for {{organization_name}}.</p>
-  </div>
-  <div style="background: #f8fafc; padding: 20px 24px; text-align: center; border-top: 1px solid #e2e8f0;">
-    <div style="display: inline-flex; align-items: center; gap: 8px; font-size: 13.5px; font-weight: 750; color: #0f172a; margin-bottom: 8px;">
-      <div style="width: 24px; height: 24px; border-radius: 6px; background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 50%, #f72585 100%); display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 1px 4px rgba(0,0,0,0.15);">
-        <svg width="16" height="16" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: block;">
-          <path d="M8 9H20M14 9V19M11 19H17" stroke="#ffffff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" />
-          <circle cx="21" cy="7" r="2.6" fill="#38bdf8" />
-        </svg>
-      </div>
-      <span>{{company_name}}</span>
-    </div>
-  </div>
-</div>`,
-              });
-              setEditModalOpen(true);
-            }}
+            onClick={handleOpenCreate}
           >
             <Plus size={16} /> New Email Template
           </button>
@@ -1291,15 +1456,12 @@ function EmailTemplates() {
                       onChange={toggleSelectAll}
                     />
                   </th>
-                  <th style={{ width: 140 }}>Template ID & Thumbnail</th>
-                  <th>Template Name & Engine</th>
-                  <th>Target Company / Organization</th>
-                  <th>Category & Theme</th>
-                  <th>Trigger Event</th>
-                  <th>Subject Line</th>
-                  <th>Open / Click Rates</th>
-                  <th>Status</th>
-                  <th>Last Modified</th>
+                  <th style={{ minWidth: 220 }}>Template</th>
+                  <th style={{ minWidth: 170 }}>Target Organization</th>
+                  <th style={{ width: 130 }}>Category</th>
+                  <th style={{ minWidth: 220, maxWidth: 280 }}>Subject &amp; Trigger</th>
+                  <th style={{ width: 130 }}>Engagement</th>
+                  <th style={{ width: 100 }}>Status</th>
                   <th style={{ textAlign: "right", width: 130 }}>Actions</th>
                 </tr>
               </thead>
@@ -1308,7 +1470,12 @@ function EmailTemplates() {
                   const isChecked = selectedIds.has(tpl.id);
                   const IconComp = tpl.icon || LayoutTemplate;
                   return (
-                    <tr key={tpl.id} className={isChecked ? "is-selected" : ""} onClick={() => handleOpenPreview(tpl)} style={{ cursor: "pointer" }}>
+                    <tr
+                      key={tpl.id}
+                      className={isChecked ? "is-selected" : ""}
+                      onClick={() => handleOpenPreview(tpl)}
+                      style={{ cursor: "pointer" }}
+                    >
                       <td style={{ textAlign: "center" }} onClick={(e) => e.stopPropagation()}>
                         <input
                           type="checkbox"
@@ -1317,48 +1484,46 @@ function EmailTemplates() {
                         />
                       </td>
 
-                      {/* Visual Thumbnail & ID */}
+                      {/* Template thumbnail + name + id + engine */}
                       <td>
-                        <div className="tpl-thumb-id-cell">
+                        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                           <div
                             className="tpl-thumb-box"
                             style={{
                               background: tpl.themeColor || "#352fa8",
+                              width: 32,
+                              height: 32,
+                              borderRadius: 8,
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              flexShrink: 0,
+                              boxShadow: "0 2px 6px rgba(0, 0, 0, 0.12)",
                             }}
                           >
                             <IconComp size={16} color="#ffffff" strokeWidth={2.2} />
                           </div>
-                          <div>
-                            <span className="sap-id-cell">{tpl.id}</span>
-                            <span className="sap-pernr-text" style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
-                              <span style={{ width: 14, height: 14, borderRadius: 4, background: "linear-gradient(135deg, #4361ee 0%, #3a0ca3 50%, #f72585 100%)", display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                                <svg width="9" height="9" viewBox="0 0 28 28" fill="none">
-                                  <path d="M8 9H20M14 9V19M11 19H17" stroke="#ffffff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-                                  <circle cx="21" cy="7" r="3" fill="#38bdf8" />
-                                </svg>
-                              </span>
-                              {tpl.companyName || "TeamFlow AI"}
-                            </span>
+                          <div className="tpl-name-col">
+                            <strong style={{ fontSize: 13, color: "var(--sa-text-main)" }}>
+                              {tpl.name}
+                            </strong>
+                            <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11 }}>
+                              <span className="sap-id-cell">{tpl.id}</span>
+                              <span style={{ color: "var(--sa-text-muted)" }}>•</span>
+                              <span className="tpl-engine-tag">{tpl.engine}</span>
+                            </div>
                           </div>
                         </div>
                       </td>
 
-                      {/* Template Name & Engine */}
-                      <td>
-                        <div className="tpl-name-col">
-                          <strong>{tpl.name}</strong>
-                          <span className="tpl-engine-tag">{tpl.engine}</span>
-                        </div>
-                      </td>
-
-                      {/* Explicit Target Company / Organization Column */}
+                      {/* Target Organization & Sender */}
                       <td>
                         <div className="tpl-company-col">
-                          <div className="tpl-company-name-row">
+                          <div className="tpl-company-name-row" style={{ display: "flex", alignItems: "center", gap: 5 }}>
                             <Building2 size={13} style={{ color: "#3b66ff", flexShrink: 0 }} />
-                            <strong>{tpl.organizationName}</strong>
+                            <strong style={{ fontSize: 12.5 }}>{tpl.organizationName}</strong>
                           </div>
-                          <span className="tpl-company-subtext">
+                          <span className="tpl-company-subtext" style={{ fontSize: 11, color: "var(--sa-text-muted)" }}>
                             Sender: {tpl.companyName} · {tpl.orgCode}
                           </span>
                         </div>
@@ -1382,22 +1547,39 @@ function EmailTemplates() {
                         </span>
                       </td>
 
-                      {/* Trigger Event */}
+                      {/* Subject & Trigger (Streamlined) */}
                       <td>
-                        <div className="tpl-trigger-cell">
-                          <code>{tpl.trigger}</code>
-                          <span className="tpl-trigger-desc">
-                            {tpl.triggerDescription}
+                        <div style={{ display: "flex", flexDirection: "column", gap: 3, maxWidth: 260 }}>
+                          <span
+                            style={{
+                              fontSize: 12,
+                              fontWeight: 600,
+                              color: "var(--sa-text-main)",
+                              whiteSpace: "nowrap",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                            }}
+                            title={tpl.subject}
+                          >
+                            {tpl.subject}
                           </span>
-                        </div>
-                      </td>
-
-                      {/* Subject Line */}
-                      <td>
-                        <div className="tpl-subject-cell" title={tpl.subject}>
-                          {(tpl.subject || "")
-                            .replace(/{{company_name}}/g, tpl.companyName || "TeamFlow AI")
-                            .replace(/{{organization_name}}/g, tpl.organizationName || "Acme Technologies")}
+                          <code
+                            style={{
+                              fontSize: 10.5,
+                              fontFamily: "ui-monospace, monospace",
+                              color: "var(--sa-primary, #3b66ff)",
+                              background: "rgba(59, 102, 255, 0.06)",
+                              padding: "1px 4px",
+                              borderRadius: 4,
+                              whiteSpace: "nowrap",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                              maxWidth: 240,
+                            }}
+                            title={tpl.trigger}
+                          >
+                            {tpl.trigger}
+                          </code>
                         </div>
                       </td>
 
@@ -1428,14 +1610,8 @@ function EmailTemplates() {
                           }`}
                         >
                           <span className="sap-status-dot" />
-                          {tpl.status === "Active" ? "00 - Live" : "02 - Inactive"}
+                          {tpl.status === "Active" ? "Live" : "Inactive"}
                         </span>
-                      </td>
-
-                      {/* Last Modified */}
-                      <td>
-                        <div className="sap-date-val">{tpl.lastUpdated}</div>
-                        <div className="sap-time-ago">{tpl.lastAuthor}</div>
                       </td>
 
                       {/* Actions */}
@@ -1444,7 +1620,7 @@ function EmailTemplates() {
                           <button
                             type="button"
                             className="sap-table-btn"
-                            title="Preview Rendered Email with Company Branding"
+                            title="Preview Rendered Email"
                             onClick={() => handleOpenPreview(tpl)}
                           >
                             <Eye size={14} />
@@ -1453,10 +1629,19 @@ function EmailTemplates() {
                           <button
                             type="button"
                             className="sap-table-btn"
-                            title="Edit HTML Template & Company Branding"
+                            title="Visual Template Builder"
                             onClick={() => handleOpenEdit(tpl)}
                           >
                             <Pencil size={14} />
+                          </button>
+
+                          <button
+                            type="button"
+                            className="sap-table-btn"
+                            title="Duplicate Template"
+                            onClick={() => handleDuplicateTemplate(tpl)}
+                          >
+                            <Copy size={14} />
                           </button>
 
                           <button
@@ -1467,6 +1652,15 @@ function EmailTemplates() {
                           >
                             <Send size={14} />
                           </button>
+
+                          <button
+                            type="button"
+                            className="sap-table-btn danger"
+                            title="Delete Template"
+                            onClick={() => handleDeleteTemplate(tpl.id)}
+                          >
+                            <Trash2 size={14} />
+                          </button>
                         </div>
                       </td>
                     </tr>
@@ -1475,7 +1669,7 @@ function EmailTemplates() {
 
                 {paginatedTemplates.length === 0 && (
                   <tr>
-                    <td colSpan={11} style={{ textAlign: "center", padding: 36, color: "var(--sa-text-muted)" }}>
+                    <td colSpan={8} style={{ textAlign: "center", padding: 36, color: "var(--sa-text-muted)" }}>
                       No email templates found matching search criteria.
                     </td>
                   </tr>
@@ -1747,7 +1941,7 @@ function EmailTemplates() {
               </button>
             </div>
 
-            <div className="sa-modal-body" style={{ background: "#f1f5f9", padding: "20px 24px" }}>
+            <div className="sa-modal-body" style={{ background: "var(--sa-bg, #f1f5f9)", padding: "20px 24px" }}>
               {/* Email Envelope Header */}
               <div className="tpl-preview-envelope">
                 <div>
@@ -1778,7 +1972,7 @@ function EmailTemplates() {
               <div
                 className={`tpl-preview-viewport is-${previewDevice}`}
                 style={{
-                  maxWidth: previewDevice === "mobile" ? 380 : 580,
+                  maxWidth: previewDevice === "mobile" ? 440 : 580,
                   margin: "0 auto",
                   transition: "max-width 0.2s ease",
                 }}
@@ -1849,12 +2043,23 @@ function EmailTemplates() {
         document.body
       )}
 
-      {/* 7. Edit Template Modal with Company Branding Inputs */}
+      {/* 7. Visual Template Builder / Editor Modal with Live Real-Time Preview */}
       {editModalOpen && editingTemplate && typeof document !== "undefined" && createPortal(
         <div className="sa-modal-backdrop">
-          <div className="sa-modal-content" style={{ maxWidth: 720 }}>
+          <div className="sa-modal-content tpl-editor-modal">
             <div className="sa-modal-header">
-              <h3>Edit Email Template: {editingTemplate.name}</h3>
+              <div>
+                <h3 style={{ margin: 0, fontSize: 16 }}>
+                  {editingTemplate.isNew
+                    ? "Create New Email Notification Template"
+                    : `Visual Template Builder: ${editingTemplate.name || "Untitled Template"}`}
+                </h3>
+                <span style={{ fontSize: 12, color: "var(--sa-text-muted)" }}>
+                  {editingTemplate.isNew
+                    ? "Fill in key parameters below. Real-time preview updates instantly on the right."
+                    : "Update notification copy and options with instant real-time live preview."}
+                </span>
+              </div>
               <button
                 type="button"
                 className="sa-modal-close"
@@ -1865,135 +2070,423 @@ function EmailTemplates() {
             </div>
 
             <form onSubmit={handleSaveEdit}>
-              <div className="sa-modal-body">
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
-                  <div className="sa-form-group">
-                    <label>Sender Company / Product Name</label>
-                    <input
-                      type="text"
-                      className="sa-form-input"
-                      value={editingTemplate.companyName}
-                      onChange={(e) =>
-                        setEditingTemplate({
-                          ...editingTemplate,
-                          companyName: e.target.value,
-                        })
-                      }
-                      placeholder="e.g. TeamFlow AI"
-                      required
-                    />
+              <div className="sa-modal-body" style={{ padding: 20 }}>
+                <div className="tpl-editor-grid">
+                  {/* Left Column: Friendly Visual Form (Main Fields Only) */}
+                  <div className="tpl-editor-form-col">
+                    {/* Compact Brand Accent Theme Bar */}
+                    <div className="tpl-theme-bar">
+                      <span className="tpl-theme-label">Brand Theme:</span>
+                      <div className="tpl-color-swatches" style={{ margin: 0 }}>
+                        {BRAND_PRESET_COLORS.map((c) => (
+                          <button
+                            key={c.hex}
+                            type="button"
+                            className={`tpl-color-btn ${editingTemplate.themeColor === c.hex ? "is-active" : ""}`}
+                            style={{ backgroundColor: c.hex }}
+                            title={c.name}
+                            onClick={() =>
+                              setEditingTemplate({
+                                ...editingTemplate,
+                                themeColor: c.hex,
+                                themeBg: c.bg,
+                              })
+                            }
+                          />
+                        ))}
+                        <input
+                          type="color"
+                          value={editingTemplate.themeColor || "#352fa8"}
+                          onChange={(e) =>
+                            setEditingTemplate({
+                              ...editingTemplate,
+                              themeColor: e.target.value,
+                              themeBg: `${e.target.value}18`,
+                            })
+                          }
+                          className="tpl-color-picker-input"
+                          title="Custom Hex Color"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Row 1: Template Name & Category */}
+                    <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: 12 }}>
+                      <div className="sa-form-group">
+                        <label>Template Name *</label>
+                        <input
+                          type="text"
+                          className="sa-form-input"
+                          value={editingTemplate.name || ""}
+                          onChange={(e) =>
+                            setEditingTemplate({
+                              ...editingTemplate,
+                              name: e.target.value,
+                            })
+                          }
+                          placeholder="e.g. Birthday Celebration or Onboarding"
+                          required
+                        />
+                      </div>
+
+                      <div className="sa-form-group">
+                        <label>Category</label>
+                        <select
+                          className="sa-form-select"
+                          value={editingTemplate.category || "General"}
+                          onChange={(e) =>
+                            setEditingTemplate({
+                              ...editingTemplate,
+                              category: e.target.value,
+                            })
+                          }
+                        >
+                          <option value="General">General</option>
+                          <option value="Authentication">Authentication</option>
+                          <option value="Security">Security</option>
+                          <option value="Billing">Billing &amp; GST</option>
+                          <option value="AI Management">AI Management</option>
+                          <option value="System">System &amp; Ops</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    {/* Row 2: Sender Brand & Target Tenant */}
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                      <div className="sa-form-group">
+                        <label>Sender Brand Name</label>
+                        <input
+                          type="text"
+                          className="sa-form-input"
+                          value={editingTemplate.companyName || ""}
+                          onChange={(e) =>
+                            setEditingTemplate({
+                              ...editingTemplate,
+                              companyName: e.target.value,
+                            })
+                          }
+                          placeholder="e.g. TeamFlow AI"
+                        />
+                      </div>
+
+                      <div className="sa-form-group">
+                        <label>Target Tenant / Workspace</label>
+                        <input
+                          type="text"
+                          className="sa-form-input"
+                          value={editingTemplate.organizationName || ""}
+                          onChange={(e) =>
+                            setEditingTemplate({
+                              ...editingTemplate,
+                              organizationName: e.target.value,
+                            })
+                          }
+                          placeholder="e.g. BizzFly or All Organizations"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Row 3: Email Subject Line */}
+                    <div className="sa-form-group">
+                      <label>Email Subject Line *</label>
+                      <input
+                        type="text"
+                        className="sa-form-input"
+                        value={editingTemplate.subject || ""}
+                        onChange={(e) =>
+                          setEditingTemplate({
+                            ...editingTemplate,
+                            subject: e.target.value,
+                          })
+                        }
+                        placeholder="e.g. Welcome to your workspace — Let's get started"
+                        required
+                      />
+                    </div>
+
+                    {/* Row 4: Greeting / Main Headline */}
+                    <div className="sa-form-group">
+                      <label>Email Main Headline *</label>
+                      <input
+                        type="text"
+                        className="sa-form-input"
+                        value={editingTemplate.headline || ""}
+                        onChange={(e) =>
+                          setEditingTemplate({
+                            ...editingTemplate,
+                            headline: e.target.value,
+                          })
+                        }
+                        placeholder="e.g. Welcome to your new workspace"
+                        required
+                      />
+                    </div>
+
+                    {/* Row 5: Plain Text Message Body */}
+                    <div className="sa-form-group">
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        <label>Message Content (Plain Text) *</label>
+                        <span style={{ fontSize: 11, color: "var(--sa-text-muted)" }}>
+                          Line breaks create paragraphs
+                        </span>
+                      </div>
+                      <textarea
+                        className="sa-form-textarea"
+                        rows={4}
+                        value={editingTemplate.message || ""}
+                        onChange={(e) =>
+                          setEditingTemplate({
+                            ...editingTemplate,
+                            message: e.target.value,
+                          })
+                        }
+                        placeholder="Type your message here. For example: Your workspace account has been configured. You can now log in and access your team tools."
+                        required
+                      />
+                    </div>
+
+                    {/* Row 6: Call to Action Button (Optional) */}
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                      <div className="sa-form-group">
+                        <label>CTA Button Label (Optional)</label>
+                        <input
+                          type="text"
+                          className="sa-form-input"
+                          value={editingTemplate.ctaText || ""}
+                          onChange={(e) =>
+                            setEditingTemplate({
+                              ...editingTemplate,
+                              ctaText: e.target.value,
+                            })
+                          }
+                          placeholder="e.g. Celebrate Now or View Workspace"
+                        />
+                      </div>
+
+                      <div className="sa-form-group">
+                        <label>CTA Button Link (Optional)</label>
+                        <input
+                          type="text"
+                          className="sa-form-input"
+                          value={editingTemplate.ctaUrl || ""}
+                          onChange={(e) =>
+                            setEditingTemplate({
+                              ...editingTemplate,
+                              ctaUrl: e.target.value,
+                            })
+                          }
+                          placeholder="e.g. https://app.teamflow.ai/login"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Optional Collapsible for Advanced Elements */}
+                    <details className="tpl-advanced-collapsible">
+                      <summary className="tpl-advanced-summary">
+                        <span>⚙️ Optional Advanced Elements (Badge, Highlight Box, Webhook Trigger, Footer Note)</span>
+                      </summary>
+                      <div className="tpl-advanced-content">
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                          <div className="sa-form-group">
+                            <label>Badge Pill Text (Optional)</label>
+                            <input
+                              type="text"
+                              className="sa-form-input"
+                              value={editingTemplate.badgeText || ""}
+                              onChange={(e) =>
+                                setEditingTemplate({
+                                  ...editingTemplate,
+                                  badgeText: e.target.value,
+                                })
+                              }
+                              placeholder="e.g. 👋 Account Ready or 🎉 Birthday"
+                            />
+                          </div>
+
+                          <div className="sa-form-group">
+                            <label>Highlight Info Box (Optional)</label>
+                            <input
+                              type="text"
+                              className="sa-form-input"
+                              value={editingTemplate.highlightNote || ""}
+                              onChange={(e) =>
+                                setEditingTemplate({
+                                  ...editingTemplate,
+                                  highlightNote: e.target.value,
+                                })
+                              }
+                              placeholder="e.g. Note: Your access credentials have been sent separately"
+                            />
+                          </div>
+                        </div>
+
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                          <div className="sa-form-group">
+                            <label>System Trigger Event</label>
+                            <input
+                              type="text"
+                              className="sa-form-input"
+                              value={editingTemplate.trigger || ""}
+                              onChange={(e) =>
+                                setEditingTemplate({
+                                  ...editingTemplate,
+                                  trigger: e.target.value,
+                                })
+                              }
+                              placeholder="e.g. user.welcome.signup or billing.invoice.paid"
+                            />
+                          </div>
+
+                          <div className="sa-form-group">
+                            <label>Footer Support Note</label>
+                            <input
+                              type="text"
+                              className="sa-form-input"
+                              value={editingTemplate.footerNote || ""}
+                              onChange={(e) =>
+                                setEditingTemplate({
+                                  ...editingTemplate,
+                                  footerNote: e.target.value,
+                                })
+                              }
+                              placeholder="e.g. If you have any questions, reply to this email"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </details>
                   </div>
 
-                  <div className="sa-form-group">
-                    <label>Target Tenant Company / Organization</label>
-                    <input
-                      type="text"
-                      className="sa-form-input"
-                      value={editingTemplate.organizationName}
-                      onChange={(e) =>
-                        setEditingTemplate({
-                          ...editingTemplate,
-                          organizationName: e.target.value,
-                        })
-                      }
-                      placeholder="e.g. Acme Technologies"
-                      required
-                    />
+                  {/* Right Column: Live Real-time Interactive Preview (Proper Space Utilization) */}
+                  <div className="tpl-editor-preview-col">
+                    <div className="tpl-editor-preview-header">
+                      <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+                        <strong style={{ fontSize: 13, color: "var(--sa-text-main)" }}>
+                          Live Real-Time Preview
+                        </strong>
+                        <span
+                          style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: 4,
+                            fontSize: 10.5,
+                            color: "#059669",
+                            fontWeight: 650,
+                            background: "rgba(16, 185, 129, 0.12)",
+                            padding: "2px 7px",
+                            borderRadius: 999,
+                          }}
+                        >
+                          <span
+                            style={{
+                              width: 6,
+                              height: 6,
+                              borderRadius: "50%",
+                              background: "#10b981",
+                              boxShadow: "0 0 6px #10b981",
+                            }}
+                          />
+                          Live Sync
+                        </span>
+                      </div>
+                      <div className="tpl-device-tabs">
+                        <button
+                          type="button"
+                          className={`tpl-device-tab ${previewDevice === "desktop" ? "is-active" : ""}`}
+                          onClick={() => setPreviewDevice("desktop")}
+                        >
+                          <Monitor size={13} /> Desktop
+                        </button>
+                        <button
+                          type="button"
+                          className={`tpl-device-tab ${previewDevice === "mobile" ? "is-active" : ""}`}
+                          onClick={() => setPreviewDevice("mobile")}
+                        >
+                          <Smartphone size={13} /> Mobile
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Live Subject Header Preview */}
+                    <div className="tpl-preview-subject-bar">
+                      <span className="tpl-preview-subject-label">Subject:</span>
+                      <span className="tpl-preview-subject-text">
+                        {interpolateTemplateVariables(
+                          editingTemplate.subject?.trim() || "Subject line will preview here...",
+                          editingTemplate
+                        )}
+                      </span>
+                    </div>
+
+                    {/* Viewport Frame with Proper Space Utilization */}
+                    <div className="tpl-preview-viewport-wrap">
+                      {previewDevice === "mobile" ? (
+                        /* Realistic 430px Modern Phone Container */
+                        <div className="tpl-mobile-frame">
+                          {/* Mobile Phone Status Bar */}
+                          <div className="tpl-phone-status-bar">
+                            <span className="tpl-phone-time">9:41</span>
+                            <div className="tpl-phone-dynamic-island">
+                              <span className="tpl-phone-lens" />
+                            </div>
+                            <div className="tpl-phone-indicators">
+                              <span style={{ fontSize: 10, fontWeight: 700 }}>5G</span>
+                              <div className="tpl-phone-battery">
+                                <div className="tpl-phone-battery-fill" />
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Mobile Native Mail Header */}
+                          <div className="tpl-phone-email-bar">
+                            <span style={{ color: "#3b66ff", fontSize: 12.5, fontWeight: 650 }}>
+                              ‹ Inbox
+                            </span>
+                            <span style={{ fontSize: 11, color: "var(--sa-text-muted)" }}>
+                              Today, 9:41 AM
+                            </span>
+                          </div>
+
+                          {/* Email Body Fills Full Mobile Width */}
+                          <div className="tpl-phone-content-area">
+                            <div
+                              dangerouslySetInnerHTML={{
+                                __html: interpolateTemplateVariables(
+                                  generateEmailHtml(editingTemplate),
+                                  editingTemplate
+                                ),
+                              }}
+                            />
+                          </div>
+
+                          {/* Bottom Home Indicator */}
+                          <div className="tpl-phone-home-indicator" />
+                        </div>
+                      ) : (
+                        /* Desktop Frame with Window Controls */
+                        <div className="tpl-desktop-frame">
+                          <div className="tpl-desktop-window-bar">
+                            <div className="tpl-window-dots">
+                              <span className="tpl-window-dot red" />
+                              <span className="tpl-window-dot yellow" />
+                              <span className="tpl-window-dot green" />
+                            </div>
+                            <span className="tpl-desktop-window-title">
+                              {editingTemplate.companyName || "TeamFlow AI"} — Desktop Mail Preview
+                            </span>
+                          </div>
+                          <div
+                            dangerouslySetInnerHTML={{
+                              __html: interpolateTemplateVariables(
+                                generateEmailHtml(editingTemplate),
+                                editingTemplate
+                              ),
+                            }}
+                          />
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
-
-                <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 14 }}>
-                  <div className="sa-form-group">
-                    <label>Template Display Name</label>
-                    <input
-                      type="text"
-                      className="sa-form-input"
-                      value={editingTemplate.name}
-                      onChange={(e) =>
-                        setEditingTemplate({
-                          ...editingTemplate,
-                          name: e.target.value,
-                        })
-                      }
-                      required
-                    />
-                  </div>
-
-                  <div className="sa-form-group">
-                    <label>Category</label>
-                    <select
-                      className="sa-form-select"
-                      value={editingTemplate.category}
-                      onChange={(e) =>
-                        setEditingTemplate({
-                          ...editingTemplate,
-                          category: e.target.value,
-                        })
-                      }
-                    >
-                      <option value="Authentication">Authentication</option>
-                      <option value="Security">Security</option>
-                      <option value="Billing">Billing & GST</option>
-                      <option value="AI Management">AI Management</option>
-                      <option value="System">System & Ops</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div className="sa-form-group">
-                  <label>Email Subject Line (supports merge tags)</label>
-                  <input
-                    type="text"
-                    className="sa-form-input"
-                    value={editingTemplate.subject}
-                    onChange={(e) =>
-                      setEditingTemplate({
-                        ...editingTemplate,
-                        subject: e.target.value,
-                      })
-                    }
-                    required
-                  />
-                </div>
-
-                <div className="sa-form-group">
-                  <label>Trigger Condition Event</label>
-                  <input
-                    type="text"
-                    className="sa-form-input"
-                    value={editingTemplate.trigger}
-                    onChange={(e) =>
-                      setEditingTemplate({
-                        ...editingTemplate,
-                        trigger: e.target.value,
-                      })
-                    }
-                    required
-                  />
-                </div>
-
-                <div className="sa-form-group">
-                  <label>HTML Email Template Body</label>
-                  <textarea
-                    className="sa-form-textarea"
-                    rows={10}
-                    style={{ fontFamily: "monospace", fontSize: 12 }}
-                    value={editingTemplate.body}
-                    onChange={(e) =>
-                      setEditingTemplate({
-                        ...editingTemplate,
-                        body: e.target.value,
-                      })
-                    }
-                    required
-                  />
-                </div>
-
-                <div className="sa-merge-tags-hint">
-                  <strong>Available Dynamic Merge Tags:</strong>
-                  <code>
-                    {"{{company_name}}"} · {"{{organization_name}}"} · {"{{user_name}}"} · {"{{user_email}}"} · {"{{temporary_password}}"} · {"{{plan_name}}"} · {"{{invoice_id}}"} · {"{{invoice_amount}}"} · {"{{renewal_date}}"} · {"{{login_url}}"}
-                  </code>
                 </div>
               </div>
 
@@ -2006,7 +2499,7 @@ function EmailTemplates() {
                   Cancel
                 </button>
                 <button type="submit" className="sa-btn sa-btn-primary">
-                  Save Changes
+                  {editingTemplate.isNew ? "Create Template" : "Save Template"}
                 </button>
               </div>
             </form>

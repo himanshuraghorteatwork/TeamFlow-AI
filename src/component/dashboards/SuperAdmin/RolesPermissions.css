@@ -1,6 +1,14 @@
 /* ==========================================================================
    TEAMFLOW AI — SUPER ADMIN ROLES & PERMISSIONS CSS
+   4 Core Enterprise Roles (Super Admin, Admin, Team Lead, Employee)
+   Ultra-polished SaaS styling with vibrant colors & dark mode support
    ========================================================================== */
+
+.roles-permissions-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
 
 .sa-roles-page {
   display: flex;
@@ -12,27 +20,191 @@
   padding: 18px 20px 14px;
 }
 
-.sa-role-inline-select {
-  appearance: none;
-  background: var(--sa-surface);
-  border: 1px solid var(--sa-border);
-  border-radius: var(--sa-radius-sm);
-  padding: 5px 10px;
+/* ==========================================================================
+   CLEAR, HIGH-CONTRAST ASSIGNED ROLE BADGES
+   No dropdown, no chevrons — clean, sharp, visible text
+   ========================================================================== */
+.sa-role-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 14px;
+  border-radius: 999px;
   font-family: inherit;
-  font-size: 11.5px;
-  font-weight: 600;
-  color: var(--sa-text-main);
+  font-size: 12px;
+  font-weight: 750;
+  letter-spacing: 0.25px;
+  white-space: nowrap;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
   cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sa-role-badge:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* Super Admin: Royal Blue */
+.sa-role-badge.role-super-admin {
+  background: #eff6ff !important;
+  color: #1d4ed8 !important;
+  border: 1.5px solid #bfdbfe !important;
+}
+
+/* Admin: Emerald Green */
+.sa-role-badge.role-admin {
+  background: #ecfdf5 !important;
+  color: #047857 !important;
+  border: 1.5px solid #a7f3d0 !important;
+}
+
+/* Team Lead: Amber Orange */
+.sa-role-badge.role-team-lead {
+  background: #fffbeb !important;
+  color: #b45309 !important;
+  border: 1.5px solid #fde68a !important;
+}
+
+/* Employee: Vibrant Purple */
+.sa-role-badge.role-employee {
+  background: #f5f3ff !important;
+  color: #6d28d9 !important;
+  border: 1.5px solid #ddd6fe !important;
+}
+
+/* ==========================================================================
+   VIBRANT STATUS PILLS (Active vs Suspended)
+   Clear colors & glowing status dots
+   ========================================================================== */
+.roles-permissions-page .sap-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 11px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 750;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.roles-permissions-page .sap-status-pill.is-active,
+.roles-permissions-page .sap-status-pill.valid {
+  background: #dcfce7 !important;
+  color: #15803d !important;
+  border: 1px solid #86efac !important;
+}
+
+.roles-permissions-page .sap-status-pill.is-active .sap-status-dot,
+.roles-permissions-page .sap-status-pill.valid .sap-status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #16a34a !important;
+  box-shadow: 0 0 0 2.5px rgba(22, 163, 74, 0.25);
+}
+
+.roles-permissions-page .sap-status-pill.is-suspended,
+.roles-permissions-page .sap-status-pill.locked {
+  background: #fee2e2 !important;
+  color: #b91c1c !important;
+  border: 1px solid #fca5a5 !important;
+}
+
+.roles-permissions-page .sap-status-pill.is-suspended .sap-status-dot,
+.roles-permissions-page .sap-status-pill.locked .sap-status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #dc2626 !important;
+  box-shadow: 0 0 0 2.5px rgba(220, 38, 38, 0.25);
+}
+
+/* ==========================================================================
+   COLORED ACTION BUTTONS
+   Amber Lock, Emerald Unlock, Blue Reassign, Rose Red Delete
+   ========================================================================== */
+.sa-action-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sa-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   outline: none;
-  transition: all 0.15s ease;
 }
 
-.sa-role-inline-select:focus {
-  border-color: var(--sa-primary);
-  background: var(--sa-surface);
+.sa-action-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
 }
 
-/* Responsibility Meter in Table */
+/* Suspend Action (Amber Warning) */
+.sa-action-btn.btn-suspend {
+  background: #fffbeb;
+  border-color: #fde68a;
+  color: #d97706;
+}
+
+.sa-action-btn.btn-suspend:hover {
+  background: #fef3c7;
+  border-color: #fcd34d;
+  color: #b45309;
+}
+
+/* Activate Action (Emerald Success) */
+.sa-action-btn.btn-activate {
+  background: #ecfdf5;
+  border-color: #a7f3d0;
+  color: #059669;
+}
+
+.sa-action-btn.btn-activate:hover {
+  background: #d1fae5;
+  border-color: #6ee7b7;
+  color: #047857;
+}
+
+/* Edit / Reassign Role Action (Royal Blue) */
+.sa-action-btn.btn-edit-role {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+  color: #2563eb;
+}
+
+.sa-action-btn.btn-edit-role:hover {
+  background: #dbeafe;
+  border-color: #93c5fd;
+  color: #1d4ed8;
+}
+
+/* Delete / Revoke Action (Rose Red Danger) */
+.sa-action-btn.btn-delete {
+  background: #fef2f2;
+  border-color: #fecaca;
+  color: #ef4444;
+}
+
+.sa-action-btn.btn-delete:hover {
+  background: #fee2e2;
+  border-color: #fca5a5;
+  color: #dc2626;
+}
+
+/* ==========================================================================
+   RESPONSIBILITY METER IN TABLE
+   ========================================================================== */
 .sa-resp-col-wrap {
   display: flex;
   flex-direction: column;
@@ -49,28 +221,51 @@
 
 .sa-resp-tag {
   font-size: 11px;
-  font-weight: 650;
-  padding: 2px 7px;
+  font-weight: 750;
+  padding: 2px 8px;
   border-radius: 4px;
   white-space: nowrap;
 }
 
-.sa-resp-tag.lvl-5 { background: #eff3fe; color: #3b66ff; border: 1px solid #dbeafe; }
-.sa-resp-tag.lvl-4 { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
-.sa-resp-tag.lvl-3 { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
-.sa-resp-tag.lvl-2 { background: #e0e7ff; color: #4338ca; border: 1px solid #c7d2fe; }
-.sa-resp-tag.lvl-1 { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
+.sa-resp-tag.lvl-4-super,
+.sa-resp-tag.lvl-5 {
+  background: #eff6ff;
+  color: #2563eb;
+  border: 1px solid #bfdbfe;
+}
+
+.sa-resp-tag.lvl-3-admin,
+.sa-resp-tag.lvl-4 {
+  background: #ecfdf5;
+  color: #059669;
+  border: 1px solid #a7f3d0;
+}
+
+.sa-resp-tag.lvl-2-lead,
+.sa-resp-tag.lvl-3 {
+  background: #fffbeb;
+  color: #d97706;
+  border: 1px solid #fde68a;
+}
+
+.sa-resp-tag.lvl-1-emp,
+.sa-resp-tag.lvl-2,
+.sa-resp-tag.lvl-1 {
+  background: #f5f3ff;
+  color: #7c3aed;
+  border: 1px solid #ddd6fe;
+}
 
 .sa-resp-score {
   font-size: 11px;
-  font-weight: 700;
-  color: var(--sa-text-muted);
+  font-weight: 750;
+  color: var(--sa-text-muted, #64748b);
 }
 
 .sa-resp-bar-track {
   width: 100%;
-  height: 5px;
-  background: var(--sa-border-subtle);
+  height: 6px;
+  background: var(--sa-border-subtle, #e2e8f0);
   border-radius: 999px;
   overflow: hidden;
 }
@@ -83,15 +278,90 @@
 
 .sa-resp-summary-text {
   font-size: 10.5px;
-  color: var(--sa-text-muted);
+  color: var(--sa-text-muted, #64748b);
   line-height: 1.25;
 }
 
-/* Responsibility Cards Grid in Tab 2 */
+/* User Authority Table Wrapper (No Horizontal Scrollbar on Desktop) */
+.roles-permissions-page .sap-table-wrapper {
+  width: 100%;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+@media (max-width: 992px) {
+  .roles-permissions-page .sap-table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+.roles-permissions-page .sap-grid {
+  width: 100%;
+  table-layout: auto;
+}
+
+/* Compact vs Standard Density */
+.roles-permissions-page .sap-grid.is-compact th,
+.roles-permissions-page .sap-grid.is-compact td {
+  padding: 8px 10px;
+}
+
+.roles-permissions-page .sap-grid.is-standard th,
+.roles-permissions-page .sap-grid.is-standard td {
+  padding: 11px 12px;
+}
+
+/* Interactive Column Headers in SAP Grid */
+.sap-sortable-th {
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+.sap-sortable-th:hover {
+  color: var(--sa-primary, #3b66ff) !important;
+  background-color: var(--sa-primary-light, rgba(59, 102, 255, 0.06));
+}
+
+.sap-th-content {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sap-sort-icon {
+  opacity: 0.45;
+  transition: opacity 0.15s ease;
+}
+
+.sap-sortable-th:hover .sap-sort-icon,
+.sap-sort-icon.is-active {
+  opacity: 1;
+  color: var(--sa-primary, #3b66ff);
+}
+
+/* ==========================================================================
+   EXACTLY 4 BALANCED ROLE SUMMARY CARDS IN TAB 2
+   (Super Admin, Admin, Team Lead, Employee)
+   ========================================================================== */
 .sa-roles-cards-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 8px;
+}
+
+@media (max-width: 1280px) {
+  .sa-roles-cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .sa-roles-cards-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .sa-role-summary-card {
@@ -99,15 +369,17 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
-  border-radius: var(--sa-radius-md);
-  border: 1px solid var(--sa-border);
-  background: var(--sa-surface);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  border-radius: var(--sa-radius-lg, 12px);
+  border: 1px solid var(--sa-border, #e2e8f0);
+  background: var(--sa-surface, #ffffff);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
 }
 
 .sa-role-summary-card:hover {
   transform: translateY(-2px);
-  box-shadow: var(--sa-shadow-md);
+  box-shadow: 0 8px 22px -3px rgba(15, 23, 42, 0.08);
+  border-color: #cbd5e1;
 }
 
 .sa-role-card-top {
@@ -120,87 +392,108 @@
 .sa-role-desc {
   margin: 0;
   font-size: 12px;
-  color: var(--sa-text-muted);
+  color: var(--sa-text-secondary, #475569);
   line-height: 1.45;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
-.sa-role-resp-box {
-  margin-top: 4px;
-  padding: 10px 12px;
-  background: var(--sa-bg);
-  border-radius: var(--sa-radius-sm);
-  border: 1px solid var(--sa-border-subtle);
-}
-
-.sa-role-resp-title {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: var(--sa-text-main);
-  margin-bottom: 6px;
+.sa-role-highlights {
   display: flex;
-  align-items: center;
+  flex-wrap: wrap;
   gap: 6px;
+  margin: 4px 0 2px;
 }
 
-.sa-role-resp-list {
-  margin: 0;
-  padding: 0 0 0 16px;
-  font-size: 11.5px;
-  color: var(--sa-text-secondary);
-  line-height: 1.45;
-}
-
-.sa-role-resp-list li {
-  margin-bottom: 4px;
-}
-
-.sa-role-resp-list li:last-child {
-  margin-bottom: 0;
-}
-
-.sa-role-accountability {
+.sa-role-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   font-size: 11px;
-  font-style: italic;
-  color: var(--sa-text-muted);
-  margin-top: 6px;
-  border-top: 1px dashed var(--sa-border);
-  padding-top: 6px;
+  font-weight: 650;
+  color: var(--sa-text-main, #1e293b);
+  background: var(--sa-bg, #f8fafc);
+  padding: 3px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--sa-border, #e2e8f0);
+  line-height: 1.3;
 }
 
+.sa-role-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
+  padding-top: 10px;
+  border-top: 1px solid var(--sa-border-subtle, #f1f5f9);
+}
+
+.sa-role-user-count {
+  font-size: 11.5px;
+  color: var(--sa-text-muted, #64748b);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* ==========================================================================
+   4 CORE MODULES PERMISSIONS MATRIX TABLE
+   ========================================================================== */
 .sa-matrix-card {
   padding: 20px;
+  border-radius: var(--sa-radius-lg, 12px);
+  border: 1px solid var(--sa-border, #e2e8f0);
+  background: var(--sa-surface, #ffffff);
 }
 
 .sa-perm-check {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
+  transition: transform 0.15s ease;
 }
 
 .sa-perm-check.yes {
   background: #dcfce7;
   color: #15803d;
+  border: 1.5px solid #86efac;
 }
 
 .sa-perm-check.no {
-  background: #f1f5f9;
+  background: #f8fafc;
   color: #94a3b8;
+  border: 1.5px solid #e2e8f0;
 }
 
-/* Modal details list */
+.sa-matrix-table td {
+  padding: 14px 16px;
+  vertical-align: middle;
+}
+
+.sa-matrix-table th {
+  padding: 12px 16px;
+  font-size: 11.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--sa-text-muted, #64748b);
+}
+
+/* Modal Responsibilities */
 .sa-resp-modal-section {
-  margin-bottom: 14px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--sa-border-subtle, #e2e8f0);
 }
 
 .sa-resp-modal-section h4 {
   font-size: 12.5px;
   font-weight: 700;
-  color: var(--sa-text-main);
+  color: var(--sa-text-main, #0f172a);
   margin: 0 0 6px;
 }
 
@@ -208,31 +501,129 @@
   margin: 0;
   padding-left: 18px;
   font-size: 12px;
-  color: var(--sa-text-secondary);
+  color: var(--sa-text-secondary, #475569);
   line-height: 1.5;
 }
 
-/* Dark Mode Overrides for Roles & Responsibility Governance */
-.sa-dark-mode .sa-role-resp-box {
+/* ==========================================================================
+   DARK MODE OVERRIDES
+   ========================================================================== */
+.sa-dark-mode .sa-role-badge.role-super-admin {
+  background: rgba(59, 102, 255, 0.2) !important;
+  color: #93c5fd !important;
+  border-color: rgba(59, 102, 255, 0.45) !important;
+}
+
+.sa-dark-mode .sa-role-badge.role-admin {
+  background: rgba(16, 185, 129, 0.2) !important;
+  color: #6ee7b7 !important;
+  border-color: rgba(16, 185, 129, 0.45) !important;
+}
+
+.sa-dark-mode .sa-role-badge.role-team-lead {
+  background: rgba(245, 158, 11, 0.2) !important;
+  color: #fcd34d !important;
+  border-color: rgba(245, 158, 11, 0.45) !important;
+}
+
+.sa-dark-mode .sa-role-badge.role-employee {
+  background: rgba(139, 92, 246, 0.2) !important;
+  color: #c4b5fd !important;
+  border-color: rgba(139, 92, 246, 0.45) !important;
+}
+
+.sa-dark-mode .roles-permissions-page .sap-status-pill.is-active,
+.sa-dark-mode .roles-permissions-page .sap-status-pill.valid {
+  background: rgba(16, 185, 129, 0.2) !important;
+  color: #34d399 !important;
+  border-color: rgba(16, 185, 129, 0.4) !important;
+}
+
+.sa-dark-mode .roles-permissions-page .sap-status-pill.is-suspended,
+.sa-dark-mode .roles-permissions-page .sap-status-pill.locked {
+  background: rgba(239, 68, 68, 0.2) !important;
+  color: #f87171 !important;
+  border-color: rgba(239, 68, 68, 0.4) !important;
+}
+
+.sa-dark-mode .sa-action-btn.btn-suspend {
+  background: rgba(245, 158, 11, 0.18) !important;
+  border-color: rgba(245, 158, 11, 0.35) !important;
+  color: #fbbf24 !important;
+}
+
+.sa-dark-mode .sa-action-btn.btn-activate {
+  background: rgba(16, 185, 129, 0.18) !important;
+  border-color: rgba(16, 185, 129, 0.35) !important;
+  color: #34d399 !important;
+}
+
+.sa-dark-mode .sa-action-btn.btn-edit-role {
+  background: rgba(59, 102, 255, 0.18) !important;
+  border-color: rgba(59, 102, 255, 0.35) !important;
+  color: #93c5fd !important;
+}
+
+.sa-dark-mode .sa-action-btn.btn-delete {
+  background: rgba(239, 68, 68, 0.18) !important;
+  border-color: rgba(239, 68, 68, 0.35) !important;
+  color: #f87171 !important;
+}
+
+.sa-dark-mode .sa-role-summary-card {
+  background: #131d35 !important;
+  border-color: #202e4c !important;
+}
+
+.sa-dark-mode .sa-role-summary-card:hover {
+  border-color: #334876 !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4) !important;
+}
+
+.sa-dark-mode .sa-role-chip {
   background: #172442 !important;
   border-color: #233355 !important;
 }
 
-.sa-dark-mode .sa-role-resp-list {
-  color: #cbd5e1 !important;
-}
-
-.sa-dark-mode .sa-role-accountability {
+.sa-dark-mode .sa-role-card-footer {
   border-top-color: #1f2d4d !important;
-  color: #94a3b8 !important;
 }
 
-.sa-dark-mode .sa-resp-tag.lvl-5 { background: rgba(59, 102, 255, 0.2) !important; color: #6088ff !important; border-color: rgba(59, 102, 255, 0.3) !important; }
-.sa-dark-mode .sa-resp-tag.lvl-4 { background: rgba(16, 185, 129, 0.2) !important; color: #34d399 !important; border-color: rgba(16, 185, 129, 0.3) !important; }
-.sa-dark-mode .sa-resp-tag.lvl-3 { background: rgba(245, 158, 11, 0.2) !important; color: #fbbf24 !important; border-color: rgba(245, 158, 11, 0.3) !important; }
-.sa-dark-mode .sa-resp-tag.lvl-2 { background: rgba(99, 102, 241, 0.2) !important; color: #a5b4fc !important; border-color: rgba(99, 102, 241, 0.3) !important; }
-.sa-dark-mode .sa-resp-tag.lvl-1 { background: #172442 !important; color: #94a3b8 !important; border-color: #233355 !important; }
+.sa-dark-mode .sa-matrix-card {
+  background: #131d35 !important;
+  border-color: #202e4c !important;
+}
+
+.sa-dark-mode .sa-matrix-table th {
+  color: #94a3b8 !important;
+  border-bottom-color: #1f2d4d !important;
+}
+
+.sa-dark-mode .sa-matrix-table td {
+  border-bottom-color: #1f2d4d !important;
+}
+
+.sa-dark-mode .sa-perm-check.yes {
+  background: rgba(16, 185, 129, 0.2) !important;
+  color: #34d399 !important;
+  border-color: rgba(16, 185, 129, 0.35) !important;
+}
+
+.sa-dark-mode .sa-perm-check.no {
+  background: #172442 !important;
+  color: #64748b !important;
+  border-color: #233355 !important;
+}
+
+.sa-dark-mode .sa-resp-tag.lvl-4-super { background: rgba(59, 102, 255, 0.2) !important; color: #6088ff !important; border-color: rgba(59, 102, 255, 0.35) !important; }
+.sa-dark-mode .sa-resp-tag.lvl-3-admin { background: rgba(16, 185, 129, 0.2) !important; color: #34d399 !important; border-color: rgba(16, 185, 129, 0.35) !important; }
+.sa-dark-mode .sa-resp-tag.lvl-2-lead { background: rgba(245, 158, 11, 0.2) !important; color: #fbbf24 !important; border-color: rgba(245, 158, 11, 0.35) !important; }
+.sa-dark-mode .sa-resp-tag.lvl-1-emp { background: rgba(139, 92, 246, 0.2) !important; color: #c084fc !important; border-color: rgba(139, 92, 246, 0.35) !important; }
 
 .sa-dark-mode .sa-resp-bar-track {
   background: #1f2d4d !important;
+}
+
+.sa-dark-mode .sa-resp-modal-section {
+  border-top-color: #1f2d4d !important;
 }
