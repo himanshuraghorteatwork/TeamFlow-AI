@@ -1,0 +1,471 @@
+/* =========================================================
+   TEAM LEAD DARK MODE (PAGES ONLY - SIDEBAR REMAINS LIGHT)
+   Applied to all pages and topbar when .dark-mode is active
+========================================================= */
+
+/* Main layout wrapper & content (Sidebar is kept light) */
+.dark-mode .teamlead-main-wrapper,
+.dark-mode .teamlead-layout-content {
+  background: #101629 !important;
+  color: #edf1ff;
+}
+
+/* Explicitly keep sidebar in its pristine light theme */
+.dark-mode .team-lead-sidebar {
+  background: #ffffff !important;
+  border-right: 1px solid #e6eaf2 !important;
+  color: #26334f !important;
+}
+
+.dark-mode .team-lead-sidebar .tls-brand {
+  border-bottom: 1px solid #edf0f6 !important;
+  color: #17213e !important;
+}
+
+.dark-mode .team-lead-sidebar .tls-brand-name {
+  color: #17213e !important;
+}
+
+.dark-mode .team-lead-sidebar .tls-brand-sub {
+  color: #77839a !important;
+}
+
+.dark-mode .team-lead-sidebar .tls-section-label {
+  color: #78849a !important;
+}
+
+.dark-mode .team-lead-sidebar .tls-nav-item {
+  color: #3e4b65 !important;
+  background: transparent !important;
+  border-color: transparent !important;
+}
+
+.dark-mode .team-lead-sidebar .tls-nav-item:hover {
+  color: #3547ce !important;
+  background: #f3f5ff !important;
+}
+
+.dark-mode .team-lead-sidebar .tls-nav-item.active {
+  color: #4e55df !important;
+  background: #eef0ff !important;
+  border-color: #e3e6ff !important;
+  box-shadow: inset 3px 0 0 #5963f5 !important;
+}
+
+.dark-mode .team-lead-sidebar .tls-support-card {
+  background: #fafbff !important;
+  border: 1px solid #e5e9f2 !important;
+}
+
+.dark-mode .team-lead-sidebar .tls-support-copy b {
+  color: #26334f !important;
+}
+
+.dark-mode .team-lead-sidebar .tls-support-copy small {
+  color: #77839a !important;
+}
+
+.dark-mode .team-lead-sidebar .tls-support-button {
+  background: #ffffff !important;
+  border: 1px solid #e0e5f0 !important;
+  color: #4e55d9 !important;
+}
+
+.dark-mode .team-lead-sidebar .tls-profile-button {
+  color: #26334f !important;
+  background: transparent !important;
+}
+
+.dark-mode .team-lead-sidebar .tls-profile-button:hover {
+  background: #f6f7fb !important;
+}
+
+.dark-mode .team-lead-sidebar .tls-profile-copy b {
+  color: #26334f !important;
+}
+
+.dark-mode .team-lead-sidebar .tls-profile-copy small {
+  color: #77839a !important;
+}
+
+.dark-mode .team-lead-sidebar .tls-logout {
+  color: #68758c !important;
+}
+
+.dark-mode .team-lead-sidebar .tls-logout:hover {
+  color: #c72f45 !important;
+  background: #fff0f2 !important;
+}
+
+/* ---------------------------------------------------------
+   1. PAGE CONTAINERS (All 16 TeamLead pages)
+--------------------------------------------------------- */
+.dark-mode .tld-app,
+.dark-mode .meetings-page,
+.dark-mode .tf-files-page,
+.dark-mode .wl-page,
+.dark-mode .tl-project-page,
+.dark-mode .tl-task-page,
+.dark-mode .tl-bug-page,
+.dark-mode .tl-calendar,
+.dark-mode .mt-page,
+.dark-mode .tl-member-page,
+.dark-mode .tl-report-page,
+.dark-mode .ch-page,
+.dark-mode .tl-ai-page,
+.dark-mode .ai-summary-page,
+.dark-mode .tsg-page,
+.dark-mode .pr-page,
+.dark-mode .ntf-page,
+.dark-mode .ts-page {
+  background: #101629 !important;
+  color: #edf1ff !important;
+}
+
+/* Page Titles and Breadcrumbs */
+.dark-mode .teamlead-layout-content h1,
+.dark-mode .teamlead-layout-content h2,
+.dark-mode .teamlead-layout-content h3,
+.dark-mode .teamlead-layout-content h4 {
+  color: #edf1ff !important;
+}
+
+.dark-mode .teamlead-layout-content p,
+.dark-mode .meetings-subtitle,
+.dark-mode .tsg-header-desc,
+.dark-mode .pr-header-desc,
+.dark-mode .ntf-header-desc {
+  color: #93a0bd !important;
+}
+
+.dark-mode .meetings-breadcrumb,
+.dark-mode .tf-files-breadcrumb,
+.dark-mode .wl-breadcrumb,
+.dark-mode .tsg-breadcrumb,
+.dark-mode .pr-breadcrumb,
+.dark-mode .ntf-breadcrumb,
+.dark-mode .ai-summary-breadcrumb {
+  color: #7986a3 !important;
+}
+
+/* ---------------------------------------------------------
+   2. CARDS, STATS & PANELS ACROSS ALL PAGES
+--------------------------------------------------------- */
+.dark-mode .tld-panel,
+.dark-mode .tld-stat-card,
+.dark-mode .meeting-stat-card,
+.dark-mode .meeting-card,
+.dark-mode .meeting-panel,
+.dark-mode .tf-files-summary-card,
+.dark-mode .tf-files-folder-card,
+.dark-mode .tf-files-list-section,
+.dark-mode .wl-stat-card,
+.dark-mode .wl-card,
+.dark-mode .tl-project-stat,
+.dark-mode .tl-project-card,
+.dark-mode .tl-project-list,
+.dark-mode .tl-task-card,
+.dark-mode .tl-task-column,
+.dark-mode .tl-bug-stat,
+.dark-mode .tl-bug-card,
+.dark-mode .tl-bug-table-card,
+.dark-mode .tl-calendar-card,
+.dark-mode .tl-calendar-legend,
+.dark-mode .mt-stat-card,
+.dark-mode .mt-panel,
+.dark-mode .mt-card,
+.dark-mode .tl-member-stat,
+.dark-mode .tl-member-panel,
+.dark-mode .tl-report-stat,
+.dark-mode .tl-report-card,
+.dark-mode .tl-report-panel,
+.dark-mode .ai-summary-card,
+.dark-mode .ai-summary-panel,
+.dark-mode .ai-summary-overview,
+.dark-mode .ai-summary-box,
+.dark-mode .tsg-stat-card,
+.dark-mode .tsg-card,
+.dark-mode .tsg-toolbar,
+.dark-mode .pr-stat-card,
+.dark-mode .pr-panel,
+.dark-mode .pr-table-card,
+.dark-mode .pr-toolbar,
+.dark-mode .ntf-stat-card,
+.dark-mode .ntf-item,
+.dark-mode .ntf-toolbar,
+.dark-mode .ts-card,
+.dark-mode .ts-nav {
+  background: #171f34 !important;
+  border-color: #2b3550 !important;
+  color: #edf1ff !important;
+  box-shadow: none !important;
+}
+
+/* Stat Card Label & Values */
+.dark-mode .tld-stat-value,
+.dark-mode .wl-stat-value,
+.dark-mode .tsg-stat-value,
+.dark-mode .pr-stat-value,
+.dark-mode .ntf-stat-value,
+.dark-mode .tl-report-stat-value {
+  color: #edf1ff !important;
+}
+
+.dark-mode .tld-stat-label,
+.dark-mode .wl-stat-label,
+.dark-mode .tsg-stat-label,
+.dark-mode .pr-stat-label,
+.dark-mode .ntf-stat-label {
+  color: #8c99b5 !important;
+}
+
+/* ---------------------------------------------------------
+   3. TABLES ACROSS ALL PAGES
+--------------------------------------------------------- */
+.dark-mode .teamlead-layout-content table,
+.dark-mode .tld-table,
+.dark-mode .wl-table,
+.dark-mode .tf-files-table,
+.dark-mode .pr-table,
+.dark-mode .tl-bug-table,
+.dark-mode .tl-member-table {
+  border-color: #2b3550 !important;
+}
+
+.dark-mode .teamlead-layout-content th,
+.dark-mode .tld-table th,
+.dark-mode .wl-table th,
+.dark-mode .tf-files-table th,
+.dark-mode .pr-table th,
+.dark-mode .tl-bug-table th,
+.dark-mode .tl-member-table th {
+  background: #131b2e !important;
+  border-bottom-color: #2b3550 !important;
+  color: #8896b4 !important;
+}
+
+.dark-mode .teamlead-layout-content td,
+.dark-mode .tld-table td,
+.dark-mode .wl-table td,
+.dark-mode .tf-files-table td,
+.dark-mode .pr-table td,
+.dark-mode .tl-bug-table td,
+.dark-mode .tl-member-table td {
+  border-bottom-color: #232c44 !important;
+  color: #cbd5e9 !important;
+}
+
+.dark-mode .teamlead-layout-content tbody tr:hover,
+.dark-mode .tld-table tbody tr:hover,
+.dark-mode .wl-table tbody tr:hover,
+.dark-mode .tf-files-table tbody tr:hover,
+.dark-mode .pr-table tbody tr:hover {
+  background: #1d273f !important;
+}
+
+/* ---------------------------------------------------------
+   4. FORM CONTROLS, INPUTS, SELECTS, AND SEARCH BOXES
+--------------------------------------------------------- */
+.dark-mode .teamlead-layout-content input[type="text"],
+.dark-mode .teamlead-layout-content input[type="search"],
+.dark-mode .teamlead-layout-content input[type="date"],
+.dark-mode .teamlead-layout-content input[type="email"],
+.dark-mode .teamlead-layout-content select,
+.dark-mode .teamlead-layout-content textarea,
+.dark-mode .tsg-search,
+.dark-mode .tsg-select,
+.dark-mode .pr-search-box,
+.dark-mode .ntf-search-box,
+.dark-mode .tf-files-search,
+.dark-mode .tf-files-filter,
+.dark-mode .wl-table-search,
+.dark-mode .wl-filter-select,
+.dark-mode .tl-project-search,
+.dark-mode .meeting-search,
+.dark-mode .ch-list-search {
+  background: #101629 !important;
+  border-color: #2b3550 !important;
+  color: #edf1ff !important;
+}
+
+.dark-mode .teamlead-layout-content input::placeholder,
+.dark-mode .teamlead-layout-content textarea::placeholder {
+  color: #727e99 !important;
+}
+
+.dark-mode .teamlead-layout-content kbd {
+  background: #171f34 !important;
+  border-color: #2b3550 !important;
+  color: #a3aec7 !important;
+}
+
+/* ---------------------------------------------------------
+   5. SECONDARY BUTTONS & TABS ACROSS ALL PAGES
+--------------------------------------------------------- */
+.dark-mode .tsg-btn-secondary,
+.dark-mode .pr-btn-secondary,
+.dark-mode .ntf-btn-secondary,
+.dark-mode .tf-files-btn-secondary,
+.dark-mode .wl-secondary-button,
+.dark-mode .tld-secondary-button,
+.dark-mode .pr-view-btn,
+.dark-mode .tsg-action-edit,
+.dark-mode .tld-calendar-heading button {
+  background: #1a223a !important;
+  border-color: #2b3550 !important;
+  color: #edf1ff !important;
+}
+
+.dark-mode .tsg-btn-secondary:hover,
+.dark-mode .pr-btn-secondary:hover,
+.dark-mode .ntf-btn-secondary:hover,
+.dark-mode .tf-files-btn-secondary:hover,
+.dark-mode .wl-secondary-button:hover,
+.dark-mode .tld-secondary-button:hover,
+.dark-mode .pr-view-btn:hover {
+  background: #232c45 !important;
+  border-color: #3b476b !important;
+}
+
+.dark-mode .tsg-tab,
+.dark-mode .pr-tab,
+.dark-mode .ntf-tab,
+.dark-mode .tf-files-tabs button {
+  color: #929fb8 !important;
+}
+
+.dark-mode .tsg-tab:hover,
+.dark-mode .pr-tab:hover,
+.dark-mode .ntf-tab:hover {
+  background: #202942 !important;
+  color: #ffffff !important;
+}
+
+.dark-mode .tsg-tab.active,
+.dark-mode .pr-tab.active,
+.dark-mode .ntf-tab.active {
+  background: #252f52 !important;
+  border-color: #384572 !important;
+  color: #8592ff !important;
+}
+
+/* ---------------------------------------------------------
+   6. CHAT & AI ASSISTANT FULL VIEWPORTS
+--------------------------------------------------------- */
+.dark-mode .ch-workspace,
+.dark-mode .ch-list-panel,
+.dark-mode .ch-conversation,
+.dark-mode .ch-details-panel {
+  background: #131b2e !important;
+  border-color: #232c45 !important;
+}
+
+.dark-mode .ch-conversation-header {
+  background: #171f34 !important;
+  border-bottom-color: #232c45 !important;
+}
+
+.dark-mode .ch-thread {
+  color: #a3b0cc !important;
+}
+
+.dark-mode .ch-thread:hover {
+  background: #1d2740 !important;
+}
+
+.dark-mode .ch-thread.active {
+  background: #232e4d !important;
+  color: #ffffff !important;
+}
+
+.dark-mode .ch-thread-title b {
+  color: #edf1ff !important;
+}
+
+.dark-mode .ch-bubble {
+  background: #1e2844 !important;
+  border-color: #2c385c !important;
+  color: #edf1ff !important;
+}
+
+.dark-mode .ch-bubble.own {
+  background: #5963f5 !important;
+  color: #ffffff !important;
+}
+
+.dark-mode .ch-composer {
+  background: #171f34 !important;
+  border-top-color: #232c45 !important;
+}
+
+.dark-mode .tl-ai-hero {
+  background: linear-gradient(135deg, #1b2444, #141c36) !important;
+  border-color: #2c3860 !important;
+}
+
+.dark-mode .tl-ai-starter {
+  background: #171f34 !important;
+  border-color: #28334e !important;
+}
+
+.dark-mode .tl-ai-prompt-box {
+  background: #171f34 !important;
+  border-color: #28334e !important;
+}
+
+/* ---------------------------------------------------------
+   7. SPECIFIC PAGE ACCENTS & REASONING BLOCKS
+--------------------------------------------------------- */
+.dark-mode .tsg-reasoning-bubble {
+  background: #131a2e !important;
+  border-left-color: #5963f5 !important;
+}
+
+.dark-mode .tsg-reasoning-bubble p {
+  color: #cbd5e9 !important;
+}
+
+.dark-mode .tsg-reasoning-bubble strong {
+  color: #edf1ff !important;
+}
+
+.dark-mode .tsg-card.accepted {
+  background: #152431 !important;
+  border-color: #1e4540 !important;
+}
+
+.dark-mode .ntf-item.unread {
+  background: #1a233b !important;
+  border-color: #313d5e !important;
+}
+
+.dark-mode .ai-summary-text-box {
+  background: #101629 !important;
+  border-color: #2b3550 !important;
+  color: #cbd5e9 !important;
+}
+
+.dark-mode .tl-calendar-grid button:not(.selected) {
+  color: #cbd5e9 !important;
+}
+
+.dark-mode .tl-calendar-grid button:hover:not(:disabled) {
+  background: #253150 !important;
+}
+
+.dark-mode .tl-calendar-upcoming-item {
+  background: #131b2e !important;
+  border-color: #232c45 !important;
+}
+
+/* Modals & Popovers across all pages */
+.dark-mode .tsg-modal,
+.dark-mode .pr-modal,
+.dark-mode .ntf-modal,
+.dark-mode .meeting-modal,
+.dark-mode .tl-task-modal,
+.dark-mode .tl-bug-modal {
+  background: #171f34 !important;
+  border: 1px solid #2b3550 !important;
+  color: #edf1ff !important;
+}

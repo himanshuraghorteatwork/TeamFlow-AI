@@ -52,6 +52,13 @@ import AdminWorkspace from "./component/dashboards/Admin/AdminWorkspace.jsx";
 /* TEAM LEAD LAYOUT AND PAGES */
 import TeamLeadLayout from "./component/dashboards/TeamLead/TeamLeadLayout.jsx";
 import TeamLeadDashboard from "./component/dashboards/TeamLead/TeamLeadDashboard.jsx";
+import TeamLeadWorkload from "./component/dashboards/TeamLead/Workload.jsx";
+import TeamLeadFilesDocs from "./component/dashboards/TeamLead/FilesDocs.jsx";
+import TeamLeadMeetings from "./component/dashboards/TeamLead/Meeting.jsx";
+import TeamLeadAISummary from "./component/dashboards/TeamLead/AISummary.jsx";
+import TeamLeadTaskSuggestions from "./component/dashboards/TeamLead/TaskSuggestions.jsx";
+import TeamLeadProjectReports from "./component/dashboards/TeamLead/ProjectReports.jsx";
+import TeamLeadNotifications from "./component/dashboards/TeamLead/Notifications.jsx";
 import TeamLeadChat from "./component/dashboards/TeamLead/Chat.jsx";
 import TeamLeadTask from "./component/dashboards/TeamLead/Task.jsx";
 import TeamLeadProject from "./component/dashboards/TeamLead/Project.jsx";
@@ -130,6 +137,11 @@ function App() {
       <Route path="/teamlead" element={<TeamLeadLayout />}>
         <Route index element={<Navigate to="dashboard" replace />} />
         <Route path="dashboard" element={<TeamLeadDashboard />} />
+        <Route path="workload" element={<TeamLeadWorkload />} />
+        <Route path="files" element={<TeamLeadFilesDocs />} />
+        <Route path="meetings" element={<TeamLeadMeetings />} />
+        <Route path="ai-summaries" element={<TeamLeadAISummary />} />
+        <Route path="task-suggestions" element={<TeamLeadTaskSuggestions />} />
         <Route path="team" element={<TeamLeadMyTeam />} />
         <Route path="projects" element={<TeamLeadProject />} />
         <Route path="tasks" element={<TeamLeadTask />} />
@@ -138,8 +150,10 @@ function App() {
         <Route path="member" element={<TeamMember1 />} />
         <Route path="member/:id" element={<TeamMember1 />} />
         <Route path="reports" element={<TeamLeadReport />} />
+        <Route path="project-reports" element={<TeamLeadProjectReports />} />
         <Route path="chat" element={<TeamLeadChat />} />
         <Route path="ai-assistant" element={<TeamLeadAI />} />
+        <Route path="notifications" element={<TeamLeadNotifications />} />
         <Route path="settings" element={<TeamLeadSetting />} />
       </Route>
 

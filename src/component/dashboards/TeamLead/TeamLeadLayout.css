@@ -1,15 +1,13 @@
 /* =========================================================
-   TEAM LEAD LAYOUT ONLY
-   Does not affect Landing Page / Admin / User pages
+   TEAM LEAD LAYOUT
+   TeamFlow AI Design System
 ========================================================= */
 
 .teamlead-layout {
   display: flex;
-
   width: 100%;
   min-width: 0;
   min-height: 100vh;
-
   background: #f6f7fc;
 }
 
@@ -20,12 +18,13 @@
   box-sizing: border-box;
 }
 
-/* =========================================================
-   SIDEBAR
-========================================================= */
-
-.teamlead-layout > .team-lead-sidebar {
-  flex: 0 0 224px;
+.teamlead-main-wrapper {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  min-height: 100vh;
+  background: #f6f7fc;
 }
 
 /* =========================================================
@@ -34,32 +33,18 @@
 
 .teamlead-layout-content {
   flex: 1;
-
-  width: calc(100% - 224px);
+  width: 100%;
   min-width: 0;
-  min-height: 100vh;
-
   overflow-x: hidden;
-
   background: #f6f7fc;
 }
-
-/* Pages such as Chat / AI Assistant may use full height */
 
 .teamlead-layout-content > * {
   width: 100%;
 }
 
-/* =========================================================
-   RESPONSIVE
-========================================================= */
-
-@media (max-width: 768px) {
-  .teamlead-layout {
-    min-width: 900px;
-  }
-
-  .teamlead-layout-content {
-    width: calc(100% - 224px);
-  }
+/* Dark Mode for Page Area Only (Sidebar remains light) */
+.dark-mode .teamlead-main-wrapper,
+.dark-mode .teamlead-layout-content {
+  background: #101629;
 }

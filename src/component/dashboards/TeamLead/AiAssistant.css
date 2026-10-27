@@ -837,7 +837,7 @@
 
 /* Keep the chat composer visible while messages scroll */
 .tl-ai-page {
-  height: 100dvh;
+  height: calc(100vh - 64px);
   overflow: hidden;
 }
 

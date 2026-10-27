@@ -4,8 +4,6 @@ import {
   AtSign,
   Bell,
   Check,
-  ChevronDown,
-  CircleHelp,
   FileText,
   Hash,
   Image,
@@ -210,20 +208,6 @@ export default function TeamLeadChat() {
 
   return (
     <section className="ch-page" aria-label="Team chat">
-      <header className="ch-topbar">
-        <button type="button" className="ch-mobile-menu" aria-label="Back to conversations" onClick={() => setMobileView("list")}><ArrowLeft size={19} /></button>
-        <div className="ch-workspace-mark">TW</div>
-        <button type="button" className="ch-workspace-switch">
-          <span><b>TeamFlow Workspace</b><small>Product Team</small></span><ChevronDown size={16} />
-        </button>
-        <label className="ch-global-search"><Search size={17} /><input value={search} onChange={event => setSearch(event.target.value)} placeholder="Search conversations..." aria-label="Search conversations" /><kbd>⌘ K</kbd></label>
-        <div className="ch-topbar-actions">
-          <button type="button" aria-label="Notifications"><Bell size={19} /><i /></button>
-          <button type="button" aria-label="Help"><CircleHelp size={19} /></button>
-          <Avatar initials="PS" color="#7858db" />
-        </div>
-      </header>
-
       <div className="ch-workspace">
         <aside className={`ch-list-panel${mobileView === "list" ? " mobile-active" : ""}`}>
           <div className="ch-list-heading">

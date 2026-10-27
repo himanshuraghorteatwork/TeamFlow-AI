@@ -7,8 +7,6 @@ import {
   Bot,
   Check,
   CheckCircle2,
-  ChevronDown,
-  CircleHelp,
   ClipboardList,
   Copy,
   FileText,
@@ -179,24 +177,13 @@ export default function AiAssistant() {
 
   return (
     <section className="tl-ai-page" aria-label="TeamFlow AI Assistant">
-      <header className="tl-ai-topbar">
-        <div className="tl-ai-workspace">
-          <span className="tl-ai-workspace-icon">TW</span>
-          <span><b>TeamFlow Workspace</b><small>Product Team</small></span>
-          <ChevronDown size={15} />
-        </div>
-        <span className="tl-ai-topbar-spacer" />
-        <span className="tl-ai-secure"><CheckCircle2 size={14} /> Your workspace assistant</span>
-        <button type="button" className="tl-ai-help" aria-label="Assistant help"><CircleHelp size={18} /></button>
-      </header>
-
       <div className="tl-ai-layout">
         <main className="tl-ai-main">
           <section className="tl-ai-hero">
             <div className="tl-ai-hero-glow" aria-hidden="true" />
             <span className="tl-ai-hero-icon"><Sparkles size={22} /></span>
             <span className="tl-ai-eyebrow">YOUR TEAM'S THINKING PARTNER</span>
-            <h1>Good afternoon, Priya <span>✨</span></h1>
+            <h1>Good afternoon, Komal <span>✨</span></h1>
             <p>Make space for the important work. Get help turning team context into clear next steps.</p>
             <div className="tl-ai-hero-meta">
               <span><i /> Assistant ready</span>
