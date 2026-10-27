@@ -4,9 +4,9 @@
    ========================================================================== */
 
 .tf-meetings-page {
-  padding: 24px 32px 48px;
-  max-width: 1560px;
-  margin: 0 auto;
+
+  max-width: 2000px;
+ 
   font-family: inherit;
   color: var(--tf-text, #0F172A);
   position: relative;
@@ -270,7 +270,7 @@
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
 }
 
-.tf-search-icon {
+.tf-meet-search-box .tf-search-icon {
   position: absolute;
   left: 10px;
   color: #94A3B8;

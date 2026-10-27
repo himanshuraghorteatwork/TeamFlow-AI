@@ -8,33 +8,72 @@ export function getEmployeeProfile() {
     const user = JSON.parse(
       localStorage.getItem("teamflow_current_user") || "null"
     );
+    const savedSettingsProfile = JSON.parse(
+      localStorage.getItem("tf_settings_profile_v2") || "null"
+    );
 
     const firstName =
       (user?.name ? user.name.split(" ")[0] : null) ||
       (user?.firstName ? user.firstName : null) ||
+      savedSettingsProfile?.fullName?.split(" ")[0] ||
       settings?.profile?.firstName ||
       "John";
 
     const lastName =
       (user?.name ? user.name.split(" ").slice(1).join(" ") : null) ||
       (user?.lastName ? user.lastName : null) ||
+      savedSettingsProfile?.fullName?.split(" ").slice(1).join(" ") ||
       settings?.profile?.lastName ||
       "Doe";
 
-    const fullName = `${firstName} ${lastName}`.trim() || "John Doe";
+    const fullName = savedSettingsProfile?.fullName || `${firstName} ${lastName}`.trim() || "John Doe";
     const email =
+      savedSettingsProfile?.email ||
       user?.email ||
       settings?.profile?.email ||
       "john.doe@teamflow.com";
 
-    const photo = user?.photo || settings?.profile?.photo || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop";
+    const photo =
+      savedSettingsProfile?.avatar ||
+      user?.photo ||
+      settings?.profile?.photo ||
+      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop";
+
     const initials = "JD";
 
-    // Standardize role to "Employee"
+    // Standardize role to "Employee" (not "Product Manager")
     let role = "Employee";
-    const rawRole = settings?.profile?.jobTitle || user?.role;
-    if (rawRole) {
+    const rawRole = savedSettingsProfile?.role || user?.role || settings?.profile?.jobTitle;
+    if (rawRole && rawRole.toLowerCase() !== "product manager") {
       role = rawRole;
+    } else {
+      role = "Employee";
+    }
+
+    // Clean up any stale "Product Manager" in localStorage
+    if (user && (user.role === "Product Manager" || user.jobTitle === "Product Manager")) {
+      user.role = "Employee";
+      try {
+        localStorage.setItem("teamflow_current_user", JSON.stringify(user));
+      } catch (err) {
+        void err;
+      }
+    }
+    if (settings?.profile && settings.profile.jobTitle === "Product Manager") {
+      settings.profile.jobTitle = "Employee";
+      try {
+        localStorage.setItem("teamflow-settings", JSON.stringify(settings));
+      } catch (err) {
+        void err;
+      }
+    }
+    if (savedSettingsProfile && savedSettingsProfile.role === "Product Manager") {
+      savedSettingsProfile.role = "Employee";
+      try {
+        localStorage.setItem("tf_settings_profile_v2", JSON.stringify(savedSettingsProfile));
+      } catch (err) {
+        void err;
+      }
     }
 
     return {
@@ -44,7 +83,7 @@ export function getEmployeeProfile() {
       email,
       photo,
       initials,
-      role: role || "Employee",
+      role,
     };
   } catch {
     return {
@@ -109,7 +148,9 @@ export function setEmployeeTheme(theme) {
         if (!settings.appearance) settings.appearance = {};
         settings.appearance.theme = normalizedTheme;
         localStorage.setItem("teamflow-settings", JSON.stringify(settings));
-      } catch {}
+      } catch (err) {
+        void err;
+      }
     }
 
     document.documentElement.setAttribute("data-theme", normalizedTheme);

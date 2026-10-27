@@ -10,9 +10,9 @@
   max-height: 100%;
   width: 100%;
   box-sizing: border-box;
-  padding: 8px 24px 10px;
-  max-width: 1560px;
-  margin: 0 auto;
+  padding: 8px 24px 10px; 
+  max-width: 1900px;
+  /* margin: 0 auto; */
   display: flex;
   flex-direction: column;
   overflow: hidden;

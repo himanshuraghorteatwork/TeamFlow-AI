@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import {
   Search,
   Bell,
-  HelpCircle,
   Menu,
   CheckSquare,
   Network,
@@ -37,7 +36,6 @@ function EmployeeTopbar({
 
   // Dropdown states
   const [notifOpen, setNotifOpen] = useState(false);
-  const [helpOpen, setHelpOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
 
   // Search local state
@@ -45,7 +43,6 @@ function EmployeeTopbar({
   const [searchFocused, setSearchFocused] = useState(false);
 
   const notifRef = useRef(null);
-  const helpRef = useRef(null);
   const profileRef = useRef(null);
 
   // Sync profile & theme
@@ -70,9 +67,6 @@ function EmployeeTopbar({
     const handleClickOutside = (e) => {
       if (notifRef.current && !notifRef.current.contains(e.target)) {
         setNotifOpen(false);
-      }
-      if (helpRef.current && !helpRef.current.contains(e.target)) {
-        setHelpOpen(false);
       }
       if (profileRef.current && !profileRef.current.contains(e.target)) {
         setProfileOpen(false);
@@ -149,10 +143,10 @@ function EmployeeTopbar({
         </button>
 
         <div className={`tf-global-search ${searchFocused ? "focused" : ""}`}>
-          <Search size={16} className="tf-search-icon" />
+          <Search size={16} className="tf-topbar-search-icon" />
           <input
             type="text"
-            className="tf-search-input"
+            className="tf-topbar-search-input"
             placeholder={searchPlaceholder || "Search tasks, projects, messages, or ask AI..."}
             value={onSearchChange ? searchQuery : localSearch}
             onChange={(e) => handleSearchInput(e.target.value)}
@@ -167,7 +161,7 @@ function EmployeeTopbar({
           {localSearch && (
             <button
               type="button"
-              className="tf-search-clear"
+              className="tf-topbar-search-clear"
               onClick={() => handleSearchInput("")}
               aria-label="Clear search"
             >
@@ -304,56 +298,6 @@ function EmployeeTopbar({
           )}
         </div>
 
-        {/* 3. Help Question Mark */}
-        <div className="tf-icon-wrapper" ref={helpRef}>
-          <button
-            type="button"
-            className="tf-icon-button"
-            onClick={() => setHelpOpen((prev) => !prev)}
-            aria-label="Help and guide"
-            title="Help"
-          >
-            <HelpCircle size={19} className="tf-help-icon" />
-          </button>
-
-          {helpOpen && (
-            <div className="tf-help-dropdown">
-              <div className="tf-help-header">
-                <strong>Help & Quick Guide</strong>
-              </div>
-              <div className="tf-help-content">
-                <p>Welcome to <strong>TeamFlow AI</strong></p>
-                <div className="tf-help-shortcut">
-                  <span>Tasks</span>
-                  <kbd>T</kbd>
-                </div>
-                <div className="tf-help-shortcut">
-                  <span>Projects</span>
-                  <kbd>P</kbd>
-                </div>
-                <div className="tf-help-shortcut">
-                  <span>AI Assistant</span>
-                  <kbd>A</kbd>
-                </div>
-                <div className="tf-help-shortcut">
-                  <span>Toggle Theme</span>
-                  <kbd>Click Switch</kbd>
-                </div>
-              </div>
-              <div className="tf-help-footer">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setHelpOpen(false);
-                    navigate("/employee/ai-assistant");
-                  }}
-                >
-                  Ask AI Assistant
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
 
         {/* 4. User Profile (John Doe, Employee) */}
         <div className="tf-profile-wrapper" ref={profileRef}>
@@ -377,7 +321,11 @@ function EmployeeTopbar({
             </div>
             <div className="tf-profile-meta">
               <span className="tf-profile-name">{profile.fullName || "John Doe"}</span>
-              <span className="tf-profile-role">{profile.role || "Employee"}</span>
+              <span className="tf-profile-role">
+                {profile.role && profile.role.toLowerCase() !== "product manager"
+                  ? profile.role
+                  : "Employee"}
+              </span>
             </div>
           </button>
 
@@ -397,7 +345,11 @@ function EmployeeTopbar({
                 </div>
                 <div className="tf-dropdown-user-info">
                   <strong>{profile.fullName || "John Doe"}</strong>
-                  <span className="tf-user-role-badge">{profile.role || "Employee"}</span>
+                  <span className="tf-user-role-badge">
+                    {profile.role && profile.role.toLowerCase() !== "product manager"
+                      ? profile.role
+                      : "Employee"}
+                  </span>
                   <small>{profile.email || "john.doe@teamflow.com"}</small>
                 </div>
               </div>

@@ -79,41 +79,105 @@
   position: absolute;
   top: calc(100% + 6px);
   right: 0;
-  width: 250px;
+  width: 275px;
   background: #FFFFFF;
   border: 1px solid #E2E8F0;
-  border-radius: 10px;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.12);
-  padding: 6px;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.12), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  padding: 8px;
   z-index: 100;
   animation: dashboardFadeIn 0.15s ease;
   display: flex;
   flex-direction: column;
-  gap: 2px;
 }
 
-.employee-shell .tf-emp-date-picker-dropdown button {
+.employee-shell .tf-emp-date-preset-item {
   width: 100%;
   padding: 8px 12px;
   background: transparent;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   text-align: left;
-  font-size: 12.5px;
-  color: #334155;
+  font-size: 13px;
+  font-weight: 400;
+  color: #1E293B;
   cursor: pointer;
   transition: all 0.15s ease;
+  display: block;
 }
 
-.employee-shell .tf-emp-date-picker-dropdown button:hover {
-  background: #F1F5F9;
-  color: #5051F9;
+.employee-shell .tf-emp-date-preset-item:hover {
+  background: #F8FAFC;
+  color: #0F172A;
 }
 
-.employee-shell .tf-emp-date-picker-dropdown button.selected {
-  background: #EEF2FF;
-  color: #5051F9;
+.employee-shell .tf-emp-date-preset-item.active {
+  background: #EFF6FF;
+  color: #3B82F6;
   font-weight: 600;
+}
+
+.employee-shell .tf-emp-date-divider {
+  height: 1px;
+  background: #F1F5F9;
+  margin: 8px 0;
+  width: 100%;
+}
+
+.employee-shell .tf-emp-custom-range-block {
+  display: flex;
+  flex-direction: column;
+  padding: 4px 4px 0 4px;
+}
+
+.employee-shell .tf-emp-custom-range-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748B;
+  letter-spacing: 0.04em;
+  margin-bottom: 8px;
+}
+
+.employee-shell .tf-emp-custom-range-inputs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.employee-shell .tf-emp-custom-date-input {
+  width: 100%;
+  height: 36px;
+  padding: 4px 8px;
+  font-size: 12px;
+  color: #1E293B;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  outline: none;
+  transition: border-color 0.15s ease;
+  box-sizing: border-box;
+}
+
+.employee-shell .tf-emp-custom-date-input:focus {
+  border-color: #3B82F6;
+}
+
+.employee-shell .tf-emp-apply-range-btn {
+  width: 100%;
+  height: 38px;
+  background: #3B82F6;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.employee-shell .tf-emp-apply-range-btn:hover {
+  background: #2563EB;
 }
 
 /* ==========================================================================
@@ -1257,21 +1321,54 @@
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
 }
 
-.employee-shell.tf-dark .tf-emp-date-picker-dropdown button,
-[data-theme="dark"] .tf-emp-date-picker-dropdown button {
+.employee-shell.tf-dark .tf-emp-date-preset-item,
+[data-theme="dark"] .tf-emp-date-preset-item {
   color: #CBD5E1;
 }
 
-.employee-shell.tf-dark .tf-emp-date-picker-dropdown button:hover,
-[data-theme="dark"] .tf-emp-date-picker-dropdown button:hover {
+.employee-shell.tf-dark .tf-emp-date-preset-item:hover,
+[data-theme="dark"] .tf-emp-date-preset-item:hover {
   background: #334155;
-  color: #818CF8;
+  color: #F8FAFC;
 }
 
-.employee-shell.tf-dark .tf-emp-date-picker-dropdown button.selected,
-[data-theme="dark"] .tf-emp-date-picker-dropdown button.selected {
-  background: rgba(80, 81, 249, 0.2);
-  color: #818CF8;
+.employee-shell.tf-dark .tf-emp-date-preset-item.active,
+[data-theme="dark"] .tf-emp-date-preset-item.active {
+  background: rgba(59, 130, 246, 0.2);
+  color: #60A5FA;
+}
+
+.employee-shell.tf-dark .tf-emp-date-divider,
+[data-theme="dark"] .tf-emp-date-divider {
+  background: #334155;
+}
+
+.employee-shell.tf-dark .tf-emp-custom-range-label,
+[data-theme="dark"] .tf-emp-custom-range-label {
+  color: #94A3B8;
+}
+
+.employee-shell.tf-dark .tf-emp-custom-date-input,
+[data-theme="dark"] .tf-emp-custom-date-input {
+  background: #0F172A;
+  border-color: #334155;
+  color: #F8FAFC;
+}
+
+.employee-shell.tf-dark .tf-emp-custom-date-input::-webkit-calendar-picker-indicator,
+[data-theme="dark"] .tf-emp-custom-date-input::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+}
+
+.employee-shell.tf-dark .tf-emp-apply-range-btn,
+[data-theme="dark"] .tf-emp-apply-range-btn {
+  background: #3B82F6;
+  color: #FFFFFF;
+}
+
+.employee-shell.tf-dark .tf-emp-apply-range-btn:hover,
+[data-theme="dark"] .tf-emp-apply-range-btn:hover {
+  background: #2563EB;
 }
 
 .employee-shell.tf-dark .tf-emp-stat-card,
