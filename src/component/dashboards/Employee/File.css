@@ -271,7 +271,7 @@
   display: flex;
   align-items: center;
   flex: 1;
-  min-width: 160px;
+  min-width: 180px;
 }
 
 .tf-files-search-wrap input {
@@ -280,9 +280,10 @@
   background: var(--tf-card-bg, #FFFFFF);
   border: 1px solid var(--tf-border, #E2E8F0);
   border-radius: 8px;
-  padding: 0 28px 0 32px;
+  padding: 0 28px 0 34px !important;
   font-size: 13px;
   color: var(--tf-text, #0F172A);
+  box-sizing: border-box;
   transition: all 0.15s ease;
 }
 
@@ -292,11 +293,36 @@
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
 }
 
+.tf-files-search-wrap .tf-files-search-icon,
 .tf-files-search-wrap .tf-search-icon {
-  position: absolute;
-  left: 10px;
+  position: absolute !important;
+  left: 11px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  color: #94A3B8 !important;
+  pointer-events: none !important;
+  width: 15px !important;
+  height: 15px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin: 0 !important;
+  z-index: 2;
+}
+
+.tf-files-search-wrap .tf-search-clear-btn {
+  position: absolute !important;
+  right: 8px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  background: transparent;
+  border: none;
   color: #94A3B8;
-  pointer-events: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 2px;
+  z-index: 2;
 }
 
 .tf-search-clear-btn {
@@ -429,10 +455,12 @@
 .tf-table-responsive {
   width: 100%;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .tf-files-table {
   width: 100%;
+  min-width: 950px;
   border-collapse: collapse;
   text-align: left;
 }
@@ -443,7 +471,7 @@
 }
 
 .tf-files-table th {
-  padding: 12px 14px;
+  padding: 13px 14px;
   font-size: 12px;
   font-weight: 600;
   color: var(--tf-text-muted, #64748B);
@@ -451,11 +479,28 @@
   white-space: nowrap;
 }
 
-.th-check,
-.td-check {
-  width: 36px;
-  padding-left: 16px !important;
-  padding-right: 4px !important;
+/* Number column (#) - Tight and fixed */
+.tf-files-table th.tf-th-num,
+.tf-files-table td.tf-td-num {
+  width: 48px !important;
+  min-width: 48px !important;
+  max-width: 48px !important;
+  padding: 12px 6px 12px 14px !important;
+  text-align: center !important;
+  vertical-align: middle !important;
+  white-space: nowrap;
+}
+
+/* Checkbox column - Tight and fixed next to # */
+.tf-files-table th.th-check,
+.tf-files-table td.td-check {
+  width: 36px !important;
+  min-width: 36px !important;
+  max-width: 36px !important;
+  padding: 12px 4px !important;
+  text-align: center !important;
+  vertical-align: middle !important;
+  white-space: nowrap;
 }
 
 .tf-checkbox {
@@ -465,6 +510,54 @@
   border: 1.5px solid #CBD5E1;
   cursor: pointer;
   accent-color: #4F46E5;
+  display: block;
+  margin: 0 auto;
+}
+
+/* Name column - Takes 100% of all remaining table space! */
+.tf-files-table th.th-name,
+.tf-files-table td.td-name {
+  width: 100% !important;
+  min-width: 200px;
+  max-width: none !important;
+}
+
+.tf-files-table th.th-project,
+.tf-files-table td.td-project {
+  min-width: 130px;
+  white-space: nowrap;
+}
+
+.tf-files-table th.th-type,
+.tf-files-table td.td-type {
+  min-width: 90px;
+  white-space: nowrap;
+}
+
+.tf-files-table th.th-size,
+.tf-files-table td.td-size {
+  min-width: 75px;
+  white-space: nowrap;
+}
+
+.tf-files-table th.th-uploader,
+.tf-files-table td.td-uploader {
+  min-width: 135px;
+  white-space: nowrap;
+}
+
+.tf-files-table th.th-date,
+.tf-files-table td.td-date {
+  min-width: 110px;
+  white-space: nowrap;
+}
+
+.tf-files-table th.th-actions,
+.tf-files-table td.td-actions {
+  width: 100px;
+  min-width: 100px;
+  text-align: right;
+  padding-right: 18px !important;
 }
 
 .tf-file-row {
@@ -690,6 +783,7 @@
 .tf-actions-group {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: 4px;
 }
 
@@ -1443,4 +1537,255 @@
   .tf-form-row {
     grid-template-columns: 1fr;
   }
+}
+
+
+/* ==========================================================================
+   UPLOAD MODAL WITH PC FILE PICKER & DROPZONE
+   ========================================================================== */
+.tf-files-modal-card.upload-modal-card {
+  max-width: 530px;
+}
+
+.tf-upload-dropzone {
+  border: 2px dashed var(--tf-border, #CBD5E1);
+  border-radius: 12px;
+  padding: 20px 16px;
+  background: var(--tf-hover-bg, #F8FAFC);
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 135px;
+  box-sizing: border-box;
+}
+
+.tf-upload-dropzone:hover {
+  border-color: #6366F1;
+  background: #EEF2FF;
+}
+
+.tf-upload-dropzone.drag-over {
+  border-color: #4F46E5;
+  background: #E0E7FF;
+  transform: scale(1.01);
+}
+
+.tf-upload-dropzone.has-file {
+  border: 1px solid var(--tf-border, #E2E8F0);
+  background: var(--tf-card-bg, #FFFFFF);
+  padding: 10px 12px;
+  cursor: default;
+}
+
+.tf-dropzone-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.tf-dropzone-icon-circle {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #EEF2FF;
+  color: #4F46E5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 9px;
+  box-shadow: 0 2px 6px rgba(79, 70, 229, 0.15);
+}
+
+.tf-dropzone-prompt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
+.tf-dropzone-action-btn {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #4F46E5;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.tf-dropzone-action-btn:hover {
+  color: #3730A3;
+}
+
+.tf-dropzone-sub {
+  font-size: 11.5px;
+  color: #64748B;
+}
+
+.tf-dropzone-badges {
+  display: flex;
+  gap: 6px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.tf-dropzone-badges span {
+  font-size: 9.5px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: #E2E8F0;
+  color: #475569;
+  letter-spacing: 0.02em;
+}
+
+/* Selected File Display in Dropzone */
+.tf-dropzone-selected-card {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 10px;
+  padding: 10px 12px;
+  box-sizing: border-box;
+}
+
+.tf-selected-file-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  flex: 1;
+}
+
+.tf-selected-file-icon {
+  flex-shrink: 0;
+}
+
+.tf-selected-file-meta {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  text-align: left;
+}
+
+.tf-selected-file-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--tf-text-title, #0F172A);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 260px;
+}
+
+.tf-selected-file-size {
+  font-size: 11px;
+  color: #16A34A;
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+.tf-selected-file-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.tf-dropzone-change-btn {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #4F46E5;
+  background: #EEF2FF;
+  border: 1px solid #C7D2FE;
+  border-radius: 6px;
+  padding: 5px 10px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.tf-dropzone-change-btn:hover {
+  background: #E0E7FF;
+}
+
+.tf-dropzone-remove-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: #FEE2E2;
+  border: 1px solid #FECACA;
+  color: #DC2626;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.tf-dropzone-remove-btn:hover {
+  background: #FCA5A5;
+}
+
+/* Form Textarea */
+.tf-form-textarea {
+  width: 100%;
+  border: 1px solid var(--tf-border, #CBD5E1);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 13px;
+  font-family: inherit;
+  color: inherit;
+  background: var(--tf-card-bg, #FFFFFF);
+  resize: vertical;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.15s ease;
+}
+
+.tf-form-textarea:focus {
+  border-color: #4F46E5;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+}
+
+/* Dark Mode Additions */
+[data-theme="dark"] .tf-upload-dropzone {
+  background: #0F172A;
+  border-color: #334155;
+}
+
+[data-theme="dark"] .tf-upload-dropzone:hover {
+  background: #1E293B;
+  border-color: #818CF8;
+}
+
+[data-theme="dark"] .tf-upload-dropzone.has-file {
+  background: #1E293B;
+  border-color: #334155;
+}
+
+[data-theme="dark"] .tf-dropzone-selected-card {
+  background: #0F172A;
+  border-color: #334155;
+}
+
+[data-theme="dark"] .tf-dropzone-badges span {
+  background: #334155;
+  color: #CBD5E1;
+}
+
+[data-theme="dark"] .tf-form-textarea {
+  background: #0F172A;
+  border-color: #334155;
+  color: #F8FAFC;
 }

@@ -217,93 +217,48 @@ function AppSidebar({ isOpen = false, onClose, activeRoute }) {
 
           <NavLink
             to="/employee/dashboard"
-            className="app-sidebar-brand"
+            className="superadmin-brand app-sidebar-brand"
             onClick={onClose}
           >
-
-            {/* =====================================
-                TEAMFLOW AI LOGO
-            ====================================== */}
-            <div className="logo-container">
-
-              <div className="logo-icon-brand">
-
-                <svg
-                  width="28"
-                  height="28"
-                  viewBox="0 0 28 28"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                  aria-label="TeamFlow AI Logo"
-                  role="img"
-                >
-
-                  {/* Logo Background */}
-                  <rect
-                    width="28"
-                    height="28"
-                    rx="8"
-                    fill="url(#tf-sidebar-logo-gradient)"
-                  />
-
-                  {/* T / Flow Symbol */}
-                  <path
-                    d="M8 9H20M14 9V19M11 19H17"
-                    stroke="white"
-                    strokeWidth="2.4"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-
-                  {/* Blue Accent Dot */}
-                  <circle
-                    cx="21"
-                    cy="7"
-                    r="2.5"
-                    fill="#38BDF8"
-                  />
-
-                  {/* Gradient Definition */}
-                  <defs>
-                    <linearGradient
-                      id="tf-sidebar-logo-gradient"
-                      x1="0"
-                      y1="0"
-                      x2="28"
-                      y2="28"
-                      gradientUnits="userSpaceOnUse"
-                    >
-                      <stop
-                        offset="0"
-                        stopColor="#4361EE"
-                      />
-
-                      <stop
-                        offset="0.5"
-                        stopColor="#3A0CA3"
-                      />
-
-                      <stop
-                        offset="1"
-                        stopColor="#F72585"
-                      />
-                    </linearGradient>
-                  </defs>
-
-                </svg>
-
-              </div>
-
-              {/* Brand Name */}
-              <span className="logo-text">
-                TeamFlow{" "}
-                <span className="logo-ai">
-                  AI
-                </span>
-              </span>
-
+            <div className="superadmin-brand-icon logo-icon-brand">
+              <svg
+                width="26"
+                height="26"
+                viewBox="0 0 28 28"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-label="TeamFlow AI Logo"
+                role="img"
+              >
+                <rect width="28" height="28" rx="8" fill="url(#tf-logo-bg-app)" />
+                <path
+                  d="M8 9H20M14 9V19M11 19H17"
+                  stroke="white"
+                  strokeWidth="2.4"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <circle cx="21" cy="7" r="2.5" fill="#38bdf8" />
+                <defs>
+                  <linearGradient
+                    id="tf-logo-bg-app"
+                    x1="0"
+                    y1="0"
+                    x2="28"
+                    y2="28"
+                    gradientUnits="userSpaceOnUse"
+                  >
+                    <stop stopColor="#4361ee" />
+                    <stop offset="0.5" stopColor="#3a0ca3" />
+                    <stop offset="1" stopColor="#f72585" />
+                  </linearGradient>
+                </defs>
+              </svg>
             </div>
 
+            <span className="superadmin-brand-name logo-text">
+              TeamFlow <span>AI</span>
+            </span>
           </NavLink>
 
           {/* Mobile Close Button */}

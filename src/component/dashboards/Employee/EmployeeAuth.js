@@ -39,7 +39,8 @@ export function getEmployeeProfile() {
       settings?.profile?.photo ||
       "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop";
 
-    const initials = "JD";
+    const initials =
+      ((firstName?.[0] || "") + (lastName?.[0] || "")).toUpperCase() || "JD";
 
     // Standardize role to "Employee" (not "Product Manager")
     let role = "Employee";

@@ -893,6 +893,17 @@
   font-weight: 600;
 }
 
+.tf-cal-cell.today:not(.selected) {
+  border: 1.5px solid #2563EB;
+  color: #2563EB;
+  font-weight: 700;
+}
+
+[data-theme="dark"] .tf-cal-cell.today:not(.selected) {
+  border-color: #60A5FA;
+  color: #60A5FA;
+}
+
 .tf-cal-cell .dots-row {
   display: flex;
   align-items: center;

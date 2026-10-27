@@ -132,3 +132,289 @@ html[data-theme="dark"] .employee-shell {
   --tf-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.45), 0 4px 6px -4px rgba(0, 0, 0, 0.3);
   --tf-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.55), 0 8px 10px -6px rgba(0, 0, 0, 0.4);
 }
+
+/* ==========================================================================
+   TABLE ROW NUMBER BADGE STYLES (# COLUMN)
+   ========================================================================== */
+
+.employee-shell th.tf-th-num,
+th.tf-th-num {
+  width: 44px;
+  min-width: 44px;
+  max-width: 50px;
+  text-align: center !important;
+  vertical-align: middle;
+  padding: 12px 6px !important;
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--tf-text-secondary, #64748B);
+  letter-spacing: -0.01em;
+}
+
+.employee-shell td.tf-td-num,
+td.tf-td-num {
+  width: 44px;
+  min-width: 44px;
+  max-width: 50px;
+  text-align: center !important;
+  vertical-align: middle;
+  padding: 10px 6px !important;
+}
+
+.tf-row-num-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 26px;
+  height: 26px;
+  padding: 0 6px;
+  border-radius: 7px;
+  background-color: #EEF2FF;
+  border: 1px solid #E0E7FF;
+  color: #4F46E5;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  box-sizing: border-box;
+  user-select: none;
+  margin: 0 auto;
+  transition: all 0.15s ease;
+}
+
+.tf-row-num-badge:hover {
+  background-color: #E0E7FF;
+  border-color: #C7D2FE;
+}
+
+/* Dark mode overrides */
+.employee-shell.tf-dark th.tf-th-num,
+[data-theme="dark"] .employee-shell th.tf-th-num,
+html[data-theme="dark"] .employee-shell th.tf-th-num,
+body.dark th.tf-th-num {
+  color: #94A3B8;
+}
+
+.employee-shell.tf-dark .tf-row-num-badge,
+[data-theme="dark"] .employee-shell .tf-row-num-badge,
+html[data-theme="dark"] .employee-shell .tf-row-num-badge,
+body.dark .tf-row-num-badge {
+  background-color: rgba(99, 102, 241, 0.16);
+  border-color: rgba(99, 102, 241, 0.35);
+  color: #A5B4FC;
+}
+
+.employee-shell.tf-dark .tf-row-num-badge:hover,
+[data-theme="dark"] .employee-shell .tf-row-num-badge:hover,
+html[data-theme="dark"] .employee-shell .tf-row-num-badge:hover,
+body.dark .tf-row-num-badge:hover {
+  background-color: rgba(99, 102, 241, 0.26);
+  border-color: rgba(99, 102, 241, 0.5);
+}
+
+
+/* ==========================================================================
+   SHARED DATE RANGE PICKER (Matches Dashboard & Screenshot)
+   ========================================================================== */
+.employee-shell .tf-emp-date-range-container {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.employee-shell .tf-emp-date-range-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 38px;
+  padding: 0 14px;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  color: #1E293B;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  transition: all 0.15s ease;
+}
+
+.employee-shell .tf-emp-date-range-btn:hover {
+  background: #F8FAFC;
+  border-color: #CBD5E1;
+}
+
+.employee-shell .tf-emp-date-range-btn .open {
+  transform: rotate(180deg);
+}
+
+.employee-shell .tf-emp-date-picker-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  width: 275px;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.12), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  padding: 8px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  animation: tfDatePickerIn 0.15s ease;
+}
+
+@keyframes tfDatePickerIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.employee-shell .tf-emp-date-preset-item {
+  width: 100%;
+  padding: 8px 12px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  text-align: left;
+  font-size: 13px;
+  font-weight: 400;
+  color: #1E293B;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: block;
+}
+
+.employee-shell .tf-emp-date-preset-item:hover {
+  background: #F8FAFC;
+  color: #0F172A;
+}
+
+.employee-shell .tf-emp-date-preset-item.active {
+  background: #EFF6FF;
+  color: #3B82F6;
+  font-weight: 600;
+}
+
+.employee-shell .tf-emp-date-divider {
+  height: 1px;
+  background: #F1F5F9;
+  margin: 8px 0;
+  width: 100%;
+}
+
+.employee-shell .tf-emp-custom-range-block {
+  display: flex;
+  flex-direction: column;
+  padding: 4px 4px 0 4px;
+}
+
+.employee-shell .tf-emp-custom-range-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748B;
+  letter-spacing: 0.04em;
+  margin-bottom: 8px;
+}
+
+.employee-shell .tf-emp-custom-range-inputs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.employee-shell .tf-emp-custom-date-input {
+  width: 100%;
+  height: 36px;
+  padding: 4px 8px;
+  font-size: 12px;
+  color: #1E293B;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  outline: none;
+  transition: border-color 0.15s ease;
+  box-sizing: border-box;
+}
+
+.employee-shell .tf-emp-custom-date-input:focus {
+  border-color: #3B82F6;
+}
+
+.employee-shell .tf-emp-apply-range-btn {
+  width: 100%;
+  height: 38px;
+  background: #3B82F6;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.employee-shell .tf-emp-apply-range-btn:hover {
+  background: #2563EB;
+}
+
+/* Dark mode overrides for Date Range Picker */
+.employee-shell.tf-dark .tf-emp-date-range-btn,
+[data-theme="dark"] .employee-shell .tf-emp-date-range-btn,
+body.dark-mode .employee-shell .tf-emp-date-range-btn {
+  background: #1E293B;
+  border-color: #334155;
+  color: #F8FAFC;
+}
+
+.employee-shell.tf-dark .tf-emp-date-range-btn:hover,
+[data-theme="dark"] .employee-shell .tf-emp-date-range-btn:hover,
+body.dark-mode .employee-shell .tf-emp-date-range-btn:hover {
+  background: #334155;
+}
+
+.employee-shell.tf-dark .tf-emp-date-picker-dropdown,
+[data-theme="dark"] .employee-shell .tf-emp-date-picker-dropdown,
+body.dark-mode .employee-shell .tf-emp-date-picker-dropdown {
+  background: #1E293B;
+  border-color: #334155;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+}
+
+.employee-shell.tf-dark .tf-emp-date-preset-item,
+[data-theme="dark"] .employee-shell .tf-emp-date-preset-item,
+body.dark-mode .employee-shell .tf-emp-date-preset-item {
+  color: #CBD5E1;
+}
+
+.employee-shell.tf-dark .tf-emp-date-preset-item:hover,
+[data-theme="dark"] .employee-shell .tf-emp-date-preset-item:hover,
+body.dark-mode .employee-shell .tf-emp-date-preset-item:hover {
+  background: #334155;
+  color: #F8FAFC;
+}
+
+.employee-shell.tf-dark .tf-emp-date-preset-item.active,
+[data-theme="dark"] .employee-shell .tf-emp-date-preset-item.active,
+body.dark-mode .employee-shell .tf-emp-date-preset-item.active {
+  background: rgba(59, 130, 246, 0.2);
+  color: #60A5FA;
+}
+
+.employee-shell.tf-dark .tf-emp-date-divider,
+[data-theme="dark"] .employee-shell .tf-emp-date-divider,
+body.dark-mode .employee-shell .tf-emp-date-divider {
+  background: #334155;
+}
+
+.employee-shell.tf-dark .tf-emp-custom-range-label,
+[data-theme="dark"] .employee-shell .tf-emp-custom-range-label,
+body.dark-mode .employee-shell .tf-emp-custom-range-label {
+  color: #94A3B8;
+}
+
+.employee-shell.tf-dark .tf-emp-custom-date-input,
+[data-theme="dark"] .employee-shell .tf-emp-custom-date-input,
+body.dark-mode .employee-shell .tf-emp-custom-date-input {
+  background: #0F172A;
+  border-color: #334155;
+  color: #F8FAFC;
+}

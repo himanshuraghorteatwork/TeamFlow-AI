@@ -1479,8 +1479,8 @@
     grid-template-columns: 1fr;
   }
 
-  .tf-tp-members-table th:nth-child(2),
-  .tf-tp-members-table td:nth-child(2) {
+  .tf-tp-members-table th:nth-child(3),
+  .tf-tp-members-table td:nth-child(3) {
     display: none;
   }
 }

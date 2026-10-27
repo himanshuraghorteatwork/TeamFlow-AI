@@ -55,9 +55,11 @@ function EmployeeTopbar({
       setTheme(e.detail || getEmployeeTheme());
     };
     window.addEventListener("storage", handleStorage);
+    window.addEventListener("tf_profile_updated", handleStorage);
     window.addEventListener("tf_theme_change", handleThemeChange);
     return () => {
       window.removeEventListener("storage", handleStorage);
+      window.removeEventListener("tf_profile_updated", handleStorage);
       window.removeEventListener("tf_theme_change", handleThemeChange);
     };
   }, []);

@@ -31,275 +31,41 @@ import {
 import EmployeeShell from "./EmployeeShell";
 import "./Calendar.css";
 
-/* Storage Key */
-const STORAGE_KEY = "tf_calendar_events_v3";
-const TASKS_STORAGE_KEY = "tf_calendar_tasks_v3";
+/* Storage Keys */
+const STORAGE_KEY = "tf_calendar_events_v4";
+const TASKS_STORAGE_KEY = "tf_calendar_tasks_v4";
 
-/* Default 10 Timetable Events matching reference image */
-const defaultEvents = [
-  {
-    id: 1,
-    title: "Daily Standup",
-    category: "meeting",
-    project: "Team Meeting",
-    dayIndex: 1, // Mon Oct 21
-    date: "2024-10-21",
-    startTime: "09:00",
-    endTime: "10:00",
-    timeLabel: "9:00 - 10:00 AM",
-    color: "blue",
-    icon: "video",
-    meetingUrl: "https://meet.google.com/abc-defg-hij",
-    description: "Daily engineering sync to unblock team tasks.",
-  },
-  {
-    id: 2,
-    title: "Bug Discussion",
-    category: "meeting",
-    project: "AI Integration",
-    dayIndex: 1, // Mon Oct 21
-    date: "2024-10-21",
-    startTime: "11:30",
-    endTime: "12:30",
-    timeLabel: "11:30 AM - 12:30 PM",
-    color: "red",
-    icon: "circle",
-    meetingUrl: "https://meet.google.com/xyz-uvwx-rst",
-    description: "Review high severity bugs reported in AI pipeline.",
-  },
-  {
-    id: 3,
-    title: "Planning",
-    category: "meeting",
-    project: "AI Integration",
-    dayIndex: 1, // Mon Oct 21
-    date: "2024-10-21",
-    startTime: "16:00",
-    endTime: "17:00",
-    timeLabel: "4:00 - 5:00 PM",
-    color: "blue",
-    icon: "video",
-    meetingUrl: "https://meet.google.com/plan-team-ai",
-    description: "Sprint backlog prioritization and estimation.",
-  },
-  {
-    id: 4,
-    title: "UI Design Discussion",
-    category: "meeting",
-    project: "TeamFlow Website",
-    dayIndex: 2, // Tue Oct 22 (Today)
-    date: "2024-10-22",
-    startTime: "10:00",
-    endTime: "11:00",
-    timeLabel: "10:00 - 11:00 AM",
-    color: "purple",
-    icon: "zap",
-    meetingUrl: "https://meet.google.com/ui-design-rev",
-    description: "Review responsive breakpoints and dark mode palette.",
-  },
-  {
-    id: 5,
-    title: "Work on Tasks",
-    category: "personal",
-    project: "Personal",
-    dayIndex: 2, // Tue Oct 22 (Today)
-    date: "2024-10-22",
-    startTime: "14:00",
-    endTime: "15:00",
-    timeLabel: "2:00 - 3:00 PM",
-    color: "orange",
-    icon: "square",
-    description: "Dedicated focus time for frontend component refactor.",
-  },
-  {
-    id: 6,
-    title: "Team Sync",
-    category: "meeting",
-    project: "Mobile App",
-    dayIndex: 2, // Tue Oct 22 (Today)
-    date: "2024-10-22",
-    startTime: "17:00",
-    endTime: "17:30",
-    timeLabel: "5:00 - 5:30 PM",
-    color: "blue",
-    icon: "video",
-    meetingUrl: "https://meet.google.com/mobile-sync-app",
-    description: "Weekly mobile development sync on Google Meet.",
-  },
-  {
-    id: 7,
-    title: "Client Meeting",
-    category: "meeting",
-    project: "Marketing Portal",
-    dayIndex: 3, // Wed Oct 23
-    date: "2024-10-23",
-    startTime: "09:30",
-    endTime: "10:30",
-    timeLabel: "9:30 - 10:30 AM",
-    color: "green",
-    icon: "video",
-    meetingUrl: "https://meet.google.com/client-review-mkt",
-    description: "Showcase marketing landing page prototype to client stakeholders.",
-  },
-  {
-    id: 8,
-    title: "Project Sync",
-    category: "meeting",
-    project: "TeamFlow Website",
-    dayIndex: 3, // Wed Oct 23
-    date: "2024-10-23",
-    startTime: "12:00",
-    endTime: "13:00",
-    timeLabel: "12:00 - 1:00 PM",
-    color: "slate",
-    icon: "video",
-    meetingUrl: "https://meet.google.com/project-sync-tf",
-    description: "Align deliverables with product manager.",
-  },
-  {
-    id: 9,
-    title: "Design Review",
-    category: "meeting",
-    project: "Mobile App",
-    dayIndex: 4, // Thu Oct 24
-    date: "2024-10-24",
-    startTime: "13:30",
-    endTime: "14:30",
-    timeLabel: "1:30 - 2:30 PM",
-    color: "purple",
-    icon: "layers",
-    meetingUrl: "https://meet.google.com/mob-design-rev",
-    description: "Review iOS and Android navigation flows.",
-  },
-  {
-    id: 10,
-    title: "Sprint Review",
-    category: "meeting",
-    project: "Mobile App",
-    dayIndex: 5, // Fri Oct 25
-    date: "2024-10-25",
-    startTime: "09:00",
-    endTime: "10:00",
-    timeLabel: "9:00 - 10:00 AM",
-    color: "blue",
-    icon: "video",
-    meetingUrl: "https://meet.google.com/sprint-review-app",
-    description: "Demonstrate completed sprint features to QA.",
-  },
-  {
-    id: 11,
-    title: "Team Meeting",
-    category: "meeting",
-    project: "General",
-    dayIndex: 5, // Fri Oct 25
-    date: "2024-10-25",
-    startTime: "15:00",
-    endTime: "16:00",
-    timeLabel: "3:00 - 4:00 PM",
-    color: "green",
-    icon: "video",
-    meetingUrl: "https://meet.google.com/general-team-meet",
-    description: "Weekly company retrospective and celebrations.",
-  },
-];
+/* Date Utilities */
+const pad = (n) => String(n).padStart(2, "0");
 
-/* Default Task Deadlines widget items */
-const defaultDeadlines = [
-  {
-    id: 1,
-    title: "Design login page UI",
-    dueDate: "Today",
-    isToday: true,
-    priority: "High",
-    completed: false,
-  },
-  {
-    id: 2,
-    title: "API integration testing",
-    dueDate: "Oct 26",
-    isToday: false,
-    priority: "Medium",
-    completed: false,
-  },
-  {
-    id: 3,
-    title: "Update documentation",
-    dueDate: "Oct 28",
-    isToday: false,
-    priority: "Low",
-    completed: false,
-  },
-  {
-    id: 4,
-    title: "Prepare demo for client",
-    dueDate: "Oct 30",
-    isToday: false,
-    priority: "Medium",
-    completed: false,
-  },
-];
-
-/* Next 7 Days list items */
-const nextSevenDaysList = [
-  {
-    id: 1,
-    dateLabel: "Oct 23",
-    dayName: "Wed",
-    title: "Client Meeting",
-    subText: "9:30 - 10:30 AM • Marketing Portal",
-    dotColor: "green",
-  },
-  {
-    id: 2,
-    dateLabel: "Oct 24",
-    dayName: "Thu",
-    title: "Design Review",
-    subText: "1:30 - 2:30 PM • Mobile App",
-    dotColor: "purple",
-  },
-  {
-    id: 3,
-    dateLabel: "Oct 25",
-    dayName: "Fri",
-    title: "Sprint Review",
-    subText: "9:00 - 10:00 AM • Mobile App",
-    dotColor: "blue",
-  },
-  {
-    id: 4,
-    dateLabel: "Oct 28",
-    dayName: "Mon",
-    title: "Bug Discussion",
-    subText: "11:00 - 12:00 PM • AI Integration",
-    dotColor: "red",
-  },
-  {
-    id: 5,
-    dateLabel: "Oct 30",
-    dayName: "Wed",
-    title: "Project Planning",
-    subText: "4:00 - 5:00 PM • TeamFlow Website",
-    dotColor: "orange",
-  },
-];
-
-/* Mini month calendar dates map for October 2024 */
-const monthDotsMap = {
-  1: ["blue"],
-  3: ["orange"],
-  4: ["green", "red"],
-  10: ["red", "blue"],
-  11: ["green", "blue"],
-  17: ["red", "orange"],
-  18: ["green"],
-  21: ["blue", "red"],
-  22: ["blue", "orange"], // Today
-  23: ["green", "blue"],
-  24: ["purple", "red"],
-  25: ["blue", "green"],
-  28: ["red"],
-  30: ["orange"],
+const toDateKey = (d) => {
+  if (!d) return "";
+  const date = new Date(d);
+  if (isNaN(date.getTime())) return "";
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
 };
+
+const isSameDay = (d1, d2) => {
+  if (!d1 || !d2) return false;
+  return toDateKey(d1) === toDateKey(d2);
+};
+
+const isTodayDate = (d) => {
+  return isSameDay(d, new Date());
+};
+
+const MONTH_NAMES = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December"
+];
+
+const MONTH_SHORT = [
+  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+];
+
+const DAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const DAY_FULL = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
 /* Time slots for timetable grid (9 AM to 6 PM) */
 const timeSlots = [
@@ -315,47 +81,221 @@ const timeSlots = [
   "6:00 PM",
 ];
 
-/* Days of the target week */
-const weekDays = [
-  { name: "Sun", dateNum: 20, isToday: false },
-  { name: "Mon", dateNum: 21, isToday: false },
-  { name: "Tue", dateNum: 22, isToday: true }, // Target active today
-  { name: "Wed", dateNum: 23, isToday: false },
-  { name: "Thu", dateNum: 24, isToday: false },
-  { name: "Fri", dateNum: 25, isToday: false },
-  { name: "Sat", dateNum: 26, isToday: false },
-];
+/* Generate dynamic default events relative to real current time */
+const generateDefaultEvents = (baseDate) => {
+  const d = new Date(baseDate);
+  const addDays = (offset) => {
+    const target = new Date(d);
+    target.setDate(target.getDate() + offset);
+    return toDateKey(target);
+  };
+
+  return [
+    {
+      id: 1,
+      title: "Daily Standup",
+      category: "meeting",
+      project: "TeamFlow Website",
+      date: addDays(0), // Today
+      startTime: "09:30",
+      endTime: "10:00",
+      timeLabel: "9:30 - 10:00 AM",
+      color: "blue",
+      icon: "video",
+      meetingUrl: "https://meet.google.com/abc-defg-hij",
+      description: "Daily engineering sync to unblock team tasks.",
+    },
+    {
+      id: 2,
+      title: "UI Design Discussion",
+      category: "meeting",
+      project: "TeamFlow Website",
+      date: addDays(0), // Today
+      startTime: "11:00",
+      endTime: "12:00",
+      timeLabel: "11:00 AM - 12:00 PM",
+      color: "purple",
+      icon: "zap",
+      meetingUrl: "https://meet.google.com/ui-design-rev",
+      description: "Review responsive breakpoints and dark mode palette.",
+    },
+    {
+      id: 3,
+      title: "Work on Tasks",
+      category: "personal",
+      project: "Personal",
+      date: addDays(0), // Today
+      startTime: "14:00",
+      endTime: "15:00",
+      timeLabel: "2:00 - 3:00 PM",
+      color: "orange",
+      icon: "square",
+      description: "Dedicated focus time for frontend component refactor.",
+    },
+    {
+      id: 4,
+      title: "Team Sync",
+      category: "meeting",
+      project: "Mobile App",
+      date: addDays(0), // Today
+      startTime: "16:30",
+      endTime: "17:15",
+      timeLabel: "4:30 - 5:15 PM",
+      color: "blue",
+      icon: "video",
+      meetingUrl: "https://meet.google.com/mobile-sync-app",
+      description: "Weekly mobile development sync on Google Meet.",
+    },
+    {
+      id: 5,
+      title: "Bug Discussion",
+      category: "meeting",
+      project: "AI Integration",
+      date: addDays(1), // Tomorrow
+      startTime: "11:30",
+      endTime: "12:30",
+      timeLabel: "11:30 AM - 12:30 PM",
+      color: "red",
+      icon: "circle",
+      meetingUrl: "https://meet.google.com/xyz-uvwx-rst",
+      description: "Review high severity bugs reported in AI pipeline.",
+    },
+    {
+      id: 6,
+      title: "Sprint Planning",
+      category: "meeting",
+      project: "AI Integration",
+      date: addDays(1), // Tomorrow
+      startTime: "15:00",
+      endTime: "16:00",
+      timeLabel: "3:00 - 4:00 PM",
+      color: "blue",
+      icon: "video",
+      meetingUrl: "https://meet.google.com/plan-team-ai",
+      description: "Sprint backlog prioritization and estimation.",
+    },
+    {
+      id: 7,
+      title: "Client Meeting",
+      category: "meeting",
+      project: "Marketing Portal",
+      date: addDays(2),
+      startTime: "09:30",
+      endTime: "10:30",
+      timeLabel: "9:30 - 10:30 AM",
+      color: "green",
+      icon: "video",
+      meetingUrl: "https://meet.google.com/client-review-mkt",
+      description: "Showcase marketing landing page prototype to client stakeholders.",
+    },
+    {
+      id: 8,
+      title: "Design Review",
+      category: "meeting",
+      project: "Mobile App",
+      date: addDays(3),
+      startTime: "13:30",
+      endTime: "14:30",
+      timeLabel: "1:30 - 2:30 PM",
+      color: "purple",
+      icon: "layers",
+      meetingUrl: "https://meet.google.com/mob-design-rev",
+      description: "Review iOS and Android navigation flows.",
+    },
+    {
+      id: 9,
+      title: "Sprint Review",
+      category: "meeting",
+      project: "Mobile App",
+      date: addDays(4),
+      startTime: "10:00",
+      endTime: "11:00",
+      timeLabel: "10:00 - 11:00 AM",
+      color: "blue",
+      icon: "video",
+      meetingUrl: "https://meet.google.com/sprint-review-app",
+      description: "Demonstrate completed sprint features to QA.",
+    },
+    {
+      id: 10,
+      title: "Architecture Alignment",
+      category: "meeting",
+      project: "TeamFlow Website",
+      date: addDays(-1), // Yesterday
+      startTime: "14:00",
+      endTime: "15:00",
+      timeLabel: "2:00 - 3:00 PM",
+      color: "slate",
+      icon: "video",
+      meetingUrl: "https://meet.google.com/arch-align-call",
+      description: "Align on backend endpoints and caching strategies.",
+    },
+  ];
+};
+
+/* Generate dynamic task deadlines relative to baseDate */
+const generateDefaultDeadlines = (baseDate) => {
+  const d = new Date(baseDate);
+  const addDays = (offset) => {
+    const target = new Date(d);
+    target.setDate(target.getDate() + offset);
+    return target;
+  };
+
+  const fmt = (target) => `${MONTH_SHORT[target.getMonth()]} ${target.getDate()}`;
+
+  return [
+    {
+      id: 1,
+      title: "Design login page UI",
+      dueDate: "Today",
+      isToday: true,
+      priority: "High",
+      completed: false,
+    },
+    {
+      id: 2,
+      title: "API integration testing",
+      dueDate: fmt(addDays(1)),
+      isToday: false,
+      priority: "Medium",
+      completed: false,
+    },
+    {
+      id: 3,
+      title: "Update documentation",
+      dueDate: fmt(addDays(3)),
+      isToday: false,
+      priority: "Low",
+      completed: false,
+    },
+    {
+      id: 4,
+      title: "Prepare demo for client",
+      dueDate: fmt(addDays(5)),
+      isToday: false,
+      priority: "Medium",
+      completed: false,
+    },
+  ];
+};
 
 function Calendar() {
-  // Load events from localStorage safely
-  const [events, setEvents] = useState(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length >= 5) return parsed;
-      }
-    } catch {}
-    return defaultEvents;
-  });
+  // Real-time current clock (updates every 10s)
+  const [currentTime, setCurrentTime] = useState(() => new Date());
 
-  // Load task deadlines safely
-  const [deadlines, setDeadlines] = useState(() => {
-    try {
-      const saved = localStorage.getItem(TASKS_STORAGE_KEY);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length >= 2) return parsed;
-      }
-    } catch {}
-    return defaultDeadlines;
-  });
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 10000);
+    return () => clearInterval(timer);
+  }, []);
 
-  // View state: 'Month' | 'Week' | 'Day' | 'Agenda'
+  // Main calendar view state & active date
+  const [viewDate, setViewDate] = useState(() => new Date());
+  const [selectedDate, setSelectedDate] = useState(() => new Date());
+  const [miniDate, setMiniDate] = useState(() => new Date());
+
+  // View mode: 'Month' | 'Week' | 'Day' | 'Agenda'
   const [activeView, setActiveView] = useState("Week");
-
-  // Selected date in October 2024
-  const [selectedDate, setSelectedDate] = useState(22); // Oct 22, 2024
 
   // Filter dropdown states
   const [eventFilter, setEventFilter] = useState("All Events");
@@ -374,23 +314,52 @@ function Calendar() {
   // Toast
   const [toastMessage, setToastMessage] = useState("");
 
-  // New Event Form
-  const [eventForm, setEventForm] = useState({
-    title: "",
-    category: "meeting",
-    project: "TeamFlow Website",
-    date: "2024-10-22",
-    startTime: "10:00",
-    endTime: "11:00",
-    meetingUrl: "https://meet.google.com/new-meeting-call",
-    description: "",
-  });
-
   const eventRef = useRef(null);
   const projectRef = useRef(null);
   const ownerRef = useRef(null);
 
-  // Persist to localStorage
+  // Load events safely with current-date default fallback
+  const [events, setEvents] = useState(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length >= 3) {
+          // Verify events aren't old 2024 items
+          const currentYear = new Date().getFullYear();
+          const hasCurrentDates = parsed.some((e) => e.date && e.date.startsWith(String(currentYear)));
+          if (hasCurrentDates) return parsed;
+        }
+      }
+    } catch {}
+    return generateDefaultEvents(new Date());
+  });
+
+  // Load task deadlines safely
+  const [deadlines, setDeadlines] = useState(() => {
+    try {
+      const saved = localStorage.getItem(TASKS_STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length >= 2) return parsed;
+      }
+    } catch {}
+    return generateDefaultDeadlines(new Date());
+  });
+
+  // New Event Form State
+  const [eventForm, setEventForm] = useState({
+    title: "",
+    category: "meeting",
+    project: "TeamFlow Website",
+    date: toDateKey(new Date()),
+    startTime: "10:00",
+    endTime: "11:00",
+    meetingUrl: "https://meet.google.com/teamflow-live-call",
+    description: "",
+  });
+
+  // Persist events & deadlines
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(events));
   }, [events]);
@@ -415,6 +384,150 @@ function Calendar() {
     setTimeout(() => setToastMessage(""), 3000);
   };
 
+  /* =========================================================================
+     COMPUTED VALUES: WEEKS, MONTHS, DAYS & REAL-TIME CLOCK
+     ========================================================================= */
+
+  // Real-time hour & minute calculations
+  const nowHours = currentTime.getHours();
+  const nowMinutes = currentTime.getMinutes();
+  const nowMinutesFrom9 = (nowHours - 9) * 60 + nowMinutes;
+  const nowTopPx = (nowMinutesFrom9 / 60) * 64;
+  const isTimeInRange = nowHours >= 9 && nowHours < 19;
+
+  const currentTimeString = useMemo(() => {
+    const ampm = nowHours >= 12 ? "PM" : "AM";
+    const h12 = nowHours % 12 === 0 ? 12 : nowHours % 12;
+    return `${h12}:${pad(nowMinutes)} ${ampm}`;
+  }, [nowHours, nowMinutes]);
+
+  // Compute 7 days of the active week based on viewDate
+  const currentWeekDays = useMemo(() => {
+    const d = new Date(viewDate);
+    const day = d.getDay(); // 0 is Sunday
+    const startOfWeek = new Date(d);
+    startOfWeek.setDate(d.getDate() - day);
+    startOfWeek.setHours(0, 0, 0, 0);
+
+    const todayStr = toDateKey(new Date());
+    const selStr = toDateKey(selectedDate);
+
+    return Array.from({ length: 7 }, (_, i) => {
+      const cur = new Date(startOfWeek);
+      cur.setDate(startOfWeek.getDate() + i);
+      const curStr = toDateKey(cur);
+      return {
+        date: cur,
+        dateKey: curStr,
+        dayName: DAY_NAMES[cur.getDay()],
+        dateNum: cur.getDate(),
+        month: cur.getMonth(),
+        year: cur.getFullYear(),
+        isToday: curStr === todayStr,
+        isSelected: curStr === selStr,
+        colIndex: i,
+      };
+    });
+  }, [viewDate, selectedDate]);
+
+  // Compute index of today in current week
+  const todayColIndex = useMemo(() => {
+    return currentWeekDays.findIndex((d) => d.isToday);
+  }, [currentWeekDays]);
+
+  // Dynamic Range Title displayed in controls row
+  const currentRangeTitle = useMemo(() => {
+    if (activeView === "Week") {
+      const start = currentWeekDays[0];
+      const end = currentWeekDays[6];
+      if (start.month === end.month) {
+        return `${MONTH_SHORT[start.month]} ${start.dateNum} – ${MONTH_SHORT[end.month]} ${end.dateNum}, ${end.year}`;
+      }
+      return `${MONTH_SHORT[start.month]} ${start.dateNum} – ${MONTH_SHORT[end.month]} ${end.dateNum}, ${end.year}`;
+    }
+
+    if (activeView === "Month") {
+      return `${MONTH_NAMES[viewDate.getMonth()]} ${viewDate.getFullYear()}`;
+    }
+
+    if (activeView === "Day") {
+      return `${DAY_FULL[selectedDate.getDay()]}, ${MONTH_SHORT[selectedDate.getMonth()]} ${selectedDate.getDate()}, ${selectedDate.getFullYear()}`;
+    }
+
+    if (activeView === "Agenda") {
+      return `Schedule • ${MONTH_NAMES[viewDate.getMonth()]} ${viewDate.getFullYear()}`;
+    }
+
+    return "";
+  }, [activeView, viewDate, selectedDate, currentWeekDays]);
+
+  // Navigation handlers for < and > buttons
+  const handlePrev = () => {
+    if (activeView === "Week") {
+      setViewDate((prev) => {
+        const next = new Date(prev);
+        next.setDate(next.getDate() - 7);
+        return next;
+      });
+    } else if (activeView === "Month") {
+      setViewDate((prev) => {
+        const next = new Date(prev);
+        next.setMonth(next.getMonth() - 1);
+        return next;
+      });
+    } else if (activeView === "Day") {
+      setSelectedDate((prev) => {
+        const next = new Date(prev);
+        next.setDate(next.getDate() - 1);
+        setViewDate(next);
+        return next;
+      });
+    } else if (activeView === "Agenda") {
+      setViewDate((prev) => {
+        const next = new Date(prev);
+        next.setDate(next.getDate() - 7);
+        return next;
+      });
+    }
+  };
+
+  const handleNext = () => {
+    if (activeView === "Week") {
+      setViewDate((prev) => {
+        const next = new Date(prev);
+        next.setDate(next.getDate() + 7);
+        return next;
+      });
+    } else if (activeView === "Month") {
+      setViewDate((prev) => {
+        const next = new Date(prev);
+        next.setMonth(next.getMonth() + 1);
+        return next;
+      });
+    } else if (activeView === "Day") {
+      setSelectedDate((prev) => {
+        const next = new Date(prev);
+        next.setDate(next.getDate() + 1);
+        setViewDate(next);
+        return next;
+      });
+    } else if (activeView === "Agenda") {
+      setViewDate((prev) => {
+        const next = new Date(prev);
+        next.setDate(next.getDate() + 7);
+        return next;
+      });
+    }
+  };
+
+  const handleToday = () => {
+    const now = new Date();
+    setViewDate(now);
+    setSelectedDate(now);
+    setMiniDate(now);
+    showToast(`Navigated to Today (${MONTH_SHORT[now.getMonth()]} ${now.getDate()})`);
+  };
+
   // Filtered Events
   const filteredEvents = useMemo(() => {
     let result = [...events];
@@ -425,30 +538,30 @@ function Calendar() {
         Tasks: "task",
         Deadlines: "deadline",
         Milestones: "milestone",
+        Personal: "personal",
       };
       const cat = map[eventFilter];
       if (cat) result = result.filter((e) => e.category === cat);
     }
 
     if (projectFilter !== "All Projects") {
-      result = result.filter((e) => e.project.includes(projectFilter) || projectFilter.includes(e.project));
+      result = result.filter((e) => e.project && (e.project.includes(projectFilter) || projectFilter.includes(e.project)));
     }
 
     return result;
   }, [events, eventFilter, projectFilter]);
 
-  // Calculate pixel top & height for an event on the week timetable
-  // 9:00 AM is 0px, each 1 hour is 64px
+  // Position calculation for weekly/daily timetable (0px = 9 AM, 64px = 1 hr)
   const getEventPosition = (ev) => {
     const [startH, startM] = (ev.startTime || "09:00").split(":").map(Number);
     const [endH, endM] = (ev.endTime || "10:00").split(":").map(Number);
 
-    const startMinutesFrom9 = (startH - 9) * 60 + startM;
-    const endMinutesFrom9 = (endH - 9) * 60 + endM;
+    const startMinutesFrom9 = (startH - 9) * 60 + (startM || 0);
+    const endMinutesFrom9 = (endH - 9) * 60 + (endM || 0);
     const durationMinutes = Math.max(endMinutesFrom9 - startMinutesFrom9, 30);
 
     const topPx = (startMinutesFrom9 / 60) * 64;
-    const heightPx = Math.max((durationMinutes / 60) * 64, 48);
+    const heightPx = Math.max((durationMinutes / 60) * 64, 44);
 
     return { top: `${topPx}px`, height: `${heightPx}px` };
   };
@@ -470,6 +583,14 @@ function Calendar() {
     const dateObj = new Date(eventForm.date);
     const dayIdx = dateObj.getDay();
 
+    const formatHour = (tStr) => {
+      if (!tStr) return "";
+      const [h, m] = tStr.split(":").map(Number);
+      const ampm = h >= 12 ? "PM" : "AM";
+      const h12 = h % 12 === 0 ? 12 : h % 12;
+      return `${h12}:${pad(m)} ${ampm}`;
+    };
+
     const newEv = {
       id: Date.now(),
       title: eventForm.title.trim(),
@@ -479,9 +600,9 @@ function Calendar() {
       date: eventForm.date,
       startTime: eventForm.startTime,
       endTime: eventForm.endTime,
-      timeLabel: `${eventForm.startTime} - ${eventForm.endTime}`,
+      timeLabel: `${formatHour(eventForm.startTime)} - ${formatHour(eventForm.endTime)}`,
       color: colors[eventForm.category] || "blue",
-      icon: eventForm.category === "meeting" ? "video" : "zap",
+      icon: eventForm.category === "meeting" ? "video" : eventForm.category === "personal" ? "square" : "zap",
       meetingUrl: eventForm.meetingUrl,
       description: eventForm.description,
     };
@@ -492,10 +613,10 @@ function Calendar() {
       title: "",
       category: "meeting",
       project: "TeamFlow Website",
-      date: "2024-10-22",
+      date: toDateKey(selectedDate || new Date()),
       startTime: "10:00",
       endTime: "11:00",
-      meetingUrl: "https://meet.google.com/new-meeting-call",
+      meetingUrl: "https://meet.google.com/teamflow-live-call",
       description: "",
     });
     showToast("New event added to calendar!");
@@ -507,6 +628,127 @@ function Calendar() {
     setSelectedEventModal(null);
     showToast("Event removed from calendar.");
   };
+
+  /* =========================================================================
+     COMPUTE MINI MONTH CALENDAR GRID
+     ========================================================================= */
+  const miniMonthDays = useMemo(() => {
+    const year = miniDate.getFullYear();
+    const month = miniDate.getMonth();
+
+    const firstDayIndex = new Date(year, month, 1).getDay(); // 0 is Sun
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const daysInPrevMonth = new Date(year, month, 0).getDate();
+
+    const cells = [];
+
+    // Overflow from previous month
+    for (let i = firstDayIndex - 1; i >= 0; i--) {
+      const dayNum = daysInPrevMonth - i;
+      const prevDate = new Date(year, month - 1, dayNum);
+      cells.push({
+        dayNum,
+        date: prevDate,
+        dateKey: toDateKey(prevDate),
+        isCurrentMonth: false,
+      });
+    }
+
+    // Days in current month
+    for (let i = 1; i <= daysInMonth; i++) {
+      const curDate = new Date(year, month, i);
+      cells.push({
+        dayNum: i,
+        date: curDate,
+        dateKey: toDateKey(curDate),
+        isCurrentMonth: true,
+      });
+    }
+
+    // Overflow into next month to complete 35 or 42 grid cells
+    const remaining = 35 - cells.length >= 0 ? 35 - cells.length : 42 - cells.length;
+    for (let i = 1; i <= remaining; i++) {
+      const nextDate = new Date(year, month + 1, i);
+      cells.push({
+        dayNum: i,
+        date: nextDate,
+        dateKey: toDateKey(nextDate),
+        isCurrentMonth: false,
+      });
+    }
+
+    return cells;
+  }, [miniDate]);
+
+  /* =========================================================================
+     COMPUTE FULL MONTH VIEW GRID (for Month View Tab)
+     ========================================================================= */
+  const monthViewDays = useMemo(() => {
+    const year = viewDate.getFullYear();
+    const month = viewDate.getMonth();
+
+    const firstDayIndex = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const daysInPrevMonth = new Date(year, month, 0).getDate();
+
+    const cells = [];
+
+    for (let i = firstDayIndex - 1; i >= 0; i--) {
+      const dayNum = daysInPrevMonth - i;
+      const prevDate = new Date(year, month - 1, dayNum);
+      cells.push({
+        dayNum,
+        date: prevDate,
+        dateKey: toDateKey(prevDate),
+        isCurrentMonth: false,
+      });
+    }
+
+    for (let i = 1; i <= daysInMonth; i++) {
+      const curDate = new Date(year, month, i);
+      cells.push({
+        dayNum: i,
+        date: curDate,
+        dateKey: toDateKey(curDate),
+        isCurrentMonth: true,
+      });
+    }
+
+    const remaining = 35 - cells.length >= 0 ? 35 - cells.length : 42 - cells.length;
+    for (let i = 1; i <= remaining; i++) {
+      const nextDate = new Date(year, month + 1, i);
+      cells.push({
+        dayNum: i,
+        date: nextDate,
+        dateKey: toDateKey(nextDate),
+        isCurrentMonth: false,
+      });
+    }
+
+    return cells;
+  }, [viewDate]);
+
+  /* Today's Schedule events for the selected date */
+  const selectedDayEvents = useMemo(() => {
+    const selKey = toDateKey(selectedDate);
+    return filteredEvents
+      .filter((e) => e.date === selKey)
+      .sort((a, b) => (a.startTime || "").localeCompare(b.startTime || ""));
+  }, [filteredEvents, selectedDate]);
+
+  /* Next 7 Days Events */
+  const nextSevenDaysEvents = useMemo(() => {
+    const now = new Date();
+    const nowKey = toDateKey(now);
+    const endWindow = new Date(now);
+    endWindow.setDate(endWindow.getDate() + 7);
+    const endKey = toDateKey(endWindow);
+
+    return filteredEvents
+      .filter((e) => e.date >= nowKey && e.date <= endKey)
+      .sort((a, b) => (a.date || "").localeCompare(b.date || "") || (a.startTime || "").localeCompare(b.startTime || ""))
+      .slice(0, 6);
+  }, [filteredEvents]);
 
   return (
     <EmployeeShell activeRoute="/employee/calendar">
@@ -525,7 +767,7 @@ function Calendar() {
         <header className="tf-cal-header">
           <div className="tf-cal-title-group">
             <h1>Calendar</h1>
-            <p>View your schedule, upcoming meetings, task deadlines and important events.</p>
+            <p>Real-time calendar • View your schedule, upcoming meetings, task deadlines and important events.</p>
           </div>
 
           <div className="tf-cal-header-actions">
@@ -533,7 +775,13 @@ function Calendar() {
             <button
               type="button"
               className="tf-cal-add-event-btn"
-              onClick={() => setAddModalOpen(true)}
+              onClick={() => {
+                setEventForm((prev) => ({
+                  ...prev,
+                  date: toDateKey(selectedDate || new Date()),
+                }));
+                setAddModalOpen(true);
+              }}
             >
               <Plus size={16} strokeWidth={2.4} />
               <span>Add Event</span>
@@ -546,7 +794,10 @@ function Calendar() {
                   key={view}
                   type="button"
                   className={`tf-cal-view-pill ${activeView === view ? "active" : ""}`}
-                  onClick={() => setActiveView(view)}
+                  onClick={() => {
+                    setActiveView(view);
+                    showToast(`Switched to ${view} view`);
+                  }}
                 >
                   {view}
                 </button>
@@ -564,29 +815,26 @@ function Calendar() {
             <button
               type="button"
               className="tf-cal-arrow-btn"
-              onClick={() => showToast("Showing previous week: Oct 13 - Oct 19, 2024")}
-              aria-label="Previous week"
+              onClick={handlePrev}
+              aria-label="Previous period"
             >
               <ChevronLeft size={16} />
             </button>
             <button
               type="button"
               className="tf-cal-arrow-btn"
-              onClick={() => showToast("Showing next week: Oct 27 - Nov 02, 2024")}
-              aria-label="Next week"
+              onClick={handleNext}
+              aria-label="Next period"
             >
               <ChevronRight size={16} />
             </button>
 
-            <span className="tf-cal-range-title">Oct 20 – Oct 26, 2024</span>
+            <span className="tf-cal-range-title">{currentRangeTitle}</span>
 
             <button
               type="button"
               className="tf-cal-today-btn"
-              onClick={() => {
-                setSelectedDate(22);
-                showToast("Viewing Today: Tue, Oct 22, 2024");
-              }}
+              onClick={handleToday}
             >
               Today
             </button>
@@ -606,7 +854,7 @@ function Calendar() {
               </button>
               {eventDropdownOpen && (
                 <div className="tf-cal-dropdown-menu">
-                  {["All Events", "Meetings", "Tasks", "Deadlines", "Milestones"].map((cat) => (
+                  {["All Events", "Meetings", "Tasks", "Deadlines", "Milestones", "Personal"].map((cat) => (
                     <button
                       key={cat}
                       type="button"
@@ -641,6 +889,7 @@ function Calendar() {
                     "Mobile App",
                     "AI Integration",
                     "Marketing Portal",
+                    "Personal",
                   ].map((proj) => (
                     <button
                       key={proj}
@@ -691,212 +940,412 @@ function Calendar() {
 
         {/* ====================================================================
             3. MAIN TWO-COLUMN LAYOUT
-            Left ~70%: Timetable Grid + Lower Schedule Cards
+            Left ~70%: Timetable / Month / Day / Agenda + Lower Schedule Cards
             Right ~30%: Mini Calendar + Upcoming Events + Task Deadlines
             ==================================================================== */}
         <div className="tf-cal-main-layout">
           {/* ------------------------------------------------------------------
-              LEFT COLUMN: Weekly Grid Timetable & Bottom 2 Cards
+              LEFT COLUMN: Active View (Week | Month | Day | Agenda) + Bottom Cards
               ------------------------------------------------------------------ */}
           <div className="tf-cal-left-column">
-            {/* Weekly Timetable Card */}
-            <div className="tf-cal-timetable-card">
-              {/* Header Days of Week */}
-              <div className="tf-cal-grid-header">
-                <div className="tf-cal-time-col-header" />
-                {weekDays.map((d, i) => (
-                  <div
-                    key={d.name}
-                    className={`tf-cal-day-header ${d.isToday || selectedDate === d.dateNum ? "today" : ""}`}
-                    onClick={() => {
-                      setSelectedDate(d.dateNum);
-                      showToast(`Selected ${d.name}, Oct ${d.dateNum}`);
-                    }}
-                  >
-                    <span className="tf-cal-day-name">{d.name}</span>
-                    <span className="tf-cal-day-num">{d.dateNum}</span>
-                  </div>
-                ))}
-              </div>
-
-              {/* The Hourly Timetable Grid Body */}
-              <div className="tf-cal-grid-body">
-                {/* 10 Hourly Rows (9 AM to 6 PM) */}
-                {timeSlots.map((time, idx) => (
-                  <div key={time} className="tf-cal-grid-row">
-                    <div className="tf-cal-time-cell">
-                      <span>{time}</span>
+            {/* VIEW A: WEEK VIEW (TIMETABLE GRID) */}
+            {activeView === "Week" && (
+              <div className="tf-cal-timetable-card">
+                {/* Header Days of Week */}
+                <div className="tf-cal-grid-header">
+                  <div className="tf-cal-time-col-header" />
+                  {currentWeekDays.map((d) => (
+                    <div
+                      key={d.dateKey}
+                      className={`tf-cal-day-header ${d.isToday ? "today" : ""} ${d.isSelected ? "selected" : ""}`}
+                      onClick={() => {
+                        setSelectedDate(d.date);
+                        showToast(`Selected ${d.dayName}, ${MONTH_SHORT[d.month]} ${d.dateNum}`);
+                      }}
+                    >
+                      <span className="tf-cal-day-name">{d.dayName}</span>
+                      <span className="tf-cal-day-num">{d.dateNum}</span>
                     </div>
+                  ))}
+                </div>
 
-                    {/* 7 Columns for 7 Days */}
-                    {weekDays.map((d, dIdx) => (
+                {/* The Hourly Timetable Grid Body */}
+                <div className="tf-cal-grid-body">
+                  {/* 10 Hourly Rows (9 AM to 6 PM) */}
+                  {timeSlots.map((time, idx) => (
+                    <div key={time} className="tf-cal-grid-row">
+                      <div className="tf-cal-time-cell">
+                        <span>{time}</span>
+                      </div>
+
+                      {/* 7 Columns for 7 Days */}
+                      {currentWeekDays.map((d, dIdx) => (
+                        <div
+                          key={dIdx}
+                          className={`tf-cal-day-cell ${d.isToday ? "today-cell" : ""}`}
+                          onClick={() => {
+                            setEventForm({
+                              title: "",
+                              category: "meeting",
+                              project: "TeamFlow Website",
+                              date: d.dateKey,
+                              startTime: `${pad(idx + 9)}:00`,
+                              endTime: `${pad(idx + 10)}:00`,
+                              meetingUrl: "https://meet.google.com/teamflow-call",
+                              description: "",
+                            });
+                            setAddModalOpen(true);
+                          }}
+                        />
+                      ))}
+                    </div>
+                  ))}
+
+                  {/* Real-Time Red Current Time Indicator */}
+                  {todayColIndex !== -1 && isTimeInRange && (
+                    <div className="tf-cal-now-indicator" style={{ top: `${nowTopPx}px` }}>
+                      <span className="tf-cal-now-tag">{currentTimeString}</span>
+                      <div className="tf-cal-now-line" />
                       <div
-                        key={dIdx}
-                        className={`tf-cal-day-cell ${d.isToday ? "today-cell" : ""}`}
+                        className="tf-cal-now-dot"
+                        style={{
+                          left: `calc(70px + (100% - 70px) / 7 * ${todayColIndex} + (100% - 70px) / 14)`,
+                        }}
+                      />
+                    </div>
+                  )}
+
+                  {/* Placed Event Blocks matching dynamic week columns */}
+                  {filteredEvents.map((ev) => {
+                    // Check if event falls within this week
+                    const colIdx = currentWeekDays.findIndex((d) => d.dateKey === ev.date);
+                    if (colIdx === -1) return null;
+
+                    const pos = getEventPosition(ev);
+
+                    return (
+                      <div
+                        key={ev.id}
+                        className={`tf-cal-event-block ${ev.color || "blue"}`}
+                        style={{
+                          left: `calc(70px + (100% - 70px) / 7 * ${colIdx} + 4px)`,
+                          width: `calc((100% - 70px) / 7 - 8px)`,
+                          top: pos.top,
+                          height: pos.height,
+                        }}
+                        onClick={() => setSelectedEventModal(ev)}
+                      >
+                        <div className="tf-cal-event-top-title">
+                          {ev.icon === "video" && <Video size={13} className="tf-ev-icon" />}
+                          {ev.icon === "zap" && <Zap size={13} className="tf-ev-icon" />}
+                          {ev.icon === "layers" && <Layers size={13} className="tf-ev-icon" />}
+                          {ev.icon === "square" && <Square size={13} className="tf-ev-icon" />}
+                          <strong>{ev.title}</strong>
+                        </div>
+                        <span className="tf-cal-event-sub">
+                          {ev.timeLabel} • {ev.project}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* VIEW B: MONTH VIEW */}
+            {activeView === "Month" && (
+              <div className="tf-cal-month-card">
+                {/* Header row */}
+                <div className="tf-cal-month-days-header">
+                  {DAY_NAMES.map((name) => (
+                    <div key={name} className="tf-cal-month-header-cell">
+                      {name}
+                    </div>
+                  ))}
+                </div>
+
+                {/* Days Grid */}
+                <div className="tf-cal-month-grid">
+                  {monthViewDays.map((cell) => {
+                    const isToday = isTodayDate(cell.date);
+                    const isSelected = isSameDay(cell.date, selectedDate);
+                    const dayEvents = filteredEvents.filter((e) => e.date === cell.dateKey);
+
+                    return (
+                      <div
+                        key={cell.dateKey}
+                        className={`tf-cal-month-cell ${!cell.isCurrentMonth ? "muted" : ""} ${isToday ? "today" : ""} ${isSelected ? "selected" : ""}`}
                         onClick={() => {
-                          setEventForm((prev) => ({
-                            ...prev,
-                            date: `2024-10-${d.dateNum}`,
-                            startTime: `${String(idx + 9).padStart(2, "0")}:00`,
-                            endTime: `${String(idx + 10).padStart(2, "0")}:00`,
-                          }));
+                          setSelectedDate(cell.date);
+                          showToast(`Selected ${MONTH_SHORT[cell.date.getMonth()]} ${cell.dayNum}`);
+                        }}
+                      >
+                        <div className="tf-cal-month-cell-top">
+                          <span className="tf-cal-month-date-num">{cell.dayNum}</span>
+                        </div>
+
+                        <div className="tf-cal-month-events-wrap">
+                          {dayEvents.slice(0, 3).map((ev) => (
+                            <span
+                              key={ev.id}
+                              className={`tf-cal-month-event-pill ${ev.color || "blue"}`}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedEventModal(ev);
+                              }}
+                            >
+                              {ev.startTime} {ev.title}
+                            </span>
+                          ))}
+                          {dayEvents.length > 3 && (
+                            <span className="tf-cal-more-chip">+{dayEvents.length - 3} more</span>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* VIEW C: DAY VIEW */}
+            {activeView === "Day" && (
+              <div className="tf-cal-day-card">
+                <div className="tf-cal-day-card-header">
+                  <h2>{DAY_FULL[selectedDate.getDay()]}, {MONTH_SHORT[selectedDate.getMonth()]} {selectedDate.getDate()}, {selectedDate.getFullYear()}</h2>
+                  {isTodayDate(selectedDate) && <span className="tf-cal-day-badge">Today • Live</span>}
+                </div>
+
+                <div className="tf-cal-day-grid-body">
+                  {timeSlots.map((time, idx) => (
+                    <div key={time} className="tf-cal-day-grid-row">
+                      <div className="tf-cal-time-cell">
+                        <span>{time}</span>
+                      </div>
+                      <div
+                        className="tf-cal-day-grid-cell"
+                        onClick={() => {
+                          setEventForm({
+                            title: "",
+                            category: "meeting",
+                            project: "TeamFlow Website",
+                            date: toDateKey(selectedDate),
+                            startTime: `${pad(idx + 9)}:00`,
+                            endTime: `${pad(idx + 10)}:00`,
+                            meetingUrl: "https://meet.google.com/teamflow-call",
+                            description: "",
+                          });
                           setAddModalOpen(true);
                         }}
                       />
-                    ))}
-                  </div>
-                ))}
-
-                {/* Red Current Time Line across 2:00 PM (Row index 5 = 2:00 PM = top: 320px) */}
-                <div className="tf-cal-now-indicator" style={{ top: "320px" }}>
-                  <span className="tf-cal-now-tag">2:00 PM</span>
-                  <div className="tf-cal-now-line" />
-                  <div className="tf-cal-now-dot" />
-                </div>
-
-                {/* Placed Event Blocks matching the reference screenshot */}
-                {filteredEvents.map((ev) => {
-                  const dayColIndex = ev.dayIndex !== undefined ? ev.dayIndex : 2;
-                  const pos = getEventPosition(ev);
-
-                  return (
-                    <div
-                      key={ev.id}
-                      className={`tf-cal-event-block ${ev.color || "blue"}`}
-                      style={{
-                        left: `calc(70px + (100% - 70px) / 7 * ${dayColIndex} + 4px)`,
-                        width: `calc((100% - 70px) / 7 - 8px)`,
-                        top: pos.top,
-                        height: pos.height,
-                      }}
-                      onClick={() => setSelectedEventModal(ev)}
-                    >
-                      <div className="tf-cal-event-top-title">
-                        {ev.icon === "video" && <Video size={13} className="tf-ev-icon" />}
-                        {ev.icon === "zap" && <Zap size={13} className="tf-ev-icon" />}
-                        {ev.icon === "layers" && <Layers size={13} className="tf-ev-icon" />}
-                        <strong>{ev.title}</strong>
-                      </div>
-                      <span className="tf-cal-event-sub">
-                        {ev.timeLabel} • {ev.project}
-                      </span>
                     </div>
-                  );
-                })}
-              </div>
-            </div>
+                  ))}
 
-            {/* Lower 2 Cards (Today's Schedule & Next 7 Days) */}
+                  {/* Red Time Indicator if Selected Day is Today */}
+                  {isTodayDate(selectedDate) && isTimeInRange && (
+                    <div className="tf-cal-now-indicator" style={{ top: `${nowTopPx}px` }}>
+                      <span className="tf-cal-now-tag">{currentTimeString}</span>
+                      <div className="tf-cal-now-line" />
+                      <div className="tf-cal-now-dot" style={{ left: "50%" }} />
+                    </div>
+                  )}
+
+                  {/* Day Events */}
+                  {selectedDayEvents.map((ev) => {
+                    const pos = getEventPosition(ev);
+                    return (
+                      <div
+                        key={ev.id}
+                        className={`tf-cal-event-block ${ev.color || "blue"}`}
+                        style={{
+                          left: "80px",
+                          right: "12px",
+                          width: "auto",
+                          top: pos.top,
+                          height: pos.height,
+                        }}
+                        onClick={() => setSelectedEventModal(ev)}
+                      >
+                        <div className="tf-cal-event-top-title">
+                          {ev.icon === "video" && <Video size={14} className="tf-ev-icon" />}
+                          {ev.icon === "zap" && <Zap size={14} className="tf-ev-icon" />}
+                          {ev.icon === "square" && <Square size={14} className="tf-ev-icon" />}
+                          <strong>{ev.title}</strong>
+                        </div>
+                        <span className="tf-cal-event-sub">
+                          {ev.timeLabel} • {ev.project} {ev.description ? `• ${ev.description}` : ""}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* VIEW D: AGENDA VIEW */}
+            {activeView === "Agenda" && (
+              <div className="tf-cal-agenda-card">
+                {filteredEvents.length === 0 ? (
+                  <div className="tf-cal-empty-state">
+                    <CalendarIcon size={32} color="#94A3B8" />
+                    <p>No events scheduled for the selected filters.</p>
+                  </div>
+                ) : (
+                  [...new Set(filteredEvents.map((e) => e.date))].sort().map((dStr) => {
+                    const dateObj = new Date(dStr + "T00:00:00");
+                    const dateEvents = filteredEvents.filter((e) => e.date === dStr);
+                    const isToday = isTodayDate(dateObj);
+
+                    return (
+                      <div key={dStr} className="tf-cal-agenda-group">
+                        <div className="tf-cal-agenda-date-head">
+                          <h3>
+                            {DAY_FULL[dateObj.getDay()]}, {MONTH_SHORT[dateObj.getMonth()]} {dateObj.getDate()}, {dateObj.getFullYear()}
+                          </h3>
+                          {isToday && <span className="tf-cal-agenda-date-badge">Today</span>}
+                        </div>
+
+                        <div className="tf-cal-agenda-list">
+                          {dateEvents.map((ev) => (
+                            <div
+                              key={ev.id}
+                              className="tf-cal-agenda-item"
+                              onClick={() => setSelectedEventModal(ev)}
+                            >
+                              <div className="tf-cal-agenda-item-left">
+                                <span className="tf-cal-agenda-time-pill">{ev.timeLabel}</span>
+                                <div className="tf-cal-agenda-details">
+                                  <strong>{ev.title}</strong>
+                                  <span>{ev.project} • {ev.category}</span>
+                                </div>
+                              </div>
+                              {ev.meetingUrl && (
+                                <button
+                                  type="button"
+                                  className="tf-timeline-join-btn"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setJoiningMeetingModal({ title: ev.title, url: ev.meetingUrl });
+                                  }}
+                                >
+                                  <Video size={14} />
+                                  <span>Join</span>
+                                </button>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+            )}
+
+            {/* Lower 2 Cards (Today's / Selected Schedule & Next 7 Days) */}
             <div className="tf-cal-bottom-split-row">
-              {/* Card A: Today's Schedule */}
+              {/* Card A: Schedule for Selected Day */}
               <article className="tf-cal-card tf-today-schedule-card">
                 <div className="tf-cal-card-header">
-                  <h2>Today's Schedule</h2>
-                  <span className="tf-today-date-badge">Tue, Oct 22, 2024</span>
+                  <h2>{isTodayDate(selectedDate) ? "Today's Schedule" : "Day Schedule"}</h2>
+                  <span className="tf-today-date-badge">
+                    {DAY_NAMES[selectedDate.getDay()]}, {MONTH_SHORT[selectedDate.getMonth()]} {selectedDate.getDate()}, {selectedDate.getFullYear()}
+                  </span>
                 </div>
 
                 <div className="tf-today-timeline">
-                  {/* Item 1: UI Design Discussion */}
-                  <div className="tf-timeline-item purple">
-                    <div className="tf-timeline-line-marker purple" />
-                    <div className="tf-timeline-time">10:00 – 11:00 AM</div>
-                    <div className="tf-timeline-content">
-                      <div className="tf-timeline-title">
-                        <span className="tf-timeline-dot purple" />
-                        <strong>UI Design Discussion</strong>
-                      </div>
-                      <span className="tf-timeline-sub">TeamFlow Website • Online Meeting</span>
+                  {selectedDayEvents.length === 0 ? (
+                    <div className="tf-cal-empty-state">
+                      <p>No events scheduled for this day.</p>
+                      <button
+                        type="button"
+                        className="tf-cal-empty-state-btn"
+                        onClick={() => {
+                          setEventForm((prev) => ({ ...prev, date: toDateKey(selectedDate) }));
+                          setAddModalOpen(true);
+                        }}
+                      >
+                        + Schedule Event
+                      </button>
                     </div>
-                    <button
-                      type="button"
-                      className="tf-timeline-join-btn"
-                      onClick={() =>
-                        setJoiningMeetingModal({
-                          title: "UI Design Discussion",
-                          url: "https://meet.google.com/ui-design-rev",
-                        })
-                      }
-                    >
-                      <Video size={14} />
-                      <span>Join</span>
-                    </button>
-                  </div>
-
-                  {/* Item 2: Work on Tasks */}
-                  <div className="tf-timeline-item orange">
-                    <div className="tf-timeline-line-marker orange" />
-                    <div className="tf-timeline-time">2:00 – 3:00 PM</div>
-                    <div className="tf-timeline-content">
-                      <div className="tf-timeline-title">
-                        <span className="tf-timeline-dot orange" />
-                        <strong>Work on Tasks</strong>
+                  ) : (
+                    selectedDayEvents.map((ev) => (
+                      <div key={ev.id} className={`tf-timeline-item ${ev.color || "blue"}`}>
+                        <div className={`tf-timeline-line-marker ${ev.color || "blue"}`} />
+                        <div className="tf-timeline-time">{ev.timeLabel}</div>
+                        <div className="tf-timeline-content">
+                          <div className="tf-timeline-title">
+                            <span className={`tf-timeline-dot ${ev.color || "blue"}`} />
+                            <strong>{ev.title}</strong>
+                          </div>
+                          <span className="tf-timeline-sub">
+                            {ev.project} {ev.meetingUrl ? "• Online Meeting" : ""}
+                          </span>
+                        </div>
+                        {ev.meetingUrl && (
+                          <button
+                            type="button"
+                            className="tf-timeline-join-btn"
+                            onClick={() =>
+                              setJoiningMeetingModal({
+                                title: ev.title,
+                                url: ev.meetingUrl,
+                              })
+                            }
+                          >
+                            <Video size={14} />
+                            <span>Join</span>
+                          </button>
+                        )}
                       </div>
-                      <span className="tf-timeline-sub">Personal</span>
-                    </div>
-                  </div>
-
-                  {/* Item 3: Team Sync */}
-                  <div className="tf-timeline-item blue">
-                    <div className="tf-timeline-line-marker blue" />
-                    <div className="tf-timeline-time">5:00 – 5:30 PM</div>
-                    <div className="tf-timeline-content">
-                      <div className="tf-timeline-title">
-                        <span className="tf-timeline-dot blue" />
-                        <strong>Team Sync</strong>
-                      </div>
-                      <span className="tf-timeline-sub">Mobile App • Google Meet</span>
-                    </div>
-                    <button
-                      type="button"
-                      className="tf-timeline-join-btn"
-                      onClick={() =>
-                        setJoiningMeetingModal({
-                          title: "Team Sync",
-                          url: "https://meet.google.com/mobile-sync-app",
-                        })
-                      }
-                    >
-                      <Video size={14} />
-                      <span>Join</span>
-                    </button>
-                  </div>
+                    ))
+                  )}
                 </div>
               </article>
 
-              {/* Card B: Next 7 Days */}
+              {/* Card B: Next 7 Days Upcoming */}
               <article className="tf-cal-card tf-next-days-card">
                 <div className="tf-cal-card-header">
                   <h2>Next 7 Days</h2>
                   <button
                     type="button"
                     className="tf-cal-view-all-link"
-                    onClick={() => showToast("Showing full upcoming schedule.")}
+                    onClick={() => setActiveView("Agenda")}
                   >
                     View all <ChevronRight size={14} />
                   </button>
                 </div>
 
                 <div className="tf-next-days-list">
-                  {nextSevenDaysList.map((item) => (
-                    <div
-                      key={item.id}
-                      className="tf-next-day-row"
-                      onClick={() => showToast(`Event: ${item.title} on ${item.dateLabel}`)}
-                    >
-                      <div className="tf-next-date-col">
-                        <strong>{item.dateLabel}</strong>
-                        <span>{item.dayName}</span>
-                      </div>
-
-                      <div className="tf-next-info-col">
-                        <div className="tf-next-title-row">
-                          <span className={`tf-dot ${item.dotColor}`} />
-                          <strong>{item.title}</strong>
-                        </div>
-                        <span className="tf-next-sub">{item.subText}</span>
-                      </div>
+                  {nextSevenDaysEvents.length === 0 ? (
+                    <div className="tf-cal-empty-state">
+                      <p>No upcoming events in the next 7 days.</p>
                     </div>
-                  ))}
+                  ) : (
+                    nextSevenDaysEvents.map((item) => {
+                      const dObj = new Date(item.date + "T00:00:00");
+                      return (
+                        <div
+                          key={item.id}
+                          className="tf-next-day-row"
+                          onClick={() => setSelectedEventModal(item)}
+                        >
+                          <div className="tf-next-date-col">
+                            <strong>{MONTH_SHORT[dObj.getMonth()]} {dObj.getDate()}</strong>
+                            <span>{DAY_NAMES[dObj.getDay()]}</span>
+                          </div>
+
+                          <div className="tf-next-info-col">
+                            <div className="tf-next-title-row">
+                              <span className={`tf-dot ${item.color || "blue"}`} />
+                              <strong>{item.title}</strong>
+                            </div>
+                            <span className="tf-next-sub">{item.timeLabel} • {item.project}</span>
+                          </div>
+                        </div>
+                      );
+                    })
+                  )}
                 </div>
               </article>
             </div>
@@ -906,22 +1355,26 @@ function Calendar() {
               RIGHT COLUMN: 3 Stacked Widgets (Mini Month, Upcoming, Deadlines)
               ------------------------------------------------------------------ */}
           <div className="tf-cal-right-sidebar">
-            {/* Widget 1: Mini Month Calendar (October 2024) */}
+            {/* Widget 1: Real-Time Mini Month Calendar */}
             <article className="tf-cal-sidebar-card tf-mini-month-card">
               <div className="tf-mini-month-header">
                 <button
                   type="button"
                   className="tf-month-nav-arrow"
-                  onClick={() => showToast("Showing September 2024")}
+                  onClick={() =>
+                    setMiniDate((prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1))
+                  }
                   aria-label="Previous month"
                 >
                   <ChevronLeft size={16} />
                 </button>
-                <h3>October 2024</h3>
+                <h3>{MONTH_NAMES[miniDate.getMonth()]} {miniDate.getFullYear()}</h3>
                 <button
                   type="button"
                   className="tf-month-nav-arrow"
-                  onClick={() => showToast("Showing November 2024")}
+                  onClick={() =>
+                    setMiniDate((prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1))
+                  }
                   aria-label="Next month"
                 >
                   <ChevronRight size={16} />
@@ -930,50 +1383,42 @@ function Calendar() {
 
               {/* Days of week */}
               <div className="tf-mini-days-row">
-                <span>Sun</span>
-                <span>Mon</span>
-                <span>Tue</span>
-                <span>Wed</span>
-                <span>Thu</span>
-                <span>Fri</span>
-                <span>Sat</span>
+                {DAY_NAMES.map((name) => (
+                  <span key={name}>{name}</span>
+                ))}
               </div>
 
-              {/* October 2024 Dates Grid */}
+              {/* Dynamic Dates Grid */}
               <div className="tf-mini-dates-grid">
-                {/* Filler days from Sep */}
-                <span className="tf-mini-cell muted">29</span>
-                <span className="tf-mini-cell muted">30</span>
+                {miniMonthDays.map((cell, idx) => {
+                  const isSelected = isSameDay(cell.date, selectedDate);
+                  const isToday = isTodayDate(cell.date);
 
-                {/* Days 1 to 31 */}
-                {Array.from({ length: 31 }, (_, i) => i + 1).map((day) => {
-                  const isSelected = selectedDate === day;
-                  const dots = monthDotsMap[day] || [];
+                  // Calculate dots from actual events on this day
+                  const dayEvents = events.filter((e) => e.date === cell.dateKey);
+                  const dots = [...new Set(dayEvents.map((e) => e.color || "blue"))].slice(0, 3);
 
                   return (
                     <div
-                      key={day}
-                      className={`tf-mini-cell ${isSelected ? "active" : ""}`}
+                      key={idx}
+                      className={`tf-mini-cell ${!cell.isCurrentMonth ? "muted" : ""} ${isToday ? "today" : ""} ${isSelected ? "active" : ""}`}
                       onClick={() => {
-                        setSelectedDate(day);
-                        showToast(`Viewing Oct ${day}, 2024`);
+                        setSelectedDate(cell.date);
+                        setViewDate(cell.date);
+                        showToast(`Viewing ${MONTH_SHORT[cell.date.getMonth()]} ${cell.dayNum}, ${cell.date.getFullYear()}`);
                       }}
                     >
-                      <span className="tf-mini-num">{day}</span>
+                      <span className="tf-mini-num">{cell.dayNum}</span>
                       {dots.length > 0 && (
                         <div className="tf-mini-dots-group">
-                          {dots.map((dColor, idx) => (
-                            <span key={idx} className={`tf-mini-dot ${dColor}`} />
+                          {dots.map((dColor, dIdx) => (
+                            <span key={dIdx} className={`tf-mini-dot ${dColor}`} />
                           ))}
                         </div>
                       )}
                     </div>
                   );
                 })}
-
-                {/* Filler days for Nov */}
-                <span className="tf-mini-cell muted">1</span>
-                <span className="tf-mini-cell muted">2</span>
               </div>
 
               {/* Month Legend */}
@@ -990,140 +1435,38 @@ function Calendar() {
                   <span className="tf-dot green" />
                   <span>Milestone</span>
                 </div>
-                <div className="tf-legend-item">
-                  <span className="tf-dot yellow" />
-                  <span>Other</span>
-                </div>
               </div>
             </article>
 
-            {/* Widget 2: Upcoming Events */}
+            {/* Widget 2: Upcoming Events List */}
             <article className="tf-cal-sidebar-card tf-upcoming-events-card">
               <div className="tf-cal-sidebar-header">
-                <h2>Upcoming Events</h2>
-                <button
-                  type="button"
-                  className="tf-cal-view-all-link"
-                  onClick={() => showToast("Displaying all scheduled events.")}
-                >
-                  View all <ChevronRight size={14} />
-                </button>
+                <h2>Upcoming Schedule</h2>
+                <span className="tf-cal-badge-pill">Real-time</span>
               </div>
 
               <div className="tf-upcoming-list">
-                {/* 1. Daily Standup */}
-                <div
-                  className="tf-upcoming-item"
-                  onClick={() =>
-                    setSelectedEventModal({
-                      title: "Daily Standup",
-                      timeLabel: "Today, 9:00 - 10:00 AM",
-                      project: "Team Meeting",
-                      color: "blue",
-                      meetingUrl: "https://meet.google.com/abc-defg-hij",
-                      description: "Daily morning standup call.",
-                    })
-                  }
-                >
-                  <div className="tf-upcoming-icon blue">
-                    <Video size={15} />
-                  </div>
-                  <div className="tf-upcoming-content">
-                    <strong>Daily Standup</strong>
-                    <span>Today, 9:00 – 10:00 AM • Team Meeting</span>
-                  </div>
-                </div>
-
-                {/* 2. UI Design Discussion */}
-                <div
-                  className="tf-upcoming-item"
-                  onClick={() =>
-                    setSelectedEventModal({
-                      title: "UI Design Discussion",
-                      timeLabel: "Today, 10:00 - 11:00 AM",
-                      project: "TeamFlow Website",
-                      color: "purple",
-                      meetingUrl: "https://meet.google.com/ui-design-rev",
-                      description: "Review responsive breakpoints.",
-                    })
-                  }
-                >
-                  <div className="tf-upcoming-icon purple">
-                    <Zap size={15} />
-                  </div>
-                  <div className="tf-upcoming-content">
-                    <strong>UI Design Discussion</strong>
-                    <span>Today, 10:00 – 11:00 AM • TeamFlow Website</span>
-                  </div>
-                </div>
-
-                {/* 3. Work on Tasks */}
-                <div
-                  className="tf-upcoming-item"
-                  onClick={() =>
-                    setSelectedEventModal({
-                      title: "Work on Tasks",
-                      timeLabel: "Today, 2:00 - 3:00 PM",
-                      project: "Personal",
-                      color: "orange",
-                      description: "Deep work session.",
-                    })
-                  }
-                >
-                  <div className="tf-upcoming-icon orange">
-                    <Square size={14} />
-                  </div>
-                  <div className="tf-upcoming-content">
-                    <strong>Work on Tasks</strong>
-                    <span>Today, 2:00 – 3:00 PM • Personal</span>
-                  </div>
-                </div>
-
-                {/* 4. Design Review */}
-                <div
-                  className="tf-upcoming-item"
-                  onClick={() =>
-                    setSelectedEventModal({
-                      title: "Design Review",
-                      timeLabel: "Oct 24, 1:30 - 2:30 PM",
-                      project: "Mobile App",
-                      color: "purple",
-                      meetingUrl: "https://meet.google.com/mob-design-rev",
-                      description: "Mobile design evaluation.",
-                    })
-                  }
-                >
-                  <div className="tf-upcoming-icon purple-soft">
-                    <Layers size={15} />
-                  </div>
-                  <div className="tf-upcoming-content">
-                    <strong>Design Review</strong>
-                    <span>Oct 24, 1:30 – 2:30 PM • Mobile App</span>
-                  </div>
-                </div>
-
-                {/* 5. Sprint Review */}
-                <div
-                  className="tf-upcoming-item"
-                  onClick={() =>
-                    setSelectedEventModal({
-                      title: "Sprint Review",
-                      timeLabel: "Oct 25, 9:00 - 10:00 AM",
-                      project: "Mobile App",
-                      color: "blue",
-                      meetingUrl: "https://meet.google.com/sprint-review-app",
-                      description: "Sprint demo & signoff.",
-                    })
-                  }
-                >
-                  <div className="tf-upcoming-icon blue">
-                    <Video size={15} />
-                  </div>
-                  <div className="tf-upcoming-content">
-                    <strong>Sprint Review</strong>
-                    <span>Oct 25, 9:00 – 10:00 AM • Mobile App</span>
-                  </div>
-                </div>
+                {filteredEvents
+                  .filter((e) => e.date >= toDateKey(new Date()))
+                  .sort((a, b) => (a.date || "").localeCompare(b.date || "") || (a.startTime || "").localeCompare(b.startTime || ""))
+                  .slice(0, 5)
+                  .map((ev) => (
+                    <div
+                      key={ev.id}
+                      className="tf-upcoming-item"
+                      onClick={() => setSelectedEventModal(ev)}
+                    >
+                      <div className={`tf-upcoming-icon ${ev.color || "blue"}`}>
+                        {ev.icon === "video" ? <Video size={15} /> : <Zap size={15} />}
+                      </div>
+                      <div className="tf-upcoming-content">
+                        <strong>{ev.title}</strong>
+                        <span>
+                          {ev.date} • {ev.timeLabel} • {ev.project}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
               </div>
             </article>
 
@@ -1172,7 +1515,7 @@ function Calendar() {
         </div>
 
         {/* ====================================================================
-            4. MODALS
+            4. MODALS (Add Event, Event Details, Video Call Simulator)
             ==================================================================== */}
 
         {/* Modal 1: + Add Event */}

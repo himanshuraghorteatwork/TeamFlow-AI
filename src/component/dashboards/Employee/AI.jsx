@@ -6,7 +6,6 @@ import {
   MessageSquare,
   Lightbulb,
   FileText,
-  Zap,
   Clock,
   AlertCircle,
   Calendar,
@@ -24,9 +23,11 @@ import {
   Video,
   Target,
   Laptop,
+  Plus,
 } from "lucide-react";
 
 import EmployeeShell from "./EmployeeShell";
+import { getEmployeeProfile } from "./EmployeeAuth";
 import "./AI.css";
 
 /* Storage Key */
@@ -112,7 +113,7 @@ const defaultChatMessages = [
   },
 ];
 
-/* Task Suggestions on Right Panel */
+/* Task Suggestions on Right Panel with Detailed Information */
 const defaultTaskSuggestions = [
   {
     id: "ts-1",
@@ -120,6 +121,21 @@ const defaultTaskSuggestions = [
     subtitle: "Due tomorrow • High priority",
     icon: "target",
     color: "red",
+    project: "TeamFlow Mobile App",
+    priority: "High",
+    priorityColor: "#EF4444",
+    dueDate: "Tomorrow (Oct 27, 2024)",
+    estimatedTime: "3.5 hrs",
+    category: "Backend & QA",
+    aiReason: "High correlation with open bug reports #104 and #108. Completing this unblocks the upcoming staging release.",
+    description: "Perform end-to-end integration testing for authentication, team invite webhooks, and task synchronization endpoints across both staging and pre-production environments.",
+    subtasks: [
+      "Validate JWT token renewal on 401 response",
+      "Verify mock payload responses for employee dashboard KPIs",
+      "Run automated Postman / Newman test suite against staging cluster",
+      "Log error handling cases for rate limiting & network timeouts"
+    ],
+    impact: "Unblocks 3 team members and ensures zero regression for Sprint 4 release."
   },
   {
     id: "ts-2",
@@ -127,6 +143,20 @@ const defaultTaskSuggestions = [
     subtitle: "Due Oct 26 • Part of Mobile App",
     icon: "doc",
     color: "purple",
+    project: "Mobile App Architecture",
+    priority: "Medium",
+    priorityColor: "#8B5CF6",
+    dueDate: "Oct 26, 2024",
+    estimatedTime: "2.0 hrs",
+    category: "Documentation",
+    aiReason: "Documentation hasn't been updated since the v2.4 redesign. Several endpoints differ from actual responses.",
+    description: "Update the project README, architectural diagrams, API route references, and environment configuration guides to reflect recent microservice changes.",
+    subtasks: [
+      "Document OAuth2 flow & token storage specifications",
+      "Refresh component hierarchy chart in Figma / Wiki",
+      "Update .env.example with newly added service keys"
+    ],
+    impact: "Reduces onboarding ramp-up time for new engineers from 3 days to 1 day."
   },
   {
     id: "ts-3",
@@ -134,6 +164,20 @@ const defaultTaskSuggestions = [
     subtitle: "Improve mobile view layout",
     icon: "laptop",
     color: "purple",
+    project: "TeamFlow Web App",
+    priority: "High",
+    priorityColor: "#EF4444",
+    dueDate: "Oct 28, 2024",
+    estimatedTime: "4.0 hrs",
+    category: "Frontend UI/UX",
+    aiReason: "Mobile viewport (< 768px) shows clipping on navigation bar and KPI cards reported by QA team.",
+    description: "Audit and resolve responsive layout breaks across employee activity, task boards, and chat drawer on mobile screen widths (360px - 768px).",
+    subtasks: [
+      "Fix header hamburger drawer transition and overlay click",
+      "Convert multi-column KPI grids to responsive auto-fit cards",
+      "Ensure bottom action sheets don't overflow small viewport heights"
+    ],
+    impact: "Delivers a seamless mobile experience for 45% of active users accessing via mobile."
   },
   {
     id: "ts-4",
@@ -141,6 +185,20 @@ const defaultTaskSuggestions = [
     subtitle: "Due Oct 30 • TeamFlow Website",
     icon: "chart",
     color: "blue",
+    project: "Client Deliverables",
+    priority: "Medium",
+    priorityColor: "#2563EB",
+    dueDate: "Oct 30, 2024",
+    estimatedTime: "2.5 hrs",
+    category: "Presentations & Strategy",
+    aiReason: "Client milestone review scheduled for Friday. Slide deck requires updated sprint performance metrics.",
+    description: "Synthesize sprint metrics, feature walkthrough demos, and AI workflow automation capabilities into a cohesive 12-slide stakeholder presentation.",
+    subtasks: [
+      "Export high-res UI screenshots and screen recordings of completed features",
+      "Include KPI completion percentages (85% website, 62% mobile)",
+      "Draft live demo speaking notes and risk mitigation section"
+    ],
+    impact: "Secures sign-off on Milestone 3 and unlocks Phase 2 enterprise contract budget."
   },
 ];
 
@@ -190,27 +248,6 @@ const meetingSummariesData = [
   },
 ];
 
-/* Recent Files on Bottom Row */
-const recentFilesData = [
-  {
-    id: "rf-1",
-    name: "Login_Page_Design.fig",
-    type: "Figma File • 4.2 MB • Oct 23",
-    icon: "figma",
-  },
-  {
-    id: "rf-2",
-    name: "API_Documentation.docx",
-    type: "Document • 856 KB • Oct 22",
-    icon: "doc",
-  },
-  {
-    id: "rf-3",
-    name: "Sprint_Review.pptx",
-    type: "Presentation • 3.1 MB • Oct 20",
-    icon: "ppt",
-  },
-];
 
 /* Helper to generate unique IDs outside component render */
 function generateUniqueId(prefix = "id") {
@@ -220,8 +257,11 @@ function generateUniqueId(prefix = "id") {
 function AI() {
   const location = useLocation();
 
-  // Active top mode tab: 'Chat' | 'Task Suggestions' | 'Summaries' | 'Quick Actions'
+  // Active top mode tab: 'Chat' | 'Task Suggestions' | 'Summaries'
   const [activeModeTab, setActiveModeTab] = useState("Chat");
+
+  // Task Suggestion Modal State
+  const [activeTaskSuggestionModal, setActiveTaskSuggestionModal] = useState(null);
 
   // Chat messages
   const [messages, setMessages] = useState(() => {
@@ -409,8 +449,6 @@ function AI() {
       document.getElementById("task-suggestions-section")?.scrollIntoView({ behavior: "smooth", block: "start" });
     } else if (tab === "Summaries") {
       document.getElementById("meeting-summaries-section")?.scrollIntoView({ behavior: "smooth", block: "start" });
-    } else if (tab === "Quick Actions") {
-      document.getElementById("quick-actions-section")?.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   };
 
@@ -426,10 +464,10 @@ function AI() {
       const newTask = {
         id: generateUniqueId("tsk"),
         title: suggestion.title,
-        project: "TeamFlow Website",
+        project: suggestion.project || "TeamFlow Website",
         status: "todo",
-        priority: "High",
-        due: "Tomorrow",
+        priority: suggestion.priority || "High",
+        due: suggestion.dueDate || "Tomorrow",
         overdue: false,
       };
       localStorage.setItem("tf_tasks", JSON.stringify([newTask, ...existing]));
@@ -511,14 +549,7 @@ function AI() {
               <span>Summaries</span>
             </button>
 
-            <button
-              type="button"
-              className={`tf-mode-tab ${activeModeTab === "Quick Actions" ? "active" : ""}`}
-              onClick={() => handleModeTabClick("Quick Actions")}
-            >
-              <Sparkles size={14} className="icon-purple" />
-              <span>Quick Actions</span>
-            </button>
+            
           </div>
         </header>
 
@@ -615,8 +646,8 @@ function AI() {
 
         {/* ====================================================================
             MAIN TWO-COLUMN WORKSPACE
-            Left: Chat with AI Assistant + Recent Files & Project Insights (~69%)
-            Right: Task Suggestions + Meeting Summaries + Quick Actions (~31%)
+            Left: Full-Height Chat with AI Assistant
+            Right: Task Suggestions + Meeting Summaries
             ==================================================================== */}
         <div className="tf-pro-workspace-grid">
           {/* ------------------------------------------------------------------
@@ -659,7 +690,7 @@ function AI() {
                             <p>{msg.text}</p>
                           </div>
                         </div>
-                        <img src={userAvatar} alt="John Doe" className="tf-user-round-avatar" />
+                        <img src={getEmployeeProfile()?.photo || userAvatar} alt={getEmployeeProfile()?.fullName || "John Doe"} className="tf-user-round-avatar" />
                       </div>
                     );
                   }
@@ -869,85 +900,7 @@ function AI() {
               </div>
             </div>
 
-            {/* Bottom Row of 2 Cards: Recent Files & Project Insights */}
-            <div className="tf-pro-bottom-subgrid">
-              {/* Card 1: Recent Files */}
-              <div className="tf-bottom-card tf-recent-files-subcard">
-                <div className="tf-bottom-card-header">
-                  <div className="tf-bottom-header-title">
-                    <FileText size={16} className="icon-purple" />
-                    <h4>Recent Files</h4>
-                  </div>
-                  <Link to="/employee/files" className="tf-bottom-header-link">
-                    View All <ArrowRight size={13} />
-                  </Link>
-                </div>
-
-                <div className="tf-bottom-files-list">
-                  {recentFilesData.map((f) => (
-                    <div
-                      key={f.id}
-                      className="tf-bottom-file-item"
-                      onClick={() => showToast(`Opening file: ${f.name}`)}
-                    >
-                      <div className={`tf-file-icon-box ${f.icon}`}>
-                        {f.icon === "figma" ? (
-                          <span className="fig-text">fig</span>
-                        ) : f.icon === "doc" ? (
-                          <FileText size={14} />
-                        ) : (
-                          <span className="ppt-text">ppt</span>
-                        )}
-                      </div>
-                      <div className="tf-file-item-texts">
-                        <strong>{f.name}</strong>
-                        <span>{f.type}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Card 2: Project Insights */}
-              <div className="tf-bottom-card tf-project-insights-subcard">
-                <div className="tf-bottom-card-header">
-                  <div className="tf-bottom-header-title">
-                    <BarChart2 size={16} className="icon-purple" />
-                    <div>
-                      <h4>Project Insights</h4>
-                      <p>Based on your activity and project data.</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="tf-insights-kpi-row">
-                  <div className="tf-insight-box">
-                    <div className="tf-insight-icon blue">
-                      <Folder size={16} />
-                    </div>
-                    <strong>4</strong>
-                    <span>Active Projects</span>
-                  </div>
-
-                  <div className="tf-insight-box">
-                    <div className="tf-insight-icon green">
-                      <BarChart2 size={16} />
-                    </div>
-                    <strong>75%</strong>
-                    <span>Task Completion</span>
-                  </div>
-
-                  <div className="tf-insight-box">
-                    <div className="tf-insight-icon orange">
-                      <Calendar size={16} />
-                    </div>
-                    <strong>3</strong>
-                    <span>Upcoming Deadlines</span>
-                  </div>
-                </div>
-              </div>
             </div>
-          </div>
 
           {/* ------------------------------------------------------------------
               RIGHT COLUMN
@@ -990,10 +943,10 @@ function AI() {
                     </div>
                     <button
                       type="button"
-                      className="tf-sugg-add-btn"
-                      onClick={() => handleAddSuggestedTask(sug)}
+                      className="tf-sugg-view-btn"
+                      onClick={() => setActiveTaskSuggestionModal(sug)}
                     >
-                      Add
+                      View
                     </button>
                   </div>
                 ))}
@@ -1043,77 +996,138 @@ function AI() {
               </div>
             </article>
 
-            {/* Widget 3: Quick Actions (2x3 Grid) */}
-            <article className="tf-pro-sidebar-card tf-quick-actions-widget" id="quick-actions-section">
-              <div className="tf-quick-actions-header">
-                <Zap size={16} className="tf-zap-icon" />
-                <h4>Quick Actions</h4>
-              </div>
-
-              <div className="tf-quick-actions-grid">
-                {/* 1. Summarize My Tasks */}
-                <button
-                  type="button"
-                  className="tf-quick-action-btn purple"
-                  onClick={() => handleSendPrompt("Summarize my tasks for this week")}
-                >
-                  <FileText size={15} />
-                  <span>Summarize My Tasks</span>
-                </button>
-
-                {/* 2. Suggest Next Tasks */}
-                <button
-                  type="button"
-                  className="tf-quick-action-btn orange"
-                  onClick={() => handleSendPrompt("Suggest next tasks for me")}
-                >
-                  <Lightbulb size={15} />
-                  <span>Suggest Next Tasks</span>
-                </button>
-
-                {/* 3. Summarize Last Meeting */}
-                <button
-                  type="button"
-                  className="tf-quick-action-btn green"
-                  onClick={() => handleSendPrompt("Summarize the last team meeting")}
-                >
-                  <MessageSquare size={15} />
-                  <span>Summarize Last Meeting</span>
-                </button>
-
-                {/* 4. List My Assigned Bugs */}
-                <button
-                  type="button"
-                  className="tf-quick-action-btn red"
-                  onClick={() => handleSendPrompt("List my assigned bugs")}
-                >
-                  <Bug size={15} />
-                  <span>List My Assigned Bugs</span>
-                </button>
-
-                {/* 5. Show Project Progress */}
-                <button
-                  type="button"
-                  className="tf-quick-action-btn blue"
-                  onClick={() => handleSendPrompt("Show project progress")}
-                >
-                  <BarChart2 size={15} />
-                  <span>Show Project Progress</span>
-                </button>
-
-                {/* 6. Find Important Files */}
-                <button
-                  type="button"
-                  className="tf-quick-action-btn purple"
-                  onClick={() => handleSendPrompt("Find important files")}
-                >
-                  <FileText size={15} />
-                  <span>Find Important Files</span>
-                </button>
-              </div>
-            </article>
+            
           </div>
         </div>
+
+        
+        {/* ====================================================================
+            MODAL: TASK SUGGESTION DETAIL MODAL
+            ==================================================================== */}
+        {activeTaskSuggestionModal && (
+          <div
+            className="tf-pro-modal-backdrop"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) setActiveTaskSuggestionModal(null);
+            }}
+          >
+            <div className="tf-pro-modal-card tf-task-detail-modal" role="dialog" aria-modal="true">
+              <div className="tf-pro-modal-header">
+                <div className="tf-modal-title-group">
+                  <div className="tf-modal-badge yellow">
+                    <Lightbulb size={18} />
+                  </div>
+                  <div>
+                    <h3>{activeTaskSuggestionModal.title}</h3>
+                    <p>{activeTaskSuggestionModal.project} • {activeTaskSuggestionModal.category}</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  className="tf-pro-modal-close"
+                  onClick={() => setActiveTaskSuggestionModal(null)}
+                  aria-label="Close modal"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              <div className="tf-pro-modal-body">
+                {/* AI Recommendation Rationale */}
+                <div className="tf-task-modal-ai-box">
+                  <div className="tf-ai-pill-header">
+                    <Sparkles size={14} className="tf-sparkle-blue" />
+                    <strong>Why AI recommends this task</strong>
+                  </div>
+                  <p>{activeTaskSuggestionModal.aiReason}</p>
+                </div>
+
+                {/* Metadata Grid */}
+                <div className="tf-task-modal-meta-grid">
+                  <div className="tf-task-meta-item">
+                    <span className="tf-meta-label">Priority</span>
+                    <span
+                      className="tf-priority-pill"
+                      style={{
+                        backgroundColor: `${activeTaskSuggestionModal.priorityColor}15`,
+                        color: activeTaskSuggestionModal.priorityColor,
+                        borderColor: `${activeTaskSuggestionModal.priorityColor}35`,
+                      }}
+                    >
+                      {activeTaskSuggestionModal.priority}
+                    </span>
+                  </div>
+
+                  <div className="tf-task-meta-item">
+                    <span className="tf-meta-label">Due Date</span>
+                    <span className="tf-meta-val">
+                      <Calendar size={13} /> {activeTaskSuggestionModal.dueDate}
+                    </span>
+                  </div>
+
+                  <div className="tf-task-meta-item">
+                    <span className="tf-meta-label">Estimated Effort</span>
+                    <span className="tf-meta-val">
+                      <Clock size={13} /> {activeTaskSuggestionModal.estimatedTime}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Description */}
+                <div className="tf-modal-summary-section">
+                  <span className="tf-section-badge">Task Description</span>
+                  <p className="tf-summary-paragraph">{activeTaskSuggestionModal.description}</p>
+                </div>
+
+                {/* Action Plan & Checklist */}
+                {activeTaskSuggestionModal.subtasks && activeTaskSuggestionModal.subtasks.length > 0 && (
+                  <div className="tf-modal-summary-section">
+                    <span className="tf-section-badge">Action Plan & Checklist</span>
+                    <ul className="tf-takeaways-list">
+                      {activeTaskSuggestionModal.subtasks.map((item, idx) => (
+                        <li key={idx}>
+                          <Check size={14} className="tf-check-green" />
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Expected Impact */}
+                {activeTaskSuggestionModal.impact && (
+                  <div className="tf-modal-summary-section">
+                    <span className="tf-section-badge">Expected Impact</span>
+                    <p className="tf-impact-note">
+                      <Target size={14} className="icon-blue" />
+                      <span>{activeTaskSuggestionModal.impact}</span>
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              <div className="tf-pro-modal-footer">
+                <button
+                  type="button"
+                  className="tf-btn-secondary"
+                  onClick={() => setActiveTaskSuggestionModal(null)}
+                >
+                  Close
+                </button>
+                <button
+                  type="button"
+                  className="tf-btn-primary"
+                  onClick={() => {
+                    handleAddSuggestedTask(activeTaskSuggestionModal);
+                    setActiveTaskSuggestionModal(null);
+                  }}
+                >
+                  <Plus size={14} /> Add to My Tasks
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* ====================================================================
             MODAL: MEETING SUMMARY MODAL

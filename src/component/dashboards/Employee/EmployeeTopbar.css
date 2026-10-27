@@ -66,8 +66,7 @@
   box-shadow: 0 0 0 3px rgba(80, 81, 249, 0.12);
 }
 
-.tf-topbar-search-icon,
-.tf-search-icon {
+.tf-global-search .tf-topbar-search-icon {
   position: static !important;
   color: #94A3B8;
   width: 16px;
@@ -80,8 +79,7 @@
   justify-content: center;
 }
 
-.tf-topbar-search-input,
-.tf-search-input {
+.tf-global-search .tf-topbar-search-input {
   flex: 1 1 0%;
   min-width: 0;
   border: none;

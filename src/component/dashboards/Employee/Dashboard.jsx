@@ -353,8 +353,8 @@ function Dashboard() {
   const [copiedAnswer, setCopiedAnswer] = useState(false);
 
   // Calendar month state: October 2024 as in reference image
-  const [calendarMonth, setCalendarMonth] = useState(new Date(2024, 9, 1));
-  const [selectedDay, setSelectedDay] = useState(1);
+  const [calendarMonth, setCalendarMonth] = useState(() => new Date());
+  const [selectedDay, setSelectedDay] = useState(() => new Date().getDate());
   const [dayEventsModal, setDayEventsModal] = useState(null);
 
   // Date range picker toggle
@@ -507,71 +507,129 @@ function Dashboard() {
     setTimeout(() => setCopiedAnswer(false), 2000);
   };
 
-  // Calendar days grid computation for October 2024
+  // Real-time Calendar days grid computation
   const calendarDays = useMemo(() => {
     const year = calendarMonth.getFullYear();
     const month = calendarMonth.getMonth();
+    const now = new Date();
+    const isCurrentMonthNow = now.getFullYear() === year && now.getMonth() === month;
+    const todayDate = now.getDate();
 
-    const firstDayIndex = new Date(year, month, 1).getDay(); // 0 is Sun, 2 is Tue for Oct 2024
-    const daysInMonth = new Date(year, month + 1, 0).getDate(); // 31
-    const daysInPrevMonth = new Date(year, month, 0).getDate(); // 30
+    const firstDayIndex = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const daysInPrevMonth = new Date(year, month, 0).getDate();
+
+    let storedMeetings = [];
+    try {
+      const saved = localStorage.getItem("tf_meetings_v1");
+      if (saved) storedMeetings = JSON.parse(saved);
+    } catch {}
 
     const days = [];
 
-    // Previous month filler days (28, 29)
+    // Prev month filler
     for (let i = firstDayIndex - 1; i >= 0; i--) {
       days.push({
         day: daysInPrevMonth - i,
         currentMonth: false,
         dots: [],
+        isToday: false,
       });
     }
 
-    // Current month days with indicator dots matching reference image
+    // Current month days
     for (let d = 1; d <= daysInMonth; d++) {
+      const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+      const isToday = isCurrentMonthNow && d === todayDate;
       const dots = [];
-      if (d === 1) dots.push("orange");
-      if (d === 2) dots.push("orange");
-      if (d === 9) dots.push("orange");
-      if (d === 11) dots.push("red", "green");
-      if (d === 17) dots.push("red", "blue");
-      if (d === 22) dots.push("red", "green");
-      if (d === 23) dots.push("red", "blue");
-      if (d === 24) dots.push("red", "blue");
-      if (d === 29) dots.push("red", "green");
-      if (d === 30) dots.push("red", "blue");
+
+      const hasMeeting = storedMeetings.some((m) => m.date === dateStr);
+      if (hasMeeting) dots.push("blue");
+
+      const hasTaskDeadline = tasks.some(
+        (t) => t.dueDate === dateStr || (t.dueDate && t.dueDate.includes(String(d)))
+      );
+      if (hasTaskDeadline) dots.push("red");
+
+      const presetEvents = calendarEventsMap[d];
+      if (presetEvents) {
+        presetEvents.forEach((ev) => {
+          if (ev.type === "milestone" && !dots.includes("green")) dots.push("green");
+          if (ev.type === "other" && !dots.includes("orange")) dots.push("orange");
+          if (ev.type === "deadline" && !dots.includes("red")) dots.push("red");
+          if (ev.type === "meeting" && !dots.includes("blue")) dots.push("blue");
+        });
+      }
 
       days.push({
         day: d,
         currentMonth: true,
         dots,
+        isToday,
+        fullDate: dateStr,
       });
     }
 
-    // Next month filler days to complete 35 grid cells (1, 2)
-    const remaining = 35 - days.length;
+    const targetTotal = days.length > 35 ? 42 : 35;
+    const remaining = targetTotal - days.length;
     for (let j = 1; j <= remaining; j++) {
-      const dots = [];
-      if (j === 2) dots.push("orange");
       days.push({
         day: j,
         currentMonth: false,
-        dots,
+        dots: [],
+        isToday: false,
       });
     }
 
     return days;
-  }, [calendarMonth]);
+  }, [calendarMonth, tasks]);
 
   const handleDayClick = (cell) => {
     if (!cell.currentMonth) return;
     setSelectedDay(cell.day);
-    const events = calendarEventsMap[cell.day];
-    if (events && events.length > 0) {
+
+    let storedMeetings = [];
+    try {
+      const saved = localStorage.getItem("tf_meetings_v1");
+      if (saved) storedMeetings = JSON.parse(saved);
+    } catch {}
+
+    const dayMeetings = storedMeetings
+      .filter((m) => m.date === cell.fullDate)
+      .map((m) => ({
+        title: `Meeting: ${m.title}`,
+        type: "meeting",
+        time: m.timeLabel || "TBD",
+      }));
+
+    const dayTasks = tasks
+      .filter((t) => t.dueDate === cell.fullDate)
+      .map((t) => ({
+        title: `Task Due: ${t.name}`,
+        type: "deadline",
+        time: t.dueTime || "5:00 PM",
+      }));
+
+    const presetEvents = calendarEventsMap[cell.day] || [];
+    const combinedEvents = [...dayMeetings, ...dayTasks, ...presetEvents];
+
+    if (combinedEvents.length > 0) {
       setDayEventsModal({
         day: cell.day,
         monthName: calendarMonth.toLocaleDateString("en-US", { month: "long", year: "numeric" }),
-        events,
+        events: combinedEvents,
+      });
+    } else {
+      setDayEventsModal({
+        day: cell.day,
+        monthName: calendarMonth.toLocaleDateString("en-US", { month: "long", year: "numeric" }),
+        events: [
+          {
+            title: "No scheduled events for this date.",
+            type: "other",
+            time: "Free day",
+          },
+        ],
       });
     }
   };
@@ -927,9 +985,7 @@ function Dashboard() {
                 return (
                   <div
                     key={idx}
-                    className={`tf-emp-cal-cell ${!cell.currentMonth ? "other-month" : ""} ${
-                      isSelected ? "selected" : ""
-                    }`}
+                    className={`tf-emp-cal-cell ${!cell.currentMonth ? "other-month" : ""} ${isSelected ? "selected" : ""} ${cell.isToday ? "today" : ""}`}
                     onClick={() => handleDayClick(cell)}
                   >
                     <span className="tf-emp-cal-num">{cell.day}</span>

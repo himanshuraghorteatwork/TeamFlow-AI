@@ -309,6 +309,7 @@ function Team() {
               <table className="team-table">
                 <thead>
                   <tr>
+                    <th className="tf-th-num">Sr</th>
                     <th>Member</th>
                     <th>Department</th>
                     <th>Role</th>
@@ -319,8 +320,11 @@ function Team() {
                 </thead>
 
                 <tbody>
-                  {filteredMembers.map((member) => (
+                  {filteredMembers.map((member, idx) => (
                     <tr key={member.id}>
+                      <td className="tf-td-num">
+                        <span className="tf-row-num-badge">{idx + 1}</span>
+                      </td>
                       <td>
                         <div className="team-member-cell">
                           <div className="team-avatar">

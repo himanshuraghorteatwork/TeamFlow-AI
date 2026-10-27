@@ -21,45 +21,65 @@
   transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Sidebar Header */
+/* Sidebar Header (Matches SuperAdmin) */
 .app-sidebar-header {
   height: var(--tf-topbar-height, 64px);
   min-height: var(--tf-topbar-height, 64px);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 18px;
-  border-bottom: 1px solid #F1F4F9;
+  padding: 0 16px;
+  background: #ffffff;
+  border-bottom: 1px solid #ECEEF3;
+  transition: background-color 0.25s ease, border-color 0.25s ease;
 }
 
+.superadmin-brand,
 .app-sidebar-brand {
   display: flex;
   align-items: center;
   gap: 10px;
+  min-width: 0;
+  color: inherit;
   text-decoration: none;
-  color: #111827;
 }
 
-.app-brand-logo {
+.superadmin-brand-icon,
+.logo-icon-brand {
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  width: 26px;
+  height: 26px;
 }
 
+.superadmin-brand-icon svg,
+.logo-icon-brand svg {
+  display: block;
+  width: 26px;
+  height: 26px;
+}
+
+.superadmin-brand-name,
+.logo-text,
 .app-brand-title {
-  font-size: 18px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  color: #1E293B;
-  display: flex;
-  align-items: center;
-  gap: 4px;
+  color: #0b132b;
+  font-size: 19px;
+  font-weight: 750;
+  line-height: 1.2;
+  letter-spacing: -0.5px;
+  white-space: nowrap;
+  transition: color 0.25s ease;
 }
 
+.superadmin-brand-name span,
+.logo-text span,
+.logo-ai,
 .app-brand-ai {
-  color: #1E293B;
-  font-weight: 700;
+  color: #3b66ff;
+  font-weight: 800;
+  transition: color 0.25s ease;
 }
 
 .app-sidebar-close-btn {
@@ -250,86 +270,136 @@
 }
 
 /* ==========================================================================
-   DARK THEME STYLES FOR SIDEBAR
+   DARK THEME STYLES FOR SIDEBAR (Exact SuperAdmin Match)
    ========================================================================== */
 
 .employee-shell.tf-dark .app-sidebar,
-[data-theme="dark"] .app-sidebar {
-  background: #1E293B;
-  border-right-color: #334155;
+[data-theme="dark"] .app-sidebar,
+html[data-theme="dark"] .app-sidebar,
+body.dark-mode .app-sidebar,
+body.dark .app-sidebar {
+  background: #111c35 !important;
+  border-right: 1px solid #1f2d4d !important;
+  color: #e2e8f0 !important;
 }
 
 .employee-shell.tf-dark .app-sidebar-header,
-[data-theme="dark"] .app-sidebar-header {
-  border-bottom-color: #334155;
+[data-theme="dark"] .app-sidebar-header,
+html[data-theme="dark"] .app-sidebar-header,
+body.dark-mode .app-sidebar-header,
+body.dark .app-sidebar-header {
+  background: #111c35 !important;
+  border-bottom: 1px solid #1f2d4d !important;
 }
 
+.employee-shell.tf-dark .superadmin-brand-name,
+[data-theme="dark"] .superadmin-brand-name,
+html[data-theme="dark"] .superadmin-brand-name,
+body.dark-mode .superadmin-brand-name,
+body.dark .superadmin-brand-name,
+.employee-shell.tf-dark .logo-text,
+[data-theme="dark"] .logo-text,
+html[data-theme="dark"] .logo-text,
+body.dark-mode .logo-text,
+body.dark .logo-text,
 .employee-shell.tf-dark .app-brand-title,
-.employee-shell.tf-dark .app-brand-ai,
 [data-theme="dark"] .app-brand-title,
-[data-theme="dark"] .app-brand-ai {
-  color: #F8FAFC;
+html[data-theme="dark"] .app-brand-title {
+  color: #f8fafc !important;
+}
+
+.employee-shell.tf-dark .superadmin-brand-name span,
+[data-theme="dark"] .superadmin-brand-name span,
+html[data-theme="dark"] .superadmin-brand-name span,
+body.dark-mode .superadmin-brand-name span,
+body.dark .superadmin-brand-name span,
+.employee-shell.tf-dark .logo-ai,
+[data-theme="dark"] .logo-ai,
+html[data-theme="dark"] .logo-ai,
+body.dark-mode .logo-ai,
+body.dark .logo-ai,
+.employee-shell.tf-dark .app-brand-ai,
+[data-theme="dark"] .app-brand-ai,
+html[data-theme="dark"] .app-brand-ai {
+  color: #3b66ff !important;
 }
 
 .employee-shell.tf-dark .app-nav-section-title,
-[data-theme="dark"] .app-nav-section-title {
-  color: #64748B;
+[data-theme="dark"] .app-nav-section-title,
+html[data-theme="dark"] .app-nav-section-title {
+  color: #64748B !important;
 }
 
 .employee-shell.tf-dark .app-sidebar-link,
-[data-theme="dark"] .app-sidebar-link {
-  color: #94A3B8;
+[data-theme="dark"] .app-sidebar-link,
+html[data-theme="dark"] .app-sidebar-link {
+  color: #94A3B8 !important;
 }
 
 .employee-shell.tf-dark .app-sidebar-link:hover,
-[data-theme="dark"] .app-sidebar-link:hover {
-  background: #334155;
-  color: #F8FAFC;
+[data-theme="dark"] .app-sidebar-link:hover,
+html[data-theme="dark"] .app-sidebar-link:hover {
+  background: #172442 !important;
+  color: #f8fafc !important;
 }
 
 .employee-shell.tf-dark .app-sidebar-link.active,
-[data-theme="dark"] .app-sidebar-link.active {
-  background: #3B66FF;
+[data-theme="dark"] .app-sidebar-link.active,
+html[data-theme="dark"] .app-sidebar-link.active {
+  background: #3B66FF !important;
   color: #FFFFFF !important;
-  box-shadow: 0 4px 14px rgba(59, 102, 255, 0.35);
+  box-shadow: 0 4px 14px rgba(59, 102, 255, 0.35) !important;
 }
 
 .employee-shell.tf-dark .app-sidebar-link.active:hover,
-[data-theme="dark"] .app-sidebar-link.active:hover {
-  background: #2F59FA;
+[data-theme="dark"] .app-sidebar-link.active:hover,
+html[data-theme="dark"] .app-sidebar-link.active:hover {
+  background: #2F59FA !important;
   color: #FFFFFF !important;
 }
 
 .employee-shell.tf-dark .app-sidebar-link.active .app-nav-icon,
-[data-theme="dark"] .app-sidebar-link.active .app-nav-icon {
+[data-theme="dark"] .app-sidebar-link.active .app-nav-icon,
+html[data-theme="dark"] .app-sidebar-link.active .app-nav-icon {
   color: #FFFFFF !important;
 }
 
 .employee-shell.tf-dark .app-sidebar-org-card,
-[data-theme="dark"] .app-sidebar-org-card {
-  background: #0F172A;
-  border-color: #334155;
+[data-theme="dark"] .app-sidebar-org-card,
+html[data-theme="dark"] .app-sidebar-org-card {
+  background: #0d162a !important;
+  border-color: #1f2d4d !important;
 }
 
 .employee-shell.tf-dark .app-sidebar-org-card:hover,
-[data-theme="dark"] .app-sidebar-org-card:hover {
-  background: #162032;
-  border-color: #475569;
+[data-theme="dark"] .app-sidebar-org-card:hover,
+html[data-theme="dark"] .app-sidebar-org-card:hover {
+  background: #13203c !important;
+  border-color: #2a3c66 !important;
 }
 
 .employee-shell.tf-dark .app-org-name,
-[data-theme="dark"] .app-org-name {
-  color: #F8FAFC;
+[data-theme="dark"] .app-org-name,
+html[data-theme="dark"] .app-org-name {
+  color: #F8FAFC !important;
 }
 
 .employee-shell.tf-dark .app-org-role,
-[data-theme="dark"] .app-org-role {
-  color: #94A3B8;
+[data-theme="dark"] .app-org-role,
+html[data-theme="dark"] .app-org-role {
+  color: #94A3B8 !important;
 }
 
 .employee-shell.tf-dark .app-org-icon-box,
-[data-theme="dark"] .app-org-icon-box {
-  background: #1E293B;
+[data-theme="dark"] .app-org-icon-box,
+html[data-theme="dark"] .app-org-icon-box {
+  background: #172442 !important;
+}
+
+.employee-shell.tf-dark .app-sidebar-close-btn,
+[data-theme="dark"] .app-sidebar-close-btn,
+html[data-theme="dark"] .app-sidebar-close-btn {
+  color: #cbd5e1 !important;
 }
 
 /* Responsive Behavior */
@@ -368,51 +438,4 @@
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
-}
-/* =========================================
-   TEAMFLOW AI BRAND
-========================================= */
-
-.logo-container {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  text-decoration: none;
-  white-space: nowrap;
-}
-
-.logo-icon-brand {
-  width: 28px;
-  height: 28px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.logo-icon-brand svg {
-  display: block;
-  width: 28px;
-  height: 28px;
-}
-
-.logo-text {
-  font-size: 18px;
-  font-weight: 700;
-  line-height: 1;
-  letter-spacing: -0.3px;
-  color: #111827;
-}
-
-.logo-ai {
-  color: #4361ee;
-  font-weight: 700;
-}
-
-.dark .logo-text {
-  color: #f8fafc;
-}
-
-.dark .logo-ai {
-  color: #8b9cff;
 }

@@ -245,8 +245,26 @@ function TeamProgress() {
   const navigate = useNavigate();
 
   // State
-  const [selectedDateRange, setSelectedDateRange] = useState("Oct 20, 2024 - Oct 26, 2024");
+  const [selectedDateRange, setSelectedDateRange] = useState("Oct 1, 2024 - Oct 31, 2024");
   const [dateRangeOpen, setDateRangeOpen] = useState(false);
+  const [customStartDate, setCustomStartDate] = useState("2024-10-01");
+  const [customEndDate, setCustomEndDate] = useState("2024-10-31");
+
+  const handleApplyCustomRange = () => {
+    if (customStartDate && customEndDate) {
+      const formatDate = (dateStr) => {
+        const [year, month, day] = dateStr.split("-");
+        const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        const m = months[parseInt(month, 10) - 1] || month;
+        return `${m} ${parseInt(day, 10)}, ${year}`;
+      };
+      const formatted = `${formatDate(customStartDate)} - ${formatDate(customEndDate)}`;
+      setSelectedDateRange(formatted);
+      showToast(`Date range set to: ${formatted}`);
+    }
+    setDateRangeOpen(false);
+  };
+
   const [topPerfTimeframe, setTopPerfTimeframe] = useState("This Week");
   const [topPerfOpen, setTopPerfOpen] = useState(false);
 
@@ -336,34 +354,86 @@ function TeamProgress() {
             <p>See how your team is doing across projects, tasks, and goals. Stay aligned and informed.</p>
           </div>
 
-          {/* Date Range Dropdown */}
-          <div className="tf-tp-date-wrapper" ref={dateRangeRef}>
+          {/* Date Range Picker Dropdown (Exact match to Dashboard / Screenshot) */}
+          <div className="tf-emp-date-range-container" ref={dateRangeRef}>
             <button
               type="button"
-              className="tf-tp-date-btn"
-              onClick={() => setDateRangeOpen((prev) => !prev)}
+              className="tf-emp-date-range-btn"
+              onClick={() => setDateRangeOpen(!dateRangeOpen)}
+              aria-expanded={dateRangeOpen}
             >
-              <Calendar size={15} className="tf-tp-cal-icon" />
+              <Calendar size={15} color="#475569" />
               <span>{selectedDateRange}</span>
-              <ChevronDown size={14} className="tf-tp-chevron" />
+              <ChevronDown size={14} className={dateRangeOpen ? "open" : ""} />
             </button>
 
             {dateRangeOpen && (
-              <div className="tf-tp-dropdown-menu">
-                {dateRangeOptions.map((opt) => (
+              <div className="tf-emp-date-picker-dropdown">
+                {/* Active selection banner at top */}
+                <button
+                  type="button"
+                  className={`tf-emp-date-preset-item ${
+                    selectedDateRange === "Oct 1, 2024 - Oct 31, 2024" ||
+                    !["Today", "Last 7 Days", "Last 30 Days", "This Quarter", "This Year"].includes(selectedDateRange)
+                      ? "active"
+                      : ""
+                  }`}
+                  onClick={() => {
+                    if (["Today", "Last 7 Days", "Last 30 Days", "This Quarter", "This Year"].includes(selectedDateRange)) {
+                      setSelectedDateRange("Oct 1, 2024 - Oct 31, 2024");
+                    }
+                    setDateRangeOpen(false);
+                  }}
+                >
+                  {!["Today", "Last 7 Days", "Last 30 Days", "This Quarter", "This Year"].includes(selectedDateRange)
+                    ? selectedDateRange
+                    : "Oct 1, 2024 - Oct 31, 2024"}
+                </button>
+
+                {/* Preset List */}
+                {["Today", "Last 7 Days", "Last 30 Days", "This Quarter", "This Year"].map((preset) => (
                   <button
-                    key={opt}
+                    key={preset}
                     type="button"
-                    className={`tf-tp-dropdown-item ${selectedDateRange === opt ? "active" : ""}`}
+                    className={`tf-emp-date-preset-item ${selectedDateRange === preset ? "active" : ""}`}
                     onClick={() => {
-                      setSelectedDateRange(opt);
+                      setSelectedDateRange(preset);
                       setDateRangeOpen(false);
-                      showToast(`Date range set to: ${opt}`);
+                      showToast(`Date range set to: ${preset}`);
                     }}
                   >
-                    {opt}
+                    {preset}
                   </button>
                 ))}
+
+                {/* Divider */}
+                <div className="tf-emp-date-divider" />
+
+                {/* Custom Range Section */}
+                <div className="tf-emp-custom-range-block">
+                  <div className="tf-emp-custom-range-label">CUSTOM RANGE</div>
+                  <div className="tf-emp-custom-range-inputs">
+                    <input
+                      type="date"
+                      className="tf-emp-custom-date-input"
+                      value={customStartDate}
+                      onChange={(e) => setCustomStartDate(e.target.value)}
+                    />
+                    <input
+                      type="date"
+                      className="tf-emp-custom-date-input"
+                      value={customEndDate}
+                      onChange={(e) => setCustomEndDate(e.target.value)}
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    className="tf-emp-apply-range-btn"
+                    onClick={handleApplyCustomRange}
+                  >
+                    Apply Range
+                  </button>
+                </div>
               </div>
             )}
           </div>
@@ -674,6 +744,7 @@ function TeamProgress() {
                 <table className="tf-tp-members-table">
                   <thead>
                     <tr>
+                      <th className="tf-th-num">Sr</th>
                       <th onClick={() => handleSort("name")} className="sortable">
                         Name
                       </th>
@@ -696,12 +767,17 @@ function TeamProgress() {
                     </tr>
                   </thead>
                   <tbody>
-                    {sortedMembers.map((m) => (
+                    {sortedMembers.map((m, idx) => (
                       <tr
                         key={m.id}
                         onClick={() => setSelectedMember(m)}
                         className="tf-tp-table-row"
                       >
+                        {/* Row Number */}
+                        <td className="tf-td-num">
+                          <span className="tf-row-num-badge">{idx + 1}</span>
+                        </td>
+
                         {/* Name + Avatar */}
                         <td>
                           <div className="tf-tp-member-name-group">

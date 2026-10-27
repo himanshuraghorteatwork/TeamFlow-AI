@@ -238,10 +238,10 @@ export default function AdminSidebar({
         <div className="tfAdminSidebar__brandRow">
           <NavLink
             to="/admin/dashboard"
-            className="tfAdminSidebar__brand"
+            className="tfAdminSidebar__brand superadmin-brand"
             onClick={closeSidebar}
           >
-            <div className="tfAdminSidebar__brandMark">
+            <div className="superadmin-brand-icon tfAdminSidebar__brandMark">
               <svg
                 width="26"
                 height="26"
@@ -275,10 +275,9 @@ export default function AdminSidebar({
               </svg>
             </div>
 
-            <div className="tfAdminSidebar__brandTitle">
-              <strong>TeamFlow</strong>
-              <span className="tfAdminSidebar__brandAi">AI</span>
-            </div>
+            <span className="superadmin-brand-name tfAdminSidebar__brandTitle">
+              TeamFlow <span>AI</span>
+            </span>
           </NavLink>
 
           <button

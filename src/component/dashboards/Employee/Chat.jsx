@@ -26,6 +26,10 @@ import {
   ChevronRight,
   Image as ImageIcon,
   Folder,
+  UserPlus,
+  Mail,
+  User,
+  Briefcase,
 } from "lucide-react";
 
 import EmployeeShell from "./EmployeeShell";
@@ -405,8 +409,22 @@ function Chat() {
 
   // Modals
   const [newChatModalOpen, setNewChatModalOpen] = useState(false);
-  const [newChatTarget, setNewChatTarget] = useState("");
-  const [newChatType, setNewChatType] = useState("direct");
+  const [newMemberForm, setNewMemberForm] = useState({
+    name: "",
+    email: "",
+    role: "Frontend Developer",
+    message: "",
+  });
+
+  const handleCloseNewChatModal = () => {
+    setNewChatModalOpen(false);
+    setNewMemberForm({
+      name: "",
+      email: "",
+      role: "Frontend Developer",
+      message: "",
+    });
+  };
 
   // Toast
   const [toastMessage, setToastMessage] = useState("");
@@ -532,41 +550,74 @@ function Chat() {
     );
   };
 
-  // Handle Create New Chat / Channel
-  const handleCreateNewChat = (e) => {
+  // Handle Request For Chat (Add New Member to Chat)
+  const handleRequestForChat = (e) => {
     e.preventDefault();
-    if (!newChatTarget.trim()) return;
+    const name = newMemberForm.name.trim();
+    const email = newMemberForm.email.trim();
+
+    if (!name) {
+      showToast("Please enter the member's full name");
+      return;
+    }
+    if (!email || !email.includes("@")) {
+      showToast("Please enter a valid company email address");
+      return;
+    }
+
+    const initials = name
+      .split(" ")
+      .map((part) => part[0])
+      .filter(Boolean)
+      .slice(0, 2)
+      .join("")
+      .toUpperCase() || name.charAt(0).toUpperCase();
+
+    const colorList = ["purple", "blue", "green", "orange", "pink"];
+    const chosenColor = colorList[Math.floor(Math.random() * colorList.length)];
 
     const newConv = {
-      id: `conv-${Date.now()}`,
-      title: newChatTarget.trim(),
-      subtitle: newChatType === "direct" ? "Direct message" : "Project Channel",
-      type: newChatType === "direct" ? "direct" : "group",
-      avatarType: newChatType === "direct" ? "initials" : "team",
-      avatarInitials: newChatTarget.trim().charAt(0).toUpperCase(),
-      avatarBg: "purple",
-      lastMessage: "Conversation created.",
+      id: `direct-${Date.now()}`,
+      title: name,
+      subtitle: `Online • ${newMemberForm.role}`,
+      email: email,
+      role: newMemberForm.role,
+      type: "direct",
+      avatarType: "initials",
+      avatarInitials: initials,
+      avatarBg: chosenColor,
+      lastMessage: newMemberForm.message.trim() || "Chat request sent • Conversation started.",
       time: "Just now",
       unread: 0,
-      membersCount: newChatType === "direct" ? 2 : 5,
+      membersCount: 2,
       project: "TeamFlow AI",
-      description: `Collaborative conversation: ${newChatTarget.trim()}`,
+      description: `Direct conversation with ${name} (${email})`,
       messages: [
         {
-          id: `init-${Date.now()}`,
+          id: `init-${Date.now()}-sys`,
           sender: "System",
           time: "Just now",
-          text: `Conversation with ${newChatTarget.trim()} started.`,
+          text: `Chat request sent to ${name} (${email}). You can now message directly.`,
           isOutgoing: false,
         },
+        ...(newMemberForm.message.trim()
+          ? [
+              {
+                id: `init-${Date.now()}-user`,
+                sender: "You",
+                time: "Just now",
+                text: newMemberForm.message.trim(),
+                isOutgoing: true,
+              },
+            ]
+          : []),
       ],
     };
 
     setConversations((prev) => [newConv, ...prev]);
     setActiveChatId(newConv.id);
-    setNewChatModalOpen(false);
-    setNewChatTarget("");
-    showToast(`New chat with ${newConv.title} started!`);
+    handleCloseNewChatModal();
+    showToast(`Chat request sent to ${name}! Added to chat.`);
   };
 
   // Render Avatar
@@ -1287,63 +1338,139 @@ function Chat() {
         </div>
 
         {/* ====================================================================
-            MODAL: + New Chat
+            MODAL: + New Chat / Add Member To Chat
             ==================================================================== */}
         {newChatModalOpen && (
           <div
             className="tf-modal-backdrop"
             onClick={(e) => {
-              if (e.target === e.currentTarget) setNewChatModalOpen(false);
+              if (e.target === e.currentTarget) handleCloseNewChatModal();
             }}
           >
             <div className="tf-modal-card tf-new-chat-modal" role="dialog" aria-modal="true">
               <div className="tf-modal-header">
                 <div className="tf-modal-title-group">
                   <div className="tf-modal-icon-box purple">
-                    <MessageSquare size={18} color="#7C3AED" />
+                    <UserPlus size={18} color="#7C3AED" />
                   </div>
                   <div>
-                    <h3>Start New Conversation</h3>
-                    <p>Message a colleague or initialize a project channel.</p>
+                    <h3>Add Member to Chat</h3>
+                    <p>Enter team member details to request and start a conversation.</p>
                   </div>
                 </div>
                 <button
                   type="button"
                   className="tf-modal-close"
-                  onClick={() => setNewChatModalOpen(false)}
+                  onClick={handleCloseNewChatModal}
                 >
                   <X size={18} />
                 </button>
               </div>
 
-              <form onSubmit={handleCreateNewChat}>
+              <form onSubmit={handleRequestForChat}>
                 <div className="tf-modal-form-body">
-                  <div className="tf-form-field">
-                    <label>Type of Conversation</label>
-                    <select
-                      value={newChatType}
-                      onChange={(e) => setNewChatType(e.target.value)}
-                    >
-                      <option value="direct">Direct Message (1-on-1)</option>
-                      <option value="group">Project Discussion Group</option>
-                      <option value="channel">Team Channel</option>
-                    </select>
+                  {/* Live Member Preview Card */}
+                  <div className="tf-new-member-preview">
+                    <div className="tf-preview-avatar">
+                      {newMemberForm.name
+                        ? newMemberForm.name
+                            .split(" ")
+                            .map((p) => p[0])
+                            .filter(Boolean)
+                            .slice(0, 2)
+                            .join("")
+                            .toUpperCase()
+                        : "TM"}
+                      <span className="tf-preview-dot" />
+                    </div>
+                    <div className="tf-preview-info">
+                      <strong>{newMemberForm.name || "Member Full Name"}</strong>
+                      <span className="tf-preview-email">
+                        {newMemberForm.email || "colleague@teamflow.com"}
+                      </span>
+                      <span className="tf-preview-role-tag">{newMemberForm.role}</span>
+                    </div>
                   </div>
 
+                  {/* 1. Name */}
                   <div className="tf-form-field">
-                    <label>
-                      {newChatType === "direct" ? "Teammate Name" : "Channel / Group Title"} *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      placeholder={
-                        newChatType === "direct"
-                          ? "e.g. Rahul Sharma, Amit Verma"
-                          : "e.g. Design Systems, Marketing Sync"
+                    <label>Member Name *</label>
+                    <div className="tf-input-with-icon">
+                      <span className="tf-input-icon-adornment">
+                        <User size={16} />
+                      </span>
+                      <input
+                        type="text"
+                        required
+                        className="tf-chat-input-with-icon"
+                        placeholder="e.g. Ananya Roy or Vikram Mehta"
+                        value={newMemberForm.name}
+                        onChange={(e) =>
+                          setNewMemberForm({ ...newMemberForm, name: e.target.value })
+                        }
+                        autoFocus
+                      />
+                    </div>
+                  </div>
+
+                  {/* 2. Company Email */}
+                  <div className="tf-form-field">
+                    <label>Company Email *</label>
+                    <div className="tf-input-with-icon">
+                      <span className="tf-input-icon-adornment">
+                        <Mail size={16} />
+                      </span>
+                      <input
+                        type="email"
+                        required
+                        className="tf-chat-input-with-icon"
+                        placeholder="e.g. ananya.roy@teamflow.com"
+                        value={newMemberForm.email}
+                        onChange={(e) =>
+                          setNewMemberForm({ ...newMemberForm, email: e.target.value })
+                        }
+                      />
+                    </div>
+                    <span className="tf-input-hint">Company domain (e.g. @teamflow.com)</span>
+                  </div>
+
+                  {/* 3. Role / Department */}
+                  <div className="tf-form-field">
+                    <label>Role / Department</label>
+                    <div className="tf-input-with-icon">
+                      <span className="tf-input-icon-adornment">
+                        <Briefcase size={16} />
+                      </span>
+                      <select
+                        className="tf-chat-input-with-icon"
+                        value={newMemberForm.role}
+                        onChange={(e) =>
+                          setNewMemberForm({ ...newMemberForm, role: e.target.value })
+                        }
+                      >
+                        <option value="Frontend Developer">Frontend Developer</option>
+                        <option value="Backend Engineer">Backend Engineer</option>
+                        <option value="Full Stack Developer">Full Stack Developer</option>
+                        <option value="UI/UX Designer">UI/UX Designer</option>
+                        <option value="QA / Test Engineer">QA / Test Engineer</option>
+                        <option value="DevOps Engineer">DevOps Engineer</option>
+                        <option value="Product Manager">Product Manager</option>
+                        <option value="Marketing Specialist">Marketing Specialist</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* 4. Initial Message (Optional) */}
+                  <div className="tf-form-field">
+                    <label>Initial Message (Optional)</label>
+                    <textarea
+                      rows={2}
+                      placeholder="Hi! Let's connect regarding project tasks..."
+                      value={newMemberForm.message}
+                      onChange={(e) =>
+                        setNewMemberForm({ ...newMemberForm, message: e.target.value })
                       }
-                      value={newChatTarget}
-                      onChange={(e) => setNewChatTarget(e.target.value)}
+                      className="tf-chat-modal-textarea"
                     />
                   </div>
                 </div>
@@ -1352,12 +1479,12 @@ function Chat() {
                   <button
                     type="button"
                     className="tf-btn-secondary"
-                    onClick={() => setNewChatModalOpen(false)}
+                    onClick={handleCloseNewChatModal}
                   >
                     Cancel
                   </button>
-                  <button type="submit" className="tf-btn-primary">
-                    Start Chat
+                  <button type="submit" className="tf-btn-primary tf-btn-request-chat">
+                    <Send size={15} /> Request For Chat
                   </button>
                 </div>
               </form>

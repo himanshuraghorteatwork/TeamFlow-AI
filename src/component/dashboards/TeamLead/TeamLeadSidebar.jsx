@@ -51,14 +51,33 @@ export default function TeamLeadSidebar() {
 
   return (
     <aside className="team-lead-sidebar">
-      <button type="button" className="tls-brand" onClick={() => navigate("/teamlead/dashboard")} aria-label="TeamFlow AI dashboard">
-        <span className="tls-logo" aria-hidden="true">
-          <svg width="26" height="26" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect width="28" height="28" rx="8" fill="url(#tf-teamlead-logo-bg)" />
-            <path d="M8 9H20M14 9V19M11 19H17" stroke="white" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+      <button type="button" className="tls-brand superadmin-brand" onClick={() => navigate("/teamlead/dashboard")} aria-label="TeamFlow AI dashboard">
+        <span className="superadmin-brand-icon tls-logo-clean">
+          <svg
+            width="26"
+            height="26"
+            viewBox="0 0 28 28"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <rect width="28" height="28" rx="8" fill="url(#tf-logo-bg-tl)" />
+            <path
+              d="M8 9H20M14 9V19M11 19H17"
+              stroke="white"
+              strokeWidth="2.4"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
             <circle cx="21" cy="7" r="2.5" fill="#38bdf8" />
             <defs>
-              <linearGradient id="tf-teamlead-logo-bg" x1="0" y1="0" x2="28" y2="28" gradientUnits="userSpaceOnUse">
+              <linearGradient
+                id="tf-logo-bg-tl"
+                x1="0"
+                y1="0"
+                x2="28"
+                y2="28"
+                gradientUnits="userSpaceOnUse"
+              >
                 <stop stopColor="#4361ee" />
                 <stop offset="0.5" stopColor="#3a0ca3" />
                 <stop offset="1" stopColor="#f72585" />
@@ -66,7 +85,9 @@ export default function TeamLeadSidebar() {
             </defs>
           </svg>
         </span>
-        <span className="tls-brand-copy"><span className="tls-brand-name">TeamFlow <b>AI</b></span></span>
+        <span className="superadmin-brand-name">
+          TeamFlow <span>AI</span>
+        </span>
       </button>
 
       <nav className="tls-nav" aria-label="Team Lead navigation">

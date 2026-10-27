@@ -726,6 +726,12 @@
   font-weight: 700;
 }
 
+.employee-shell .tf-emp-cal-cell.today:not(.selected) .tf-emp-cal-num {
+  border: 1.5px solid #2563EB;
+  color: #2563EB;
+  font-weight: 700;
+}
+
 .employee-shell .tf-emp-cal-dots {
   position: absolute;
   bottom: 0px;

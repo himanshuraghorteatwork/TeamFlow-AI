@@ -221,6 +221,55 @@ function Bugs() {
   const [commentsModalBug, setCommentsModalBug] = useState(null);
   const [attachmentsModalBug, setAttachmentsModalBug] = useState(null);
 
+  // Edit Bug Ticket Form State (Matches user reference screenshot)
+  const [bugEditForm, setBugEditForm] = useState({
+    id: null,
+    title: "",
+    project: "Backend API",
+    assignee: "Rahul Sharma",
+    severity: "Critical",
+    status: "In Progress",
+    description: "",
+  });
+
+  const handleOpenEditBug = (bug) => {
+    setDetailsModalBug(bug);
+    setBugEditForm({
+      id: bug.id,
+      title: bug.title || "",
+      project: bug.project || "Backend API",
+      assignee: bug.assignee || "Rahul Sharma",
+      severity: bug.severity || bug.priority || "Critical",
+      status: bug.status || "In Progress",
+      description: bug.description || "",
+    });
+  };
+
+  const handleSaveBugEdit = (e) => {
+    e.preventDefault();
+    if (!bugEditForm.title.trim()) return;
+
+    setBugs((prev) =>
+      prev.map((b) => {
+        if (b.id === bugEditForm.id) {
+          return {
+            ...b,
+            title: bugEditForm.title.trim(),
+            project: bugEditForm.project,
+            assignee: bugEditForm.assignee,
+            severity: bugEditForm.severity,
+            priority: bugEditForm.severity,
+            status: bugEditForm.status,
+            description: bugEditForm.description.trim(),
+          };
+        }
+        return b;
+      })
+    );
+    setDetailsModalBug(null);
+    showToast("Bug ticket updated successfully!");
+  };
+
   // Comment input state
   const [newCommentText, setNewCommentText] = useState("");
 
@@ -857,7 +906,7 @@ function Bugs() {
                         <td className="tf-td-bugid">
                           <span
                             className="tf-bug-id-pill"
-                            onClick={() => setDetailsModalBug(bug)}
+                            onClick={() => handleOpenEditBug(bug)}
                           >
                             {bug.bugId}
                           </span>
@@ -867,7 +916,7 @@ function Bugs() {
                         <td className="tf-td-title">
                           <div
                             className="tf-bug-title-group"
-                            onClick={() => setDetailsModalBug(bug)}
+                            onClick={() => handleOpenEditBug(bug)}
                           >
                             <span className="tf-bug-main-title">{bug.title}</span>
                             <span className="tf-bug-sub-desc">{bug.description}</span>
@@ -959,7 +1008,7 @@ function Bugs() {
                             <button
                               type="button"
                               className="tf-bug-action-btn"
-                              onClick={() => setDetailsModalBug(bug)}
+                              onClick={() => handleOpenEditBug(bug)}
                               title="View details"
                             >
                               <Eye size={15} />
@@ -1009,7 +1058,7 @@ function Bugs() {
                                   <button
                                     type="button"
                                     onClick={() => {
-                                      setDetailsModalBug(bug);
+                                      handleOpenEditBug(bug);
                                       setActionMenuBugId(null);
                                     }}
                                   >
@@ -1499,7 +1548,7 @@ function Bugs() {
           </div>
         )}
 
-        {/* Modal 2: View / Edit Bug Details */}
+        {/* Modal 2: Edit Bug Ticket Modal (Matches reference design) */}
         {detailsModalBug && (
           <div
             className="tf-modal-backdrop"
@@ -1507,101 +1556,122 @@ function Bugs() {
               if (e.target === e.currentTarget) setDetailsModalBug(null);
             }}
           >
-            <div className="tf-modal-card tf-bug-details-modal" role="dialog" aria-modal="true">
-              <div className="tf-modal-header">
-                <div className="tf-modal-title-group">
-                  <div className={`tf-modal-icon-box ${detailsModalBug.projectBg || "purple"}`}>
-                    {renderProjectIcon(detailsModalBug.projectIcon)}
-                  </div>
-                  <div>
-                    <div className="tf-modal-bug-top-row">
-                      <span className="tf-bug-id-pill small">{detailsModalBug.bugId}</span>
-                      <h3>{detailsModalBug.title}</h3>
-                    </div>
-                    <p>{detailsModalBug.project} • Assigned: {detailsModalBug.assignedDate}</p>
-                  </div>
-                </div>
+            <div className="tf-modal-card tf-edit-ticket-modal" role="dialog" aria-modal="true">
+              <div className="tf-modal-header-simple">
+                <h3>Edit Bug Ticket</h3>
                 <button
                   type="button"
-                  className="tf-modal-close"
+                  className="tf-modal-close-simple"
                   onClick={() => setDetailsModalBug(null)}
+                  aria-label="Close"
                 >
                   <X size={18} />
                 </button>
               </div>
 
-              <div className="tf-modal-form-body">
-                <div className="tf-form-field">
-                  <label>Description</label>
-                  <p className="tf-bug-modal-desc">{detailsModalBug.description}</p>
-                </div>
+              <form onSubmit={handleSaveBugEdit}>
+                <div className="tf-modal-body-simple">
+                  {/* Issue Title */}
+                  <div className="tf-simple-form-field">
+                    <label>
+                      Issue Title <span className="required">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. OAuth 2.0 Token Refresh Failure on Mobile Safari"
+                      value={bugEditForm.title}
+                      onChange={(e) =>
+                        setBugEditForm({ ...bugEditForm, title: e.target.value })
+                      }
+                    />
+                  </div>
 
-                <div className="tf-bug-meta-panel">
-                  <div className="tf-meta-item">
-                    <span className="tf-meta-label">Status</span>
-                    <div className="tf-status-pills-selector">
-                      {["Open", "In Progress", "Resolved", "Closed"].map((st) => (
-                        <button
-                          key={st}
-                          type="button"
-                          className={`tf-status-btn-pill ${st.toLowerCase().replace(" ", "-")} ${detailsModalBug.status === st ? "active" : ""}`}
-                          onClick={() => {
-                            handleChangeStatus(detailsModalBug.id, st);
-                          }}
-                        >
-                          {st}
-                        </button>
-                      ))}
+                  {/* Project & Assignee Row */}
+                  <div className="tf-simple-form-row">
+                    <div className="tf-simple-form-field">
+                      <label>Project</label>
+                      <input
+                        type="text"
+                        placeholder="Backend API"
+                        value={bugEditForm.project}
+                        onChange={(e) =>
+                          setBugEditForm({ ...bugEditForm, project: e.target.value })
+                        }
+                      />
+                    </div>
+                    <div className="tf-simple-form-field">
+                      <label>Assignee</label>
+                      <input
+                        type="text"
+                        placeholder="Rahul Sharma"
+                        value={bugEditForm.assignee}
+                        onChange={(e) =>
+                          setBugEditForm({ ...bugEditForm, assignee: e.target.value })
+                        }
+                      />
                     </div>
                   </div>
 
-                  <div className="tf-meta-item">
-                    <span className="tf-meta-label">Priority</span>
-                    <span className={`tf-priority-pill ${detailsModalBug.priority.toLowerCase()}`}>
-                      <span className="dot" />
-                      {detailsModalBug.priority}
-                    </span>
+                  {/* Severity Level & Status Row */}
+                  <div className="tf-simple-form-row">
+                    <div className="tf-simple-form-field">
+                      <label>Severity Level</label>
+                      <select
+                        value={bugEditForm.severity}
+                        onChange={(e) =>
+                          setBugEditForm({ ...bugEditForm, severity: e.target.value })
+                        }
+                      >
+                        <option value="Low">Low</option>
+                        <option value="Medium">Medium</option>
+                        <option value="High">High</option>
+                        <option value="Critical">Critical</option>
+                      </select>
+                    </div>
+                    <div className="tf-simple-form-field">
+                      <label>Status</label>
+                      <select
+                        value={bugEditForm.status}
+                        onChange={(e) =>
+                          setBugEditForm({ ...bugEditForm, status: e.target.value })
+                        }
+                      >
+                        <option value="Open">Open</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Resolved">Resolved</option>
+                        <option value="Closed">Closed</option>
+                      </select>
+                    </div>
                   </div>
 
-                  <div className="tf-meta-item">
-                    <span className="tf-meta-label">Due Date</span>
-                    <span className={`tf-date-text ${detailsModalBug.isDueSoon ? "due-soon" : ""}`}>
-                      {detailsModalBug.dueDate}
-                    </span>
+                  {/* Steps to Reproduce / Description */}
+                  <div className="tf-simple-form-field">
+                    <label>Steps to Reproduce / Description</label>
+                    <textarea
+                      rows={4}
+                      placeholder="JWT session fails to refresh after 30 minutes of inactivity on iOS devices."
+                      value={bugEditForm.description}
+                      onChange={(e) =>
+                        setBugEditForm({ ...bugEditForm, description: e.target.value })
+                      }
+                    />
                   </div>
                 </div>
 
-                <div className="tf-form-field">
-                  <label>Issue Tags</label>
-                  <div className="tf-bug-tags-row">
-                    {(detailsModalBug.tags || []).map((t, idx) => (
-                      <span key={idx} className="tf-bug-tag highlight">
-                        {t}
-                      </span>
-                    ))}
-                  </div>
+                <div className="tf-modal-footer-simple">
+                  <button
+                    type="button"
+                    className="tf-simple-btn-cancel"
+                    onClick={() => setDetailsModalBug(null)}
+                  >
+                    Cancel
+                  </button>
+                  <button type="submit" className="tf-simple-btn-update">
+                    Update Ticket
+                  </button>
                 </div>
-              </div>
-
-              <div className="tf-modal-actions">
-                <button
-                  type="button"
-                  className="tf-btn-secondary"
-                  onClick={() => setDetailsModalBug(null)}
-                >
-                  Close
-                </button>
-                <button
-                  type="button"
-                  className="tf-btn-primary"
-                  onClick={() => {
-                    setDetailsModalBug(null);
-                    showToast("Bug details updated!");
-                  }}
-                >
-                  Save Changes
-                </button>
-              </div>
+              </form>
             </div>
           </div>
         )}

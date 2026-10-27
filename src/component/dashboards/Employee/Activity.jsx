@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   CheckCircle2,
   Clock,
@@ -22,6 +22,7 @@ import {
   Eye,
   Check,
   X,
+  Sparkles,
 } from "lucide-react";
 
 import EmployeeShell from "./EmployeeShell";
@@ -275,49 +276,6 @@ const filterTabs = [
   { label: "Files", value: "File" },
 ];
 
-/* Calendar Days for October 2024 matching reference image */
-const calendarCells = [
-  { day: 29, otherMonth: true, level: 0 },
-  { day: 30, otherMonth: true, level: 0 },
-  { day: 1, otherMonth: false, level: 0 },
-  { day: 2, otherMonth: false, level: 0 },
-  { day: 3, otherMonth: false, level: 0 },
-  { day: 4, otherMonth: false, level: 0 },
-  { day: 5, otherMonth: false, level: 0 },
-
-  { day: 6, otherMonth: false, level: 0 },
-  { day: 7, otherMonth: false, level: 0 },
-  { day: 8, otherMonth: false, level: 0 },
-  { day: 9, otherMonth: false, level: 0 },
-  { day: 10, otherMonth: false, level: 0 },
-  { day: 11, otherMonth: false, level: 2 }, // purple medium
-  { day: 12, otherMonth: false, level: 0 },
-
-  { day: 13, otherMonth: false, level: 0 },
-  { day: 14, otherMonth: false, level: 0 },
-  { day: 15, otherMonth: false, level: 0 },
-  { day: 16, otherMonth: false, level: 2 }, // purple medium
-  { day: 17, otherMonth: false, level: 0 },
-  { day: 18, otherMonth: false, level: 2 }, // purple medium
-  { day: 19, otherMonth: false, level: 0 },
-
-  { day: 20, otherMonth: false, level: 0 },
-  { day: 21, otherMonth: false, level: 0 },
-  { day: 22, otherMonth: false, level: 1 }, // light purple low
-  { day: 23, otherMonth: false, level: 0 },
-  { day: 24, otherMonth: false, level: 1 }, // light purple low
-  { day: 25, otherMonth: false, level: 1 }, // light purple low
-  { day: 26, otherMonth: false, level: 3, selected: true }, // solid dark purple active high
-
-  { day: 27, otherMonth: false, level: 0 },
-  { day: 28, otherMonth: false, level: 0 },
-  { day: 29, otherMonth: false, level: 1 }, // purple low
-  { day: 30, otherMonth: false, level: 0 },
-  { day: 31, otherMonth: false, level: 0 },
-  { day: 1, otherMonth: true, level: 0 },
-  { day: 2, otherMonth: true, level: 0 },
-];
-
 /* Activity Breakdown Segments (Total: 42) */
 const breakdownData = [
   { name: "Tasks", count: 16, pct: 38, color: "#10B981" },
@@ -347,8 +305,28 @@ function Activity() {
   // Filter states
   const [activeTab, setActiveTab] = useState("All");
   const [selectedProject, setSelectedProject] = useState("All Projects");
-  const [selectedDateRange, setSelectedDateRange] = useState("Oct 20, 2024 - Oct 26, 2024");
-  const [selectedCalendarDay, setSelectedCalendarDay] = useState(26);
+  const [selectedDateRange, setSelectedDateRange] = useState("Oct 1, 2024 - Oct 31, 2024");
+  const [customStartDate, setCustomStartDate] = useState("2024-10-01");
+  const [customEndDate, setCustomEndDate] = useState("2024-10-31");
+
+  const handleApplyCustomRange = () => {
+    if (customStartDate && customEndDate) {
+      const formatDate = (dateStr) => {
+        const [year, month, day] = dateStr.split("-");
+        const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        const m = months[parseInt(month, 10) - 1] || month;
+        return `${m} ${parseInt(day, 10)}, ${year}`;
+      };
+      const formatted = `${formatDate(customStartDate)} - ${formatDate(customEndDate)}`;
+      setSelectedDateRange(formatted);
+      showToast(`Date range set to: ${formatted}`);
+    }
+    setDateRangeOpen(false);
+  };
+
+  // Real-time Calendar state
+  const [calendarMonth, setCalendarMonth] = useState(() => new Date());
+  const [selectedCalendarDate, setSelectedCalendarDate] = useState(null);
 
   // Dropdown open states
   const [dateRangeOpen, setDateRangeOpen] = useState(false);
@@ -391,6 +369,72 @@ function Activity() {
     setTimeout(() => setToastMessage(""), 3000);
   };
 
+  // Real-time Calendar cells computation
+  const calendarCells = useMemo(() => {
+    const year = calendarMonth.getFullYear();
+    const month = calendarMonth.getMonth();
+    const now = new Date();
+    const isCurrentMonthNow = now.getFullYear() === year && now.getMonth() === month;
+    const todayDate = now.getDate();
+
+    const firstDayIndex = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const daysInPrevMonth = new Date(year, month, 0).getDate();
+
+    const cells = [];
+
+    // Prev month filler
+    for (let i = firstDayIndex - 1; i >= 0; i--) {
+      cells.push({
+        day: daysInPrevMonth - i,
+        otherMonth: true,
+        level: 0,
+      });
+    }
+
+    // Activity counts map
+    const countMap = {};
+    activities.forEach((act) => {
+      if (act.date) {
+        countMap[act.date] = (countMap[act.date] || 0) + 1;
+      }
+    });
+
+    // Current month days
+    for (let d = 1; d <= daysInMonth; d++) {
+      const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+      const count = countMap[dateStr] || 0;
+
+      let level = 0;
+      if (count >= 5) level = 3;
+      else if (count >= 3) level = 2;
+      else if (count >= 1) level = 1;
+
+      const isToday = isCurrentMonthNow && d === todayDate;
+
+      cells.push({
+        day: d,
+        otherMonth: false,
+        level,
+        isToday,
+        fullDate: dateStr,
+      });
+    }
+
+    // Next month filler
+    const totalCells = cells.length > 35 ? 42 : 35;
+    const remaining = totalCells - cells.length;
+    for (let j = 1; j <= remaining; j++) {
+      cells.push({
+        day: j,
+        otherMonth: true,
+        level: 0,
+      });
+    }
+
+    return cells;
+  }, [calendarMonth, activities]);
+
   // Filtered Activities
   const filteredActivities = useMemo(() => {
     return activities.filter((act) => {
@@ -402,9 +446,13 @@ function Activity() {
       if (selectedProject !== "All Projects" && act.project !== selectedProject) {
         return false;
       }
+      // Calendar day filter
+      if (selectedCalendarDate && act.date !== selectedCalendarDate) {
+        return false;
+      }
       return true;
     });
-  }, [activities, activeTab, selectedProject]);
+  }, [activities, activeTab, selectedProject, selectedCalendarDate]);
 
   // Grouped by dateGroup
   const groupedActivities = useMemo(() => {
@@ -508,34 +556,86 @@ function Activity() {
             <p>Track your work activity across tasks, projects, meetings, files and more.</p>
           </div>
 
-          {/* Date Range Picker Dropdown */}
-          <div className="tf-act-date-dropdown-wrapper" ref={dateRangeRef}>
+          {/* Date Range Picker Dropdown (Exact match to Dashboard / Screenshot) */}
+          <div className="tf-emp-date-range-container" ref={dateRangeRef}>
             <button
               type="button"
-              className="tf-act-date-btn"
-              onClick={() => setDateRangeOpen((prev) => !prev)}
+              className="tf-emp-date-range-btn"
+              onClick={() => setDateRangeOpen(!dateRangeOpen)}
+              aria-expanded={dateRangeOpen}
             >
-              <Calendar size={15} className="tf-act-cal-icon" />
+              <Calendar size={15} color="#475569" />
               <span>{selectedDateRange}</span>
-              <ChevronDown size={14} className="tf-act-chevron" />
+              <ChevronDown size={14} className={dateRangeOpen ? "open" : ""} />
             </button>
 
             {dateRangeOpen && (
-              <div className="tf-act-dropdown-menu right">
-                {dateRangeOptions.map((opt) => (
+              <div className="tf-emp-date-picker-dropdown">
+                {/* Active selection banner at top */}
+                <button
+                  type="button"
+                  className={`tf-emp-date-preset-item ${
+                    selectedDateRange === "Oct 1, 2024 - Oct 31, 2024" ||
+                    !["Today", "Last 7 Days", "Last 30 Days", "This Quarter", "This Year"].includes(selectedDateRange)
+                      ? "active"
+                      : ""
+                  }`}
+                  onClick={() => {
+                    if (["Today", "Last 7 Days", "Last 30 Days", "This Quarter", "This Year"].includes(selectedDateRange)) {
+                      setSelectedDateRange("Oct 1, 2024 - Oct 31, 2024");
+                    }
+                    setDateRangeOpen(false);
+                  }}
+                >
+                  {!["Today", "Last 7 Days", "Last 30 Days", "This Quarter", "This Year"].includes(selectedDateRange)
+                    ? selectedDateRange
+                    : "Oct 1, 2024 - Oct 31, 2024"}
+                </button>
+
+                {/* Preset List */}
+                {["Today", "Last 7 Days", "Last 30 Days", "This Quarter", "This Year"].map((preset) => (
                   <button
-                    key={opt}
+                    key={preset}
                     type="button"
-                    className={`tf-act-dropdown-item ${selectedDateRange === opt ? "active" : ""}`}
+                    className={`tf-emp-date-preset-item ${selectedDateRange === preset ? "active" : ""}`}
                     onClick={() => {
-                      setSelectedDateRange(opt);
+                      setSelectedDateRange(preset);
                       setDateRangeOpen(false);
-                      showToast(`Date range set to: ${opt}`);
+                      showToast(`Date range set to: ${preset}`);
                     }}
                   >
-                    {opt}
+                    {preset}
                   </button>
                 ))}
+
+                {/* Divider */}
+                <div className="tf-emp-date-divider" />
+
+                {/* Custom Range Section */}
+                <div className="tf-emp-custom-range-block">
+                  <div className="tf-emp-custom-range-label">CUSTOM RANGE</div>
+                  <div className="tf-emp-custom-range-inputs">
+                    <input
+                      type="date"
+                      className="tf-emp-custom-date-input"
+                      value={customStartDate}
+                      onChange={(e) => setCustomStartDate(e.target.value)}
+                    />
+                    <input
+                      type="date"
+                      className="tf-emp-custom-date-input"
+                      value={customEndDate}
+                      onChange={(e) => setCustomEndDate(e.target.value)}
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    className="tf-emp-apply-range-btn"
+                    onClick={handleApplyCustomRange}
+                  >
+                    Apply Range
+                  </button>
+                </div>
               </div>
             )}
           </div>
@@ -711,16 +811,23 @@ function Activity() {
 
                   {/* List of activity rows */}
                   <div className="tf-act-items-list">
-                    {items.map((act) => (
-                      <div
-                        key={act.id}
-                        className="tf-act-item-row"
-                        onClick={() => setActiveDetailModal(act)}
-                      >
-                        {/* Time */}
-                        <div className="tf-act-time-col">
-                          <span>{act.time}</span>
-                        </div>
+                    {items.map((act) => {
+                      const srNumber = filteredActivities.findIndex((a) => a.id === act.id) + 1;
+                      return (
+                        <div
+                          key={act.id}
+                          className="tf-act-item-row"
+                          onClick={() => setActiveDetailModal(act)}
+                        >
+                          {/* Sr No */}
+                          <div className="tf-act-num-col">
+                            <span className="tf-row-num-badge">{srNumber}</span>
+                          </div>
+
+                          {/* Time */}
+                          <div className="tf-act-time-col">
+                            <span>{act.time}</span>
+                          </div>
 
                         {/* Icon Badge */}
                         <div className="tf-act-icon-col">
@@ -802,7 +909,8 @@ function Activity() {
                           )}
                         </div>
                       </div>
-                    ))}
+                    );
+                  })}
                   </div>
                 </div>
               ))
@@ -821,15 +929,32 @@ function Activity() {
                   <button
                     type="button"
                     className="tf-act-cal-nav-btn"
-                    onClick={() => showToast("Navigated to September 2024")}
+                    onClick={() =>
+                      setCalendarMonth(
+                        (prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1)
+                      )
+                    }
+                    title="Previous month"
+                    aria-label="Previous month"
                   >
                     <ChevronLeft size={14} />
                   </button>
-                  <span className="tf-act-cal-month-title">October 2024</span>
+                  <span className="tf-act-cal-month-title">
+                    {calendarMonth.toLocaleDateString("en-US", {
+                      month: "long",
+                      year: "numeric",
+                    })}
+                  </span>
                   <button
                     type="button"
                     className="tf-act-cal-nav-btn"
-                    onClick={() => showToast("Navigated to November 2024")}
+                    onClick={() =>
+                      setCalendarMonth(
+                        (prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1)
+                      )
+                    }
+                    title="Next month"
+                    aria-label="Next month"
                   >
                     <ChevronRight size={14} />
                   </button>
@@ -850,20 +975,39 @@ function Activity() {
               {/* Day Cells Grid */}
               <div className="tf-act-cal-grid">
                 {calendarCells.map((cell, idx) => {
-                  const isDaySelected = cell.day === selectedCalendarDay && !cell.otherMonth;
+                  const isDaySelected =
+                    !cell.otherMonth && selectedCalendarDate === cell.fullDate;
+                  const isToday = cell.isToday;
+
+                  let cellClasses = "tf-act-cal-cell";
+                  if (cell.otherMonth) cellClasses += " other-month";
+                  cellClasses += ` level-${cell.level}`;
+                  if (isDaySelected) cellClasses += " selected";
+                  if (isToday) cellClasses += " today";
+
                   return (
                     <button
                       key={idx}
                       type="button"
-                      className={`tf-act-cal-cell ${cell.otherMonth ? "other-month" : ""} level-${
-                        cell.level
-                      } ${isDaySelected ? "selected" : ""}`}
+                      className={cellClasses}
                       onClick={() => {
                         if (!cell.otherMonth) {
-                          setSelectedCalendarDay(cell.day);
-                          showToast(`Selected October ${cell.day}, 2024`);
+                          if (selectedCalendarDate === cell.fullDate) {
+                            setSelectedCalendarDate(null);
+                            showToast("Cleared calendar date filter");
+                          } else {
+                            setSelectedCalendarDate(cell.fullDate);
+                            showToast(`Filtered activities for ${cell.fullDate}`);
+                          }
                         }
                       }}
+                      title={
+                        cell.otherMonth
+                          ? ""
+                          : `${cell.fullDate}: ${
+                              activities.filter((a) => a.date === cell.fullDate).length
+                            } activities`
+                      }
                     >
                       {cell.day}
                     </button>

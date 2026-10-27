@@ -292,3 +292,225 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ==========================================================================
+   EDIT TASK & BUG TICKET MODAL (Matches user reference screenshot)
+   ========================================================================== */
+.employee-shell .tf-edit-ticket-modal {
+  width: 100%;
+  max-width: 500px;
+  background: #FFFFFF;
+  border-radius: 16px;
+  box-shadow: 0 20px 45px -10px rgba(15, 23, 42, 0.2), 0 0 1px 1px rgba(0, 0, 0, 0.05);
+  border: 1px solid #ECEEF3;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  animation: ticketModalIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes ticketModalIn {
+  from {
+    opacity: 0;
+    transform: scale(0.97) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.employee-shell .tf-modal-header-simple {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 22px 26px 16px 26px;
+  border-bottom: 1px solid #F1F5F9;
+}
+
+.employee-shell .tf-modal-header-simple h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #0F172A;
+  letter-spacing: -0.01em;
+}
+
+.employee-shell .tf-modal-close-simple {
+  background: transparent;
+  border: none;
+  color: #94A3B8;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.employee-shell .tf-modal-close-simple:hover {
+  background: #F1F5F9;
+  color: #0F172A;
+}
+
+.employee-shell .tf-modal-body-simple {
+  padding: 20px 26px 16px 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.employee-shell .tf-simple-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.employee-shell .tf-simple-form-field label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.employee-shell .tf-simple-form-field label .required {
+  color: #EF4444;
+  font-weight: 700;
+}
+
+.employee-shell .tf-simple-form-field input,
+.employee-shell .tf-simple-form-field select,
+.employee-shell .tf-simple-form-field textarea {
+  width: 100%;
+  height: 42px;
+  padding: 0 14px;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  font-size: 13.5px;
+  color: #1E293B;
+  outline: none;
+  box-sizing: border-box;
+  transition: all 0.15s ease;
+}
+
+.employee-shell .tf-simple-form-field textarea {
+  height: auto;
+  min-height: 84px;
+  padding: 10px 14px;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.employee-shell .tf-simple-form-field input:focus,
+.employee-shell .tf-simple-form-field select:focus,
+.employee-shell .tf-simple-form-field textarea:focus {
+  border-color: #6366F1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+}
+
+.employee-shell .tf-simple-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.employee-shell .tf-modal-footer-simple {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 16px 26px 22px 26px;
+  border-top: 1px solid #F1F5F9;
+  background: #FFFFFF;
+}
+
+.employee-shell .tf-simple-btn-cancel {
+  height: 40px;
+  padding: 0 20px;
+  background: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  border-radius: 8px;
+  color: #334155;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.employee-shell .tf-simple-btn-cancel:hover {
+  background: #F8FAFC;
+  border-color: #94A3B8;
+}
+
+.employee-shell .tf-simple-btn-update {
+  height: 40px;
+  padding: 0 22px;
+  background: #6366F1;
+  border: none;
+  border-radius: 8px;
+  color: #FFFFFF;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
+  transition: all 0.15s ease;
+}
+
+.employee-shell .tf-simple-btn-update:hover {
+  background: #4F46E5;
+  box-shadow: 0 6px 18px rgba(99, 102, 241, 0.45);
+}
+
+/* Dark theme overrides */
+.employee-shell.tf-dark .tf-edit-ticket-modal,
+[data-theme="dark"] .employee-shell .tf-edit-ticket-modal {
+  background: #1E293B;
+  border-color: #334155;
+  box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.6);
+}
+
+.employee-shell.tf-dark .tf-modal-header-simple,
+[data-theme="dark"] .employee-shell .tf-modal-header-simple,
+.employee-shell.tf-dark .tf-modal-footer-simple,
+[data-theme="dark"] .employee-shell .tf-modal-footer-simple {
+  border-color: #334155;
+  background: #1E293B;
+}
+
+.employee-shell.tf-dark .tf-modal-header-simple h3,
+[data-theme="dark"] .employee-shell .tf-modal-header-simple h3 {
+  color: #F8FAFC;
+}
+
+.employee-shell.tf-dark .tf-simple-form-field label,
+[data-theme="dark"] .employee-shell .tf-simple-form-field label {
+  color: #CBD5E1;
+}
+
+.employee-shell.tf-dark .tf-simple-form-field input,
+[data-theme="dark"] .employee-shell .tf-simple-form-field input,
+.employee-shell.tf-dark .tf-simple-form-field select,
+[data-theme="dark"] .employee-shell .tf-simple-form-field select,
+.employee-shell.tf-dark .tf-simple-form-field textarea,
+[data-theme="dark"] .employee-shell .tf-simple-form-field textarea {
+  background: #0F172A;
+  border-color: #334155;
+  color: #F8FAFC;
+}
+
+.employee-shell.tf-dark .tf-simple-btn-cancel,
+[data-theme="dark"] .employee-shell .tf-simple-btn-cancel {
+  background: #1E293B;
+  border-color: #334155;
+  color: #CBD5E1;
+}
+
+.employee-shell.tf-dark .tf-simple-btn-cancel:hover,
+[data-theme="dark"] .employee-shell .tf-simple-btn-cancel:hover {
+  background: #334155;
+  color: #FFFFFF;
+}

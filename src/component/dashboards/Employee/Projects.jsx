@@ -424,43 +424,7 @@ function Projects() {
     showToast("Task status updated!");
   };
 
-  // Change project status from action menu or modal
-  const handleChangeProjectStatus = (projectId, newStatus) => {
-    setProjects((prev) =>
-      prev.map((p) => {
-        if (p.id === projectId) {
-          const nextProgress = newStatus === "Completed" ? 100 : p.progress;
-          return { ...p, status: newStatus, progress: nextProgress };
-        }
-        return p;
-      })
-    );
-    if (selectedProject && selectedProject.id === projectId) {
-      setSelectedProject((prev) => ({
-        ...prev,
-        status: newStatus,
-        progress: newStatus === "Completed" ? 100 : prev.progress,
-      }));
-    }
-    setActionMenuOpenId(null);
-    showToast(`Project marked as ${newStatus}`);
-  };
 
-  // Update progress slider in open project modal
-  const handleUpdateProgress = (projectId, newProgress) => {
-    const val = Number(newProgress);
-    const autoStatus = val === 100 ? "Completed" : val === 0 ? "On Hold" : "Active";
-    setProjects((prev) =>
-      prev.map((p) => (p.id === projectId ? { ...p, progress: val, status: p.status === "Completed" && val < 100 ? "Active" : autoStatus } : p))
-    );
-    if (selectedProject && selectedProject.id === projectId) {
-      setSelectedProject((prev) => ({
-        ...prev,
-        progress: val,
-        status: prev.status === "Completed" && val < 100 ? "Active" : autoStatus,
-      }));
-    }
-  };
 
   // Render project icon
   const renderProjectIcon = (icon) => {
@@ -818,7 +782,8 @@ function Projects() {
                       </div>
 
                       <div className="tf-proj-card-right-header">
-                        <span className={`tf-proj-status-badge ${statusSlug}`}>
+                        {/* Static Read-Only Status Badge (Managed by Team Lead / Admin) */}
+                        <span className={`tf-proj-status-badge ${statusSlug}`} title="Project status is managed by Team Lead / Admin">
                           {proj?.status}
                         </span>
 
@@ -837,7 +802,7 @@ function Projects() {
                           </button>
 
                           {actionMenuOpenId === proj?.id && (
-                            <div className="tf-proj-action-popover">
+                            <div className="tf-proj-action-popover" onClick={(e) => e.stopPropagation()}>
                               <button
                                 type="button"
                                 onClick={() => {
@@ -847,34 +812,6 @@ function Projects() {
                               >
                                 <ExternalLink size={14} />
                                 <span>View Details</span>
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  handleChangeProjectStatus(
-                                    proj.id,
-                                    proj.status === "Active" ? "Completed" : "Active"
-                                  );
-                                }}
-                              >
-                                <CheckCircle2 size={14} />
-                                <span>
-                                  {proj.status === "Active" ? "Mark Completed" : "Mark Active"}
-                                </span>
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  handleChangeProjectStatus(
-                                    proj.id,
-                                    proj.status === "On Hold" ? "Active" : "On Hold"
-                                  );
-                                }}
-                              >
-                                <Clock size={14} />
-                                <span>
-                                  {proj.status === "On Hold" ? "Resume Project" : "Put On Hold"}
-                                </span>
                               </button>
                             </div>
                           )}
@@ -1251,37 +1188,29 @@ function Projects() {
                   <p>{selectedProject?.description}</p>
                 </div>
 
-                {/* Status Selector */}
+                {/* Status (Read-Only) */}
                 <div className="tf-proj-modal-field">
                   <label>Status</label>
-                  <div className="tf-proj-modal-status-pills">
-                    {["Active", "On Hold", "Completed"].map((s) => (
-                      <button
-                        type="button"
-                        key={s}
-                        className={`tf-proj-modal-status-btn ${selectedProject?.status === s ? "selected " + s.toLowerCase().replace(" ", "-") : ""}`}
-                        onClick={() => handleChangeProjectStatus(selectedProject.id, s)}
-                      >
-                        {s}
-                      </button>
-                    ))}
+                  <div className="tf-proj-modal-status-readonly">
+                    <span className={`tf-proj-status-badge ${(selectedProject?.status || "Active").toLowerCase().replace(" ", "-")}`}>
+                      {selectedProject?.status}
+                    </span>
+                    <span className="tf-proj-readonly-hint">Read-only (Managed by Team Lead / Admin)</span>
                   </div>
                 </div>
 
-                {/* Progress Updater Slider */}
+                {/* Progress Completion (Read-Only) */}
                 <div className="tf-proj-modal-field">
                   <div className="tf-proj-modal-slider-header">
                     <label>Progress Completion</label>
                     <strong>{selectedProject?.progress ?? 0}%</strong>
                   </div>
-                  <input
-                    type="range"
-                    min="0"
-                    max="100"
-                    value={selectedProject?.progress ?? 0}
-                    onChange={(e) => handleUpdateProgress(selectedProject.id, e.target.value)}
-                    className="tf-proj-modal-slider"
-                  />
+                  <div className="tf-proj-progress-track">
+                    <div
+                      className={`tf-proj-progress-fill ${selectedProject?.barColor || "green"}`}
+                      style={{ width: `${selectedProject?.progress ?? 0}%` }}
+                    />
+                  </div>
                 </div>
 
                 {/* Team Members List */}
@@ -1301,20 +1230,11 @@ function Projects() {
               <div className="tf-modal-actions">
                 <button
                   type="button"
-                  className="tf-btn-secondary"
+                  className="tf-btn-primary"
+                  style={{ width: "100%" }}
                   onClick={() => setSelectedProject(null)}
                 >
                   Close
-                </button>
-                <button
-                  type="button"
-                  className="tf-btn-primary"
-                  onClick={() => {
-                    setSelectedProject(null);
-                    showToast("Project details saved!");
-                  }}
-                >
-                  Save Changes
                 </button>
               </div>
             </div>

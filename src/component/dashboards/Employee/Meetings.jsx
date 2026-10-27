@@ -222,44 +222,6 @@ const defaultMeetings = [
   },
 ];
 
-/* October 2024 mini calendar data */
-const miniCalendarDays = [
-  { day: 29, currentMonth: false },
-  { day: 30, currentMonth: false },
-  { day: 1, currentMonth: true },
-  { day: 2, currentMonth: true },
-  { day: 3, currentMonth: true },
-  { day: 4, currentMonth: true },
-  { day: 5, currentMonth: true },
-  { day: 6, currentMonth: true },
-  { day: 7, currentMonth: true },
-  { day: 8, currentMonth: true },
-  { day: 9, currentMonth: true },
-  { day: 10, currentMonth: true },
-  { day: 11, currentMonth: true },
-  { day: 12, currentMonth: true },
-  { day: 13, currentMonth: true },
-  { day: 14, currentMonth: true },
-  { day: 15, currentMonth: true, dots: ["blue", "red"] }, // Oct 15
-  { day: 16, currentMonth: true },
-  { day: 17, currentMonth: true },
-  { day: 18, currentMonth: true, dots: ["blue"] }, // Oct 18
-  { day: 19, currentMonth: true },
-  { day: 20, currentMonth: true, dots: ["blue"] }, // Oct 20
-  { day: 21, currentMonth: true },
-  { day: 22, currentMonth: true, isSelected: true, isToday: true }, // Oct 22 (selected)
-  { day: 23, currentMonth: true, dots: ["blue", "red"] }, // Oct 23
-  { day: 24, currentMonth: true, dots: ["blue"] }, // Oct 24
-  { day: 25, currentMonth: true, dots: ["blue"] }, // Oct 25
-  { day: 26, currentMonth: true },
-  { day: 27, currentMonth: true },
-  { day: 28, currentMonth: true, dots: ["red", "green"] },
-  { day: 29, currentMonth: true },
-  { day: 30, currentMonth: true },
-  { day: 31, currentMonth: true },
-  { day: 1, currentMonth: false },
-  { day: 2, currentMonth: false },
-];
 
 function Meetings() {
   // Load meetings from localStorage
@@ -281,6 +243,82 @@ function Meetings() {
   const [searchQuery, setSearchQuery] = useState("");
   const [projectFilter, setProjectFilter] = useState("All");
   const [dateFilter, setDateFilter] = useState("Upcoming");
+
+  // Real-time Calendar state
+  const [calendarMonth, setCalendarMonth] = useState(() => new Date());
+  const [selectedCalendarDate, setSelectedCalendarDate] = useState(null);
+
+  // Dynamic Mini Calendar computation
+  const miniCalendarDays = useMemo(() => {
+    const year = calendarMonth.getFullYear();
+    const month = calendarMonth.getMonth();
+    const now = new Date();
+    const isCurrentMonthNow = now.getFullYear() === year && now.getMonth() === month;
+    const todayDate = now.getDate();
+
+    const firstDayIndex = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const daysInPrevMonth = new Date(year, month, 0).getDate();
+
+    const days = [];
+
+    // Prev month filler
+    for (let i = firstDayIndex - 1; i >= 0; i--) {
+      days.push({
+        day: daysInPrevMonth - i,
+        currentMonth: false,
+        dots: [],
+        isToday: false,
+        isSelected: false,
+      });
+    }
+
+    // Current month days
+    for (let d = 1; d <= daysInMonth; d++) {
+      const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+      const isToday = isCurrentMonthNow && d === todayDate;
+      const isSelected = selectedCalendarDate === dateStr;
+
+      const dayMeetings = meetings.filter(
+        (m) => m.date === dateStr || (d === 22 && m.date === "2024-10-22" && year === 2024 && month === 9)
+      );
+
+      const dots = [];
+      if (dayMeetings.length > 0) {
+        dots.push("blue");
+        if (dayMeetings.some((m) => m.status === "join_now" || m.status === "cancelled")) {
+          dots.push("red");
+        }
+        if (dayMeetings.some((m) => m.status === "completed")) {
+          dots.push("green");
+        }
+      }
+
+      days.push({
+        day: d,
+        currentMonth: true,
+        dots,
+        isToday,
+        isSelected,
+        fullDate: dateStr,
+        count: dayMeetings.length,
+      });
+    }
+
+    const targetTotal = days.length > 35 ? 42 : 35;
+    const remaining = targetTotal - days.length;
+    for (let j = 1; j <= remaining; j++) {
+      days.push({
+        day: j,
+        currentMonth: false,
+        dots: [],
+        isToday: false,
+        isSelected: false,
+      });
+    }
+
+    return days;
+  }, [calendarMonth, meetings, selectedCalendarDate]);
 
   // Dropdown open states
   const [projectDropdownOpen, setProjectDropdownOpen] = useState(false);
@@ -386,6 +424,11 @@ function Meetings() {
       list = list.filter((m) => m.project === projectFilter);
     }
 
+    // Selected Calendar Date
+    if (selectedCalendarDate) {
+      list = list.filter((m) => m.date === selectedCalendarDate);
+    }
+
     // Date Dropdown
     if (dateFilter === "Upcoming") {
       // In reference image: Date: Upcoming shows all currently active/upcoming or sorted
@@ -397,7 +440,7 @@ function Meetings() {
     }
 
     return list;
-  }, [meetings, filterTab, searchQuery, projectFilter, dateFilter]);
+  }, [meetings, filterTab, searchQuery, projectFilter, dateFilter, selectedCalendarDate]);
 
   // Format call duration MM:SS
   const formatCallTime = (seconds) => {
@@ -735,6 +778,7 @@ function Meetings() {
                 <table className="tf-meet-table">
                   <thead>
                     <tr>
+                      <th className="tf-th-num">Sr</th>
                       <th className="col-title">Title & Description</th>
                       <th className="col-proj">Project</th>
                       <th className="col-date">Date & Time</th>
@@ -746,7 +790,7 @@ function Meetings() {
                   <tbody>
                     {filteredMeetings.length === 0 ? (
                       <tr>
-                        <td colSpan={6} className="tf-table-empty">
+                        <td colSpan={7} className="tf-table-empty">
                           <Video size={32} color="#94A3B8" />
                           <p>No meetings found matching your filters.</p>
                           <button
@@ -764,10 +808,13 @@ function Meetings() {
                         </td>
                       </tr>
                     ) : (
-                      filteredMeetings.map((m) => {
+                      filteredMeetings.map((m, idx) => {
                         return (
                           <tr key={m.id} className="tf-meet-row">
                             {/* Title & Description */}
+                            <td className="tf-td-num">
+                              <span className="tf-row-num-badge">{idx + 1}</span>
+                            </td>
                             <td className="col-title">
                               <div className="tf-meet-title-cell">
                                 {renderMeetingIcon(m.icon, m.iconBg)}
@@ -972,16 +1019,31 @@ function Meetings() {
                 <button
                   type="button"
                   className="tf-cal-nav-btn"
-                  onClick={() => showToast("Showing September 2024")}
+                  onClick={() =>
+                    setCalendarMonth(
+                      (prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1)
+                    )
+                  }
+                  title="Previous month"
                   aria-label="Previous month"
                 >
                   <ChevronLeft size={15} />
                 </button>
-                <span className="tf-cal-month-title">October 2024</span>
+                <span className="tf-cal-month-title">
+                  {calendarMonth.toLocaleDateString("en-US", {
+                    month: "long",
+                    year: "numeric",
+                  })}
+                </span>
                 <button
                   type="button"
                   className="tf-cal-nav-btn"
-                  onClick={() => showToast("Showing November 2024")}
+                  onClick={() =>
+                    setCalendarMonth(
+                      (prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1)
+                    )
+                  }
+                  title="Next month"
                   aria-label="Next month"
                 >
                   <ChevronRight size={15} />
@@ -1012,11 +1074,13 @@ function Meetings() {
                       key={idx}
                       className={cls}
                       onClick={() => {
-                        if (item.day === 22) {
-                          setDateFilter("Today");
-                          showToast("Filtered meetings for Today (Oct 22)");
+                        if (!item.currentMonth) return;
+                        if (selectedCalendarDate === item.fullDate) {
+                          setSelectedCalendarDate(null);
+                          showToast("Cleared calendar date filter");
                         } else {
-                          showToast(`Viewing schedule for Oct ${item.day}`);
+                          setSelectedCalendarDate(item.fullDate);
+                          showToast(`Filtered meetings for ${item.fullDate}`);
                         }
                       }}
                     >

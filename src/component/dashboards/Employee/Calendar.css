@@ -1394,3 +1394,398 @@
   background: #334155;
   color: #FFFFFF;
 }
+
+/* ==========================================================================
+   REAL-TIME CALENDAR VIEW ADDITIONS (Month, Day, Agenda)
+   ========================================================================== */
+
+/* Month View */
+.employee-shell .tf-cal-month-card {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 14px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.employee-shell .tf-cal-month-days-header {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  border-bottom: 1px solid #E2E8F0;
+  background: #FAFAFC;
+}
+
+.employee-shell .tf-cal-month-header-cell {
+  padding: 10px 8px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748B;
+  border-right: 1px solid #F1F5F9;
+}
+
+.employee-shell .tf-cal-month-header-cell:last-child {
+  border-right: none;
+}
+
+.employee-shell .tf-cal-month-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+}
+
+.employee-shell .tf-cal-month-cell {
+  border-right: 1px solid #F1F5F9;
+  border-bottom: 1px solid #F1F5F9;
+  padding: 8px 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  cursor: pointer;
+  transition: background 0.12s ease;
+  min-height: 92px;
+  background: #FFFFFF;
+  box-sizing: border-box;
+}
+
+.employee-shell .tf-cal-month-cell:nth-child(7n) {
+  border-right: none;
+}
+
+.employee-shell .tf-cal-month-cell:hover {
+  background: #F8FAFC;
+}
+
+.employee-shell .tf-cal-month-cell.muted {
+  background: #FAFBFD;
+  opacity: 0.5;
+}
+
+.employee-shell .tf-cal-month-cell.selected {
+  background: #EEF4FF;
+}
+
+.employee-shell .tf-cal-month-cell-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2px;
+}
+
+.employee-shell .tf-cal-month-date-num {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #1E293B;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.employee-shell .tf-cal-month-cell.today .tf-cal-month-date-num {
+  background: #2563EB;
+  color: #FFFFFF;
+}
+
+.employee-shell .tf-cal-month-events-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  overflow: hidden;
+}
+
+.employee-shell .tf-cal-month-event-pill {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 2px 6px;
+  border-radius: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  transition: transform 0.1s ease;
+  display: block;
+}
+
+.employee-shell .tf-cal-month-event-pill:hover {
+  transform: translateY(-1px);
+}
+
+.employee-shell .tf-cal-month-event-pill.blue {
+  background: #EEF2FF;
+  color: #3730A3;
+  border-left: 2px solid #6366F1;
+}
+
+.employee-shell .tf-cal-month-event-pill.purple {
+  background: #F5F3FF;
+  color: #5B21B6;
+  border-left: 2px solid #8B5CF6;
+}
+
+.employee-shell .tf-cal-month-event-pill.green {
+  background: #ECFDF5;
+  color: #065F46;
+  border-left: 2px solid #10B981;
+}
+
+.employee-shell .tf-cal-month-event-pill.orange {
+  background: #FFF7ED;
+  color: #9A3412;
+  border-left: 2px solid #F97316;
+}
+
+.employee-shell .tf-cal-month-event-pill.red {
+  background: #FEF2F2;
+  color: #991B1B;
+  border-left: 2px solid #EF4444;
+}
+
+.employee-shell .tf-cal-month-event-pill.slate {
+  background: #F1F5F9;
+  color: #334155;
+  border-left: 2px solid #64748B;
+}
+
+/* Day View */
+.employee-shell .tf-cal-day-card {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 14px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.employee-shell .tf-cal-day-card-header {
+  padding: 14px 20px;
+  background: #FAFAFC;
+  border-bottom: 1px solid #E2E8F0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.employee-shell .tf-cal-day-card-header h2 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: #0F172A;
+}
+
+.employee-shell .tf-cal-day-badge {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: #EEF2FF;
+  color: #4F46E5;
+}
+
+.employee-shell .tf-cal-day-grid-body {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.employee-shell .tf-cal-day-grid-row {
+  display: grid;
+  grid-template-columns: 70px 1fr;
+  height: 64px;
+  border-bottom: 1px solid #F1F5F9;
+}
+
+.employee-shell .tf-cal-day-grid-cell {
+  padding: 4px 12px;
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+
+.employee-shell .tf-cal-day-grid-cell:hover {
+  background: #F8FAFC;
+}
+
+/* Agenda View */
+.employee-shell .tf-cal-agenda-card {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 14px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.employee-shell .tf-cal-agenda-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.employee-shell .tf-cal-agenda-date-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 6px;
+  border-bottom: 2px solid #F1F5F9;
+}
+
+.employee-shell .tf-cal-agenda-date-head h3 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: #0F172A;
+}
+
+.employee-shell .tf-cal-agenda-date-badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 12px;
+  background: #EEF2FF;
+  color: #3B82F6;
+}
+
+.employee-shell .tf-cal-agenda-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.employee-shell .tf-cal-agenda-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 10px;
+  transition: all 0.12s ease;
+  cursor: pointer;
+}
+
+.employee-shell .tf-cal-agenda-item:hover {
+  border-color: #CBD5E1;
+  background: #F1F5F9;
+}
+
+.employee-shell .tf-cal-agenda-item-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.employee-shell .tf-cal-agenda-time-pill {
+  font-size: 12px;
+  font-weight: 600;
+  color: #475569;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  padding: 4px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+.employee-shell .tf-cal-agenda-details strong {
+  display: block;
+  font-size: 13.5px;
+  color: #0F172A;
+  margin-bottom: 2px;
+}
+
+.employee-shell .tf-cal-agenda-details span {
+  font-size: 12px;
+  color: #64748B;
+}
+
+.employee-shell .tf-cal-empty-state {
+  padding: 24px 16px;
+  text-align: center;
+  color: #64748B;
+  font-size: 13px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.employee-shell .tf-cal-empty-state-btn {
+  padding: 6px 12px;
+  background: #EEF2FF;
+  color: #4F46E5;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.employee-shell .tf-cal-empty-state-btn:hover {
+  background: #E0E7FF;
+}
+
+/* Dark mode additions */
+.employee-shell.tf-dark .tf-cal-month-card,
+[data-theme="dark"] .employee-shell .tf-cal-month-card,
+.employee-shell.tf-dark .tf-cal-day-card,
+[data-theme="dark"] .employee-shell .tf-cal-day-card,
+.employee-shell.tf-dark .tf-cal-agenda-card,
+[data-theme="dark"] .employee-shell .tf-cal-agenda-card {
+  background: #1E293B;
+  border-color: #334155;
+}
+
+.employee-shell.tf-dark .tf-cal-month-days-header,
+[data-theme="dark"] .employee-shell .tf-cal-month-days-header,
+.employee-shell.tf-dark .tf-cal-day-card-header,
+[data-theme="dark"] .employee-shell .tf-cal-day-card-header {
+  background: #162032;
+  border-color: #334155;
+}
+
+.employee-shell.tf-dark .tf-cal-month-cell,
+[data-theme="dark"] .employee-shell .tf-cal-month-cell {
+  background: #1E293B;
+  border-color: #334155;
+}
+
+.employee-shell.tf-dark .tf-cal-month-cell.muted,
+[data-theme="dark"] .employee-shell .tf-cal-month-cell.muted {
+  background: #0F172A;
+  opacity: 0.45;
+}
+
+.employee-shell.tf-dark .tf-cal-month-cell.selected,
+[data-theme="dark"] .employee-shell .tf-cal-month-cell.selected {
+  background: #1E3A8A;
+}
+
+.employee-shell.tf-dark .tf-cal-month-date-num,
+[data-theme="dark"] .employee-shell .tf-cal-month-date-num,
+.employee-shell.tf-dark .tf-cal-day-card-header h2,
+[data-theme="dark"] .employee-shell .tf-cal-day-card-header h2,
+.employee-shell.tf-dark .tf-cal-agenda-date-head h3,
+[data-theme="dark"] .employee-shell .tf-cal-agenda-date-head h3,
+.employee-shell.tf-dark .tf-cal-agenda-details strong,
+[data-theme="dark"] .employee-shell .tf-cal-agenda-details strong {
+  color: #F8FAFC;
+}
+
+.employee-shell.tf-dark .tf-cal-agenda-item,
+[data-theme="dark"] .employee-shell .tf-cal-agenda-item {
+  background: #0F172A;
+  border-color: #334155;
+}
+
+.employee-shell.tf-dark .tf-cal-agenda-time-pill,
+[data-theme="dark"] .employee-shell .tf-cal-agenda-time-pill {
+  background: #1E293B;
+  border-color: #334155;
+  color: #CBD5E1;
+}

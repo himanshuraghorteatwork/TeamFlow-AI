@@ -31,7 +31,11 @@ import {
 } from "lucide-react";
 
 import EmployeeShell from "./EmployeeShell";
+import { getEmployeeProfile } from "./EmployeeAuth";
 import "./File.css";
+
+/* In-Memory Store for Real File Blobs uploaded during session */
+const uploadedFileStore = new Map();
 
 /* Storage Key */
 const STORAGE_KEY = "tf_files_v3";
@@ -598,6 +602,63 @@ function File() {
     description: "",
     folder: "Project Documents",
   });
+  const fileInputRef = useRef(null);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [dragOver, setDragOver] = useState(false);
+
+  // Helper to format bytes
+  const formatBytes = (bytes) => {
+    if (!bytes || bytes === 0) return "0 B";
+    const k = 1024;
+    const sizes = ["B", "KB", "MB", "GB"];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + " " + sizes[i];
+  };
+
+  // PC file selection handlers
+  const handleFileSelect = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+      setUploadForm((prev) => ({
+        ...prev,
+        name: file.name,
+      }));
+    }
+  };
+
+  const handleDropFile = (e) => {
+    e.preventDefault();
+    setDragOver(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+      setUploadForm((prev) => ({
+        ...prev,
+        name: file.name,
+      }));
+    }
+  };
+
+  const handleRemoveSelectedFile = (e) => {
+    e.stopPropagation();
+    setSelectedFile(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const handleCloseUploadModal = () => {
+    setUploadModalOpen(false);
+    setSelectedFile(null);
+    setDragOver(false);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+    setUploadForm({
+      name: "",
+      project: "TeamFlow Website",
+      category: "Documents",
+      description: "",
+      folder: "Project Documents",
+    });
+  };
   const [newFolderName, setNewFolderName] = useState("");
 
   // Toast
@@ -705,12 +766,20 @@ function File() {
 
   const totalPages = Math.ceil(filteredFiles.length / pageSize) || 1;
 
+  
+  // Reset page to 1 on filter changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [typePillFilter, searchQuery, projectFilter, uploaderFilter, dateFilter, sortBy, activeFolderFilter]);
+
   // Select all checkbox
   const handleToggleSelectAll = () => {
-    if (selectedFileIds.length === paginatedFiles.length) {
-      setSelectedFileIds([]);
+    const currentIds = paginatedFiles.map((f) => f.id);
+    const allSelected = currentIds.length > 0 && currentIds.every((id) => selectedFileIds.includes(id));
+    if (allSelected) {
+      setSelectedFileIds((prev) => prev.filter((id) => !currentIds.includes(id)));
     } else {
-      setSelectedFileIds(paginatedFiles.map((f) => f.id));
+      setSelectedFileIds((prev) => Array.from(new Set([...prev, ...currentIds])));
     }
   };
 
@@ -720,15 +789,223 @@ function File() {
     );
   };
 
-  // Download simulation
+  // Real-time File Download Handler
   const handleDownloadFile = (file) => {
-    showToast(`Downloading "${file.name}" (${file.size})...`);
+    if (!file) return;
+
+    const fileName = file.name || "download.txt";
+    const ext = fileName.split(".").pop().toLowerCase();
+
+    // Helper to trigger browser download
+    const executeDownload = (blob, name) => {
+      const blobUrl = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      link.setAttribute("download", name);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 2000);
+    };
+
+    // 1. If user uploaded this actual file from their PC in this session, download original file
+    if (uploadedFileStore.has(file.id)) {
+      const originalFile = uploadedFileStore.get(file.id);
+      executeDownload(originalFile, fileName);
+      return;
+    }
+
+    // 2. Otherwise generate a genuine, formatted file matching the extension in real time
+    if (ext === "pdf") {
+      const safeName = (file.name || "Document.pdf").replace(/[^a-zA-Z0-9._ -]/g, "");
+      const safeProject = (file.project || "TeamFlow AI").replace(/[^a-zA-Z0-9._ -]/g, "");
+      const safeUploader = (file.uploader || "Team Member").replace(/[^a-zA-Z0-9._ -]/g, "");
+      const safeDate = (file.date || "Oct 27, 2024").replace(/[^a-zA-Z0-9._ -]/g, "");
+      const safeDesc = (file.description || "Project document and collaborative workspace asset.").replace(/[^a-zA-Z0-9._ -]/g, "");
+
+      const pdfData = `%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R /Resources << /Font << /F1 5 0 R /F2 6 0 R >> >> >>
+endobj
+4 0 obj
+<< /Length 460 >>
+stream
+BT
+/F1 22 Tf
+50 720 Td
+(TeamFlow AI - ${safeName}) Tj
+0 -36 Td
+/F2 13 Tf
+(Project: ${safeProject}   |   Uploaded by: ${safeUploader}) Tj
+0 -24 Td
+(Date: ${safeDate}   |   File Size: ${file.size || "1.2 MB"}) Tj
+0 -32 Td
+(Description: ${safeDesc}) Tj
+0 -40 Td
+(Summary of Deliverables:) Tj
+0 -22 Td
+(- Verified against project requirements and milestone objectives.) Tj
+0 -20 Td
+(- Synchronized with TeamFlow AI enterprise cloud storage.) Tj
+0 -20 Td
+(- Certified for engineering and design team collaboration.) Tj
+ET
+endstream
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>
+endobj
+6 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+xref
+0 7
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000244 00000 n 
+0000000754 00000 n 
+0000000827 00000 n 
+trailer
+<< /Size 7 /Root 1 0 R >>
+startxref
+895
+%%EOF`;
+      const pdfBlob = new Blob([pdfData], { type: "application/pdf" });
+      executeDownload(pdfBlob, fileName);
+    } else if (ext === "csv" || ext === "xlsx" || ext === "xls") {
+      const csvData = `Record ID,File Name,Project,Status,Category,Uploaded By,Date,Size,Description
+1,"${file.name}","${file.project || "TeamFlow Website"}",Approved,"${file.category || "Spreadsheet"}","${file.uploader || "John Doe"}","${file.date || "Oct 24, 2024"}","${file.size || "1.2 MB"}","${file.description || "QA test cases and verification checklist"}"
+2,"API Documentation","Backend API",In Review,Documentation,Rahul Sharma,Oct 23,856 KB,API endpoints and request format schemas
+3,"Sprint Velocity","Mobile App",Finalized,Reporting,Amit Verma,Oct 22,2.4 MB,Sprint 4 story points and velocity metrics
+4,"Design Tokens","TeamFlow Website",Approved,UI/UX,Priya Patel,Oct 21,1.8 MB,Color swatches and typography standards`;
+      const csvBlob = new Blob([csvData], { type: "text/csv;charset=utf-8;" });
+      executeDownload(csvBlob, fileName);
+    } else if (["png", "jpg", "jpeg"].includes(ext)) {
+      try {
+        const canvas = document.createElement("canvas");
+        canvas.width = 800;
+        canvas.height = 560;
+        const ctx = canvas.getContext("2d");
+
+        // Gradient Background
+        const grad = ctx.createLinearGradient(0, 0, 800, 560);
+        grad.addColorStop(0, "#4F46E5");
+        grad.addColorStop(1, "#7C3AED");
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, 800, 560);
+
+        // White card container
+        ctx.fillStyle = "#FFFFFF";
+        if (ctx.roundRect) ctx.roundRect(40, 40, 720, 480, 16);
+        else ctx.rect(40, 40, 720, 480);
+        ctx.fill();
+
+        // Card Content
+        ctx.fillStyle = "#0F172A";
+        ctx.font = "bold 26px sans-serif";
+        ctx.fillText(file.name, 70, 110);
+
+        ctx.fillStyle = "#64748B";
+        ctx.font = "16px sans-serif";
+        ctx.fillText(`${file.project || "TeamFlow AI"} • ${file.size || "1.8 MB"}`, 70, 145);
+
+        ctx.strokeStyle = "#E2E8F0";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(70, 175);
+        ctx.lineTo(730, 175);
+        ctx.stroke();
+
+        ctx.fillStyle = "#334155";
+        ctx.font = "bold 16px sans-serif";
+        ctx.fillText("Description:", 70, 220);
+
+        ctx.fillStyle = "#475569";
+        ctx.font = "15px sans-serif";
+        ctx.fillText(file.description || "Project visual asset and UI mockup.", 70, 255);
+
+        ctx.fillStyle = "#94A3B8";
+        ctx.font = "14px sans-serif";
+        ctx.fillText(`Uploaded by: ${file.uploader || "John Doe"} • Date: ${file.date || "Oct 2024"}`, 70, 310);
+
+        // Watermark badge
+        ctx.fillStyle = "#4F46E5";
+        if (ctx.roundRect) ctx.roundRect(70, 370, 150, 40, 8);
+        else ctx.rect(70, 370, 150, 40);
+        ctx.fill();
+
+        ctx.fillStyle = "#FFFFFF";
+        ctx.font = "bold 14px sans-serif";
+        ctx.fillText("TeamFlow AI", 98, 395);
+
+        canvas.toBlob((blob) => {
+          if (blob) executeDownload(blob, fileName);
+          else {
+            const fallbackBlob = new Blob([file.description || "TeamFlow AI Image Asset"], { type: "text/plain;charset=utf-8" });
+            executeDownload(fallbackBlob, fileName);
+          }
+        }, "image/png");
+      } catch {
+        const fallbackBlob = new Blob([file.description || "TeamFlow AI Image Asset"], { type: "text/plain;charset=utf-8" });
+        executeDownload(fallbackBlob, fileName);
+      }
+    } else if (ext === "json") {
+      const jsonData = JSON.stringify(file, null, 2);
+      const jsonBlob = new Blob([jsonData], { type: "application/json;charset=utf-8" });
+      executeDownload(jsonBlob, fileName);
+    } else {
+      // Document / Text File
+      const docData = `=======================================================
+TEAMFLOW AI - ENTERPRISE DOCUMENT EXPORT
+=======================================================
+File Name:    ${file.name}
+Project:      ${file.project || "TeamFlow Website"}
+Category:     ${file.category || "Project Document"}
+Folder:       ${file.folder || "Project Documents"}
+Uploaded By:  ${file.uploader || "John Doe"}
+Date:         ${file.date || "Oct 24, 2024"}
+File Size:    ${file.size || "1.4 MB"}
+
+DESCRIPTION:
+${file.description || "Project document and collaborative workspace asset."}
+
+-------------------------------------------------------
+DOCUMENT CONTENT & SPECIFICATIONS:
+1. Executive Summary:
+   This document outlines the core specifications, design guidelines,
+   and development deliverables for ${file.project || "TeamFlow AI"}.
+
+2. Team Collaborators:
+   - Rahul Sharma (Lead Developer)
+   - Priya Patel (UI/UX Designer)
+   - Amit Verma (Backend Engineer)
+   - Sneha Rao (QA Engineer)
+
+3. Status & Approvals:
+   - Sprint Review: Completed & Signed off
+   - CI/CD Deployment: Passed staging tests
+   - Security Audit: Compliant with WCAG & SOC2 standards
+
+Generated and downloaded in real time from TeamFlow AI.
+=======================================================`;
+      const docBlob = new Blob([docData], { type: "text/plain;charset=utf-8" });
+      executeDownload(docBlob, fileName);
+    }
   };
 
   // Delete File
   const handleDeleteFile = (id) => {
     setFiles((prev) => prev.filter((f) => f.id !== id));
     setSelectedFileIds((prev) => prev.filter((item) => item !== id));
+    uploadedFileStore.delete(id);
     setActiveRowMenuId(null);
     showToast("File deleted from workspace.");
   };
@@ -736,57 +1013,75 @@ function File() {
   // Handle Upload Submission
   const handleUploadSubmit = (e) => {
     e.preventDefault();
-    if (!uploadForm.name.trim()) return;
+    if (!uploadForm.name.trim() && !selectedFile) {
+      return;
+    }
 
-    let extension = uploadForm.name.split(".").pop()?.toUpperCase() || "FILE";
+    const finalName = uploadForm.name.trim() || selectedFile?.name || "Uploaded_Document.pdf";
+    const ext = finalName.split(".").pop().toLowerCase();
+
     let calculatedType = "Document";
     let pillClass = "Document";
 
-    if (uploadForm.name.endsWith(".pdf")) {
+    if (ext === "pdf") {
       calculatedType = "PDF";
       pillClass = "PDF";
-    } else if (/\.(png|jpe?g|svg|webp)$/i.test(uploadForm.name)) {
+    } else if (["png", "jpg", "jpeg", "svg", "webp", "gif"].includes(ext)) {
       calculatedType = "Images";
       pillClass = "Image";
-    } else if (/\.(xlsx|xls|csv)$/i.test(uploadForm.name)) {
+    } else if (["xlsx", "xls", "csv"].includes(ext)) {
       calculatedType = "Spreadsheets";
       pillClass = "Spreadsheet";
-    } else if (/\.(pptx|ppt)$/i.test(uploadForm.name)) {
+    } else if (["pptx", "ppt"].includes(ext)) {
       calculatedType = "Presentations";
       pillClass = "Presentation";
-    } else if (/\.(zip|tar|rar)$/i.test(uploadForm.name)) {
+    } else if (["zip", "tar", "rar", "7z"].includes(ext)) {
       calculatedType = "Others";
       pillClass = "Archive";
+    } else if (["mp4", "mov", "avi"].includes(ext)) {
+      calculatedType = "Others";
+      pillClass = "Video";
     }
+
+    const fileSizeFormatted = selectedFile?.size
+      ? formatBytes(selectedFile.size)
+      : "1.5 MB";
+    const sizeBytes = selectedFile?.size || 1572864;
+
+    const currentProfile = getEmployeeProfile();
+
+    const today = new Date();
+    const dateFormatted = today.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
 
     const newFile = {
       id: `f-${Date.now()}`,
-      name: uploadForm.name.trim(),
+      name: finalName,
       description: uploadForm.description || "Uploaded project document",
       project: uploadForm.project,
       type: pillClass,
       typePill: pillClass,
       category: calculatedType,
-      size: "1.4 MB",
-      sizeBytes: 1400000,
-      uploader: "John Doe",
+      size: fileSizeFormatted,
+      sizeBytes: sizeBytes,
+      uploader: currentProfile?.fullName || "John Doe",
       isCurrentUser: true,
-      uploaderAvatar: avatars.john,
-      date: "Oct 26, 2024",
-      time: "Just now",
-      folder: uploadForm.folder,
+      uploaderAvatar: currentProfile?.photo || avatars.john,
+      date: dateFormatted,
+      time: today.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+      folder: uploadForm.folder || "Project Documents",
     };
 
+    // Store actual uploaded File object in memory for real-time 1:1 download
+    if (selectedFile) {
+      uploadedFileStore.set(newFile.id, selectedFile);
+    }
+
     setFiles((prev) => [newFile, ...prev]);
-    setUploadModalOpen(false);
-    setUploadForm({
-      name: "",
-      project: "TeamFlow Website",
-      category: "Documents",
-      description: "",
-      folder: "Project Documents",
-    });
-    showToast(`File "${newFile.name}" uploaded successfully!`);
+    handleCloseUploadModal();
   };
 
   // Handle Create Folder
@@ -1037,7 +1332,7 @@ function File() {
             <div className="tf-files-controls-bar">
               {/* Search */}
               <div className="tf-files-search-wrap">
-                <Search size={14} className="tf-search-icon" />
+                <Search size={14} className="tf-files-search-icon" />
                 <input
                   type="text"
                   placeholder="Search files..."
@@ -1198,16 +1493,28 @@ function File() {
             {/* Files Table Card */}
             <div className="tf-files-table-card">
               <div className="tf-table-responsive">
-                <table className="tf-files-table">
+                                <table className="tf-files-table">
+                  <colgroup>
+                    <col style={{ width: "48px" }} />
+                    <col style={{ width: "36px" }} />
+                    <col style={{ width: "auto" }} />
+                    <col style={{ width: "135px" }} />
+                    <col style={{ width: "85px" }} />
+                    <col style={{ width: "80px" }} />
+                    <col style={{ width: "135px" }} />
+                    <col style={{ width: "115px" }} />
+                    <col style={{ width: "90px" }} />
+                  </colgroup>
                   <thead>
                     <tr>
+                      <th className="tf-th-num">Sr</th>
                       <th className="th-check">
                         <input
                           type="checkbox"
                           className="tf-checkbox"
                           checked={
                             paginatedFiles.length > 0 &&
-                            selectedFileIds.length === paginatedFiles.length
+                            paginatedFiles.every((f) => selectedFileIds.includes(f.id))
                           }
                           onChange={handleToggleSelectAll}
                         />
@@ -1224,7 +1531,7 @@ function File() {
                   <tbody>
                     {paginatedFiles.length === 0 ? (
                       <tr>
-                        <td colSpan={8} className="tf-empty-table-cell">
+                        <td colSpan={9} className="tf-empty-table-cell">
                           <FileText size={32} color="#94A3B8" />
                           <p>No files found matching your search or filters.</p>
                           <button
@@ -1244,7 +1551,7 @@ function File() {
                         </td>
                       </tr>
                     ) : (
-                      paginatedFiles.map((file) => {
+                      paginatedFiles.map((file, idx) => {
                         const isSelected = selectedFileIds.includes(file.id);
 
                         return (
@@ -1253,6 +1560,11 @@ function File() {
                             className={`tf-file-row ${isSelected ? "selected" : ""}`}
                           >
                             {/* Checkbox */}
+                            <td className="tf-td-num">
+                              <span className="tf-row-num-badge">
+                                {(currentPage - 1) * pageSize + idx + 1}
+                              </span>
+                            </td>
                             <td className="td-check">
                               <input
                                 type="checkbox"
@@ -1415,7 +1727,8 @@ function File() {
               {/* Table Footer: Showing count + Pagination */}
               <footer className="tf-files-table-footer">
                 <span className="tf-footer-showing-text">
-                  Showing 1 to {Math.min(filteredFiles.length, pageSize)} of{" "}
+                  Showing {filteredFiles.length === 0 ? 0 : (currentPage - 1) * pageSize + 1} to{" "}
+                  {Math.min(currentPage * pageSize, filteredFiles.length)} of{" "}
                   {filteredFiles.length} files
                 </span>
 
@@ -1653,16 +1966,16 @@ function File() {
         </div>
 
         {/* ====================================================================
-            MODAL 1: UPLOAD FILE MODAL
+            MODAL 1: UPLOAD FILE MODAL (Interactive PC Browser & Metadata)
             ==================================================================== */}
         {uploadModalOpen && (
           <div
             className="tf-files-modal-backdrop"
             onClick={(e) => {
-              if (e.target === e.currentTarget) setUploadModalOpen(false);
+              if (e.target === e.currentTarget) handleCloseUploadModal();
             }}
           >
-            <div className="tf-files-modal-card" role="dialog" aria-modal="true">
+            <div className="tf-files-modal-card upload-modal-card" role="dialog" aria-modal="true">
               <div className="tf-files-modal-header">
                 <div className="tf-modal-title-wrap">
                   <div className="tf-modal-icon-badge purple">
@@ -1670,19 +1983,100 @@ function File() {
                   </div>
                   <div>
                     <h3>Upload New File</h3>
-                    <p>Add a project file or document to your TeamFlow storage.</p>
+                    <p>Select a file from your PC and enter file details.</p>
                   </div>
                 </div>
                 <button
                   type="button"
                   className="tf-modal-close"
-                  onClick={() => setUploadModalOpen(false)}
+                  onClick={handleCloseUploadModal}
                 >
                   <X size={18} />
                 </button>
               </div>
 
               <form onSubmit={handleUploadSubmit} className="tf-files-modal-body">
+                {/* 1. PC File Browser / Drag & Drop Area */}
+                <div className="tf-form-field">
+                  <label>Choose File from PC *</label>
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleFileSelect}
+                    style={{ display: "none" }}
+                  />
+
+                  <div
+                    className={`tf-upload-dropzone ${dragOver ? "drag-over" : ""} ${selectedFile ? "has-file" : ""}`}
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      setDragOver(true);
+                    }}
+                    onDragLeave={() => setDragOver(false)}
+                    onDrop={handleDropFile}
+                    onClick={() => {
+                      if (!selectedFile) fileInputRef.current?.click();
+                    }}
+                  >
+                    {!selectedFile ? (
+                      <div className="tf-dropzone-empty">
+                        <div className="tf-dropzone-icon-circle">
+                          <Upload size={22} />
+                        </div>
+                        <div className="tf-dropzone-prompt">
+                          <span className="tf-dropzone-action-btn" onClick={() => fileInputRef.current?.click()}>
+                            Browse File from PC
+                          </span>
+                          <span className="tf-dropzone-sub">or drag and drop your file here</span>
+                        </div>
+                        <div className="tf-dropzone-badges">
+                          <span>PDF</span>
+                          <span>PNG/JPG</span>
+                          <span>DOCX</span>
+                          <span>XLSX</span>
+                          <span>PPTX</span>
+                          <span>ZIP</span>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="tf-dropzone-selected-card">
+                        <div className="tf-selected-file-left">
+                          <div className="tf-selected-file-icon">
+                            {renderFileIcon({ name: selectedFile.name, type: "" })}
+                          </div>
+                          <div className="tf-selected-file-meta">
+                            <strong className="tf-selected-file-name" title={selectedFile.name}>
+                              {selectedFile.name}
+                            </strong>
+                            <span className="tf-selected-file-size">
+                              {formatBytes(selectedFile.size)} • Ready to upload
+                            </span>
+                          </div>
+                        </div>
+                        <div className="tf-selected-file-actions">
+                          <button
+                            type="button"
+                            className="tf-dropzone-change-btn"
+                            onClick={() => fileInputRef.current?.click()}
+                            title="Choose another file from PC"
+                          >
+                            Change
+                          </button>
+                          <button
+                            type="button"
+                            className="tf-dropzone-remove-btn"
+                            onClick={handleRemoveSelectedFile}
+                            title="Remove selected file"
+                          >
+                            <X size={15} />
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* 2. File Name */}
                 <div className="tf-form-field">
                   <label>File Name *</label>
                   <input
@@ -1693,10 +2087,24 @@ function File() {
                     onChange={(e) =>
                       setUploadForm({ ...uploadForm, name: e.target.value })
                     }
-                    autoFocus
                   />
                 </div>
 
+                {/* 3. Description */}
+                <div className="tf-form-field">
+                  <label>Description</label>
+                  <textarea
+                    rows={2}
+                    placeholder="Provide a brief description or notes for this file..."
+                    value={uploadForm.description}
+                    onChange={(e) =>
+                      setUploadForm({ ...uploadForm, description: e.target.value })
+                    }
+                    className="tf-form-textarea"
+                  />
+                </div>
+
+                {/* 4. Project & Folder Destination */}
                 <div className="tf-form-row">
                   <div className="tf-form-field">
                     <label>Project</label>
@@ -1731,23 +2139,11 @@ function File() {
                   </div>
                 </div>
 
-                <div className="tf-form-field">
-                  <label>Description / Notes</label>
-                  <input
-                    type="text"
-                    placeholder="Brief description of the document"
-                    value={uploadForm.description}
-                    onChange={(e) =>
-                      setUploadForm({ ...uploadForm, description: e.target.value })
-                    }
-                  />
-                </div>
-
                 <div className="tf-files-modal-actions">
                   <button
                     type="button"
                     className="tf-btn-secondary"
-                    onClick={() => setUploadModalOpen(false)}
+                    onClick={handleCloseUploadModal}
                   >
                     Cancel
                   </button>

@@ -111,6 +111,7 @@ function Settings() {
       };
       localStorage.setItem("teamflow_current_user", JSON.stringify(generalProfile));
       window.dispatchEvent(new Event("storage"));
+      window.dispatchEvent(new CustomEvent("tf_profile_updated", { detail: profile }));
     } catch (err) {
       void err;
     }

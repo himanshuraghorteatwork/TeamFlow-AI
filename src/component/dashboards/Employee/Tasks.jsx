@@ -395,6 +395,54 @@ function Tasks() {
   const [commentsModalTask, setCommentsModalTask] = useState(null);
   const [attachmentsModalTask, setAttachmentsModalTask] = useState(null);
 
+  // Edit Task Form State (Matches user reference screenshot)
+  const [editTaskForm, setEditTaskForm] = useState({
+    id: null,
+    title: "",
+    project: "",
+    assignee: "Rahul Sharma",
+    priority: "Medium",
+    status: "In Progress",
+    description: "",
+  });
+
+  const handleOpenEditTask = (task) => {
+    setDetailsModalTask(task);
+    setEditTaskForm({
+      id: task.id,
+      title: task.title || "",
+      project: task.project || "Backend API",
+      assignee: task.assignee || "Rahul Sharma",
+      priority: task.priority || "Medium",
+      status: task.status || "In Progress",
+      description: task.description || "",
+    });
+  };
+
+  const handleUpdateTask = (e) => {
+    e.preventDefault();
+    if (!editTaskForm.title.trim()) return;
+
+    setTasks((prev) =>
+      prev.map((t) => {
+        if (t.id === editTaskForm.id) {
+          return {
+            ...t,
+            title: editTaskForm.title.trim(),
+            project: editTaskForm.project,
+            assignee: editTaskForm.assignee,
+            priority: editTaskForm.priority,
+            status: editTaskForm.status,
+            description: editTaskForm.description.trim(),
+          };
+        }
+        return t;
+      })
+    );
+    setDetailsModalTask(null);
+    showToast("Task updated successfully!");
+  };
+
   // New Comment input
   const [newCommentText, setNewCommentText] = useState("");
 
@@ -1007,6 +1055,7 @@ function Tasks() {
               <table className="tf-tasks-table">
                 <thead>
                   <tr>
+                    <th className="tf-th-num">Sr</th>
                     <th className="tf-th-checkbox">
                       <button
                         type="button"
@@ -1033,7 +1082,8 @@ function Tasks() {
                 </thead>
 
                 <tbody>
-                  {displayedTasks.map((t) => {
+                  {displayedTasks.map((t, idx) => {
+                    const rowNum = (currentPage - 1) * rowsPerPage + idx + 1;
                     const isCompleted = t.status === "Completed";
                     const statusSlug = (t.status || "To Do").toLowerCase().replace(" ", "-");
                     const prioritySlug = (t.priority || "Medium").toLowerCase();
@@ -1045,6 +1095,9 @@ function Tasks() {
                         className={`tf-tasks-row ${isCompleted ? "row-completed" : ""} ${isSelected ? "row-selected" : ""}`}
                       >
                         {/* 1. Circular Completion Toggle Checkbox */}
+                        <td className="tf-td-num">
+                          <span className="tf-row-num-badge">{rowNum}</span>
+                        </td>
                         <td className="tf-td-checkbox">
                           <button
                             type="button"
@@ -1060,7 +1113,7 @@ function Tasks() {
                         <td className="tf-td-title">
                           <div
                             className="tf-task-title-group"
-                            onClick={() => setDetailsModalTask(t)}
+                            onClick={() => handleOpenEditTask(t)}
                           >
                             <span className="tf-task-main-title">{t.title}</span>
                             <span className="tf-task-sub-desc">{t.description}</span>
@@ -1142,7 +1195,7 @@ function Tasks() {
                             <button
                               type="button"
                               className="tf-task-action-icon-btn"
-                              onClick={() => setDetailsModalTask(t)}
+                              onClick={() => handleOpenEditTask(t)}
                               title="View details"
                             >
                               <Eye size={15} />
@@ -1192,7 +1245,7 @@ function Tasks() {
                                   <button
                                     type="button"
                                     onClick={() => {
-                                      setDetailsModalTask(t);
+                                      handleOpenEditTask(t);
                                       setActionMenuTaskId(null);
                                     }}
                                   >
@@ -1675,7 +1728,7 @@ function Tasks() {
           </div>
         )}
 
-        {/* Modal 2: View / Edit Task Details */}
+        {/* Modal 2: Edit Task Modal (Matches reference design) */}
         {detailsModalTask && (
           <div
             className="tf-modal-backdrop"
@@ -1683,100 +1736,121 @@ function Tasks() {
               if (e.target === e.currentTarget) setDetailsModalTask(null);
             }}
           >
-            <div className="tf-modal-card tf-task-edit-modal" role="dialog" aria-modal="true">
-              <div className="tf-modal-header">
-                <div className="tf-modal-title-group">
-                  <div className={`tf-modal-icon-box ${detailsModalTask.projectBg || "purple"}`}>
-                    {renderProjectIcon(detailsModalTask.projectIcon)}
-                  </div>
-                  <div>
-                    <h3>{detailsModalTask.title}</h3>
-                    <p>{detailsModalTask.project} • Due {detailsModalTask.dueDate}</p>
-                  </div>
-                </div>
+            <div className="tf-modal-card tf-edit-ticket-modal" role="dialog" aria-modal="true">
+              <div className="tf-modal-header-simple">
+                <h3>Edit Task</h3>
                 <button
                   type="button"
-                  className="tf-modal-close"
+                  className="tf-modal-close-simple"
                   onClick={() => setDetailsModalTask(null)}
+                  aria-label="Close"
                 >
                   <X size={18} />
                 </button>
               </div>
 
-              <div className="tf-modal-form-body">
-                <div className="tf-form-field">
-                  <label>Description</label>
-                  <p className="tf-task-modal-desc">{detailsModalTask.description}</p>
-                </div>
+              <form onSubmit={handleUpdateTask}>
+                <div className="tf-modal-body-simple">
+                  {/* Task Title */}
+                  <div className="tf-simple-form-field">
+                    <label>
+                      Task Title <span className="required">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. Design login page UI"
+                      value={editTaskForm.title}
+                      onChange={(e) =>
+                        setEditTaskForm({ ...editTaskForm, title: e.target.value })
+                      }
+                    />
+                  </div>
 
-                <div className="tf-task-badges-meta-row">
-                  <div className="tf-meta-item">
-                    <span className="tf-meta-label">Status</span>
-                    <div className="tf-status-pills-selector">
-                      {["To Do", "In Progress", "Completed"].map((st) => (
-                        <button
-                          key={st}
-                          type="button"
-                          className={`tf-status-btn-pill ${st.toLowerCase().replace(" ", "-")} ${detailsModalTask.status === st ? "active" : ""}`}
-                          onClick={() => {
-                            handleChangeStatus(detailsModalTask.id, st);
-                            setDetailsModalTask((prev) => ({ ...prev, status: st }));
-                          }}
-                        >
-                          {st}
-                        </button>
-                      ))}
+                  {/* Project & Assignee Row */}
+                  <div className="tf-simple-form-row">
+                    <div className="tf-simple-form-field">
+                      <label>Project</label>
+                      <input
+                        type="text"
+                        placeholder="Backend API"
+                        value={editTaskForm.project}
+                        onChange={(e) =>
+                          setEditTaskForm({ ...editTaskForm, project: e.target.value })
+                        }
+                      />
+                    </div>
+                    <div className="tf-simple-form-field">
+                      <label>Assignee</label>
+                      <input
+                        type="text"
+                        placeholder="Rahul Sharma"
+                        value={editTaskForm.assignee}
+                        onChange={(e) =>
+                          setEditTaskForm({ ...editTaskForm, assignee: e.target.value })
+                        }
+                      />
                     </div>
                   </div>
 
-                  <div className="tf-meta-item">
-                    <span className="tf-meta-label">Priority</span>
-                    <span className={`tf-priority-pill ${detailsModalTask.priority.toLowerCase()}`}>
-                      <span className="dot" />
-                      {detailsModalTask.priority}
-                    </span>
+                  {/* Priority Level & Status Row */}
+                  <div className="tf-simple-form-row">
+                    <div className="tf-simple-form-field">
+                      <label>Priority Level</label>
+                      <select
+                        value={editTaskForm.priority}
+                        onChange={(e) =>
+                          setEditTaskForm({ ...editTaskForm, priority: e.target.value })
+                        }
+                      >
+                        <option value="Low">Low</option>
+                        <option value="Medium">Medium</option>
+                        <option value="High">High</option>
+                        <option value="Critical">Critical</option>
+                      </select>
+                    </div>
+                    <div className="tf-simple-form-field">
+                      <label>Status</label>
+                      <select
+                        value={editTaskForm.status}
+                        onChange={(e) =>
+                          setEditTaskForm({ ...editTaskForm, status: e.target.value })
+                        }
+                      >
+                        <option value="To Do">To Do</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Completed">Completed</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Steps to Reproduce / Description */}
+                  <div className="tf-simple-form-field">
+                    <label>Steps to Reproduce / Description</label>
+                    <textarea
+                      rows={4}
+                      placeholder="Add task details or steps to reproduce..."
+                      value={editTaskForm.description}
+                      onChange={(e) =>
+                        setEditTaskForm({ ...editTaskForm, description: e.target.value })
+                      }
+                    />
                   </div>
                 </div>
 
-                {/* Subtask checklist */}
-                <div className="tf-form-field">
-                  <label>Task Checklist</label>
-                  <div className="tf-task-checklist">
-                    <label className="tf-checklist-item">
-                      <input type="checkbox" defaultChecked />
-                      <span>Review requirement specifications</span>
-                    </label>
-                    <label className="tf-checklist-item">
-                      <input type="checkbox" defaultChecked={detailsModalTask.status !== "To Do"} />
-                      <span>Implement core feature design & test</span>
-                    </label>
-                    <label className="tf-checklist-item">
-                      <input type="checkbox" defaultChecked={detailsModalTask.status === "Completed"} />
-                      <span>Submit for QA review and approval</span>
-                    </label>
-                  </div>
+                <div className="tf-modal-footer-simple">
+                  <button
+                    type="button"
+                    className="tf-simple-btn-cancel"
+                    onClick={() => setDetailsModalTask(null)}
+                  >
+                    Cancel
+                  </button>
+                  <button type="submit" className="tf-simple-btn-update">
+                    Update Task
+                  </button>
                 </div>
-              </div>
-
-              <div className="tf-modal-actions">
-                <button
-                  type="button"
-                  className="tf-btn-secondary"
-                  onClick={() => setDetailsModalTask(null)}
-                >
-                  Close
-                </button>
-                <button
-                  type="button"
-                  className="tf-btn-primary"
-                  onClick={() => {
-                    setDetailsModalTask(null);
-                    showToast("Task updated!");
-                  }}
-                >
-                  Done
-                </button>
-              </div>
+              </form>
             </div>
           </div>
         )}

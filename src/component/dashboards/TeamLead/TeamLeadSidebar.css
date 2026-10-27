@@ -99,3 +99,30 @@
     animation: none !important; transition-duration: .01ms !important; scroll-behavior: auto !important;
   }
 }
+
+
+.tls-brand .superadmin-brand-name {
+  color: #0b132b;
+  font-size: 19px;
+  font-weight: 750;
+  line-height: 1.2;
+  letter-spacing: -0.5px;
+  white-space: nowrap;
+}
+
+.tls-brand .superadmin-brand-name span {
+  color: #3b66ff;
+  font-weight: 800;
+}
+
+[data-theme="dark"] .tls-brand .superadmin-brand-name,
+body.dark-mode .tls-brand .superadmin-brand-name,
+.dark .tls-brand .superadmin-brand-name {
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .tls-brand .superadmin-brand-name span,
+body.dark-mode .tls-brand .superadmin-brand-name span,
+.dark .tls-brand .superadmin-brand-name span {
+  color: #3b66ff !important;
+}

@@ -1377,3 +1377,229 @@
   background: #1E293B;
   border-color: #334155;
 }
+
+
+/* ==========================================================================
+   ATTRACTIVE NEW CHAT / ADD MEMBER MODAL
+   ========================================================================== */
+.employee-shell .tf-new-chat-modal {
+  width: 100%;
+  max-width: 500px;
+  border-radius: 14px;
+}
+
+.employee-shell .tf-modal-form-body {
+  padding: 18px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Live Member Preview Box */
+.employee-shell .tf-new-member-preview {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 2px;
+}
+
+.employee-shell .tf-preview-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #4F46E5;
+  color: #FFFFFF;
+  font-size: 14px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  flex-shrink: 0;
+  letter-spacing: 0.05em;
+  box-shadow: 0 2px 6px rgba(79, 70, 229, 0.25);
+}
+
+.employee-shell .tf-preview-dot {
+  position: absolute;
+  bottom: 0px;
+  right: 0px;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: #10B981;
+  border: 2px solid #FFFFFF;
+}
+
+.employee-shell .tf-preview-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.employee-shell .tf-preview-info strong {
+  font-size: 13.5px;
+  color: var(--tf-text-title, #0F172A);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.employee-shell .tf-preview-email {
+  font-size: 11.5px;
+  color: #64748B;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.employee-shell .tf-preview-role-tag {
+  display: inline-block;
+  align-self: flex-start;
+  margin-top: 3px;
+  font-size: 10.5px;
+  font-weight: 600;
+  color: #4F46E5;
+  background: #EEF2FF;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+/* Input With Icon */
+.employee-shell .tf-input-with-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.employee-shell .tf-input-icon-adornment {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #94A3B8;
+  pointer-events: none;
+  z-index: 5;
+  width: 18px;
+  height: 18px;
+}
+
+.employee-shell .tf-input-with-icon input,
+.employee-shell .tf-input-with-icon select,
+.employee-shell .tf-new-chat-modal input.tf-chat-input-with-icon,
+.employee-shell .tf-new-chat-modal select.tf-chat-input-with-icon,
+.employee-shell .tf-form-field .tf-input-with-icon input,
+.employee-shell .tf-form-field .tf-input-with-icon select {
+  width: 100% !important;
+  height: 40px !important;
+  padding-left: 38px !important;
+  padding-right: 12px !important;
+  border: 1px solid var(--tf-border, #CBD5E1) !important;
+  border-radius: 8px !important;
+  font-size: 13px !important;
+  background: var(--tf-card-bg, #FFFFFF) !important;
+  color: var(--tf-text, #0F172A) !important;
+  outline: none !important;
+  box-sizing: border-box !important;
+  transition: all 0.15s ease !important;
+}
+
+.employee-shell .tf-input-with-icon input:focus,
+.employee-shell .tf-input-with-icon select:focus,
+.employee-shell .tf-new-chat-modal input.tf-chat-input-with-icon:focus,
+.employee-shell .tf-new-chat-modal select.tf-chat-input-with-icon:focus {
+  border-color: #4F46E5 !important;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12) !important;
+}
+
+.employee-shell .tf-input-hint {
+  font-size: 11px;
+  color: #94A3B8;
+  margin-top: 2px;
+}
+
+/* Textarea */
+.employee-shell .tf-chat-modal-textarea {
+  width: 100%;
+  border: 1px solid var(--tf-border, #CBD5E1);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 13px;
+  font-family: inherit;
+  color: var(--tf-text, #0F172A);
+  background: var(--tf-card-bg, #FFFFFF);
+  resize: vertical;
+  outline: none;
+  box-sizing: border-box;
+  transition: all 0.15s ease;
+}
+
+.employee-shell .tf-chat-modal-textarea:focus {
+  border-color: #4F46E5;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+}
+
+/* Request Chat CTA */
+.employee-shell .tf-btn-request-chat {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: #4F46E5;
+  border-color: #4F46E5;
+  font-weight: 600;
+  box-shadow: 0 2px 6px rgba(79, 70, 229, 0.25);
+}
+
+.employee-shell .tf-btn-request-chat:hover {
+  background: #4338CA;
+  border-color: #4338CA;
+}
+
+/* Dark Mode Additions */
+.employee-shell.tf-dark .tf-new-member-preview,
+[data-theme="dark"] .employee-shell .tf-new-member-preview {
+  background: #0F172A;
+  border-color: #334155;
+}
+
+.employee-shell.tf-dark .tf-preview-dot,
+[data-theme="dark"] .employee-shell .tf-preview-dot {
+  border-color: #0F172A;
+}
+
+.employee-shell.tf-dark .tf-preview-info strong,
+[data-theme="dark"] .employee-shell .tf-preview-info strong {
+  color: #F8FAFC;
+}
+
+.employee-shell.tf-dark .tf-preview-email,
+[data-theme="dark"] .employee-shell .tf-preview-email {
+  color: #94A3B8;
+}
+
+.employee-shell.tf-dark .tf-preview-role-tag,
+[data-theme="dark"] .employee-shell .tf-preview-role-tag {
+  background: #1E293B;
+  color: #818CF8;
+}
+
+.employee-shell.tf-dark .tf-input-with-icon input,
+.employee-shell.tf-dark .tf-input-with-icon select,
+.employee-shell.tf-dark .tf-chat-modal-textarea,
+[data-theme="dark"] .employee-shell .tf-input-with-icon input,
+[data-theme="dark"] .employee-shell .tf-input-with-icon select,
+[data-theme="dark"] .employee-shell .tf-chat-modal-textarea {
+  background: #0F172A;
+  border-color: #334155;
+  color: #F8FAFC;
+}
