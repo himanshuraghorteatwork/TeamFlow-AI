@@ -1716,6 +1716,133 @@
 }
 
 /* =========================================================
+   8.5. PAGINATION BAR (Matching Workspace & Users)
+========================================================= */
+
+.rp-pagination-bar,
+.rolesPermissionsCardPage .ws-pagination-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 13px 18px;
+  background: #ffffff;
+  border: 1px solid #eef2f6;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.rp-pagination-info,
+.rolesPermissionsCardPage .ws-pagination-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 13px;
+  color: #64748b;
+}
+
+.rp-page-size-wrap,
+.rolesPermissionsCardPage .ws-page-size-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.rp-page-size-wrap select,
+.rolesPermissionsCardPage .ws-page-size-wrap select {
+  padding: 4px 8px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 12.5px;
+  background: #ffffff;
+  color: #334155;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.rp-page-size-wrap select:focus,
+.rolesPermissionsCardPage .ws-page-size-wrap select:focus {
+  border-color: #6366f1;
+}
+
+.rp-pagination-controls,
+.rolesPermissionsCardPage .ws-pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.rp-page-nav-btn,
+.rolesPermissionsCardPage .ws-page-nav-btn {
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.rp-page-nav-btn:hover:not(:disabled),
+.rolesPermissionsCardPage .ws-page-nav-btn:hover:not(:disabled) {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
+
+.rp-page-nav-btn:disabled,
+.rolesPermissionsCardPage .ws-page-nav-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.rp-page-pills,
+.rolesPermissionsCardPage .ws-page-pills {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.rp-page-num-pill,
+.rolesPermissionsCardPage .ws-page-num-pill {
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.rp-page-num-pill:hover,
+.rolesPermissionsCardPage .ws-page-num-pill:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
+
+.rp-page-num-pill.active,
+.rolesPermissionsCardPage .ws-page-num-pill.active {
+  background: #6366f1;
+  color: #ffffff;
+  border-color: #6366f1;
+  box-shadow: 0 1px 3px rgba(99, 102, 241, 0.35);
+}
+
+/* =========================================================
    9. COMPLETE DARK MODE USER-FRIENDLY COMPATIBILITY
 ========================================================= */
 
@@ -2299,6 +2426,79 @@ body.dark-theme .rp-modal-confirm-desc,
   color: #94a3b8;
 }
 
+/* Pagination Dark Mode */
+.dark .rp-pagination-bar,
+body.dark-theme .rp-pagination-bar,
+[data-theme="dark"] .rp-pagination-bar,
+.dark .rolesPermissionsCardPage .ws-pagination-bar,
+body.dark-theme .rolesPermissionsCardPage .ws-pagination-bar,
+[data-theme="dark"] .rolesPermissionsCardPage .ws-pagination-bar {
+  background: #111c30;
+  border: 1px solid #1e293b;
+  color: #cbd5e1;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.dark .rp-pagination-info,
+body.dark-theme .rp-pagination-info,
+[data-theme="dark"] .rp-pagination-info,
+.dark .rolesPermissionsCardPage .ws-pagination-info,
+body.dark-theme .rolesPermissionsCardPage .ws-pagination-info,
+[data-theme="dark"] .rolesPermissionsCardPage .ws-pagination-info {
+  color: #94a3b8;
+}
+
+.dark .rp-page-nav-btn,
+body.dark-theme .rp-page-nav-btn,
+[data-theme="dark"] .rp-page-nav-btn,
+.dark .rp-page-num-pill,
+body.dark-theme .rp-page-num-pill,
+[data-theme="dark"] .rp-page-num-pill,
+.dark .rp-page-size-wrap select,
+body.dark-theme .rp-page-size-wrap select,
+[data-theme="dark"] .rp-page-size-wrap select,
+.dark .rolesPermissionsCardPage .ws-page-nav-btn,
+body.dark-theme .rolesPermissionsCardPage .ws-page-nav-btn,
+[data-theme="dark"] .rolesPermissionsCardPage .ws-page-nav-btn,
+.dark .rolesPermissionsCardPage .ws-page-num-pill,
+body.dark-theme .rolesPermissionsCardPage .ws-page-num-pill,
+[data-theme="dark"] .rolesPermissionsCardPage .ws-page-num-pill,
+.dark .rolesPermissionsCardPage .ws-page-size-wrap select,
+body.dark-theme .rolesPermissionsCardPage .ws-page-size-wrap select,
+[data-theme="dark"] .rolesPermissionsCardPage .ws-page-size-wrap select {
+  background: #0b1322;
+  border-color: #1e293b;
+  color: #cbd5e1;
+}
+
+.dark .rp-page-nav-btn:hover:not(:disabled),
+body.dark-theme .rp-page-nav-btn:hover:not(:disabled),
+[data-theme="dark"] .rp-page-nav-btn:hover:not(:disabled),
+.dark .rp-page-num-pill:hover,
+body.dark-theme .rp-page-num-pill:hover,
+[data-theme="dark"] .rp-page-num-pill:hover,
+.dark .rolesPermissionsCardPage .ws-page-nav-btn:hover:not(:disabled),
+body.dark-theme .rolesPermissionsCardPage .ws-page-nav-btn:hover:not(:disabled),
+[data-theme="dark"] .rolesPermissionsCardPage .ws-page-nav-btn:hover:not(:disabled),
+.dark .rolesPermissionsCardPage .ws-page-num-pill:hover,
+body.dark-theme .rolesPermissionsCardPage .ws-page-num-pill:hover,
+[data-theme="dark"] .rolesPermissionsCardPage .ws-page-num-pill:hover {
+  background: #1e293b;
+  border-color: #334155;
+  color: #f8fafc;
+}
+
+.dark .rp-page-num-pill.active,
+body.dark-theme .rp-page-num-pill.active,
+[data-theme="dark"] .rp-page-num-pill.active,
+.dark .rolesPermissionsCardPage .ws-page-num-pill.active,
+body.dark-theme .rolesPermissionsCardPage .ws-page-num-pill.active,
+[data-theme="dark"] .rolesPermissionsCardPage .ws-page-num-pill.active {
+  background: #6366f1;
+  color: #ffffff;
+  border-color: #6366f1;
+}
+
 /* =========================================================
    10. RESPONSIVE BREAKPOINTS
 ========================================================= */
@@ -2329,6 +2529,29 @@ body.dark-theme .rp-modal-confirm-desc,
 
   .rp-role-cards-grid {
     grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .rp-pagination-bar,
+  .rolesPermissionsCardPage .ws-pagination-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .rp-pagination-info,
+  .rolesPermissionsCardPage .ws-pagination-info {
+    width: 100%;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .rp-pagination-controls,
+  .rolesPermissionsCardPage .ws-pagination-controls {
+    width: 100%;
+    justify-content: space-between;
   }
 }
 

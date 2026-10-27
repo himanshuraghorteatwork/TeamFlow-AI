@@ -134,6 +134,42 @@ export default function AdminSettings() {
   const [activeSection, setActiveSection] = useState("general");
   const [search, setSearch] = useState("");
 
+  // Synchronize root dark class on initial mount and when theme changes externally
+  useEffect(() => {
+    const getIsDark = () => {
+      const adminDark = localStorage.getItem("teamflow_admin_dark");
+      if (adminDark !== null) return adminDark === "true";
+      const themeMode = localStorage.getItem("teamflow_theme_mode");
+      if (themeMode !== null) return themeMode === "dark";
+      return false;
+    };
+
+    const applyDOMTheme = (dark) => {
+      if (dark) {
+        document.documentElement.classList.add("dark", "sa-dark-mode");
+        document.body.classList.add("dark", "dark-theme", "sa-dark-mode");
+        document.documentElement.setAttribute("data-theme", "dark");
+      } else {
+        document.documentElement.classList.remove("dark", "sa-dark-mode");
+        document.body.classList.remove("dark", "dark-theme", "sa-dark-mode");
+        document.documentElement.setAttribute("data-theme", "light");
+      }
+    };
+
+    applyDOMTheme(getIsDark());
+
+    const handleThemeSync = () => {
+      applyDOMTheme(getIsDark());
+    };
+
+    window.addEventListener("teamflow_theme_update", handleThemeSync);
+    window.addEventListener("storage", handleThemeSync);
+    return () => {
+      window.removeEventListener("teamflow_theme_update", handleThemeSync);
+      window.removeEventListener("storage", handleThemeSync);
+    };
+  }, []);
+
   const [settings, setSettings] = useState(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
@@ -309,16 +345,16 @@ export default function AdminSettings() {
   };
 
   return (
-    <div className="settings-app">
+    <div className="settings-app org-settings-page">
       <AdminSidebar mobileOpen={mobileOpen} onClose={() => setMobileOpen(false)} />
 
-      <main className="settings-main">
+      <main className="settings-main org-settings-main">
         <AdminTopbar onMobileMenuToggle={() => setMobileOpen(true)} />
 
-        <div className="admin-settings-content">
+        <div className="admin-settings-content org-settings-content">
           {/* TOAST ALERT */}
           {toast && (
-            <div className={`settings-toast ${toast.type || "success"}`}>
+            <div className={`settings-toast org-settings-toast ${toast.type || "success"}`}>
               {toast.type === "error" ? (
                 <AlertTriangle size={18} />
               ) : (
@@ -381,7 +417,7 @@ export default function AdminSettings() {
           </div>
 
           {/* PAGE HEADER */}
-          <section className="admin-settings-header">
+          <section className="admin-settings-header org-settings-header">
             <div>
               <h1>Organization Settings</h1>
               <p>
@@ -389,7 +425,7 @@ export default function AdminSettings() {
               </p>
             </div>
 
-            <div className="admin-settings-header-actions">
+            <div className="admin-settings-header-actions org-settings-header-actions">
               {hasChanges && (
                 <span className="unsaved-indicator">
                   <span />
@@ -430,14 +466,14 @@ export default function AdminSettings() {
           </section>
 
           {/* RESPONSIVE HORIZONTAL TABS FOR TABLET / MOBILE */}
-          <div className="settings-mobile-tabs">
+          <div className="settings-mobile-tabs org-settings-mobile-tabs">
             {sections.map((item) => {
               const Icon = item.icon;
               return (
                 <button
                   key={item.id}
                   type="button"
-                  className={`settings-mobile-tab ${activeSection === item.id ? "active" : ""}`}
+                  className={`settings-mobile-tab org-settings-mobile-tab ${activeSection === item.id ? "active" : ""}`}
                   onClick={() => setActiveSection(item.id)}
                 >
                   <Icon size={14} />
@@ -448,10 +484,10 @@ export default function AdminSettings() {
           </div>
 
           {/* SETTINGS BODY CONTAINER */}
-          <div className="admin-settings-container">
+          <div className="admin-settings-container org-settings-container">
             {/* LEFT NAVIGATION SIDEBAR (STICKY ON DESKTOP) */}
-            <aside className="admin-settings-sidebar-card">
-              <div className="admin-settings-search">
+            <aside className="admin-settings-sidebar-card org-settings-sidebar">
+              <div className="admin-settings-search org-settings-search">
                 <Search size={15} />
                 <input
                   value={search}
@@ -470,7 +506,7 @@ export default function AdminSettings() {
                 )}
               </div>
 
-              <div className="admin-settings-menu">
+              <div className="admin-settings-menu org-settings-menu">
                 {filteredSections.map((item) => {
                   const Icon = item.icon;
                   const isActive = activeSection === item.id;
@@ -478,7 +514,7 @@ export default function AdminSettings() {
                     <button
                       key={item.id}
                       type="button"
-                      className={`admin-settings-menu-item ${isActive ? "active" : ""}`}
+                      className={`admin-settings-menu-item org-settings-menu-item ${isActive ? "active" : ""}`}
                       onClick={() => setActiveSection(item.id)}
                     >
                       <div
@@ -507,7 +543,7 @@ export default function AdminSettings() {
               </div>
 
               {/* QUICK STATS & PLAN CARD */}
-              <div className="admin-settings-plan-card">
+              <div className="admin-settings-plan-card org-settings-plan-card">
                 <div className="plan-badge">Enterprise Tier</div>
                 <strong>{settings.general.companyName || "ABC Technologies"}</strong>
                 <p>6 Workspaces · 48 Active Members</p>
@@ -519,7 +555,7 @@ export default function AdminSettings() {
             </aside>
 
             {/* RIGHT CONTENT CARD */}
-            <section className="settings-content-card">
+            <section className="settings-content-card org-settings-content-area">
               {/* SECTION 1: GENERAL & BRANDING */}
               {activeSection === "general" && (
                 <GeneralSettings
@@ -594,15 +630,15 @@ export default function AdminSettings() {
 
               {/* FLOATING SAVE BAR */}
               {hasChanges && (
-                <div className="settings-save-bar">
-                  <div className="save-bar-info">
+                <div className="settings-save-bar org-settings-save-bar">
+                  <div className="save-bar-info org-save-bar-info">
                     <AlertTriangle size={18} />
                     <div>
                       <strong>Unsaved changes detected</strong>
                       <p>Save your configuration or discard modifications.</p>
                     </div>
                   </div>
-                  <div className="save-bar-actions">
+                  <div className="save-bar-actions org-save-bar-actions">
                     <button
                       type="button"
                       className="btn-secondary"
@@ -628,9 +664,9 @@ export default function AdminSettings() {
 
       {/* RESET CONFIRMATION MODAL */}
       {showResetModal && (
-        <div className="settings-modal-overlay">
-          <div className="settings-modal">
-            <div className="settings-modal-danger-icon">
+        <div className="settings-modal-overlay org-settings-modal-overlay">
+          <div className="settings-modal org-settings-modal">
+            <div className="settings-modal-danger-icon org-settings-modal-danger-icon">
               <RotateCcw size={24} />
             </div>
             <h2>Reset Organization Settings?</h2>
@@ -638,7 +674,7 @@ export default function AdminSettings() {
               This will restore all default platform preferences, workspace limits, and configurations.
               Existing member data and workspaces will remain unaffected.
             </p>
-            <div className="settings-modal-actions">
+            <div className="settings-modal-actions org-settings-modal-actions">
               <button
                 type="button"
                 className="btn-secondary"
@@ -660,9 +696,9 @@ export default function AdminSettings() {
 
       {/* TRANSFER OWNERSHIP MODAL */}
       {showTransferModal && (
-        <div className="settings-modal-overlay">
-          <div className="settings-modal">
-            <div className="settings-modal-header-icon" style={{ background: "rgba(99, 102, 241, 0.12)", color: "#6366f1" }}>
+        <div className="settings-modal-overlay org-settings-modal-overlay">
+          <div className="settings-modal org-settings-modal">
+            <div className="settings-modal-header-icon org-settings-modal-header-icon" style={{ background: "rgba(99, 102, 241, 0.12)", color: "#6366f1" }}>
               <Building2 size={24} />
             </div>
             <h2>Transfer Organization Ownership</h2>
@@ -680,7 +716,7 @@ export default function AdminSettings() {
                 <option value="sneha@abctech.com">Sneha Gupta (Product Design) - sneha@abctech.com</option>
               </select>
             </div>
-            <div className="settings-modal-actions">
+            <div className="settings-modal-actions org-settings-modal-actions">
               <button
                 type="button"
                 className="btn-secondary"
@@ -702,9 +738,9 @@ export default function AdminSettings() {
 
       {/* DELETE ORGANIZATION MODAL */}
       {showDeleteModal && (
-        <div className="settings-modal-overlay">
-          <div className="settings-modal">
-            <div className="settings-modal-danger-icon">
+        <div className="settings-modal-overlay org-settings-modal-overlay">
+          <div className="settings-modal org-settings-modal">
+            <div className="settings-modal-danger-icon org-settings-modal-danger-icon">
               <Trash2 size={24} />
             </div>
             <h2 style={{ color: "#ef4444" }}>Delete Organization</h2>
@@ -720,7 +756,7 @@ export default function AdminSettings() {
                 onChange={(e) => setDeleteConfirmText(e.target.value)}
               />
             </div>
-            <div className="settings-modal-actions">
+            <div className="settings-modal-actions org-settings-modal-actions">
               <button
                 type="button"
                 className="btn-secondary"
@@ -753,8 +789,8 @@ export default function AdminSettings() {
 
 function SettingHeader({ icon: Icon, title, description }) {
   return (
-    <div className="settings-section-header">
-      <div className="settings-section-icon">
+    <div className="settings-section-header org-settings-section-header">
+      <div className="settings-section-icon org-settings-section-icon">
         <Icon size={20} />
       </div>
       <div>
@@ -767,25 +803,25 @@ function SettingHeader({ icon: Icon, title, description }) {
 
 function SettingCard({ title, description, children, badge }) {
   return (
-    <div className="setting-card">
-      <div className="setting-card-header">
+    <div className="setting-card org-settings-card">
+      <div className="setting-card-header org-setting-card-header">
         <div>
           <h3>{title}</h3>
           {description && <p>{description}</p>}
         </div>
-        {badge && <span className="setting-card-badge">{badge}</span>}
+        {badge && <span className="setting-card-badge org-setting-card-badge">{badge}</span>}
       </div>
-      <div className="setting-card-body">{children}</div>
+      <div className="setting-card-body org-setting-card-body">{children}</div>
     </div>
   );
 }
 
 function ToggleRow({ icon: Icon, title, description, checked, onChange, danger }) {
   return (
-    <div className={`settings-toggle-row ${danger ? "danger" : ""}`}>
-      <div className="toggle-meta">
+    <div className={`settings-toggle-row org-settings-toggle-row ${danger ? "danger" : ""}`}>
+      <div className="toggle-meta org-toggle-meta">
         {Icon && (
-          <div className="toggle-icon">
+          <div className="toggle-icon org-toggle-icon">
             <Icon size={16} />
           </div>
         )}
@@ -794,13 +830,13 @@ function ToggleRow({ icon: Icon, title, description, checked, onChange, danger }
           <p>{description}</p>
         </div>
       </div>
-      <label className="toggle-switch">
+      <label className="toggle-switch org-toggle-switch">
         <input
           type="checkbox"
           checked={Boolean(checked)}
           onChange={(e) => onChange(e.target.checked)}
         />
-        <span className="slider" />
+        <span className="slider org-toggle-slider" />
       </label>
     </div>
   );
@@ -808,19 +844,19 @@ function ToggleRow({ icon: Icon, title, description, checked, onChange, danger }
 
 /* THEME TOGGLE (BIDIRECTIONAL SYNC WITH TOPBAR & SYSTEM) */
 function ThemeToggleSetting() {
-  const [isDark, setIsDark] = useState(() => {
-    return (
-      localStorage.getItem("teamflow_admin_dark") === "true" ||
-      document.documentElement.classList.contains("dark")
-    );
-  });
+  const getIsDark = () => {
+    const adminDark = localStorage.getItem("teamflow_admin_dark");
+    if (adminDark !== null) return adminDark === "true";
+    const themeMode = localStorage.getItem("teamflow_theme_mode");
+    if (themeMode !== null) return themeMode === "dark";
+    return false;
+  };
+
+  const [isDark, setIsDark] = useState(getIsDark);
 
   useEffect(() => {
     const handleSync = () => {
-      const dark =
-        localStorage.getItem("teamflow_admin_dark") === "true" ||
-        document.documentElement.classList.contains("dark");
-      setIsDark(dark);
+      setIsDark(getIsDark());
     };
     window.addEventListener("teamflow_theme_update", handleSync);
     window.addEventListener("storage", handleSync);
@@ -831,85 +867,179 @@ function ThemeToggleSetting() {
   }, []);
 
   const setTheme = (dark) => {
+    document.documentElement.classList.add("theme-transitioning");
     setIsDark(dark);
     if (dark) {
-      document.documentElement.classList.add("dark");
+      document.documentElement.classList.add("dark", "sa-dark-mode");
+      document.body.classList.add("dark", "dark-theme", "sa-dark-mode");
+      document.documentElement.setAttribute("data-theme", "dark");
     } else {
-      document.documentElement.classList.remove("dark");
+      document.documentElement.classList.remove("dark", "sa-dark-mode");
+      document.body.classList.remove("dark", "dark-theme", "sa-dark-mode");
+      document.documentElement.setAttribute("data-theme", "light");
     }
     localStorage.setItem("teamflow_admin_dark", String(dark));
+    localStorage.setItem("teamflow_superadmin_dark_mode", String(dark));
     localStorage.setItem("teamflow_theme_mode", dark ? "dark" : "light");
     window.dispatchEvent(new Event("teamflow_theme_update"));
     window.dispatchEvent(new Event("storage"));
+
+    window.clearTimeout(window.__tfThemeTimer);
+    window.__tfThemeTimer = window.setTimeout(() => {
+      document.documentElement.classList.remove("theme-transitioning");
+    }, 380);
+  };
+
+  const handleKeyToggle = (e, dark) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      setTheme(dark);
+    }
   };
 
   return (
-    <div className="theme-setting-container">
-      <div className="theme-cards-grid">
+    <div className="theme-setting-container org-theme-setting-container">
+      <div className="theme-cards-grid org-theme-cards-grid">
+        {/* LIGHT MODE CARD */}
         <button
           type="button"
-          className={`theme-mode-card ${!isDark ? "active" : ""}`}
+          role="button"
+          aria-pressed={!isDark}
+          aria-label="Select Light Mode daylight SaaS theme"
+          className={`theme-mode-card org-theme-card ${!isDark ? "active" : ""}`}
           onClick={() => setTheme(false)}
+          onKeyDown={(e) => handleKeyToggle(e, false)}
+          tabIndex={0}
         >
-          <div className="theme-card-preview light-preview">
-            <div className="preview-topbar" />
+          <div className="theme-card-preview org-theme-card-preview light-preview" aria-hidden="true">
+            <div className="preview-topbar">
+              <div className="preview-brand-dot" />
+              <div className="preview-search-mock" />
+              <div className="preview-avatar-mock" />
+            </div>
             <div className="preview-body">
-              <div className="preview-sidebar" />
+              <div className="preview-sidebar">
+                <div className="preview-nav-line active" />
+                <div className="preview-nav-line" />
+                <div className="preview-nav-line" />
+              </div>
               <div className="preview-content">
-                <div className="preview-bar" />
-                <div className="preview-boxes" />
+                <div className="preview-header-mock">
+                  <div className="preview-bar" />
+                  <div className="preview-btn-mock" />
+                </div>
+                <div className="preview-cards-mock">
+                  <div className="preview-mini-card">
+                    <div className="preview-mini-pill" />
+                    <div className="preview-mini-val" />
+                  </div>
+                  <div className="preview-mini-card">
+                    <div className="preview-mini-pill accent" />
+                    <div className="preview-mini-val" />
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-          <div className="theme-card-info">
-            <div className="theme-card-title">
+
+          <div className="theme-card-info org-theme-card-info">
+            <div className="theme-card-title org-theme-card-title">
               <Sun size={16} />
               <span>Light Mode</span>
             </div>
             <p>Crisp daylight SaaS theme</p>
           </div>
-          {!isDark && <span className="theme-active-tag">Active</span>}
+
+          {!isDark && (
+            <span className="theme-active-tag org-theme-active-tag">
+              <Check size={11} strokeWidth={3} />
+              <span>Active</span>
+            </span>
+          )}
         </button>
 
+        {/* DARK MODE CARD */}
         <button
           type="button"
-          className={`theme-mode-card ${isDark ? "active" : ""}`}
+          role="button"
+          aria-pressed={isDark}
+          aria-label="Select Dark Mode modern navy theme for low light"
+          className={`theme-mode-card org-theme-card ${isDark ? "active" : ""}`}
           onClick={() => setTheme(true)}
+          onKeyDown={(e) => handleKeyToggle(e, true)}
+          tabIndex={0}
         >
-          <div className="theme-card-preview dark-preview">
-            <div className="preview-topbar dark" />
+          <div className="theme-card-preview org-theme-card-preview dark-preview" aria-hidden="true">
+            <div className="preview-topbar dark">
+              <div className="preview-brand-dot dark" />
+              <div className="preview-search-mock dark" />
+              <div className="preview-avatar-mock dark" />
+            </div>
             <div className="preview-body dark">
-              <div className="preview-sidebar dark" />
+              <div className="preview-sidebar dark">
+                <div className="preview-nav-line dark active" />
+                <div className="preview-nav-line dark" />
+                <div className="preview-nav-line dark" />
+              </div>
               <div className="preview-content dark">
-                <div className="preview-bar dark" />
-                <div className="preview-boxes dark" />
+                <div className="preview-header-mock dark">
+                  <div className="preview-bar dark" />
+                  <div className="preview-btn-mock dark" />
+                </div>
+                <div className="preview-cards-mock dark">
+                  <div className="preview-mini-card dark">
+                    <div className="preview-mini-pill dark" />
+                    <div className="preview-mini-val dark" />
+                  </div>
+                  <div className="preview-mini-card dark">
+                    <div className="preview-mini-pill dark accent" />
+                    <div className="preview-mini-val dark" />
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-          <div className="theme-card-info">
-            <div className="theme-card-title">
+
+          <div className="theme-card-info org-theme-card-info">
+            <div className="theme-card-title org-theme-card-title">
               <Moon size={16} />
               <span>Dark Mode</span>
             </div>
             <p>Modern navy theme for low light</p>
           </div>
-          {isDark && <span className="theme-active-tag">Active</span>}
+
+          {isDark && (
+            <span className="theme-active-tag org-theme-active-tag">
+              <Check size={11} strokeWidth={3} />
+              <span>Active</span>
+            </span>
+          )}
         </button>
       </div>
 
-      <div className="theme-quick-switch-row">
+      {/* QUICK SWITCH ROW */}
+      <div className="theme-quick-switch-row org-theme-quick-switch-row">
         <div>
           <strong>Real-Time Dark Mode Switch</strong>
           <p>Instantly synchronizes across all dashboard modules and the topbar button.</p>
         </div>
         <button
           type="button"
-          className={`switch-toggle-btn ${isDark ? "checked" : ""}`}
+          role="switch"
+          aria-checked={isDark}
+          className={`switch-toggle-btn org-switch-toggle-btn ${isDark ? "checked" : ""}`}
           onClick={() => setTheme(!isDark)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              setTheme(!isDark);
+            }
+          }}
           aria-label="Toggle dark mode"
           title={isDark ? "Switch to Light mode" : "Switch to Dark mode"}
+          tabIndex={0}
         >
-          <span className="switch-toggle-knob">
+          <span className="switch-toggle-knob org-switch-toggle-knob">
             {isDark ? <Moon size={12} /> : <Sun size={12} />}
           </span>
         </button>

@@ -1238,3 +1238,153 @@ html.theme-transitioning *::after {
   color: #818cf8 !important;
   border-color: #334155 !important;
 }
+
+
+/* =========================================================
+   ANIMATED THEME TOGGLE (SUPER ADMIN DESIGN & EFFECT)
+========================================================= */
+
+.superadmin-theme-toggle,
+.tfAdminTopbar__themeToggle {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 58px;
+  height: 30px;
+  padding: 3px;
+  background: #e2e8f0;
+  border: 1px solid #cbd5e1;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.25s ease, border-color 0.25s ease, box-shadow 0.2s ease;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+  user-select: none;
+  overflow: hidden;
+  flex-shrink: 0;
+  outline: none;
+}
+
+.superadmin-theme-toggle:hover,
+.tfAdminTopbar__themeToggle:hover {
+  border-color: #94a3b8;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.08), 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+.superadmin-theme-toggle.is-dark,
+.tfAdminTopbar__themeToggle.is-dark {
+  background: #172442 !important;
+  border-color: #233355 !important;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.35) !important;
+}
+
+.superadmin-theme-toggle.is-light,
+.tfAdminTopbar__themeToggle.is-light {
+  background: #e2e8f0 !important;
+  border-color: #cbd5e1 !important;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06) !important;
+}
+
+.superadmin-theme-toggle.is-dark:hover,
+.tfAdminTopbar__themeToggle.is-dark:hover {
+  border-color: #475569 !important;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4), 0 0 0 3px rgba(96, 136, 255, 0.25) !important;
+}
+
+.superadmin-theme-toggle.is-light:hover,
+.tfAdminTopbar__themeToggle.is-light:hover {
+  border-color: #94a3b8 !important;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.08), 0 0 0 3px rgba(99, 102, 241, 0.15) !important;
+}
+
+.sa-toggle-track {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 7px;
+  pointer-events: none;
+}
+
+.sa-toggle-sun-icon {
+  color: #f59e0b;
+  opacity: 0.95;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.sa-toggle-moon-icon {
+  color: #94a3b8;
+  opacity: 0.35;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.superadmin-theme-toggle.is-dark .sa-toggle-sun-icon,
+.tfAdminTopbar__themeToggle.is-dark .sa-toggle-sun-icon {
+  opacity: 0.3;
+  color: #64748b;
+  transform: rotate(-20deg) scale(0.9);
+}
+
+.superadmin-theme-toggle.is-dark .sa-toggle-moon-icon,
+.tfAdminTopbar__themeToggle.is-dark .sa-toggle-moon-icon {
+  opacity: 0.95;
+  color: #38bdf8;
+  transform: rotate(0deg) scale(1);
+}
+
+.superadmin-theme-toggle.is-light .sa-toggle-sun-icon,
+.tfAdminTopbar__themeToggle.is-light .sa-toggle-sun-icon {
+  opacity: 0.95;
+  color: #f59e0b;
+  transform: rotate(0deg) scale(1);
+}
+
+.superadmin-theme-toggle.is-light .sa-toggle-moon-icon,
+.tfAdminTopbar__themeToggle.is-light .sa-toggle-moon-icon {
+  opacity: 0.3;
+  color: #94a3b8;
+  transform: rotate(20deg) scale(0.9);
+}
+
+.sa-toggle-thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  color: #f59e0b;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2), 0 1px 2px rgba(0, 0, 0, 0.1);
+  transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.superadmin-theme-toggle.is-dark .sa-toggle-thumb,
+.tfAdminTopbar__themeToggle.is-dark .sa-toggle-thumb {
+  transform: translateX(28px);
+  background: #0f172a;
+  color: #38bdf8;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.12), 0 0 10px rgba(56, 189, 248, 0.35);
+}
+
+.superadmin-theme-toggle.is-light .sa-toggle-thumb,
+.tfAdminTopbar__themeToggle.is-light .sa-toggle-thumb {
+  transform: translateX(0);
+  background: #ffffff;
+  color: #f59e0b;
+}
+
+.superadmin-theme-toggle:active .sa-toggle-thumb,
+.tfAdminTopbar__themeToggle:active .sa-toggle-thumb {
+  transform: scale(0.92);
+}
+
+.superadmin-theme-toggle.is-dark:active .sa-toggle-thumb,
+.tfAdminTopbar__themeToggle.is-dark:active .sa-toggle-thumb {
+  transform: translateX(28px) scale(0.92);
+}

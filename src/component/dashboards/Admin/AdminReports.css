@@ -1202,54 +1202,467 @@
 
 
 /* =========================================================
-   REPORT ACTIONS OVERLAP FIX & SPACING ENHANCEMENT
+   PAGINATION BAR & ADVANCED ACTION BUTTONS (WORKSPACES FORMAT)
 ========================================================= */
+
+/* Pagination Bar */
+.reports-pagination-bar,
+.admin-reports-card .ws-pagination-bar {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 14px 20px !important;
+  background: #ffffff !important;
+  border-top: 1px solid #f1f5f9 !important;
+  border-radius: 0 0 12px 12px !important;
+  flex-wrap: wrap !important;
+  gap: 12px !important;
+  margin-top: 0 !important;
+  box-shadow: none !important;
+}
+
+.admin-reports-card .ws-pagination-info {
+  display: flex !important;
+  align-items: center !important;
+  gap: 16px !important;
+  font-size: 13px !important;
+  color: #64748b !important;
+}
+
+.admin-reports-card .ws-page-size-wrap {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.admin-reports-card .ws-page-size-wrap select {
+  padding: 5px 10px !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 6px !important;
+  font-size: 12.5px !important;
+  background: #ffffff !important;
+  color: #334155 !important;
+  cursor: pointer !important;
+  font-weight: 500 !important;
+  outline: none !important;
+  transition: all 0.15s ease !important;
+}
+
+.admin-reports-card .ws-page-size-wrap select:focus {
+  border-color: #6366f1 !important;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.15) !important;
+}
+
+.admin-reports-card .ws-pagination-controls {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+}
+
+.admin-reports-card .ws-page-nav-btn {
+  padding: 6px 14px !important;
+  border-radius: 7px !important;
+  border: 1px solid #cbd5e1 !important;
+  background: #ffffff !important;
+  font-size: 12.5px !important;
+  font-weight: 600 !important;
+  color: #475569 !important;
+  cursor: pointer !important;
+  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.admin-reports-card .ws-page-nav-btn:hover:not(:disabled) {
+  background: #f8fafc !important;
+  border-color: #6366f1 !important;
+  color: #4f46e5 !important;
+  transform: translateY(-1px) !important;
+}
+
+.admin-reports-card .ws-page-nav-btn:disabled {
+  opacity: 0.45 !important;
+  cursor: not-allowed !important;
+  border-color: #e2e8f0 !important;
+}
+
+.admin-reports-card .ws-page-pills {
+  display: flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+}
+
+.admin-reports-card .ws-page-num-pill {
+  width: 32px !important;
+  height: 32px !important;
+  padding: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 7px !important;
+  border: 1px solid #cbd5e1 !important;
+  background: #ffffff !important;
+  color: #475569 !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.admin-reports-card .ws-page-num-pill:hover {
+  background: #f1f5f9 !important;
+  border-color: #6366f1 !important;
+  color: #4f46e5 !important;
+  transform: translateY(-1px) !important;
+}
+
+.admin-reports-card .ws-page-num-pill.active {
+  background: #4f46e5 !important;
+  color: #ffffff !important;
+  border-color: #4f46e5 !important;
+  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.35) !important;
+}
+
+/* =========================================================
+   SUPERIOR ACTION BUTTONS STYLING
+========================================================= */
+
 .admin-reports-table .actions-cell {
   display: inline-flex !important;
   align-items: center !important;
   justify-content: flex-end !important;
   gap: 8px !important;
   white-space: nowrap !important;
-  min-width: 180px !important;
+  min-width: 190px !important;
 }
 
 .admin-reports-table .action-btn {
-  padding: 6px 12px !important;
-  font-size: 12px !important;
-  font-weight: 500 !important;
-  white-space: nowrap !important;
-  flex-shrink: 0 !important;
   display: inline-flex !important;
   align-items: center !important;
-  gap: 5px !important;
-  border-radius: 6px !important;
-  transition: all 0.2s ease !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  padding: 6px 13px !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  line-height: 1 !important;
+  border-radius: 8px !important;
+  border: 1px solid #cbd5e1 !important;
+  background: #ffffff !important;
+  color: #334155 !important;
+  cursor: pointer !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
+}
+
+.admin-reports-table .action-btn:active {
+  transform: scale(0.96) !important;
+}
+
+/* View Action Button */
+.admin-reports-table .action-btn.preview {
+  color: #4338ca !important;
+  border-color: #e0e7ff !important;
+  background: #f5f3ff !important;
 }
 
 .admin-reports-table .action-btn.preview:hover {
-  background: var(--bg-hover, #f1f5f9) !important;
-  border-color: #cbd5e1 !important;
+  background: #ede9fe !important;
+  border-color: #6366f1 !important;
+  color: #4338ca !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 10px rgba(99, 102, 241, 0.18) !important;
+}
+
+/* Download Action Button */
+.admin-reports-table .action-btn.download {
+  color: #065f46 !important;
+  border-color: #a7f3d0 !important;
+  background: #ecfdf5 !important;
 }
 
 .admin-reports-table .action-btn.download:hover {
-  background: #ede9fe !important;
-  border-color: #6366f1 !important;
-  color: #6366f1 !important;
+  background: #10b981 !important;
+  border-color: #10b981 !important;
+  color: #ffffff !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35) !important;
+}
+
+/* Delete Action Button */
+.admin-reports-table .action-btn.delete {
+  padding: 6px 10px !important;
+  color: #94a3b8 !important;
+  border-color: #e2e8f0 !important;
+  background: #ffffff !important;
 }
 
 .admin-reports-table .action-btn.delete:hover {
-  background: #fef2f2 !important;
-  border-color: #fecaca !important;
+  background: #fee2e2 !important;
+  border-color: #fca5a5 !important;
   color: #ef4444 !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 10px rgba(239, 68, 68, 0.2) !important;
 }
 
-:root.dark .admin-reports-table .action-btn {
+/* Template Run Buttons */
+.template-gen-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  padding: 6px 14px !important;
+  border: 1px solid #e0e7ff !important;
+  background: #f5f3ff !important;
+  color: #4f46e5 !important;
+  border-radius: 7px !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.template-gen-btn:hover {
+  background: #4f46e5 !important;
+  border-color: #4f46e5 !important;
+  color: #ffffff !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 10px rgba(79, 70, 229, 0.25) !important;
+}
+
+.template-gen-btn:active {
+  transform: scale(0.96) !important;
+}
+
+/* Header Primary / Secondary Buttons */
+.admin-reports-btn-primary {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 7px !important;
+  padding: 8px 18px !important;
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%) !important;
+  color: #ffffff !important;
+  border: none !important;
+  border-radius: 8px !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.32) !important;
+  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.admin-reports-btn-primary:hover {
+  background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%) !important;
+  box-shadow: 0 6px 16px rgba(99, 102, 241, 0.42) !important;
+  transform: translateY(-1px) !important;
+}
+
+.admin-reports-btn-primary:active {
+  transform: scale(0.97) !important;
+}
+
+.admin-reports-btn-secondary {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 7px !important;
+  padding: 8px 16px !important;
+  background: #ffffff !important;
+  color: #334155 !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 8px !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.admin-reports-btn-secondary:hover {
+  border-color: #6366f1 !important;
+  color: #4f46e5 !important;
+  background: rgba(99, 102, 241, 0.05) !important;
+  transform: translateY(-1px) !important;
+}
+
+.admin-reports-btn-secondary:active {
+  transform: scale(0.97) !important;
+}
+
+/* =========================================================
+   DARK MODE COMPATIBILITY FOR PAGINATION & ACTION BUTTONS
+========================================================= */
+
+:root.dark .reports-pagination-bar,
+.dark .reports-pagination-bar,
+body.dark-theme .reports-pagination-bar,
+[data-theme="dark"] .reports-pagination-bar,
+:root.dark .admin-reports-card .ws-pagination-bar,
+.dark .admin-reports-card .ws-pagination-bar,
+body.dark-theme .admin-reports-card .ws-pagination-bar,
+[data-theme="dark"] .admin-reports-card .ws-pagination-bar {
+  background: #111827 !important;
+  border-top-color: #1f2937 !important;
+}
+
+:root.dark .admin-reports-card .ws-pagination-info,
+.dark .admin-reports-card .ws-pagination-info,
+body.dark-theme .admin-reports-card .ws-pagination-info,
+[data-theme="dark"] .admin-reports-card .ws-pagination-info {
+  color: #94a3b8 !important;
+}
+
+:root.dark .admin-reports-card .ws-page-size-wrap select,
+.dark .admin-reports-card .ws-page-size-wrap select,
+body.dark-theme .admin-reports-card .ws-page-size-wrap select,
+[data-theme="dark"] .admin-reports-card .ws-page-size-wrap select {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+:root.dark .admin-reports-card .ws-page-nav-btn,
+.dark .admin-reports-card .ws-page-nav-btn,
+body.dark-theme .admin-reports-card .ws-page-nav-btn,
+[data-theme="dark"] .admin-reports-card .ws-page-nav-btn {
   background: #1e293b !important;
   border-color: #334155 !important;
   color: #cbd5e1 !important;
 }
 
-:root.dark .admin-reports-table .action-btn:hover {
+:root.dark .admin-reports-card .ws-page-nav-btn:hover:not(:disabled),
+.dark .admin-reports-card .ws-page-nav-btn:hover:not(:disabled),
+body.dark-theme .admin-reports-card .ws-page-nav-btn:hover:not(:disabled),
+[data-theme="dark"] .admin-reports-card .ws-page-nav-btn:hover:not(:disabled) {
   background: #334155 !important;
-  color: #f8fafc !important;
+  border-color: #6366f1 !important;
+  color: #ffffff !important;
+}
+
+:root.dark .admin-reports-card .ws-page-num-pill,
+.dark .admin-reports-card .ws-page-num-pill,
+body.dark-theme .admin-reports-card .ws-page-num-pill,
+[data-theme="dark"] .admin-reports-card .ws-page-num-pill {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #cbd5e1 !important;
+}
+
+:root.dark .admin-reports-card .ws-page-num-pill:hover,
+.dark .admin-reports-card .ws-page-num-pill:hover,
+body.dark-theme .admin-reports-card .ws-page-num-pill:hover,
+[data-theme="dark"] .admin-reports-card .ws-page-num-pill:hover {
+  background: #334155 !important;
+  border-color: #6366f1 !important;
+  color: #ffffff !important;
+}
+
+:root.dark .admin-reports-card .ws-page-num-pill.active,
+.dark .admin-reports-card .ws-page-num-pill.active,
+body.dark-theme .admin-reports-card .ws-page-num-pill.active,
+[data-theme="dark"] .admin-reports-card .ws-page-num-pill.active {
+  background: #4f46e5 !important;
+  border-color: #4f46e5 !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 10px rgba(79, 70, 229, 0.45) !important;
+}
+
+/* Dark Mode Action Buttons */
+:root.dark .admin-reports-table .action-btn.preview,
+.dark .admin-reports-table .action-btn.preview,
+body.dark-theme .admin-reports-table .action-btn.preview,
+[data-theme="dark"] .admin-reports-table .action-btn.preview {
+  background: rgba(99, 102, 241, 0.14) !important;
+  border-color: rgba(99, 102, 241, 0.35) !important;
+  color: #a5b4fc !important;
+}
+
+:root.dark .admin-reports-table .action-btn.preview:hover,
+.dark .admin-reports-table .action-btn.preview:hover,
+body.dark-theme .admin-reports-table .action-btn.preview:hover,
+[data-theme="dark"] .admin-reports-table .action-btn.preview:hover {
+  background: rgba(99, 102, 241, 0.28) !important;
+  border-color: #818cf8 !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3) !important;
+}
+
+:root.dark .admin-reports-table .action-btn.download,
+.dark .admin-reports-table .action-btn.download,
+body.dark-theme .admin-reports-table .action-btn.download,
+[data-theme="dark"] .admin-reports-table .action-btn.download {
+  background: rgba(16, 185, 129, 0.14) !important;
+  border-color: rgba(16, 185, 129, 0.4) !important;
+  color: #34d399 !important;
+}
+
+:root.dark .admin-reports-table .action-btn.download:hover,
+.dark .admin-reports-table .action-btn.download:hover,
+body.dark-theme .admin-reports-table .action-btn.download:hover,
+[data-theme="dark"] .admin-reports-table .action-btn.download:hover {
+  background: #10b981 !important;
+  border-color: #10b981 !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.45) !important;
+}
+
+:root.dark .admin-reports-table .action-btn.delete,
+.dark .admin-reports-table .action-btn.delete,
+body.dark-theme .admin-reports-table .action-btn.delete,
+[data-theme="dark"] .admin-reports-table .action-btn.delete {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #94a3b8 !important;
+}
+
+:root.dark .admin-reports-table .action-btn.delete:hover,
+.dark .admin-reports-table .action-btn.delete:hover,
+body.dark-theme .admin-reports-table .action-btn.delete:hover,
+[data-theme="dark"] .admin-reports-table .action-btn.delete:hover {
+  background: rgba(239, 68, 68, 0.22) !important;
+  border-color: rgba(239, 68, 68, 0.5) !important;
+  color: #f87171 !important;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3) !important;
+}
+
+:root.dark .template-gen-btn,
+.dark .template-gen-btn,
+body.dark-theme .template-gen-btn,
+[data-theme="dark"] .template-gen-btn {
+  background: rgba(99, 102, 241, 0.15) !important;
+  border-color: rgba(99, 102, 241, 0.35) !important;
+  color: #a5b4fc !important;
+}
+
+:root.dark .template-gen-btn:hover,
+.dark .template-gen-btn:hover,
+body.dark-theme .template-gen-btn:hover,
+[data-theme="dark"] .template-gen-btn:hover {
+  background: #6366f1 !important;
+  border-color: #6366f1 !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35) !important;
+}
+
+:root.dark .admin-reports-btn-secondary,
+.dark .admin-reports-btn-secondary,
+body.dark-theme .admin-reports-btn-secondary,
+[data-theme="dark"] .admin-reports-btn-secondary {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #cbd5e1 !important;
+}
+
+:root.dark .admin-reports-btn-secondary:hover,
+.dark .admin-reports-btn-secondary:hover,
+body.dark-theme .admin-reports-btn-secondary:hover,
+[data-theme="dark"] .admin-reports-btn-secondary:hover {
+  background: #334155 !important;
+  border-color: #6366f1 !important;
+  color: #ffffff !important;
+}
+
+@media (max-width: 768px) {
+  .reports-pagination-bar,
+  .admin-reports-card .ws-pagination-bar {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 10px !important;
+  }
 }

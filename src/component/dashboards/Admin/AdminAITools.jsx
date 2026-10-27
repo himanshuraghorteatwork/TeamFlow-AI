@@ -38,7 +38,16 @@ export default function AdminAITools() {
   const [tools, setTools] = useState(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) return JSON.parse(saved);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          // If stored tools are only the old 6 items, upgrade to the full 14 items
+          if (parsed.length <= 6 && initialAITools.length > parsed.length) {
+            return initialAITools;
+          }
+          return parsed;
+        }
+      }
     } catch (e) {}
     return initialAITools;
   });
@@ -143,11 +152,37 @@ export default function AdminAITools() {
     return sortedList;
   }, [tools, search, categoryFilter, sortKey, sortOrder]);
 
+  // Auto-reset page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, categoryFilter, sortKey, sortOrder, perPage]);
+
   const totalPages = Math.max(1, Math.ceil(filteredTools.length / perPage));
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [currentPage, totalPages]);
+
   const paginatedTools = useMemo(() => {
     const start = (currentPage - 1) * perPage;
     return filteredTools.slice(start, start + perPage);
   }, [filteredTools, currentPage, perPage]);
+
+  // Page numbers generator matching Projects & Bugs
+  const getPageNumbers = () => {
+    if (totalPages <= 7) {
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
+    }
+    if (currentPage <= 4) {
+      return [1, 2, 3, 4, 5, "...", totalPages];
+    }
+    if (currentPage >= totalPages - 3) {
+      return [1, "...", totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+    }
+    return [1, "...", currentPage - 1, currentPage, currentPage + 1, "...", totalPages];
+  };
 
   const stats = useMemo(() => {
     const total = tools.length;
@@ -523,51 +558,70 @@ export default function AdminAITools() {
             </div>
           )}
 
-          {/* PAGINATION BAR */}
-          <div className="admin-ai-pagination-bar">
-            <div className="admin-ai-per-page">
-              <label>Rows per page:</label>
-              <select
-                value={perPage}
-                onChange={(e) => {
-                  setPerPage(Number(e.target.value));
-                  setCurrentPage(1);
-                }}
-                className="per-page-select"
-              >
-                <option value={6}>6</option>
-                <option value={12}>12</option>
-                <option value={24}>24</option>
-              </select>
-            </div>
+          {/* PAGINATION BAR (Matching Reports & Activity Logs) */}
+          {filteredTools.length > 0 && (
+            <div className={`admin-ai-pagination-bar ${viewMode === "grid" ? "is-grid" : ""}`}>
+              <div className="admin-ai-pagination-info">
+                <span>
+                  Showing {(currentPage - 1) * perPage + 1} to{" "}
+                  {Math.min(currentPage * perPage, filteredTools.length)} of {filteredTools.length} AI features
+                </span>
+                <div className="admin-ai-page-size-wrap">
+                  <span>AI features per page:</span>
+                  <select
+                    value={perPage}
+                    onChange={(e) => {
+                      setPerPage(Number(e.target.value));
+                      setCurrentPage(1);
+                    }}
+                    aria-label="AI features per page"
+                  >
+                    <option value={6}>6</option>
+                    <option value={10}>10</option>
+                    <option value={20}>20</option>
+                    <option value={50}>50</option>
+                  </select>
+                </div>
+              </div>
 
-            <div className="admin-ai-page-info">
-              Showing {filteredTools.length === 0 ? 0 : (currentPage - 1) * perPage + 1} -{" "}
-              {Math.min(currentPage * perPage, filteredTools.length)} of {filteredTools.length} AI tools
+              <div className="admin-ai-pagination-controls">
+                <button
+                  type="button"
+                  className="admin-ai-page-nav-btn"
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  disabled={currentPage <= 1}
+                >
+                  Previous
+                </button>
+                <div className="admin-ai-page-pills">
+                  {getPageNumbers().map((item, idx) =>
+                    item === "..." ? (
+                      <span key={`ellipsis-${idx}`} className="admin-ai-page-ellipsis">
+                        ...
+                      </span>
+                    ) : (
+                      <button
+                        key={item}
+                        type="button"
+                        className={`admin-ai-page-num-pill ${currentPage === item ? "active" : ""}`}
+                        onClick={() => setCurrentPage(item)}
+                      >
+                        {item}
+                      </button>
+                    )
+                  )}
+                </div>
+                <button
+                  type="button"
+                  className="admin-ai-page-nav-btn"
+                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={currentPage >= totalPages}
+                >
+                  Next
+                </button>
+              </div>
             </div>
-
-            <div className="admin-ai-pagination-nav">
-              <button
-                type="button"
-                className="page-nav-btn"
-                disabled={currentPage <= 1}
-                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-              >
-                <ChevronLeft size={14} /> Prev
-              </button>
-              <span className="current-page-tag">
-                {currentPage} / {totalPages}
-              </span>
-              <button
-                type="button"
-                className="page-nav-btn"
-                disabled={currentPage >= totalPages}
-                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-              >
-                Next <ChevronRight size={14} />
-              </button>
-            </div>
-          </div>
+          )}
         </main>
       </div>
 
@@ -640,14 +694,14 @@ export default function AdminAITools() {
               <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                 <div className="tool-avatar" style={{ width: 42, height: 42 }}><Bot size={24} /></div>
                 <div>
-                  <h3 style={{ margin: 0, fontSize: 18, color: "#0f172a" }}>{viewingTool.name}</h3>
-                  <small style={{ color: "#64748b" }}>Execution count: {(viewingTool.requests || 120).toLocaleString()} requests</small>
+                  <h3 className="view-tool-title" style={{ margin: 0, fontSize: 18 }}>{viewingTool.name}</h3>
+                  <small className="view-tool-sub">Execution count: {(viewingTool.requests || 120).toLocaleString()} requests</small>
                 </div>
               </div>
 
-              <div style={{ background: "#f8fafc", padding: 14, borderRadius: 8, border: "1px solid #e2e8f0" }}>
-                <strong style={{ fontSize: 12, textTransform: "uppercase", color: "#64748b", display: "block", marginBottom: 6 }}>Description & Capabilities</strong>
-                <p style={{ margin: 0, fontSize: 13.5, color: "#334155", lineHeight: 1.6 }}>{viewingTool.description}</p>
+              <div className="view-desc-card">
+                <strong className="view-desc-header">Description & Capabilities</strong>
+                <p className="view-desc-text">{viewingTool.description}</p>
               </div>
             </div>
 

@@ -342,6 +342,7 @@ function MetricCard({
 
 function Analytics() {
   const [period, setPeriod] = useState("30 days");
+  const [activePieIndex, setActivePieIndex] = useState(null);
   const [analyticsTab, setAnalyticsTab] = useState("organizations"); // "organizations" | "daily" | "features"
   const [searchQuery, setSearchQuery] = useState("");
   const [planFilter, setPlanFilter] = useState("All plans");
@@ -702,7 +703,12 @@ function Analytics() {
         <article className="analytics-panel analytics-task-panel">
           <div className="analytics-panel-header">
             <div>
-              <h2>Task Overview</h2>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <h2>Task Overview</h2>
+                <span className="chart-live-badge">
+                  <span className="chart-live-dot" /> LIVE
+                </span>
+              </div>
               <p>Distribution across all organizations</p>
             </div>
           </div>
@@ -715,12 +721,19 @@ function Analytics() {
                   dataKey="value"
                   nameKey="name"
                   innerRadius={67}
-                  outerRadius={94}
+                  outerRadius={activePieIndex !== null ? 97 : 94}
                   paddingAngle={4}
                   stroke="none"
+                  onMouseEnter={(_, index) => setActivePieIndex(index)}
+                  onMouseLeave={() => setActivePieIndex(null)}
                 >
-                  {taskData.map((entry) => (
-                    <Cell key={entry.name} fill={entry.color} />
+                  {taskData.map((entry, index) => (
+                    <Cell
+                      key={entry.name}
+                      fill={entry.color}
+                      opacity={activePieIndex !== null && activePieIndex !== index ? 0.45 : 1}
+                      style={{ cursor: "pointer", transition: "all 0.2s ease" }}
+                    />
                   ))}
                 </Pie>
 
@@ -732,16 +745,37 @@ function Analytics() {
             </ResponsiveContainer>
 
             <div className="analytics-donut-center">
-              <strong>100%</strong>
-              <span>Task status</span>
+              {activePieIndex !== null && taskData[activePieIndex] ? (
+                <>
+                  <strong style={{ color: taskData[activePieIndex].color }}>{taskData[activePieIndex].value}%</strong>
+                  <span>{taskData[activePieIndex].name}</span>
+                </>
+              ) : (
+                <>
+                  <strong>100%</strong>
+                  <span>Task status</span>
+                </>
+              )}
             </div>
           </div>
 
           <div className="analytics-task-legend">
-            {taskData.map((task) => (
-              <div className="analytics-task-legend-row" key={task.name}>
+            {taskData.map((task, index) => (
+              <div
+                className={`analytics-task-legend-row ${activePieIndex === index ? "active" : ""}`}
+                key={task.name}
+                onMouseEnter={() => setActivePieIndex(index)}
+                onMouseLeave={() => setActivePieIndex(null)}
+                style={{
+                  cursor: "pointer",
+                  borderRadius: 6,
+                  padding: "4px 8px",
+                  transition: "all 0.15s ease",
+                  background: activePieIndex === index ? "rgba(99, 102, 241, 0.1)" : "transparent"
+                }}
+              >
                 <span>
-                  <i style={{ background: task.color }} />
+                  <i style={{ background: task.color, transform: activePieIndex === index ? "scale(1.3)" : "scale(1)", transition: "transform 0.15s ease" }} />
                   {task.name}
                 </span>
                 <strong>{task.value}%</strong>

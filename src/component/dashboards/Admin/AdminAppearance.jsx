@@ -52,14 +52,14 @@ export default function AdminAppearance() {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       const initial = saved ? { ...defaultAppearance, ...JSON.parse(saved) } : defaultAppearance;
+      const storedDark = localStorage.getItem("teamflow_admin_dark");
       const storedMode = localStorage.getItem("teamflow_theme_mode");
       if (storedMode) {
         initial.themeMode = storedMode;
+      } else if (storedDark !== null) {
+        initial.themeMode = storedDark === "true" ? "dark" : "light";
       } else {
-        const isDark =
-          document.documentElement.classList.contains("dark") ||
-          localStorage.getItem("teamflow_admin_dark") === "true";
-        initial.themeMode = isDark ? "dark" : "light";
+        initial.themeMode = "light";
       }
       return initial;
     } catch {
@@ -79,12 +79,17 @@ export default function AdminAppearance() {
     }
 
     if (isDark) {
-      document.documentElement.classList.add("dark");
+      document.documentElement.classList.add("dark", "sa-dark-mode");
+      document.body.classList.add("dark", "dark-theme", "sa-dark-mode");
+      document.documentElement.setAttribute("data-theme", "dark");
     } else {
-      document.documentElement.classList.remove("dark");
+      document.documentElement.classList.remove("dark", "sa-dark-mode");
+      document.body.classList.remove("dark", "dark-theme", "sa-dark-mode");
+      document.documentElement.setAttribute("data-theme", "light");
     }
 
     localStorage.setItem("teamflow_admin_dark", String(isDark));
+    localStorage.setItem("teamflow_superadmin_dark_mode", String(isDark));
     localStorage.setItem("teamflow_theme_mode", mode);
     window.dispatchEvent(new Event("teamflow_theme_update"));
 
@@ -113,13 +118,12 @@ export default function AdminAppearance() {
   // External theme listener (sync with Topbar & Settings)
   useEffect(() => {
     const handleExternalTheme = () => {
-      const isDark =
-        localStorage.getItem("teamflow_admin_dark") === "true" ||
-        document.documentElement.classList.contains("dark");
-      const storedMode = localStorage.getItem("teamflow_theme_mode") || (isDark ? "dark" : "light");
+      const storedDark = localStorage.getItem("teamflow_admin_dark");
+      const storedMode = localStorage.getItem("teamflow_theme_mode");
+      const resolvedMode = storedMode || (storedDark === "true" ? "dark" : "light");
       setAppearance((prev) => ({
         ...prev,
-        themeMode: storedMode,
+        themeMode: resolvedMode,
       }));
     };
 

@@ -40,7 +40,23 @@ const defaultActivities = [
   { id: 5, user: "Emily Parker", role: "Designer", action: "Invited new team member", entity: "Design Studio", ip: "192.168.1.15", severity: "success", time: "Yesterday", fullDate: "2026-10-25 15:30:00" },
   { id: 6, user: "Amit Sharma", role: "Org Admin", action: "Modified custom role permissions", entity: "Engineering Lead", ip: "192.168.1.10", severity: "info", time: "2 days ago", fullDate: "2026-10-24 11:20:00" },
   { id: 7, user: "Michael Chang", role: "Billing Admin", action: "Upgraded subscription tier to Enterprise", entity: "Billing Portal", ip: "192.168.1.42", severity: "success", time: "3 days ago", fullDate: "2026-10-23 09:15:00" },
-  { id: 8, user: "Security Watcher", role: "Audit Daemon", action: "Detected multi-geo concurrent logins", entity: "Auth Service", ip: "185.220.101.5", severity: "danger", time: "4 days ago", fullDate: "2026-10-22 14:02:00" }
+  { id: 8, user: "Security Watcher", role: "Audit Daemon", action: "Detected multi-geo concurrent logins", entity: "Auth Service", ip: "185.220.101.5", severity: "danger", time: "4 days ago", fullDate: "2026-10-22 14:02:00" },
+  { id: 9, user: "Priya Patel", role: "Product Manager", action: "Archived Q3 Roadmap Workspace", entity: "Product Strategy", ip: "192.168.1.28", severity: "warning", time: "4 days ago", fullDate: "2026-10-22 11:45:00" },
+  { id: 10, user: "Rahul Sharma", role: "Lead Architect", action: "Rotated OAuth Client Secret tokens", entity: "API Gateway Core", ip: "172.16.2.14", severity: "info", time: "5 days ago", fullDate: "2026-10-21 16:30:00" },
+  { id: 11, user: "Sneha Singh", role: "DevOps Engineer", action: "Deployed production container cluster v2.4", entity: "Kubernetes Node Pool", ip: "10.0.4.18", severity: "success", time: "5 days ago", fullDate: "2026-10-21 12:10:00" },
+  { id: 12, user: "System Guard", role: "Security Bot", action: "Triggered rate-limit throttle on /auth/token", entity: "Public Gateway", ip: "89.144.20.91", severity: "danger", time: "6 days ago", fullDate: "2026-10-20 22:15:00" },
+  { id: 13, user: "David Lee", role: "Admin", action: "Changed SAML SSO enforcement policy", entity: "Identity Provider", ip: "172.16.0.4", severity: "warning", time: "1 week ago", fullDate: "2026-10-19 14:20:00" },
+  { id: 14, user: "Emily Parker", role: "Designer", action: "Exported design assets library", entity: "Brand Guidelines", ip: "192.168.1.15", severity: "info", time: "1 week ago", fullDate: "2026-10-19 10:05:00" },
+  { id: 15, user: "Amit Sharma", role: "Org Admin", action: "Provisioned 15 new seat licenses", entity: "Organization Plan", ip: "192.168.1.10", severity: "success", time: "1 week ago", fullDate: "2026-10-18 17:40:00" },
+  { id: 16, user: "Karan Mehta", role: "Security Auditor", action: "Completed quarterly penetration audit", entity: "Security Compliance", ip: "192.168.2.88", severity: "info", time: "8 days ago", fullDate: "2026-10-18 09:30:00" },
+  { id: 17, user: "System Guard", role: "Security Bot", action: "Flagged brute force credential spray pattern", entity: "LDAP Connector", ip: "194.26.29.112", severity: "danger", time: "9 days ago", fullDate: "2026-10-17 03:22:00" },
+  { id: 18, user: "Sarah Chen", role: "Team Lead", action: "Transferred project ownership to Design Ops", entity: "Design System v3", ip: "104.28.19.2", severity: "info", time: "10 days ago", fullDate: "2026-10-16 15:45:00" },
+  { id: 19, user: "Michael Chang", role: "Billing Admin", action: "Generated annual tax compliance invoice", entity: "Finance Ledger", ip: "192.168.1.42", severity: "info", time: "11 days ago", fullDate: "2026-10-15 11:10:00" },
+  { id: 20, user: "Priya Patel", role: "Product Manager", action: "Updated bug workflow escalation matrix", entity: "BugFlow Engine", ip: "192.168.1.28", severity: "success", time: "12 days ago", fullDate: "2026-10-14 16:50:00" },
+  { id: 21, user: "Security Watcher", role: "Audit Daemon", action: "Blocked CORS origin anomaly from unknown host", entity: "CORS Filter", ip: "77.88.55.60", severity: "danger", time: "2 weeks ago", fullDate: "2026-10-12 18:04:00" },
+  { id: 22, user: "Rahul Sharma", role: "Lead Architect", action: "Re-indexed Elasticsearch audit indices", entity: "Telemetry Store", ip: "172.16.2.14", severity: "info", time: "2 weeks ago", fullDate: "2026-10-11 13:25:00" },
+  { id: 23, user: "Amit Sharma", role: "Org Admin", action: "Enabled hardware 2FA requirement for Admins", entity: "Org Security Baseline", ip: "192.168.1.10", severity: "warning", time: "2 weeks ago", fullDate: "2026-10-10 14:15:00" },
+  { id: 24, user: "Sneha Singh", role: "DevOps Engineer", action: "Restored PostgreSQL standby replica snapshot", entity: "DB Cluster Primary", ip: "10.0.4.18", severity: "success", time: "3 weeks ago", fullDate: "2026-10-05 08:30:00" }
 ];
 
 export default function AdminActivityLogs() {
@@ -49,11 +65,21 @@ export default function AdminActivityLogs() {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          // If saved logs is the old small demo set (<= 8 items), upgrade to rich 24 items dataset
+          if (parsed.length <= 8 && defaultActivities.length > parsed.length) {
+            return defaultActivities;
+          }
+          return parsed;
+        }
       }
     } catch (e) {}
     return defaultActivities;
   });
+
+  // Pagination State
+  const [currentPage, setCurrentPage] = useState(1);
+  const [perPage, setPerPage] = useState(6);
 
   const [mobileOpen, setMobileOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -141,6 +167,40 @@ export default function AdminActivityLogs() {
       });
   }, [logs, search, severityFilter, sortKey, sortOrder]);
 
+  // Auto-reset page when filters or search change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, severityFilter, sortKey, sortOrder, perPage]);
+
+  // Pagination calculations
+  const totalPages = Math.max(1, Math.ceil(filteredLogs.length / perPage));
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [currentPage, totalPages]);
+
+  const paginatedLogs = useMemo(() => {
+    const start = (currentPage - 1) * perPage;
+    return filteredLogs.slice(start, start + perPage);
+  }, [filteredLogs, currentPage, perPage]);
+
+  const getPageNumbers = () => {
+    if (totalPages <= 7) {
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
+    }
+    if (currentPage <= 4) {
+      return [1, 2, 3, 4, 5, "...", totalPages];
+    }
+    if (currentPage >= totalPages - 3) {
+      return [1, "...", totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+    }
+    return [1, "...", currentPage - 1, currentPage, currentPage + 1, "...", totalPages];
+  };
+
+
+
   const stats = useMemo(() => {
     const total = logs.length;
     const warnings = logs.filter(
@@ -187,11 +247,13 @@ export default function AdminActivityLogs() {
     const confirmed = window.confirm("Purge historical audit log records?");
     if (!confirmed) return;
     saveLogs([]);
+    setCurrentPage(1);
     showToast("Audit logs purged.");
   };
 
   const resetDemoLogs = () => {
     saveLogs(defaultActivities);
+    setCurrentPage(1);
     showToast("Reset to default sample audit records.");
   };
 
@@ -219,6 +281,7 @@ export default function AdminActivityLogs() {
       fullDate: new Date().toISOString().replace("T", " ").substring(0, 19),
     };
     saveLogs([newEntry, ...logs]);
+    setCurrentPage(1);
     setShowCreateModal(false);
     setNewLogData({
       user: "Amit Sharma",
@@ -371,13 +434,19 @@ export default function AdminActivityLogs() {
 
           {/* TABLE COUNT & RESET BAR */}
           <div className="admin-logs-meta-bar">
-            <span>Showing {filteredLogs.length} of {logs.length} audit records</span>
-            {logs.length < defaultActivities.length && (
-              <button type="button" className="reset-demo-link" onClick={resetDemoLogs}>
-                <RotateCcw size={13} />
-                Reset Sample Data
-              </button>
-            )}
+            <span>
+              Showing {filteredLogs.length > 0 ? (currentPage - 1) * perPage + 1 : 0} to{" "}
+              {Math.min(currentPage * perPage, filteredLogs.length)} of {filteredLogs.length} filtered ({logs.length} total) audit records
+            </span>
+            <button
+              type="button"
+              className="reset-demo-link"
+              onClick={resetDemoLogs}
+              title="Reset to 24 default audit records"
+            >
+              <RotateCcw size={13} />
+              Reset Sample Data
+            </button>
           </div>
 
           {/* TABLE */}
@@ -426,7 +495,7 @@ export default function AdminActivityLogs() {
                 </tr>
               </thead>
               <tbody>
-                {filteredLogs.length === 0 ? (
+                {paginatedLogs.length === 0 ? (
                   <tr>
                     <td colSpan={8} style={{ textAlign: "center", padding: "48px 20px" }}>
                       <Activity size={36} style={{ color: "#94a3b8", marginBottom: 8 }} />
@@ -436,11 +505,13 @@ export default function AdminActivityLogs() {
                     </td>
                   </tr>
                 ) : (
-                  filteredLogs.map((l, idx) => (
-                    <tr key={l.id}>
-                      <td style={{ textAlign: "center" }}>
-                        <span className="admin-row-num">{idx + 1}</span>
-                      </td>
+                  paginatedLogs.map((l, idx) => {
+                    const rowNumber = (currentPage - 1) * perPage + idx + 1;
+                    return (
+                      <tr key={l.id}>
+                        <td style={{ textAlign: "center" }}>
+                          <span className="admin-row-num">{rowNumber}</span>
+                        </td>
                       <td>
                         <div className="actor-cell">
                           <div className="actor-avatar">
@@ -478,7 +549,7 @@ export default function AdminActivityLogs() {
                         <div className="table-actions">
                           <button
                             type="button"
-                            className="action-btn"
+                            className="action-btn action-btn--view"
                             title="Inspect Event Details"
                             onClick={() => setViewingLog(l)}
                           >
@@ -486,7 +557,7 @@ export default function AdminActivityLogs() {
                           </button>
                           <button
                             type="button"
-                            className="action-btn delete"
+                            className="action-btn action-btn--delete"
                             title="Delete Event Record"
                             onClick={() => handleDeleteLog(l.id)}
                           >
@@ -495,11 +566,77 @@ export default function AdminActivityLogs() {
                         </div>
                       </td>
                     </tr>
-                  ))
+                    );
+                  })
                 )}
               </tbody>
             </table>
           </div>
+
+          {/* PAGINATION BAR */}
+          {filteredLogs.length > 0 && (
+            <div className="admin-logs-pagination-bar">
+              <div className="admin-logs-pagination-info">
+                <span>
+                  Showing {(currentPage - 1) * perPage + 1} to{" "}
+                  {Math.min(currentPage * perPage, filteredLogs.length)} of {filteredLogs.length} records
+                </span>
+                <div className="admin-logs-page-size-wrap">
+                  <span>Records per page:</span>
+                  <select
+                    value={perPage}
+                    onChange={(e) => {
+                      setPerPage(Number(e.target.value));
+                      setCurrentPage(1);
+                    }}
+                    aria-label="Records per page"
+                  >
+                    <option value={6}>6</option>
+                    <option value={10}>10</option>
+                    <option value={20}>20</option>
+                    <option value={50}>50</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="admin-logs-pagination-controls">
+                <button
+                  type="button"
+                  className="admin-logs-page-nav-btn"
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  disabled={currentPage <= 1}
+                >
+                  Previous
+                </button>
+                <div className="admin-logs-page-pills">
+                  {getPageNumbers().map((item, idx) =>
+                    item === "..." ? (
+                      <span key={`ellipsis-${idx}`} className="admin-logs-page-ellipsis">
+                        ...
+                      </span>
+                    ) : (
+                      <button
+                        key={item}
+                        type="button"
+                        className={`admin-logs-page-num-pill ${currentPage === item ? "active" : ""}`}
+                        onClick={() => setCurrentPage(item)}
+                      >
+                        {item}
+                      </button>
+                    )
+                  )}
+                </div>
+                <button
+                  type="button"
+                  className="admin-logs-page-nav-btn"
+                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={currentPage >= totalPages}
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          )}
         </main>
       </div>
 

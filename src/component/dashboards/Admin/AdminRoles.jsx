@@ -837,6 +837,48 @@ export default function AdminRoles() {
     });
   }, [assignedUsers, selectedRole, userSearch]);
 
+  // =========================================================
+  // PAGINATION STATES (Matching Workspace & Users)
+  // =========================================================
+
+  // 1. Pagination for Permissions / Modules (Main Grid)
+  const [modulesPage, setModulesPage] = useState(1);
+  const [modulesPageSize, setModulesPageSize] = useState(6);
+
+  const totalModulePages = Math.max(1, Math.ceil(filteredModules.length / modulesPageSize));
+  const paginatedModules = useMemo(() => {
+    const start = (modulesPage - 1) * modulesPageSize;
+    return filteredModules.slice(start, start + modulesPageSize);
+  }, [filteredModules, modulesPage, modulesPageSize]);
+
+  useEffect(() => {
+    setModulesPage(1);
+  }, [searchQuery, moduleFilter, selectedRoleId]);
+
+  // 2. Pagination for Assigned Users Tab
+  const [usersPage, setUsersPage] = useState(1);
+  const [usersPageSize, setUsersPageSize] = useState(5);
+
+  const totalUserPages = Math.max(1, Math.ceil(roleAssignedUsers.length / usersPageSize));
+  const paginatedRoleUsers = useMemo(() => {
+    const start = (usersPage - 1) * usersPageSize;
+    return roleAssignedUsers.slice(start, start + usersPageSize);
+  }, [roleAssignedUsers, usersPage, usersPageSize]);
+
+  useEffect(() => {
+    setUsersPage(1);
+  }, [userSearch, selectedRoleId]);
+
+  // 3. Pagination for Access Logs Tab
+  const [logsPage, setLogsPage] = useState(1);
+  const [logsPageSize, setLogsPageSize] = useState(8);
+
+  const totalLogsPages = Math.max(1, Math.ceil(accessLogs.length / logsPageSize));
+  const paginatedLogs = useMemo(() => {
+    const start = (logsPage - 1) * logsPageSize;
+    return accessLogs.slice(start, start + logsPageSize);
+  }, [accessLogs, logsPage, logsPageSize]);
+
   return (
     <div className="tfAdminRoles rolesPermissionsCardPage">
       {/* SIDEBAR */}
@@ -1140,7 +1182,7 @@ export default function AdminRoles() {
                       </button>
                     </div>
                   ) : (
-                    filteredModules.map((module) => {
+                    paginatedModules.map((module) => {
                       const IconComp = module.icon || Shield;
                       const modPermIds = module.permissions.map((p) => p.id);
                       const activeInMod = modPermIds.filter((id) =>
@@ -1257,6 +1299,64 @@ export default function AdminRoles() {
                     })
                   )}
                 </div>
+
+                {/* MODULES PAGINATION BAR (Matching Workspace & Users) */}
+                {filteredModules.length > 0 && (
+                  <div className="ws-pagination-bar rp-pagination-bar">
+                    <div className="ws-pagination-info rp-pagination-info">
+                      <span>
+                        Showing {filteredModules.length === 0 ? 0 : (modulesPage - 1) * modulesPageSize + 1} to{" "}
+                        {Math.min(modulesPage * modulesPageSize, filteredModules.length)} of {filteredModules.length} modules
+                      </span>
+                      <div className="ws-page-size-wrap rp-page-size-wrap">
+                        <span>Modules per page:</span>
+                        <select
+                          value={modulesPageSize}
+                          onChange={(e) => {
+                            setModulesPageSize(Number(e.target.value));
+                            setModulesPage(1);
+                          }}
+                        >
+                          <option value={4}>4</option>
+                          <option value={6}>6</option>
+                          <option value={8}>8</option>
+                          <option value={12}>12</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="ws-pagination-controls rp-pagination-controls">
+                      <button
+                        type="button"
+                        className="ws-page-nav-btn rp-page-nav-btn"
+                        onClick={() => setModulesPage((p) => Math.max(1, p - 1))}
+                        disabled={modulesPage <= 1}
+                      >
+                        Previous
+                      </button>
+                      <div className="ws-page-pills rp-page-pills">
+                        {Array.from({ length: totalModulePages }, (_, i) => i + 1).map((num) => (
+                          <button
+                            key={num}
+                            type="button"
+                            className={`ws-page-num-pill rp-page-num-pill ${modulesPage === num ? "active" : ""}`}
+                            onClick={() => setModulesPage(num)}
+                          >
+                            {num}
+                          </button>
+                        ))}
+                      </div>
+                      <button
+                        type="button"
+                        className="ws-page-nav-btn rp-page-nav-btn"
+                        onClick={() => setModulesPage((p) => Math.min(totalModulePages, p + 1))}
+                        disabled={modulesPage >= totalModulePages}
+                      >
+                        Next
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* RIGHT COLUMN: ROLE DETAILS SIDEBAR (Exact match to reference design) */}
@@ -1490,7 +1590,7 @@ export default function AdminRoles() {
                           </td>
                         </tr>
                       ) : (
-                        roleAssignedUsers.map((user) => (
+                        paginatedRoleUsers.map((user) => (
                           <tr key={user.id}>
                             <td>
                               <div className="rp-user-cell">
@@ -1536,6 +1636,64 @@ export default function AdminRoles() {
                     </tbody>
                   </table>
                 </div>
+
+                {/* ASSIGNED USERS PAGINATION BAR (Matching Workspace & Users) */}
+                {roleAssignedUsers.length > 0 && (
+                  <div className="ws-pagination-bar rp-pagination-bar">
+                    <div className="ws-pagination-info rp-pagination-info">
+                      <span>
+                        Showing {roleAssignedUsers.length === 0 ? 0 : (usersPage - 1) * usersPageSize + 1} to{" "}
+                        {Math.min(usersPage * usersPageSize, roleAssignedUsers.length)} of {roleAssignedUsers.length} users
+                      </span>
+                      <div className="ws-page-size-wrap rp-page-size-wrap">
+                        <span>Rows per page:</span>
+                        <select
+                          value={usersPageSize}
+                          onChange={(e) => {
+                            setUsersPageSize(Number(e.target.value));
+                            setUsersPage(1);
+                          }}
+                        >
+                          <option value={5}>5</option>
+                          <option value={8}>8</option>
+                          <option value={10}>10</option>
+                          <option value={20}>20</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="ws-pagination-controls rp-pagination-controls">
+                      <button
+                        type="button"
+                        className="ws-page-nav-btn rp-page-nav-btn"
+                        onClick={() => setUsersPage((p) => Math.max(1, p - 1))}
+                        disabled={usersPage <= 1}
+                      >
+                        Previous
+                      </button>
+                      <div className="ws-page-pills rp-page-pills">
+                        {Array.from({ length: totalUserPages }, (_, i) => i + 1).map((num) => (
+                          <button
+                            key={num}
+                            type="button"
+                            className={`ws-page-num-pill rp-page-num-pill ${usersPage === num ? "active" : ""}`}
+                            onClick={() => setUsersPage(num)}
+                          >
+                            {num}
+                          </button>
+                        ))}
+                      </div>
+                      <button
+                        type="button"
+                        className="ws-page-nav-btn rp-page-nav-btn"
+                        onClick={() => setUsersPage((p) => Math.min(totalUserPages, p + 1))}
+                        disabled={usersPage >= totalUserPages}
+                      >
+                        Next
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -1659,7 +1817,7 @@ export default function AdminRoles() {
                       </tr>
                     </thead>
                     <tbody>
-                      {accessLogs.map((log) => (
+                      {paginatedLogs.map((log) => (
                         <tr key={log.id}>
                           <td>
                             <span className={`rp-log-action-tag ${log.action}`}>
@@ -1683,6 +1841,64 @@ export default function AdminRoles() {
                     </tbody>
                   </table>
                 </div>
+
+                {/* AUDIT LOGS PAGINATION BAR (Matching Workspace & Users) */}
+                {accessLogs.length > 0 && (
+                  <div className="ws-pagination-bar rp-pagination-bar">
+                    <div className="ws-pagination-info rp-pagination-info">
+                      <span>
+                        Showing {accessLogs.length === 0 ? 0 : (logsPage - 1) * logsPageSize + 1} to{" "}
+                        {Math.min(logsPage * logsPageSize, accessLogs.length)} of {accessLogs.length} audit logs
+                      </span>
+                      <div className="ws-page-size-wrap rp-page-size-wrap">
+                        <span>Rows per page:</span>
+                        <select
+                          value={logsPageSize}
+                          onChange={(e) => {
+                            setLogsPageSize(Number(e.target.value));
+                            setLogsPage(1);
+                          }}
+                        >
+                          <option value={5}>5</option>
+                          <option value={8}>8</option>
+                          <option value={10}>10</option>
+                          <option value={20}>20</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="ws-pagination-controls rp-pagination-controls">
+                      <button
+                        type="button"
+                        className="ws-page-nav-btn rp-page-nav-btn"
+                        onClick={() => setLogsPage((p) => Math.max(1, p - 1))}
+                        disabled={logsPage <= 1}
+                      >
+                        Previous
+                      </button>
+                      <div className="ws-page-pills rp-page-pills">
+                        {Array.from({ length: totalLogsPages }, (_, i) => i + 1).map((num) => (
+                          <button
+                            key={num}
+                            type="button"
+                            className={`ws-page-num-pill rp-page-num-pill ${logsPage === num ? "active" : ""}`}
+                            onClick={() => setLogsPage(num)}
+                          >
+                            {num}
+                          </button>
+                        ))}
+                      </div>
+                      <button
+                        type="button"
+                        className="ws-page-nav-btn rp-page-nav-btn"
+                        onClick={() => setLogsPage((p) => Math.min(totalLogsPages, p + 1))}
+                        disabled={logsPage >= totalLogsPages}
+                      >
+                        Next
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           )}

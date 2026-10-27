@@ -180,10 +180,15 @@ function SuperAdminLayout() {
   useEffect(() => {
     try {
       localStorage.setItem("teamflow_superadmin_dark_mode", String(darkMode));
+      localStorage.setItem("teamflow_admin_dark", String(darkMode));
+      localStorage.setItem("teamflow_theme_mode", darkMode ? "dark" : "light");
       if (typeof document !== "undefined") {
         document.body.classList.toggle("sa-dark-mode", Boolean(darkMode));
+        document.body.classList.toggle("dark", Boolean(darkMode));
+        document.body.classList.toggle("dark-theme", Boolean(darkMode));
         document.documentElement.classList.toggle("sa-dark-mode", Boolean(darkMode));
         document.documentElement.classList.toggle("dark", Boolean(darkMode));
+        document.documentElement.setAttribute("data-theme", darkMode ? "dark" : "light");
       }
       window.dispatchEvent(new Event("teamflow_theme_update"));
     } catch {}

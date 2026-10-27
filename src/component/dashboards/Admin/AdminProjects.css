@@ -312,7 +312,53 @@
   color: #0f172a;
 }
 
-/* DONUT CHART */
+/* LIVE BADGE & PULSE INDICATOR */
+.ap-chart-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ap-chart-live-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10.5px;
+  font-weight: 600;
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  padding: 2px 7px;
+  border-radius: 12px;
+  letter-spacing: 0.2px;
+  line-height: 1.2;
+}
+
+.ap-live-pulse-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+  animation: apLivePulse 1.8s infinite;
+}
+
+@keyframes apLivePulse {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+  }
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 5px rgba(16, 185, 129, 0);
+  }
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+  }
+}
+
+/* DONUT CHART (LIVE ANIMATED) */
 .ap-donut-content {
   display: flex;
   align-items: center;
@@ -327,8 +373,35 @@
   flex-shrink: 0;
 }
 
+.ap-donut-svg-wrap svg {
+  animation: apDonutRotateIn 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes apDonutRotateIn {
+  from {
+    transform: rotate(-45deg) scale(0.9);
+    opacity: 0.5;
+  }
+  to {
+    transform: rotate(0deg) scale(1);
+    opacity: 1;
+  }
+}
+
 .ap-donut-base-ring {
   stroke: #f1f5f9;
+}
+
+.ap-donut-arc {
+  transition: stroke-dasharray 0.8s cubic-bezier(0.4, 0, 0.2, 1),
+              stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1),
+              stroke-width 0.25s ease,
+              filter 0.25s ease;
+  cursor: pointer;
+}
+
+.ap-donut-arc:hover {
+  filter: drop-shadow(0 0 6px currentColor);
 }
 
 .ap-donut-center-label {
@@ -339,6 +412,7 @@
   align-items: center;
   justify-content: center;
   text-align: center;
+  pointer-events: none;
 }
 
 .ap-donut-center-label strong {
@@ -346,12 +420,14 @@
   font-weight: 800;
   color: #0f172a;
   line-height: 1.1;
+  transition: color 0.2s ease, transform 0.2s ease;
 }
 
 .ap-donut-center-label small {
   font-size: 11px;
   color: #64748b;
-  font-weight: 500;
+  font-weight: 600;
+  text-transform: capitalize;
 }
 
 .ap-donut-legend {
@@ -366,6 +442,16 @@
   align-items: center;
   gap: 8px;
   font-size: 12px;
+  padding: 3px 6px;
+  border-radius: 6px;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+  cursor: pointer;
+}
+
+.ap-legend-row:hover,
+.ap-legend-row.active {
+  background: #f1f5f9;
+  transform: translateX(3px);
 }
 
 .ap-legend-dot {
@@ -377,14 +463,17 @@
 
 .ap-legend-dot.green {
   background: #10b981;
+  box-shadow: 0 0 6px rgba(16, 185, 129, 0.4);
 }
 
 .ap-legend-dot.blue {
   background: #3b82f6;
+  box-shadow: 0 0 6px rgba(59, 130, 246, 0.4);
 }
 
 .ap-legend-dot.yellow {
   background: #f59e0b;
+  box-shadow: 0 0 6px rgba(245, 158, 11, 0.4);
 }
 
 .ap-legend-name {
@@ -397,7 +486,7 @@
   color: #0f172a;
 }
 
-/* VERTICAL BAR CHART */
+/* VERTICAL BAR CHART (LIVE ANIMATED) */
 .ap-bar-chart-body {
   display: flex;
   align-items: flex-end;
@@ -432,12 +521,27 @@
   gap: 6px;
   height: 100%;
   justify-content: flex-end;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.ap-bar-col:hover .ap-bar-pillar,
+.ap-bar-col.hovered .ap-bar-pillar {
+  transform: scaleX(1.1) translateY(-2px);
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
+}
+
+.ap-bar-col:hover .ap-bar-top-val,
+.ap-bar-col.hovered .ap-bar-top-val {
+  transform: scale(1.15) translateY(-2px);
+  color: #4f46e5;
 }
 
 .ap-bar-top-val {
   font-size: 11px;
   font-weight: 700;
   color: #0f172a;
+  transition: transform 0.2s ease, color 0.2s ease;
 }
 
 .ap-bar-pillar-wrap {
@@ -448,25 +552,66 @@
 }
 
 .ap-bar-pillar {
+  position: relative;
   width: 100%;
   border-radius: 6px 6px 0 0;
-  transition: height 0.3s ease;
+  transition: height 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.25s ease,
+              box-shadow 0.25s ease;
+  animation: apBarGrowUp 0.8s cubic-bezier(0.34, 1.3, 0.64, 1) forwards;
+  transform-origin: bottom;
+  overflow: hidden;
+}
+
+@keyframes apBarGrowUp {
+  from {
+    transform: scaleY(0);
+    opacity: 0.2;
+  }
+  to {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+}
+
+.ap-bar-live-shimmer {
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 200%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.28) 50%,
+    transparent 100%
+  );
+  animation: apLiveShimmerWave 2.8s infinite linear;
+}
+
+@keyframes apLiveShimmerWave {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
 }
 
 .ap-bar-pillar.purple {
-  background: #8b5cf6;
+  background: linear-gradient(180deg, #a78bfa 0%, #7c3aed 100%);
 }
 
 .ap-bar-pillar.blue {
-  background: #3b82f6;
+  background: linear-gradient(180deg, #60a5fa 0%, #2563eb 100%);
 }
 
 .ap-bar-pillar.green {
-  background: #10b981;
+  background: linear-gradient(180deg, #34d399 0%, #059669 100%);
 }
 
 .ap-bar-pillar.yellow {
-  background: #f59e0b;
+  background: linear-gradient(180deg, #fbbf24 0%, #d97706 100%);
 }
 
 .ap-bar-col-name {
@@ -476,7 +621,7 @@
   margin-top: 4px;
 }
 
-/* HORIZONTAL PROGRESS OVERVIEW */
+/* HORIZONTAL PROGRESS OVERVIEW (LIVE ANIMATED) */
 .ap-progress-overview-list {
   display: flex;
   flex-direction: column;
@@ -488,6 +633,19 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
+  padding: 4px 6px;
+  border-radius: 6px;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+  cursor: pointer;
+}
+
+.ap-overview-item:hover {
+  transform: translateX(3px);
+  background: #f8fafc;
+}
+
+.ap-overview-item:hover .ap-overview-pct {
+  color: #4f46e5;
 }
 
 .ap-overview-top-line {
@@ -506,6 +664,7 @@
   font-size: 12px;
   font-weight: 700;
   color: #0f172a;
+  transition: color 0.2s ease;
 }
 
 .ap-overview-meter-track {
@@ -516,9 +675,33 @@
 }
 
 .ap-overview-meter-fill {
+  position: relative;
   height: 100%;
   border-radius: 4px;
-  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: width 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: apMeterExpand 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  overflow: hidden;
+}
+
+@keyframes apMeterExpand {
+  from {
+    width: 0% !important;
+  }
+}
+
+.ap-meter-live-glow {
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 150%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.38) 50%,
+    transparent 100%
+  );
+  animation: apLiveShimmerWave 3.2s infinite ease-in-out;
 }
 
 /* =========================================================
@@ -1804,6 +1987,133 @@
 }
 
 /* =========================================================
+   9.5. STANDALONE PAGINATION BAR ("pages like role and permissons")
+========================================================= */
+
+.ap-pagination-bar,
+.projectManagementPage .ws-pagination-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 13px 18px;
+  background: #ffffff;
+  border: 1px solid #eef2f6;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.ap-pagination-info,
+.projectManagementPage .ws-pagination-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 13px;
+  color: #64748b;
+}
+
+.ap-page-size-wrap,
+.projectManagementPage .ws-page-size-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ap-page-size-wrap select,
+.projectManagementPage .ws-page-size-wrap select {
+  padding: 4px 8px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 12.5px;
+  background: #ffffff;
+  color: #334155;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.ap-page-size-wrap select:focus,
+.projectManagementPage .ws-page-size-wrap select:focus {
+  border-color: #6366f1;
+}
+
+.ap-pagination-controls,
+.projectManagementPage .ws-pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ap-page-nav-btn,
+.projectManagementPage .ws-page-nav-btn {
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.ap-page-nav-btn:hover:not(:disabled),
+.projectManagementPage .ws-page-nav-btn:hover:not(:disabled) {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
+
+.ap-page-nav-btn:disabled,
+.projectManagementPage .ws-page-nav-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.ap-page-pills,
+.projectManagementPage .ws-page-pills {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.ap-page-num-pill,
+.projectManagementPage .ws-page-num-pill {
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.ap-page-num-pill:hover,
+.projectManagementPage .ws-page-num-pill:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
+
+.ap-page-num-pill.active,
+.projectManagementPage .ws-page-num-pill.active {
+  background: #6366f1;
+  color: #ffffff;
+  border-color: #6366f1;
+  box-shadow: 0 1px 3px rgba(99, 102, 241, 0.35);
+}
+
+/* =========================================================
    10. COMPLETE DARK MODE USER-FRIENDLY COMPATIBILITY
 ========================================================= */
 
@@ -1907,6 +2217,23 @@ body.dark-theme .ap-chart-card-header h3,
   color: #f8fafc;
 }
 
+.dark .ap-chart-live-badge,
+body.dark-theme .ap-chart-live-badge,
+[data-theme="dark"] .ap-chart-live-badge {
+  background: rgba(16, 185, 129, 0.16);
+  border-color: rgba(16, 185, 129, 0.35);
+  color: #34d399;
+}
+
+.dark .ap-legend-row:hover,
+.dark .ap-legend-row.active,
+body.dark-theme .ap-legend-row:hover,
+body.dark-theme .ap-legend-row.active,
+[data-theme="dark"] .ap-legend-row:hover,
+[data-theme="dark"] .ap-legend-row.active {
+  background: rgba(255, 255, 255, 0.05);
+}
+
 .dark .ap-donut-base-ring,
 body.dark-theme .ap-donut-base-ring,
 [data-theme="dark"] .ap-donut-base-ring {
@@ -1931,10 +2258,38 @@ body.dark-theme .ap-legend-val,
   color: #f8fafc;
 }
 
+/* Recharts Dark Mode Support */
+.dark .recharts-cartesian-grid line,
+body.dark-theme .recharts-cartesian-grid line,
+[data-theme="dark"] .recharts-cartesian-grid line {
+  stroke: #1e293b !important;
+}
+
+.dark .recharts-text,
+body.dark-theme .recharts-text,
+[data-theme="dark"] .recharts-text {
+  fill: #94a3b8 !important;
+}
+
+.dark .recharts-tooltip-cursor,
+body.dark-theme .recharts-tooltip-cursor,
+[data-theme="dark"] .recharts-tooltip-cursor {
+  fill: rgba(255, 255, 255, 0.04) !important;
+}
+
 .dark .ap-bar-top-val,
 body.dark-theme .ap-bar-top-val,
 [data-theme="dark"] .ap-bar-top-val {
   color: #f8fafc;
+}
+
+.dark .ap-bar-col:hover .ap-bar-top-val,
+.dark .ap-bar-col.hovered .ap-bar-top-val,
+body.dark-theme .ap-bar-col:hover .ap-bar-top-val,
+body.dark-theme .ap-bar-col.hovered .ap-bar-top-val,
+[data-theme="dark"] .ap-bar-col:hover .ap-bar-top-val,
+[data-theme="dark"] .ap-bar-col.hovered .ap-bar-top-val {
+  color: #818cf8;
 }
 
 .dark .ap-bar-col-name,
@@ -1953,6 +2308,18 @@ body.dark-theme .ap-overview-name,
 body.dark-theme .ap-overview-pct,
 [data-theme="dark"] .ap-overview-pct {
   color: #f8fafc;
+}
+
+.dark .ap-overview-item:hover,
+body.dark-theme .ap-overview-item:hover,
+[data-theme="dark"] .ap-overview-item:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.dark .ap-overview-item:hover .ap-overview-pct,
+body.dark-theme .ap-overview-item:hover .ap-overview-pct,
+[data-theme="dark"] .ap-overview-item:hover .ap-overview-pct {
+  color: #818cf8;
 }
 
 .dark .ap-overview-meter-track,
@@ -2395,6 +2762,79 @@ body.dark-theme .ap-btn-cancel:hover,
   border-color: rgba(255, 255, 255, 0.2);
 }
 
+/* Pagination Dark Mode */
+.dark .ap-pagination-bar,
+body.dark-theme .ap-pagination-bar,
+[data-theme="dark"] .ap-pagination-bar,
+.dark .projectManagementPage .ws-pagination-bar,
+body.dark-theme .projectManagementPage .ws-pagination-bar,
+[data-theme="dark"] .projectManagementPage .ws-pagination-bar {
+  background: #111c30;
+  border: 1px solid #1e293b;
+  color: #cbd5e1;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.dark .ap-pagination-info,
+body.dark-theme .ap-pagination-info,
+[data-theme="dark"] .ap-pagination-info,
+.dark .projectManagementPage .ws-pagination-info,
+body.dark-theme .projectManagementPage .ws-pagination-info,
+[data-theme="dark"] .projectManagementPage .ws-pagination-info {
+  color: #94a3b8;
+}
+
+.dark .ap-page-nav-btn,
+body.dark-theme .ap-page-nav-btn,
+[data-theme="dark"] .ap-page-nav-btn,
+.dark .ap-page-num-pill,
+body.dark-theme .ap-page-num-pill,
+[data-theme="dark"] .ap-page-num-pill,
+.dark .ap-page-size-wrap select,
+body.dark-theme .ap-page-size-wrap select,
+[data-theme="dark"] .ap-page-size-wrap select,
+.dark .projectManagementPage .ws-page-nav-btn,
+body.dark-theme .projectManagementPage .ws-page-nav-btn,
+[data-theme="dark"] .projectManagementPage .ws-page-nav-btn,
+.dark .projectManagementPage .ws-page-num-pill,
+body.dark-theme .projectManagementPage .ws-page-num-pill,
+[data-theme="dark"] .projectManagementPage .ws-page-num-pill,
+.dark .projectManagementPage .ws-page-size-wrap select,
+body.dark-theme .projectManagementPage .ws-page-size-wrap select,
+[data-theme="dark"] .projectManagementPage .ws-page-size-wrap select {
+  background: #0b1322;
+  border-color: #1e293b;
+  color: #cbd5e1;
+}
+
+.dark .ap-page-nav-btn:hover:not(:disabled),
+body.dark-theme .ap-page-nav-btn:hover:not(:disabled),
+[data-theme="dark"] .ap-page-nav-btn:hover:not(:disabled),
+.dark .ap-page-num-pill:hover,
+body.dark-theme .ap-page-num-pill:hover,
+[data-theme="dark"] .ap-page-num-pill:hover,
+.dark .projectManagementPage .ws-page-nav-btn:hover:not(:disabled),
+body.dark-theme .projectManagementPage .ws-page-nav-btn:hover:not(:disabled),
+[data-theme="dark"] .projectManagementPage .ws-page-nav-btn:hover:not(:disabled),
+.dark .projectManagementPage .ws-page-num-pill:hover,
+body.dark-theme .projectManagementPage .ws-page-num-pill:hover,
+[data-theme="dark"] .projectManagementPage .ws-page-num-pill:hover {
+  background: #1e293b;
+  border-color: #334155;
+  color: #f8fafc;
+}
+
+.dark .ap-page-num-pill.active,
+body.dark-theme .ap-page-num-pill.active,
+[data-theme="dark"] .ap-page-num-pill.active,
+.dark .projectManagementPage .ws-page-num-pill.active,
+body.dark-theme .projectManagementPage .ws-page-num-pill.active,
+[data-theme="dark"] .projectManagementPage .ws-page-num-pill.active {
+  background: #6366f1;
+  color: #ffffff;
+  border-color: #6366f1;
+}
+
 /* =========================================================
    11. RESPONSIVE BREAKPOINTS
 ========================================================= */
@@ -2477,5 +2917,28 @@ body.dark-theme .ap-btn-cancel:hover,
 
   .ap-color-picker-row {
     flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 768px) {
+  .ap-pagination-bar,
+  .projectManagementPage .ws-pagination-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .ap-pagination-info,
+  .projectManagementPage .ws-pagination-info {
+    width: 100%;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .ap-pagination-controls,
+  .projectManagementPage .ws-pagination-controls {
+    width: 100%;
+    justify-content: space-between;
   }
 }

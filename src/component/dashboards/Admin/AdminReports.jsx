@@ -44,7 +44,13 @@ export default function AdminReports() {
   const [reports, setReports] = useState(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
-      return saved ? JSON.parse(saved) : initialReports;
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length >= 10) {
+          return parsed;
+        }
+      }
+      return initialReports;
     } catch {
       return initialReports;
     }
@@ -57,7 +63,7 @@ export default function AdminReports() {
   const [sortKey, setSortKey] = useState("createdAt");
   const [sortOrder, setSortOrder] = useState("desc");
   const [currentPage, setCurrentPage] = useState(1);
-  const [perPage, setPerPage] = useState(5);
+  const [perPage, setPerPage] = useState(6);
 
   const [showGenerator, setShowGenerator] = useState(false);
   const [selectedReport, setSelectedReport] = useState(null);
@@ -610,6 +616,67 @@ export default function AdminReports() {
                 </tbody>
               </table>
             </div>
+
+            {/* =========================================================
+               PAGINATION BAR (Matching Workspaces & Projects layout)
+            ========================================================= */}
+            {filteredReports.length > 0 && (
+              <div className="ws-pagination-bar reports-pagination-bar">
+                <div className="ws-pagination-info">
+                  <span>
+                    Showing {filteredReports.length === 0 ? 0 : (currentPage - 1) * perPage + 1} to{" "}
+                    {Math.min(currentPage * perPage, filteredReports.length)} of {filteredReports.length} reports
+                  </span>
+                  <div className="ws-page-size-wrap">
+                    <span>Reports per page:</span>
+                    <select
+                      value={perPage}
+                      onChange={(e) => {
+                        setPerPage(Number(e.target.value));
+                        setCurrentPage(1);
+                      }}
+                      aria-label="Select reports per page"
+                    >
+                      <option value={6}>6</option>
+                      <option value={10}>10</option>
+                      <option value={20}>20</option>
+                      <option value={50}>50</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="ws-pagination-controls">
+                  <button
+                    type="button"
+                    className="ws-page-nav-btn"
+                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                    disabled={currentPage <= 1}
+                  >
+                    Previous
+                  </button>
+                  <div className="ws-page-pills">
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((num) => (
+                      <button
+                        key={num}
+                        type="button"
+                        className={`ws-page-num-pill ${currentPage === num ? "active" : ""}`}
+                        onClick={() => setCurrentPage(num)}
+                      >
+                        {num}
+                      </button>
+                    ))}
+                  </div>
+                  <button
+                    type="button"
+                    className="ws-page-nav-btn"
+                    onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                    disabled={currentPage >= totalPages}
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </main>

@@ -51,6 +51,10 @@ export default function AdminAnalytics() {
   const [hoveredPoint, setHoveredPoint] = useState(null);
   const [hoveredBar, setHoveredBar] = useState(null);
   const [selectedDonutDept, setSelectedDonutDept] = useState(null);
+  const [hoveredPieIndex, setHoveredPieIndex] = useState(null);
+  const [hoveredLegendMetric, setHoveredLegendMetric] = useState(null);
+  const [hoveredActDay, setHoveredActDay] = useState(null);
+  const [hoveredPlan, setHoveredPlan] = useState(null);
 
   // Growth Data based on range
   const currentGrowth = useMemo(() => {
@@ -163,12 +167,49 @@ export default function AdminAnalytics() {
     return `${lineActive} L ${lastX} ${bottomY} L ${firstX} ${bottomY} Z`;
   }, [lineActive, pointsActive]);
 
-  // Donut chart total
+  // Donut chart total & SVG slice geometry
   const totalWorkspaceCount = useMemo(() => {
     return workspaceDistribution.reduce((acc, item) => acc + item.value, 0);
   }, []);
 
   const donutColors = ["#6366f1", "#06b6d4", "#10b981", "#f59e0b", "#ec4899", "#8b5cf6"];
+  const donutRadius = 54;
+  const donutCircumference = 2 * Math.PI * donutRadius; // ~339.29
+  const defaultStrokeWidth = 16;
+  const activeStrokeWidth = 22;
+
+  const donutSlices = useMemo(() => {
+    let accumulatedLength = 0;
+    return workspaceDistribution.map((item, idx) => {
+      const pct = item.value / totalWorkspaceCount;
+      const length = pct * donutCircumference;
+      const visibleLength = Math.max(length - 3, 1);
+      const offset = -accumulatedLength;
+      accumulatedLength += length;
+      const color = donutColors[idx % donutColors.length];
+      const isHovered = hoveredPieIndex === idx || selectedDonutDept === item.name;
+      return {
+        ...item,
+        index: idx,
+        pct: Math.round(pct * 100),
+        length: visibleLength,
+        gap: donutCircumference - visibleLength,
+        offset,
+        color,
+        isHovered
+      };
+    });
+  }, [totalWorkspaceCount, hoveredPieIndex, selectedDonutDept, donutCircumference, donutColors]);
+
+  const activeDonutItem = useMemo(() => {
+    if (hoveredPieIndex !== null && donutSlices[hoveredPieIndex]) {
+      return donutSlices[hoveredPieIndex];
+    }
+    if (selectedDonutDept) {
+      return donutSlices.find(s => s.name === selectedDonutDept) || null;
+    }
+    return null;
+  }, [hoveredPieIndex, selectedDonutDept, donutSlices]);
 
   return (
     <div className="admin-analytics-app">
@@ -314,7 +355,12 @@ export default function AdminAnalytics() {
             <div className="admin-analytics-card growth-chart-card">
               <div className="card-header">
                 <div>
-                  <h3>User Growth & Daily Active Telemetry</h3>
+                  <div className="card-title-live-row">
+                    <h3>User Growth & Daily Active Telemetry</h3>
+                    <span className="chart-live-badge">
+                      <span className="chart-live-dot" /> LIVE
+                    </span>
+                  </div>
                   <p>Tracking registered members vs active concurrent sessions over time</p>
                 </div>
                 <div className="chart-controls">
@@ -343,15 +389,27 @@ export default function AdminAnalytics() {
 
               <div className="chart-legend">
                 {(chartMetric === "both" || chartMetric === "users") && (
-                  <div className="legend-item">
+                  <div
+                    className={`legend-item interactive-legend ${hoveredLegendMetric === "users" ? "active" : ""}`}
+                    onMouseEnter={() => setHoveredLegendMetric("users")}
+                    onMouseLeave={() => setHoveredLegendMetric(null)}
+                    title="Hover to highlight Total Members curve"
+                  >
                     <span className="legend-color-dot purple" />
                     <span>Total Members</span>
+                    <span className="legend-live-val">{currentGrowth[currentGrowth.length - 1]?.users?.toLocaleString()}</span>
                   </div>
                 )}
                 {(chartMetric === "both" || chartMetric === "active") && (
-                  <div className="legend-item">
+                  <div
+                    className={`legend-item interactive-legend ${hoveredLegendMetric === "active" ? "active" : ""}`}
+                    onMouseEnter={() => setHoveredLegendMetric("active")}
+                    onMouseLeave={() => setHoveredLegendMetric(null)}
+                    title="Hover to highlight Active Sessions curve"
+                  >
                     <span className="legend-color-dot cyan" />
                     <span>Active Sessions</span>
+                    <span className="legend-live-val">{currentGrowth[currentGrowth.length - 1]?.active?.toLocaleString()}</span>
                   </div>
                 )}
               </div>
@@ -364,13 +422,27 @@ export default function AdminAnalytics() {
                 >
                   <defs>
                     <linearGradient id="purpleGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#6366f1" stopOpacity="0.32" />
+                      <stop offset="0%" stopColor="#6366f1" stopOpacity="0.38" />
                       <stop offset="100%" stopColor="#6366f1" stopOpacity="0.01" />
                     </linearGradient>
                     <linearGradient id="cyanGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#06b6d4" stopOpacity="0.32" />
+                      <stop offset="0%" stopColor="#06b6d4" stopOpacity="0.38" />
                       <stop offset="100%" stopColor="#06b6d4" stopOpacity="0.01" />
                     </linearGradient>
+                    <linearGradient id="laserBeamGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#818cf8" stopOpacity="0.9" />
+                      <stop offset="50%" stopColor="#06b6d4" stopOpacity="0.5" />
+                      <stop offset="100%" stopColor="#6366f1" stopOpacity="0.05" />
+                    </linearGradient>
+                    <filter id="purpleGlow" x="-20%" y="-20%" width="140%" height="140%">
+                      <feDropShadow dx="0" dy="2" stdDeviation="4" floodColor="#6366f1" floodOpacity="0.65" />
+                    </filter>
+                    <filter id="cyanGlow" x="-20%" y="-20%" width="140%" height="140%">
+                      <feDropShadow dx="0" dy="2" stdDeviation="4" floodColor="#06b6d4" floodOpacity="0.65" />
+                    </filter>
+                    <filter id="laserLineGlow" x="-50%" y="0%" width="200%" height="100%">
+                      <feDropShadow dx="0" dy="0" stdDeviation="3" floodColor="#818cf8" floodOpacity="0.75" />
+                    </filter>
                   </defs>
 
                   {/* Horizontal Gridlines */}
@@ -402,83 +474,157 @@ export default function AdminAnalytics() {
 
                   {/* Areas */}
                   {(chartMetric === "both" || chartMetric === "users") && (
-                    <path d={areaUsers} fill="url(#purpleGradient)" />
+                    <path
+                      d={areaUsers}
+                      fill="url(#purpleGradient)"
+                      opacity={hoveredLegendMetric === "active" ? 0.2 : 1}
+                      style={{ transition: "opacity 0.25s ease" }}
+                    />
                   )}
                   {(chartMetric === "both" || chartMetric === "active") && (
-                    <path d={areaActive} fill="url(#cyanGradient)" />
+                    <path
+                      d={areaActive}
+                      fill="url(#cyanGradient)"
+                      opacity={hoveredLegendMetric === "users" ? 0.2 : 1}
+                      style={{ transition: "opacity 0.25s ease" }}
+                    />
                   )}
 
                   {/* Lines */}
                   {(chartMetric === "both" || chartMetric === "users") && (
-                    <path d={lineUsers} fill="none" stroke="#6366f1" strokeWidth="2.5" />
+                    <path
+                      d={lineUsers}
+                      fill="none"
+                      stroke="#6366f1"
+                      strokeWidth={hoveredLegendMetric === "users" ? 3.6 : 2.5}
+                      filter={hoveredLegendMetric === "users" ? "url(#purpleGlow)" : undefined}
+                      opacity={hoveredLegendMetric === "active" ? 0.25 : 1}
+                      style={{ transition: "all 0.25s ease" }}
+                    />
                   )}
                   {(chartMetric === "both" || chartMetric === "active") && (
-                    <path d={lineActive} fill="none" stroke="#06b6d4" strokeWidth="2.5" />
+                    <path
+                      d={lineActive}
+                      fill="none"
+                      stroke="#06b6d4"
+                      strokeWidth={hoveredLegendMetric === "active" ? 3.6 : 2.5}
+                      filter={hoveredLegendMetric === "active" ? "url(#cyanGlow)" : undefined}
+                      opacity={hoveredLegendMetric === "users" ? 0.25 : 1}
+                      style={{ transition: "all 0.25s ease" }}
+                    />
+                  )}
+
+                  {/* Continuous Live Telemetry Beacons Traveling Along Curves */}
+                  {(chartMetric === "both" || chartMetric === "users") && (
+                    <circle r="4" fill="#818cf8" filter="url(#purpleGlow)" className="chart-telemetry-beacon">
+                      <animateMotion dur="8s" repeatCount="indefinite" path={lineUsers} />
+                    </circle>
+                  )}
+                  {(chartMetric === "both" || chartMetric === "active") && (
+                    <circle r="4" fill="#22d3ee" filter="url(#cyanGlow)" className="chart-telemetry-beacon">
+                      <animateMotion dur="6.5s" repeatCount="indefinite" path={lineActive} />
+                    </circle>
                   )}
 
                   {/* Interactive Points and Labels */}
-                  {pointsUsers.map((pt, i) => (
-                    <g key={i}>
-                      <text
-                        x={pt.x}
-                        y={chartHeight - 12}
-                        textAnchor="middle"
-                        className="chart-axis-label"
-                      >
-                        {pt.label}
-                      </text>
+                  {pointsUsers.map((pt, i) => {
+                    const isHovered = hoveredPoint === i;
+                    return (
+                      <g key={i}>
+                        <text
+                          x={pt.x}
+                          y={chartHeight - 12}
+                          textAnchor="middle"
+                          className={`chart-axis-label ${isHovered ? "active-axis" : ""}`}
+                          style={{ fontWeight: isHovered ? "700" : "400" }}
+                        >
+                          {pt.label}
+                        </text>
 
-                      {/* Hover Trigger Vertical line */}
-                      {hoveredPoint === i && (
-                        <line
-                          x1={pt.x}
-                          y1={chartPadding.top}
-                          x2={pt.x}
-                          y2={chartHeight - chartPadding.bottom}
-                          stroke="#94a3b8"
-                          strokeDasharray="3 3"
-                          strokeWidth="1.2"
+                        {/* Hover Laser Guideline */}
+                        {isHovered && (
+                          <line
+                            x1={pt.x}
+                            y1={chartPadding.top}
+                            x2={pt.x}
+                            y2={chartHeight - chartPadding.bottom}
+                            stroke="url(#laserBeamGrad)"
+                            strokeWidth="2"
+                            filter="url(#laserLineGlow)"
+                            className="chart-laser-beam"
+                          />
+                        )}
+
+                        {/* Target circles for Total Users */}
+                        {(chartMetric === "both" || chartMetric === "users") && (
+                          <g>
+                            {isHovered && (
+                              <circle
+                                cx={pt.x}
+                                cy={pt.y}
+                                r={12}
+                                fill="none"
+                                stroke="#6366f1"
+                                strokeWidth="2"
+                                className="chart-radar-ring"
+                              />
+                            )}
+                            <circle
+                              cx={pt.x}
+                              cy={pt.y}
+                              r={isHovered ? 6 : 3.5}
+                              fill="#ffffff"
+                              stroke="#6366f1"
+                              strokeWidth={isHovered ? 3 : 2}
+                              filter={isHovered ? "url(#purpleGlow)" : undefined}
+                              opacity={hoveredLegendMetric === "active" ? 0.3 : 1}
+                              style={{ cursor: "pointer", transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)" }}
+                            />
+                          </g>
+                        )}
+
+                        {/* Target circles for Active Sessions */}
+                        {(chartMetric === "both" || chartMetric === "active") && (
+                          <g>
+                            {isHovered && (
+                              <circle
+                                cx={pointsActive[i].x}
+                                cy={pointsActive[i].y}
+                                r={12}
+                                fill="none"
+                                stroke="#06b6d4"
+                                strokeWidth="2"
+                                className="chart-radar-ring"
+                              />
+                            )}
+                            <circle
+                              cx={pointsActive[i].x}
+                              cy={pointsActive[i].y}
+                              r={isHovered ? 6 : 3.5}
+                              fill="#ffffff"
+                              stroke="#06b6d4"
+                              strokeWidth={isHovered ? 3 : 2}
+                              filter={isHovered ? "url(#cyanGlow)" : undefined}
+                              opacity={hoveredLegendMetric === "users" ? 0.3 : 1}
+                              style={{ cursor: "pointer", transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)" }}
+                            />
+                          </g>
+                        )}
+
+                        {/* Invisible hover overlay column */}
+                        <rect
+                          x={pt.x - 22}
+                          y={chartPadding.top}
+                          width={44}
+                          height={chartHeight - chartPadding.top - chartPadding.bottom}
+                          fill="transparent"
+                          style={{ cursor: "pointer" }}
+                          onMouseEnter={() => setHoveredPoint(i)}
+                          onMouseLeave={() => setHoveredPoint(null)}
                         />
-                      )}
-
-                      {/* Target circles */}
-                      {(chartMetric === "both" || chartMetric === "users") && (
-                        <circle
-                          cx={pt.x}
-                          cy={pt.y}
-                          r={hoveredPoint === i ? 5.5 : 3.5}
-                          fill="#ffffff"
-                          stroke="#6366f1"
-                          strokeWidth="2.5"
-                          style={{ cursor: "pointer", transition: "all 0.15s ease" }}
-                        />
-                      )}
-
-                      {(chartMetric === "both" || chartMetric === "active") && (
-                        <circle
-                          cx={pointsActive[i].x}
-                          cy={pointsActive[i].y}
-                          r={hoveredPoint === i ? 5.5 : 3.5}
-                          fill="#ffffff"
-                          stroke="#06b6d4"
-                          strokeWidth="2.5"
-                          style={{ cursor: "pointer", transition: "all 0.15s ease" }}
-                        />
-                      )}
-
-                      {/* Invisible hover overlay column */}
-                      <rect
-                        x={pt.x - 20}
-                        y={chartPadding.top}
-                        width={40}
-                        height={chartHeight - chartPadding.top - chartPadding.bottom}
-                        fill="transparent"
-                        style={{ cursor: "pointer" }}
-                        onMouseEnter={() => setHoveredPoint(i)}
-                        onMouseLeave={() => setHoveredPoint(null)}
-                      />
-                    </g>
-                  ))}
+                      </g>
+                    );
+                  })}
                 </svg>
 
                 {/* Tooltip Overlay */}
@@ -487,17 +633,45 @@ export default function AdminAnalytics() {
                     className="chart-hover-tooltip"
                     style={{
                       left: `${(pointsUsers[hoveredPoint].x / chartWidth) * 100}%`,
-                      top: "20px"
+                      top: "16px"
                     }}
                   >
-                    <div className="tooltip-title">{pointsUsers[hoveredPoint].label}</div>
+                    <div className="tooltip-title-row">
+                      <span className="tooltip-title">{pointsUsers[hoveredPoint].label}</span>
+                      <span className="tooltip-live-tag">LIVE</span>
+                    </div>
                     <div className="tooltip-item purple">
-                      <span>Total Users:</span>
-                      <strong>{pointsUsers[hoveredPoint].users}</strong>
+                      <span className="tooltip-item-label">
+                        <span className="tooltip-color-bullet purple" />
+                        Total Members:
+                      </span>
+                      <div className="tooltip-item-val-group">
+                        <strong>{pointsUsers[hoveredPoint].users.toLocaleString()}</strong>
+                        {hoveredPoint > 0 && (
+                          <span className={`tooltip-diff ${pointsUsers[hoveredPoint].users >= pointsUsers[hoveredPoint - 1].users ? "up" : "down"}`}>
+                            {pointsUsers[hoveredPoint].users >= pointsUsers[hoveredPoint - 1].users ? "+" : ""}
+                            {pointsUsers[hoveredPoint].users - pointsUsers[hoveredPoint - 1].users}
+                          </span>
+                        )}
+                      </div>
                     </div>
                     <div className="tooltip-item cyan">
-                      <span>Active Sessions:</span>
-                      <strong>{pointsUsers[hoveredPoint].active}</strong>
+                      <span className="tooltip-item-label">
+                        <span className="tooltip-color-bullet cyan" />
+                        Active Sessions:
+                      </span>
+                      <div className="tooltip-item-val-group">
+                        <strong>{pointsUsers[hoveredPoint].active.toLocaleString()}</strong>
+                        {hoveredPoint > 0 && (
+                          <span className={`tooltip-diff ${pointsUsers[hoveredPoint].active >= pointsUsers[hoveredPoint - 1].active ? "up" : "down"}`}>
+                            {pointsUsers[hoveredPoint].active >= pointsUsers[hoveredPoint - 1].active ? "+" : ""}
+                            {pointsUsers[hoveredPoint].active - pointsUsers[hoveredPoint - 1].active}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="tooltip-ratio-footer">
+                      Engagement Ratio: <strong>{Math.round((pointsUsers[hoveredPoint].active / pointsUsers[hoveredPoint].users) * 100)}%</strong>
                     </div>
                   </div>
                 )}
@@ -508,30 +682,124 @@ export default function AdminAnalytics() {
             <div className="admin-analytics-card donut-chart-card">
               <div className="card-header">
                 <div>
-                  <h3>Workspaces by Department</h3>
+                  <div className="card-title-live-row">
+                    <h3>Workspaces by Department</h3>
+                    <span className="chart-live-badge">
+                      <span className="chart-live-dot" /> LIVE
+                    </span>
+                  </div>
                   <p>Resource utilization by business unit</p>
                 </div>
               </div>
 
               <div className="donut-content-layout">
-                {/* Visual Conic Donut */}
+                {/* Visual SVG Donut */}
                 <div className="donut-circle-container">
-                  <div
-                    className="donut-circle"
-                    style={{
-                      background: `conic-gradient(
-                        #6366f1 0% 38%,
-                        #06b6d4 38% 62%,
-                        #10b981 62% 78%,
-                        #f59e0b 78% 88%,
-                        #ec4899 88% 95%,
-                        #8b5cf6 95% 100%
-                      )`
-                    }}
-                  >
-                    <div className="donut-center-hole">
-                      <span className="donut-total-count">{totalWorkspaceCount}</span>
-                      <span className="donut-total-label">Workspaces</span>
+                  <div className="donut-svg-wrapper">
+                    <svg viewBox="0 0 140 140" className="interactive-donut-svg">
+                      <defs>
+                        {donutSlices.map((slice, idx) => (
+                          <filter key={`glow-${idx}`} id={`donutGlow-${idx}`} x="-30%" y="-30%" width="160%" height="160%">
+                            <feDropShadow dx="0" dy="0" stdDeviation="5" floodColor={slice.color} floodOpacity="0.75" />
+                          </filter>
+                        ))}
+                      </defs>
+
+                      {/* Ambient Live Outer Orbital Track */}
+                      <circle
+                        cx="70"
+                        cy="70"
+                        r="65"
+                        fill="none"
+                        className="admin-analytics-donutAuraRing"
+                      />
+
+                      {/* Expanding Live Sonar Ping Radar Wave */}
+                      <circle
+                        cx="70"
+                        cy="70"
+                        r={donutRadius}
+                        fill="none"
+                        className="admin-analytics-donutSonarWave"
+                      />
+
+                      {/* Background ring */}
+                      <circle
+                        cx="70"
+                        cy="70"
+                        r={donutRadius}
+                        fill="none"
+                        stroke="#f1f5f9"
+                        strokeWidth={defaultStrokeWidth}
+                        className="donut-bg-track"
+                      />
+
+                      {/* Slices group rotated -90deg */}
+                      <g transform="rotate(-90 70 70)">
+                        {donutSlices.map((slice) => {
+                          const isAnyHovered = activeDonutItem !== null;
+                          return (
+                            <circle
+                              key={slice.name}
+                              cx="70"
+                              cy="70"
+                              r={donutRadius}
+                              fill="none"
+                              stroke={slice.color}
+                              strokeWidth={slice.isHovered ? activeStrokeWidth : defaultStrokeWidth}
+                              strokeDasharray={`${slice.length} ${donutCircumference - slice.length}`}
+                              strokeDashoffset={slice.offset}
+                              strokeLinecap="round"
+                              filter={slice.isHovered ? `url(#donutGlow-${slice.index})` : undefined}
+                              opacity={isAnyHovered && !slice.isHovered ? 0.35 : 1}
+                              className={`donut-interactive-slice ${slice.isHovered ? "active" : ""}`}
+                              style={{
+                                cursor: "pointer",
+                                transition: "all 0.25s cubic-bezier(0.4, 0, 0.2, 1)"
+                              }}
+                              onMouseEnter={() => {
+                                setHoveredPieIndex(slice.index);
+                                setSelectedDonutDept(slice.name);
+                              }}
+                              onMouseLeave={() => {
+                                setHoveredPieIndex(null);
+                                setSelectedDonutDept(null);
+                              }}
+                            />
+                          );
+                        })}
+                      </g>
+
+                      {/* Orbiting Live Satellite Beacon */}
+                      <g className="admin-analytics-donutOrbitBeacon" style={{ transformOrigin: "70px 70px" }}>
+                        <circle cx="70" cy={16} r="6" fill="none" className="admin-analytics-donutBeaconPulse" />
+                        <circle cx="70" cy={16} r="3" className="admin-analytics-donutBeaconCore" />
+                      </g>
+                    </svg>
+
+                    {/* Center Hole with Animated Dynamic Metrics */}
+                    <div className={`donut-center-hole ${activeDonutItem ? "has-active" : ""}`}>
+                      {activeDonutItem ? (
+                        <div className="donut-center-active-content">
+                          <span className="donut-active-pct" style={{ color: activeDonutItem.color }}>
+                            {activeDonutItem.pct}%
+                          </span>
+                          <span className="donut-active-val">
+                            {activeDonutItem.value} units
+                          </span>
+                          <span className="donut-active-dept" title={activeDonutItem.name}>
+                            {activeDonutItem.name}
+                          </span>
+                        </div>
+                      ) : (
+                        <div className="donut-center-default-content">
+                          <span className="donut-total-count">{totalWorkspaceCount}</span>
+                          <span className="donut-total-label">
+                            <span className="admin-analytics-live-dot" /> Workspaces
+                          </span>
+                          <span className="donut-total-sub">6 Depts</span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -541,22 +809,29 @@ export default function AdminAnalytics() {
                   {workspaceDistribution.map((item, index) => {
                     const color = donutColors[index % donutColors.length];
                     const percent = Math.round((item.value / totalWorkspaceCount) * 100);
-                    const isSelected = selectedDonutDept === item.name;
+                    const isSelected = selectedDonutDept === item.name || hoveredPieIndex === index;
 
                     return (
                       <div
                         key={item.name}
                         className={`donut-legend-row ${isSelected ? "selected" : ""}`}
-                        onMouseEnter={() => setSelectedDonutDept(item.name)}
-                        onMouseLeave={() => setSelectedDonutDept(null)}
+                        onMouseEnter={() => {
+                          setSelectedDonutDept(item.name);
+                          setHoveredPieIndex(index);
+                        }}
+                        onMouseLeave={() => {
+                          setSelectedDonutDept(null);
+                          setHoveredPieIndex(null);
+                        }}
+                        style={{ cursor: "pointer" }}
                       >
                         <div className="legend-left">
-                          <span className="dot" style={{ background: color }} />
-                          <span className="name">{item.name}</span>
+                          <span className="dot" style={{ background: color, transform: isSelected ? "scale(1.3)" : "scale(1)", transition: "transform 0.15s ease" }} />
+                          <span className="name" style={{ fontWeight: isSelected ? "700" : "500", color: isSelected ? color : undefined }}>{item.name}</span>
                         </div>
                         <div className="legend-right">
                           <span className="val">{item.value} units</span>
-                          <span className="pct">({percent}%)</span>
+                          <span className="pct" style={{ fontWeight: isSelected ? "700" : "normal" }}>({percent}%)</span>
                         </div>
                       </div>
                     );
@@ -572,7 +847,12 @@ export default function AdminAnalytics() {
             <div className="admin-analytics-card">
               <div className="card-header">
                 <div>
-                  <h3>Monthly Revenue Trend</h3>
+                  <div className="card-title-live-row">
+                    <h3>Monthly Revenue Trend</h3>
+                    <span className="chart-live-badge">
+                      <span className="chart-live-dot" /> LIVE
+                    </span>
+                  </div>
                   <p>Recurring billing cash flow</p>
                 </div>
                 <CircleDollarSign size={18} className="text-muted" />
@@ -583,26 +863,30 @@ export default function AdminAnalytics() {
                   const maxRev = Math.max(...revenueData.map(r => r.revenue));
                   const heightPct = Math.round((item.revenue / maxRev) * 100);
                   const isHovered = hoveredBar === index;
+                  const isAnyHovered = hoveredBar !== null;
 
                   return (
                     <div
                       key={item.month}
-                      className="rev-col-wrapper"
+                      className={`rev-col-wrapper ${isHovered ? "active" : ""} ${isAnyHovered && !isHovered ? "dimmed" : ""}`}
                       onMouseEnter={() => setHoveredBar(index)}
                       onMouseLeave={() => setHoveredBar(null)}
                     >
                       {isHovered && (
-                        <div className="bar-tooltip">
-                          ${(item.revenue / 1000).toFixed(1)}k
+                        <div className="bar-tooltip animated-pop">
+                          <div className="bar-tooltip-val">${item.revenue.toLocaleString()}</div>
+                          <div className="bar-tooltip-sub">{item.month} MRR</div>
                         </div>
                       )}
                       <div className="rev-bar-track">
                         <div
                           className={`rev-bar-fill ${isHovered ? "active" : ""}`}
                           style={{ height: `${heightPct}%` }}
-                        />
+                        >
+                          <span className="rev-bar-cap" />
+                        </div>
                       </div>
-                      <span className="rev-col-label">{item.month}</span>
+                      <span className={`rev-col-label ${isHovered ? "active" : ""}`}>{item.month}</span>
                     </div>
                   );
                 })}
@@ -613,7 +897,12 @@ export default function AdminAnalytics() {
             <div className="admin-analytics-card">
               <div className="card-header">
                 <div>
-                  <h3>Subscription Tier Mix</h3>
+                  <div className="card-title-live-row">
+                    <h3>Subscription Tier Mix</h3>
+                    <span className="chart-live-badge">
+                      <span className="chart-live-dot" /> LIVE
+                    </span>
+                  </div>
                   <p>Paid seats vs enterprise licenses</p>
                 </div>
                 <Layers size={18} className="text-muted" />
@@ -623,12 +912,20 @@ export default function AdminAnalytics() {
                 {planDistribution.map((plan) => {
                   const totalPlans = planDistribution.reduce((a, b) => a + b.value, 0);
                   const pct = Math.round((plan.value / totalPlans) * 100);
+                  const isHovered = hoveredPlan === plan.name;
+                  const isAnyHovered = hoveredPlan !== null;
 
                   return (
-                    <div key={plan.name} className="plan-item-box">
+                    <div
+                      key={plan.name}
+                      className={`plan-item-box ${isHovered ? "active" : ""} ${isAnyHovered && !isHovered ? "dimmed" : ""}`}
+                      onMouseEnter={() => setHoveredPlan(plan.name)}
+                      onMouseLeave={() => setHoveredPlan(null)}
+                      style={{ cursor: "pointer", transition: "all 0.2s ease" }}
+                    >
                       <div className="plan-header-row">
                         <div className="plan-name-badge">
-                          <span className={`plan-dot ${plan.name.toLowerCase()}`} />
+                          <span className={`plan-dot ${plan.name.toLowerCase()} ${isHovered ? "active" : ""}`} />
                           <span className="plan-title">{plan.name}</span>
                         </div>
                         <div className="plan-nums">
@@ -636,9 +933,9 @@ export default function AdminAnalytics() {
                           <span className="pct">({pct}%)</span>
                         </div>
                       </div>
-                      <div className="plan-progress-track">
+                      <div className={`plan-progress-track ${isHovered ? "active" : ""}`}>
                         <div
-                          className={`plan-progress-fill ${plan.name.toLowerCase()}`}
+                          className={`plan-progress-fill ${plan.name.toLowerCase()} ${isHovered ? "active" : ""}`}
                           style={{ width: `${pct}%` }}
                         />
                       </div>
@@ -652,7 +949,12 @@ export default function AdminAnalytics() {
             <div className="admin-analytics-card">
               <div className="card-header">
                 <div>
-                  <h3>Weekly Task Activity</h3>
+                  <div className="card-title-live-row">
+                    <h3>Weekly Task Activity</h3>
+                    <span className="chart-live-badge">
+                      <span className="chart-live-dot" /> LIVE
+                    </span>
+                  </div>
                   <p>Daily volume of created vs completed tasks</p>
                 </div>
                 <Zap size={18} className="text-muted" />
@@ -663,22 +965,42 @@ export default function AdminAnalytics() {
                   const maxAct = 120;
                   const createdH = Math.round((act.created / maxAct) * 100);
                   const doneH = Math.round((act.completed / maxAct) * 100);
+                  const isHovered = hoveredActDay === act.day;
+                  const isAnyHovered = hoveredActDay !== null;
 
                   return (
-                    <div key={act.day} className="act-col-wrapper">
+                    <div
+                      key={act.day}
+                      className={`act-col-wrapper ${isHovered ? "active" : ""} ${isAnyHovered && !isHovered ? "dimmed" : ""}`}
+                      onMouseEnter={() => setHoveredActDay(act.day)}
+                      onMouseLeave={() => setHoveredActDay(null)}
+                      style={{ position: "relative", cursor: "pointer" }}
+                    >
+                      {isHovered && (
+                        <div className="act-tooltip animated-pop">
+                          <div className="act-tooltip-day">{act.day} Activity</div>
+                          <div className="act-tooltip-row created">
+                            <span>Created:</span> <strong>{act.created}</strong>
+                          </div>
+                          <div className="act-tooltip-row done">
+                            <span>Completed:</span> <strong>{act.completed}</strong>
+                          </div>
+                          <div className="act-tooltip-pct">
+                            {Math.round((act.completed / act.created) * 100)}% velocity
+                          </div>
+                        </div>
+                      )}
                       <div className="act-dual-bars">
                         <div
-                          className="act-bar created"
+                          className={`act-bar created ${isHovered ? "active" : ""}`}
                           style={{ height: `${createdH}%` }}
-                          title={`Created: ${act.created}`}
                         />
                         <div
-                          className="act-bar done"
+                          className={`act-bar done ${isHovered ? "active" : ""}`}
                           style={{ height: `${doneH}%` }}
-                          title={`Completed: ${act.completed}`}
                         />
                       </div>
-                      <span className="act-col-label">{act.day}</span>
+                      <span className={`act-col-label ${isHovered ? "active" : ""}`}>{act.day}</span>
                     </div>
                   );
                 })}

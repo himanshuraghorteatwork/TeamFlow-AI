@@ -179,23 +179,23 @@ body.dark-theme .tfSaasAdmin__dateTriggerBtn.active,
   color: #6366f1;
 }
 
-/* CALENDAR POPOVER (COMPACT & FULLY VISIBLE) */
+/* CALENDAR POPOVER (SPACIOUS, ELEGANT & DARK-MODE FRIENDLY) */
 .tfSaasAdmin__calendarPopover {
   position: absolute;
-  top: calc(100% + 6px);
+  top: calc(100% + 8px);
   right: 0;
   z-index: 1050;
-  width: 440px;
-  max-width: calc(100vw - 24px);
+  width: 480px;
+  max-width: calc(100vw - 20px);
   background: #ffffff;
   border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  box-shadow: 0 16px 36px -6px rgba(15, 23, 42, 0.18), 0 0 0 1px rgba(15, 23, 42, 0.05);
+  border-radius: 14px;
+  box-shadow: 0 20px 45px -8px rgba(15, 23, 42, 0.2), 0 0 0 1px rgba(15, 23, 42, 0.05);
   display: flex;
   flex-direction: column;
   overflow: hidden;
   box-sizing: border-box;
-  animation: tfCalendarPopIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: tfCalendarPopIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @keyframes tfCalendarPopIn {
@@ -213,9 +213,9 @@ body.dark-theme .tfSaasAdmin__dateTriggerBtn.active,
 .dark .tfSaasAdmin__calendarPopover,
 body.dark-theme .tfSaasAdmin__calendarPopover,
 [data-theme="dark"] .tfSaasAdmin__calendarPopover {
-  background: #0f172a;
-  border-color: #1e293b;
-  box-shadow: 0 16px 36px -6px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.06);
+  background: #111827;
+  border-color: #1f2937;
+  box-shadow: 0 20px 45px -8px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.08);
 }
 
 /* POPOVER HEADER */
@@ -223,7 +223,7 @@ body.dark-theme .tfSaasAdmin__calendarPopover,
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 14px;
+  padding: 11px 16px;
   border-bottom: 1px solid #f1f5f9;
   background: #f8fafc;
   box-sizing: border-box;
@@ -233,15 +233,15 @@ body.dark-theme .tfSaasAdmin__calendarPopover,
 .dark .tfSaasAdmin__calendarHeader,
 body.dark-theme .tfSaasAdmin__calendarHeader,
 [data-theme="dark"] .tfSaasAdmin__calendarHeader {
-  background: #111827;
-  border-color: #1e293b;
+  background: #0f172a;
+  border-color: #1f2937;
 }
 
 .tfSaasAdmin__calendarHeaderTitle {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 0.775rem;
+  gap: 8px;
+  font-size: 0.8125rem;
   font-weight: 700;
   color: #1e293b;
 }
@@ -259,8 +259,8 @@ body.dark-theme .tfSaasAdmin__calendarHeader,
   background: none;
   border: none;
   color: #94a3b8;
-  padding: 2px;
-  border-radius: 4px;
+  padding: 4px;
+  border-radius: 6px;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -282,19 +282,35 @@ body.dark-theme .tfSaasAdmin__calendarHeader,
 /* POPOVER BODY */
 .tfSaasAdmin__calendarBody {
   display: grid;
-  grid-template-columns: 110px 1fr;
+  grid-template-columns: 130px 1fr;
   min-height: auto;
   box-sizing: border-box;
 }
 
+@media (max-width: 520px) {
+  .tfSaasAdmin__calendarBody {
+    grid-template-columns: 1fr;
+  }
+  .tfSaasAdmin__presetsCol {
+    border-right: none !important;
+    border-bottom: 1px solid #f1f5f9;
+    max-height: 100px;
+    overflow-y: auto;
+  }
+  :root.dark .tfSaasAdmin__presetsCol,
+  .dark .tfSaasAdmin__presetsCol {
+    border-bottom-color: #1f2937;
+  }
+}
+
 /* PRESETS SIDEBAR */
 .tfSaasAdmin__presetsCol {
-  padding: 6px 5px;
+  padding: 10px 8px;
   border-right: 1px solid #f1f5f9;
   background: #fcfcfd;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
   box-sizing: border-box;
 }
 
@@ -302,23 +318,23 @@ body.dark-theme .tfSaasAdmin__calendarHeader,
 .dark .tfSaasAdmin__presetsCol,
 body.dark-theme .tfSaasAdmin__presetsCol,
 [data-theme="dark"] .tfSaasAdmin__presetsCol {
-  background: #0f172a;
-  border-color: #1e293b;
+  background: #0b1120;
+  border-color: #1f2937;
 }
 
 .tfSaasAdmin__presetsHeading {
-  font-size: 0.6rem;
+  font-size: 0.65rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
   color: #94a3b8;
-  padding: 2px 6px 3px;
+  padding: 4px 8px 6px;
 }
 
 .tfSaasAdmin__presetsList {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
 }
 
 .tfSaasAdmin__presetBtn {
@@ -326,9 +342,9 @@ body.dark-theme .tfSaasAdmin__presetsCol,
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 4px 7px;
-  border-radius: 5px;
-  font-size: 0.72rem;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 0.75rem;
   font-weight: 500;
   color: #475569;
   background: transparent;
@@ -346,7 +362,7 @@ body.dark-theme .tfSaasAdmin__presetsCol,
 
 .tfSaasAdmin__presetBtn:hover {
   background: #f1f5f9;
-  color: #1e293b;
+  color: #0f172a;
 }
 
 :root.dark .tfSaasAdmin__presetBtn:hover,
@@ -363,8 +379,8 @@ body.dark-theme .tfSaasAdmin__presetsCol,
 
 :root.dark .tfSaasAdmin__presetBtn.active,
 .dark .tfSaasAdmin__presetBtn.active {
-  background: rgba(99, 102, 241, 0.18);
-  color: #818cf8;
+  background: rgba(99, 102, 241, 0.22);
+  color: #a5b4fc;
 }
 
 .tfSaasAdmin__presetBtn .preset-check {
@@ -379,10 +395,10 @@ body.dark-theme .tfSaasAdmin__presetsCol,
 
 /* CALENDAR RIGHT COLUMN */
 .tfSaasAdmin__calendarCol {
-  padding: 10px 14px;
+  padding: 14px 16px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 10px;
   min-width: 0;
   box-sizing: border-box;
 }
@@ -393,18 +409,18 @@ body.dark-theme .tfSaasAdmin__presetsCol,
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  padding-bottom: 2px;
+  padding-bottom: 4px;
   box-sizing: border-box;
 }
 
 .tfSaasAdmin__monthTitleWrap {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
 
 .tfSaasAdmin__currentMonthLabel {
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   font-weight: 700;
   color: #0f172a;
   letter-spacing: -0.01em;
@@ -418,9 +434,9 @@ body.dark-theme .tfSaasAdmin__presetsCol,
 .tfSaasAdmin__todayJumpBtn {
   background: #f1f5f9;
   border: 1px solid #e2e8f0;
-  border-radius: 4px;
-  padding: 1px 5px;
-  font-size: 0.6rem;
+  border-radius: 5px;
+  padding: 2px 7px;
+  font-size: 0.65rem;
   font-weight: 600;
   color: #6366f1;
   cursor: pointer;
@@ -438,10 +454,16 @@ body.dark-theme .tfSaasAdmin__presetsCol,
   background: #e0e7ff;
 }
 
+:root.dark .tfSaasAdmin__todayJumpBtn:hover,
+.dark .tfSaasAdmin__todayJumpBtn:hover {
+  background: #334155;
+  color: #c7d2fe;
+}
+
 .tfSaasAdmin__navBtn {
-  width: 24px;
-  height: 24px;
-  border-radius: 5px;
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -481,10 +503,10 @@ body.dark-theme .tfSaasAdmin__presetsCol,
 }
 
 .tfSaasAdmin__weekdayHeader {
-  font-size: 0.64rem;
+  font-size: 0.6875rem;
   font-weight: 700;
   color: #94a3b8;
-  padding: 2px 0;
+  padding: 4px 0;
   text-transform: uppercase;
 }
 
@@ -492,27 +514,27 @@ body.dark-theme .tfSaasAdmin__presetsCol,
 .tfSaasAdmin__daysGrid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  row-gap: 2px;
+  gap: 3px 2px;
   width: 100%;
   box-sizing: border-box;
 }
 
 .tfSaasAdmin__dayCell {
   position: relative;
-  height: 27px;
+  height: 30px;
   width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   background: transparent;
   border: none;
-  font-size: 0.76rem;
+  font-size: 0.78125rem;
   font-weight: 500;
   color: #1e293b;
   cursor: pointer;
   transition: all 0.15s ease;
   padding: 0;
-  border-radius: 4px;
+  border-radius: 6px;
   box-sizing: border-box;
 }
 
@@ -532,7 +554,7 @@ body.dark-theme .tfSaasAdmin__presetsCol,
 
 .tfSaasAdmin__dayCell.outside-month {
   color: #cbd5e1;
-  opacity: 0.5;
+  opacity: 0.45;
 }
 
 :root.dark .tfSaasAdmin__dayCell.outside-month,
@@ -594,87 +616,122 @@ body.dark-theme .tfSaasAdmin__presetsCol,
 
 .tfSaasAdmin__dayCell .cell-num {
   z-index: 1;
-  font-size: 0.76rem;
+  font-size: 0.78125rem;
 }
 
-/* RANGE BADGES ROW */
-.tfSaasAdmin__rangeInputRow {
+/* CUSTOM DATE BOX */
+.tfSaasAdmin__customDateBox {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
   gap: 6px;
   background: #f8fafc;
   border: 1px solid #e2e8f0;
-  border-radius: 7px;
-  padding: 4px 8px;
-  margin-top: 3px;
+  border-radius: 8px;
+  padding: 8px 10px;
+  margin-top: 4px;
   width: 100%;
   box-sizing: border-box;
 }
 
-:root.dark .tfSaasAdmin__rangeInputRow,
-.dark .tfSaasAdmin__rangeInputRow,
-body.dark-theme .tfSaasAdmin__rangeInputRow,
-[data-theme="dark"] .tfSaasAdmin__rangeInputRow {
-  background: #111827;
-  border-color: #1e293b;
-}
-
-.tfSaasAdmin__rangeBadge {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.tfSaasAdmin__rangeBadge .badge-lbl {
-  font-size: 0.6rem;
-  font-weight: 700;
-  color: #64748b;
-  text-transform: uppercase;
-}
-
-.tfSaasAdmin__rangeBadge .badge-val {
-  font-size: 0.7rem;
-  font-weight: 700;
-  color: #0f172a;
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 4px;
-  padding: 1px 5px;
-}
-
-:root.dark .tfSaasAdmin__rangeBadge .badge-lbl,
-.dark .tfSaasAdmin__rangeBadge .badge-lbl {
-  color: #94a3b8;
-}
-
-:root.dark .tfSaasAdmin__rangeBadge .badge-val,
-.dark .tfSaasAdmin__rangeBadge .badge-val {
+:root.dark .tfSaasAdmin__customDateBox,
+.dark .tfSaasAdmin__customDateBox {
   background: #0f172a;
   border-color: #1e293b;
-  color: #f8fafc;
 }
 
-.tfSaasAdmin__rangeArrow {
-  color: #94a3b8;
-  font-weight: 600;
+.tfSaasAdmin__customDateHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.tfSaasAdmin__customDateTitle {
   font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #64748b;
+}
+
+:root.dark .tfSaasAdmin__customDateTitle,
+.dark .tfSaasAdmin__customDateTitle {
+  color: #94a3b8;
 }
 
 .tfSaasAdmin__rangeDuration {
   background: #eef2ff;
   color: #4f46e5;
-  font-size: 0.62rem;
+  font-size: 0.65rem;
   font-weight: 700;
-  padding: 2px 6px;
+  padding: 2px 7px;
   border-radius: 4px;
   white-space: nowrap;
 }
 
 :root.dark .tfSaasAdmin__rangeDuration,
 .dark .tfSaasAdmin__rangeDuration {
-  background: rgba(99, 102, 241, 0.2);
+  background: rgba(99, 102, 241, 0.22);
   color: #a5b4fc;
+}
+
+.tfSaasAdmin__customDateRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.tfSaasAdmin__dateField {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.tfSaasAdmin__dateField label {
+  font-size: 0.625rem;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+}
+
+:root.dark .tfSaasAdmin__dateField label,
+.dark .tfSaasAdmin__dateField label {
+  color: #94a3b8;
+}
+
+.tfSaasAdmin__dateInput {
+  width: 100%;
+  padding: 5px 8px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  background: #ffffff;
+  color: #0f172a;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  box-sizing: border-box;
+}
+
+:root.dark .tfSaasAdmin__dateInput,
+.dark .tfSaasAdmin__dateInput {
+  background: #1e293b;
+  border-color: #334155;
+  color: #f8fafc;
+  color-scheme: dark;
+}
+
+.tfSaasAdmin__dateInput:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+}
+
+.tfSaasAdmin__dateFieldSep {
+  color: #94a3b8;
+  font-weight: 700;
+  font-size: 0.8125rem;
+  padding-top: 14px;
 }
 
 /* CALENDAR FOOTER */
@@ -682,31 +739,32 @@ body.dark-theme .tfSaasAdmin__rangeInputRow,
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 6px 10px;
+  padding: 10px 16px;
   border-top: 1px solid #f1f5f9;
   background: #f8fafc;
+  box-sizing: border-box;
 }
 
 :root.dark .tfSaasAdmin__calendarFooter,
 .dark .tfSaasAdmin__calendarFooter,
 body.dark-theme .tfSaasAdmin__calendarFooter,
 [data-theme="dark"] .tfSaasAdmin__calendarFooter {
-  background: #111827;
+  background: #0f172a;
   border-color: #1e293b;
 }
 
 .tfSaasAdmin__btnReset {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
   background: transparent;
   border: none;
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   font-weight: 600;
   color: #64748b;
   cursor: pointer;
-  padding: 3px 6px;
-  border-radius: 5px;
+  padding: 4px 8px;
+  border-radius: 6px;
   transition: all 0.15s ease;
 }
 
@@ -729,15 +787,15 @@ body.dark-theme .tfSaasAdmin__calendarFooter,
 .tfSaasAdmin__footerRightBtns {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
 
 .tfSaasAdmin__btnCancel {
   background: transparent;
   border: 1px solid #e2e8f0;
   border-radius: 6px;
-  padding: 4px 9px;
-  font-size: 0.72rem;
+  padding: 6px 12px;
+  font-size: 0.75rem;
   font-weight: 600;
   color: #475569;
   cursor: pointer;
@@ -746,55 +804,41 @@ body.dark-theme .tfSaasAdmin__calendarFooter,
 
 :root.dark .tfSaasAdmin__btnCancel,
 .dark .tfSaasAdmin__btnCancel {
+  background: #1e293b;
   border-color: #334155;
-  color: #94a3b8;
+  color: #cbd5e1;
 }
 
 .tfSaasAdmin__btnCancel:hover {
   background: #f1f5f9;
-  color: #0f172a;
+  border-color: #cbd5e1;
 }
 
 :root.dark .tfSaasAdmin__btnCancel:hover,
 .dark .tfSaasAdmin__btnCancel:hover {
-  background: #1e293b;
-  color: #f8fafc;
+  background: #334155;
+  color: #ffffff;
 }
 
 .tfSaasAdmin__btnApply {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   background: #4f46e5;
-  color: #ffffff;
   border: none;
   border-radius: 6px;
-  padding: 4px 10px;
-  font-size: 0.72rem;
+  padding: 6px 14px;
+  font-size: 0.75rem;
   font-weight: 600;
+  color: #ffffff;
   cursor: pointer;
-  box-shadow: 0 1px 2px rgba(79, 70, 229, 0.3);
   transition: all 0.15s ease;
+  box-shadow: 0 1px 3px rgba(79, 70, 229, 0.35);
 }
 
 .tfSaasAdmin__btnApply:hover {
   background: #4338ca;
-  box-shadow: 0 2px 4px rgba(79, 70, 229, 0.4);
-}
-
-@media (max-width: 640px) {
-  .tfSaasAdmin__calendarPopover {
-    width: 300px;
-  }
-  .tfSaasAdmin__calendarBody {
-    grid-template-columns: 1fr;
-  }
-  .tfSaasAdmin__presetsCol {
-    border-right: none;
-    border-bottom: 1px solid #f1f5f9;
-    max-height: 90px;
-    overflow-y: auto;
-  }
+  box-shadow: 0 2px 6px rgba(79, 70, 229, 0.45);
 }
 
 /* =========================================================
@@ -1078,12 +1122,34 @@ body.dark-theme .tfSaasAdmin__calendarFooter,
   width: 84px;
   height: 38px;
   flex-shrink: 0;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .tfSaasAdmin__kpiSpark svg {
   width: 100%;
   height: 100%;
   overflow: visible;
+  transition: filter 0.25s ease;
+}
+
+.tfSaasAdmin__kpiCard:hover .tfSaasAdmin__kpiSpark {
+  transform: scale(1.09) translateY(-1px);
+}
+
+.tfSaasAdmin__kpiCard:hover .tfSaasAdmin__kpiSpark svg {
+  filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.14));
+}
+
+.tfSaasAdmin__kpiCard:hover .tfSaasAdmin__kpiSpark path:last-of-type {
+  stroke-width: 3.2px;
+  filter: drop-shadow(0 0 5px currentColor);
+  transition: stroke-width 0.2s ease, filter 0.2s ease;
+}
+
+.tfSaasAdmin__kpiCard:hover .tfSaasAdmin__kpiSpark circle {
+  r: 3.8;
+  filter: drop-shadow(0 0 6px #8b5cf6);
+  transition: r 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.2s ease;
 }
 
 /* =========================================================
@@ -1098,6 +1164,66 @@ body.dark-theme .tfSaasAdmin__calendarFooter,
 @media (max-width: 1100px) {
   .tfSaasAdmin__middleGrid {
     grid-template-columns: 1fr;
+  }
+}
+
+/* Header live badge and pulse indicator */
+.tfSaasAdmin__cardHeaderTitleGroup {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.tfSaasAdmin__liveBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2.5px 8px;
+  border-radius: 9999px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background: rgba(16, 185, 129, 0.1);
+  color: #059669;
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  box-shadow: 0 1px 2px rgba(16, 185, 129, 0.08);
+  transition: all 0.2s ease;
+}
+
+:root.dark .tfSaasAdmin__liveBadge,
+.dark .tfSaasAdmin__liveBadge {
+  background: rgba(16, 185, 129, 0.18);
+  color: #34d399;
+  border-color: rgba(52, 211, 153, 0.35);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.tfSaasAdmin__livePulseDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #10b981;
+  animation: tfLivePulse 2s infinite cubic-bezier(0.4, 0, 0.6, 1);
+}
+
+:root.dark .tfSaasAdmin__livePulseDot,
+.dark .tfSaasAdmin__livePulseDot {
+  background-color: #34d399;
+}
+
+@keyframes tfLivePulse {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+  }
+  70% {
+    transform: scale(1.15);
+    box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);
+  }
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
   }
 }
 
@@ -1169,6 +1295,16 @@ body.dark-theme .tfSaasAdmin__calendarFooter,
   align-items: center;
   justify-content: flex-end;
   position: relative;
+  cursor: pointer;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.tfSaasAdmin__barGroup.is-dimmed {
+  opacity: 0.4;
+}
+
+.tfSaasAdmin__barGroup.is-hovered {
+  opacity: 1;
 }
 
 .tfSaasAdmin__barRail {
@@ -1182,14 +1318,55 @@ body.dark-theme .tfSaasAdmin__calendarFooter,
 
 .tfSaasAdmin__barFill {
   width: 100%;
-  background: #3b82f6;
-  border-top-left-radius: 4px;
-  border-top-right-radius: 4px;
-  transition: height 0.4s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s ease;
+  background: linear-gradient(180deg, #60a5fa 0%, #3b82f6 100%);
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+  transition: height 0.4s cubic-bezier(0.4, 0, 0.2, 1), transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+  position: relative;
+  overflow: hidden;
 }
 
-.tfSaasAdmin__barGroup:hover .tfSaasAdmin__barFill {
-  background: #2563eb;
+.tfSaasAdmin__barGroup:hover .tfSaasAdmin__barFill,
+.tfSaasAdmin__barGroup.is-hovered .tfSaasAdmin__barFill {
+  background: linear-gradient(180deg, #38bdf8 0%, #2563eb 100%);
+  transform: translateY(-4px) scaleX(1.1);
+  box-shadow: 0 8px 20px -2px rgba(37, 99, 235, 0.45);
+}
+
+:root.dark .tfSaasAdmin__barGroup:hover .tfSaasAdmin__barFill,
+.dark .tfSaasAdmin__barGroup.is-hovered .tfSaasAdmin__barFill {
+  box-shadow: 0 8px 22px -2px rgba(59, 130, 246, 0.65);
+}
+
+/* Ambient subtle shimmer sweep moving up the bar */
+.tfSaasAdmin__barShimmer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.45) 0%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  opacity: 0.5;
+  animation: tfBarShimmerWave 2.8s infinite ease-in-out;
+  pointer-events: none;
+}
+
+@keyframes tfBarShimmerWave {
+  0% {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.65;
+  }
+  100% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
 }
 
 .tfSaasAdmin__barLabel {
@@ -1198,11 +1375,93 @@ body.dark-theme .tfSaasAdmin__calendarFooter,
   font-size: 0.6875rem;
   color: #64748b;
   font-weight: 500;
+  transition: all 0.2s ease;
 }
 
 :root.dark .tfSaasAdmin__barLabel,
 .dark .tfSaasAdmin__barLabel {
   color: #94a3b8;
+}
+
+.tfSaasAdmin__barLabel.active {
+  color: #2563eb;
+  font-weight: 700;
+  transform: scale(1.12);
+}
+
+:root.dark .tfSaasAdmin__barLabel.active,
+.dark .tfSaasAdmin__barLabel.active {
+  color: #60a5fa;
+}
+
+/* Floating interactive Tooltip */
+.tfSaasAdmin__barTooltip {
+  position: absolute;
+  top: -48px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #0f172a;
+  color: #ffffff;
+  padding: 5px 10px;
+  border-radius: 8px;
+  font-size: 0.6875rem;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 25;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  animation: tfTooltipPop 0.18s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+:root.dark .tfSaasAdmin__barTooltip,
+.dark .tfSaasAdmin__barTooltip {
+  background: #1e293b;
+  border: 1px solid #334155;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.5);
+}
+
+.tfSaasAdmin__barTooltip .tooltip-val {
+  font-weight: 800;
+  font-size: 0.8125rem;
+  color: #38bdf8;
+  line-height: 1.1;
+}
+
+.tfSaasAdmin__barTooltip .tooltip-lbl {
+  font-size: 0.625rem;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+.tfSaasAdmin__barTooltip .tooltip-arrow {
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%) rotate(45deg);
+  width: 8px;
+  height: 8px;
+  background: #0f172a;
+}
+
+:root.dark .tfSaasAdmin__barTooltip .tooltip-arrow,
+.dark .tfSaasAdmin__barTooltip .tooltip-arrow {
+  background: #1e293b;
+  border-right: 1px solid #334155;
+  border-bottom: 1px solid #334155;
+}
+
+@keyframes tfTooltipPop {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(6px) scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
 }
 
 /* 2. Task Status Overview Card */
@@ -1224,7 +1483,44 @@ body.dark-theme .tfSaasAdmin__calendarFooter,
 .tfSaasAdmin__donutSvg {
   width: 100%;
   height: 100%;
-  transform: rotate(0deg);
+  overflow: visible;
+}
+
+.tfSaasAdmin__donutBgRing {
+  stroke: #e2e8f0;
+  transition: stroke 0.25s ease;
+}
+
+:root.dark .tfSaasAdmin__donutBgRing,
+.dark .tfSaasAdmin__donutBgRing {
+  stroke: #1e293b;
+}
+
+.tfSaasAdmin__donutSlice {
+  cursor: pointer;
+  transition: stroke-width 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+              filter 0.25s ease,
+              opacity 0.25s ease;
+}
+
+.tfSaasAdmin__donutSlice.dimmed {
+  opacity: 0.3;
+}
+
+.tfSaasAdmin__donutSlice.active.slice-green {
+  filter: drop-shadow(0 0 7px rgba(16, 185, 129, 0.8));
+}
+
+.tfSaasAdmin__donutSlice.active.slice-blue {
+  filter: drop-shadow(0 0 7px rgba(59, 130, 246, 0.8));
+}
+
+.tfSaasAdmin__donutSlice.active.slice-amber {
+  filter: drop-shadow(0 0 7px rgba(245, 158, 11, 0.8));
+}
+
+.tfSaasAdmin__donutSlice.active.slice-red {
+  filter: drop-shadow(0 0 7px rgba(239, 68, 68, 0.8));
 }
 
 .tfSaasAdmin__donutCenterText {
@@ -1234,6 +1530,12 @@ body.dark-theme .tfSaasAdmin__calendarFooter,
   transform: translate(-50%, -50%);
   text-align: center;
   pointer-events: none;
+  transition: all 0.25s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
 }
 
 .tfSaasAdmin__donutCenterText strong {
@@ -1242,6 +1544,7 @@ body.dark-theme .tfSaasAdmin__calendarFooter,
   font-weight: 700;
   color: #0f172a;
   line-height: 1.1;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 :root.dark .tfSaasAdmin__donutCenterText strong,
@@ -1249,16 +1552,23 @@ body.dark-theme .tfSaasAdmin__calendarFooter,
   color: #f8fafc;
 }
 
+.tfSaasAdmin__donutCenterText.has-hover strong {
+  font-size: 1.35rem;
+  transform: scale(1.08);
+}
+
 .tfSaasAdmin__donutCenterText span {
   font-size: 0.6875rem;
   color: #64748b;
+  margin-top: 2px;
+  line-height: 1.2;
 }
 
 .tfSaasAdmin__statusList {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 
 .tfSaasAdmin__statusRow {
@@ -1267,6 +1577,45 @@ body.dark-theme .tfSaasAdmin__calendarFooter,
   align-items: center;
   gap: 12px;
   font-size: 0.8125rem;
+  padding: 5px 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tfSaasAdmin__statusRow:hover,
+.tfSaasAdmin__statusRow.is-active {
+  background: rgba(241, 245, 249, 0.9);
+  transform: translateX(4px);
+}
+
+:root.dark .tfSaasAdmin__statusRow:hover,
+.dark .tfSaasAdmin__statusRow.is-active {
+  background: rgba(30, 41, 59, 0.85);
+}
+
+.tfSaasAdmin__statusRow.is-dimmed {
+  opacity: 0.38;
+}
+
+.tfSaasAdmin__statusRow.is-active.is-green .dot-green {
+  transform: scale(1.4);
+  box-shadow: 0 0 8px #10b981;
+}
+
+.tfSaasAdmin__statusRow.is-active.is-blue .dot-blue {
+  transform: scale(1.4);
+  box-shadow: 0 0 8px #3b82f6;
+}
+
+.tfSaasAdmin__statusRow.is-active.is-amber .dot-amber {
+  transform: scale(1.4);
+  box-shadow: 0 0 8px #f59e0b;
+}
+
+.tfSaasAdmin__statusRow.is-active.is-red .dot-red {
+  transform: scale(1.4);
+  box-shadow: 0 0 8px #ef4444;
 }
 
 .status-label-group {
@@ -1287,6 +1636,7 @@ body.dark-theme .tfSaasAdmin__calendarFooter,
   height: 8px;
   border-radius: 50%;
   flex-shrink: 0;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .dot-green {
@@ -1328,7 +1678,7 @@ body.dark-theme .tfSaasAdmin__calendarFooter,
 .tfSaasAdmin__projectProgressList {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 10px;
   justify-content: center;
   height: 180px;
 }
@@ -1336,7 +1686,26 @@ body.dark-theme .tfSaasAdmin__calendarFooter,
 .tfSaasAdmin__progressRow {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 5px;
+  padding: 5px 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tfSaasAdmin__progressRow:hover,
+.tfSaasAdmin__progressRow.is-hovered {
+  background: rgba(99, 102, 241, 0.05);
+  transform: translateX(3px);
+}
+
+:root.dark .tfSaasAdmin__progressRow:hover,
+.dark .tfSaasAdmin__progressRow.is-hovered {
+  background: rgba(99, 102, 241, 0.12);
+}
+
+.tfSaasAdmin__progressRow.is-dimmed {
+  opacity: 0.45;
 }
 
 .progress-info {
@@ -1367,6 +1736,13 @@ body.dark-theme .tfSaasAdmin__calendarFooter,
   background: #f1f5f9;
   border-radius: 9999px;
   overflow: hidden;
+  position: relative;
+  transition: height 0.2s ease;
+}
+
+.tfSaasAdmin__progressRow:hover .progress-rail,
+.tfSaasAdmin__progressRow.is-hovered .progress-rail {
+  height: 9px;
 }
 
 :root.dark .progress-rail,
@@ -1377,7 +1753,34 @@ body.dark-theme .tfSaasAdmin__calendarFooter,
 .progress-fill {
   height: 100%;
   border-radius: 9999px;
-  transition: width 0.4s ease;
+  transition: width 0.4s ease, box-shadow 0.25s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.tfSaasAdmin__progressShimmer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.5) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  animation: tfLiveProgressWave 2.4s infinite linear;
+  pointer-events: none;
+}
+
+@keyframes tfLiveProgressWave {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
 }
 
 /* =========================================================
@@ -1994,4 +2397,126 @@ body.dark-theme .tfSaasAdmin__calendarFooter,
 :root.dark .health-detail-stat span,
 .dark .health-detail-stat span {
   color: #94a3b8;
+}
+
+/* =========================================================
+   LIVE CIRCLE & ORBITING TELEMETRY BEACON STYLES
+========================================================= */
+
+/* Ambient live outer orbital ring */
+.tfSaasAdmin__donutAuraRing {
+  stroke: rgba(16, 185, 129, 0.25);
+  stroke-width: 1px;
+  stroke-dasharray: 4 6;
+  animation: donutAuraSpin 28s linear infinite;
+  transform-origin: 70px 70px;
+}
+
+:root.dark .tfSaasAdmin__donutAuraRing,
+.dark .tfSaasAdmin__donutAuraRing {
+  stroke: rgba(16, 185, 129, 0.4);
+}
+
+@keyframes donutAuraSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Expanding live sonar wave */
+.tfSaasAdmin__donutSonarWave {
+  stroke: #10b981;
+  stroke-width: 1.5px;
+  opacity: 0;
+  transform-origin: 70px 70px;
+  animation: donutSonarPulse 3.5s cubic-bezier(0.1, 0.8, 0.3, 1) infinite;
+  pointer-events: none;
+}
+
+@keyframes donutSonarPulse {
+  0% {
+    r: 48;
+    opacity: 0.65;
+    stroke-width: 2px;
+  }
+  60% {
+    r: 66;
+    opacity: 0;
+    stroke-width: 0.5px;
+  }
+  100% {
+    r: 66;
+    opacity: 0;
+  }
+}
+
+/* Orbiting Live Satellite Beacon */
+.tfSaasAdmin__donutOrbitBeacon {
+  animation: donutOrbitSpin 6.5s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes donutOrbitSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.tfSaasAdmin__beaconCore {
+  fill: #ffffff;
+  filter: drop-shadow(0 0 6px #10b981);
+}
+
+.tfSaasAdmin__beaconPulse {
+  stroke: #10b981;
+  stroke-width: 1.2px;
+  opacity: 0.65;
+  animation: beaconPulseWave 1.8s infinite ease-out;
+}
+
+@keyframes beaconPulseWave {
+  0% { r: 3; opacity: 1; }
+  100% { r: 9; opacity: 0; }
+}
+
+/* Center hole live sub-label with pulsing dot */
+.tfSaasAdmin__centerSub {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  font-size: 0.6875rem !important;
+  color: #64748b !important;
+  margin-top: 2px !important;
+  font-weight: 500 !important;
+}
+
+:root.dark .tfSaasAdmin__centerSub,
+.dark .tfSaasAdmin__centerSub {
+  color: #94a3b8 !important;
+}
+
+.tfSaasAdmin__centerLiveDot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 6px #10b981;
+  animation: centerDotPulse 1.8s infinite ease-in-out;
+}
+
+@keyframes centerDotPulse {
+  0%, 100% { opacity: 0.5; transform: scale(0.9); }
+  50% { opacity: 1; transform: scale(1.3); box-shadow: 0 0 8px rgba(16, 185, 129, 0.95); }
+}
+
+/* Idle breathing ambient glow on slices */
+.tfSaasAdmin__donutSlice.slice-green {
+  filter: drop-shadow(0 0 2px rgba(16, 185, 129, 0.45));
+}
+.tfSaasAdmin__donutSlice.slice-blue {
+  filter: drop-shadow(0 0 2px rgba(59, 130, 246, 0.45));
+}
+.tfSaasAdmin__donutSlice.slice-amber {
+  filter: drop-shadow(0 0 2px rgba(245, 158, 11, 0.45));
+}
+.tfSaasAdmin__donutSlice.slice-red {
+  filter: drop-shadow(0 0 2px rgba(239, 68, 68, 0.45));
 }

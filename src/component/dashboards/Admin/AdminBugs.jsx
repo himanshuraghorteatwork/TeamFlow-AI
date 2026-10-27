@@ -226,6 +226,20 @@ export default function AdminBugs() {
     return filteredBugs.slice(start, start + perPage);
   }, [filteredBugs, currentPage, perPage]);
 
+  // Page numbers generator matching Projects & Roles
+  const getPageNumbers = () => {
+    if (totalPages <= 7) {
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
+    }
+    if (currentPage <= 4) {
+      return [1, 2, 3, 4, 5, "...", totalPages];
+    }
+    if (currentPage >= totalPages - 3) {
+      return [1, "...", totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+    }
+    return [1, "...", currentPage - 1, currentPage, currentPage + 1, "...", totalPages];
+  };
+
   // Overall Statistics from current bugs database
   const stats = useMemo(() => {
     const total = bugs.length;
@@ -765,69 +779,69 @@ export default function AdminBugs() {
                   </table>
                 </div>
 
-                {/* TABLE FOOTER / PAGINATION BAR */}
-                <div className="tfBugsPagination">
-                  <div className="pagination-info">
-                    Showing {(currentPage - 1) * perPage + 1} to{" "}
-                    {Math.min(currentPage * perPage, filteredBugs.length)} of {filteredBugs.length} bugs
-                  </div>
+                {/* TABLE FOOTER / PAGINATION BAR (Matching Projects, Roles & Workspace) */}
+                {filteredBugs.length > 0 && (
+                  <div className="ws-pagination-bar bp-pagination-bar">
+                    <div className="ws-pagination-info bp-pagination-info">
+                      <span>
+                        Showing {(currentPage - 1) * perPage + 1} to{" "}
+                        {Math.min(currentPage * perPage, filteredBugs.length)} of {filteredBugs.length} bugs
+                      </span>
+                      <div className="ws-page-size-wrap bp-page-size-wrap">
+                        <span>Bugs per page:</span>
+                        <select
+                          value={perPage}
+                          onChange={(e) => {
+                            setPerPage(Number(e.target.value));
+                            setCurrentPage(1);
+                          }}
+                        >
+                          <option value={6}>6</option>
+                          <option value={10}>10</option>
+                          <option value={20}>20</option>
+                          <option value={50}>50</option>
+                        </select>
+                      </div>
+                    </div>
 
-                  <div className="pagination-pages">
-                    <button
-                      type="button"
-                      className="nav-arrow"
-                      disabled={currentPage <= 1}
-                      onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                    >
-                      <ChevronLeft size={14} />
-                    </button>
-
-                    {[1, 2, 3, 4, 5].map((pageNum) => (
+                    <div className="ws-pagination-controls bp-pagination-controls">
                       <button
-                        key={pageNum}
                         type="button"
-                        className={`page-pill ${currentPage === pageNum ? "active" : ""}`}
-                        onClick={() => setCurrentPage(pageNum)}
+                        className="ws-page-nav-btn bp-page-nav-btn"
+                        onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                        disabled={currentPage <= 1}
                       >
-                        {pageNum}
+                        Previous
                       </button>
-                    ))}
-
-                    <span className="ellipsis">...</span>
-
-                    <button
-                      type="button"
-                      className={`page-pill ${currentPage === 9 ? "active" : ""}`}
-                      onClick={() => setCurrentPage(9)}
-                    >
-                      9
-                    </button>
-
-                    <button
-                      type="button"
-                      className="nav-arrow"
-                      disabled={currentPage >= totalPages}
-                      onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                    >
-                      <ChevronRight size={14} />
-                    </button>
+                      <div className="ws-page-pills bp-page-pills">
+                        {getPageNumbers().map((item, idx) =>
+                          item === "..." ? (
+                            <span key={`ellipsis-${idx}`} className="ws-page-ellipsis bp-page-ellipsis">
+                              ...
+                            </span>
+                          ) : (
+                            <button
+                              key={item}
+                              type="button"
+                              className={`ws-page-num-pill bp-page-num-pill ${currentPage === item ? "active" : ""}`}
+                              onClick={() => setCurrentPage(item)}
+                            >
+                              {item}
+                            </button>
+                          )
+                        )}
+                      </div>
+                      <button
+                        type="button"
+                        className="ws-page-nav-btn bp-page-nav-btn"
+                        onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                        disabled={currentPage >= totalPages}
+                      >
+                        Next
+                      </button>
+                    </div>
                   </div>
-
-                  <div className="pagination-rows-select">
-                    <label>Rows per page</label>
-                    <select
-                      value={perPage}
-                      onChange={(e) => {
-                        setPerPage(Number(e.target.value));
-                        setCurrentPage(1);
-                      }}
-                    >
-                      <option value={10}>10</option>
-                      <option value={20}>20</option>
-                      <option value={50}>50</option>
-                    </select>
-                  </div>
-                </div>
+                )}
               </div>
             </div>
 

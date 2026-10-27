@@ -34,13 +34,27 @@ export default function AdminTopbar({
 }) {
   const navigate = useNavigate();
 
+  // Helper to read initial dark mode state accurately without sticky fallback bug
+  const getInitialDarkMode = () => {
+    try {
+      const adminDark = localStorage.getItem("teamflow_admin_dark");
+      if (adminDark !== null) {
+        return adminDark === "true";
+      }
+      const themeMode = localStorage.getItem("teamflow_theme_mode");
+      if (themeMode !== null) {
+        return themeMode === "dark";
+      }
+      const superDark = localStorage.getItem("teamflow_superadmin_dark_mode");
+      if (superDark !== null) {
+        return superDark === "true";
+      }
+    } catch (e) {}
+    return false;
+  };
+
   // Dark Mode State
-  const [darkMode, setDarkMode] = useState(() => {
-    return (
-      localStorage.getItem("teamflow_admin_dark") === "true" ||
-      document.documentElement.classList.contains("dark")
-    );
-  });
+  const [darkMode, setDarkMode] = useState(getInitialDarkMode);
 
   // Admin Profile State
   const [adminProfile, setAdminProfile] = useState(() => {
@@ -70,6 +84,39 @@ export default function AdminTopbar({
   const notificationRef = useRef(null);
   const profileRef = useRef(null);
 
+  // Synchronize theme to DOM and localStorage
+  const applyThemeToDOM = (isDark) => {
+    if (typeof document === "undefined") return;
+
+    document.documentElement.classList.add("theme-transitioning");
+
+    if (isDark) {
+      document.documentElement.classList.add("dark", "sa-dark-mode");
+      document.body.classList.add("dark", "dark-theme", "sa-dark-mode");
+      document.documentElement.setAttribute("data-theme", "dark");
+    } else {
+      document.documentElement.classList.remove("dark", "sa-dark-mode");
+      document.body.classList.remove("dark", "dark-theme", "sa-dark-mode");
+      document.documentElement.setAttribute("data-theme", "light");
+    }
+
+    try {
+      localStorage.setItem("teamflow_admin_dark", String(isDark));
+      localStorage.setItem("teamflow_superadmin_dark_mode", String(isDark));
+      localStorage.setItem("teamflow_theme_mode", isDark ? "dark" : "light");
+    } catch (e) {}
+
+    window.clearTimeout(window.__tfThemeTimer);
+    window.__tfThemeTimer = window.setTimeout(() => {
+      document.documentElement.classList.remove("theme-transitioning");
+    }, 380);
+  };
+
+  // Keep DOM updated whenever darkMode state changes
+  useEffect(() => {
+    applyThemeToDOM(darkMode);
+  }, [darkMode]);
+
   // Sync profile & theme when external updates occur
   useEffect(() => {
     const handleSync = () => {
@@ -80,10 +127,8 @@ export default function AdminTopbar({
     };
 
     const handleThemeSync = () => {
-      const isDark =
-        localStorage.getItem("teamflow_admin_dark") === "true" ||
-        document.documentElement.classList.contains("dark");
-      setDarkMode(isDark);
+      const isDark = getInitialDarkMode();
+      setDarkMode((current) => (current !== isDark ? isDark : current));
     };
 
     window.addEventListener("storage", handleSync);
@@ -98,55 +143,23 @@ export default function AdminTopbar({
     };
   }, []);
 
-  // Sync dark mode class on root HTML
-  useEffect(() => {
-    if (darkMode) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
-    localStorage.setItem("teamflow_admin_dark", String(darkMode));
-  }, [darkMode]);
-
-  // Global smooth theme transition wrapper
-  const applyThemeTransition = (action) => {
-    document.documentElement.classList.add("theme-transitioning");
-    action();
-    window.clearTimeout(window.__tfThemeTimer);
-    window.__tfThemeTimer = window.setTimeout(() => {
-      document.documentElement.classList.remove("theme-transitioning");
-    }, 380);
-  };
-
   const toggleDarkMode = () => {
-    applyThemeTransition(() => {
-      setDarkMode((prev) => {
-        const next = !prev;
-        if (next) {
-          document.documentElement.classList.add("dark");
-        } else {
-          document.documentElement.classList.remove("dark");
-        }
-        localStorage.setItem("teamflow_admin_dark", String(next));
-        localStorage.setItem("teamflow_theme_mode", next ? "dark" : "light");
+    setDarkMode((prev) => {
+      const next = !prev;
+      applyThemeToDOM(next);
+      setTimeout(() => {
         window.dispatchEvent(new Event("teamflow_theme_update"));
-        return next;
-      });
+      }, 0);
+      return next;
     });
   };
 
   const setExplicitTheme = (isDark) => {
-    applyThemeTransition(() => {
-      setDarkMode(isDark);
-      if (isDark) {
-        document.documentElement.classList.add("dark");
-      } else {
-        document.documentElement.classList.remove("dark");
-      }
-      localStorage.setItem("teamflow_admin_dark", String(isDark));
-      localStorage.setItem("teamflow_theme_mode", isDark ? "dark" : "light");
+    setDarkMode(isDark);
+    applyThemeToDOM(isDark);
+    setTimeout(() => {
       window.dispatchEvent(new Event("teamflow_theme_update"));
-    });
+    }, 0);
   };
 
   // Close dropdowns on click outside
@@ -357,46 +370,22 @@ export default function AdminTopbar({
 
         {/* TOPBAR RIGHT: DARK MODE, NOTIFICATIONS, HELP, PROFILE */}
         <div className="tfAdminTopbar__actions">
-          {/* THEME TOGGLE BUTTON / PILL WITH SMOOTH TRANSITION */}
-          <div
-            className={`tfAdminTopbar__themePill ${darkMode ? "is-dark" : "is-light"}`}
-            title={`Current theme: ${darkMode ? "Dark Mode" : "Light Mode"}. Click to toggle.`}
+          {/* THEME TOGGLE (SUPER ADMIN ANIMATED SWITCH & EFFECT) */}
+          <button
+            type="button"
+            className={`superadmin-theme-toggle tfAdminTopbar__themeToggle ${darkMode ? "is-dark" : "is-light"}`}
             onClick={toggleDarkMode}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault();
-                toggleDarkMode();
-              }
-            }}
+            aria-label={darkMode ? "Switch to light mode" : "Switch to dark mode"}
+            title={darkMode ? "Dark mode active · Click for Light mode" : "Light mode active · Click for Dark mode"}
           >
-            <span className="tfAdminTopbar__themePillSlider" aria-hidden="true" />
-            <button
-              type="button"
-              className={`tfAdminTopbar__themeBtn ${!darkMode ? "active" : ""}`}
-              onClick={(e) => {
-                e.stopPropagation();
-                setExplicitTheme(false);
-              }}
-              aria-label="Light mode"
-              title="Switch to Light mode"
-            >
-              <Sun size={15} />
-            </button>
-            <button
-              type="button"
-              className={`tfAdminTopbar__themeBtn ${darkMode ? "active" : ""}`}
-              onClick={(e) => {
-                e.stopPropagation();
-                setExplicitTheme(true);
-              }}
-              aria-label="Dark mode"
-              title="Switch to Dark mode"
-            >
-              <Moon size={15} />
-            </button>
-          </div>
+            <span className="sa-toggle-track">
+              <Sun size={12} className="sa-toggle-sun-icon" />
+              <Moon size={12} className="sa-toggle-moon-icon" />
+            </span>
+            <span className="sa-toggle-thumb">
+              {darkMode ? <Moon size={12} /> : <Sun size={12} />}
+            </span>
+          </button>
 
           {/* NOTIFICATIONS */}
           <div className="tfAdminTopbar__dropdownWrap" ref={notificationRef}>

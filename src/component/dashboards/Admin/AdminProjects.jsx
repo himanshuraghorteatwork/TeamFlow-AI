@@ -39,6 +39,18 @@ import {
   ArrowUp,
   ArrowDown,
 } from "lucide-react";
+import {
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+} from "recharts";
 
 import AdminSidebar from "./AdminSidebar.jsx";
 import AdminTopbar from "./AdminTopbar.jsx";
@@ -89,7 +101,6 @@ export default function AdminProjects() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingProject, setEditingProject] = useState(null);
   const [projectToDelete, setProjectToDelete] = useState(null);
-  const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [exportOpen, setExportOpen] = useState(false);
   const [toast, setToast] = useState(null);
 
@@ -176,6 +187,84 @@ export default function AdminProjects() {
     memberFilter,
     sortKey,
   ]);
+
+  // =========================================================
+  // PAGINATION STATES (Matching Roles, Workspace & Users)
+  // =========================================================
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(6);
+
+  const totalPages = Math.max(1, Math.ceil(filteredProjects.length / pageSize));
+  const paginatedProjects = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return filteredProjects.slice(start, start + pageSize);
+  }, [filteredProjects, currentPage, pageSize]);
+
+  // Reset to page 1 on filter or search changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, statusFilter, workspaceFilter, priorityFilter, memberFilter, sortKey]);
+
+  // Reusable Pagination Bar (Matching Workspace & Roles)
+  const renderPaginationBar = () => {
+    if (filteredProjects.length === 0) return null;
+    return (
+      <div className="ws-pagination-bar ap-pagination-bar">
+        <div className="ws-pagination-info ap-pagination-info">
+          <span>
+            Showing {(currentPage - 1) * pageSize + 1} to{" "}
+            {Math.min(currentPage * pageSize, filteredProjects.length)} of {filteredProjects.length} projects
+          </span>
+          <div className="ws-page-size-wrap ap-page-size-wrap">
+            <span>Projects per page:</span>
+            <select
+              value={pageSize}
+              onChange={(e) => {
+                setPageSize(Number(e.target.value));
+                setCurrentPage(1);
+              }}
+            >
+              <option value={4}>4</option>
+              <option value={6}>6</option>
+              <option value={8}>8</option>
+              <option value={12}>12</option>
+            </select>
+          </div>
+        </div>
+
+        <div className="ws-pagination-controls ap-pagination-controls">
+          <button
+            type="button"
+            className="ws-page-nav-btn ap-page-nav-btn"
+            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+            disabled={currentPage <= 1}
+          >
+            Previous
+          </button>
+          <div className="ws-page-pills ap-page-pills">
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((num) => (
+              <button
+                key={num}
+                type="button"
+                className={`ws-page-num-pill ap-page-num-pill ${currentPage === num ? "active" : ""}`}
+                onClick={() => setCurrentPage(num)}
+              >
+                {num}
+              </button>
+            ))}
+          </div>
+          <button
+            type="button"
+            className="ws-page-nav-btn ap-page-nav-btn"
+            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+            disabled={currentPage >= totalPages}
+          >
+            Next
+          </button>
+        </div>
+      </div>
+    );
+  };
 
   // Overall Statistics matching reference design
   const stats = useMemo(() => {
@@ -311,12 +400,6 @@ export default function AdminProjects() {
     setProjectToDelete(null);
   };
 
-  // Reset Demo Data
-  const handleResetDemoData = () => {
-    saveProjects(initialAdminProjects, "Reset projects to default demo data.");
-    setShowResetConfirm(false);
-  };
-
   // Export CSV
   const handleExportCSV = () => {
     const headers = ["ID", "Name", "Workspace", "Status", "Priority", "Progress", "Tasks", "Due Date", "Owner"];
@@ -373,11 +456,45 @@ export default function AdminProjects() {
     }
   };
 
-  // Donut chart stroke calculation
+  // Interactive chart hover states
+  const [hoveredSegment, setHoveredSegment] = useState(null);
+  const [hoveredBar, setHoveredBar] = useState(null);
+
+  // Live Donut chart stroke calculation (Circumference 2 * PI * 46 = 289.03)
+  const CIRCUMFERENCE = 289.03;
   const totalCount = stats.total || 1;
   const activePct = Math.round((stats.active / totalCount) * 100);
   const completedPct = Math.round((stats.completed / totalCount) * 100);
-  const onHoldPct = Math.round((stats.onHold / totalCount) * 100);
+  const onHoldPct = Math.max(0, 100 - activePct - completedPct);
+
+  // Exact segment lengths on circumference
+  const activeArcLength = (activePct / 100) * CIRCUMFERENCE;
+  const completedArcLength = (completedPct / 100) * CIRCUMFERENCE;
+  const onHoldArcLength = (onHoldPct / 100) * CIRCUMFERENCE;
+
+  // Workspace chart max scaling
+  const maxWorkspaceVal = useMemo(() => {
+    return Math.max(...Object.values(workspaceStats), 1);
+  }, [workspaceStats]);
+  const yAxisMax = Math.max(Math.ceil(maxWorkspaceVal / 2) * 2, 4);
+
+  // Live Recharts Data for Status Pie & Workspace Bar
+  const statusPieData = useMemo(() => {
+    return [
+      { name: "Active", value: stats.active || 0, color: "#10b981" },
+      { name: "Completed", value: stats.completed || 0, color: "#3b82f6" },
+      { name: "On Hold", value: stats.onHold || 0, color: "#f59e0b" },
+    ].filter((d) => d.value > 0);
+  }, [stats]);
+
+  const workspaceChartData = useMemo(() => {
+    return [
+      { name: "TeamFlow", count: workspaceStats.TeamFlow || 0, color: "#8b5cf6" },
+      { name: "Marketing", count: workspaceStats.Marketing || 0, color: "#3b82f6" },
+      { name: "Development", count: workspaceStats.Development || 0, color: "#10b981" },
+      { name: "Design", count: workspaceStats.Design || 0, color: "#f59e0b" },
+    ];
+  }, [workspaceStats]);
 
   return (
     <div className="admin-projects-app projectManagementPage">
@@ -575,65 +692,53 @@ export default function AdminProjects() {
              3. ANALYTICS & CHARTS ROW (3 Cards matching design)
           ========================================================= */}
           <div className="ap-charts-row">
-            {/* 1. Project Status Distribution (Donut Chart) */}
+            {/* 1. Project Status Distribution (Live Recharts Pie / Donut Chart) */}
             <div className="ap-chart-card">
               <div className="ap-chart-card-header">
-                <h3>Project Status Distribution</h3>
-                <button type="button" className="ap-btn-icon-more" aria-label="More options">
-                  <MoreVertical size={16} />
-                </button>
+                <div className="ap-chart-title-wrap">
+                  <h3>Project Status Distribution</h3>
+                  <span className="ap-chart-live-badge">
+                    <span className="ap-live-pulse-dot" /> Live
+                  </span>
+                </div>
               </div>
 
               <div className="ap-donut-content">
                 <div className="ap-donut-svg-wrap">
-                  <svg width="120" height="120" viewBox="0 0 120 120">
-                    <circle
-                      cx="60"
-                      cy="60"
-                      r="46"
-                      stroke="#f1f5f9"
-                      strokeWidth="14"
-                      fill="transparent"
-                      className="ap-donut-base-ring"
-                    />
-                    {/* Active (Green) Arc: 67% */}
-                    <circle
-                      cx="60"
-                      cy="60"
-                      r="46"
-                      stroke="#10b981"
-                      strokeWidth="14"
-                      strokeDasharray="289"
-                      strokeDashoffset="95"
-                      strokeLinecap="round"
-                      fill="transparent"
-                      transform="rotate(-90 60 60)"
-                    />
-                    {/* Completed (Blue) Arc: 25% */}
-                    <circle
-                      cx="60"
-                      cy="60"
-                      r="46"
-                      stroke="#3b82f6"
-                      strokeWidth="14"
-                      strokeDasharray="72 217"
-                      strokeDashoffset="-194"
-                      fill="transparent"
-                      transform="rotate(-90 60 60)"
-                    />
-                    {/* On Hold (Yellow) Arc: 8% */}
-                    <circle
-                      cx="60"
-                      cy="60"
-                      r="46"
-                      stroke="#f59e0b"
-                      strokeWidth="14"
-                      strokeDasharray="23 266"
-                      strokeDashoffset="-266"
-                      fill="transparent"
-                      transform="rotate(-90 60 60)"
-                    />
-                  </svg>
+                  <ResponsiveContainer width={120} height={120}>
+                    <PieChart>
+                      <Pie
+                        data={statusPieData}
+                        dataKey="value"
+                        nameKey="name"
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={36}
+                        outerRadius={52}
+                        paddingAngle={3}
+                        isAnimationActive={true}
+                        animationDuration={800}
+                        animationEasing="ease-out"
+                      >
+                        {statusPieData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: "#111c30",
+                          border: "1px solid #1e293b",
+                          borderRadius: "8px",
+                          fontSize: "12px",
+                          color: "#f8fafc",
+                          padding: "5px 9px",
+                          boxShadow: "0 4px 12px rgba(0,0,0,0.25)",
+                        }}
+                        itemStyle={{ color: "#f8fafc" }}
+                        formatter={(val, name) => [`${val} projects (${Math.round((val / totalCount) * 100)}%)`, name]}
+                      />
+                    </PieChart>
+                  </ResponsiveContainer>
                   <div className="ap-donut-center-label">
                     <strong>{stats.total}</strong>
                     <small>Projects</small>
@@ -660,81 +765,76 @@ export default function AdminProjects() {
               </div>
             </div>
 
-            {/* 2. Projects by Workspace (Vertical Bar Chart) */}
+            {/* 2. Projects by Workspace (Live Recharts Bar Chart) */}
             <div className="ap-chart-card">
               <div className="ap-chart-card-header">
-                <h3>Projects by Workspace</h3>
+                <div className="ap-chart-title-wrap">
+                  <h3>Projects by Workspace</h3>
+                  <span className="ap-chart-live-badge">
+                    <span className="ap-live-pulse-dot" /> Live Metrics
+                  </span>
+                </div>
               </div>
 
-              <div className="ap-bar-chart-body">
-                <div className="ap-bar-chart-axis">
-                  <span>6</span>
-                  <span>4</span>
-                  <span>2</span>
-                  <span>0</span>
-                </div>
-
-                <div className="ap-bar-chart-bars">
-                  {/* TeamFlow (5) */}
-                  <div className="ap-bar-col">
-                    <span className="ap-bar-top-val">{workspaceStats.TeamFlow}</span>
-                    <div className="ap-bar-pillar-wrap">
-                      <div
-                        className="ap-bar-pillar purple"
-                        style={{ height: `${(workspaceStats.TeamFlow / 6) * 100}%` }}
-                      />
-                    </div>
-                    <span className="ap-bar-col-name">TeamFlow</span>
-                  </div>
-
-                  {/* Marketing (3) */}
-                  <div className="ap-bar-col">
-                    <span className="ap-bar-top-val">{workspaceStats.Marketing}</span>
-                    <div className="ap-bar-pillar-wrap">
-                      <div
-                        className="ap-bar-pillar blue"
-                        style={{ height: `${(workspaceStats.Marketing / 6) * 100}%` }}
-                      />
-                    </div>
-                    <span className="ap-bar-col-name">Marketing</span>
-                  </div>
-
-                  {/* Development (2) */}
-                  <div className="ap-bar-col">
-                    <span className="ap-bar-top-val">{workspaceStats.Development}</span>
-                    <div className="ap-bar-pillar-wrap">
-                      <div
-                        className="ap-bar-pillar green"
-                        style={{ height: `${(workspaceStats.Development / 6) * 100}%` }}
-                      />
-                    </div>
-                    <span className="ap-bar-col-name">Development</span>
-                  </div>
-
-                  {/* Design (2) */}
-                  <div className="ap-bar-col">
-                    <span className="ap-bar-top-val">{workspaceStats.Design}</span>
-                    <div className="ap-bar-pillar-wrap">
-                      <div
-                        className="ap-bar-pillar yellow"
-                        style={{ height: `${(workspaceStats.Design / 6) * 100}%` }}
-                      />
-                    </div>
-                    <span className="ap-bar-col-name">Design</span>
-                  </div>
-                </div>
+              <div className="ap-recharts-bar-wrap" style={{ width: "100%", height: 125, marginTop: 4 }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={workspaceChartData} margin={{ top: 12, right: 10, left: -25, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#eef2f6" opacity={0.6} />
+                    <XAxis
+                      dataKey="name"
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fontSize: 11, fill: "#64748b", fontWeight: 500 }}
+                    />
+                    <YAxis
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fontSize: 10, fill: "#94a3b8" }}
+                      allowDecimals={false}
+                    />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: "#111c30",
+                        border: "1px solid #1e293b",
+                        borderRadius: "8px",
+                        fontSize: "12px",
+                        color: "#f8fafc",
+                        padding: "5px 9px",
+                        boxShadow: "0 4px 12px rgba(0,0,0,0.25)",
+                      }}
+                      itemStyle={{ color: "#f8fafc" }}
+                      formatter={(val, name, item) => [`${val} projects`, item?.payload?.name || "Workspace"]}
+                    />
+                    <Bar
+                      dataKey="count"
+                      radius={[6, 6, 0, 0]}
+                      isAnimationActive={true}
+                      animationDuration={850}
+                      animationEasing="ease-out"
+                    >
+                      {workspaceChartData.map((entry, index) => (
+                        <Cell key={`bar-${index}`} fill={entry.color} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
               </div>
             </div>
 
-            {/* 3. Project Progress Overview (Horizontal Bars) */}
+            {/* 3. Project Progress Overview (Live Progress Meters) */}
             <div className="ap-chart-card">
               <div className="ap-chart-card-header">
-                <h3>Project Progress Overview</h3>
+                <div className="ap-chart-title-wrap">
+                  <h3>Project Progress Overview</h3>
+                  <span className="ap-chart-live-badge">
+                    <span className="ap-live-pulse-dot" /> Real-Time
+                  </span>
+                </div>
               </div>
 
               <div className="ap-progress-overview-list">
                 {progressOverviewList.map((item, idx) => {
-                  const colors = ["#6366f1", "#2563eb", "#10b981", "#94a3b8"];
+                  const colors = ["#6366f1", "#2563eb", "#10b981", "#f59e0b"];
                   return (
                     <div key={item.id} className="ap-overview-item">
                       <div className="ap-overview-top-line">
@@ -743,12 +843,14 @@ export default function AdminProjects() {
                       </div>
                       <div className="ap-overview-meter-track">
                         <div
-                          className="ap-overview-meter-fill"
+                          className="ap-overview-meter-fill ap-animated-meter"
                           style={{
                             width: `${item.progress}%`,
                             backgroundColor: item.color || colors[idx % colors.length],
                           }}
-                        />
+                        >
+                          <span className="ap-meter-live-glow" />
+                        </div>
                       </div>
                     </div>
                   );
@@ -812,19 +914,6 @@ export default function AdminProjects() {
                 {teamMembersList.map((m) => (
                   <option key={m} value={m}>
                     {m === "All" ? "All Members" : m}
-                  </option>
-                ))}
-              </select>
-
-              {/* PRIORITIES FILTER */}
-              <select
-                value={priorityFilter}
-                onChange={(e) => setPriorityFilter(e.target.value)}
-                aria-label="Filter priority"
-              >
-                {projectPriorities.map((p) => (
-                  <option key={p} value={p}>
-                    {p === "All" ? "All Priorities" : p}
                   </option>
                 ))}
               </select>
@@ -914,7 +1003,7 @@ export default function AdminProjects() {
                   </div>
                 ) : (
                   <div className="ap-projects-cards-grid">
-                    {filteredProjects.map((p) => {
+                    {paginatedProjects.map((p) => {
                       const completed = p.completedTasks !== undefined ? p.completedTasks : Math.round((p.tasks * p.progress) / 100);
                       const isMenuOpen = activeMenuId === p.id;
 
@@ -1046,6 +1135,9 @@ export default function AdminProjects() {
                     })}
                   </div>
                 )}
+
+                {/* PROJECT CARDS PAGINATION BAR */}
+                {renderPaginationBar()}
               </div>
 
               {/* RIGHT 25%: SIDEBAR (My Projects + Recent Activity) */}
@@ -1149,7 +1241,7 @@ export default function AdminProjects() {
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredProjects.map((p) => {
+                    {paginatedProjects.map((p) => {
                       const completed = p.completedTasks !== undefined ? p.completedTasks : Math.round((p.tasks * p.progress) / 100);
                       return (
                         <tr key={p.id}>
@@ -1261,6 +1353,9 @@ export default function AdminProjects() {
                   </tbody>
                 </table>
               </div>
+
+              {/* TABLE LIST PAGINATION BAR */}
+              {renderPaginationBar()}
             </div>
           )}
 
@@ -1273,7 +1368,7 @@ export default function AdminProjects() {
               </div>
 
               <div className="ap-timeline-body">
-                {filteredProjects.map((p) => {
+                {paginatedProjects.map((p) => {
                   return (
                     <div key={p.id} className="ap-timeline-row">
                       <div className="ap-timeline-proj-info">
@@ -1295,23 +1390,11 @@ export default function AdminProjects() {
                   );
                 })}
               </div>
+
+              {/* TIMELINE PAGINATION BAR */}
+              {renderPaginationBar()}
             </div>
           )}
-
-          {/* RESET DEMO DATA BAR */}
-          <div className="ap-reset-bar">
-            <span>
-              Showing <strong>{filteredProjects.length}</strong> of <strong>{projects.length}</strong> total projects
-            </span>
-            <button
-              type="button"
-              className="ap-btn-reset-demo"
-              onClick={() => setShowResetConfirm(true)}
-            >
-              <RotateCcw size={13} />
-              <span>Reset Demo Data</span>
-            </button>
-          </div>
         </main>
       </div>
 
@@ -1617,42 +1700,6 @@ export default function AdminProjects() {
                 onClick={confirmDeleteProject}
               >
                 Delete Project
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* RESET DEMO DATA CONFIRMATION */}
-      {showResetConfirm && (
-        <div
-          className="ap-modal-backdrop"
-          onMouseDown={(e) => {
-            if (e.target === e.currentTarget) setShowResetConfirm(false);
-          }}
-        >
-          <div className="ap-modal-box ap-modal-sm">
-            <div className="ap-delete-icon-circle warning">
-              <RotateCcw size={24} />
-            </div>
-            <h3>Restore Default Projects?</h3>
-            <p>
-              This will reset the projects directory back to the 12 standard demo projects matching your dashboard. Any newly created projects will be overwritten.
-            </p>
-            <div className="ap-modal-footer">
-              <button
-                type="button"
-                className="ap-btn-cancel"
-                onClick={() => setShowResetConfirm(false)}
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                className="ap-btn-submit"
-                onClick={handleResetDemoData}
-              >
-                Reset Demo Data
               </button>
             </div>
           </div>

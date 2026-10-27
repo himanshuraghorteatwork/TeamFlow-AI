@@ -572,7 +572,15 @@ export default function AdminDashboard() {
   };
 
   const handleTodayMonth = () => {
-    setCalendarViewDate(new Date(2024, 9, 1));
+    if (tempStartDate) {
+      const [y, m] = tempStartDate.split("-").map(Number);
+      if (!isNaN(y) && !isNaN(m)) {
+        setCalendarViewDate(new Date(y, m - 1, 1));
+        return;
+      }
+    }
+    const today = new Date();
+    setCalendarViewDate(new Date(today.getFullYear(), today.getMonth(), 1));
   };
 
   // Day Selection Handlers
@@ -634,6 +642,12 @@ export default function AdminDashboard() {
   const handleEndDateChange = (val) => {
     setTempEndDate(val);
     setTempPreset("custom");
+    if (val && (!tempStartDate || val < tempStartDate)) {
+      const [y, m] = val.split("-").map(Number);
+      if (!isNaN(y) && !isNaN(m)) {
+        setCalendarViewDate(new Date(y, m - 1, 1));
+      }
+    }
   };
 
   const handleResetToDefault = () => {
@@ -742,6 +756,11 @@ export default function AdminDashboard() {
   // Health modal state
   const [healthModalOpen, setHealthModalOpen] = useState(false);
 
+  // Interactive Hover States for Charts
+  const [hoveredGrowthBar, setHoveredGrowthBar] = useState(null);
+  const [hoveredTaskSlice, setHoveredTaskSlice] = useState(null);
+  const [hoveredProjId, setHoveredProjId] = useState(null);
+
   // Derived user growth bars
   const userGrowthBars = useMemo(() => {
     if (userGrowthTimeframe === "Last 6 Months") {
@@ -779,6 +798,23 @@ export default function AdminDashboard() {
   const offInProgress = -lenCompleted;
   const offPending = -(lenCompleted + lenInProgress);
   const offOverdue = -(lenCompleted + lenInProgress + lenPending);
+
+  // Active slice metadata when hovering donut or status rows
+  const activeSliceMeta = useMemo(() => {
+    if (!hoveredTaskSlice) return null;
+    switch (hoveredTaskSlice) {
+      case "completed":
+        return { label: "Completed", count: taskData.completed, pct: taskData.completedPct, color: "#10b981" };
+      case "inProgress":
+        return { label: "In Progress", count: taskData.inProgress, pct: taskData.inProgressPct, color: "#3b82f6" };
+      case "pending":
+        return { label: "Pending", count: taskData.pending, pct: taskData.pendingPct, color: "#f59e0b" };
+      case "overdue":
+        return { label: "Overdue", count: taskData.overdue, pct: taskData.overduePct, color: "#ef4444" };
+      default:
+        return null;
+    }
+  }, [hoveredTaskSlice, taskData]);
 
   return (
     <div className="tfSaasAdmin">
@@ -839,7 +875,7 @@ export default function AdminDashboard() {
                     <div className="tfSaasAdmin__calendarBody">
                       {/* Presets Sidebar */}
                       <div className="tfSaasAdmin__presetsCol">
-                        <span className="tfSaasAdmin__presetsHeading">Presets</span>
+                        <span className="tfSaasAdmin__presetsHeading">Quick Presets</span>
                         <div className="tfSaasAdmin__presetsList">
                           {CALENDAR_PRESETS.map((preset) => {
                             const isActive = tempPreset === preset.id;
@@ -851,14 +887,14 @@ export default function AdminDashboard() {
                                 onClick={() => handleSelectPreset(preset)}
                               >
                                 <span>{preset.label}</span>
-                                {isActive && <Check size={11} className="preset-check" />}
+                                {isActive && <Check size={12} className="preset-check" />}
                               </button>
                             );
                           })}
                         </div>
                       </div>
 
-                      {/* Interactive Calendar Month */}
+                      {/* Interactive Calendar Month Column */}
                       <div className="tfSaasAdmin__calendarCol">
                         {/* Month Navigation */}
                         <div className="tfSaasAdmin__monthNav">
@@ -867,8 +903,9 @@ export default function AdminDashboard() {
                             className="tfSaasAdmin__navBtn"
                             onClick={handlePrevMonth}
                             title="Previous Month"
+                            aria-label="Previous Month"
                           >
-                            <ChevronLeft size={13} />
+                            <ChevronLeft size={14} />
                           </button>
 
                           <div className="tfSaasAdmin__monthTitleWrap">
@@ -879,7 +916,7 @@ export default function AdminDashboard() {
                               type="button"
                               className="tfSaasAdmin__todayJumpBtn"
                               onClick={handleTodayMonth}
-                              title="Jump to current demo month (Oct 2024)"
+                              title="Automatically jump to current month"
                             >
                               Current
                             </button>
@@ -890,8 +927,9 @@ export default function AdminDashboard() {
                             className="tfSaasAdmin__navBtn"
                             onClick={handleNextMonth}
                             title="Next Month"
+                            aria-label="Next Month"
                           >
-                            <ChevronRight size={13} />
+                            <ChevronRight size={14} />
                           </button>
                         </div>
 
@@ -904,7 +942,7 @@ export default function AdminDashboard() {
                           ))}
                         </div>
 
-                        {/* Days Grid */}
+                        {/* Days Grid with generous spacing */}
                         <div className="tfSaasAdmin__daysGrid">
                           {calendarCells.map((cell, idx) => {
                             const isStart = cell.dateStr === effectiveRange.start;
@@ -939,19 +977,37 @@ export default function AdminDashboard() {
                           })}
                         </div>
 
-                        {/* Selected Range Display Badges */}
-                        <div className="tfSaasAdmin__rangeInputRow">
-                          <div className="tfSaasAdmin__rangeBadge">
-                            <span className="badge-lbl">Start</span>
-                            <span className="badge-val">{tempStartDate || "Select date"}</span>
+                        {/* Custom Date Inputs Section with automatic month paging */}
+                        <div className="tfSaasAdmin__customDateBox">
+                          <div className="tfSaasAdmin__customDateHeader">
+                            <span className="tfSaasAdmin__customDateTitle">Custom Date</span>
+                            <div className="tfSaasAdmin__rangeDuration">
+                              {durationDays} {durationDays === 1 ? "day" : "days"} selected
+                            </div>
                           </div>
-                          <span className="tfSaasAdmin__rangeArrow">→</span>
-                          <div className="tfSaasAdmin__rangeBadge">
-                            <span className="badge-lbl">End</span>
-                            <span className="badge-val">{tempEndDate || "Select date"}</span>
-                          </div>
-                          <div className="tfSaasAdmin__rangeDuration">
-                            {durationDays} {durationDays === 1 ? "day" : "days"}
+
+                          <div className="tfSaasAdmin__customDateRow">
+                            <div className="tfSaasAdmin__dateField">
+                              <label htmlFor="calStartDate">From</label>
+                              <input
+                                id="calStartDate"
+                                type="date"
+                                className="tfSaasAdmin__dateInput"
+                                value={tempStartDate}
+                                onChange={(e) => handleStartDateChange(e.target.value)}
+                              />
+                            </div>
+                            <span className="tfSaasAdmin__dateFieldSep">→</span>
+                            <div className="tfSaasAdmin__dateField">
+                              <label htmlFor="calEndDate">To</label>
+                              <input
+                                id="calEndDate"
+                                type="date"
+                                className="tfSaasAdmin__dateInput"
+                                value={tempEndDate}
+                                onChange={(e) => handleEndDateChange(e.target.value)}
+                              />
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -1203,7 +1259,12 @@ export default function AdminDashboard() {
             {/* 1. USER GROWTH CARD */}
             <article className="tfSaasAdmin__card">
               <div className="tfSaasAdmin__cardHeader">
-                <h2>User Growth</h2>
+                <div className="tfSaasAdmin__cardHeaderTitleGroup">
+                  <h2>User Growth</h2>
+                  <span className="tfSaasAdmin__liveBadge">
+                    <span className="tfSaasAdmin__livePulseDot" /> Live
+                  </span>
+                </div>
                 <div className="tfSaasAdmin__selectPill">
                   <select
                     value={userGrowthTimeframe}
@@ -1234,14 +1295,35 @@ export default function AdminDashboard() {
                   </div>
 
                   <div className="tfSaasAdmin__barsTrack">
-                    {userGrowthBars.map((b) => (
-                      <div key={b.label} className="tfSaasAdmin__barGroup" title={`${b.label}: ${b.val} Users`}>
-                        <div className="tfSaasAdmin__barRail">
-                          <div className="tfSaasAdmin__barFill" style={{ height: b.height }} />
+                    {userGrowthBars.map((b) => {
+                      const isHovered = hoveredGrowthBar === b.label;
+                      const isAnyHovered = hoveredGrowthBar !== null;
+                      return (
+                        <div
+                          key={b.label}
+                          className={`tfSaasAdmin__barGroup ${isHovered ? "is-hovered" : ""} ${isAnyHovered && !isHovered ? "is-dimmed" : ""}`}
+                          onMouseEnter={() => setHoveredGrowthBar(b.label)}
+                          onMouseLeave={() => setHoveredGrowthBar(null)}
+                        >
+                          {/* Live interactive Tooltip */}
+                          {isHovered && (
+                            <div className="tfSaasAdmin__barTooltip" role="tooltip">
+                              <span className="tooltip-val">{b.val}</span>
+                              <span className="tooltip-lbl">Users ({b.label})</span>
+                              <div className="tooltip-arrow" />
+                            </div>
+                          )}
+                          <div className="tfSaasAdmin__barRail">
+                            <div className="tfSaasAdmin__barFill" style={{ height: b.height }}>
+                              <span className="tfSaasAdmin__barShimmer" />
+                            </div>
+                          </div>
+                          <span className={`tfSaasAdmin__barLabel ${isHovered ? "active" : ""}`}>
+                            {b.label}
+                          </span>
                         </div>
-                        <span className="tfSaasAdmin__barLabel">{b.label}</span>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               </div>
@@ -1250,7 +1332,12 @@ export default function AdminDashboard() {
             {/* 2. TASK STATUS OVERVIEW CARD */}
             <article className="tfSaasAdmin__card">
               <div className="tfSaasAdmin__cardHeader">
-                <h2>Task Status Overview</h2>
+                <div className="tfSaasAdmin__cardHeaderTitleGroup">
+                  <h2>Task Status Overview</h2>
+                  <span className="tfSaasAdmin__liveBadge">
+                    <span className="tfSaasAdmin__livePulseDot" /> Live
+                  </span>
+                </div>
                 <div className="tfSaasAdmin__selectPill">
                   <select
                     value={taskStatusTimeframe}
@@ -1266,78 +1353,139 @@ export default function AdminDashboard() {
               </div>
 
               <div className="tfSaasAdmin__taskOverviewBody">
-                {/* SVG DONUT CHART */}
+                {/* SVG DONUT CHART WITH LIVE TELEMETRY EFFECTS */}
                 <div className="tfSaasAdmin__donutBox">
                   <svg viewBox="0 0 140 140" className="tfSaasAdmin__donutSvg">
+                    <defs>
+                      <filter id="donutSliceGlow" x="-20%" y="-20%" width="140%" height="140%">
+                        <feDropShadow dx="0" dy="0" stdDeviation="3.5" floodColor="#10b981" floodOpacity="0.6" />
+                      </filter>
+                    </defs>
+
+                    {/* Ambient live outer orbital ring */}
+                    <circle
+                      cx="70"
+                      cy="70"
+                      r="65"
+                      fill="none"
+                      className="tfSaasAdmin__donutAuraRing"
+                    />
+
+                    {/* Expanding live sonar wave */}
+                    <circle
+                      cx="70"
+                      cy="70"
+                      r={radius}
+                      fill="none"
+                      className="tfSaasAdmin__donutSonarWave"
+                    />
+
                     {/* Background ring */}
                     <circle
                       cx="70"
                       cy="70"
                       r={radius}
                       fill="none"
-                      stroke="var(--tf-border-color, #f1f5f9)"
+                      className="tfSaasAdmin__donutBgRing"
                       strokeWidth={strokeW}
                     />
-                    {/* Overdue (Red) */}
-                    <circle
-                      cx="70"
-                      cy="70"
-                      r={radius}
-                      fill="none"
-                      stroke="#ef4444"
-                      strokeWidth={strokeW}
-                      strokeDasharray={`${lenOverdue} ${circumference - lenOverdue}`}
-                      strokeDashoffset={offOverdue}
-                      transform="rotate(-90 70 70)"
-                    />
-                    {/* Pending (Amber) */}
-                    <circle
-                      cx="70"
-                      cy="70"
-                      r={radius}
-                      fill="none"
-                      stroke="#f59e0b"
-                      strokeWidth={strokeW}
-                      strokeDasharray={`${lenPending} ${circumference - lenPending}`}
-                      strokeDashoffset={offPending}
-                      transform="rotate(-90 70 70)"
-                    />
-                    {/* In Progress (Blue) */}
-                    <circle
-                      cx="70"
-                      cy="70"
-                      r={radius}
-                      fill="none"
-                      stroke="#3b82f6"
-                      strokeWidth={strokeW}
-                      strokeDasharray={`${lenInProgress} ${circumference - lenInProgress}`}
-                      strokeDashoffset={offInProgress}
-                      transform="rotate(-90 70 70)"
-                    />
-                    {/* Completed (Emerald) */}
-                    <circle
-                      cx="70"
-                      cy="70"
-                      r={radius}
-                      fill="none"
-                      stroke="#10b981"
-                      strokeWidth={strokeW}
-                      strokeDasharray={`${lenCompleted} ${circumference - lenCompleted}`}
-                      strokeDashoffset={offCompleted}
-                      transform="rotate(-90 70 70)"
-                    />
+
+                    {/* Slices group rotated -90deg from center */}
+                    <g transform="rotate(-90 70 70)">
+                      {/* Completed (Emerald) */}
+                      <circle
+                        cx="70"
+                        cy="70"
+                        r={radius}
+                        fill="none"
+                        stroke="#10b981"
+                        strokeWidth={hoveredTaskSlice === "completed" ? 21 : strokeW}
+                        strokeDasharray={`${lenCompleted} ${circumference - lenCompleted}`}
+                        strokeDashoffset={offCompleted}
+                        className={`tfSaasAdmin__donutSlice slice-green ${hoveredTaskSlice === "completed" ? "active" : ""} ${hoveredTaskSlice && hoveredTaskSlice !== "completed" ? "dimmed" : ""}`}
+                        onMouseEnter={() => setHoveredTaskSlice("completed")}
+                        onMouseLeave={() => setHoveredTaskSlice(null)}
+                      />
+                      {/* In Progress (Blue) */}
+                      <circle
+                        cx="70"
+                        cy="70"
+                        r={radius}
+                        fill="none"
+                        stroke="#3b82f6"
+                        strokeWidth={hoveredTaskSlice === "inProgress" ? 21 : strokeW}
+                        strokeDasharray={`${lenInProgress} ${circumference - lenInProgress}`}
+                        strokeDashoffset={offInProgress}
+                        className={`tfSaasAdmin__donutSlice slice-blue ${hoveredTaskSlice === "inProgress" ? "active" : ""} ${hoveredTaskSlice && hoveredTaskSlice !== "inProgress" ? "dimmed" : ""}`}
+                        onMouseEnter={() => setHoveredTaskSlice("inProgress")}
+                        onMouseLeave={() => setHoveredTaskSlice(null)}
+                      />
+                      {/* Pending (Amber) */}
+                      <circle
+                        cx="70"
+                        cy="70"
+                        r={radius}
+                        fill="none"
+                        stroke="#f59e0b"
+                        strokeWidth={hoveredTaskSlice === "pending" ? 21 : strokeW}
+                        strokeDasharray={`${lenPending} ${circumference - lenPending}`}
+                        strokeDashoffset={offPending}
+                        className={`tfSaasAdmin__donutSlice slice-amber ${hoveredTaskSlice === "pending" ? "active" : ""} ${hoveredTaskSlice && hoveredTaskSlice !== "pending" ? "dimmed" : ""}`}
+                        onMouseEnter={() => setHoveredTaskSlice("pending")}
+                        onMouseLeave={() => setHoveredTaskSlice(null)}
+                      />
+                      {/* Overdue (Red) */}
+                      <circle
+                        cx="70"
+                        cy="70"
+                        r={radius}
+                        fill="none"
+                        stroke="#ef4444"
+                        strokeWidth={hoveredTaskSlice === "overdue" ? 21 : strokeW}
+                        strokeDasharray={`${lenOverdue} ${circumference - lenOverdue}`}
+                        strokeDashoffset={offOverdue}
+                        className={`tfSaasAdmin__donutSlice slice-red ${hoveredTaskSlice === "overdue" ? "active" : ""} ${hoveredTaskSlice && hoveredTaskSlice !== "overdue" ? "dimmed" : ""}`}
+                        onMouseEnter={() => setHoveredTaskSlice("overdue")}
+                        onMouseLeave={() => setHoveredTaskSlice(null)}
+                      />
+                    </g>
+
+                    {/* Orbiting Live Satellite Beacon */}
+                    <g className="tfSaasAdmin__donutOrbitBeacon" style={{ transformOrigin: "70px 70px" }}>
+                      <circle cx="70" cy="16" r="6" fill="none" className="tfSaasAdmin__beaconPulse" />
+                      <circle cx="70" cy="16" r="3" className="tfSaasAdmin__beaconCore" />
+                    </g>
                   </svg>
-                  <div className="tfSaasAdmin__donutCenterText">
-                    <strong>
-                      <AnimatedNumber value={taskData.total} />
-                    </strong>
-                    <span>Total</span>
+                  <div className={`tfSaasAdmin__donutCenterText ${activeSliceMeta ? "has-hover" : ""}`}>
+                    {activeSliceMeta ? (
+                      <>
+                        <strong style={{ color: activeSliceMeta.color }}>
+                          {activeSliceMeta.count}
+                        </strong>
+                        <span style={{ color: activeSliceMeta.color, fontWeight: 600 }}>
+                          {activeSliceMeta.label} ({activeSliceMeta.pct}%)
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <strong>
+                          <AnimatedNumber value={taskData.total} />
+                        </strong>
+                        <span className="tfSaasAdmin__centerSub">
+                          <span className="tfSaasAdmin__centerLiveDot" /> Total Tasks
+                        </span>
+                      </>
+                    )}
                   </div>
                 </div>
 
                 {/* STATUS LEGEND BREAKDOWN */}
                 <div className="tfSaasAdmin__statusList">
-                  <div className="tfSaasAdmin__statusRow">
+                  <div
+                    className={`tfSaasAdmin__statusRow ${hoveredTaskSlice === "completed" ? "is-active is-green" : ""} ${hoveredTaskSlice && hoveredTaskSlice !== "completed" ? "is-dimmed" : ""}`}
+                    onMouseEnter={() => setHoveredTaskSlice("completed")}
+                    onMouseLeave={() => setHoveredTaskSlice(null)}
+                  >
                     <div className="status-label-group">
                       <span className="dot dot-green" />
                       <span>Completed</span>
@@ -1346,7 +1494,11 @@ export default function AdminDashboard() {
                     <strong className="status-count">{taskData.completed}</strong>
                   </div>
 
-                  <div className="tfSaasAdmin__statusRow">
+                  <div
+                    className={`tfSaasAdmin__statusRow ${hoveredTaskSlice === "inProgress" ? "is-active is-blue" : ""} ${hoveredTaskSlice && hoveredTaskSlice !== "inProgress" ? "is-dimmed" : ""}`}
+                    onMouseEnter={() => setHoveredTaskSlice("inProgress")}
+                    onMouseLeave={() => setHoveredTaskSlice(null)}
+                  >
                     <div className="status-label-group">
                       <span className="dot dot-blue" />
                       <span>In Progress</span>
@@ -1355,7 +1507,11 @@ export default function AdminDashboard() {
                     <strong className="status-count">{taskData.inProgress}</strong>
                   </div>
 
-                  <div className="tfSaasAdmin__statusRow">
+                  <div
+                    className={`tfSaasAdmin__statusRow ${hoveredTaskSlice === "pending" ? "is-active is-amber" : ""} ${hoveredTaskSlice && hoveredTaskSlice !== "pending" ? "is-dimmed" : ""}`}
+                    onMouseEnter={() => setHoveredTaskSlice("pending")}
+                    onMouseLeave={() => setHoveredTaskSlice(null)}
+                  >
                     <div className="status-label-group">
                       <span className="dot dot-amber" />
                       <span>Pending</span>
@@ -1364,7 +1520,11 @@ export default function AdminDashboard() {
                     <strong className="status-count">{taskData.pending}</strong>
                   </div>
 
-                  <div className="tfSaasAdmin__statusRow">
+                  <div
+                    className={`tfSaasAdmin__statusRow ${hoveredTaskSlice === "overdue" ? "is-active is-red" : ""} ${hoveredTaskSlice && hoveredTaskSlice !== "overdue" ? "is-dimmed" : ""}`}
+                    onMouseEnter={() => setHoveredTaskSlice("overdue")}
+                    onMouseLeave={() => setHoveredTaskSlice(null)}
+                  >
                     <div className="status-label-group">
                       <span className="dot dot-red" />
                       <span>Overdue</span>
@@ -1379,7 +1539,12 @@ export default function AdminDashboard() {
             {/* 3. PROJECT PROGRESS CARD */}
             <article className="tfSaasAdmin__card">
               <div className="tfSaasAdmin__cardHeader">
-                <h2>Project Progress</h2>
+                <div className="tfSaasAdmin__cardHeaderTitleGroup">
+                  <h2>Project Progress</h2>
+                  <span className="tfSaasAdmin__liveBadge">
+                    <span className="tfSaasAdmin__livePulseDot" /> Live
+                  </span>
+                </div>
                 <div className="tfSaasAdmin__selectPill">
                   <select
                     value={projectProgressTimeframe}
@@ -1394,23 +1559,43 @@ export default function AdminDashboard() {
               </div>
 
               <div className="tfSaasAdmin__projectProgressList">
-                {dataset.projectProgress.map((proj) => (
-                  <div key={proj.id} className="tfSaasAdmin__progressRow">
-                    <div className="progress-info">
-                      <span className="proj-name">{proj.name}</span>
-                      <strong className="proj-pct">{proj.progress}%</strong>
+                {dataset.projectProgress.map((proj) => {
+                  const isHovered = hoveredProjId === proj.id;
+                  const isAnyHovered = hoveredProjId !== null;
+                  return (
+                    <div
+                      key={proj.id}
+                      className={`tfSaasAdmin__progressRow ${isHovered ? "is-hovered" : ""} ${isAnyHovered && !isHovered ? "is-dimmed" : ""}`}
+                      onMouseEnter={() => setHoveredProjId(proj.id)}
+                      onMouseLeave={() => setHoveredProjId(null)}
+                    >
+                      <div className="progress-info">
+                        <span className="proj-name">{proj.name}</span>
+                        <strong
+                          className="proj-pct"
+                          style={{
+                            color: isHovered ? proj.color : undefined,
+                            transition: "color 0.2s ease",
+                          }}
+                        >
+                          {proj.progress}%
+                        </strong>
+                      </div>
+                      <div className="progress-rail">
+                        <div
+                          className="progress-fill"
+                          style={{
+                            width: `${proj.progress}%`,
+                            backgroundColor: proj.color,
+                            boxShadow: isHovered ? `0 0 12px ${proj.color}90` : "none",
+                          }}
+                        >
+                          <span className="tfSaasAdmin__progressShimmer" />
+                        </div>
+                      </div>
                     </div>
-                    <div className="progress-rail">
-                      <div
-                        className="progress-fill"
-                        style={{
-                          width: `${proj.progress}%`,
-                          backgroundColor: proj.color,
-                        }}
-                      />
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </article>
           </section>
