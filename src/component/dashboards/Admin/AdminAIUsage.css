@@ -1,0 +1,277 @@
+/* =========================================================
+   TEAMFLOW AI - ADMIN AI USAGE STYLES
+========================================================= */
+
+.admin-usage-app {
+  --admin-sidebar-width: 228px;
+  min-height: 100vh;
+  background: #f8fafc;
+  color: #0f172a;
+  display: flex;
+}
+
+.admin-usage-main {
+  margin-left: var(--admin-sidebar-width);
+  width: calc(100% - var(--admin-sidebar-width));
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #f8fafc;
+}
+
+.admin-usage-content {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 24px 28px 36px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.admin-usage-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.admin-usage-breadcrumb {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #6366f1;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.admin-usage-heading h1 {
+  font-size: 26px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 6px 0;
+}
+
+.admin-usage-heading p {
+  font-size: 14px;
+  color: #64748b;
+  margin: 0;
+  max-width: 720px;
+}
+
+.admin-usage-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.usage-stat-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 18px 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.usage-stat-card span { font-size: 13px; color: #64748b; display: block; }
+.usage-stat-card strong { font-size: 24px; font-weight: 700; color: #0f172a; line-height: 1.2; }
+.usage-stat-card small { font-size: 11.5px; color: #94a3b8; display: block; margin-top: 2px; }
+
+/* CHARTS ROW */
+.usage-charts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.usage-chart-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.usage-chart-card h3 {
+  font-size: 17px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+}
+
+.usage-chart-card p {
+  font-size: 13px;
+  color: #64748b;
+  margin: -6px 0 6px 0;
+}
+
+.breakdown-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.breakdown-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.breakdown-info {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+}
+
+.breakdown-info span { color: #334155; font-weight: 600; }
+.breakdown-info strong { color: #64748b; font-weight: 500; }
+
+.bar-track {
+  width: 100%;
+  height: 8px;
+  background: #e2e8f0;
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  border-radius: 99px;
+}
+
+.bar-fill.purple { background: #4f46e5; }
+.bar-fill.blue { background: #2563eb; }
+.bar-fill.green { background: #10b981; }
+.bar-fill.amber { background: #f59e0b; }
+
+/* TABLE */
+.usage-table-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.table-card-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.table-card-header h3 {
+  font-size: 17px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+}
+
+.admin-usage-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 6px 12px;
+  width: 280px;
+}
+
+.admin-usage-search input {
+  border: 0;
+  background: transparent;
+  outline: 0;
+  font-size: 13px;
+  width: 100%;
+}
+
+.admin-usage-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+}
+
+.admin-usage-table th {
+  background: #f8fafc;
+  color: #64748b;
+  font-weight: 600;
+  font-size: 12px;
+  padding: 14px 18px;
+  border-bottom: 1px solid #e2e8f0;
+  text-align: left;
+}
+
+.admin-usage-table td {
+  padding: 14px 18px;
+  border-bottom: 1px solid #f1f5f9;
+  color: #334155;
+  vertical-align: middle;
+}
+
+.feature-chip {
+  font-size: 12px;
+  background: #f1f5f9;
+  color: #475569;
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+.admin-usage-toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 18px;
+  background: #0f172a;
+  color: #ffffff;
+  border-radius: 10px;
+  font-size: 13.5px;
+  z-index: 2000;
+  border-left: 4px solid #10b981;
+}
+
+/* DARK MODE */
+.dark .admin-usage-app,
+.dark .admin-usage-main { background: #0f172a; color: #f8fafc; }
+.dark .admin-usage-heading h1 { color: #f8fafc; }
+.dark .usage-stat-card { background: #1e293b; border-color: #334155; }
+.dark .usage-stat-card strong { color: #f8fafc; }
+.dark .usage-chart-card { background: #1e293b; border-color: #334155; }
+.dark .usage-chart-card h3 { color: #f8fafc; }
+.dark .breakdown-info span { color: #f8fafc; }
+.dark .bar-track { background: #334155; }
+.dark .usage-table-card { background: #1e293b; border-color: #334155; }
+.dark .table-card-header { border-bottom-color: #334155; }
+.dark .table-card-header h3 { color: #f8fafc; }
+.dark .admin-usage-search { background: #0f172a; border-color: #334155; }
+.dark .admin-usage-search input { color: #f8fafc; }
+.dark .admin-usage-table th { background: #0f172a; border-bottom-color: #334155; color: #94a3b8; }
+.dark .admin-usage-table td { border-bottom-color: #334155; color: #cbd5e1; }
+.dark .feature-chip { background: #0f172a; color: #cbd5e1; }
+
+@media (max-width: 1200px) {
+  .admin-usage-stats { grid-template-columns: repeat(2, 1fr); }
+  .usage-charts-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 991px) {
+  .admin-usage-app { --admin-sidebar-width: 0px; }
+  .admin-usage-main { margin-left: 0; width: 100%; }
+  .admin-usage-content { padding: 20px 20px 32px; }
+}
+@media (max-width: 768px) {
+  .admin-usage-heading { flex-direction: column; align-items: stretch; }
+  .admin-usage-stats { grid-template-columns: 1fr; }
+  .table-card-header { flex-direction: column; align-items: stretch; }
+  .admin-usage-search { width: 100%; }
+}
+

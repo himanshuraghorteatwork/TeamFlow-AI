@@ -23,9 +23,16 @@ import {
   RotateCcw,
   Crown,
   CreditCard,
+  Trash2,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
+  List,
+  Grid2X2,
 } from "lucide-react";
 
-import AdminSidebar from "../../../layouts/AdminSidebar/AdminSidebar.jsx";
+import AdminSidebar from "./AdminSidebar.jsx";
+import AdminTopbar from "./AdminTopbar.jsx";
 
 import {
   initialPlans,
@@ -38,6 +45,7 @@ const PLAN_KEY = "teamflow_admin_plans";
 const SUBSCRIPTION_KEY = "teamflow_admin_subscriptions";
 
 function AdminSubscriptions() {
+  const [mobileOpen, setMobileOpen] = useState(false);
   const [plans, setPlans] = useState(() => {
     try {
       const saved = localStorage.getItem(PLAN_KEY);
@@ -59,6 +67,29 @@ function AdminSubscriptions() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
   const [planFilter, setPlanFilter] = useState("All");
+  const [sortKey, setSortKey] = useState("workspace");
+  const [sortOrder, setSortOrder] = useState("asc");
+  const [plansViewMode, setPlansViewMode] = useState("table"); // 'table' | 'cards'
+
+  const handleSort = (key) => {
+    if (sortKey === key) {
+      setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"));
+    } else {
+      setSortKey(key);
+      setSortOrder("asc");
+    }
+  };
+
+  const renderSortIcon = (key) => {
+    if (sortKey !== key) {
+      return <ArrowUpDown size={13} className="admin-sort-icon muted" />;
+    }
+    return sortOrder === "asc" ? (
+      <ArrowUp size={13} className="admin-sort-icon active" />
+    ) : (
+      <ArrowDown size={13} className="admin-sort-icon active" />
+    );
+  };
 
   const [activeTab, setActiveTab] = useState("subscriptions");
 
@@ -81,7 +112,7 @@ function AdminSubscriptions() {
   }, [subscriptions]);
 
   const filteredSubscriptions = useMemo(() => {
-    return subscriptions.filter((subscription) => {
+    const list = subscriptions.filter((subscription) => {
       const query = search.toLowerCase().trim();
 
       const matchesSearch =
@@ -101,7 +132,26 @@ function AdminSubscriptions() {
 
       return matchesSearch && matchesStatus && matchesPlan;
     });
-  }, [subscriptions, search, statusFilter, planFilter]);
+
+    return [...list].sort((a, b) => {
+      let valA = a[sortKey];
+      let valB = b[sortKey];
+
+      if (valA === undefined || valA === null) valA = "";
+      if (valB === undefined || valB === null) valB = "";
+
+      if (typeof valA === "number" && typeof valB === "number") {
+        return sortOrder === "asc" ? valA - valB : valB - valA;
+      }
+
+      valA = String(valA).toLowerCase();
+      valB = String(valB).toLowerCase();
+
+      if (valA < valB) return sortOrder === "asc" ? -1 : 1;
+      if (valA > valB) return sortOrder === "asc" ? 1 : -1;
+      return 0;
+    });
+  }, [subscriptions, search, statusFilter, planFilter, sortKey, sortOrder]);
 
   const activeSubscriptions = subscriptions.filter(
     (subscription) => subscription.status === "Active"
@@ -146,11 +196,15 @@ function AdminSubscriptions() {
   const savePlan = () => {
     if (!editingPlan) return;
 
-    setPlans((previous) =>
-      previous.map((plan) =>
-        plan.id === editingPlan.id ? editingPlan : plan
-      )
-    );
+    setPlans((previous) => {
+      const exists = previous.some((p) => p.id === editingPlan.id);
+      if (exists) {
+        return previous.map((plan) =>
+          plan.id === editingPlan.id ? editingPlan : plan
+        );
+      }
+      return [...previous, editingPlan];
+    });
 
     setEditingPlan(null);
   };
@@ -227,54 +281,18 @@ function AdminSubscriptions() {
 
   return (
     <div className="admin-subscriptions-shell">
-      <AdminSidebar />
+      <AdminSidebar mobileOpen={mobileOpen} onClose={() => setMobileOpen(false)} />
 
       <main className="admin-subscriptions-main">
         {/* TOP NAV */}
 
-        <header className="admin-subscriptions-topbar">
-          <div className="admin-subscriptions-global-search">
-            <Search size={17} />
-
-            <input
-              type="text"
-              placeholder="Search users, workspaces, projects, or anything..."
-            />
-
-            <span>Ctrl + K</span>
-          </div>
-
-          <div className="admin-subscriptions-top-actions">
-            <button className="admin-subscriptions-create">
-              <Plus size={18} />
-              Create
-              <ChevronDown size={15} />
-            </button>
-
-            <div className="admin-subscriptions-profile">
-              <div className="admin-subscriptions-avatar">
-                HR
-              </div>
-
-              <div>
-                <strong>Himanshu</strong>
-                <span>Super Administrator</span>
-              </div>
-
-              <ChevronDown size={15} />
-            </div>
-          </div>
-        </header>
+        <AdminTopbar onMobileMenuToggle={() => setMobileOpen(true)} />
 
         <div className="admin-subscriptions-content">
           {/* HEADER */}
 
           <section className="admin-subscriptions-heading">
             <div>
-              <div className="admin-subscriptions-breadcrumb">
-                <BadgeDollarSign size={15} />
-                ADMIN / SUBSCRIPTIONS
-              </div>
 
               <h1>Subscription Management</h1>
 
@@ -317,7 +335,7 @@ function AdminSubscriptions() {
             <StatCard
               icon={CheckCircle2}
               title="Active Subscriptions"
-              value={activeSubscriptions}
+              value={activeSubscriptions.length}
               description="Currently active"
               color="green"
             />
@@ -333,7 +351,7 @@ function AdminSubscriptions() {
             <StatCard
               icon={CircleX}
               title="Cancelled"
-              value={cancelledSubscriptions}
+              value={cancelledSubscriptions.length}
               description="Cancelled subscriptions"
               color="red"
             />
@@ -421,6 +439,39 @@ function AdminSubscriptions() {
                       Enterprise
                     </option>
                   </select>
+
+                  <select
+                    value={`${sortKey}-${sortOrder}`}
+                    onChange={(event) => {
+                      const [k, ord] = event.target.value.split("-");
+                      setSortKey(k);
+                      setSortOrder(ord);
+                    }}
+                    aria-label="Sort subscriptions"
+                  >
+                    <option value="workspace-asc">Sort: Workspace (A to Z)</option>
+                    <option value="workspace-desc">Sort: Workspace (Z to A)</option>
+                    <option value="price-desc">Sort: Price (High to Low)</option>
+                    <option value="price-asc">Sort: Price (Low to High)</option>
+                    <option value="plan-asc">Sort: Plan</option>
+                    <option value="status-asc">Sort: Status</option>
+                    <option value="nextBilling-asc">Sort: Next Billing</option>
+                  </select>
+
+                  {(search || statusFilter !== "All" || planFilter !== "All") && (
+                    <button
+                      type="button"
+                      className="clear-filters-btn"
+                      onClick={() => {
+                        setSearch("");
+                        setStatusFilter("All");
+                        setPlanFilter("All");
+                      }}
+                    >
+                      <X size={13} />
+                      Clear Filters
+                    </button>
+                  )}
                 </div>
 
                 <div className="admin-subscriptions-table-info">
@@ -441,21 +492,60 @@ function AdminSubscriptions() {
                   <table className="admin-subscriptions-table">
                     <thead>
                       <tr>
-                        <th>WORKSPACE</th>
-                        <th>PLAN</th>
-                        <th>PRICE</th>
-                        <th>BILLING</th>
-                        <th>STATUS</th>
-                        <th>START DATE</th>
-                        <th>NEXT BILLING</th>
-                        <th></th>
+                        <th style={{ width: 48, textAlign: "center" }}>#</th>
+                        <th className="sortable-th" onClick={() => handleSort("workspace")}>
+                          <div className="th-content">
+                            <span>WORKSPACE</span>
+                            {renderSortIcon("workspace")}
+                          </div>
+                        </th>
+                        <th className="sortable-th" onClick={() => handleSort("plan")}>
+                          <div className="th-content">
+                            <span>PLAN</span>
+                            {renderSortIcon("plan")}
+                          </div>
+                        </th>
+                        <th className="sortable-th" onClick={() => handleSort("price")}>
+                          <div className="th-content">
+                            <span>PRICE</span>
+                            {renderSortIcon("price")}
+                          </div>
+                        </th>
+                        <th className="sortable-th" onClick={() => handleSort("billingCycle")}>
+                          <div className="th-content">
+                            <span>BILLING</span>
+                            {renderSortIcon("billingCycle")}
+                          </div>
+                        </th>
+                        <th className="sortable-th" onClick={() => handleSort("status")}>
+                          <div className="th-content">
+                            <span>STATUS</span>
+                            {renderSortIcon("status")}
+                          </div>
+                        </th>
+                        <th className="sortable-th" onClick={() => handleSort("startDate")}>
+                          <div className="th-content">
+                            <span>START DATE</span>
+                            {renderSortIcon("startDate")}
+                          </div>
+                        </th>
+                        <th className="sortable-th" onClick={() => handleSort("nextBilling")}>
+                          <div className="th-content">
+                            <span>NEXT BILLING</span>
+                            {renderSortIcon("nextBilling")}
+                          </div>
+                        </th>
+                        <th style={{ textAlign: "right" }}>ACTIONS</th>
                       </tr>
                     </thead>
 
                     <tbody>
                       {filteredSubscriptions.map(
-                        (subscription) => (
+                        (subscription, idx) => (
                           <tr key={subscription.id}>
+                            <td style={{ textAlign: "center" }}>
+                              <span className="admin-row-num">{idx + 1}</span>
+                            </td>
                             <td>
                               <div className="admin-subscriptions-workspace">
                                 <div>
@@ -487,13 +577,10 @@ function AdminSubscriptions() {
                               <strong className="admin-subscriptions-price">
                                 ${subscription.price}
                               </strong>
-                              <small className="admin-subscriptions-price-cycle">
-                                /month
-                              </small>
                             </td>
 
                             <td>
-                              {subscription.billingCycle}
+                              <span className="billing-cycle-tag">{subscription.billingCycle}</span>
                             </td>
 
                             <td>
@@ -596,83 +683,217 @@ function AdminSubscriptions() {
                 </div>
               </>
             ) : (
-              /* PLAN CARDS */
+              /* PLANS VIEW (TABLE / CARDS) */
+              <div className="admin-subscriptions-plans-container">
+                <div className="plans-header-bar">
+                  <div className="plans-header-info">
+                    <h3>Subscription Tier Plans ({plans.length})</h3>
+                    <p>Configure pricing models, feature allowances, and subscriber quotas.</p>
+                  </div>
 
-              <div className="admin-subscriptions-plans">
-                {plans.map((plan) => (
-                  <article
-                    key={plan.id}
-                    className={`admin-subscriptions-plan-card ${plan.color}`}
-                  >
-                    {plan.popular && (
-                      <div className="admin-subscriptions-popular">
-                        <Crown size={12} />
-                        MOST POPULAR
-                      </div>
-                    )}
-
-                    <div className="admin-subscriptions-plan-top">
-                      <div
-                        className={`admin-subscriptions-plan-icon ${plan.color}`}
-                      >
-                        <BadgeDollarSign size={21} />
-                      </div>
-
-                      <button
-                        onClick={() =>
-                          setEditingPlan({
-                            ...plan,
-                            features: [
-                              ...plan.features,
-                            ],
-                          })
-                        }
-                      >
-                        <Pencil size={15} />
-                      </button>
-                    </div>
-
-                    <h3>{plan.name}</h3>
-
-                    <div className="admin-subscriptions-plan-price">
-                      <strong>${plan.price}</strong>
-                      <span>/ {plan.billing}</span>
-                    </div>
-
-                    <div className="admin-subscriptions-subscriber-count">
-                      <Users size={14} />
-                      {plan.subscribers} subscribers
-                    </div>
-
-                    <div className="admin-subscriptions-plan-divider" />
-
-                    <div className="admin-subscriptions-features">
-                      {plan.features.map(
-                        (feature, index) => (
-                          <div key={index}>
-                            <Check size={14} />
-                            <span>{feature}</span>
-                          </div>
-                        )
-                      )}
-                    </div>
-
+                  <div className="plans-header-actions">
                     <button
-                      className="admin-subscriptions-edit-plan"
+                      type="button"
+                      className="admin-subscriptions-btn-primary"
                       onClick={() =>
                         setEditingPlan({
-                          ...plan,
-                          features: [
-                            ...plan.features,
-                          ],
+                          id: `plan-${Date.now()}`,
+                          name: "Custom Enterprise",
+                          price: 299,
+                          billing: "month",
+                          color: "purple",
+                          popular: false,
+                          subscribers: 0,
+                          features: ["Unlimited Workspaces", "Dedicated AI GPU Cluster", "24/7 SLA Support"],
                         })
                       }
                     >
-                      <Pencil size={14} />
-                      Edit Plan
+                      <Plus size={16} />
+                      Create Plan
                     </button>
-                  </article>
-                ))}
+
+                    <div className="view-switch">
+                      <button
+                        type="button"
+                        className={`view-btn ${plansViewMode === "table" ? "active" : ""}`}
+                        onClick={() => setPlansViewMode("table")}
+                        title="Table view"
+                      >
+                        <List size={16} />
+                      </button>
+                      <button
+                        type="button"
+                        className={`view-btn ${plansViewMode === "cards" ? "active" : ""}`}
+                        onClick={() => setPlansViewMode("cards")}
+                        title="Cards view"
+                      >
+                        <Grid2X2 size={16} />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {plansViewMode === "table" ? (
+                  <div className="admin-subscriptions-table-wrapper">
+                    <table className="admin-subscriptions-table">
+                      <thead>
+                        <tr>
+                          <th style={{ width: 48, textAlign: "center" }}>#</th>
+                          <th>PLAN TIER</th>
+                          <th>PRICE</th>
+                          <th>BILLING</th>
+                          <th>SUBSCRIBERS</th>
+                          <th>KEY FEATURES</th>
+                          <th style={{ textAlign: "right" }}>ACTIONS</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {plans.map((plan, idx) => (
+                          <tr key={plan.id}>
+                            <td style={{ textAlign: "center" }}>
+                              <span className="admin-row-num">{idx + 1}</span>
+                            </td>
+                            <td>
+                              <div className="plan-name-cell">
+                                <strong style={{ color: "#0f172a" }}>{plan.name}</strong>
+                                {plan.popular && (
+                                  <span className="popular-badge-table">
+                                    <Crown size={11} /> Popular
+                                  </span>
+                                )}
+                              </div>
+                            </td>
+                            <td>
+                              <strong className="admin-subscriptions-price">${plan.price}</strong>
+                            </td>
+                            <td>Per {plan.billing}</td>
+                            <td>
+                              <span className="subscribers-pill">
+                                <Users size={13} /> {plan.subscribers}
+                              </span>
+                            </td>
+                            <td>
+                              <div className="features-preview-cell">
+                                <span>{plan.features.slice(0, 2).join(", ")}</span>
+                                {plan.features.length > 2 && (
+                                  <small> +{plan.features.length - 2} more</small>
+                                )}
+                              </div>
+                            </td>
+                            <td style={{ textAlign: "right" }}>
+                              <div className="table-actions">
+                                <button
+                                  type="button"
+                                  className="action-btn"
+                                  title="Edit Plan"
+                                  onClick={() =>
+                                    setEditingPlan({
+                                      ...plan,
+                                      features: [...plan.features],
+                                    })
+                                  }
+                                >
+                                  <Pencil size={15} />
+                                </button>
+                                {plans.length > 1 && (
+                                  <button
+                                    type="button"
+                                    className="action-btn delete"
+                                    title="Delete Plan"
+                                    onClick={() => {
+                                      if (window.confirm(`Delete plan "${plan.name}"?`)) {
+                                        setPlans(plans.filter((p) => p.id !== plan.id));
+                                      }
+                                    }}
+                                  >
+                                    <Trash2 size={15} />
+                                  </button>
+                                )}
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <div className="admin-subscriptions-plans">
+                    {plans.map((plan, idx) => (
+                      <article
+                        key={plan.id}
+                        className={`admin-subscriptions-plan-card ${plan.color}`}
+                      >
+                        {plan.popular && (
+                          <div className="admin-subscriptions-popular">
+                            <Crown size={12} />
+                            MOST POPULAR
+                          </div>
+                        )}
+
+                        <div className="admin-subscriptions-plan-top">
+                          <div
+                            className={`admin-subscriptions-plan-icon ${plan.color}`}
+                          >
+                            <span className="admin-row-num sm">{idx + 1}</span>
+                          </div>
+
+                          <button
+                            onClick={() =>
+                              setEditingPlan({
+                                ...plan,
+                                features: [
+                                  ...plan.features,
+                                ],
+                              })
+                            }
+                          >
+                            <Pencil size={15} />
+                          </button>
+                        </div>
+
+                        <h3>{plan.name}</h3>
+
+                        <div className="admin-subscriptions-plan-price">
+                          <strong>${plan.price}</strong>
+                          <span>/ {plan.billing}</span>
+                        </div>
+
+                        <div className="admin-subscriptions-subscriber-count">
+                          <Users size={14} />
+                          {plan.subscribers} subscribers
+                        </div>
+
+                        <div className="admin-subscriptions-plan-divider" />
+
+                        <div className="admin-subscriptions-features">
+                          {plan.features.map(
+                            (feature, index) => (
+                              <div key={index}>
+                                <Check size={14} />
+                                <span>{feature}</span>
+                              </div>
+                            )
+                          )}
+                        </div>
+
+                        <button
+                          className="admin-subscriptions-edit-plan"
+                          onClick={() =>
+                            setEditingPlan({
+                              ...plan,
+                              features: [
+                                ...plan.features,
+                              ],
+                            })
+                          }
+                        >
+                          <Pencil size={14} />
+                          Edit Plan
+                        </button>
+                      </article>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
           </section>

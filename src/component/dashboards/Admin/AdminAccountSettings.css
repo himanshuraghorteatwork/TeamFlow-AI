@@ -1,0 +1,609 @@
+/* =========================================================
+   TEAMFLOW AI - ADMIN ACCOUNT SETTINGS
+   Scoped CSS
+========================================================= */
+
+.tfAdminAccountSettings {
+  --primary: #5b5cf0;
+  --primary-hover: #4e4fe0;
+  --primary-soft: #eef0ff;
+  --text: #101828;
+  --text-dark: #111936;
+  --secondary: #667085;
+  --muted: #98a2b3;
+  --border: #e4e8f0;
+  --border-light: #f0f2f5;
+  --surface: #ffffff;
+  --bg: #f7f9fc;
+  --sidebar-width: 228px;
+  --radius: 12px;
+  --shadow: 0 1px 3px rgba(16, 24, 40, 0.04);
+
+  width: 100%;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  box-sizing: border-box;
+}
+
+.tfAdminAccountSettings *,
+.tfAdminAccountSettings *::before,
+.tfAdminAccountSettings *::after {
+  box-sizing: border-box;
+}
+
+.tfAdminAccountSettings__main {
+  width: calc(100% - var(--sidebar-width));
+  min-height: 100vh;
+  margin-left: var(--sidebar-width);
+  background: var(--bg);
+}
+
+/* TOPBAR */
+.tfAdminAccountSettings__topbar {
+  position: sticky;
+  top: 0;
+  z-index: 500;
+  width: 100%;
+  height: 64px;
+  padding: 0 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #ffffff;
+  border-bottom: 1px solid var(--border);
+}
+
+.tfAdminAccountSettings__topbarLeft {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.tfAdminAccountSettings__mobileMenu {
+  display: none;
+  width: 38px;
+  height: 38px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #ffffff;
+  color: #475467;
+  cursor: pointer;
+}
+
+.tfAdminAccountSettings__backBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 34px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #ffffff;
+  color: #344054;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 140ms ease;
+}
+
+.tfAdminAccountSettings__backBtn:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.tfAdminAccountSettings__breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.tfAdminAccountSettings__breadcrumb strong {
+  color: var(--text-dark);
+  font-weight: 600;
+}
+
+/* CONTENT */
+.tfAdminAccountSettings__content {
+  width: 100%;
+  padding: 24px 28px 40px;
+}
+
+/* TOAST */
+.tfAdminAccountSettings__toast {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 18px;
+  margin-bottom: 20px;
+  border-radius: 10px;
+  background: #ecfdf3;
+  border: 1px solid #a6f4c5;
+  color: #027a48;
+  font-size: 13px;
+  font-weight: 600;
+  animation: tfToastIn 200ms ease;
+}
+
+/* HEADER */
+.tfAdminAccountSettings__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.tfAdminAccountSettings__header h1 {
+  margin: 0 0 4px;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+.tfAdminAccountSettings__header p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--secondary);
+}
+
+.tfAdminAccountSettings__headerActions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.tfAdminAccountSettings__btnPrimary {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 38px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--primary);
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 140ms ease, transform 140ms ease;
+}
+
+.tfAdminAccountSettings__btnPrimary:hover {
+  background: var(--primary-hover);
+  transform: translateY(-1px);
+}
+
+.tfAdminAccountSettings__btnSecondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 38px;
+  padding: 0 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #ffffff;
+  color: #344054;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 140ms ease;
+}
+
+.tfAdminAccountSettings__btnSecondary:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.tfAdminAccountSettings__btnOutline {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 36px;
+  padding: 0 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #ffffff;
+  color: #344054;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 140ms ease;
+}
+
+.tfAdminAccountSettings__btnOutline:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: var(--primary-soft);
+}
+
+/* NAV TABS */
+.tfAdminAccountSettings__tabs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 1px;
+  overflow-x: auto;
+}
+
+.tfAdminAccountSettings__tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 14px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--secondary);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 140ms ease;
+}
+
+.tfAdminAccountSettings__tab:hover {
+  color: var(--text-dark);
+}
+
+.tfAdminAccountSettings__tab--active {
+  color: var(--primary) !important;
+  border-bottom-color: var(--primary) !important;
+  font-weight: 600;
+}
+
+/* SECTIONS */
+.tfAdminAccountSettings__sections {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.tfAdminAccountSettings__card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  box-shadow: var(--shadow);
+}
+
+.tfAdminAccountSettings__cardHeader {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.tfAdminAccountSettings__headerIcon {
+  color: var(--primary);
+  margin-top: 3px;
+  flex-shrink: 0;
+}
+
+.tfAdminAccountSettings__cardHeader h2 {
+  margin: 0 0 4px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.tfAdminAccountSettings__cardHeader p {
+  margin: 0;
+  font-size: 12px;
+  color: var(--secondary);
+}
+
+/* FORM FIELDS */
+.tfAdminAccountSettings__formRow {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.tfAdminAccountSettings__formRow--two {
+  grid-template-columns: 1fr 1fr;
+}
+
+.tfAdminAccountSettings__formRow--three {
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
+.tfAdminAccountSettings__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tfAdminAccountSettings__field label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #344054;
+}
+
+.tfAdminAccountSettings__field select,
+.tfAdminAccountSettings__field input {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #ffffff;
+  color: var(--text-dark);
+  font-size: 13px;
+  font-family: inherit;
+  outline: none;
+  transition: all 140ms ease;
+}
+
+.tfAdminAccountSettings__field select:focus,
+.tfAdminAccountSettings__field input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(91, 92, 240, 0.12);
+}
+
+/* DAY PILLS */
+.tfAdminAccountSettings__workDaysSection label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: #344054;
+  margin-bottom: 8px;
+}
+
+.tfAdminAccountSettings__dayPills {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.tfAdminAccountSettings__dayPill {
+  min-width: 46px;
+  height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #ffffff;
+  color: #475467;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 140ms ease;
+}
+
+.tfAdminAccountSettings__dayPill:hover {
+  border-color: #cbd5e1;
+  background: #f8fafc;
+}
+
+.tfAdminAccountSettings__dayPill--active {
+  background: var(--primary) !important;
+  color: #ffffff !important;
+  border-color: var(--primary) !important;
+  box-shadow: 0 2px 6px rgba(91, 92, 240, 0.25);
+}
+
+/* TOGGLES */
+.tfAdminAccountSettings__toggleList {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-light);
+}
+
+.tfAdminAccountSettings__toggleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  cursor: pointer;
+}
+
+.tfAdminAccountSettings__toggleRow strong {
+  display: block;
+  font-size: 13px;
+  color: var(--text-dark);
+  font-weight: 600;
+}
+
+.tfAdminAccountSettings__toggleRow p {
+  margin: 3px 0 0;
+  font-size: 12px;
+  color: var(--secondary);
+}
+
+.tfAdminAccountSettings__toggleRow input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--primary);
+  cursor: pointer;
+}
+
+/* EXPORT BOX */
+.tfAdminAccountSettings__exportBox {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px;
+  border-radius: 10px;
+  background: #f8fafc;
+  border: 1px solid var(--border);
+}
+
+.tfAdminAccountSettings__exportBox strong {
+  display: block;
+  font-size: 13px;
+  color: var(--text-dark);
+}
+
+.tfAdminAccountSettings__exportBox p {
+  margin: 3px 0 0;
+  font-size: 12px;
+  color: var(--secondary);
+}
+
+/* FOOTER */
+.tfAdminAccountSettings__formFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 8px;
+}
+
+/* RESPONSIVE */
+@media (max-width: 991px) {
+  .tfAdminAccountSettings__main {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .tfAdminAccountSettings__mobileMenu {
+    display: flex;
+  }
+
+  .tfAdminAccountSettings__topbar {
+    padding: 0 16px;
+  }
+
+  .tfAdminAccountSettings__content {
+    padding: 18px 16px 32px;
+  }
+
+  .tfAdminAccountSettings__formRow--three {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .tfAdminAccountSettings__formRow--two {
+    grid-template-columns: 1fr;
+  }
+
+  .tfAdminAccountSettings__header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .tfAdminAccountSettings__headerActions {
+    width: 100%;
+  }
+
+  .tfAdminAccountSettings__headerActions button {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .tfAdminAccountSettings__exportBox {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .tfAdminAccountSettings__exportBox button {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+
+/* =========================================================
+   DARK MODE COMPATIBILITY (.dark)
+========================================================= */
+
+html.dark .tfAdminAccountSettings,
+.dark .tfAdminAccountSettings {
+  background: #0f172a;
+  color: #f8fafc;
+}
+
+html.dark .tfAdminAccountSettings__main,
+.dark .tfAdminAccountSettings__main {
+  background: #0f172a;
+  color: #f8fafc;
+}
+
+html.dark .tfAdminAccountSettings__card,
+.dark .tfAdminAccountSettings__card {
+  background: #1e293b;
+  border-color: #334155;
+  color: #f8fafc;
+}
+
+html.dark .tfAdminAccountSettings__header h1,
+.dark .tfAdminAccountSettings__header h1 {
+  color: #f8fafc;
+}
+
+html.dark .tfAdminAccountSettings__header p,
+.dark .tfAdminAccountSettings__header p {
+  color: #94a3b8;
+}
+
+html.dark .tfAdminAccountSettings input,
+html.dark .tfAdminAccountSettings select,
+html.dark .tfAdminAccountSettings textarea,
+.dark .tfAdminAccountSettings input,
+.dark .tfAdminAccountSettings select,
+.dark .tfAdminAccountSettings textarea {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+html.dark .tfAdminAccountSettings label,
+.dark .tfAdminAccountSettings label {
+  color: #cbd5e1;
+}
+
+html.dark .tfAdminAccountSettings__cardHeader,
+.dark .tfAdminAccountSettings__cardHeader {
+  border-bottom-color: #334155;
+}
+
+html.dark .tfAdminAccountSettings__cardHeader h2,
+.dark .tfAdminAccountSettings__cardHeader h2 {
+  color: #f8fafc;
+}
+
+html.dark .tfAdminAccountSettings__cardHeader p,
+.dark .tfAdminAccountSettings__cardHeader p {
+  color: #94a3b8;
+}
+
+html.dark .tfAdminAccountSettings__btnSecondary,
+.dark .tfAdminAccountSettings__btnSecondary {
+  background: #1e293b;
+  border-color: #334155;
+  color: #cbd5e1;
+}
+
+html.dark .tfAdminAccountSettings__btnSecondary:hover,
+.dark .tfAdminAccountSettings__btnSecondary:hover {
+  background: #334155;
+  color: #f8fafc;
+}
+
+html.dark .tfAdminAccountSettings__themeCard,
+.dark .tfAdminAccountSettings__themeCard {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+html.dark .tfAdminAccountSettings__sessionItem,
+.dark .tfAdminAccountSettings__sessionItem {
+  border-bottom-color: #334155;
+}
+
+html.dark .tfAdminAccountSettings__noticeBox,
+.dark .tfAdminAccountSettings__noticeBox {
+  background: #0f172a;
+  border-color: #334155;
+}

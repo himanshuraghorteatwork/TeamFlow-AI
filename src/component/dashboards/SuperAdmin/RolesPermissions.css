@@ -1,0 +1,238 @@
+/* ==========================================================================
+   TEAMFLOW AI — SUPER ADMIN ROLES & PERMISSIONS CSS
+   ========================================================================== */
+
+.sa-roles-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sa-user-role-table-card {
+  padding: 18px 20px 14px;
+}
+
+.sa-role-inline-select {
+  appearance: none;
+  background: var(--sa-surface);
+  border: 1px solid var(--sa-border);
+  border-radius: var(--sa-radius-sm);
+  padding: 5px 10px;
+  font-family: inherit;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--sa-text-main);
+  cursor: pointer;
+  outline: none;
+  transition: all 0.15s ease;
+}
+
+.sa-role-inline-select:focus {
+  border-color: var(--sa-primary);
+  background: var(--sa-surface);
+}
+
+/* Responsibility Meter in Table */
+.sa-resp-col-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 170px;
+}
+
+.sa-resp-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.sa-resp-tag {
+  font-size: 11px;
+  font-weight: 650;
+  padding: 2px 7px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.sa-resp-tag.lvl-5 { background: #eff3fe; color: #3b66ff; border: 1px solid #dbeafe; }
+.sa-resp-tag.lvl-4 { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+.sa-resp-tag.lvl-3 { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
+.sa-resp-tag.lvl-2 { background: #e0e7ff; color: #4338ca; border: 1px solid #c7d2fe; }
+.sa-resp-tag.lvl-1 { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
+
+.sa-resp-score {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--sa-text-muted);
+}
+
+.sa-resp-bar-track {
+  width: 100%;
+  height: 5px;
+  background: var(--sa-border-subtle);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.sa-resp-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+.sa-resp-summary-text {
+  font-size: 10.5px;
+  color: var(--sa-text-muted);
+  line-height: 1.25;
+}
+
+/* Responsibility Cards Grid in Tab 2 */
+.sa-roles-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+  gap: 14px;
+}
+
+.sa-role-summary-card {
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-radius: var(--sa-radius-md);
+  border: 1px solid var(--sa-border);
+  background: var(--sa-surface);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.sa-role-summary-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--sa-shadow-md);
+}
+
+.sa-role-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.sa-role-desc {
+  margin: 0;
+  font-size: 12px;
+  color: var(--sa-text-muted);
+  line-height: 1.45;
+}
+
+.sa-role-resp-box {
+  margin-top: 4px;
+  padding: 10px 12px;
+  background: var(--sa-bg);
+  border-radius: var(--sa-radius-sm);
+  border: 1px solid var(--sa-border-subtle);
+}
+
+.sa-role-resp-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--sa-text-main);
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sa-role-resp-list {
+  margin: 0;
+  padding: 0 0 0 16px;
+  font-size: 11.5px;
+  color: var(--sa-text-secondary);
+  line-height: 1.45;
+}
+
+.sa-role-resp-list li {
+  margin-bottom: 4px;
+}
+
+.sa-role-resp-list li:last-child {
+  margin-bottom: 0;
+}
+
+.sa-role-accountability {
+  font-size: 11px;
+  font-style: italic;
+  color: var(--sa-text-muted);
+  margin-top: 6px;
+  border-top: 1px dashed var(--sa-border);
+  padding-top: 6px;
+}
+
+.sa-matrix-card {
+  padding: 20px;
+}
+
+.sa-perm-check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+}
+
+.sa-perm-check.yes {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.sa-perm-check.no {
+  background: #f1f5f9;
+  color: #94a3b8;
+}
+
+/* Modal details list */
+.sa-resp-modal-section {
+  margin-bottom: 14px;
+}
+
+.sa-resp-modal-section h4 {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--sa-text-main);
+  margin: 0 0 6px;
+}
+
+.sa-resp-modal-bullets {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 12px;
+  color: var(--sa-text-secondary);
+  line-height: 1.5;
+}
+
+/* Dark Mode Overrides for Roles & Responsibility Governance */
+.sa-dark-mode .sa-role-resp-box {
+  background: #172442 !important;
+  border-color: #233355 !important;
+}
+
+.sa-dark-mode .sa-role-resp-list {
+  color: #cbd5e1 !important;
+}
+
+.sa-dark-mode .sa-role-accountability {
+  border-top-color: #1f2d4d !important;
+  color: #94a3b8 !important;
+}
+
+.sa-dark-mode .sa-resp-tag.lvl-5 { background: rgba(59, 102, 255, 0.2) !important; color: #6088ff !important; border-color: rgba(59, 102, 255, 0.3) !important; }
+.sa-dark-mode .sa-resp-tag.lvl-4 { background: rgba(16, 185, 129, 0.2) !important; color: #34d399 !important; border-color: rgba(16, 185, 129, 0.3) !important; }
+.sa-dark-mode .sa-resp-tag.lvl-3 { background: rgba(245, 158, 11, 0.2) !important; color: #fbbf24 !important; border-color: rgba(245, 158, 11, 0.3) !important; }
+.sa-dark-mode .sa-resp-tag.lvl-2 { background: rgba(99, 102, 241, 0.2) !important; color: #a5b4fc !important; border-color: rgba(99, 102, 241, 0.3) !important; }
+.sa-dark-mode .sa-resp-tag.lvl-1 { background: #172442 !important; color: #94a3b8 !important; border-color: #233355 !important; }
+
+.sa-dark-mode .sa-resp-bar-track {
+  background: #1f2d4d !important;
+}

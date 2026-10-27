@@ -11,6 +11,7 @@ import {
   UserRound,
   RotateCcw,
 } from "lucide-react";
+import "./SuperAdminCommon.css";
 import "./Settings.css";
 
 const DEFAULT_SETTINGS = {

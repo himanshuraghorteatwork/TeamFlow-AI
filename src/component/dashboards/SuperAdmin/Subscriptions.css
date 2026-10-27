@@ -1895,3 +1895,259 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* ==========================================================================
+   SUBSCRIPTION VIEW MODAL — COMPACT & VIEWPORT-CENTERED (NO SCROLLING)
+   ========================================================================== */
+.subscriptions-view-modal {
+  width: min(100%, 540px) !important;
+  max-width: 540px !important;
+  max-height: 92vh !important;
+  background: #ffffff !important;
+  border-radius: 14px !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 24px 65px rgba(15, 23, 42, 0.28) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+  animation: subscriptionsModalPop 0.2s cubic-bezier(0.16, 1, 0.3, 1) both !important;
+}
+
+@keyframes subscriptionsModalPop {
+  from {
+    opacity: 0;
+    transform: scale(0.97) translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.subscriptions-view-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 13px 18px !important;
+  border-bottom: 1px solid #edf2f7 !important;
+  background: #ffffff !important;
+}
+
+.subscriptions-view-header-left {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+}
+
+.subscriptions-view-header-left h2 {
+  margin: 0 !important;
+  font-size: 14.5px !important;
+  font-weight: 700 !important;
+  color: #0f172a !important;
+}
+
+.subscriptions-view-id-tag {
+  display: inline-block !important;
+  font-size: 10.5px !important;
+  font-weight: 600 !important;
+  color: #64748b !important;
+  font-family: ui-monospace, SFMono-Regular, monospace !important;
+}
+
+.subscriptions-view-modal-body {
+  padding: 14px 18px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 11px !important;
+}
+
+.sub-view-hero {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 10px !important;
+  padding: 10px 14px !important;
+  gap: 12px !important;
+}
+
+.sub-view-org-cell {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  min-width: 0 !important;
+}
+
+.sub-view-avatar {
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: 8px !important;
+  background: #4f46e5 !important;
+  color: #ffffff !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-weight: 750 !important;
+  font-size: 12.5px !important;
+  flex-shrink: 0 !important;
+}
+
+.sub-view-org-cell h3 {
+  margin: 0 0 2px !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  color: #0f172a !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+.sub-view-org-cell p {
+  margin: 0 !important;
+  font-size: 10.5px !important;
+  color: #64748b !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+.sub-view-badges-cell {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  flex-shrink: 0 !important;
+}
+
+.sub-view-badge-item {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-end !important;
+}
+
+.sub-view-badge-item small {
+  font-size: 9px !important;
+  text-transform: uppercase !important;
+  font-weight: 650 !important;
+  color: #94a3b8 !important;
+  letter-spacing: 0.4px !important;
+}
+
+.sub-view-plan-pill {
+  background: rgba(79, 70, 229, 0.1) !important;
+  color: #4f46e5 !important;
+  padding: 2px 8px !important;
+  border-radius: 6px !important;
+  font-size: 11.5px !important;
+  font-weight: 700 !important;
+}
+
+.sub-view-price-pill {
+  font-size: 13.5px !important;
+  font-weight: 750 !important;
+  color: #0f172a !important;
+}
+
+.sub-view-per {
+  font-size: 10px !important;
+  color: #94a3b8 !important;
+  font-weight: 500 !important;
+}
+
+.sub-view-grid {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 8px !important;
+}
+
+.sub-view-grid-card {
+  background: #f8fafc !important;
+  border: 1px solid #edf2f7 !important;
+  border-radius: 8px !important;
+  padding: 8px 12px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 3px !important;
+}
+
+.sub-view-grid-label {
+  font-size: 9.5px !important;
+  font-weight: 650 !important;
+  color: #64748b !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.3px !important;
+}
+
+.sub-view-grid-val {
+  font-size: 11.5px !important;
+  font-weight: 650 !important;
+  color: #1e293b !important;
+}
+
+.subscriptions-view-footer {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 8px !important;
+  padding: 11px 18px !important;
+  border-top: 1px solid #edf2f7 !important;
+  background: #fcfdfe !important;
+}
+
+/* Dark Mode Overrides for Subscriptions Modal */
+.sa-dark-mode .subscriptions-modal,
+.sa-dark-mode .subscriptions-view-modal {
+  background: #151f38 !important;
+  border-color: #233355 !important;
+  box-shadow: 0 24px 65px rgba(0, 0, 0, 0.65) !important;
+}
+
+.sa-dark-mode .subscriptions-view-header,
+.sa-dark-mode .subscriptions-modal > header {
+  background: #151f38 !important;
+  border-bottom-color: #233355 !important;
+}
+
+.sa-dark-mode .subscriptions-view-header-left h2,
+.sa-dark-mode .subscriptions-modal h2 {
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .sub-view-hero,
+.sa-dark-mode .sub-view-grid-card,
+.sa-dark-mode .subscriptions-detail-hero {
+  background: #1b2746 !important;
+  border-color: #28395f !important;
+}
+
+.sa-dark-mode .sub-view-org-cell h3,
+.sa-dark-mode .sub-view-price-pill,
+.sa-dark-mode .sub-view-grid-val,
+.sa-dark-mode .subscriptions-detail-hero h3,
+.sa-dark-mode .subscriptions-detail-plan strong {
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .sub-view-org-cell p,
+.sa-dark-mode .sub-view-grid-label,
+.sa-dark-mode .subscriptions-detail-row > span {
+  color: #94a3b8 !important;
+}
+
+.sa-dark-mode .subscriptions-view-footer,
+.sa-dark-mode .subscriptions-modal > footer {
+  background: #111a30 !important;
+  border-top-color: #233355 !important;
+}
+
+.sa-dark-mode .subscriptions-catalogue-row {
+  border-bottom-color: #233355 !important;
+}
+
+.sa-dark-mode .subscriptions-catalogue-row strong {
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .subscriptions-catalogue-row span {
+  color: #94a3b8 !important;
+}

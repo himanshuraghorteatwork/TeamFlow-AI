@@ -1,0 +1,1487 @@
+/* ==========================================================================
+   TEAMFLOW AI — TEAM PROGRESS PAGE
+   Matches visual reference media_1793012834372_fa49da1d.png
+   ========================================================================== */
+
+.tf-progress-page {
+  padding: 24px 32px 48px;
+  max-width: 1560px;
+  margin: 0 auto;
+  font-family: inherit;
+  color: var(--tf-text, #0F172A);
+  position: relative;
+  box-sizing: border-box;
+}
+
+/* Toast */
+.tf-tp-toast {
+  position: fixed;
+  top: 24px;
+  right: 28px;
+  z-index: 9999;
+  background: #10B981;
+  color: #FFFFFF;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 13.5px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
+  animation: tfToastIn 0.25s ease-out;
+}
+
+@keyframes tfToastIn {
+  from {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ==========================================================================
+   1. PAGE HEADER
+   ========================================================================== */
+.tf-tp-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 22px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.tf-tp-header-left {
+  display: flex;
+  flex-direction: column;
+}
+
+.tf-tp-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.tf-tp-header-icon-box {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: #EEF2FF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.tf-tp-title-row h1 {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--tf-text-title, #0F172A);
+  margin: 0;
+  letter-spacing: -0.015em;
+}
+
+.tf-tp-header-left p {
+  font-size: 13px;
+  color: var(--tf-text-muted, #64748B);
+  margin: 3px 0 0;
+}
+
+/* Date Range Picker Dropdown Button */
+.tf-tp-date-wrapper {
+  position: relative;
+}
+
+.tf-tp-date-btn {
+  height: 38px;
+  padding: 0 14px;
+  background: var(--tf-card-bg, #FFFFFF);
+  border: 1px solid var(--tf-border, #E2E8F0);
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--tf-text-title, #1E293B);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+  transition: all 0.15s ease;
+}
+
+.tf-tp-date-btn:hover {
+  background: #F8FAFC;
+  border-color: #CBD5E1;
+}
+
+.tf-tp-cal-icon {
+  color: #64748B;
+}
+
+.tf-tp-chevron {
+  color: #94A3B8;
+}
+
+.tf-tp-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 100;
+  background: var(--tf-card-bg, #FFFFFF);
+  border: 1px solid var(--tf-border, #E2E8F0);
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  padding: 6px;
+  min-width: 190px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  animation: tfPopMenu 0.15s ease-out;
+}
+
+@keyframes tfPopMenu {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.tf-tp-dropdown-item {
+  background: transparent;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--tf-text, #334155);
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+
+.tf-tp-dropdown-item:hover {
+  background: #F1F5F9;
+  color: #0F172A;
+}
+
+.tf-tp-dropdown-item.active {
+  background: #EEF2FF;
+  color: #5051F9;
+  font-weight: 600;
+}
+
+/* ==========================================================================
+   2. TOP 4 KPI SUMMARY CARDS
+   ========================================================================== */
+.tf-tp-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.tf-tp-kpi-card {
+  background: var(--tf-card-bg, #FFFFFF);
+  border: 1px solid var(--tf-border, #E2E8F0);
+  border-radius: 12px;
+  padding: 16px 18px;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.tf-tp-kpi-card:hover {
+  border-color: #CBD5E1;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+}
+
+.tf-tp-kpi-icon-wrap {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.tf-tp-kpi-icon-wrap.purple {
+  background: #F5F3FF;
+  color: #7C3AED;
+}
+
+.tf-tp-kpi-icon-wrap.green {
+  background: #ECFDF5;
+  color: #10B981;
+}
+
+.tf-tp-kpi-icon-wrap.blue {
+  background: #EFF6FF;
+  color: #2563EB;
+}
+
+.tf-tp-kpi-icon-wrap.red {
+  background: #FEF2F2;
+  color: #EF4444;
+}
+
+.tf-tp-kpi-content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.tf-tp-kpi-num {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--tf-text-title, #0F172A);
+  line-height: 1.15;
+}
+
+.tf-tp-kpi-lbl {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--tf-text-muted, #64748B);
+  margin: 2px 0 6px;
+}
+
+.tf-tp-kpi-badge-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.tf-tp-pill {
+  font-size: 10.5px;
+  font-weight: 500;
+  padding: 2px 7px;
+  border-radius: 5px;
+  white-space: nowrap;
+}
+
+.tf-tp-pill.green {
+  background: #ECFDF5;
+  color: #059669;
+}
+
+.tf-tp-pill.blue {
+  background: #EFF6FF;
+  color: #2563EB;
+}
+
+.tf-tp-pill.red {
+  background: #FEF2F2;
+  color: #DC2626;
+}
+
+/* Gradient project progress bar */
+.tf-tp-project-progress-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.tf-tp-bar-track {
+  flex: 1;
+  height: 6px;
+  background: #F1F5F9;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.tf-tp-bar-fill.gradient {
+  height: 100%;
+  background: linear-gradient(90deg, #7C3AED 0%, #3B82F6 100%);
+  border-radius: 10px;
+}
+
+.tf-tp-progress-pct {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #64748B;
+}
+
+/* ==========================================================================
+   3. MIDDLE ROW (3 CARDS)
+   Task Status Overview (Donut) | Team Workload (Bar) | Project Progress
+   ========================================================================== */
+.tf-tp-middle-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.35fr 1.15fr;
+  gap: 16px;
+  margin-bottom: 20px;
+  align-items: stretch;
+}
+
+.tf-tp-card {
+  background: var(--tf-card-bg, #FFFFFF);
+  border: 1px solid var(--tf-border, #E2E8F0);
+  border-radius: 12px;
+  padding: 16px 18px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  display: flex;
+  flex-direction: column;
+}
+
+.tf-tp-card-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--tf-text-title, #0F172A);
+  margin: 0;
+}
+
+.tf-tp-card-header-flex {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.tf-tp-view-all-link {
+  font-size: 11.5px;
+  color: #5051F9;
+  font-weight: 500;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  cursor: pointer;
+}
+
+.tf-tp-view-all-link:hover {
+  text-decoration: underline;
+}
+
+/* Card 1: Task Status Donut */
+.tf-task-status-card {
+  justify-content: space-between;
+}
+
+.tf-tp-donut-container {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 10px;
+}
+
+.tf-tp-donut-wrap {
+  width: 140px;
+  height: 140px;
+  flex-shrink: 0;
+}
+
+.tf-tp-donut-svg {
+  width: 100%;
+  height: 100%;
+}
+
+.tf-donut-center-num {
+  font-size: 22px;
+  font-weight: 700;
+  fill: var(--tf-text-title, #0F172A);
+}
+
+.tf-donut-center-lbl {
+  font-size: 10px;
+  font-weight: 500;
+  fill: var(--tf-text-muted, #64748B);
+}
+
+.tf-tp-donut-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+}
+
+.tf-donut-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  cursor: pointer;
+  padding: 3px 6px;
+  border-radius: 6px;
+  transition: background 0.12s ease;
+}
+
+.tf-donut-legend-item:hover {
+  background: #F8FAFC;
+}
+
+.tf-donut-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.tf-donut-dot.green {
+  background: #10B981;
+}
+
+.tf-donut-dot.blue {
+  background: #2563EB;
+}
+
+.tf-donut-dot.red {
+  background: #EF4444;
+}
+
+.tf-donut-legend-name {
+  color: var(--tf-text, #334155);
+  font-weight: 500;
+  flex: 1;
+}
+
+.tf-donut-legend-val {
+  font-weight: 600;
+  color: var(--tf-text-muted, #64748B);
+}
+
+/* Card 2: Team Workload (Bar Chart) */
+.tf-tp-bar-legend {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 11px;
+  color: var(--tf-text-muted, #64748B);
+}
+
+.tf-bar-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.tf-bar-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+}
+
+.tf-bar-dot.green {
+  background: #10B981;
+}
+
+.tf-bar-dot.blue {
+  background: #2563EB;
+}
+
+.tf-tp-barchart-container {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  height: 155px;
+  padding-top: 10px;
+}
+
+.tf-tp-barchart-yaxis {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 115px;
+  font-size: 10px;
+  color: #94A3B8;
+  padding-bottom: 24px;
+}
+
+.tf-tp-barchart-columns {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-around;
+  flex: 1;
+  height: 100%;
+  border-bottom: 1px solid var(--tf-border, #E2E8F0);
+  padding-bottom: 4px;
+}
+
+.tf-tp-bar-col-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  padding: 0 4px;
+}
+
+.tf-tp-bar-col-group:hover .tf-tp-bar-avatar {
+  transform: scale(1.1);
+  box-shadow: 0 2px 6px rgba(80, 81, 249, 0.3);
+}
+
+.tf-tp-bars-pair {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 95px;
+  margin-bottom: 8px;
+}
+
+.tf-tp-bar {
+  width: 8px;
+  border-radius: 4px 4px 0 0;
+  transition: height 0.3s ease;
+}
+
+.tf-tp-bar.completed {
+  background: #10B981;
+}
+
+.tf-tp-bar.in-progress {
+  background: #2563EB;
+}
+
+.tf-tp-bar-avatar {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  object-fit: cover;
+  transition: all 0.15s ease;
+}
+
+.tf-tp-bar-member-name {
+  font-size: 10.5px;
+  color: var(--tf-text-muted, #64748B);
+  margin-top: 3px;
+}
+
+/* Card 3: Project Progress List */
+.tf-tp-projects-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.tf-tp-project-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.tf-tp-project-row:hover strong {
+  color: #5051F9;
+}
+
+.tf-tp-proj-icon-box {
+  width: 30px;
+  height: 30px;
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.tf-tp-proj-icon-box.purple {
+  background: #F5F3FF;
+  color: #7C3AED;
+}
+
+.tf-tp-proj-icon-box.blue {
+  background: #EFF6FF;
+  color: #2563EB;
+}
+
+.tf-tp-proj-icon-box.orange {
+  background: #FFFBEB;
+  color: #D97706;
+}
+
+.tf-tp-proj-icon-box.purple-soft {
+  background: #F5F3FF;
+  color: #7C3AED;
+}
+
+.tf-tp-proj-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.tf-tp-proj-title-row strong {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--tf-text-title, #0F172A);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 0.12s ease;
+}
+
+.tf-tp-proj-track {
+  height: 5px;
+  background: #F1F5F9;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-top: 4px;
+}
+
+.tf-tp-proj-fill {
+  height: 100%;
+  border-radius: 10px;
+}
+
+.tf-tp-proj-fill.blue-purple {
+  background: #4F46E5;
+}
+
+.tf-tp-proj-fill.blue {
+  background: #2563EB;
+}
+
+.tf-tp-proj-fill.green {
+  background: #10B981;
+}
+
+.tf-tp-proj-fill.orange {
+  background: #F59E0B;
+}
+
+.tf-tp-proj-stat-col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  min-width: 65px;
+}
+
+.tf-tp-proj-pct {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--tf-text-title, #0F172A);
+}
+
+.tf-tp-proj-count {
+  font-size: 10px;
+  color: var(--tf-text-muted, #64748B);
+}
+
+/* ==========================================================================
+   4. BOTTOM SECTION (Two Main Columns)
+   Left: Team Members Table + (Top Performing Members & Overdue Items)
+   Right: Recent Team Activity Feed
+   ========================================================================== */
+.tf-tp-bottom-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.85fr) minmax(0, 1.15fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.tf-tp-bottom-left-col {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.tf-tp-bottom-right-col {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* Team Members Table Card */
+.tf-tp-table-wrap {
+  overflow-x: auto;
+  border-radius: 8px;
+}
+
+.tf-tp-members-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.tf-tp-members-table th {
+  padding: 8px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--tf-text-muted, #64748B);
+  border-bottom: 1px solid var(--tf-border, #E2E8F0);
+  background: #FAFAFC;
+  white-space: nowrap;
+}
+
+.tf-tp-members-table th.sortable {
+  cursor: pointer;
+}
+
+.tf-tp-members-table th.sortable:hover {
+  color: #0F172A;
+}
+
+.tf-tp-members-table td {
+  padding: 9px 10px;
+  font-size: 12px;
+  border-bottom: 1px solid var(--tf-border-subtle, #F1F5F9);
+  vertical-align: middle;
+}
+
+.tf-tp-table-row {
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+
+.tf-tp-table-row:hover {
+  background: #F8FAFC;
+}
+
+.tf-tp-member-name-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tf-tp-table-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.tf-tp-name-text {
+  font-weight: 600;
+  color: var(--tf-text-title, #1E293B);
+  white-space: nowrap;
+}
+
+.tf-tp-role-cell {
+  color: var(--tf-text-muted, #64748B);
+  white-space: nowrap;
+}
+
+.tf-tp-num-cell {
+  font-weight: 600;
+  color: var(--tf-text-title, #1E293B);
+}
+
+.tf-tp-badge {
+  display: inline-block;
+  padding: 1.5px 7px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.tf-tp-badge.green {
+  background: #ECFDF5;
+  color: #059669;
+}
+
+.tf-tp-badge.blue {
+  background: #EFF6FF;
+  color: #2563EB;
+}
+
+.tf-tp-badge.red {
+  background: #FEF2F2;
+  color: #DC2626;
+}
+
+.tf-tp-badge.gray {
+  background: #F1F5F9;
+  color: #64748B;
+}
+
+.tf-tp-workload-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tf-tp-workload-track {
+  width: 60px;
+  height: 5px;
+  background: #F1F5F9;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.tf-tp-workload-fill {
+  height: 100%;
+  border-radius: 10px;
+}
+
+.tf-tp-workload-fill.green {
+  background: #10B981;
+}
+
+.tf-tp-workload-fill.orange {
+  background: #F59E0B;
+}
+
+.tf-tp-workload-pct {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--tf-text-title, #1E293B);
+}
+
+/* Left Subgrid (2 Cards side by side) */
+.tf-tp-left-subgrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+/* Top Performing Members Card */
+.tf-tp-header-with-icon {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tf-tp-trophy-icon,
+.tf-tp-clock-red {
+  font-size: 15px;
+}
+
+.tf-tp-mini-dropdown-btn {
+  background: transparent;
+  border: 1px solid var(--tf-border, #E2E8F0);
+  border-radius: 6px;
+  padding: 3px 8px;
+  font-size: 11px;
+  color: #475569;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+}
+
+.tf-tp-top-perf-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.tf-tp-perf-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 2px 0;
+}
+
+.tf-tp-rank-badge {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  font-size: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.tf-tp-rank-badge.rank-1 {
+  background: #FEF3C7;
+  color: #D97706;
+}
+
+.tf-tp-rank-badge.rank-2 {
+  background: #EFF6FF;
+  color: #2563EB;
+}
+
+.tf-tp-rank-badge.rank-3 {
+  background: #FEF3C7;
+  color: #D97706;
+}
+
+.tf-tp-perf-avatar {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.tf-tp-perf-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--tf-text-title, #0F172A);
+  flex: 1;
+  white-space: nowrap;
+}
+
+.tf-tp-perf-ratio {
+  font-size: 10.5px;
+  color: var(--tf-text-muted, #64748B);
+}
+
+.tf-tp-perf-pct {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--tf-text-title, #1E293B);
+}
+
+.tf-tp-perf-track {
+  width: 45px;
+  height: 5px;
+  background: #F1F5F9;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.tf-tp-perf-fill {
+  height: 100%;
+  border-radius: 10px;
+}
+
+.tf-tp-perf-fill.green {
+  background: #10B981;
+}
+
+.tf-tp-perf-fill.yellow {
+  background: #F59E0B;
+}
+
+/* Overdue Items (Team) */
+.tf-tp-overdue-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.tf-tp-overdue-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 3px 0;
+}
+
+.tf-tp-overdue-item:hover strong {
+  color: #5051F9;
+}
+
+.tf-tp-overdue-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.tf-tp-overdue-icon.red {
+  background: #FEF2F2;
+  color: #EF4444;
+}
+
+.tf-tp-overdue-icon.blue {
+  background: #EFF6FF;
+  color: #2563EB;
+}
+
+.tf-tp-overdue-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.tf-tp-overdue-info strong {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--tf-text-title, #0F172A);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 0.12s ease;
+}
+
+.tf-tp-overdue-info span {
+  font-size: 10px;
+  color: var(--tf-text-muted, #64748B);
+}
+
+.tf-tp-overdue-date {
+  font-size: 10.5px;
+  color: var(--tf-text-muted, #64748B);
+  white-space: nowrap;
+}
+
+.tf-tp-priority-badge {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 1.5px 6px;
+  border-radius: 6px;
+}
+
+.tf-tp-priority-badge.high {
+  background: #FEF2F2;
+  color: #DC2626;
+}
+
+.tf-tp-priority-badge.medium {
+  background: #FFFBEB;
+  color: #D97706;
+}
+
+/* Card: Recent Team Activity Feed */
+.tf-tp-team-activity-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.tf-tp-team-act-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+
+.tf-tp-team-act-item:hover .tf-tp-act-title {
+  color: #5051F9;
+}
+
+.tf-tp-act-icon-badge {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.tf-tp-act-icon-badge.green {
+  background: #ECFDF5;
+  color: #10B981;
+}
+
+.tf-tp-act-icon-badge.red {
+  background: #FEF2F2;
+  color: #EF4444;
+}
+
+.tf-tp-act-icon-badge.blue {
+  background: #EFF6FF;
+  color: #2563EB;
+}
+
+.tf-tp-act-icon-badge.purple {
+  background: #F5F3FF;
+  color: #7C3AED;
+}
+
+.tf-tp-act-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.tf-tp-act-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.tf-tp-act-actor-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11.5px;
+}
+
+.tf-tp-act-actor-row strong {
+  font-weight: 700;
+  color: var(--tf-text-title, #0F172A);
+  white-space: nowrap;
+}
+
+.tf-tp-act-action {
+  color: var(--tf-text-muted, #64748B);
+  white-space: nowrap;
+}
+
+.tf-tp-act-title {
+  font-size: 11px;
+  color: var(--tf-text-muted, #64748B);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 1px;
+  transition: color 0.12s ease;
+}
+
+.tf-tp-act-time {
+  font-size: 10.5px;
+  color: #94A3B8;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* ==========================================================================
+   5. MODAL: MEMBER DETAILS
+   ========================================================================== */
+.tf-tp-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.tf-tp-modal-card {
+  background: var(--tf-card-bg, #FFFFFF);
+  border-radius: 12px;
+  width: 100%;
+  max-width: 480px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  animation: tfPopMenu 0.2s ease-out;
+}
+
+.tf-tp-modal-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--tf-border, #E2E8F0);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.tf-tp-modal-user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.tf-tp-modal-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.tf-tp-modal-user h3 {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--tf-text-title, #0F172A);
+  margin: 0 0 2px;
+}
+
+.tf-tp-modal-user p {
+  font-size: 11.5px;
+  color: var(--tf-text-muted, #64748B);
+  margin: 0;
+}
+
+.tf-tp-modal-close {
+  background: transparent;
+  border: none;
+  color: #94A3B8;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.tf-tp-modal-close:hover {
+  color: #0F172A;
+}
+
+.tf-tp-modal-body {
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.tf-tp-modal-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.tf-modal-stat-box {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.tf-modal-stat-box.green {
+  background: #ECFDF5;
+  border-color: #A7F3D0;
+}
+
+.tf-modal-stat-box.green strong {
+  color: #059669;
+}
+
+.tf-modal-stat-box.blue {
+  background: #EFF6FF;
+  border-color: #BFDBFE;
+}
+
+.tf-modal-stat-box.blue strong {
+  color: #2563EB;
+}
+
+.tf-modal-stat-box.red {
+  background: #FEF2F2;
+  border-color: #FECACA;
+}
+
+.tf-modal-stat-box.red strong {
+  color: #DC2626;
+}
+
+.tf-modal-stat-box .lbl {
+  font-size: 10px;
+  color: #64748B;
+  font-weight: 500;
+}
+
+.tf-modal-stat-box strong {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0F172A;
+  margin-top: 2px;
+}
+
+.tf-tp-modal-workload-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+}
+
+.tf-modal-workload-track {
+  flex: 1;
+  height: 6px;
+  background: #F1F5F9;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.tf-modal-workload-fill {
+  height: 100%;
+  border-radius: 10px;
+}
+
+.tf-modal-workload-fill.green {
+  background: #10B981;
+}
+
+.tf-modal-workload-fill.orange {
+  background: #F59E0B;
+}
+
+.tf-tp-modal-tasks-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tf-tp-modal-tasks-preview h4 {
+  font-size: 12px;
+  font-weight: 700;
+  color: #0F172A;
+  margin: 0;
+}
+
+.tf-modal-task-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11.5px;
+  color: #334155;
+  background: #F8FAFC;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid #E2E8F0;
+}
+
+.tf-modal-task-item .status {
+  margin-left: auto;
+  font-size: 10.5px;
+  font-weight: 600;
+  color: #64748B;
+}
+
+.tf-tp-modal-footer {
+  padding: 12px 20px;
+  border-top: 1px solid var(--tf-border, #E2E8F0);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.tf-tp-btn-secondary {
+  height: 34px;
+  padding: 0 14px;
+  background: #F1F5F9;
+  border: 1px solid #E2E8F0;
+  color: #475569;
+  border-radius: 6px;
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.tf-tp-btn-secondary:hover {
+  background: #E2E8F0;
+}
+
+.tf-tp-btn-primary {
+  height: 34px;
+  padding: 0 16px;
+  background: #5051F9;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 6px;
+  font-size: 12.5px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.tf-tp-btn-primary:hover {
+  background: #4344E6;
+}
+
+/* ==========================================================================
+   6. DARK THEME OVERRIDES
+   ========================================================================== */
+[data-theme="dark"] .tf-tp-title-row h1,
+[data-theme="dark"] .tf-tp-kpi-num,
+[data-theme="dark"] .tf-tp-card-title,
+[data-theme="dark"] .tf-donut-center-num,
+[data-theme="dark"] .tf-tp-proj-title-row strong,
+[data-theme="dark"] .tf-tp-name-text,
+[data-theme="dark"] .tf-tp-num-cell,
+[data-theme="dark"] .tf-tp-workload-pct,
+[data-theme="dark"] .tf-tp-perf-name,
+[data-theme="dark"] .tf-tp-overdue-info strong,
+[data-theme="dark"] .tf-tp-act-actor-row strong,
+[data-theme="dark"] .tf-tp-modal-user h3,
+[data-theme="dark"] .tf-modal-stat-box strong,
+[data-theme="dark"] .tf-tp-modal-tasks-preview h4 {
+  color: #F8FAFC;
+}
+
+[data-theme="dark"] .tf-tp-date-btn,
+[data-theme="dark"] .tf-tp-kpi-card,
+[data-theme="dark"] .tf-tp-card,
+[data-theme="dark"] .tf-tp-dropdown-menu,
+[data-theme="dark"] .tf-tp-modal-card {
+  background: #1E293B;
+  border-color: #334155;
+}
+
+[data-theme="dark"] .tf-tp-members-table th {
+  background: #182234;
+  border-color: #334155;
+}
+
+[data-theme="dark"] .tf-tp-members-table td,
+[data-theme="dark"] .tf-tp-modal-header,
+[data-theme="dark"] .tf-tp-modal-footer,
+[data-theme="dark"] .tf-tp-barchart-columns {
+  border-color: #334155;
+}
+
+[data-theme="dark"] .tf-tp-table-row:hover,
+[data-theme="dark"] .tf-donut-legend-item:hover {
+  background: #151F32;
+}
+
+[data-theme="dark"] .tf-modal-task-item,
+[data-theme="dark"] .tf-modal-stat-box {
+  background: #151F32;
+  border-color: #334155;
+  color: #CBD5E1;
+}
+
+[data-theme="dark"] .tf-tp-badge.gray {
+  background: #334155;
+  color: #CBD5E1;
+}
+
+[data-theme="dark"] .tf-tp-bar-track,
+[data-theme="dark"] .tf-tp-proj-track,
+[data-theme="dark"] .tf-tp-workload-track,
+[data-theme="dark"] .tf-tp-perf-track,
+[data-theme="dark"] .tf-modal-workload-track {
+  background: #334155;
+}
+
+/* ==========================================================================
+   7. RESPONSIVE DESIGN
+   ========================================================================== */
+@media (max-width: 1200px) {
+  .tf-tp-middle-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .tf-tp-bottom-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 900px) {
+  .tf-tp-kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .tf-tp-left-subgrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .tf-progress-page {
+    padding: 16px;
+  }
+
+  .tf-tp-kpi-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .tf-tp-members-table th:nth-child(2),
+  .tf-tp-members-table td:nth-child(2) {
+    display: none;
+  }
+}
+

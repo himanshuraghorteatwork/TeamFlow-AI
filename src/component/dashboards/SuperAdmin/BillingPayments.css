@@ -1,0 +1,112 @@
+/* ==========================================================================
+   TEAMFLOW AI — SUPER ADMIN BILLING & PAYMENTS CSS
+   ========================================================================== */
+
+.sa-billing-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Daily Bar Chart */
+.sa-volume-chart-card {
+  padding: 18px 20px 14px;
+}
+
+.sa-daily-bar-chart {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  height: 120px;
+  padding-top: 10px;
+}
+
+.sa-daily-bar-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  height: 100%;
+}
+
+.sa-bar-track {
+  flex: 1;
+  width: 28px;
+  background: #f1f5f9;
+  border-radius: 6px;
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+}
+
+.sa-bar-fill {
+  width: 100%;
+  background: #10b981;
+  border-radius: 6px;
+  transition: height 0.3s ease;
+  cursor: pointer;
+}
+
+.sa-bar-fill:hover {
+  background: #059669;
+}
+
+.sa-bar-day {
+  font-size: 11px;
+  font-weight: 550;
+  color: var(--sa-text-main);
+}
+
+.sa-bar-val {
+  font-size: 10.5px;
+  color: var(--sa-text-muted);
+}
+
+/* Receipt Modal Styles */
+.sa-receipt-summary {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: #f8fafc;
+  border-radius: var(--sa-radius-md);
+  margin-bottom: 20px;
+  gap: 6px;
+}
+
+.sa-receipt-label {
+  font-size: 11.5px;
+  color: var(--sa-text-muted);
+}
+
+.sa-receipt-val {
+  font-size: 30px;
+  font-weight: 800;
+  color: var(--sa-text-main);
+}
+
+.sa-receipt-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.sa-receipt-grid label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--sa-text-light);
+  margin-bottom: 2px;
+  text-transform: uppercase;
+}
+
+.sa-receipt-grid p {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 550;
+  color: var(--sa-text-main);
+}
+

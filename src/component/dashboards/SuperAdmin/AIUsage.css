@@ -1,0 +1,116 @@
+/* ==========================================================================
+   TEAMFLOW AI — SUPER ADMIN AI USAGE CSS
+   ========================================================================== */
+
+.sa-aiusage-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sa-ai-charts-grid {
+  display: grid;
+  grid-template-columns: 1.25fr 1fr;
+  gap: 16px;
+}
+
+.sa-ai-chart-card,
+.sa-ai-models-card {
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.sa-ai-bar-chart {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  height: 140px;
+  padding-top: 12px;
+}
+
+.sa-ai-bar-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  height: 100%;
+  cursor: pointer;
+}
+
+.sa-ai-track {
+  flex: 1;
+  width: 28px;
+  background: #f1f5f9;
+  border-radius: 6px;
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+}
+
+.sa-ai-fill {
+  width: 100%;
+  background: #8b5cf6;
+  border-radius: 6px;
+  transition: height 0.3s ease;
+}
+
+.sa-ai-bar-col:hover .sa-ai-fill {
+  background: #7c3aed;
+}
+
+.sa-ai-day {
+  font-size: 11px;
+  font-weight: 550;
+  color: var(--sa-text-main);
+}
+
+.sa-ai-count {
+  font-size: 10.5px;
+  color: var(--sa-text-muted);
+}
+
+.sa-hover-info-badge {
+  margin-top: 10px;
+  padding: 6px 12px;
+  background: #f8fafc;
+  border-radius: 6px;
+  font-size: 11.5px;
+  color: #334155;
+  text-align: center;
+}
+
+.sa-model-bars-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 8px;
+  flex: 1;
+  justify-content: center;
+}
+
+.sa-model-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sa-model-info-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+}
+
+.sa-top-orgs-card {
+  padding: 18px 20px 14px;
+}
+
+@media (max-width: 1050px) {
+  .sa-ai-charts-grid {
+    grid-template-columns: 1fr;
+  }
+}
+

@@ -1,0 +1,109 @@
+/* ==========================================================================
+   TEAMFLOW AI — SUPER ADMIN AI CONFIGURATION CSS
+   ========================================================================== */
+
+.sa-aiconfig-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sa-toast-banner {
+  background: #dcfce7;
+  color: #15803d;
+  padding: 10px 16px;
+  border-radius: var(--sa-radius-md);
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #bbf7d0;
+}
+
+.sa-providers-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.sa-provider-card {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sa-provider-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.sa-provider-title-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sa-provider-icon-badge {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sa-provider-name {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--sa-text-main);
+}
+
+.sa-provider-status {
+  font-size: 11.5px;
+  color: var(--sa-text-muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.sa-api-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.sa-key-icon {
+  position: absolute;
+  left: 10px;
+  color: var(--sa-text-light);
+}
+
+.sa-key-input {
+  padding-left: 32px !important;
+  font-family: monospace;
+}
+
+.sa-provider-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: auto;
+  padding-top: 14px;
+  border-top: 1px solid var(--sa-border-subtle);
+}
+
+.sa-tier-quotas-card {
+  padding: 20px;
+}
+
+@media (max-width: 900px) {
+  .sa-providers-grid {
+    grid-template-columns: 1fr;
+  }
+}
+

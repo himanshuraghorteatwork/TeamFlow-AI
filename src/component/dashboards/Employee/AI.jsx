@@ -1,1400 +1,1193 @@
-import React, {
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
-
-import { useNavigate } from "react-router-dom";
-
+import React, { useState, useEffect, useRef } from "react";
+import { Link, useLocation } from "react-router-dom";
 import {
-  ArrowRight,
-  Bot,
-  ChevronRight,
-  Clock3,
-  Copy,
-  History,
-  Lightbulb,
-  Menu,
-  MessageCircle,
-  Mic,
-  Paperclip,
-  Search,
-  Send,
   Sparkles,
-  ThumbsDown,
-  ThumbsUp,
-  Trash2,
-  X,
+  Bot,
+  MessageSquare,
+  Lightbulb,
+  FileText,
   Zap,
+  Clock,
+  AlertCircle,
+  Calendar,
+  Bug,
+  Folder,
+  ArrowRight,
+  ArrowUpRight,
+  List,
   Check,
+  Send,
+  Paperclip,
+  Mic,
+  X,
+  BarChart2,
+  Video,
+  Target,
+  Laptop,
 } from "lucide-react";
 
-import AppSidebar from "./AppSidebar";
-
-import {
-  aiFeatures,
-  getAIResponse,
-  initialRecentConversations,
-  quickPrompts,
-  searchItems,
-} from "./aiData";
-
+import EmployeeShell from "./EmployeeShell";
 import "./AI.css";
 
-/* =====================================================
-   TIME
-===================================================== */
+/* Storage Key */
+const STORAGE_KEY = "tf_ai_assistant_v4";
 
-let _msgId = 1000;
-const createMessageId = () => Date.now() + (++_msgId);
+/* User Avatar */
+const userAvatar = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop";
 
-const getTime = () =>
-  new Date().toLocaleTimeString([], {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+/* Default Initial Conversation matching reference image exactly */
+const defaultChatMessages = [
+  {
+    id: "msg-1",
+    sender: "ai",
+    time: "10:24 AM",
+    type: "greeting",
+    text: "Hello John! 👋\nI can help you with your tasks, projects, meetings, bugs, files and more. What would you like to know?",
+  },
+  {
+    id: "msg-2",
+    sender: "user",
+    time: "10:25 AM",
+    text: "Give me a summary of my tasks for this week.",
+  },
+  {
+    id: "msg-3",
+    sender: "ai",
+    time: "10:25 AM",
+    type: "task_summary",
+    title: "Here is a summary of your tasks for this week (Oct 20 – Oct 26, 2024):",
+    kpis: {
+      total: 12,
+      completed: 8,
+      inProgress: 3,
+      overdue: 1,
+    },
+    tasks: [
+      {
+        id: "t1",
+        title: "Design login page UI",
+        due: "Today",
+        dueClass: "red",
+        priority: "High",
+        status: "In Progress",
+        dotColor: "blue",
+      },
+      {
+        id: "t2",
+        title: "API integration testing",
+        due: "Tomorrow",
+        dueClass: "gray",
+        priority: "Medium",
+        status: "To Do",
+        dotColor: "yellow",
+      },
+      {
+        id: "t3",
+        title: "Update project documentation",
+        due: "Oct 26",
+        dueClass: "gray",
+        priority: "Low",
+        status: "To Do",
+        dotColor: "gray",
+      },
+      {
+        id: "t4",
+        title: "Fix responsive issues",
+        due: "Oct 28",
+        dueClass: "gray",
+        priority: "High",
+        status: "In Progress",
+        dotColor: "gray",
+      },
+      {
+        id: "t5",
+        title: "Prepare demo for client",
+        due: "Oct 30",
+        dueClass: "gray",
+        priority: "Medium",
+        status: "To Do",
+        dotColor: "gray",
+      },
+    ],
+  },
+];
 
-/* =====================================================
-   AI COMPONENT
-===================================================== */
+/* Task Suggestions on Right Panel */
+const defaultTaskSuggestions = [
+  {
+    id: "ts-1",
+    title: "Complete API integration testing",
+    subtitle: "Due tomorrow • High priority",
+    icon: "target",
+    color: "red",
+  },
+  {
+    id: "ts-2",
+    title: "Update project documentation",
+    subtitle: "Due Oct 26 • Part of Mobile App",
+    icon: "doc",
+    color: "purple",
+  },
+  {
+    id: "ts-3",
+    title: "Fix UI responsiveness issues",
+    subtitle: "Improve mobile view layout",
+    icon: "laptop",
+    color: "purple",
+  },
+  {
+    id: "ts-4",
+    title: "Prepare client demo presentation",
+    subtitle: "Due Oct 30 • TeamFlow Website",
+    icon: "chart",
+    color: "blue",
+  },
+];
+
+/* Meeting Summaries on Right Panel */
+const meetingSummariesData = [
+  {
+    id: "ms-1",
+    title: "Daily Standup",
+    time: "Oct 22, 2024 • 9:00 – 9:30 AM",
+    icon: "video",
+    iconColor: "blue",
+    summary:
+      "Team reviewed the login page mockups and frontend API endpoints. Blockers on mobile responsive layout were assigned to John. Target deploy to staging is scheduled for Oct 24.",
+    keyTakeaways: [
+      "Login page frontend completed at 85%",
+      "Staging release ready by Thursday",
+      "Rahul reviewing database migration script",
+    ],
+  },
+  {
+    id: "ms-2",
+    title: "UI Design Discussion",
+    time: "Oct 21, 2024 • 10:00 – 11:00 AM",
+    icon: "image",
+    iconColor: "blue",
+    summary:
+      "Walkthrough of the Figma mobile navigation tokens and dark mode color palette. Agreed to use modern indigo/purple branding across employee dashboards.",
+    keyTakeaways: [
+      "Dark mode contrast ratio approved (WCAG AAA)",
+      "Icon sets synchronized with Lucide React",
+      "Drawer animations reduced to 150ms for snappy response",
+    ],
+  },
+  {
+    id: "ms-3",
+    title: "Sprint Review",
+    time: "Oct 20, 2024 • 2:00 – 3:00 PM",
+    icon: "doc",
+    iconColor: "red",
+    summary:
+      "Sprint 4 velocity reached 92%. Successfully delivered 14 user stories, closed 6 major bugs, and updated CI/CD pipeline automation.",
+    keyTakeaways: [
+      "Velocity improved by 18% over Sprint 3",
+      "Bug resolution time down to 1.4 days average",
+      "Next sprint starts with Client Demo milestone",
+    ],
+  },
+];
+
+/* Recent Files on Bottom Row */
+const recentFilesData = [
+  {
+    id: "rf-1",
+    name: "Login_Page_Design.fig",
+    type: "Figma File • 4.2 MB • Oct 23",
+    icon: "figma",
+  },
+  {
+    id: "rf-2",
+    name: "API_Documentation.docx",
+    type: "Document • 856 KB • Oct 22",
+    icon: "doc",
+  },
+  {
+    id: "rf-3",
+    name: "Sprint_Review.pptx",
+    type: "Presentation • 3.1 MB • Oct 20",
+    icon: "ppt",
+  },
+];
+
+/* Helper to generate unique IDs outside component render */
+function generateUniqueId(prefix = "id") {
+  return `${prefix}-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
+}
 
 function AI() {
-  const navigate = useNavigate();
+  const location = useLocation();
 
-  const bottomRef = useRef(null);
-  const searchInputRef = useRef(null);
-  const messageInputRef = useRef(null);
-  const fileInputRef = useRef(null);
+  // Active top mode tab: 'Chat' | 'Task Suggestions' | 'Summaries' | 'Quick Actions'
+  const [activeModeTab, setActiveModeTab] = useState("Chat");
 
-  /* ===================================================
-     STATE
-  =================================================== */
-
-  const [message, setMessage] = useState("");
-
-  const [messages, setMessages] = useState([
-    {
-      id: 1,
-      sender: "ai",
-      type: "normal",
-      text:
-        "Hi John! 👋 I'm your TeamFlow AI Assistant. I can help with projects, tasks, bugs, reports and smart suggestions. What would you like to do today?",
-      time: getTime(),
-    },
-  ]);
-
-  const [loading, setLoading] = useState(false);
-
-  const [search, setSearch] = useState("");
-  const [showSearchResults, setShowSearchResults] =
-    useState(false);
-
-  const [showHistory, setShowHistory] = useState(false);
-
-  const [recentConversations, setRecentConversations] =
-    useState(initialRecentConversations);
-
-  const [notification, setNotification] = useState("");
-
-  const [isListening, setIsListening] = useState(false);
-
-  const [selectedFile, setSelectedFile] = useState(null);
-
-  const [feedback, setFeedback] = useState({});
-
-  /* ===================================================
-     AUTO SCROLL CHAT
-  =================================================== */
-
-  useEffect(() => {
-    bottomRef.current?.scrollIntoView({
-      behavior: "smooth",
-    });
-  }, [messages, loading]);
-
-  /* ===================================================
-     CTRL + K SEARCH
-  =================================================== */
-
-  useEffect(() => {
-    const handleKeyboardShortcut = (event) => {
-      if (
-        (event.ctrlKey || event.metaKey) &&
-        event.key.toLowerCase() === "k"
-      ) {
-        event.preventDefault();
-
-        searchInputRef.current?.focus();
-
-        setShowSearchResults(true);
-      }
-
-      if (event.key === "Escape") {
-        setShowSearchResults(false);
-        setShowHistory(false);
-      }
-    };
-
-    window.addEventListener(
-      "keydown",
-      handleKeyboardShortcut
-    );
-
-    return () => {
-      window.removeEventListener(
-        "keydown",
-        handleKeyboardShortcut
-      );
-    };
-  }, []);
-
-  /* ===================================================
-     AUTO HIDE NOTIFICATION
-  =================================================== */
-
-  useEffect(() => {
-    if (!notification) return;
-
-    const timer = setTimeout(() => {
-      setNotification("");
-    }, 2500);
-
-    return () => clearTimeout(timer);
-  }, [notification]);
-
-  /* ===================================================
-     SEARCH RESULTS
-  =================================================== */
-
-  const filteredSearchItems = useMemo(() => {
-    const query = search.toLowerCase().trim();
-
-    if (!query) return [];
-
-    return searchItems.filter((item) => {
-      return (
-        item.title.toLowerCase().includes(query) ||
-        item.description.toLowerCase().includes(query)
-      );
-    });
-  }, [search]);
-
-  /* ===================================================
-     SEND MESSAGE
-  =================================================== */
-
-  const handleSendMessage = (customMessage) => {
-    const finalMessage =
-      typeof customMessage === "string"
-        ? customMessage.trim()
-        : message.trim();
-
-    if (!finalMessage || loading) return;
-
-    const userMessage = {
-      id: createMessageId(),
-      sender: "user",
-      type: "normal",
-      text: finalMessage,
-      time: getTime(),
-    };
-
-    setMessages((previous) => [
-      ...previous,
-      userMessage,
-    ]);
-
-    setMessage("");
-    setSelectedFile(null);
-
-    /* Add conversation to history */
-
-    setRecentConversations((previous) => {
-      const exists = previous.some(
-        (item) =>
-          item.title.toLowerCase() ===
-          finalMessage.toLowerCase()
-      );
-
-      if (exists) return previous;
-
-      return [
-        {
-          id: Date.now(),
-          title: finalMessage,
-          time: getTime(),
-        },
-        ...previous,
-      ].slice(0, 10);
-    });
-
-    setLoading(true);
-
-    /* Simulated AI delay */
-
-    setTimeout(() => {
-      const response = getAIResponse(finalMessage);
-
-      const aiMessage = {
-        id: Date.now() + 1,
-        sender: "ai",
-        time: getTime(),
-        ...response,
-      };
-
-      setMessages((previous) => [
-        ...previous,
-        aiMessage,
-      ]);
-
-      setLoading(false);
-    }, 700);
-  };
-
-  /* ===================================================
-     ENTER TO SEND
-  =================================================== */
-
-  const handleMessageKeyDown = (event) => {
-    if (
-      event.key === "Enter" &&
-      !event.shiftKey
-    ) {
-      event.preventDefault();
-      handleSendMessage();
-    }
-  };
-
-  /* ===================================================
-     GLOBAL SEARCH
-  =================================================== */
-
-  const handleSearchEnter = (event) => {
-    if (event.key === "Enter") {
-      event.preventDefault();
-
-      if (!search.trim()) return;
-
-      if (filteredSearchItems.length > 0) {
-        navigate(filteredSearchItems[0].path);
-
-        setSearch("");
-        setShowSearchResults(false);
-
-        return;
-      }
-
-      askSearchToAI();
-    }
-  };
-
-  const openSearchResult = (item) => {
-    navigate(item.path);
-
-    setSearch("");
-    setShowSearchResults(false);
-  };
-
-  const askSearchToAI = () => {
-    if (!search.trim()) return;
-
-    const query = search;
-
-    setSearch("");
-    setShowSearchResults(false);
-
-    handleSendMessage(query);
-  };
-
-  /* ===================================================
-     CLEAR CHAT
-  =================================================== */
-
-  const clearConversation = () => {
-    setMessages([
-      {
-        id: Date.now(),
-        sender: "ai",
-        type: "normal",
-        text:
-          "Conversation cleared. What would you like me to help you with?",
-        time: getTime(),
-      },
-    ]);
-
-    setFeedback({});
-
-    setNotification("Conversation cleared");
-  };
-
-  /* ===================================================
-     COPY
-  =================================================== */
-
-  const copyMessage = async (item) => {
-    let copyText = item.text;
-
-    if (item.items) {
-      copyText +=
-        "\n\n" +
-        item.items
-          .map(
-            (detail) =>
-              `${detail.label}: ${detail.value}`
-          )
-          .join("\n");
-    }
-
+  // Chat messages
+  const [messages, setMessages] = useState(() => {
     try {
-      await navigator.clipboard.writeText(copyText);
-
-      setNotification("Response copied");
-    } catch {
-      setNotification("Unable to copy response");
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length >= 1) return parsed;
+      }
+    } catch (err) {
+      console.warn("Could not read saved AI messages:", err);
     }
-  };
+    return defaultChatMessages;
+  });
 
-  /* ===================================================
-     LIKE / DISLIKE
-  =================================================== */
+  // Task suggestions state
+  const [taskSuggestions] = useState(defaultTaskSuggestions);
 
-  const setMessageFeedback = (id, value) => {
-    setFeedback((previous) => ({
-      ...previous,
-      [id]:
-        previous[id] === value ? null : value,
-    }));
+  // Input message state
+  const [inputText, setInputText] = useState("");
+  const [isTyping, setIsTyping] = useState(false);
+  const [isMicActive, setIsMicActive] = useState(false);
 
-    if (value === "like") {
-      setNotification("Thanks for your feedback!");
-    } else {
-      setNotification(
-        "Thanks. We'll use this to improve."
-      );
-    }
-  };
+  // Meeting Summary Modal State
+  const [activeSummaryModal, setActiveSummaryModal] = useState(null);
 
-  /* ===================================================
-     FILE ATTACHMENT
-  =================================================== */
+  // Toast
+  const [toastMessage, setToastMessage] = useState("");
 
-  const handleFileSelect = (event) => {
-    const file = event.target.files?.[0];
+  const messagesEndRef = useRef(null);
+  const chatAreaRef = useRef(null);
 
-    if (!file) return;
+  // Send Prompt Handler
+  const handleSendPrompt = (promptText) => {
+    const textToSend = promptText || inputText;
+    if (!textToSend.trim()) return;
 
-    setSelectedFile(file);
+    const currentTime = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 
-    setNotification(`Attached: ${file.name}`);
-  };
+    // 1. Add user message
+    const userMsg = {
+      id: generateUniqueId("usr"),
+      sender: "user",
+      time: currentTime,
+      text: textToSend.trim(),
+    };
 
-  const removeSelectedFile = () => {
-    setSelectedFile(null);
+    setMessages((prev) => [...prev, userMsg]);
+    setInputText("");
+    setIsTyping(true);
 
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
-  };
-
-  /* ===================================================
-     SIMULATED VOICE INPUT
-  =================================================== */
-
-  const toggleVoiceInput = () => {
-    if (isListening) {
-      setIsListening(false);
-      setNotification("Voice input stopped");
-      return;
-    }
-
-    setIsListening(true);
-
-    setNotification("Listening...");
-
-    /*
-      This is a frontend demo.
-      Later replace this with Web Speech API
-      or your speech-to-text backend.
-    */
-
+    // 2. Generate intelligent response after brief realistic AI thinking delay
     setTimeout(() => {
-      setMessage(
-        "Summarize today's team updates"
-      );
+      const lower = textToSend.toLowerCase();
+      let aiMsg = null;
 
-      setIsListening(false);
+      if (lower.includes("task") || lower.includes("summary") || lower.includes("week")) {
+        aiMsg = {
+          id: generateUniqueId("ai"),
+          sender: "ai",
+          time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+          type: "task_summary",
+          title: "Here is a summary of your tasks for this week (Oct 20 – Oct 26, 2024):",
+          kpis: {
+            total: 12,
+            completed: 8,
+            inProgress: 3,
+            overdue: 1,
+          },
+          tasks: [
+            { id: "t1", title: "Design login page UI", due: "Today", dueClass: "red", priority: "High", status: "In Progress", dotColor: "blue" },
+            { id: "t2", title: "API integration testing", due: "Tomorrow", dueClass: "gray", priority: "Medium", status: "To Do", dotColor: "yellow" },
+            { id: "t3", title: "Update project documentation", due: "Oct 26", dueClass: "gray", priority: "Low", status: "To Do", dotColor: "gray" },
+            { id: "t4", title: "Fix responsive issues", due: "Oct 28", dueClass: "gray", priority: "High", status: "In Progress", dotColor: "gray" },
+            { id: "t5", title: "Prepare demo for client", due: "Oct 30", dueClass: "gray", priority: "Medium", status: "To Do", dotColor: "gray" },
+          ],
+        };
+      } else if (lower.includes("meeting") || lower.includes("last meeting")) {
+        aiMsg = {
+          id: generateUniqueId("ai"),
+          sender: "ai",
+          time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+          type: "generic",
+          text: `**Meeting Summary: Daily Standup (Oct 22)**\n- **Project:** TeamFlow Website\n- **Key Updates:** API endpoints verified by Rahul, Login Page UI reviewed and approved for staging.\n- **Next Step:** Complete responsive mobile layout adjustments before 4:00 PM sprint sync.`,
+        };
+      } else if (lower.includes("bug")) {
+        aiMsg = {
+          id: generateUniqueId("ai"),
+          sender: "ai",
+          time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+          type: "generic",
+          text: `**Assigned Bugs (3 Total):**\n1. **#BUG-1023:** Login button not working • *High Priority* (In Progress)\n2. **#BUG-1045:** API returns 500 error • *Medium Priority* (Open)\n3. **#BUG-1078:** UI misalignment on mobile • *Low Priority* (Resolved)\n\nRecommended: Focus on unblocking #BUG-1023 today before demo rehearsal.`,
+        };
+      } else if (lower.includes("project") || lower.includes("progress")) {
+        aiMsg = {
+          id: generateUniqueId("ai"),
+          sender: "ai",
+          time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+          type: "generic",
+          text: `**Project Progress Overview:**\n- **TeamFlow Website:** 85% Completed (4 of 5 milestones achieved)\n- **Mobile App:** 62% Completed (Sprint 4 testing in progress)\n- **AI Integration:** 40% Completed (Prompt evaluation active)\n- **Marketing Portal:** 100% Completed (Delivered to client)`,
+        };
+      } else if (lower.includes("deadline")) {
+        aiMsg = {
+          id: generateUniqueId("ai"),
+          sender: "ai",
+          time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+          type: "generic",
+          text: `**Upcoming Deadlines This Week:**\n- **Today:** Design login page UI (High Priority)\n- **Tomorrow:** API integration testing (Medium Priority)\n- **Oct 26:** Update project documentation (Low Priority)\n- **Oct 28:** Fix responsive issues (High Priority)\n- **Oct 30:** Client demo presentation (Milestone)`,
+        };
+      } else if (lower.includes("suggest") || lower.includes("next")) {
+        aiMsg = {
+          id: generateUniqueId("ai"),
+          sender: "ai",
+          time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+          type: "generic",
+          text: `**AI Smart Suggestions:**\n1. **Complete API Integration Testing:** Blocks backend team from finalizing the authentication service.\n2. **Update Project Documentation:** Keep API schemas synchronized before client demo.\n3. **Break Down Mobile View Layout:** Split remaining tablet/mobile responsive tasks into subtasks for faster turnaround.`,
+        };
+      } else if (lower.includes("file")) {
+        aiMsg = {
+          id: generateUniqueId("ai"),
+          sender: "ai",
+          time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+          type: "generic",
+          text: `**Important Files in Your Workspace:**\n- **Login_Page_Design.fig** (Figma • 4.2 MB • Updated Oct 23)\n- **API_Documentation.docx** (Word • 856 KB • Updated Oct 22)\n- **Sprint_Review.pptx** (Presentation • 3.1 MB • Updated Oct 20)\nAll files are cached in your local workspace under My Files.`,
+        };
+      } else {
+        aiMsg = {
+          id: generateUniqueId("ai"),
+          sender: "ai",
+          time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+          type: "generic",
+          text: `I've analyzed your workspace regarding "${textToSend}". You have **12 assigned tasks (8 completed, 3 in progress, 1 overdue)**, **3 active bugs**, and **3 upcoming meetings**. Your overall task completion rate is **75%**. Let me know if you would like me to draft an update, summarize a document, or reprioritize tasks!`,
+        };
+      }
 
-      messageInputRef.current?.focus();
-
-      setNotification("Voice input captured");
-    }, 1800);
+      setMessages((prev) => [...prev, aiMsg]);
+      setIsTyping(false);
+    }, 600);
   };
 
-  /* ===================================================
-     FEATURE CLICK
-  =================================================== */
+  // Persist messages to localStorage
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
+  }, [messages]);
 
-  const handleFeatureClick = (feature) => {
-    handleSendMessage(feature.prompt);
+  // Handle URL queries (e.g. ?query=...)
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const query = params.get("query");
+    if (query && query.trim()) {
+      const timer = setTimeout(() => {
+        handleSendPrompt(query.trim());
+      }, 50);
+      return () => clearTimeout(timer);
+    }
+  }, [location.search]);
+
+  // Scroll to bottom
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  /* ===================================================
-     RECENT CONVERSATION
-  =================================================== */
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, isTyping]);
 
-  const openRecentConversation = (conversation) => {
-    setShowHistory(false);
-
-    handleSendMessage(conversation.title);
+  const showToast = (msg) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(""), 3000);
   };
 
-  /* ===================================================
-     RENDER
-  =================================================== */
+  // Clear Chat function
+  const handleClearChat = () => {
+    const resetMsg = [defaultChatMessages[0]];
+    setMessages(resetMsg);
+    showToast("Chat history cleared.");
+  };
+
+  // Handle Top Mode Tab navigation
+  const handleModeTabClick = (tab) => {
+    setActiveModeTab(tab);
+    if (tab === "Chat") {
+      document.getElementById("chat-section")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    } else if (tab === "Task Suggestions") {
+      document.getElementById("task-suggestions-section")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    } else if (tab === "Summaries") {
+      document.getElementById("meeting-summaries-section")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    } else if (tab === "Quick Actions") {
+      document.getElementById("quick-actions-section")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
+  const handleInputSubmit = (e) => {
+    e.preventDefault();
+    handleSendPrompt(inputText);
+  };
+
+  // Add suggested task
+  const handleAddSuggestedTask = (suggestion) => {
+    try {
+      const existing = JSON.parse(localStorage.getItem("tf_tasks") || "[]");
+      const newTask = {
+        id: generateUniqueId("tsk"),
+        title: suggestion.title,
+        project: "TeamFlow Website",
+        status: "todo",
+        priority: "High",
+        due: "Tomorrow",
+        overdue: false,
+      };
+      localStorage.setItem("tf_tasks", JSON.stringify([newTask, ...existing]));
+      window.dispatchEvent(new CustomEvent("tf_tasks_updated", { detail: newTask }));
+      showToast(`Task "${suggestion.title}" added to My Tasks!`);
+    } catch (err) {
+      console.warn("Could not add suggested task:", err);
+    }
+  };
+
+  // Mic toggle simulation
+  const handleToggleMic = () => {
+    if (!isMicActive) {
+      setIsMicActive(true);
+      showToast("Listening... Speak your prompt now.");
+      setTimeout(() => {
+        setIsMicActive(false);
+        setInputText("Summarize my tasks for this week");
+      }, 2500);
+    } else {
+      setIsMicActive(false);
+      showToast("Voice input stopped.");
+    }
+  };
 
   return (
-    <div className="ai-page">
-      <AppSidebar />
+    <EmployeeShell
+      activeRoute="/employee/ai-assistant"
+      searchPlaceholder="Search tasks, projects, files, meetings, or ask AI..."
+      noScroll
+    >
+      <div className="tf-ai-pro-page tf-single-page-fit">
+        {/* Toast Notification */}
+        {toastMessage && (
+          <div className="tf-pro-toast">
+            <Check size={16} />
+            <span>{toastMessage}</span>
+          </div>
+        )}
 
-      <main className="ai-main">
-
-        {/* =========================================
-            TOP NAVIGATION
-        ========================================= */}
-
-        <header className="ai-topbar">
-
-          <button
-            type="button"
-            className="ai-mobile-menu"
-            aria-label="Open menu"
-          >
-            <Menu size={20} />
-          </button>
-
-          {/* SEARCH */}
-
-          <div className="ai-search-wrapper">
-
-            <div className="ai-search">
-
-              <Search size={18} />
-
-              <input
-                ref={searchInputRef}
-                type="text"
-                value={search}
-                placeholder="Search projects, tasks, bugs..."
-                onChange={(event) => {
-                  setSearch(event.target.value);
-
-                  setShowSearchResults(true);
-                }}
-                onFocus={() =>
-                  setShowSearchResults(true)
-                }
-                onKeyDown={handleSearchEnter}
-              />
-
-              {search && (
-                <button
-                  type="button"
-                  className="search-clear"
-                  onClick={() => {
-                    setSearch("");
-
-                    setShowSearchResults(false);
-
-                    searchInputRef.current?.focus();
-                  }}
-                  aria-label="Clear search"
-                >
-                  <X size={15} />
-                </button>
-              )}
-
-              <span className="search-shortcut">
-                Ctrl K
-              </span>
-
+        {/* ====================================================================
+            PAGE HEADER (Title + Mode Navigation Tabs)
+            ==================================================================== */}
+        <header className="tf-pro-header">
+          <div className="tf-pro-title-wrap">
+            <div className="tf-pro-title-left">
+              <Sparkles size={22} className="tf-pro-sparkle-icon" />
+              <h1>AI Assistant</h1>
             </div>
-
-            {/* SEARCH DROPDOWN */}
-
-            {showSearchResults &&
-              search.trim() && (
-                <div className="search-results">
-
-                  <div className="search-results-title">
-                    Search results
-                  </div>
-
-                  {filteredSearchItems.length > 0 ? (
-                    filteredSearchItems.map(
-                      (item) => {
-                        const Icon = item.icon;
-
-                        return (
-                          <button
-                            type="button"
-                            key={item.id}
-                            className="search-result-item"
-                            onClick={() =>
-                              openSearchResult(item)
-                            }
-                          >
-                            <span className="search-result-icon">
-                              <Icon size={17} />
-                            </span>
-
-                            <div>
-                              <strong>
-                                {item.title}
-                              </strong>
-
-                              <span>
-                                {item.description}
-                              </span>
-                            </div>
-
-                            <ChevronRight size={17} />
-                          </button>
-                        );
-                      }
-                    )
-                  ) : (
-                    <button
-                      type="button"
-                      className="search-ask-ai"
-                      onClick={askSearchToAI}
-                    >
-                      <span className="search-result-icon ai">
-                        <Sparkles size={17} />
-                      </span>
-
-                      <div>
-                        <strong>
-                          Ask TeamFlow AI
-                        </strong>
-
-                        <span>
-                          Ask AI about "{search}"
-                        </span>
-                      </div>
-
-                      <ArrowRight size={17} />
-                    </button>
-                  )}
-
-                </div>
-              )}
-
+            <p>Your intelligent work assistant for tasks, projects, meetings, files and more.</p>
           </div>
 
-          {/* TOP ACTIONS */}
-
-          <div className="ai-top-actions">
-
+          {/* Top Mode Pill Tabs */}
+          <div className="tf-pro-mode-tabs">
             <button
               type="button"
-              className="top-icon"
-              title="AI tips"
-              onClick={() =>
-                setNotification(
-                  "Tip: Be specific for better AI results."
-                )
-              }
+              className={`tf-mode-tab ${activeModeTab === "Chat" ? "active" : ""}`}
+              onClick={() => handleModeTabClick("Chat")}
             >
-              <Lightbulb size={19} />
+              <MessageSquare size={14} />
+              <span>Chat</span>
             </button>
 
             <button
               type="button"
-              className="ai-history-btn"
-              onClick={() =>
-                setShowHistory(true)
-              }
+              className={`tf-mode-tab ${activeModeTab === "Task Suggestions" ? "active" : ""}`}
+              onClick={() => handleModeTabClick("Task Suggestions")}
             >
-              <History size={17} />
-              <span>History</span>
+              <Lightbulb size={14} className="icon-yellow" />
+              <span>Task Suggestions</span>
             </button>
 
             <button
               type="button"
-              className="ai-avatar"
-              title="John Doe"
+              className={`tf-mode-tab ${activeModeTab === "Summaries" ? "active" : ""}`}
+              onClick={() => handleModeTabClick("Summaries")}
             >
-              JD
+              <FileText size={14} className="icon-blue" />
+              <span>Summaries</span>
             </button>
 
+            <button
+              type="button"
+              className={`tf-mode-tab ${activeModeTab === "Quick Actions" ? "active" : ""}`}
+              onClick={() => handleModeTabClick("Quick Actions")}
+            >
+              <Sparkles size={14} className="icon-purple" />
+              <span>Quick Actions</span>
+            </button>
           </div>
-
         </header>
 
-        {/* =========================================
-            MAIN CONTENT
-        ========================================= */}
-
-        <div className="ai-content">
-
-          {/* HERO */}
-
-          <section className="ai-hero">
-
-            <div className="hero-content">
-
-              <div className="hero-greeting">
-                👋 Hi John,
+        {/* ====================================================================
+            TOP 4 SUMMARY KPI CARDS
+            ==================================================================== */}
+        <section className="tf-pro-kpi-grid">
+          {/* Card 1: My Tasks */}
+          <div
+            className="tf-pro-kpi-card"
+            onClick={() => handleSendPrompt("Give me a summary of my tasks for this week.")}
+          >
+            <div className="tf-pro-kpi-top">
+              <div className="tf-kpi-icon-square purple">
+                <List size={18} />
               </div>
-
-              <h1>
-                Your{" "}
-                <span>AI Assistant</span>{" "}
-                is here!
-              </h1>
-
-              <p>
-                Get instant help with your projects,
-                tasks, bugs, team updates and more.
-                <br />
-
-                Ask anything or choose a suggested
-                action to get started.
-              </p>
-
-              <div className="hero-benefits">
-
-                <div>
-                  <Zap size={15} />
-                  Faster Workflows
-                </div>
-
-                <div>
-                  <Sparkles size={15} />
-                  Smarter Insights
-                </div>
-
-                <div>
-                  <Bot size={15} />
-                  Better Collaboration
-                </div>
-
+              <div className="tf-kpi-title-col">
+                <span className="tf-kpi-title">My Tasks</span>
+                <strong className="tf-kpi-number">12</strong>
               </div>
-
+              <ArrowUpRight size={15} className="tf-kpi-arrow" />
             </div>
-
-            {/* ROBOT */}
-
-            <div className="hero-visual">
-
-              <div className="hero-orb orb-one" />
-              <div className="hero-orb orb-two" />
-
-              <div className="hero-message">
-                How can I
-                <br />
-                help you
-                <br />
-                today?
-              </div>
-
-              <div className="robot-card">
-
-                <div className="robot-antenna">
-                  <span />
-                </div>
-
-                <div className="robot-face">
-
-                  <span className="robot-eye" />
-                  <span className="robot-eye" />
-
-                  <div className="robot-smile" />
-
-                </div>
-
-                <strong>AI</strong>
-
-              </div>
-
-              <Sparkles
-                className="hero-sparkle"
-                size={31}
-              />
-
+            <div className="tf-kpi-pills-row">
+              <span className="tf-kpi-pill green">8 Completed</span>
+              <span className="tf-kpi-pill blue">3 In Progress</span>
+              <span className="tf-kpi-pill red">1 Overdue</span>
             </div>
+          </div>
 
-          </section>
+          {/* Card 2: My Projects */}
+          <div
+            className="tf-pro-kpi-card"
+            onClick={() => handleSendPrompt("Show my project progress.")}
+          >
+            <div className="tf-pro-kpi-top">
+              <div className="tf-kpi-icon-square blue">
+                <Folder size={18} />
+              </div>
+              <div className="tf-kpi-title-col">
+                <span className="tf-kpi-title">My Projects</span>
+                <strong className="tf-kpi-number">4</strong>
+              </div>
+              <ArrowUpRight size={15} className="tf-kpi-arrow" />
+            </div>
+            <div className="tf-kpi-pills-row">
+              <span className="tf-kpi-pill green">2 Active</span>
+              <span className="tf-kpi-pill yellow">1 On Hold</span>
+              <span className="tf-kpi-pill green">1 Completed</span>
+            </div>
+          </div>
 
-          {/* =========================================
-              FEATURE CARDS
-          ========================================= */}
+          {/* Card 3: Upcoming Meetings */}
+          <div
+            className="tf-pro-kpi-card"
+            onClick={() => handleSendPrompt("What are the upcoming meetings this week?")}
+          >
+            <div className="tf-pro-kpi-top">
+              <div className="tf-kpi-icon-square orange">
+                <Calendar size={18} />
+              </div>
+              <div className="tf-kpi-title-col">
+                <span className="tf-kpi-title">Upcoming Meetings</span>
+                <strong className="tf-kpi-number">3</strong>
+              </div>
+              <ArrowUpRight size={15} className="tf-kpi-arrow" />
+            </div>
+            <div className="tf-kpi-pills-row">
+              <span className="tf-kpi-sub-text">This Week</span>
+            </div>
+          </div>
 
-          <section className="ai-feature-grid">
+          {/* Card 4: Assigned Bugs */}
+          <div
+            className="tf-pro-kpi-card"
+            onClick={() => handleSendPrompt("List my assigned bugs.")}
+          >
+            <div className="tf-pro-kpi-top">
+              <div className="tf-kpi-icon-square red">
+                <Bug size={18} />
+              </div>
+              <div className="tf-kpi-title-col">
+                <span className="tf-kpi-title">Assigned Bugs</span>
+                <strong className="tf-kpi-number">3</strong>
+              </div>
+              <ArrowUpRight size={15} className="tf-kpi-arrow" />
+            </div>
+            <div className="tf-kpi-pills-row">
+              <span className="tf-kpi-pill red">1 Open</span>
+              <span className="tf-kpi-pill blue">1 In Progress</span>
+              <span className="tf-kpi-pill green">1 Resolved</span>
+            </div>
+          </div>
+        </section>
 
-            {aiFeatures.map((feature) => {
-              const Icon = feature.icon;
+        {/* ====================================================================
+            MAIN TWO-COLUMN WORKSPACE
+            Left: Chat with AI Assistant + Recent Files & Project Insights (~69%)
+            Right: Task Suggestions + Meeting Summaries + Quick Actions (~31%)
+            ==================================================================== */}
+        <div className="tf-pro-workspace-grid">
+          {/* ------------------------------------------------------------------
+              LEFT COLUMN
+              ------------------------------------------------------------------ */}
+          <div className="tf-pro-left-col">
+            {/* Main Chat Card */}
+            <div className="tf-pro-chat-card" id="chat-section" ref={chatAreaRef}>
+              {/* Chat Card Header */}
+              <div className="tf-chat-card-header">
+                <div className="tf-chat-header-title-left">
+                  <div className="tf-chat-star-box">
+                    <Sparkles size={16} color="#4F46E5" />
+                  </div>
+                  <div>
+                    <h3>Chat with AI Assistant</h3>
+                    <p>Ask anything about your tasks, projects, meetings, files or team work.</p>
+                  </div>
+                </div>
 
-              return (
                 <button
                   type="button"
-                  key={feature.id}
-                  className={`ai-feature-card ${feature.color}`}
-                  onClick={() =>
-                    handleFeatureClick(feature)
+                  className="tf-clear-chat-btn"
+                  onClick={handleClearChat}
+                >
+                  Clear Chat
+                </button>
+              </div>
+
+              {/* Chat Messages Stream */}
+              <div className="tf-pro-messages-container">
+                {messages.map((msg) => {
+                  // User Message
+                  if (msg.sender === "user") {
+                    return (
+                      <div key={msg.id} className="tf-pro-msg-row user">
+                        <div className="tf-user-msg-col">
+                          <span className="tf-user-msg-time">{msg.time}</span>
+                          <div className="tf-user-speech-bubble">
+                            <p>{msg.text}</p>
+                          </div>
+                        </div>
+                        <img src={userAvatar} alt="John Doe" className="tf-user-round-avatar" />
+                      </div>
+                    );
                   }
-                >
 
-                  <div
-                    className={`feature-icon ${feature.color}`}
-                  >
-                    <Icon size={22} />
-                  </div>
-
-                  <div className="feature-copy">
-
-                    <strong>
-                      {feature.title}
-                    </strong>
-
-                    <p>
-                      {feature.description}
-                    </p>
-
-                  </div>
-
-                  <ChevronRight
-                    className="feature-arrow"
-                    size={18}
-                  />
-
-                </button>
-              );
-            })}
-
-          </section>
-
-          {/* =========================================
-              CHAT + RIGHT SIDEBAR
-          ========================================= */}
-
-          <section className="ai-workspace">
-
-            {/* CHAT */}
-
-            <div className="ai-chat-card">
-
-              {/* CHAT HEADER */}
-
-              <div className="chat-header">
-
-                <div className="chat-title">
-
-                  <div className="assistant-small">
-                    <Bot size={18} />
-                  </div>
-
-                  <div className="chat-title-info">
-
-                    <strong>
-                      TeamFlow AI
-                    </strong>
-
-                    <span>
-                      AI Assistant
-                    </span>
-
-                  </div>
-
-                </div>
-
-                <button
-                  type="button"
-                  className="clear-chat"
-                  onClick={clearConversation}
-                >
-                  <Trash2 size={15} />
-                  Clear
-                </button>
-
-              </div>
-
-              {/* MESSAGES */}
-
-              <div className="chat-messages">
-
-                {messages.map((item) => (
-
-                  <div
-                    key={item.id}
-                    className={`message-row ${item.sender}`}
-                  >
-
-                    {item.sender === "ai" && (
-                      <div className="message-avatar ai">
-                        <Bot size={17} />
+                  // AI Message
+                  return (
+                    <div key={msg.id} className="tf-pro-msg-row ai">
+                      {/* Robot Icon Avatar */}
+                      <div className="tf-robot-avatar-badge">
+                        <Bot size={18} color="#4F46E5" />
                       </div>
-                    )}
 
-                    <div className="message-area">
+                      <div className="tf-ai-speech-content">
+                        <div className="tf-ai-msg-time-row">
+                          <span className="tf-ai-msg-time">{msg.time}</span>
+                        </div>
 
-                      <div
-                        className={`message-bubble ${item.sender}`}
-                      >
+                        {/* Plain text / Greeting */}
+                        {msg.text && (
+                          <div className="tf-ai-text-bubble">
+                            {msg.text.split("\n").map((line, idx) => (
+                              <p key={idx}>{line}</p>
+                            ))}
+                          </div>
+                        )}
 
-                        <p>{item.text}</p>
+                        {/* Task Summary Rich Table */}
+                        {msg.type === "task_summary" && (
+                          <div className="tf-pro-task-summary-card">
+                            <h4 className="tf-summary-title">{msg.title}</h4>
 
-                        {item.items && (
-                          <div className="summary-list">
-
-                            {item.items.map(
-                              (detail, index) => (
-                                <div
-                                  className="summary-item"
-                                  key={`${item.id}-${detail.label}`}
-                                >
-
-                                  <span
-                                    className={`summary-dot dot-${
-                                      (index % 4) + 1
-                                    }`}
-                                  />
-
-                                  <p>
-                                    <strong>
-                                      {detail.label}:
-                                    </strong>{" "}
-                                    {detail.value}
-                                  </p>
-
+                            {/* 4 Mini KPI boxes */}
+                            <div className="tf-summary-kpi-subrow">
+                              <div className="tf-summary-kpi-item">
+                                <div className="tf-mini-kpi-icon purple">
+                                  <FileText size={14} />
                                 </div>
-                              )
-                            )}
+                                <div className="tf-mini-kpi-texts">
+                                  <strong>{msg.kpis.total}</strong>
+                                  <span>Total Tasks</span>
+                                </div>
+                              </div>
 
+                              <div className="tf-summary-kpi-item">
+                                <div className="tf-mini-kpi-icon green">
+                                  <Check size={14} strokeWidth={3} />
+                                </div>
+                                <div className="tf-mini-kpi-texts">
+                                  <strong>{msg.kpis.completed}</strong>
+                                  <span>Completed</span>
+                                </div>
+                              </div>
+
+                              <div className="tf-summary-kpi-item">
+                                <div className="tf-mini-kpi-icon orange">
+                                  <Clock size={14} />
+                                </div>
+                                <div className="tf-mini-kpi-texts">
+                                  <strong>{msg.kpis.inProgress}</strong>
+                                  <span>In Progress</span>
+                                </div>
+                              </div>
+
+                              <div className="tf-summary-kpi-item">
+                                <div className="tf-mini-kpi-icon red">
+                                  <AlertCircle size={14} />
+                                </div>
+                                <div className="tf-mini-kpi-texts">
+                                  <strong>{msg.kpis.overdue}</strong>
+                                  <span>Overdue</span>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Tasks Table */}
+                            <div className="tf-summary-table-wrap">
+                              <table className="tf-summary-table">
+                                <thead>
+                                  <tr>
+                                    <th>Task</th>
+                                    <th>Due Date</th>
+                                    <th>Priority</th>
+                                    <th>Status</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {msg.tasks.map((t) => (
+                                    <tr key={t.id}>
+                                      <td className="col-task-name">
+                                        <div className="tf-task-name-group">
+                                          <span className={`tf-dot ${t.dotColor}`} />
+                                          <span>{t.title}</span>
+                                        </div>
+                                      </td>
+                                      <td className={`col-due-date ${t.dueClass || ""}`}>
+                                        {t.due}
+                                      </td>
+                                      <td>
+                                        <span className={`tf-pill-badge priority ${t.priority.toLowerCase()}`}>
+                                          {t.priority}
+                                        </span>
+                                      </td>
+                                      <td>
+                                        <span className={`tf-pill-badge status ${t.status === "In Progress" ? "in-progress" : "todo"}`}>
+                                          {t.status}
+                                        </span>
+                                      </td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                            </div>
                           </div>
                         )}
-
                       </div>
-
-                      {/* MESSAGE META */}
-
-                      <div className="message-meta">
-
-                        <span>
-                          {item.time}
-                        </span>
-
-                        {item.sender === "ai" && (
-
-                          <div className="message-actions">
-
-                            <button
-                              type="button"
-                              title="Copy response"
-                              onClick={() =>
-                                copyMessage(item)
-                              }
-                            >
-                              <Copy size={14} />
-                            </button>
-
-                            <button
-                              type="button"
-                              title="Helpful"
-                              className={
-                                feedback[item.id] ===
-                                "like"
-                                  ? "selected"
-                                  : ""
-                              }
-                              onClick={() =>
-                                setMessageFeedback(
-                                  item.id,
-                                  "like"
-                                )
-                              }
-                            >
-                              <ThumbsUp
-                                size={14}
-                              />
-                            </button>
-
-                            <button
-                              type="button"
-                              title="Not helpful"
-                              className={
-                                feedback[item.id] ===
-                                "dislike"
-                                  ? "selected"
-                                  : ""
-                              }
-                              onClick={() =>
-                                setMessageFeedback(
-                                  item.id,
-                                  "dislike"
-                                )
-                              }
-                            >
-                              <ThumbsDown
-                                size={14}
-                              />
-                            </button>
-
-                          </div>
-                        )}
-
-                      </div>
-
                     </div>
+                  );
+                })}
 
-                    {item.sender === "user" && (
-                      <div className="message-avatar user">
-                        JD
-                      </div>
-                    )}
-
-                  </div>
-                ))}
-
-                {/* AI TYPING */}
-
-                {loading && (
-
-                  <div className="message-row ai">
-
-                    <div className="message-avatar ai">
-                      <Bot size={17} />
+                {/* AI Thinking typing indicator */}
+                {isTyping && (
+                  <div className="tf-pro-msg-row ai">
+                    <div className="tf-robot-avatar-badge">
+                      <Bot size={18} color="#4F46E5" />
                     </div>
-
-                    <div className="typing-bubble">
-                      <span />
-                      <span />
-                      <span />
+                    <div className="tf-ai-thinking-pill">
+                      <span className="dot" />
+                      <span className="dot" />
+                      <span className="dot" />
+                      <span>Thinking...</span>
                     </div>
-
                   </div>
                 )}
 
-                <div ref={bottomRef} />
-
+                <div ref={messagesEndRef} />
               </div>
 
-              {/* QUICK ACTION BUTTONS */}
+              {/* Chat Input & Bottom Quick Pills Bar */}
+              <div className="tf-pro-chat-footer-block">
+                <form className="tf-pro-input-row" onSubmit={handleInputSubmit}>
+                  <button
+                    type="button"
+                    className="tf-input-attach-btn"
+                    onClick={() => showToast("Select attachment from workspace...")}
+                    title="Attach file"
+                  >
+                    <Paperclip size={18} />
+                  </button>
 
-              <div className="chat-quick-actions">
-
-                {quickPrompts
-                  .slice(0, 4)
-                  .map((prompt) => {
-                    const Icon = prompt.icon;
-
-                    return (
-                      <button
-                        type="button"
-                        key={prompt.id}
-                        onClick={() =>
-                          handleSendMessage(prompt.text)
-                        }
-                      >
-                        <Icon size={14} />
-
-                        {prompt.text}
-                      </button>
-                    );
-                  })}
-
-              </div>
-
-              {/* FILE PREVIEW */}
-
-              {selectedFile && (
-
-                <div className="attached-file">
-
-                  <Paperclip size={14} />
-
-                  <span>
-                    {selectedFile.name}
-                  </span>
+                  <input
+                    type="text"
+                    placeholder="Ask anything about your work..."
+                    value={inputText}
+                    onChange={(e) => setInputText(e.target.value)}
+                  />
 
                   <button
                     type="button"
-                    onClick={removeSelectedFile}
+                    className={`tf-input-mic-btn ${isMicActive ? "active" : ""}`}
+                    onClick={handleToggleMic}
+                    title={isMicActive ? "Stop listening" : "Voice input"}
                   >
-                    <X size={14} />
+                    <Mic size={18} />
                   </button>
 
+                  <button
+                    type="submit"
+                    className="tf-input-send-btn"
+                    disabled={!inputText.trim()}
+                    title="Send message"
+                  >
+                    <Send size={15} />
+                  </button>
+                </form>
+
+                {/* Quick suggestion pills directly inside card */}
+                <div className="tf-pro-quick-pills-row">
+                  <button
+                    type="button"
+                    className="tf-quick-prompt-pill purple"
+                    onClick={() => handleSendPrompt("Summarize my tasks for this week")}
+                  >
+                    <span className="hash">#</span> Summarize my tasks
+                  </button>
+                  <button
+                    type="button"
+                    className="tf-quick-prompt-pill yellow"
+                    onClick={() => handleSendPrompt("Suggest next tasks for me")}
+                  >
+                    <Lightbulb size={12} /> Suggest next tasks
+                  </button>
+                  <button
+                    type="button"
+                    className="tf-quick-prompt-pill purple-bar"
+                    onClick={() => handleSendPrompt("What are my upcoming deadlines?")}
+                  >
+                    <BarChart2 size={12} /> What are my deadlines?
+                  </button>
+                  <button
+                    type="button"
+                    className="tf-quick-prompt-pill blue"
+                    onClick={() => handleSendPrompt("Show project progress")}
+                  >
+                    <FileText size={12} /> Show project progress
+                  </button>
                 </div>
-              )}
-
-              {/* MESSAGE INPUT */}
-
-              <div className="ai-composer">
-
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  hidden
-                  onChange={handleFileSelect}
-                />
-
-                <button
-                  type="button"
-                  className="composer-icon"
-                  title="Attach file"
-                  onClick={() =>
-                    fileInputRef.current?.click()
-                  }
-                >
-                  <Paperclip size={20} />
-                </button>
-
-                <textarea
-                  ref={messageInputRef}
-                  rows={1}
-                  value={message}
-                  placeholder="Ask me anything... e.g. summarize project, create task, find bugs..."
-                  onChange={(event) =>
-                    setMessage(
-                      event.target.value
-                    )
-                  }
-                  onKeyDown={
-                    handleMessageKeyDown
-                  }
-                />
-
-                <button
-                  type="button"
-                  className={`composer-icon mic ${
-                    isListening
-                      ? "listening"
-                      : ""
-                  }`}
-                  title="Voice input"
-                  onClick={toggleVoiceInput}
-                >
-                  <Mic size={19} />
-                </button>
-
-                <button
-                  type="button"
-                  className="send-button"
-                  disabled={
-                    !message.trim() ||
-                    loading
-                  }
-                  onClick={() =>
-                    handleSendMessage()
-                  }
-                >
-                  <Send size={20} />
-                </button>
-
               </div>
-
-              <div className="composer-note">
-                <Sparkles size={11} />
-                AI can make mistakes. Check
-                important information.
-              </div>
-
             </div>
 
-            {/* =========================================
-                RIGHT PANEL
-            ========================================= */}
-
-            <aside className="ai-right-panel">
-
-              {/* QUICK PROMPTS */}
-
-              <div className="side-card">
-
-                <div className="side-card-title">
-
-                  <div>
-                    <Sparkles size={17} />
-                    <strong>
-                      Quick Prompts
-                    </strong>
+            {/* Bottom Row of 2 Cards: Recent Files & Project Insights */}
+            <div className="tf-pro-bottom-subgrid">
+              {/* Card 1: Recent Files */}
+              <div className="tf-bottom-card tf-recent-files-subcard">
+                <div className="tf-bottom-card-header">
+                  <div className="tf-bottom-header-title">
+                    <FileText size={16} className="icon-purple" />
+                    <h4>Recent Files</h4>
                   </div>
-
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setNotification(
-                        "All quick prompts are shown"
-                      )
-                    }
-                  >
-                    View All
-                  </button>
-
+                  <Link to="/employee/files" className="tf-bottom-header-link">
+                    View All <ArrowRight size={13} />
+                  </Link>
                 </div>
 
-                <div className="prompt-list">
-
-                  {quickPrompts.map(
-                    (prompt) => {
-                      const Icon =
-                        prompt.icon;
-
-                      return (
-                        <button
-                          type="button"
-                          key={prompt.id}
-                          onClick={() =>
-                            handleSendMessage(
-                              prompt.text
-                            )
-                          }
-                        >
-
-                          <span
-                            className={`prompt-icon ${prompt.color}`}
-                          >
-                            <Icon size={13} />
-                          </span>
-
-                          <span>
-                            {prompt.text}
-                          </span>
-
-                          <ChevronRight
-                            size={14}
-                          />
-
-                        </button>
-                      );
-                    }
-                  )}
-
-                </div>
-
-              </div>
-
-              {/* RECENT CONVERSATIONS */}
-
-              <div className="side-card">
-
-                <div className="side-card-title">
-
-                  <div>
-                    <Clock3 size={17} />
-
-                    <strong>
-                      Recent Conversations
-                    </strong>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setShowHistory(true)
-                    }
-                  >
-                    View all
-                  </button>
-
-                </div>
-
-                <div className="recent-list">
-
-                  {recentConversations
-                    .slice(0, 5)
-                    .map(
-                      (conversation) => (
-                        <button
-                          type="button"
-                          key={
-                            conversation.id
-                          }
-                          onClick={() =>
-                            openRecentConversation(
-                              conversation
-                            )
-                          }
-                        >
-
-                          <MessageCircle
-                            size={13}
-                          />
-
-                          <span>
-                            {
-                              conversation.title
-                            }
-                          </span>
-
-                          <small>
-                            {
-                              conversation.time
-                            }
-                          </small>
-
-                        </button>
-                      )
-                    )}
-
-                </div>
-
-              </div>
-
-              {/* TIPS */}
-
-              <div className="side-card tips-card">
-
-                <div className="tips-heading">
-                  💡 Tips for better results
-                </div>
-
-                <div className="tips-grid">
-
-                  <span>
-                    <Check size={12} />
-                    Be specific in your
-                    questions
-                  </span>
-
-                  <span>
-                    <Check size={12} />
-                    Mention project or team
-                    name
-                  </span>
-
-                  <span>
-                    <Check size={12} />
-                    Ask for step-by-step
-                    solutions
-                  </span>
-
-                  <span>
-                    <Check size={12} />
-                    Try natural language
-                  </span>
-
-                </div>
-
-              </div>
-
-            </aside>
-
-          </section>
-
-        </div>
-
-      </main>
-
-      {/* =========================================
-          HISTORY DRAWER
-      ========================================= */}
-
-      {showHistory && (
-
-        <div className="history-overlay">
-
-          <button
-            type="button"
-            className="history-backdrop"
-            aria-label="Close history"
-            onClick={() =>
-              setShowHistory(false)
-            }
-          />
-
-          <aside className="history-drawer">
-
-            <div className="history-header">
-
-              <div>
-                <h3>
-                  Conversation History
-                </h3>
-
-                <p>
-                  Your recent AI conversations
-                </p>
-              </div>
-
-              <button
-                type="button"
-                onClick={() =>
-                  setShowHistory(false)
-                }
-              >
-                <X size={19} />
-              </button>
-
-            </div>
-
-            <div className="history-list">
-
-              {recentConversations.map(
-                (conversation) => (
-
-                  <button
-                    type="button"
-                    key={conversation.id}
-                    onClick={() =>
-                      openRecentConversation(
-                        conversation
-                      )
-                    }
-                  >
-
-                    <MessageCircle
-                      size={17}
-                    />
-
-                    <div>
-
-                      <strong>
-                        {
-                          conversation.title
-                        }
-                      </strong>
-
-                      <span>
-                        {
-                          conversation.time
-                        }
-                      </span>
-
+                <div className="tf-bottom-files-list">
+                  {recentFilesData.map((f) => (
+                    <div
+                      key={f.id}
+                      className="tf-bottom-file-item"
+                      onClick={() => showToast(`Opening file: ${f.name}`)}
+                    >
+                      <div className={`tf-file-icon-box ${f.icon}`}>
+                        {f.icon === "figma" ? (
+                          <span className="fig-text">fig</span>
+                        ) : f.icon === "doc" ? (
+                          <FileText size={14} />
+                        ) : (
+                          <span className="ppt-text">ppt</span>
+                        )}
+                      </div>
+                      <div className="tf-file-item-texts">
+                        <strong>{f.name}</strong>
+                        <span>{f.type}</span>
+                      </div>
                     </div>
+                  ))}
+                </div>
+              </div>
 
-                    <ChevronRight
-                      size={16}
-                    />
+              {/* Card 2: Project Insights */}
+              <div className="tf-bottom-card tf-project-insights-subcard">
+                <div className="tf-bottom-card-header">
+                  <div className="tf-bottom-header-title">
+                    <BarChart2 size={16} className="icon-purple" />
+                    <div>
+                      <h4>Project Insights</h4>
+                      <p>Based on your activity and project data.</p>
+                    </div>
+                  </div>
+                </div>
 
-                  </button>
-                )
-              )}
+                <div className="tf-insights-kpi-row">
+                  <div className="tf-insight-box">
+                    <div className="tf-insight-icon blue">
+                      <Folder size={16} />
+                    </div>
+                    <strong>4</strong>
+                    <span>Active Projects</span>
+                  </div>
 
+                  <div className="tf-insight-box">
+                    <div className="tf-insight-icon green">
+                      <BarChart2 size={16} />
+                    </div>
+                    <strong>75%</strong>
+                    <span>Task Completion</span>
+                  </div>
+
+                  <div className="tf-insight-box">
+                    <div className="tf-insight-icon orange">
+                      <Calendar size={16} />
+                    </div>
+                    <strong>3</strong>
+                    <span>Upcoming Deadlines</span>
+                  </div>
+                </div>
+              </div>
             </div>
+          </div>
 
-          </aside>
+          {/* ------------------------------------------------------------------
+              RIGHT COLUMN
+              ------------------------------------------------------------------ */}
+          <div className="tf-pro-right-col">
+            {/* Widget 1: Task Suggestions */}
+            <article className="tf-pro-sidebar-card tf-task-sugg-widget" id="task-suggestions-section">
+              <div className="tf-sidebar-card-header">
+                <div className="tf-card-header-left">
+                  <div className="tf-widget-icon-box yellow">
+                    <Lightbulb size={16} />
+                  </div>
+                  <div>
+                    <h4>Task Suggestions</h4>
+                    <p>Get smart suggestions based on your work and deadlines.</p>
+                  </div>
+                </div>
+                <Link to="/employee/tasks" className="tf-widget-link">
+                  View All <ArrowRight size={13} />
+                </Link>
+              </div>
 
+              <div className="tf-suggestions-list">
+                {taskSuggestions.map((sug) => (
+                  <div key={sug.id} className="tf-suggestion-item">
+                    <div className={`tf-sugg-icon-box ${sug.color}`}>
+                      {sug.icon === "target" ? (
+                        <Target size={15} />
+                      ) : sug.icon === "doc" ? (
+                        <FileText size={15} />
+                      ) : sug.icon === "laptop" ? (
+                        <Laptop size={15} />
+                      ) : (
+                        <BarChart2 size={15} />
+                      )}
+                    </div>
+                    <div className="tf-sugg-texts">
+                      <strong>{sug.title}</strong>
+                      <span>{sug.subtitle}</span>
+                    </div>
+                    <button
+                      type="button"
+                      className="tf-sugg-add-btn"
+                      onClick={() => handleAddSuggestedTask(sug)}
+                    >
+                      Add
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </article>
+
+            {/* Widget 2: Meeting Summaries */}
+            <article className="tf-pro-sidebar-card tf-meeting-sum-widget" id="meeting-summaries-section">
+              <div className="tf-sidebar-card-header">
+                <div className="tf-card-header-left">
+                  <div className="tf-widget-icon-box blue">
+                    <FileText size={16} />
+                  </div>
+                  <div>
+                    <h4>Meeting Summaries</h4>
+                    <p>Get AI summaries of your meetings.</p>
+                  </div>
+                </div>
+                <Link to="/employee/meetings" className="tf-widget-link">
+                  View All <ArrowRight size={13} />
+                </Link>
+              </div>
+
+              <div className="tf-meetings-summaries-list">
+                {meetingSummariesData.map((m) => (
+                  <div key={m.id} className="tf-meeting-sum-item">
+                    <div className={`tf-meet-sum-icon ${m.iconColor}`}>
+                      {m.icon === "video" ? (
+                        <Video size={15} />
+                      ) : (
+                        <FileText size={15} />
+                      )}
+                    </div>
+                    <div className="tf-meet-sum-texts">
+                      <strong>{m.title}</strong>
+                      <span>{m.time}</span>
+                    </div>
+                    <button
+                      type="button"
+                      className="tf-view-summary-btn"
+                      onClick={() => setActiveSummaryModal(m)}
+                    >
+                      View Summary
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </article>
+
+            {/* Widget 3: Quick Actions (2x3 Grid) */}
+            <article className="tf-pro-sidebar-card tf-quick-actions-widget" id="quick-actions-section">
+              <div className="tf-quick-actions-header">
+                <Zap size={16} className="tf-zap-icon" />
+                <h4>Quick Actions</h4>
+              </div>
+
+              <div className="tf-quick-actions-grid">
+                {/* 1. Summarize My Tasks */}
+                <button
+                  type="button"
+                  className="tf-quick-action-btn purple"
+                  onClick={() => handleSendPrompt("Summarize my tasks for this week")}
+                >
+                  <FileText size={15} />
+                  <span>Summarize My Tasks</span>
+                </button>
+
+                {/* 2. Suggest Next Tasks */}
+                <button
+                  type="button"
+                  className="tf-quick-action-btn orange"
+                  onClick={() => handleSendPrompt("Suggest next tasks for me")}
+                >
+                  <Lightbulb size={15} />
+                  <span>Suggest Next Tasks</span>
+                </button>
+
+                {/* 3. Summarize Last Meeting */}
+                <button
+                  type="button"
+                  className="tf-quick-action-btn green"
+                  onClick={() => handleSendPrompt("Summarize the last team meeting")}
+                >
+                  <MessageSquare size={15} />
+                  <span>Summarize Last Meeting</span>
+                </button>
+
+                {/* 4. List My Assigned Bugs */}
+                <button
+                  type="button"
+                  className="tf-quick-action-btn red"
+                  onClick={() => handleSendPrompt("List my assigned bugs")}
+                >
+                  <Bug size={15} />
+                  <span>List My Assigned Bugs</span>
+                </button>
+
+                {/* 5. Show Project Progress */}
+                <button
+                  type="button"
+                  className="tf-quick-action-btn blue"
+                  onClick={() => handleSendPrompt("Show project progress")}
+                >
+                  <BarChart2 size={15} />
+                  <span>Show Project Progress</span>
+                </button>
+
+                {/* 6. Find Important Files */}
+                <button
+                  type="button"
+                  className="tf-quick-action-btn purple"
+                  onClick={() => handleSendPrompt("Find important files")}
+                >
+                  <FileText size={15} />
+                  <span>Find Important Files</span>
+                </button>
+              </div>
+            </article>
+          </div>
         </div>
-      )}
 
-      {/* =========================================
-          TOAST NOTIFICATION
-      ========================================= */}
+        {/* ====================================================================
+            MODAL: MEETING SUMMARY MODAL
+            ==================================================================== */}
+        {activeSummaryModal && (
+          <div
+            className="tf-pro-modal-backdrop"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) setActiveSummaryModal(null);
+            }}
+          >
+            <div className="tf-pro-modal-card" role="dialog" aria-modal="true">
+              <div className="tf-pro-modal-header">
+                <div className="tf-modal-title-group">
+                  <div className="tf-modal-badge purple">
+                    <Video size={18} />
+                  </div>
+                  <div>
+                    <h3>{activeSummaryModal.title}</h3>
+                    <p>{activeSummaryModal.time}</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  className="tf-pro-modal-close"
+                  onClick={() => setActiveSummaryModal(null)}
+                >
+                  <X size={18} />
+                </button>
+              </div>
 
-      {notification && (
+              <div className="tf-pro-modal-body">
+                <div className="tf-modal-summary-section">
+                  <span className="tf-section-badge">AI Executive Summary</span>
+                  <p className="tf-summary-paragraph">{activeSummaryModal.summary}</p>
+                </div>
 
-        <div className="ai-toast">
+                <div className="tf-modal-summary-section">
+                  <span className="tf-section-badge">Key Takeaways & Decisions</span>
+                  <ul className="tf-takeaways-list">
+                    {activeSummaryModal.keyTakeaways.map((item, idx) => (
+                      <li key={idx}>
+                        <Check size={14} className="tf-check-green" />
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
 
-          <Check size={16} />
-
-          {notification}
-
-        </div>
-      )}
-
-    </div>
+              <div className="tf-pro-modal-footer">
+                <button
+                  type="button"
+                  className="tf-btn-secondary"
+                  onClick={() => setActiveSummaryModal(null)}
+                >
+                  Close
+                </button>
+                <button
+                  type="button"
+                  className="tf-btn-primary"
+                  onClick={() => {
+                    handleSendPrompt(`Follow up on action items from ${activeSummaryModal.title}`);
+                    setActiveSummaryModal(null);
+                  }}
+                >
+                  <Sparkles size={14} /> Ask Follow-Up
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </EmployeeShell>
   );
 }
 

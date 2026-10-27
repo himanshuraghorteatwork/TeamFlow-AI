@@ -1,0 +1,50 @@
+/* ==========================================================================
+   TEAMFLOW AI — SUPER ADMIN EMAIL CONFIG CSS
+   ========================================================================== */
+
+.sa-email-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sa-smtp-form-card {
+  padding: 20px 24px;
+}
+
+.sa-smtp-fields-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 10px;
+}
+
+.sa-smtp-footer-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 16px;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--sa-border-subtle);
+}
+
+.sa-save-success-msg {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #10b981;
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.sa-email-logs-card {
+  padding: 18px 20px 14px;
+}
+
+@media (max-width: 1000px) {
+  .sa-smtp-fields-grid {
+    grid-template-columns: 1fr;
+  }
+}
+

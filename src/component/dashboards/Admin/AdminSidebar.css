@@ -1,0 +1,449 @@
+/* =========================================================
+   TEAMFLOW AI - ADMIN SIDEBAR
+   Scoped CSS
+========================================================= */
+
+.tfAdminSidebar {
+  --sidebar-width: 228px;
+  --primary: #5b5cf0;
+  --primary-hover: #4e4fe0;
+  --primary-soft: #eef0ff;
+
+  --text: #101828;
+  --text-dark: #111936;
+  --secondary: #667085;
+  --muted: #98a2b3;
+
+  --border: #e4e8f0;
+  --surface: #ffffff;
+  --hover-bg: #f4f6fa;
+
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 1000;
+
+  width: var(--sidebar-width);
+  height: 100vh;
+
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  box-sizing: border-box;
+}
+
+.tfAdminSidebar *,
+.tfAdminSidebar *::before,
+.tfAdminSidebar *::after {
+  box-sizing: border-box;
+}
+
+/* =========================================================
+   BRAND
+========================================================= */
+
+.tfAdminSidebar__brandRow {
+  height: 64px;
+  min-height: 64px;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.tfAdminSidebar__brand {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-dark);
+  text-decoration: none;
+}
+
+.tfAdminSidebar__brandMark {
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  color: var(--primary);
+  background: var(--primary-soft);
+}
+
+.tfAdminSidebar__brand strong {
+  color: var(--text-dark);
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  letter-spacing: -0.01em;
+}
+
+.tfAdminSidebar__mobileClose {
+  display: none;
+}
+
+/* =========================================================
+   NAVIGATION
+========================================================= */
+
+.tfAdminSidebar__nav {
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 12px 10px 16px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.tfAdminSidebar__nav::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+/* =========================================================
+   SECTIONS
+========================================================= */
+
+.tfAdminSidebar__section {
+  margin: 0 0 14px;
+}
+
+.tfAdminSidebar__section:first-child {
+  margin-bottom: 12px;
+}
+
+.tfAdminSidebar__sectionLabel {
+  margin: 8px 10px 4px;
+  color: var(--secondary);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.4;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.tfAdminSidebar__sectionLinks {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* =========================================================
+   NAV ITEM
+========================================================= */
+
+.tfAdminSidebar__navItem {
+  position: relative;
+  width: 100%;
+  min-height: 34px;
+  padding: 0 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-radius: 7px;
+  color: #344054;
+  background: transparent;
+  text-decoration: none;
+  font-size: 12.5px;
+  font-weight: 500;
+  line-height: 1.4;
+  transition: color 140ms ease, background-color 140ms ease;
+}
+
+.tfAdminSidebar__navItem svg {
+  width: 17px;
+  height: 17px;
+  flex: 0 0 17px;
+  color: #667085;
+  transition: color 140ms ease;
+}
+
+.tfAdminSidebar__navItem span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tfAdminSidebar__navItem:hover {
+  color: var(--text-dark);
+  background: var(--hover-bg);
+}
+
+.tfAdminSidebar__navItem:hover svg {
+  color: var(--primary);
+}
+
+/* =========================================================
+   ACTIVE ITEM
+========================================================= */
+
+.tfAdminSidebar__navItem--active {
+  color: #ffffff !important;
+  background: var(--primary) !important;
+  font-weight: 600;
+  box-shadow: 0 2px 6px rgba(91, 92, 240, 0.25);
+}
+
+.tfAdminSidebar__navItem--active svg {
+  color: #ffffff !important;
+}
+
+.tfAdminSidebar__navItem--active:hover {
+  background: var(--primary-hover) !important;
+}
+
+/* =========================================================
+   FOOTER & LOGOUT
+========================================================= */
+
+.tfAdminSidebar__footer {
+  flex-shrink: 0;
+  padding: 10px;
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.tfAdminSidebar__logout {
+  width: 100%;
+  min-height: 38px;
+  padding: 0 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 0;
+  border-radius: 7px;
+  color: var(--secondary);
+  background: transparent;
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 140ms ease, background-color 140ms ease;
+}
+
+.tfAdminSidebar__logout svg {
+  flex-shrink: 0;
+  color: var(--secondary);
+}
+
+.tfAdminSidebar__logout:hover {
+  color: #d92d20;
+  background: #fee4e2;
+}
+
+.tfAdminSidebar__logout:hover svg {
+  color: #d92d20;
+}
+
+/* =========================================================
+   MOBILE OVERLAY
+========================================================= */
+
+.tfAdminSidebarOverlay {
+  display: none;
+}
+
+/* =========================================================
+   TABLET / MOBILE OFF-CANVAS
+========================================================= */
+
+@media (max-width: 991px) {
+  .tfAdminSidebar {
+    transform: translateX(-105%);
+    box-shadow: 16px 0 40px rgba(16, 24, 40, 0.16);
+    transition: transform 220ms ease;
+  }
+
+  .tfAdminSidebar--open {
+    transform: translateX(0);
+  }
+
+  .tfAdminSidebarOverlay {
+    position: fixed;
+    inset: 0;
+    z-index: 999;
+    display: block;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    border: 0;
+    background: rgba(16, 24, 40, 0.45);
+    backdrop-filter: blur(2px);
+    cursor: pointer;
+  }
+
+  .tfAdminSidebar__mobileClose {
+    width: 32px;
+    height: 32px;
+    display: grid;
+    place-items: center;
+    border: 0;
+    border-radius: 6px;
+    color: var(--secondary);
+    background: #f2f4f7;
+    cursor: pointer;
+    transition: all 140ms ease;
+  }
+
+  .tfAdminSidebar__mobileClose:hover {
+    color: var(--text-dark);
+    background: #e4e7ec;
+  }
+}
+
+@media (max-width: 520px) {
+  .tfAdminSidebar {
+    width: min(260px, 84vw);
+  }
+
+  .tfAdminSidebar__brandRow {
+    padding: 0 14px;
+  }
+
+  .tfAdminSidebar__navItem {
+    min-height: 38px;
+    font-size: 13px;
+  }
+}
+
+/* =========================================================
+   ACCESSIBILITY
+========================================================= */
+
+.tfAdminSidebar__navItem:focus-visible,
+.tfAdminSidebar__logout:focus-visible,
+.tfAdminSidebar__mobileClose:focus-visible,
+.tfAdminSidebar__brand:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tfAdminSidebar,
+  .tfAdminSidebar *,
+  .tfAdminSidebarOverlay {
+    transition-duration: 0.01ms !important;
+  }
+}
+
+
+/* =========================================================
+   DARK MODE SUPPORT (.dark)
+========================================================= */
+
+html.dark .tfAdminSidebar,
+.dark .tfAdminSidebar {
+  --text: #f8fafc;
+  --text-dark: #ffffff;
+  --secondary: #94a3b8;
+  --muted: #64748b;
+  --border: #1e293b;
+  --surface: #0f172a;
+  --hover-bg: rgba(255, 255, 255, 0.06);
+  background: #0f172a;
+  border-right-color: #1e293b;
+}
+
+html.dark .tfAdminSidebar__brandRow,
+.dark .tfAdminSidebar__brandRow {
+  background: #0f172a;
+  border-bottom-color: #1e293b;
+}
+
+html.dark .tfAdminSidebar__brandName,
+.dark .tfAdminSidebar__brandName {
+  color: #f8fafc;
+}
+
+html.dark .tfAdminSidebar__sectionLabel,
+.dark .tfAdminSidebar__sectionLabel {
+  color: #64748b;
+}
+
+html.dark .tfAdminSidebar__navItem,
+.dark .tfAdminSidebar__navItem {
+  color: #94a3b8;
+}
+
+html.dark .tfAdminSidebar__navItem:hover,
+.dark .tfAdminSidebar__navItem:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #f8fafc;
+}
+
+html.dark .tfAdminSidebar__navItem.active,
+.dark .tfAdminSidebar__navItem.active {
+  background: #4f46e5;
+  color: #ffffff;
+}
+
+html.dark .tfAdminSidebar__bottom,
+.dark .tfAdminSidebar__bottom {
+  border-top-color: #1e293b;
+  background: #0f172a;
+}
+
+html.dark .tfAdminSidebar__logout,
+.dark .tfAdminSidebar__logout {
+  color: #f87171;
+}
+
+html.dark .tfAdminSidebar__logout:hover,
+.dark .tfAdminSidebar__logout:hover {
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+}
+
+.tfAdminSidebar__brandMark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  background: transparent;
+  flex-shrink: 0;
+}
+
+.tfAdminSidebar__brandTitle {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.tfAdminSidebar__brandTitle strong {
+  color: var(--text-dark);
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  letter-spacing: -0.01em;
+}
+
+.tfAdminSidebar__brandAi {
+  color: #6366f1;
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.dark .tfAdminSidebar__brandTitle strong {
+  color: #f8fafc;
+}
+
+.dark .tfAdminSidebar__brandAi {
+  color: #818cf8;
+}

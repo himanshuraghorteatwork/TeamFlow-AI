@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useRef } from "react";
 import {
   Settings,
   Building2,
@@ -26,9 +26,18 @@ import {
   Trash2,
   Sparkles,
   X,
+  Upload,
+  Copy,
+  Check,
+  ExternalLink,
+  Sliders,
+  ShieldAlert,
+  Sun,
+  Moon,
 } from "lucide-react";
 
-import AdminSidebar from "../../../layouts/AdminSidebar/AdminSidebar.jsx";
+import AdminSidebar from "./AdminSidebar.jsx";
+import AdminTopbar from "./AdminTopbar.jsx";
 import {
   defaultAdminSettings,
   timezoneOptions,
@@ -45,49 +54,72 @@ const clone = (data) => JSON.parse(JSON.stringify(data));
 const sections = [
   {
     id: "general",
-    label: "General",
-    description: "Platform identity & localization",
-    icon: Settings,
+    label: "General & Branding",
+    description: "Platform identity & custom domain",
+    icon: Building2,
+    iconColor: "#6366f1",
+    iconBg: "rgba(99, 102, 241, 0.12)",
   },
   {
     id: "workspace",
     label: "Workspace Defaults",
-    description: "Default workspace configuration",
-    icon: Building2,
+    description: "Quotas, storage & permissions",
+    icon: HardDrive,
+    iconColor: "#0284c7",
+    iconBg: "rgba(2, 132, 199, 0.12)",
   },
   {
     id: "security",
-    label: "Security",
-    description: "Authentication & access",
+    label: "Security & Access",
+    description: "2FA, SSO & authentication",
     icon: ShieldCheck,
+    iconColor: "#10b981",
+    iconBg: "rgba(16, 185, 129, 0.12)",
+  },
+  {
+    id: "ai",
+    label: "AI Governance",
+    description: "Models, quotas & automated tools",
+    icon: Bot,
+    iconColor: "#8b5cf6",
+    iconBg: "rgba(139, 92, 246, 0.12)",
   },
   {
     id: "notifications",
     label: "Notifications",
-    description: "Email & system alerts",
+    description: "System & organization alerts",
     icon: Bell,
-  },
-  {
-    id: "ai",
-    label: "AI Settings",
-    description: "AI features & model",
-    icon: Bot,
+    iconColor: "#f59e0b",
+    iconBg: "rgba(245, 158, 11, 0.12)",
   },
   {
     id: "email",
-    label: "Email",
-    description: "SMTP configuration",
+    label: "Email & SMTP",
+    description: "SMTP relay & sender identity",
     icon: Mail,
+    iconColor: "#06b6d4",
+    iconBg: "rgba(6, 182, 212, 0.12)",
   },
   {
     id: "privacy",
     label: "Data & Privacy",
-    description: "Privacy & retention",
+    description: "Audit logging & retention",
     icon: Database,
+    iconColor: "#f43f5e",
+    iconBg: "rgba(244, 63, 94, 0.12)",
+  },
+  {
+    id: "danger",
+    label: "Danger Zone",
+    description: "Data export & organization removal",
+    icon: ShieldAlert,
+    iconColor: "#ef4444",
+    iconBg: "rgba(239, 68, 68, 0.12)",
   },
 ];
 
-function AdminSettings() {
+export default function AdminSettings() {
+  const [mobileOpen, setMobileOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("general");
   const [search, setSearch] = useState("");
 
@@ -100,21 +132,21 @@ function AdminSettings() {
     }
   });
 
-  const [savedSettings, setSavedSettings] = useState(() =>
-    clone(settings)
-  );
-
+  const [savedSettings, setSavedSettings] = useState(() => clone(settings));
   const [toast, setToast] = useState(null);
   const [showResetModal, setShowResetModal] = useState(false);
   const [showApiKey, setShowApiKey] = useState(false);
   const [showSMTPPassword, setShowSMTPPassword] = useState(false);
+  const [copiedDomain, setCopiedDomain] = useState(false);
+  const [testEmailSent, setTestEmailSent] = useState(false);
 
-  const hasChanges =
-    JSON.stringify(settings) !== JSON.stringify(savedSettings);
+  const fileInputRef = useRef(null);
+
+  const hasChanges = JSON.stringify(settings) !== JSON.stringify(savedSettings);
 
   const filteredSections = useMemo(() => {
-    const query = search.toLowerCase();
-
+    const query = search.toLowerCase().trim();
+    if (!query) return sections;
     return sections.filter(
       (item) =>
         item.label.toLowerCase().includes(query) ||
@@ -134,17 +166,20 @@ function AdminSettings() {
 
   const showMessage = (message, type = "success") => {
     setToast({ message, type });
-
     setTimeout(() => {
       setToast(null);
-    }, 2500);
+    }, 2800);
   };
 
   const saveSettings = () => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
-    setSavedSettings(clone(settings));
-
-    showMessage("Settings saved successfully");
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
+      setSavedSettings(clone(settings));
+      showMessage("Organization settings saved successfully!");
+    } catch (err) {
+      console.error(err);
+      showMessage("Failed to save settings.", "error");
+    }
   };
 
   const discardChanges = () => {
@@ -154,14 +189,10 @@ function AdminSettings() {
 
   const resetSettings = () => {
     const defaults = clone(defaultAdminSettings);
-
     setSettings(defaults);
     setSavedSettings(defaults);
-
     localStorage.setItem(STORAGE_KEY, JSON.stringify(defaults));
-
     setShowResetModal(false);
-
     showMessage("Settings restored to defaults");
   };
 
@@ -169,287 +200,315 @@ function AdminSettings() {
     const file = new Blob([JSON.stringify(settings, null, 2)], {
       type: "application/json",
     });
-
     const url = URL.createObjectURL(file);
-
     const link = document.createElement("a");
     link.href = url;
-    link.download = "teamflow-settings.json";
+    link.download = "teamflow-organization-settings.json";
     link.click();
-
     URL.revokeObjectURL(url);
+    showMessage("Configuration exported successfully!");
+  };
 
-    showMessage("Settings exported");
+  const handleCopySlug = () => {
+    navigator.clipboard?.writeText("https://abctech.teamflow.ai");
+    setCopiedDomain(true);
+    setTimeout(() => setCopiedDomain(false), 2000);
+  };
+
+  const handleLogoUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) {
+        alert("Logo must be under 2MB");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        update("general", "orgLogo", event.target?.result);
+        showMessage("Organization logo updated!");
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoveLogo = () => {
+    update("general", "orgLogo", "");
+    if (fileInputRef.current) fileInputRef.current.value = "";
+    showMessage("Logo removed", "info");
+  };
+
+  const handleSendTestEmail = () => {
+    setTestEmailSent(true);
+    setTimeout(() => {
+      setTestEmailSent(false);
+      showMessage("Test email successfully dispatched to admin inbox!");
+    }, 1200);
   };
 
   return (
     <div className="settings-app">
-      <AdminSidebar />
+      <AdminSidebar mobileOpen={mobileOpen} onClose={() => setMobileOpen(false)} />
 
       <main className="settings-main">
-        {/* HEADER */}
+        <AdminTopbar onMobileMenuToggle={() => setMobileOpen(true)} />
 
-        <header className="settings-topbar">
-          <div>
-            <div className="settings-breadcrumb">
-              <Settings size={14} />
-              ADMIN
-              <ChevronRight size={13} />
-              SETTINGS
-            </div>
+        <div className="admin-settings-content">
+          {/* HEADER */}
+          <section className="admin-settings-header">
+            <div>
 
-            <h1>Settings</h1>
-
-            <p>
-              Manage your TeamFlow AI platform preferences and configuration.
-            </p>
-          </div>
-
-          <div className="settings-header-actions">
-            {hasChanges && (
-              <span className="unsaved-indicator">
-                <span />
-                Unsaved changes
-              </span>
-            )}
-
-            <button
-              className="btn-secondary"
-              onClick={() => setShowResetModal(true)}
-            >
-              <RotateCcw size={15} />
-              Reset
-            </button>
-
-            <button
-              className="btn-primary"
-              onClick={saveSettings}
-              disabled={!hasChanges}
-            >
-              <Save size={15} />
-              Save Changes
-            </button>
-          </div>
-        </header>
-
-        {/* SETTINGS BODY */}
-
-        <div className="settings-container">
-          {/* LEFT NAVIGATION */}
-
-          <aside className="settings-sidebar-card">
-            <div className="settings-search">
-              <Search size={15} />
-
-              <input
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search settings..."
-              />
-
-              {search && (
-                <button onClick={() => setSearch("")}>
-                  <X size={14} />
-                </button>
-              )}
-            </div>
-
-            <div className="settings-menu">
-              {filteredSections.map((item) => {
-                const Icon = item.icon;
-
-                return (
-                  <button
-                    key={item.id}
-                    className={`settings-menu-item ${
-                      activeSection === item.id ? "active" : ""
-                    }`}
-                    onClick={() => setActiveSection(item.id)}
-                  >
-                    <div className="settings-menu-icon">
-                      <Icon size={17} />
-                    </div>
-
-                    <div>
-                      <strong>{item.label}</strong>
-                      <span>{item.description}</span>
-                    </div>
-
-                    <ChevronRight
-                      className="settings-menu-arrow"
-                      size={15}
-                    />
-                  </button>
-                );
-              })}
-
-              {filteredSections.length === 0 && (
-                <div className="settings-no-results">
-                  No settings found
-                </div>
-              )}
-            </div>
-
-            <div className="settings-help">
-              <div>
-                <Sparkles size={18} />
-              </div>
-
-              <strong>Need help?</strong>
-
+              <h1>Organization Settings</h1>
               <p>
-                Contact support if you need help configuring TeamFlow.
+                Configure company identity, workspace quotas, security policies, and localization across TeamFlow AI.
               </p>
+            </div>
 
-              <button onClick={() => alert("Support request opened.")}>
-                Contact Support
+            <div className="admin-settings-header-actions">
+              {hasChanges && (
+                <span className="unsaved-indicator">
+                  <span />
+                  Unsaved changes
+                </span>
+              )}
+
+              <button
+                type="button"
+                className="btn-secondary"
+                onClick={exportSettings}
+                title="Export settings as JSON"
+              >
+                <Download size={14} />
+                <span>Export</span>
+              </button>
+
+              <button
+                type="button"
+                className="btn-secondary"
+                onClick={() => setShowResetModal(true)}
+              >
+                <RotateCcw size={14} />
+                <span>Reset</span>
+              </button>
+
+              <button
+                type="button"
+                className="btn-primary"
+                onClick={saveSettings}
+                disabled={!hasChanges}
+              >
+                <Save size={14} />
+                <span>Save Changes</span>
               </button>
             </div>
-          </aside>
-
-          {/* RIGHT CONTENT */}
-
-          <section className="settings-content-card">
-            {activeSection === "general" && (
-              <GeneralSettings
-                data={settings.general}
-                update={update}
-              />
-            )}
-
-            {activeSection === "workspace" && (
-              <WorkspaceSettings
-                data={settings.workspace}
-                update={update}
-              />
-            )}
-
-            {activeSection === "security" && (
-              <SecuritySettings
-                data={settings.security}
-                update={update}
-                showMessage={showMessage}
-              />
-            )}
-
-            {activeSection === "notifications" && (
-              <NotificationSettings
-                data={settings.notifications}
-                update={update}
-              />
-            )}
-
-            {activeSection === "ai" && (
-              <AISettings
-                data={settings.ai}
-                update={update}
-                showApiKey={showApiKey}
-                setShowApiKey={setShowApiKey}
-              />
-            )}
-
-            {activeSection === "email" && (
-              <EmailSettings
-                data={settings.email}
-                update={update}
-                showPassword={showSMTPPassword}
-                setShowPassword={setShowSMTPPassword}
-                showMessage={showMessage}
-              />
-            )}
-
-            {activeSection === "privacy" && (
-              <PrivacySettings
-                data={settings.privacy}
-                update={update}
-                exportSettings={exportSettings}
-                showMessage={showMessage}
-              />
-            )}
-
-            {/* BOTTOM SAVE BAR */}
-
-            {hasChanges && (
-              <div className="settings-save-bar">
-                <div>
-                  <AlertTriangle size={17} />
-
-                  <span>
-                    <strong>You have unsaved changes</strong>
-                    <small>
-                      Save your changes before leaving this page.
-                    </small>
-                  </span>
-                </div>
-
-                <div>
-                  <button
-                    className="btn-secondary"
-                    onClick={discardChanges}
-                  >
-                    Discard
-                  </button>
-
-                  <button
-                    className="btn-primary"
-                    onClick={saveSettings}
-                  >
-                    <Save size={14} />
-                    Save Changes
-                  </button>
-                </div>
-              </div>
-            )}
           </section>
+
+          {/* RESPONSIVE HORIZONTAL TABS FOR TABLET / MOBILE */}
+          <div className="settings-mobile-tabs">
+            {sections.map((item) => {
+              const Icon = item.icon;
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  className={`settings-mobile-tab ${activeSection === item.id ? "active" : ""}`}
+                  onClick={() => setActiveSection(item.id)}
+                >
+                  <Icon size={14} />
+                  <span>{item.label}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* SETTINGS BODY CONTAINER */}
+          <div className="admin-settings-container">
+            {/* LEFT NAVIGATION SIDEBAR (STICKY ON DESKTOP) */}
+            <aside className="admin-settings-sidebar-card">
+              <div className="admin-settings-search">
+                <Search size={15} />
+                <input
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Filter settings..."
+                />
+                {search && (
+                  <button type="button" onClick={() => setSearch("")} className="search-clear-btn" title="Clear filter">
+                    <X size={13} />
+                  </button>
+                )}
+              </div>
+
+              <div className="admin-settings-menu">
+                {filteredSections.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = activeSection === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      type="button"
+                      className={`admin-settings-menu-item ${isActive ? "active" : ""}`}
+                      onClick={() => setActiveSection(item.id)}
+                    >
+                      <div
+                        className="admin-settings-menu-icon"
+                        style={{
+                          backgroundColor: isActive ? item.iconColor : item.iconBg,
+                          color: isActive ? "#ffffff" : item.iconColor,
+                        }}
+                      >
+                        <Icon size={16} />
+                      </div>
+                      <div className="admin-settings-menu-text">
+                        <strong>{item.label}</strong>
+                        <span>{item.description}</span>
+                      </div>
+                      <ChevronRight className="admin-settings-menu-arrow" size={14} />
+                    </button>
+                  );
+                })}
+
+                {filteredSections.length === 0 && (
+                  <div className="admin-settings-no-results">No settings match "{search}"</div>
+                )}
+              </div>
+
+              {/* QUICK STATS CARD */}
+              <div className="admin-settings-plan-card">
+                <div className="plan-badge">Enterprise Tier</div>
+                <strong>ABC Technologies</strong>
+                <p>6 Workspaces · 48 Active Members</p>
+                <div className="plan-progress">
+                  <div className="plan-bar" style={{ width: "48%" }} />
+                </div>
+                <small>48 / 100 User Licenses Used</small>
+              </div>
+            </aside>
+
+            {/* RIGHT CONTENT CARD */}
+            <section className="settings-content-card">
+              {/* SECTION 1: GENERAL & BRANDING */}
+              {activeSection === "general" && (
+                <GeneralSettings
+                  data={settings.general}
+                  update={update}
+                  onCopySlug={handleCopySlug}
+                  copiedDomain={copiedDomain}
+                  fileInputRef={fileInputRef}
+                  onLogoUpload={handleLogoUpload}
+                  onRemoveLogo={handleRemoveLogo}
+                />
+              )}
+
+              {/* SECTION 2: WORKSPACE DEFAULTS */}
+              {activeSection === "workspace" && (
+                <WorkspaceSettings data={settings.workspace} update={update} />
+              )}
+
+              {/* SECTION 3: SECURITY & ACCESS */}
+              {activeSection === "security" && (
+                <SecuritySettings data={settings.security} update={update} />
+              )}
+
+              {/* SECTION 4: AI GOVERNANCE */}
+              {activeSection === "ai" && (
+                <AISettings
+                  data={settings.ai}
+                  update={update}
+                  showApiKey={showApiKey}
+                  setShowApiKey={setShowApiKey}
+                />
+              )}
+
+              {/* SECTION 5: NOTIFICATIONS */}
+              {activeSection === "notifications" && (
+                <NotificationSettings data={settings.notifications} update={update} />
+              )}
+
+              {/* SECTION 6: EMAIL & SMTP */}
+              {activeSection === "email" && (
+                <EmailSettings
+                  data={settings.email}
+                  update={update}
+                  showPassword={showSMTPPassword}
+                  setShowPassword={setShowSMTPPassword}
+                  onSendTestEmail={handleSendTestEmail}
+                  testEmailSent={testEmailSent}
+                />
+              )}
+
+              {/* SECTION 7: DATA & PRIVACY */}
+              {activeSection === "privacy" && (
+                <PrivacySettings
+                  data={settings.privacy}
+                  update={update}
+                  onExport={exportSettings}
+                />
+              )}
+
+              {/* SECTION 8: DANGER ZONE */}
+              {activeSection === "danger" && (
+                <DangerSettings onExport={exportSettings} />
+              )}
+
+              {/* FLOATING SAVE BAR */}
+              {hasChanges && (
+                <div className="settings-save-bar">
+                  <div className="save-bar-info">
+                    <AlertTriangle size={18} />
+                    <div>
+                      <strong>Unsaved changes detected</strong>
+                      <p>Save your configuration or discard modifications.</p>
+                    </div>
+                  </div>
+                  <div className="save-bar-actions">
+                    <button type="button" className="btn-secondary" onClick={discardChanges}>
+                      Discard
+                    </button>
+                    <button type="button" className="btn-primary" onClick={saveSettings}>
+                      <Save size={14} />
+                      Save Changes
+                    </button>
+                  </div>
+                </div>
+              )}
+            </section>
+          </div>
         </div>
       </main>
 
-      {/* RESET MODAL */}
-
+      {/* RESET CONFIRMATION MODAL */}
       {showResetModal && (
         <div className="settings-modal-overlay">
           <div className="settings-modal">
             <div className="settings-modal-danger-icon">
               <RotateCcw size={24} />
             </div>
-
-            <h2>Reset all settings?</h2>
-
+            <h2>Reset Organization Settings?</h2>
             <p>
-              This will restore all TeamFlow AI settings to their default
-              values. This action cannot be undone.
+              This will restore all default platform preferences, workspace limits, and configurations.
+              Existing member data will remain unaffected.
             </p>
-
             <div className="settings-modal-actions">
               <button
+                type="button"
                 className="btn-secondary"
                 onClick={() => setShowResetModal(false)}
               >
                 Cancel
               </button>
-
-              <button
-                className="btn-danger"
-                onClick={resetSettings}
-              >
-                Reset Settings
+              <button type="button" className="btn-danger" onClick={resetSettings}>
+                Reset to Defaults
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* TOAST */}
-
+      {/* TOAST ALERT */}
       {toast && (
         <div className={`settings-toast ${toast.type}`}>
-          {toast.type === "success" ? (
-            <CheckCircle2 size={18} />
-          ) : (
-            <AlertTriangle size={18} />
-          )}
-
-          {toast.message}
+          {toast.type === "success" ? <CheckCircle2 size={18} /> : <AlertTriangle size={18} />}
+          <span>{toast.message}</span>
         </div>
       )}
     </div>
@@ -457,947 +516,15 @@ function AdminSettings() {
 }
 
 /* =========================================================
-   GENERAL
+   SUB-SECTIONS & COMPONENTS
 ========================================================= */
 
-function GeneralSettings({ data, update }) {
+function SettingHeader({ icon: Icon, title, description }) {
   return (
-    <>
-      <PageHeader
-        icon={Settings}
-        title="General Settings"
-        description="Manage your platform identity, localization and availability."
-      />
-
-      <SettingSection
-        title="Platform Information"
-        description="Information displayed across TeamFlow AI."
-      >
-        <div className="form-grid">
-          <Field label="Platform Name">
-            <input
-              value={data.platformName}
-              onChange={(e) =>
-                update("general", "platformName", e.target.value)
-              }
-            />
-          </Field>
-
-          <Field label="Company Name">
-            <input
-              value={data.companyName}
-              onChange={(e) =>
-                update("general", "companyName", e.target.value)
-              }
-            />
-          </Field>
-        </div>
-
-        <Field
-          label="Support Email"
-          hint="Users will see this email when they need support."
-        >
-          <input
-            type="email"
-            value={data.supportEmail}
-            onChange={(e) =>
-              update("general", "supportEmail", e.target.value)
-            }
-          />
-        </Field>
-      </SettingSection>
-
-      <SettingSection
-        title="Localization"
-        description="Configure regional preferences for your platform."
-      >
-        <div className="form-grid">
-          <Field label="Timezone">
-            <select
-              value={data.timezone}
-              onChange={(e) =>
-                update("general", "timezone", e.target.value)
-              }
-            >
-              {timezoneOptions.map((timezone) => (
-                <option key={timezone}>{timezone}</option>
-              ))}
-            </select>
-          </Field>
-
-          <Field label="Language">
-            <select
-              value={data.language}
-              onChange={(e) =>
-                update("general", "language", e.target.value)
-              }
-            >
-              {languageOptions.map((language) => (
-                <option key={language}>{language}</option>
-              ))}
-            </select>
-          </Field>
-
-          <Field label="Date Format">
-            <select
-              value={data.dateFormat}
-              onChange={(e) =>
-                update("general", "dateFormat", e.target.value)
-              }
-            >
-              <option>DD/MM/YYYY</option>
-              <option>MM/DD/YYYY</option>
-              <option>YYYY-MM-DD</option>
-            </select>
-          </Field>
-        </div>
-      </SettingSection>
-
-      <SettingSection
-        title="Platform Availability"
-        description="Control whether TeamFlow is available to normal users."
-      >
-        <ToggleCard
-          icon={AlertTriangle}
-          title="Maintenance Mode"
-          description="Temporarily disable normal user access while performing maintenance."
-          checked={data.maintenanceMode}
-          onChange={(value) =>
-            update("general", "maintenanceMode", value)
-          }
-          danger
-        />
-      </SettingSection>
-    </>
-  );
-}
-
-/* =========================================================
-   WORKSPACE
-========================================================= */
-
-function WorkspaceSettings({ data, update }) {
-  return (
-    <>
-      <PageHeader
-        icon={Building2}
-        title="Workspace Defaults"
-        description="Set the default configuration for new workspaces."
-      />
-
-      <SettingSection
-        title="Workspace Permissions"
-        description="Control what workspace owners and users can do."
-      >
-        <ToggleCard
-          icon={Building2}
-          title="Allow Workspace Creation"
-          description="Users can create their own TeamFlow workspaces."
-          checked={data.allowWorkspaceCreation}
-          onChange={(value) =>
-            update("workspace", "allowWorkspaceCreation", value)
-          }
-        />
-
-        <ToggleCard
-          icon={ShieldCheck}
-          title="Require Admin Approval"
-          description="New workspaces require administrator approval before activation."
-          checked={data.requireWorkspaceApproval}
-          onChange={(value) =>
-            update("workspace", "requireWorkspaceApproval", value)
-          }
-        />
-
-        <ToggleCard
-          icon={Users}
-          title="Allow Guest Users"
-          description="Workspace owners can invite external guest users."
-          checked={data.allowGuestUsers}
-          onChange={(value) =>
-            update("workspace", "allowGuestUsers", value)
-          }
-        />
-
-        <ToggleCard
-          icon={Globe2}
-          title="Public Projects"
-          description="Allow projects to be visible outside their workspace."
-          checked={data.allowPublicProjects}
-          onChange={(value) =>
-            update("workspace", "allowPublicProjects", value)
-          }
-        />
-      </SettingSection>
-
-      <SettingSection
-        title="Default Resource Limits"
-        description="These limits are applied when a new workspace is created."
-      >
-        <div className="form-grid">
-          <Field label="Member Limit">
-            <div className="input-with-icon">
-              <Users size={16} />
-
-              <input
-                type="number"
-                min="1"
-                value={data.defaultMemberLimit}
-                onChange={(e) =>
-                  update(
-                    "workspace",
-                    "defaultMemberLimit",
-                    Number(e.target.value)
-                  )
-                }
-              />
-            </div>
-          </Field>
-
-          <Field label="Storage Limit">
-            <div className="input-with-icon">
-              <HardDrive size={16} />
-
-              <input
-                type="number"
-                min="1"
-                value={data.defaultStorage}
-                onChange={(e) =>
-                  update(
-                    "workspace",
-                    "defaultStorage",
-                    Number(e.target.value)
-                  )
-                }
-              />
-
-              <span>GB</span>
-            </div>
-          </Field>
-        </div>
-      </SettingSection>
-    </>
-  );
-}
-
-/* =========================================================
-   SECURITY
-========================================================= */
-
-function SecuritySettings({ data, update, showMessage }) {
-  const [password, setPassword] = useState({
-    current: "",
-    newPassword: "",
-    confirm: "",
-  });
-
-  const updatePassword = () => {
-    if (!password.current) {
-      alert("Enter your current password.");
-      return;
-    }
-
-    if (password.newPassword.length < 8) {
-      alert("New password must contain at least 8 characters.");
-      return;
-    }
-
-    if (password.newPassword !== password.confirm) {
-      alert("Passwords do not match.");
-      return;
-    }
-
-    setPassword({
-      current: "",
-      newPassword: "",
-      confirm: "",
-    });
-
-    showMessage("Password updated successfully");
-  };
-
-  return (
-    <>
-      <PageHeader
-        icon={ShieldCheck}
-        title="Security"
-        description="Protect administrator accounts and TeamFlow data."
-      />
-
-      <SettingSection
-        title="Authentication"
-        description="Configure how users securely access TeamFlow."
-      >
-        <ToggleCard
-          icon={Smartphone}
-          title="Two-Factor Authentication"
-          description="Require an additional verification step for administrators."
-          checked={data.twoFactorAuth}
-          onChange={(value) =>
-            update("security", "twoFactorAuth", value)
-          }
-          recommended
-        />
-
-        <ToggleCard
-          icon={LockKeyhole}
-          title="Strong Password Policy"
-          description="Require users to create secure passwords."
-          checked={data.strongPasswords}
-          onChange={(value) =>
-            update("security", "strongPasswords", value)
-          }
-        />
-
-        <ToggleCard
-          icon={Bell}
-          title="Login Alerts"
-          description="Notify administrators about suspicious login attempts."
-          checked={data.loginAlerts}
-          onChange={(value) =>
-            update("security", "loginAlerts", value)
-          }
-        />
-
-        <ToggleCard
-          icon={Users}
-          title="Social Login"
-          description="Allow users to sign in using supported social providers."
-          checked={data.allowSocialLogin}
-          onChange={(value) =>
-            update("security", "allowSocialLogin", value)
-          }
-        />
-      </SettingSection>
-
-      <SettingSection
-        title="Login Protection"
-        description="Configure session and failed-login limits."
-      >
-        <div className="form-grid">
-          <Field label="Session Timeout">
-            <div className="input-with-icon">
-              <Clock3 size={16} />
-
-              <input
-                type="number"
-                min="5"
-                value={data.sessionTimeout}
-                onChange={(e) =>
-                  update(
-                    "security",
-                    "sessionTimeout",
-                    Number(e.target.value)
-                  )
-                }
-              />
-
-              <span>minutes</span>
-            </div>
-          </Field>
-
-          <Field label="Maximum Login Attempts">
-            <input
-              type="number"
-              min="1"
-              value={data.maxLoginAttempts}
-              onChange={(e) =>
-                update(
-                  "security",
-                  "maxLoginAttempts",
-                  Number(e.target.value)
-                )
-              }
-            />
-          </Field>
-        </div>
-      </SettingSection>
-
-      <SettingSection
-        title="Administrator Password"
-        description="Change the password for your administrator account."
-      >
-        <div className="password-form">
-          <Field label="Current Password">
-            <input
-              type="password"
-              placeholder="Enter current password"
-              value={password.current}
-              onChange={(e) =>
-                setPassword({
-                  ...password,
-                  current: e.target.value,
-                })
-              }
-            />
-          </Field>
-
-          <div className="form-grid">
-            <Field label="New Password">
-              <input
-                type="password"
-                placeholder="Minimum 8 characters"
-                value={password.newPassword}
-                onChange={(e) =>
-                  setPassword({
-                    ...password,
-                    newPassword: e.target.value,
-                  })
-                }
-              />
-            </Field>
-
-            <Field label="Confirm Password">
-              <input
-                type="password"
-                placeholder="Repeat new password"
-                value={password.confirm}
-                onChange={(e) =>
-                  setPassword({
-                    ...password,
-                    confirm: e.target.value,
-                  })
-                }
-              />
-            </Field>
-          </div>
-
-          <button className="btn-outline" onClick={updatePassword}>
-            <LockKeyhole size={15} />
-            Update Password
-          </button>
-        </div>
-      </SettingSection>
-    </>
-  );
-}
-
-/* =========================================================
-   NOTIFICATIONS
-========================================================= */
-
-function NotificationSettings({ data, update }) {
-  return (
-    <>
-      <PageHeader
-        icon={Bell}
-        title="Notifications"
-        description="Choose which events should notify administrators."
-      />
-
-      <SettingSection
-        title="Admin Notifications"
-        description="Control important platform alerts."
-      >
-        <ToggleCard
-          icon={Mail}
-          title="Email Notifications"
-          description="Receive administrative alerts by email."
-          checked={data.emailNotifications}
-          onChange={(value) =>
-            update("notifications", "emailNotifications", value)
-          }
-        />
-
-        <ToggleCard
-          icon={Users}
-          title="New User Registrations"
-          description="Notify admins when new users register."
-          checked={data.newUserNotification}
-          onChange={(value) =>
-            update("notifications", "newUserNotification", value)
-          }
-        />
-
-        <ToggleCard
-          icon={Building2}
-          title="Workspace Activity"
-          description="Receive alerts about important workspace activity."
-          checked={data.workspaceNotification}
-          onChange={(value) =>
-            update("notifications", "workspaceNotification", value)
-          }
-        />
-
-        <ToggleCard
-          icon={ShieldCheck}
-          title="Security Alerts"
-          description="Always stay informed about suspicious activity."
-          checked={data.securityAlerts}
-          onChange={(value) =>
-            update("notifications", "securityAlerts", value)
-          }
-          recommended
-        />
-
-        <ToggleCard
-          icon={Bell}
-          title="Payment Notifications"
-          description="Receive billing and subscription payment alerts."
-          checked={data.paymentNotification}
-          onChange={(value) =>
-            update("notifications", "paymentNotification", value)
-          }
-        />
-
-        <ToggleCard
-          icon={Database}
-          title="Weekly Report"
-          description="Receive a weekly platform performance summary."
-          checked={data.weeklyReport}
-          onChange={(value) =>
-            update("notifications", "weeklyReport", value)
-          }
-        />
-      </SettingSection>
-    </>
-  );
-}
-
-/* =========================================================
-   AI
-========================================================= */
-
-function AISettings({
-  data,
-  update,
-  showApiKey,
-  setShowApiKey,
-}) {
-  return (
-    <>
-      <PageHeader
-        icon={Bot}
-        title="AI Settings"
-        description="Configure AI tools and usage across TeamFlow."
-      />
-
-      <div className="ai-status-card">
-        <div className="ai-status-icon">
-          <Sparkles size={22} />
-        </div>
-
-        <div>
-          <strong>TeamFlow AI Engine</strong>
-          <p>
-            AI features are{" "}
-            <b>{data.aiEnabled ? "enabled" : "disabled"}</b>.
-          </p>
-        </div>
-
-        <Toggle
-          checked={data.aiEnabled}
-          onChange={(value) =>
-            update("ai", "aiEnabled", value)
-          }
-        />
+    <div className="settings-section-header">
+      <div className="settings-section-icon">
+        <Icon size={20} />
       </div>
-
-      <SettingSection
-        title="AI Features"
-        description="Choose which AI-powered tools are available."
-      >
-        <ToggleCard
-          icon={Bot}
-          title="Chat Summarizer"
-          description="Generate summaries of long team conversations."
-          checked={data.chatSummarizer}
-          onChange={(value) =>
-            update("ai", "chatSummarizer", value)
-          }
-        />
-
-        <ToggleCard
-          icon={CheckCircle2}
-          title="Task Generator"
-          description="Automatically generate tasks using project context."
-          checked={data.taskGenerator}
-          onChange={(value) =>
-            update("ai", "taskGenerator", value)
-          }
-        />
-
-        <ToggleCard
-          icon={AlertTriangle}
-          title="BugFlow AI"
-          description="Analyze bugs and suggest possible fixes."
-          checked={data.bugFlowAI}
-          onChange={(value) =>
-            update("ai", "bugFlowAI", value)
-          }
-        />
-
-        <ToggleCard
-          icon={Search}
-          title="Smart Search"
-          description="Use AI to improve search across TeamFlow."
-          checked={data.smartSearch}
-          onChange={(value) =>
-            update("ai", "smartSearch", value)
-          }
-        />
-      </SettingSection>
-
-      <SettingSection
-        title="AI Configuration"
-        description="Configure your default model and usage limits."
-      >
-        <div className="form-grid">
-          <Field label="Default Model">
-            <select
-              value={data.model}
-              onChange={(e) =>
-                update("ai", "model", e.target.value)
-              }
-            >
-              {aiModelOptions.map((model) => (
-                <option key={model}>{model}</option>
-              ))}
-            </select>
-          </Field>
-
-          <Field label="Monthly Request Limit">
-            <input
-              type="number"
-              value={data.monthlyLimit}
-              onChange={(e) =>
-                update(
-                  "ai",
-                  "monthlyLimit",
-                  Number(e.target.value)
-                )
-              }
-            />
-          </Field>
-        </div>
-
-        <Field
-          label="API Key"
-          hint="Never store production API keys in frontend code."
-        >
-          <div className="secret-input">
-            <input
-              type={showApiKey ? "text" : "password"}
-              placeholder="Enter API key"
-              value={data.apiKey}
-              onChange={(e) =>
-                update("ai", "apiKey", e.target.value)
-              }
-            />
-
-            <button
-              onClick={() => setShowApiKey(!showApiKey)}
-            >
-              {showApiKey ? (
-                <EyeOff size={16} />
-              ) : (
-                <Eye size={16} />
-              )}
-            </button>
-          </div>
-        </Field>
-      </SettingSection>
-    </>
-  );
-}
-
-/* =========================================================
-   EMAIL
-========================================================= */
-
-function EmailSettings({
-  data,
-  update,
-  showPassword,
-  setShowPassword,
-  showMessage,
-}) {
-  const testConnection = () => {
-    if (!data.smtpHost || !data.smtpPort) {
-      alert("Enter SMTP host and port.");
-      return;
-    }
-
-    showMessage("SMTP connection test successful");
-  };
-
-  return (
-    <>
-      <PageHeader
-        icon={Mail}
-        title="Email Configuration"
-        description="Configure outgoing TeamFlow emails."
-      />
-
-      <SettingSection
-        title="SMTP Server"
-        description="Configure your outgoing email server."
-      >
-        <div className="form-grid">
-          <Field label="SMTP Host">
-            <input
-              value={data.smtpHost}
-              onChange={(e) =>
-                update("email", "smtpHost", e.target.value)
-              }
-            />
-          </Field>
-
-          <Field label="SMTP Port">
-            <input
-              value={data.smtpPort}
-              onChange={(e) =>
-                update("email", "smtpPort", e.target.value)
-              }
-            />
-          </Field>
-
-          <Field label="Username">
-            <input
-              value={data.smtpUsername}
-              onChange={(e) =>
-                update("email", "smtpUsername", e.target.value)
-              }
-            />
-          </Field>
-
-          <Field label="Encryption">
-            <select
-              value={data.encryption}
-              onChange={(e) =>
-                update("email", "encryption", e.target.value)
-              }
-            >
-              <option>TLS</option>
-              <option>SSL</option>
-              <option>None</option>
-            </select>
-          </Field>
-        </div>
-
-        <Field label="SMTP Password">
-          <div className="secret-input">
-            <input
-              type={showPassword ? "text" : "password"}
-              value={data.smtpPassword}
-              onChange={(e) =>
-                update("email", "smtpPassword", e.target.value)
-              }
-            />
-
-            <button
-              onClick={() => setShowPassword(!showPassword)}
-            >
-              {showPassword ? (
-                <EyeOff size={16} />
-              ) : (
-                <Eye size={16} />
-              )}
-            </button>
-          </div>
-        </Field>
-      </SettingSection>
-
-      <SettingSection
-        title="Sender Details"
-        description="Information recipients see in TeamFlow emails."
-      >
-        <div className="form-grid">
-          <Field label="Sender Name">
-            <input
-              value={data.senderName}
-              onChange={(e) =>
-                update("email", "senderName", e.target.value)
-              }
-            />
-          </Field>
-
-          <Field label="Sender Email">
-            <input
-              type="email"
-              value={data.senderEmail}
-              onChange={(e) =>
-                update("email", "senderEmail", e.target.value)
-              }
-            />
-          </Field>
-        </div>
-
-        <button
-          className="btn-outline"
-          onClick={testConnection}
-        >
-          <Send size={15} />
-          Send Test Email
-        </button>
-      </SettingSection>
-    </>
-  );
-}
-
-/* =========================================================
-   PRIVACY
-========================================================= */
-
-function PrivacySettings({
-  data,
-  update,
-  exportSettings,
-  showMessage,
-}) {
-  const clearDemoData = () => {
-    const confirmed = window.confirm(
-      "Clear TeamFlow admin demo data from this browser?"
-    );
-
-    if (!confirmed) return;
-
-    Object.keys(localStorage).forEach((key) => {
-      if (
-        key.startsWith("teamflow_admin_") &&
-        key !== STORAGE_KEY
-      ) {
-        localStorage.removeItem(key);
-      }
-    });
-
-    showMessage("Admin demo data cleared");
-  };
-
-  return (
-    <>
-      <PageHeader
-        icon={Database}
-        title="Data & Privacy"
-        description="Manage privacy, analytics and stored platform data."
-      />
-
-      <SettingSection
-        title="Data Collection"
-        description="Choose which data TeamFlow can collect."
-      >
-        <ToggleCard
-          icon={Database}
-          title="Analytics Tracking"
-          description="Collect anonymous usage analytics."
-          checked={data.analyticsTracking}
-          onChange={(value) =>
-            update("privacy", "analyticsTracking", value)
-          }
-        />
-
-        <ToggleCard
-          icon={AlertTriangle}
-          title="Error Reporting"
-          description="Collect application errors for debugging."
-          checked={data.errorReporting}
-          onChange={(value) =>
-            update("privacy", "errorReporting", value)
-          }
-        />
-
-        <ToggleCard
-          icon={Clock3}
-          title="Activity Logging"
-          description="Record important administrator activity."
-          checked={data.activityLogging}
-          onChange={(value) =>
-            update("privacy", "activityLogging", value)
-          }
-        />
-
-        <ToggleCard
-          icon={ShieldCheck}
-          title="Cookie Consent"
-          description="Display cookie consent controls to users."
-          checked={data.cookieConsent}
-          onChange={(value) =>
-            update("privacy", "cookieConsent", value)
-          }
-        />
-
-        <ToggleCard
-          icon={Download}
-          title="Allow User Data Export"
-          description="Allow users to request copies of their data."
-          checked={data.allowDataExport}
-          onChange={(value) =>
-            update("privacy", "allowDataExport", value)
-          }
-        />
-      </SettingSection>
-
-      <SettingSection
-        title="Data Retention"
-        description="Configure how long activity data is retained."
-      >
-        <Field label="Retention Period">
-          <select
-            value={data.dataRetention}
-            onChange={(e) =>
-              update(
-                "privacy",
-                "dataRetention",
-                Number(e.target.value)
-              )
-            }
-          >
-            <option value={30}>30 Days</option>
-            <option value={90}>90 Days</option>
-            <option value={180}>180 Days</option>
-            <option value={365}>1 Year</option>
-            <option value={730}>2 Years</option>
-          </select>
-        </Field>
-      </SettingSection>
-
-      <SettingSection
-        title="Data Management"
-        description="Export or remove locally stored admin demo data."
-      >
-        <div className="data-actions">
-          <button onClick={exportSettings}>
-            <div>
-              <Download size={19} />
-            </div>
-
-            <span>
-              <strong>Export Settings</strong>
-              <small>
-                Download your current configuration.
-              </small>
-            </span>
-          </button>
-
-          <button className="danger" onClick={clearDemoData}>
-            <div>
-              <Trash2 size={19} />
-            </div>
-
-            <span>
-              <strong>Clear Demo Data</strong>
-              <small>
-                Remove locally stored admin demo data.
-              </small>
-            </span>
-          </button>
-        </div>
-      </SettingSection>
-    </>
-  );
-}
-
-/* =========================================================
-   SHARED COMPONENTS
-========================================================= */
-
-function PageHeader({ icon: Icon, title, description }) {
-  return (
-    <div className="settings-page-header">
-      <div className="settings-page-icon">
-        <Icon size={21} />
-      </div>
-
       <div>
         <h2>{title}</h2>
         <p>{description}</p>
@@ -1406,86 +533,787 @@ function PageHeader({ icon: Icon, title, description }) {
   );
 }
 
-function SettingSection({
-  title,
-  description,
-  children,
-}) {
+function SettingCard({ title, description, children, badge }) {
   return (
-    <div className="setting-section">
-      <div className="setting-section-heading">
-        <h3>{title}</h3>
-        <p>{description}</p>
+    <div className="setting-card">
+      <div className="setting-card-header">
+        <div>
+          <h3>{title}</h3>
+          {description && <p>{description}</p>}
+        </div>
+        {badge && <span className="setting-card-badge">{badge}</span>}
       </div>
-
-      <div className="setting-section-content">
-        {children}
-      </div>
+      <div className="setting-card-body">{children}</div>
     </div>
   );
 }
 
-function Field({ label, hint, children }) {
+function ToggleRow({ icon: Icon, title, description, checked, onChange, danger }) {
   return (
-    <label className="setting-field">
-      <span>{label}</span>
-
-      {children}
-
-      {hint && <small>{hint}</small>}
-    </label>
-  );
-}
-
-function ToggleCard({
-  icon: Icon,
-  title,
-  description,
-  checked,
-  onChange,
-  recommended,
-  danger,
-}) {
-  return (
-    <div className="toggle-card">
-      <div
-        className={`toggle-card-icon ${
-          danger ? "danger" : ""
-        }`}
-      >
-        <Icon size={18} />
-      </div>
-
-      <div className="toggle-card-content">
+    <div className={`settings-toggle-row ${danger ? "danger" : ""}`}>
+      <div className="toggle-meta">
+        {Icon && (
+          <div className="toggle-icon">
+            <Icon size={16} />
+          </div>
+        )}
         <div>
           <strong>{title}</strong>
-
-          {recommended && (
-            <span className="recommended-badge">
-              Recommended
-            </span>
-          )}
+          <p>{description}</p>
         </div>
-
-        <p>{description}</p>
       </div>
-
-      <Toggle checked={checked} onChange={onChange} />
+      <label className="toggle-switch">
+        <input
+          type="checkbox"
+          checked={checked}
+          onChange={(e) => onChange(e.target.checked)}
+        />
+        <span className="slider" />
+      </label>
     </div>
   );
 }
 
-function Toggle({ checked, onChange }) {
+/* THEME TOGGLE (BIDIRECTIONAL SYNC WITH TOPBAR & APPEARANCE) */
+function ThemeToggleSetting() {
+  const [isDark, setIsDark] = useState(() => {
+    return (
+      localStorage.getItem("teamflow_admin_dark") === "true" ||
+      document.documentElement.classList.contains("dark")
+    );
+  });
+
+  useEffect(() => {
+    const handleSync = () => {
+      const dark =
+        localStorage.getItem("teamflow_admin_dark") === "true" ||
+        document.documentElement.classList.contains("dark");
+      setIsDark(dark);
+    };
+    window.addEventListener("teamflow_theme_update", handleSync);
+    window.addEventListener("storage", handleSync);
+    return () => {
+      window.removeEventListener("teamflow_theme_update", handleSync);
+      window.removeEventListener("storage", handleSync);
+    };
+  }, []);
+
+  const setTheme = (dark) => {
+    setIsDark(dark);
+    if (dark) {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+    localStorage.setItem("teamflow_admin_dark", String(dark));
+    localStorage.setItem("teamflow_theme_mode", dark ? "dark" : "light");
+    window.dispatchEvent(new Event("teamflow_theme_update"));
+  };
+
   return (
-    <button
-      type="button"
-      className={`modern-toggle ${checked ? "active" : ""}`}
-      onClick={() => onChange(!checked)}
-      aria-pressed={checked}
-    >
-      <span />
-    </button>
+    <div className="theme-setting-container">
+      <div className="theme-cards-grid">
+        <button
+          type="button"
+          className={`theme-mode-card ${!isDark ? "active" : ""}`}
+          onClick={() => setTheme(false)}
+        >
+          <div className="theme-card-preview light-preview">
+            <div className="preview-topbar" />
+            <div className="preview-body">
+              <div className="preview-sidebar" />
+              <div className="preview-content">
+                <div className="preview-bar" />
+                <div className="preview-boxes" />
+              </div>
+            </div>
+          </div>
+          <div className="theme-card-info">
+            <div className="theme-card-title">
+              <Sun size={16} />
+              <span>Light Mode</span>
+            </div>
+            <p>Crisp daylight SaaS theme</p>
+          </div>
+          {!isDark && <span className="theme-active-tag">Active</span>}
+        </button>
+
+        <button
+          type="button"
+          className={`theme-mode-card ${isDark ? "active" : ""}`}
+          onClick={() => setTheme(true)}
+        >
+          <div className="theme-card-preview dark-preview">
+            <div className="preview-topbar dark" />
+            <div className="preview-body dark">
+              <div className="preview-sidebar dark" />
+              <div className="preview-content dark">
+                <div className="preview-bar dark" />
+                <div className="preview-boxes dark" />
+              </div>
+            </div>
+          </div>
+          <div className="theme-card-info">
+            <div className="theme-card-title">
+              <Moon size={16} />
+              <span>Dark Mode</span>
+            </div>
+            <p>Modern navy theme for low light</p>
+          </div>
+          {isDark && <span className="theme-active-tag">Active</span>}
+        </button>
+      </div>
+
+      <div className="theme-quick-switch-row">
+        <div>
+          <strong>Dark Mode Toggle</strong>
+          <p>Syncs automatically in real time with the topbar toggle button.</p>
+        </div>
+        <button
+          type="button"
+          className={`switch-toggle-btn ${isDark ? "checked" : ""}`}
+          onClick={() => setTheme(!isDark)}
+          aria-label="Toggle dark mode"
+          title={isDark ? "Switch to Light mode" : "Switch to Dark mode"}
+        >
+          <span className="switch-toggle-knob">
+            {isDark ? <Moon size={12} /> : <Sun size={12} />}
+          </span>
+        </button>
+      </div>
+    </div>
   );
 }
 
-export default AdminSettings;
+/* 1. GENERAL SETTINGS */
+function GeneralSettings({
+  data,
+  update,
+  onCopySlug,
+  copiedDomain,
+  fileInputRef,
+  onLogoUpload,
+  onRemoveLogo,
+}) {
+  return (
+    <div className="settings-section-content">
+      <SettingHeader
+        icon={Building2}
+        title="General & Organization Identity"
+        description="Configure your company branding, subdomain URL, localization, and support contacts."
+      />
+
+      {/* THEME & DARK MODE TOGGLE */}
+      <SettingCard
+        title="Admin Interface Theme"
+        description="Toggle between Light Mode and Dark Mode for the entire admin console. Synchronizes seamlessly with the topbar."
+      >
+        <ThemeToggleSetting />
+      </SettingCard>
+
+      {/* BRANDING & LOGO */}
+      <SettingCard
+        title="Organization Branding"
+        description="Logo and brand assets displayed on landing views, emails, and workspace headers."
+      >
+        <div className="org-branding-layout">
+          <div className="org-logo-preview">
+            {data.orgLogo ? (
+              <img src={data.orgLogo} alt="Organization Logo" className="org-logo-img" />
+            ) : (
+              <div className="org-logo-placeholder">ABC</div>
+            )}
+          </div>
+          <div className="org-logo-controls">
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={onLogoUpload}
+              accept="image/*"
+              style={{ display: "none" }}
+            />
+            <div className="org-logo-btn-row">
+              <button
+                type="button"
+                className="btn-secondary"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <Upload size={14} />
+                <span>Upload New Logo</span>
+              </button>
+              {data.orgLogo && (
+                <button type="button" className="btn-secondary btn-trash" onClick={onRemoveLogo}>
+                  <Trash2 size={14} />
+                  <span>Remove</span>
+                </button>
+              )}
+            </div>
+            <p className="org-logo-hint">
+              Recommended: 256x256px PNG or SVG with transparent background. Max 2MB.
+            </p>
+          </div>
+        </div>
+      </SettingCard>
+
+      {/* COMPANY INFO */}
+      <SettingCard title="Company Information">
+        <div className="form-grid-2">
+          <div className="form-group">
+            <label>Organization Name</label>
+            <input
+              type="text"
+              value={data.companyName || "ABC Technologies"}
+              onChange={(e) => update("general", "companyName", e.target.value)}
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Platform Name</label>
+            <input
+              type="text"
+              value={data.platformName || "TeamFlow AI"}
+              onChange={(e) => update("general", "platformName", e.target.value)}
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Support Email</label>
+            <input
+              type="email"
+              value={data.supportEmail || "support@abctech.com"}
+              onChange={(e) => update("general", "supportEmail", e.target.value)}
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Company Website</label>
+            <input
+              type="url"
+              placeholder="https://abctech.com"
+              value={data.website || "https://abctech.com"}
+              onChange={(e) => update("general", "website", e.target.value)}
+            />
+          </div>
+        </div>
+
+        {/* CUSTOM SUBDOMAIN */}
+        <div className="form-group mt-4">
+          <label>Custom TeamFlow Subdomain</label>
+          <div className="subdomain-input-wrap">
+            <input
+              type="text"
+              readOnly
+              value="https://abctech.teamflow.ai"
+              className="subdomain-input"
+            />
+            <button
+              type="button"
+              className="btn-secondary copy-btn"
+              onClick={onCopySlug}
+            >
+              {copiedDomain ? <Check size={14} /> : <Copy size={14} />}
+              <span>{copiedDomain ? "Copied!" : "Copy URL"}</span>
+            </button>
+          </div>
+          <small className="form-hint">
+            Direct your organization members to this dedicated login domain.
+          </small>
+        </div>
+      </SettingCard>
+
+      {/* REGIONAL LOCALIZATION */}
+      <SettingCard
+        title="Localization & Regional Settings"
+        description="Set default time preferences, language, and calendar formats."
+      >
+        <div className="form-grid-3">
+          <div className="form-group">
+            <label>Default Timezone</label>
+            <select
+              value={data.timezone || "Asia/Kolkata"}
+              onChange={(e) => update("general", "timezone", e.target.value)}
+            >
+              {timezoneOptions.map((tz) => (
+                <option key={tz} value={tz}>{tz}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="form-group">
+            <label>Primary Language</label>
+            <select
+              value={data.language || "English"}
+              onChange={(e) => update("general", "language", e.target.value)}
+            >
+              {languageOptions.map((lang) => (
+                <option key={lang} value={lang}>{lang}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="form-group">
+            <label>Date Format</label>
+            <select
+              value={data.dateFormat || "DD/MM/YYYY"}
+              onChange={(e) => update("general", "dateFormat", e.target.value)}
+            >
+              <option value="DD/MM/YYYY">DD/MM/YYYY (26/10/2026)</option>
+              <option value="MM/DD/YYYY">MM/DD/YYYY (10/26/2026)</option>
+              <option value="YYYY-MM-DD">YYYY-MM-DD (2026-10-26)</option>
+            </select>
+          </div>
+        </div>
+      </SettingCard>
+
+      {/* MAINTENANCE MODE */}
+      <SettingCard title="Availability & Maintenance">
+        <ToggleRow
+          icon={AlertTriangle}
+          title="Enable Maintenance Mode"
+          description="Temporarily lock workspace access for regular employees while performing platform updates."
+          checked={Boolean(data.maintenanceMode)}
+          onChange={(val) => update("general", "maintenanceMode", val)}
+          danger
+        />
+      </SettingCard>
+    </div>
+  );
+}
+
+/* 2. WORKSPACE DEFAULTS */
+function WorkspaceSettings({ data, update }) {
+  return (
+    <div className="settings-section-content">
+      <SettingHeader
+        icon={HardDrive}
+        title="Workspace Defaults & Member Quotas"
+        description="Configure default storage limits, team permissions, and automatic domain join rules."
+      />
+
+      <SettingCard
+        title="Resource Allocations"
+        description="Set initial storage and member limits applied when a new workspace is provisioned."
+      >
+        <div className="form-grid-2">
+          <div className="form-group">
+            <label>Default Member Limit</label>
+            <div className="input-with-affix">
+              <Users size={16} />
+              <input
+                type="number"
+                min="5"
+                max="200"
+                value={data.defaultMemberLimit || 25}
+                onChange={(e) => update("workspace", "defaultMemberLimit", Number(e.target.value))}
+              />
+              <span>members</span>
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label>Storage Quota per Workspace</label>
+            <div className="input-with-affix">
+              <HardDrive size={16} />
+              <input
+                type="number"
+                min="5"
+                max="500"
+                value={data.defaultStorage || 10}
+                onChange={(e) => update("workspace", "defaultStorage", Number(e.target.value))}
+              />
+              <span>GB</span>
+            </div>
+          </div>
+        </div>
+      </SettingCard>
+
+      <SettingCard title="Workspace Creation & Access Rules">
+        <div className="toggle-stack">
+          <ToggleRow
+            icon={Building2}
+            title="Allow Employees to Create Workspaces"
+            description="Permit team leads and managers to initialize self-contained team workspaces."
+            checked={Boolean(data.allowWorkspaceCreation)}
+            onChange={(val) => update("workspace", "allowWorkspaceCreation", val)}
+          />
+          <ToggleRow
+            icon={ShieldCheck}
+            title="Require Admin Approval for New Workspaces"
+            description="Newly created workspaces remain in pending review until approved by an Organization Admin."
+            checked={Boolean(data.requireWorkspaceApproval)}
+            onChange={(val) => update("workspace", "requireWorkspaceApproval", val)}
+          />
+          <ToggleRow
+            icon={Users}
+            title="Allow External Guest Collaborators"
+            description="Workspace owners may invite contractor emails outside the primary organization domain."
+            checked={Boolean(data.allowGuestUsers)}
+            onChange={(val) => update("workspace", "allowGuestUsers", val)}
+          />
+          <ToggleRow
+            icon={Globe2}
+            title="Allow Public Project Sharing"
+            description="Enable public link view access for roadmaps and sprint deliverables."
+            checked={Boolean(data.allowPublicProjects)}
+            onChange={(val) => update("workspace", "allowPublicProjects", val)}
+          />
+        </div>
+      </SettingCard>
+    </div>
+  );
+}
+
+/* 3. SECURITY & ACCESS */
+function SecuritySettings({ data, update }) {
+  return (
+    <div className="settings-section-content">
+      <SettingHeader
+        icon={ShieldCheck}
+        title="Security & Access Control"
+        description="Enforce authentication policies, two-factor verification, and session governance."
+      />
+
+      <SettingCard title="Authentication Policies">
+        <div className="toggle-stack">
+          <ToggleRow
+            icon={ShieldCheck}
+            title="Enforce Two-Factor Authentication (2FA)"
+            description="Require all users to configure Google Authenticator, Duo, or SMS verification before accessing organization data."
+            checked={Boolean(data.twoFactorAuth)}
+            onChange={(val) => update("security", "twoFactorAuth", val)}
+          />
+          <ToggleRow
+            icon={LockKeyhole}
+            title="Enforce Strong Passwords"
+            description="Require minimum 10 characters with numbers, uppercase letters, and symbols."
+            checked={Boolean(data.strongPasswords)}
+            onChange={(val) => update("security", "strongPasswords", val)}
+          />
+          <ToggleRow
+            icon={Smartphone}
+            title="Unrecognized Device Login Alerts"
+            description="Send immediate security email notifications when members sign in from new IP locations."
+            checked={Boolean(data.loginAlerts)}
+            onChange={(val) => update("security", "loginAlerts", val)}
+          />
+        </div>
+      </SettingCard>
+
+      <SettingCard title="Session Governance">
+        <div className="form-grid-2">
+          <div className="form-group">
+            <label>Session Inactivity Timeout</label>
+            <select
+              value={data.sessionTimeout || 30}
+              onChange={(e) => update("security", "sessionTimeout", Number(e.target.value))}
+            >
+              <option value={15}>15 Minutes</option>
+              <option value={30}>30 Minutes</option>
+              <option value={60}>1 Hour</option>
+              <option value={240}>4 Hours</option>
+              <option value={480}>8 Hours</option>
+            </select>
+          </div>
+
+          <div className="form-group">
+            <label>Max Consecutive Failed Logins</label>
+            <select
+              value={data.maxLoginAttempts || 5}
+              onChange={(e) => update("security", "maxLoginAttempts", Number(e.target.value))}
+            >
+              <option value={3}>3 Attempts (Strict)</option>
+              <option value={5}>5 Attempts (Standard)</option>
+              <option value={10}>10 Attempts</option>
+            </select>
+          </div>
+        </div>
+      </SettingCard>
+    </div>
+  );
+}
+
+/* 4. AI GOVERNANCE */
+function AISettings({ data, update, showApiKey, setShowApiKey }) {
+  return (
+    <div className="settings-section-content">
+      <SettingHeader
+        icon={Bot}
+        title="AI Intelligence & Model Governance"
+        description="Select foundational models, monthly token quotas, and automated generative tools."
+      />
+
+      <SettingCard title="Model Configuration">
+        <div className="form-grid-2">
+          <div className="form-group">
+            <label>Primary AI Model</label>
+            <select
+              value={data.model || "GPT-4o Mini"}
+              onChange={(e) => update("ai", "model", e.target.value)}
+            >
+              {aiModelOptions.map((m) => (
+                <option key={m} value={m}>{m}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="form-group">
+            <label>Monthly Organization Request Quota</label>
+            <div className="input-with-affix">
+              <Bot size={16} />
+              <input
+                type="number"
+                step="5000"
+                value={data.monthlyLimit || 100000}
+                onChange={(e) => update("ai", "monthlyLimit", Number(e.target.value))}
+              />
+              <span>req/mo</span>
+            </div>
+          </div>
+        </div>
+      </SettingCard>
+
+      <SettingCard title="Generative Features">
+        <div className="toggle-stack">
+          <ToggleRow
+            icon={Sparkles}
+            title="Enable AI Features Platform-Wide"
+            description="Turn off to globally disable AI assistants and token consumption."
+            checked={Boolean(data.aiEnabled)}
+            onChange={(val) => update("ai", "aiEnabled", val)}
+          />
+          <ToggleRow
+            icon={Bot}
+            title="Task & Sprint Generator"
+            description="Auto-generate actionable task backlogs from project requirements."
+            checked={Boolean(data.taskGenerator)}
+            onChange={(val) => update("ai", "taskGenerator", val)}
+          />
+          <ToggleRow
+            icon={Sparkles}
+            title="Meeting & Standup Summarizer"
+            description="Produce structured bullet summaries from audio transcripts and sprint check-ins."
+            checked={Boolean(data.meetingSummary)}
+            onChange={(val) => update("ai", "meetingSummary", val)}
+          />
+        </div>
+      </SettingCard>
+    </div>
+  );
+}
+
+/* 5. NOTIFICATIONS */
+function NotificationSettings({ data, update }) {
+  return (
+    <div className="settings-section-content">
+      <SettingHeader
+        icon={Bell}
+        title="System Notification Defaults"
+        description="Default broadcast policies for new organizations and administrative alerts."
+      />
+
+      <SettingCard title="System Event Broadcasts">
+        <div className="toggle-stack">
+          <ToggleRow
+            icon={Mail}
+            title="Global Email Notifications"
+            description="Enable platform SMTP delivery for all team notifications."
+            checked={Boolean(data.emailNotifications)}
+            onChange={(val) => update("notifications", "emailNotifications", val)}
+          />
+          <ToggleRow
+            icon={Users}
+            title="New User Registration Alerts"
+            description="Alert organization administrators whenever a new employee joins a workspace."
+            checked={Boolean(data.newUserNotification)}
+            onChange={(val) => update("notifications", "newUserNotification", val)}
+          />
+          <ToggleRow
+            icon={ShieldCheck}
+            title="Critical Security Warnings"
+            description="Immediate notification dispatched for privilege escalations and policy violations."
+            checked={Boolean(data.securityAlerts)}
+            onChange={(val) => update("notifications", "securityAlerts", val)}
+          />
+        </div>
+      </SettingCard>
+    </div>
+  );
+}
+
+/* 6. EMAIL & SMTP */
+function EmailSettings({ data, update, showPassword, setShowPassword, onSendTestEmail, testEmailSent }) {
+  return (
+    <div className="settings-section-content">
+      <SettingHeader
+        icon={Mail}
+        title="Email Relay & SMTP Settings"
+        description="Configure your enterprise SMTP server credentials and sender identity."
+      />
+
+      <SettingCard title="SMTP Server Configuration">
+        <div className="form-grid-2">
+          <div className="form-group">
+            <label>SMTP Host</label>
+            <input
+              type="text"
+              value={data.smtpHost || "smtp.teamflow.ai"}
+              onChange={(e) => update("email", "smtpHost", e.target.value)}
+            />
+          </div>
+
+          <div className="form-group">
+            <label>SMTP Port</label>
+            <input
+              type="text"
+              value={data.smtpPort || "587"}
+              onChange={(e) => update("email", "smtpPort", e.target.value)}
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Sender Name</label>
+            <input
+              type="text"
+              value={data.senderName || "TeamFlow AI"}
+              onChange={(e) => update("email", "senderName", e.target.value)}
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Sender Email</label>
+            <input
+              type="email"
+              value={data.senderEmail || "noreply@abctech.com"}
+              onChange={(e) => update("email", "senderEmail", e.target.value)}
+            />
+          </div>
+        </div>
+
+        <div className="smtp-action-row">
+          <button
+            type="button"
+            className="btn-secondary"
+            onClick={onSendTestEmail}
+            disabled={testEmailSent}
+          >
+            <Send size={14} />
+            <span>{testEmailSent ? "Sending Test..." : "Send Test Email"}</span>
+          </button>
+          <span className="smtp-status-badge">
+            <span className="status-dot-green" />
+            SMTP Relay Connected
+          </span>
+        </div>
+      </SettingCard>
+    </div>
+  );
+}
+
+/* 7. DATA & PRIVACY */
+function PrivacySettings({ data, update, onExport }) {
+  return (
+    <div className="settings-section-content">
+      <SettingHeader
+        icon={Database}
+        title="Data Retention & Privacy Compliance"
+        description="Manage organizational audit logs, analytics telemetry, and GDPR compliance."
+      />
+
+      <SettingCard title="Audit Logging & Telemetry">
+        <div className="toggle-stack">
+          <ToggleRow
+            icon={Database}
+            title="Activity & Access Logging"
+            description="Preserve immutable audit log events across workspaces, users, and tasks."
+            checked={Boolean(data.activityLogging)}
+            onChange={(val) => update("privacy", "activityLogging", val)}
+          />
+          <ToggleRow
+            icon={Sparkles}
+            title="Product Analytics Tracking"
+            description="Share anonymous telemetry to help improve TeamFlow AI usability."
+            checked={Boolean(data.analyticsTracking)}
+            onChange={(val) => update("privacy", "analyticsTracking", val)}
+          />
+        </div>
+
+        <div className="form-group mt-4">
+          <label>Data Retention Period (Days)</label>
+          <div className="input-with-affix">
+            <Clock3 size={16} />
+            <input
+              type="number"
+              min="30"
+              max="3650"
+              value={data.dataRetention || 365}
+              onChange={(e) => update("privacy", "dataRetention", Number(e.target.value))}
+            />
+            <span>days</span>
+          </div>
+          <small className="form-hint">
+            Activity logs older than this timeframe are purged automatically.
+          </small>
+        </div>
+      </SettingCard>
+    </div>
+  );
+}
+
+/* 8. DANGER ZONE */
+function DangerSettings({ onExport }) {
+  return (
+    <div className="settings-section-content">
+      <SettingHeader
+        icon={ShieldAlert}
+        title="Danger Zone & Administrative Actions"
+        description="Irreversible operations including full data archive exports and organization deactivation."
+      />
+
+      <div className="danger-zone-card">
+        <div className="danger-item">
+          <div>
+            <strong>Export Full Organization Archive</strong>
+            <p>Download a complete JSON export of all workspaces, users, projects, and tasks.</p>
+          </div>
+          <button type="button" className="btn-secondary" onClick={onExport}>
+            <Download size={14} />
+            <span>Export Archive</span>
+          </button>
+        </div>
+
+        <div className="danger-item">
+          <div>
+            <strong>Transfer Organization Ownership</strong>
+            <p>Transfer primary ownership and billing liability to another registered administrator.</p>
+          </div>
+          <button
+            type="button"
+            className="btn-secondary"
+            onClick={() => alert("Please contact enterprise support to initiate an ownership transfer.")}
+          >
+            Transfer Ownership
+          </button>
+        </div>
+
+        <div className="danger-item danger-highlight">
+          <div>
+            <strong className="text-danger">Delete Organization</strong>
+            <p>Permanently remove ABC Technologies and all associated workspace records. This cannot be undone.</p>
+          </div>
+          <button
+            type="button"
+            className="btn-danger"
+            onClick={() => {
+              if (window.confirm("Are you sure? This will permanently delete your organization.")) {
+                alert("Organization deletion request initiated.");
+              }
+            }}
+          >
+            <Trash2 size={14} />
+            <span>Delete Organization</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}

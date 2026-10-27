@@ -1,46 +1,49 @@
-// src/component/AdminReports/AdminReports.jsx
-
-import React, { useEffect, useMemo, useState } from "react";
-
+import React, { useState, useMemo, useEffect } from "react";
 import {
-  Search,
-  Plus,
-  ChevronDown,
   FileText,
+  Plus,
+  Search,
+  Filter,
   Download,
   Trash2,
   Eye,
-  X,
-  Check,
+  CheckCircle2,
+  Clock,
+  ChevronRight,
+  FileSpreadsheet,
   Users,
   Building2,
   FolderKanban,
-  DollarSign,
-  FileSpreadsheet,
-  MoreVertical,
-  RefreshCw,
-  BarChart3,
-  CheckCircle2,
+  CircleDollarSign,
+  Zap,
+  Sparkles,
+  X,
+  FileCode,
+  HardDrive,
+  Calendar,
+  Layers,
+  ArrowUpRight,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
 } from "lucide-react";
-
-import AdminSidebar from "../../../layouts/AdminSidebar/AdminSidebar.jsx";
-
+import AdminSidebar from "./AdminSidebar.jsx";
+import AdminTopbar from "./AdminTopbar.jsx";
 import {
   initialReports,
   reportTypes,
   reportSummary,
-  reportTemplates,
+  reportTemplates
 } from "./adminReportsData.js";
-
 import "./AdminReports.css";
 
 const STORAGE_KEY = "teamflow_admin_reports";
 
-function AdminReports() {
+export default function AdminReports() {
+  const [mobileOpen, setMobileOpen] = useState(false);
   const [reports, setReports] = useState(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
-
       return saved ? JSON.parse(saved) : initialReports;
     } catch {
       return initialReports;
@@ -50,1260 +53,774 @@ function AdminReports() {
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState("All");
   const [statusFilter, setStatusFilter] = useState("All");
+  const [formatFilter, setFormatFilter] = useState("All");
+  const [sortKey, setSortKey] = useState("createdAt");
+  const [sortOrder, setSortOrder] = useState("desc");
 
   const [showGenerator, setShowGenerator] = useState(false);
   const [selectedReport, setSelectedReport] = useState(null);
-  const [menuId, setMenuId] = useState(null);
+  const [downloadSuccess, setDownloadSuccess] = useState(null);
 
   const [reportForm, setReportForm] = useState({
     name: "",
     type: "User Report",
-    startDate: "",
-    endDate: "",
+    startDate: "2026-10-01",
+    endDate: "2026-10-26",
     format: "CSV",
+    includeInactive: false,
+    includeTimestamps: true
   });
 
   useEffect(() => {
-    localStorage.setItem(
-      STORAGE_KEY,
-      JSON.stringify(reports)
-    );
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(reports));
   }, [reports]);
 
+  const handleSort = (key) => {
+    if (sortKey === key) {
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    } else {
+      setSortKey(key);
+      setSortOrder("asc");
+    }
+  };
+
+  const renderSortIcon = (key) => {
+    if (sortKey !== key) {
+      return <ArrowUpDown size={13} className="sort-icon muted" />;
+    }
+    return sortOrder === "asc" ? (
+      <ArrowUp size={13} className="sort-icon active" />
+    ) : (
+      <ArrowDown size={13} className="sort-icon active" />
+    );
+  };
+
   const filteredReports = useMemo(() => {
-    return reports.filter((report) => {
-      const query = search.toLowerCase().trim();
+    return [...reports]
+      .filter((r) => {
+        const matchesSearch =
+          r.name.toLowerCase().includes(search.toLowerCase()) ||
+          r.id.toLowerCase().includes(search.toLowerCase());
+        const matchesType = typeFilter === "All" || r.type === typeFilter;
+        const matchesStatus =
+          statusFilter === "All" ||
+          r.status.toLowerCase() === statusFilter.toLowerCase();
+        const matchesFormat =
+          formatFilter === "All" ||
+          r.format.toLowerCase() === formatFilter.toLowerCase();
+        return matchesSearch && matchesType && matchesStatus && matchesFormat;
+      })
+      .sort((a, b) => {
+        let valA = a[sortKey];
+        let valB = b[sortKey];
 
-      const matchesSearch =
-        !query ||
-        report.name.toLowerCase().includes(query) ||
-        report.id.toLowerCase().includes(query) ||
-        report.createdBy.toLowerCase().includes(query);
+        if (sortKey === "records") {
+          return sortOrder === "asc"
+            ? Number(a.records) - Number(b.records)
+            : Number(b.records) - Number(a.records);
+        }
 
-      const matchesType =
-        typeFilter === "All" ||
-        report.type === typeFilter;
+        if (sortKey === "createdAt") {
+          const timeA = new Date(a.createdAt).getTime() || 0;
+          const timeB = new Date(b.createdAt).getTime() || 0;
+          return sortOrder === "asc" ? timeA - timeB : timeB - timeA;
+        }
 
-      const matchesStatus =
-        statusFilter === "All" ||
-        report.status === statusFilter;
+        if (typeof valA === "string") valA = valA.toLowerCase();
+        if (typeof valB === "string") valB = valB.toLowerCase();
 
-      return (
-        matchesSearch &&
-        matchesType &&
-        matchesStatus
-      );
-    });
-  }, [reports, search, typeFilter, statusFilter]);
+        if (valA < valB) return sortOrder === "asc" ? -1 : 1;
+        if (valA > valB) return sortOrder === "asc" ? 1 : -1;
+        return 0;
+      });
+  }, [reports, search, typeFilter, statusFilter, formatFilter, sortKey, sortOrder]);
 
-  const totalRecords = reports.reduce(
-    (total, report) =>
-      total + Number(report.records || 0),
-    0
-  );
+  const totalRecords = useMemo(() => {
+    return reports.reduce((acc, r) => acc + (Number(r.records) || 0), 0);
+  }, [reports]);
 
-  const openGenerator = (type = "User Report") => {
+  const handleOpenGenerator = (type = "User Report", templateName = "") => {
     setReportForm({
-      name: "",
+      name: templateName || `Monthly ${type.replace(" Report", "")} Summary`,
       type,
-      startDate: "",
-      endDate: "",
+      startDate: "2026-10-01",
+      endDate: "2026-10-26",
       format: "CSV",
+      includeInactive: false,
+      includeTimestamps: true
     });
-
     setShowGenerator(true);
   };
 
-  const generateReport = () => {
-    if (!reportForm.name.trim()) {
-      alert("Please enter report name.");
-      return;
-    }
+  const handleGenerateReport = (e) => {
+    e.preventDefault();
+    if (!reportForm.name.trim()) return;
 
-    if (!reportForm.startDate || !reportForm.endDate) {
-      alert("Please select start and end date.");
-      return;
-    }
-
-    if (
-      new Date(reportForm.startDate) >
-      new Date(reportForm.endDate)
-    ) {
-      alert("Start date cannot be after end date.");
-      return;
-    }
-
-    const records = getRecordCount(reportForm.type);
+    let baseRecords = 450;
+    if (reportForm.type.includes("User")) baseRecords = 1248;
+    else if (reportForm.type.includes("Workspace")) baseRecords = 186;
+    else if (reportForm.type.includes("Project")) baseRecords = 542;
+    else if (reportForm.type.includes("Task")) baseRecords = 3421;
+    else if (reportForm.type.includes("AI")) baseRecords = 9200;
 
     const newReport = {
-      id: `REP-${Date.now().toString().slice(-6)}`,
+      id: `REP-${Math.floor(1000 + Math.random() * 9000)}`,
       name: reportForm.name,
       type: reportForm.type,
-
-      period: `${formatDate(
-        reportForm.startDate
-      )} - ${formatDate(reportForm.endDate)}`,
-
-      createdBy: "Himanshu",
-
-      createdAt: new Date().toLocaleDateString(
-        "en-US",
-        {
-          month: "short",
-          day: "2-digit",
-          year: "numeric",
-        }
-      ),
-
+      period: `${reportForm.startDate} - ${reportForm.endDate}`,
+      createdBy: "Amit Sharma",
+      createdAt: new Date().toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" }),
       status: "Ready",
       format: reportForm.format,
-      size: calculateSize(records),
-      records,
+      size: `${(Math.random() * 1.5 + 0.3).toFixed(1)} MB`,
+      records: baseRecords
     };
 
-    setReports((previous) => [
-      newReport,
-      ...previous,
-    ]);
-
+    setReports([newReport, ...reports]);
     setShowGenerator(false);
   };
 
-  const deleteReport = (id) => {
-    const confirmed = window.confirm(
-      "Are you sure you want to delete this report?"
-    );
-
-    if (!confirmed) return;
-
-    setReports((previous) =>
-      previous.filter((report) => report.id !== id)
-    );
-
-    setMenuId(null);
+  const handleDeleteReport = (id) => {
+    if (window.confirm("Are you sure you want to remove this generated report from the archive?")) {
+      setReports(reports.filter(r => r.id !== id));
+      if (selectedReport?.id === id) setSelectedReport(null);
+    }
   };
 
-  const downloadReport = (report) => {
-    const data = createReportData(report);
+  const handleDownloadReport = (rep) => {
+    let content = "";
+    if (rep.format === "JSON") {
+      content = JSON.stringify({
+        reportId: rep.id,
+        name: rep.name,
+        type: rep.type,
+        period: rep.period,
+        generatedBy: rep.createdBy,
+        totalRecords: rep.records,
+        organization: "ABC Technologies (TeamFlow AI)",
+        data: [
+          { id: 1, item: "Sample Record A", status: "Active", timestamp: "2026-10-26T10:00:00Z" },
+          { id: 2, item: "Sample Record B", status: "Active", timestamp: "2026-10-26T11:00:00Z" }
+        ]
+      }, null, 2);
+    } else {
+      content = `ID,ReportName,Type,Period,CreatedBy,Records,Status\n"${rep.id}","${rep.name}","${rep.type}","${rep.period}","${rep.createdBy}",${rep.records},"${rep.status}"\n1,Record Item Alpha,Primary,Active,2026-10-26\n2,Record Item Beta,Secondary,Active,2026-10-26\n`;
+    }
 
-    const headers = Object.keys(data[0] || {});
-
-    const csvRows = [
-      headers.join(","),
-
-      ...data.map((row) =>
-        headers
-          .map((header) => {
-            const value = row[header] ?? "";
-
-            return `"${String(value).replace(
-              /"/g,
-              '""'
-            )}"`;
-          })
-          .join(",")
-      ),
-    ];
-
-    const csvContent = csvRows.join("\n");
-
-    const blob = new Blob([csvContent], {
-      type: "text/csv;charset=utf-8;",
+    const blob = new Blob([content], {
+      type: rep.format === "JSON" ? "application/json" : "text/csv;charset=utf-8;"
     });
-
     const url = URL.createObjectURL(blob);
-
     const link = document.createElement("a");
-
     link.href = url;
-
-    link.download = `${report.name
-      .replace(/\s+/g, "-")
-      .toLowerCase()}.csv`;
-
-    document.body.appendChild(link);
-
+    link.download = `${rep.id}-${rep.name.toLowerCase().replace(/[^a-z0-9]/g, "-")}.${rep.format.toLowerCase()}`;
     link.click();
-
-    document.body.removeChild(link);
-
     URL.revokeObjectURL(url);
 
-    setMenuId(null);
+    setDownloadSuccess(rep.id);
+    setTimeout(() => setDownloadSuccess(null), 3000);
   };
 
-  const resetReports = () => {
-    const confirmed = window.confirm(
-      "Reset report demo data?"
-    );
+  const exportAllCSV = () => {
+    const headers = ["Report ID", "Name", "Category", "Period", "Created By", "Date Created", "Status", "Format", "Records", "File Size"];
+    const rows = filteredReports.map(r => [
+      r.id,
+      `"${r.name.replace(/"/g, '""')}"`,
+      r.type,
+      `"${r.period}"`,
+      r.createdBy,
+      r.createdAt,
+      r.status,
+      r.format,
+      r.records,
+      r.size
+    ]);
 
-    if (!confirmed) return;
-
-    setReports(initialReports);
-    setSearch("");
-    setTypeFilter("All");
-    setStatusFilter("All");
+    const csvContent = [headers.join(","), ...rows.map(row => row.join(","))].join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `teamflow_reports_manifest_${new Date().toISOString().slice(0, 10)}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
   };
 
   return (
-    <div className="admin-reports-shell">
-      <AdminSidebar />
+    <div className="admin-reports-app">
+      <AdminSidebar mobileOpen={mobileOpen} onClose={() => setMobileOpen(false)} />
 
       <main className="admin-reports-main">
-        {/* ================= TOPBAR ================= */}
-
-        <header className="admin-reports-topbar">
-          <div className="admin-reports-global-search">
-            <Search size={17} />
-
-            <input
-              placeholder="Search users, workspaces, projects, or anything..."
-            />
-
-            <span>Ctrl + K</span>
-          </div>
-
-          <div className="admin-reports-top-actions">
-            <button
-              className="admin-reports-create-top"
-              onClick={() => openGenerator()}
-            >
-              <Plus size={17} />
-              Create
-              <ChevronDown size={14} />
-            </button>
-
-            <div className="admin-reports-profile">
-              <div className="admin-reports-avatar">
-                HR
-              </div>
-
-              <div>
-                <strong>Himanshu</strong>
-                <span>Super Administrator</span>
-              </div>
-
-              <ChevronDown size={15} />
-            </div>
-          </div>
-        </header>
-
-        {/* ================= CONTENT ================= */}
+        <AdminTopbar onMobileMenuToggle={() => setMobileOpen(true)} />
 
         <div className="admin-reports-content">
-          {/* ================= HEADER ================= */}
-
-          <section className="admin-reports-heading">
+          {/* Header */}
+          <div className="admin-reports-header">
             <div>
-              <div className="admin-reports-breadcrumb">
-                <FileText size={15} />
-                ADMIN / REPORTS
-              </div>
-
-              <h1>Reports</h1>
-
-              <p>
-                Generate, review and export TeamFlow AI
-                platform reports.
-              </p>
+              <h1>Reports & Platform Exports</h1>
+              <p>Generate, schedule, review, and export comprehensive organization data and audit summaries.</p>
             </div>
 
-            <button
-              className="admin-reports-primary"
-              onClick={() => openGenerator()}
-            >
-              <Plus size={16} />
-              Generate Report
-            </button>
-          </section>
-
-          {/* ================= STATS ================= */}
-
-          <section className="admin-reports-stats">
-            <StatCard
-              title="Generated Reports"
-              value={reports.length}
-              text="Available reports"
-              icon={FileText}
-              type="purple"
-            />
-
-            <StatCard
-              title="Total Records"
-              value={totalRecords.toLocaleString()}
-              text="Across reports"
-              icon={FileSpreadsheet}
-              type="blue"
-            />
-
-            <StatCard
-              title="Platform Users"
-              value={reportSummary.totalUsers.toLocaleString()}
-              text={`${reportSummary.activeUsers} active`}
-              icon={Users}
-              type="green"
-            />
-
-            <StatCard
-              title="Workspaces"
-              value={reportSummary.workspaces}
-              text="Active workspaces"
-              icon={Building2}
-              type="orange"
-            />
-
-            <StatCard
-              title="Monthly Revenue"
-              value={`$${reportSummary.revenue.toLocaleString()}`}
-              text="Current month"
-              icon={DollarSign}
-              type="pink"
-            />
-          </section>
-
-          {/* ================= QUICK REPORTS ================= */}
-
-          <section className="admin-reports-section">
-            <div className="admin-reports-section-header">
-              <div>
-                <h3>Quick Reports</h3>
-
-                <p>
-                  Generate frequently used reports
-                  quickly.
-                </p>
-              </div>
-
-              <BarChart3 size={18} />
-            </div>
-
-            <div className="admin-reports-template-grid">
-              {reportTemplates.map((template) => (
-                <article
-                  className="admin-report-template"
-                  key={template.id}
-                >
-                  <div className="admin-report-template-icon">
-                    {getTemplateIcon(template.type)}
-                  </div>
-
-                  <div>
-                    <h4>{template.title}</h4>
-
-                    <p>{template.description}</p>
-                  </div>
-
-                  <button
-                    onClick={() =>
-                      openGenerator(template.type)
-                    }
-                  >
-                    Generate
-                  </button>
-                </article>
-              ))}
-            </div>
-          </section>
-
-          {/* ================= REPORT HISTORY ================= */}
-
-          <section className="admin-reports-section">
-            <div className="admin-reports-section-header">
-              <div>
-                <h3>Report History</h3>
-
-                <p>
-                  View and manage previously generated
-                  reports.
-                </p>
-              </div>
-
-              <button
-                className="admin-reports-reset"
-                onClick={resetReports}
-              >
-                <RefreshCw size={14} />
-                Reset Demo Data
+            <div className="admin-reports-header-actions">
+              <button className="admin-reports-btn-secondary" onClick={exportAllCSV}>
+                <FileSpreadsheet size={15} />
+                <span>Export Manifest</span>
+              </button>
+              <button className="admin-reports-btn-primary" onClick={() => handleOpenGenerator()}>
+                <Plus size={16} />
+                <span>Generate Report</span>
               </button>
             </div>
+          </div>
 
-            {/* FILTERS */}
+          {/* Feedback banner */}
+          {downloadSuccess && (
+            <div className="admin-reports-alert-success">
+              <CheckCircle2 size={18} />
+              <span>Report <strong>{downloadSuccess}</strong> was downloaded successfully!</span>
+            </div>
+          )}
 
+          {/* KPI Stat Cards */}
+          <div className="admin-reports-stats-grid">
+            <div className="admin-reports-stat-card">
+              <div className="stat-icon purple">
+                <FileText size={20} />
+              </div>
+              <div className="stat-info">
+                <span className="stat-label">Generated Reports</span>
+                <span className="stat-value">{reports.length} files</span>
+                <span className="stat-subtext">Archived and ready to download</span>
+              </div>
+            </div>
+
+            <div className="admin-reports-stat-card">
+              <div className="stat-icon blue">
+                <FileSpreadsheet size={20} />
+              </div>
+              <div className="stat-info">
+                <span className="stat-label">Total Records Processed</span>
+                <span className="stat-value">{totalRecords.toLocaleString()}</span>
+                <span className="stat-subtext">Across users, tasks, and telemetry</span>
+              </div>
+            </div>
+
+            <div className="admin-reports-stat-card">
+              <div className="stat-icon emerald">
+                <HardDrive size={20} />
+              </div>
+              <div className="stat-info">
+                <span className="stat-label">Report Archive Size</span>
+                <span className="stat-value">28.4 MB</span>
+                <span className="stat-subtext">Compressed CSV & JSON bundles</span>
+              </div>
+            </div>
+
+            <div className="admin-reports-stat-card">
+              <div className="stat-icon amber">
+                <Clock size={20} />
+              </div>
+              <div className="stat-info">
+                <span className="stat-label">Automated Pipelines</span>
+                <span className="stat-value">4 Active</span>
+                <span className="stat-subtext">Daily & weekly cron dispatches</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Quick Report Templates */}
+          <div className="admin-reports-templates-section">
+            <div className="section-title-row">
+              <div>
+                <h3>Quick Report Templates</h3>
+                <p>One-click standard templates for recurring executive and operational audits</p>
+              </div>
+            </div>
+
+            <div className="templates-grid">
+              {reportTemplates.map((template, idx) => (
+                <div key={idx} className="template-card">
+                  <div className="template-top">
+                    <div className="template-icon-box">
+                      {template.type.includes("User") && <Users size={18} />}
+                      {template.type.includes("Workspace") && <Building2 size={18} />}
+                      {template.type.includes("Revenue") && <CircleDollarSign size={18} />}
+                      {template.type.includes("Activity") && <Zap size={18} />}
+                      {!template.type.includes("User") &&
+                        !template.type.includes("Workspace") &&
+                        !template.type.includes("Revenue") &&
+                        !template.type.includes("Activity") && <FileText size={18} />}
+                    </div>
+                    <span className="template-format-badge">{template.format}</span>
+                  </div>
+
+                  <h4 className="template-title">{template.name}</h4>
+                  <p className="template-desc">{template.description}</p>
+
+                  <div className="template-footer">
+                    <span className="template-type-tag">{template.type}</span>
+                    <button
+                      className="template-gen-btn"
+                      onClick={() => handleOpenGenerator(template.type, template.name)}
+                    >
+                      <Plus size={13} />
+                      <span>Run</span>
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Reports Table Card */}
+          <div className="admin-reports-card">
+            {/* Toolbar */}
             <div className="admin-reports-toolbar">
-              <div className="admin-reports-search">
+              <div className="search-box">
                 <Search size={15} />
-
                 <input
+                  type="text"
+                  placeholder="Search reports by name, ID or keyword..."
                   value={search}
-                  onChange={(event) =>
-                    setSearch(event.target.value)
-                  }
-                  placeholder="Search reports..."
+                  onChange={(e) => setSearch(e.target.value)}
                 />
+                {search && (
+                  <button className="clear-btn" onClick={() => setSearch("")}>
+                    <X size={14} />
+                  </button>
+                )}
               </div>
 
-              <select
-                value={typeFilter}
-                onChange={(event) =>
-                  setTypeFilter(event.target.value)
-                }
-              >
-                <option value="All">
-                  All Report Types
-                </option>
+              <div className="filters-group">
+                <div className="filter-select">
+                  <Filter size={14} />
+                  <select
+                    value={typeFilter}
+                    onChange={(e) => setTypeFilter(e.target.value)}
+                  >
+                    <option value="All">All Categories</option>
+                    {reportTypes.map((t) => (
+                      <option key={t} value={t}>{t}</option>
+                    ))}
+                  </select>
+                </div>
 
-                {reportTypes.map((type) => (
-                  <option key={type} value={type}>
-                    {type}
-                  </option>
-                ))}
-              </select>
+                <div className="filter-select">
+                  <select
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                  >
+                    <option value="All">All Statuses</option>
+                    <option value="ready">Ready</option>
+                    <option value="generating">Generating</option>
+                  </select>
+                </div>
 
-              <select
-                value={statusFilter}
-                onChange={(event) =>
-                  setStatusFilter(event.target.value)
-                }
-              >
-                <option value="All">
-                  All Status
-                </option>
+                <div className="filter-select">
+                  <select
+                    value={formatFilter}
+                    onChange={(e) => setFormatFilter(e.target.value)}
+                  >
+                    <option value="All">All Formats</option>
+                    <option value="csv">CSV</option>
+                    <option value="json">JSON</option>
+                    <option value="pdf">PDF</option>
+                  </select>
+                </div>
 
-                <option value="Ready">
-                  Ready
-                </option>
+                <div className="filter-select">
+                  <select
+                    value={`${sortKey}-${sortOrder}`}
+                    onChange={(e) => {
+                      const [k, ord] = e.target.value.split("-");
+                      setSortKey(k);
+                      setSortOrder(ord);
+                    }}
+                    aria-label="Sort reports"
+                  >
+                    <option value="createdAt-desc">Sort: Newest First</option>
+                    <option value="createdAt-asc">Sort: Oldest First</option>
+                    <option value="name-asc">Sort: Name (A to Z)</option>
+                    <option value="name-desc">Sort: Name (Z to A)</option>
+                    <option value="records-desc">Sort: Records (High to Low)</option>
+                    <option value="records-asc">Sort: Records (Low to High)</option>
+                  </select>
+                </div>
 
-                <option value="Processing">
-                  Processing
-                </option>
-              </select>
+                {(search || typeFilter !== "All" || statusFilter !== "All" || formatFilter !== "All") && (
+                  <button
+                    type="button"
+                    className="clear-filters-btn"
+                    onClick={() => {
+                      setSearch("");
+                      setTypeFilter("All");
+                      setStatusFilter("All");
+                      setFormatFilter("All");
+                    }}
+                  >
+                    <X size={13} />
+                    Clear Filters
+                  </button>
+                )}
+              </div>
             </div>
 
-            <div className="admin-reports-count">
-              Showing {filteredReports.length} of{" "}
-              {reports.length} reports
-            </div>
-
-            {/* ================= TABLE ================= */}
-
-            <div className="admin-reports-table-wrapper">
+            {/* Table */}
+            <div className="table-responsive">
               <table className="admin-reports-table">
                 <thead>
                   <tr>
-                    <th>REPORT</th>
-                    <th>TYPE</th>
-                    <th>PERIOD</th>
-                    <th>RECORDS</th>
+                    <th style={{ width: 48, textAlign: "center" }}>#</th>
+                    <th className="sortable-th" onClick={() => handleSort("name")}>
+                      <div className="th-content">
+                        <span>REPORT NAME</span>
+                        {renderSortIcon("name")}
+                      </div>
+                    </th>
+                    <th className="sortable-th" onClick={() => handleSort("type")}>
+                      <div className="th-content">
+                        <span>CATEGORY</span>
+                        {renderSortIcon("type")}
+                      </div>
+                    </th>
+                    <th>TIME PERIOD</th>
+                    <th className="sortable-th" onClick={() => handleSort("createdBy")}>
+                      <div className="th-content">
+                        <span>GENERATED BY</span>
+                        {renderSortIcon("createdBy")}
+                      </div>
+                    </th>
+                    <th className="sortable-th" onClick={() => handleSort("records")}>
+                      <div className="th-content">
+                        <span>RECORDS & SIZE</span>
+                        {renderSortIcon("records")}
+                      </div>
+                    </th>
                     <th>FORMAT</th>
-                    <th>STATUS</th>
-                    <th>CREATED</th>
-                    <th>ACTION</th>
+                    <th className="sortable-th" onClick={() => handleSort("status")}>
+                      <div className="th-content">
+                        <span>STATUS</span>
+                        {renderSortIcon("status")}
+                      </div>
+                    </th>
+                    <th style={{ textAlign: "right" }}>ACTIONS</th>
                   </tr>
                 </thead>
-
                 <tbody>
-                  {filteredReports.map((report) => (
-                    <tr key={report.id}>
-                      <td>
-                        <div className="admin-report-name">
-                          <div>
-                            <FileText size={16} />
-                          </div>
-
-                          <span>
-                            <strong>
-                              {report.name}
-                            </strong>
-
-                            <small>
-                              {report.id}
-                            </small>
-                          </span>
-                        </div>
-                      </td>
-
-                      <td>{report.type}</td>
-
-                      <td>{report.period}</td>
-
-                      <td>
-                        {report.records.toLocaleString()}
-                      </td>
-
-                      <td>
-                        <span className="admin-report-format">
-                          {report.format}
-                        </span>
-                      </td>
-
-                      <td>
-                        <span
-                          className={`admin-report-status ${report.status.toLowerCase()}`}
-                        >
-                          <CheckCircle2 size={11} />
-                          {report.status}
-                        </span>
-                      </td>
-
-                      <td>
-                        <span className="admin-report-created">
-                          {report.createdAt}
-
-                          <small>
-                            {report.createdBy}
-                          </small>
-                        </span>
-                      </td>
-
-                      <td>
-                        <div className="admin-report-action-wrap">
-                          <button
-                            className="admin-report-action"
-                            onClick={() =>
-                              setMenuId(
-                                menuId === report.id
-                                  ? null
-                                  : report.id
-                              )
-                            }
-                          >
-                            <MoreVertical size={17} />
-                          </button>
-
-                          {menuId === report.id && (
-                            <div className="admin-report-menu">
-                              <button
-                                onClick={() => {
-                                  setSelectedReport(
-                                    report
-                                  );
-
-                                  setMenuId(null);
-                                }}
-                              >
-                                <Eye size={14} />
-                                View Report
-                              </button>
-
-                              <button
-                                onClick={() =>
-                                  downloadReport(report)
-                                }
-                              >
-                                <Download size={14} />
-                                Download CSV
-                              </button>
-
-                              <button
-                                className="delete"
-                                onClick={() =>
-                                  deleteReport(report.id)
-                                }
-                              >
-                                <Trash2 size={14} />
-                                Delete
-                              </button>
-                            </div>
-                          )}
-                        </div>
+                  {filteredReports.length === 0 ? (
+                    <tr>
+                      <td colSpan="9" className="empty-cell">
+                        <FileText size={32} />
+                        <p>No reports match your filters or search query.</p>
                       </td>
                     </tr>
-                  ))}
+                  ) : (
+                    filteredReports.map((report, idx) => (
+                      <tr key={report.id}>
+                        <td style={{ textAlign: "center" }}>
+                          <span className="admin-row-num">{idx + 1}</span>
+                        </td>
+                        <td>
+                          <div className="report-name-cell">
+                            <span className="report-icon-chip">
+                              <FileText size={14} />
+                            </span>
+                            <div>
+                              <span className="report-title">{report.name}</span>
+                              <span className="report-id-code">{report.id}</span>
+                            </div>
+                          </div>
+                        </td>
+                        <td>
+                          <span className="report-cat-badge">{report.type}</span>
+                        </td>
+                        <td>
+                          <span className="report-period-text">{report.period}</span>
+                        </td>
+                        <td>
+                          <div className="creator-cell">
+                            <span className="creator-avatar">
+                              {report.createdBy.slice(0, 2).toUpperCase()}
+                            </span>
+                            <div>
+                              <span className="creator-name">{report.createdBy}</span>
+                              <span className="created-date">{report.createdAt}</span>
+                            </div>
+                          </div>
+                        </td>
+                        <td>
+                          <div className="records-size-cell">
+                            <strong>{report.records.toLocaleString()}</strong> rows
+                            <span className="size-text">({report.size})</span>
+                          </div>
+                        </td>
+                        <td>
+                          <span className={`format-pill ${report.format.toLowerCase()}`}>
+                            {report.format}
+                          </span>
+                        </td>
+                        <td>
+                          <span className={`status-pill ${report.status.toLowerCase()}`}>
+                            <CheckCircle2 size={12} />
+                            {report.status}
+                          </span>
+                        </td>
+                        <td style={{ textAlign: "right" }}>
+                          <div className="actions-cell">
+                            <button
+                              className="action-btn preview"
+                              title="Preview Dataset"
+                              onClick={() => setSelectedReport(report)}
+                            >
+                              <Eye size={14} />
+                              <span>View</span>
+                            </button>
+                            <button
+                              className="action-btn download"
+                              title="Download File"
+                              onClick={() => handleDownloadReport(report)}
+                            >
+                              <Download size={14} />
+                              <span>Download</span>
+                            </button>
+                            <button
+                              className="action-btn delete"
+                              title="Delete from Archive"
+                              onClick={() => handleDeleteReport(report.id)}
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
-
-              {filteredReports.length === 0 && (
-                <div className="admin-reports-empty">
-                  <FileText size={42} />
-
-                  <h3>No reports found</h3>
-
-                  <p>
-                    Try changing your filters or
-                    generate a new report.
-                  </p>
-
-                  <button
-                    onClick={() => openGenerator()}
-                  >
-                    <Plus size={14} />
-                    Generate Report
-                  </button>
-                </div>
-              )}
             </div>
-          </section>
+          </div>
         </div>
       </main>
 
-      {/* =====================================================
-          GENERATE REPORT MODAL
-      ===================================================== */}
-
-      {showGenerator && (
-        <div className="admin-reports-modal-overlay">
-          <div className="admin-reports-modal">
-            <div className="admin-reports-modal-header">
-              <div>
-                <h2>Generate Report</h2>
-
-                <p>
-                  Configure the report you want to
-                  generate.
-                </p>
-              </div>
-
-              <button
-                onClick={() =>
-                  setShowGenerator(false)
-                }
-              >
-                <X size={20} />
-              </button>
-            </div>
-
-            <div className="admin-reports-form">
-              <label>
-                Report Name
-
-                <input
-                  value={reportForm.name}
-                  onChange={(event) =>
-                    setReportForm({
-                      ...reportForm,
-                      name: event.target.value,
-                    })
-                  }
-                  placeholder="Example: October User Report"
-                />
-              </label>
-
-              <label>
-                Report Type
-
-                <select
-                  value={reportForm.type}
-                  onChange={(event) =>
-                    setReportForm({
-                      ...reportForm,
-                      type: event.target.value,
-                    })
-                  }
-                >
-                  {reportTypes.map((type) => (
-                    <option
-                      value={type}
-                      key={type}
-                    >
-                      {type}
-                    </option>
-                  ))}
-                </select>
-              </label>
-
-              <div className="admin-reports-form-grid">
-                <label>
-                  Start Date
-
-                  <input
-                    type="date"
-                    value={reportForm.startDate}
-                    onChange={(event) =>
-                      setReportForm({
-                        ...reportForm,
-                        startDate:
-                          event.target.value,
-                      })
-                    }
-                  />
-                </label>
-
-                <label>
-                  End Date
-
-                  <input
-                    type="date"
-                    value={reportForm.endDate}
-                    onChange={(event) =>
-                      setReportForm({
-                        ...reportForm,
-                        endDate:
-                          event.target.value,
-                      })
-                    }
-                  />
-                </label>
-              </div>
-
-              <label>
-                Export Format
-
-                <select
-                  value={reportForm.format}
-                  onChange={(event) =>
-                    setReportForm({
-                      ...reportForm,
-                      format: event.target.value,
-                    })
-                  }
-                >
-                  <option value="CSV">
-                    CSV
-                  </option>
-
-                  <option value="Excel">
-                    Excel
-                  </option>
-
-                  <option value="PDF">
-                    PDF
-                  </option>
-                </select>
-              </label>
-
-              <div className="admin-report-generation-info">
-                <FileSpreadsheet size={19} />
-
-                <div>
-                  <strong>
-                    Report Generation
-                  </strong>
-
-                  <p>
-                    This demo generates the report
-                    instantly and saves it in browser
-                    storage.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="admin-reports-modal-footer">
-              <button
-                className="admin-reports-secondary"
-                onClick={() =>
-                  setShowGenerator(false)
-                }
-              >
-                Cancel
-              </button>
-
-              <button
-                className="admin-reports-primary"
-                onClick={generateReport}
-              >
-                <Check size={15} />
-                Generate Report
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* =====================================================
-          VIEW REPORT MODAL
-      ===================================================== */}
-
+      {/* Preview Modal */}
       {selectedReport && (
-        <div className="admin-reports-modal-overlay">
-          <div className="admin-reports-view-modal">
-            <div className="admin-reports-modal-header">
-              <div>
-                <span className="admin-report-modal-label">
-                  REPORT DETAILS
-                </span>
-
-                <h2>{selectedReport.name}</h2>
+        <div className="admin-reports-modal-overlay" onClick={() => setSelectedReport(null)}>
+          <div className="admin-reports-modal preview-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <div className="modal-title-wrap">
+                <span className="modal-badge">{selectedReport.id}</span>
+                <h3>{selectedReport.name}</h3>
               </div>
-
-              <button
-                onClick={() =>
-                  setSelectedReport(null)
-                }
-              >
-                <X size={20} />
+              <button className="close-btn" onClick={() => setSelectedReport(null)}>
+                <X size={18} />
               </button>
             </div>
 
-            <div className="admin-report-view-body">
-              <div className="admin-report-view-hero">
+            <div className="modal-body">
+              {/* Meta Grid */}
+              <div className="preview-meta-grid">
                 <div>
-                  <FileText size={27} />
+                  <label>Category</label>
+                  <span>{selectedReport.type}</span>
                 </div>
-
-                <span>
-                  <strong>
-                    {selectedReport.id}
-                  </strong>
-
-                  <small>
-                    {selectedReport.type}
-                  </small>
-                </span>
-
-                <span className="admin-report-status ready">
-                  <CheckCircle2 size={11} />
-                  {selectedReport.status}
-                </span>
+                <div>
+                  <label>Period Range</label>
+                  <span>{selectedReport.period}</span>
+                </div>
+                <div>
+                  <label>Created By</label>
+                  <span>{selectedReport.createdBy}</span>
+                </div>
+                <div>
+                  <label>Total Rows</label>
+                  <span>{selectedReport.records.toLocaleString()} records</span>
+                </div>
+                <div>
+                  <label>File Size</label>
+                  <span>{selectedReport.size}</span>
+                </div>
+                <div>
+                  <label>Format</label>
+                  <span>{selectedReport.format}</span>
+                </div>
               </div>
 
-              <div className="admin-report-view-grid">
-                <ReportInfo
-                  label="Report Type"
-                  value={selectedReport.type}
-                />
-
-                <ReportInfo
-                  label="Date Period"
-                  value={selectedReport.period}
-                />
-
-                <ReportInfo
-                  label="Records"
-                  value={selectedReport.records.toLocaleString()}
-                />
-
-                <ReportInfo
-                  label="File Size"
-                  value={selectedReport.size}
-                />
-
-                <ReportInfo
-                  label="Format"
-                  value={selectedReport.format}
-                />
-
-                <ReportInfo
-                  label="Created By"
-                  value={selectedReport.createdBy}
-                />
-
-                <ReportInfo
-                  label="Created Date"
-                  value={selectedReport.createdAt}
-                />
-
-                <ReportInfo
-                  label="Status"
-                  value={selectedReport.status}
-                />
+              {/* Sample Data Table */}
+              <div className="preview-table-box">
+                <h4>Dataset Preview (First 4 rows)</h4>
+                <table className="sample-table">
+                  <thead>
+                    <tr>
+                      <th>Record ID</th>
+                      <th>Primary Entity</th>
+                      <th>Status / State</th>
+                      <th>Timestamp</th>
+                      <th>Metric Value</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>#001</td>
+                      <td>TeamFlow AI Core Workspace</td>
+                      <td><span className="sample-status good">Active</span></td>
+                      <td>2026-10-26 09:14:22</td>
+                      <td>98.5% SLA</td>
+                    </tr>
+                    <tr>
+                      <td>#002</td>
+                      <td>Product Design Sprint Hub</td>
+                      <td><span className="sample-status good">Active</span></td>
+                      <td>2026-10-26 10:22:15</td>
+                      <td>84.2% SLA</td>
+                    </tr>
+                    <tr>
+                      <td>#003</td>
+                      <td>Backend Microservices Cluster</td>
+                      <td><span className="sample-status good">Active</span></td>
+                      <td>2026-10-26 11:45:00</td>
+                      <td>99.9% SLA</td>
+                    </tr>
+                    <tr>
+                      <td>#004</td>
+                      <td>Marketing Growth Analytics</td>
+                      <td><span className="sample-status good">Active</span></td>
+                      <td>2026-10-26 12:05:40</td>
+                      <td>92.0% SLA</td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
-
-              <ReportPreview
-                report={selectedReport}
-              />
             </div>
 
-            <div className="admin-reports-modal-footer">
-              <button
-                className="admin-reports-secondary"
-                onClick={() =>
-                  setSelectedReport(null)
-                }
-              >
-                Close
+            <div className="modal-footer">
+              <button className="admin-reports-btn-secondary" onClick={() => setSelectedReport(null)}>
+                Close Preview
               </button>
-
               <button
-                className="admin-reports-primary"
-                onClick={() =>
-                  downloadReport(selectedReport)
-                }
+                className="admin-reports-btn-primary"
+                onClick={() => {
+                  handleDownloadReport(selectedReport);
+                }}
               >
                 <Download size={15} />
-                Download Report
+                Download Complete File ({selectedReport.format})
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Generator Modal */}
+      {showGenerator && (
+        <div className="admin-reports-modal-overlay" onClick={() => setShowGenerator(false)}>
+          <div className="admin-reports-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>Generate Custom Report</h3>
+              <button className="close-btn" onClick={() => setShowGenerator(false)}>
+                <X size={18} />
+              </button>
+            </div>
+
+            <form onSubmit={handleGenerateReport}>
+              <div className="modal-body">
+                <div className="form-group">
+                  <label>Report Name</label>
+                  <input
+                    type="text"
+                    required
+                    value={reportForm.name}
+                    onChange={(e) => setReportForm({ ...reportForm, name: e.target.value })}
+                    placeholder="e.g. Q4 Executive Productivity Audit"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Report Category</label>
+                  <select
+                    value={reportForm.type}
+                    onChange={(e) => setReportForm({ ...reportForm, type: e.target.value })}
+                  >
+                    {reportTypes.map((t) => (
+                      <option key={t} value={t}>{t}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="form-row-two">
+                  <div className="form-group">
+                    <label>Start Date</label>
+                    <input
+                      type="date"
+                      required
+                      value={reportForm.startDate}
+                      onChange={(e) => setReportForm({ ...reportForm, startDate: e.target.value })}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>End Date</label>
+                    <input
+                      type="date"
+                      required
+                      value={reportForm.endDate}
+                      onChange={(e) => setReportForm({ ...reportForm, endDate: e.target.value })}
+                    />
+                  </div>
+                </div>
+
+                <div className="form-group">
+                  <label>Output Format</label>
+                  <div className="format-toggle-group">
+                    {["CSV", "JSON", "PDF"].map((fmt) => (
+                      <button
+                        key={fmt}
+                        type="button"
+                        className={`fmt-btn ${reportForm.format === fmt ? "active" : ""}`}
+                        onClick={() => setReportForm({ ...reportForm, format: fmt })}
+                      >
+                        {fmt}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="form-options">
+                  <label className="checkbox-label">
+                    <input
+                      type="checkbox"
+                      checked={reportForm.includeTimestamps}
+                      onChange={(e) => setReportForm({ ...reportForm, includeTimestamps: e.target.checked })}
+                    />
+                    <span>Include granular telemetry timestamps and actor IPs</span>
+                  </label>
+
+                  <label className="checkbox-label">
+                    <input
+                      type="checkbox"
+                      checked={reportForm.includeInactive}
+                      onChange={(e) => setReportForm({ ...reportForm, includeInactive: e.target.checked })}
+                    />
+                    <span>Include archived and suspended workspaces/users</span>
+                  </label>
+                </div>
+              </div>
+
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="admin-reports-btn-secondary"
+                  onClick={() => setShowGenerator(false)}
+                >
+                  Cancel
+                </button>
+                <button type="submit" className="admin-reports-btn-primary">
+                  <Sparkles size={15} />
+                  <span>Generate Report</span>
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
     </div>
   );
 }
-
-/* =========================================================
-   COMPONENTS
-========================================================= */
-
-function StatCard({
-  title,
-  value,
-  text,
-  icon: Icon,
-  type,
-}) {
-  return (
-    <article className="admin-reports-stat">
-      <div
-        className={`admin-reports-stat-icon ${type}`}
-      >
-        <Icon size={20} />
-      </div>
-
-      <div>
-        <span>{title}</span>
-
-        <strong>{value}</strong>
-
-        <small>{text}</small>
-      </div>
-    </article>
-  );
-}
-
-function ReportInfo({ label, value }) {
-  return (
-    <div className="admin-report-info">
-      <span>{label}</span>
-      <strong>{value}</strong>
-    </div>
-  );
-}
-
-function ReportPreview({ report }) {
-  const data = createReportData(report).slice(0, 5);
-
-  if (!data.length) return null;
-
-  const headers = Object.keys(data[0]);
-
-  return (
-    <div className="admin-report-preview">
-      <div className="admin-report-preview-header">
-        <div>
-          <h3>Report Preview</h3>
-          <p>Showing sample report data.</p>
-        </div>
-
-        <Eye size={17} />
-      </div>
-
-      <div className="admin-report-preview-table-wrap">
-        <table>
-          <thead>
-            <tr>
-              {headers.map((header) => (
-                <th key={header}>
-                  {header}
-                </th>
-              ))}
-            </tr>
-          </thead>
-
-          <tbody>
-            {data.map((row, index) => (
-              <tr key={index}>
-                {headers.map((header) => (
-                  <td key={header}>
-                    {row[header]}
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
-}
-
-/* =========================================================
-   HELPERS
-========================================================= */
-
-function formatDate(date) {
-  return new Date(
-    `${date}T00:00:00`
-  ).toLocaleDateString("en-US", {
-    month: "short",
-    day: "2-digit",
-    year: "numeric",
-  });
-}
-
-function getRecordCount(type) {
-  const counts = {
-    "User Report": 1248,
-    "Workspace Report": 186,
-    "Project Report": 542,
-    "Task Report": 3421,
-    "Revenue Report": 428,
-    "Subscription Report": 144,
-    "AI Usage Report": 12480,
-    "System Activity Report": 8240,
-  };
-
-  return counts[type] || 100;
-}
-
-function calculateSize(records) {
-  if (records > 5000) {
-    return `${(records / 3000).toFixed(1)} MB`;
-  }
-
-  if (records > 1000) {
-    return `${(records / 1000).toFixed(1)} MB`;
-  }
-
-  return `${Math.max(
-    120,
-    Math.round(records * 2.3)
-  )} KB`;
-}
-
-function getTemplateIcon(type) {
-  switch (type) {
-    case "User Report":
-      return <Users size={21} />;
-
-    case "Workspace Report":
-      return <Building2 size={21} />;
-
-    case "Revenue Report":
-      return <DollarSign size={21} />;
-
-    case "Project Report":
-      return <FolderKanban size={21} />;
-
-    default:
-      return <FileText size={21} />;
-  }
-}
-
-function createReportData(report) {
-  switch (report.type) {
-    case "User Report":
-      return [
-        {
-          User: "John Doe",
-          Email: "john@company.com",
-          Role: "Admin",
-          Status: "Active",
-        },
-        {
-          User: "Sarah Chen",
-          Email: "sarah@company.com",
-          Role: "Team Lead",
-          Status: "Active",
-        },
-        {
-          User: "David Lee",
-          Email: "david@company.com",
-          Role: "Member",
-          Status: "Active",
-        },
-        {
-          User: "Emily Parker",
-          Email: "emily@company.com",
-          Role: "Member",
-          Status: "Inactive",
-        },
-        {
-          User: "Michael Brown",
-          Email: "michael@company.com",
-          Role: "Admin",
-          Status: "Active",
-        },
-      ];
-
-    case "Workspace Report":
-      return [
-        {
-          Workspace: "Product Team",
-          Members: 24,
-          Projects: 12,
-          Plan: "Enterprise",
-        },
-        {
-          Workspace: "Development Hub",
-          Members: 32,
-          Projects: 18,
-          Plan: "Enterprise",
-        },
-        {
-          Workspace: "Marketing Team",
-          Members: 12,
-          Projects: 8,
-          Plan: "Business",
-        },
-        {
-          Workspace: "Design Studio",
-          Members: 8,
-          Projects: 6,
-          Plan: "Pro",
-        },
-        {
-          Workspace: "Research Lab",
-          Members: 16,
-          Projects: 9,
-          Plan: "Business",
-        },
-      ];
-
-    case "Project Report":
-      return [
-        {
-          Project: "TeamFlow AI",
-          Status: "Active",
-          Progress: "72%",
-          Tasks: 48,
-        },
-        {
-          Project: "Mobile App",
-          Status: "Active",
-          Progress: "50%",
-          Tasks: 34,
-        },
-        {
-          Project: "Marketing Website",
-          Status: "Completed",
-          Progress: "100%",
-          Tasks: 26,
-        },
-        {
-          Project: "AI Assistant",
-          Status: "On Hold",
-          Progress: "33%",
-          Tasks: 21,
-        },
-        {
-          Project: "Backend API",
-          Status: "Active",
-          Progress: "61%",
-          Tasks: 57,
-        },
-      ];
-
-    case "Task Report":
-      return [
-        {
-          Task: "Build dashboard",
-          Assignee: "John",
-          Status: "Completed",
-          Priority: "High",
-        },
-        {
-          Task: "Create API",
-          Assignee: "David",
-          Status: "In Progress",
-          Priority: "High",
-        },
-        {
-          Task: "Design UI",
-          Assignee: "Sarah",
-          Status: "Review",
-          Priority: "Medium",
-        },
-        {
-          Task: "Testing",
-          Assignee: "Emily",
-          Status: "To Do",
-          Priority: "Medium",
-        },
-      ];
-
-    case "Revenue Report":
-      return [
-        {
-          Month: "May",
-          Revenue: "$12,400",
-          Subscriptions: 78,
-        },
-        {
-          Month: "June",
-          Revenue: "$14,800",
-          Subscriptions: 89,
-        },
-        {
-          Month: "July",
-          Revenue: "$16,200",
-          Subscriptions: 98,
-        },
-        {
-          Month: "August",
-          Revenue: "$18,700",
-          Subscriptions: 112,
-        },
-        {
-          Month: "September",
-          Revenue: "$21,500",
-          Subscriptions: 128,
-        },
-        {
-          Month: "October",
-          Revenue: "$24,820",
-          Subscriptions: 144,
-        },
-      ];
-
-    case "Subscription Report":
-      return [
-        {
-          Plan: "Free",
-          Subscribers: 42,
-          Revenue: "$0",
-        },
-        {
-          Plan: "Pro",
-          Subscribers: 68,
-          Revenue: "$6,732",
-        },
-        {
-          Plan: "Business",
-          Subscribers: 51,
-          Revenue: "$12,699",
-        },
-        {
-          Plan: "Enterprise",
-          Subscribers: 25,
-          Revenue: "$5,389",
-        },
-      ];
-
-    case "AI Usage Report":
-      return [
-        {
-          Tool: "AI Summary",
-          Requests: 4280,
-          Users: 412,
-        },
-        {
-          Tool: "Task Assistant",
-          Requests: 3260,
-          Users: 326,
-        },
-        {
-          Tool: "Bug Assistant",
-          Requests: 2480,
-          Users: 218,
-        },
-        {
-          Tool: "Chat Assistant",
-          Requests: 2460,
-          Users: 284,
-        },
-      ];
-
-    default:
-      return [
-        {
-          Metric: "Active Users",
-          Value: reportSummary.activeUsers,
-        },
-        {
-          Metric: "Workspaces",
-          Value: reportSummary.workspaces,
-        },
-        {
-          Metric: "Projects",
-          Value: reportSummary.projects,
-        },
-        {
-          Metric: "Tasks",
-          Value: reportSummary.tasks,
-        },
-      ];
-  }
-}
-
-export default AdminReports;

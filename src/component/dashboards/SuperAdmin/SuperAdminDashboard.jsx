@@ -1,1025 +1,1200 @@
-
-import { useMemo, useState } from "react";
+import { useMemo, useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  ResponsiveContainer,
-  AreaChart,
-  Area,
-  LineChart,
-  Line,
-  BarChart,
-  Bar,
-  PieChart,
-  Pie,
-  Cell,
-  CartesianGrid,
-  XAxis,
-  YAxis,
-  Tooltip,
-  Legend,
-} from "recharts";
-import {
-  Building2,
   Users,
-  TrendingUp,
-  DollarSign,
-  Activity,
+  User,
+  Crown,
+  CalendarDays,
+  ChevronDown,
   ArrowUpRight,
   ArrowDownRight,
-  RefreshCw,
-  ExternalLink,
-  ShieldCheck,
-  Clock,
-  CheckCircle2,
-  MoreHorizontal,
+  ArrowRight,
   Sparkles,
+  Hexagon,
+  Clock3,
+  TriangleAlert,
+  Building2,
+  Code2,
+  Palette,
+  Mail,
 } from "lucide-react";
+import "./SuperAdminCommon.css";
 import "./SuperAdminDashboard.css";
 
-const growthData = {
-  "7d": [
-    { name: "Mon", organizations: 108, users: 1820 },
-    { name: "Tue", organizations: 111, users: 1885 },
-    { name: "Wed", organizations: 113, users: 1910 },
-    { name: "Thu", organizations: 115, users: 1980 },
-    { name: "Fri", organizations: 119, users: 2040 },
-    { name: "Sat", organizations: 123, users: 2100 },
-    { name: "Sun", organizations: 128, users: 2180 },
+/* =========================================================================
+   COMPREHENSIVE DATASET MAPPED BY DATE RANGE
+   All KPIs, Growth Curves, Plan Distribution & AI Metrics update dynamically
+   ========================================================================= */
+const DASHBOARD_DATA_BY_RANGE = {
+  "Oct 1, 2024 - Oct 31, 2024": {
+    kpis: {
+      organizations: { value: "186", trend: "12%", direction: "up", sub: "+ 20 this month" },
+      users: { value: "1,248", trend: "8.4%", direction: "up", sub: "+ 95 this month" },
+      revenue: { value: "₹2.48L", trend: "16%", direction: "up", sub: "+ ₹34,500 this month" },
+      subscriptions: { value: "142", trend: "5.2%", direction: "up", sub: "21 trials • 9 expiring" },
+    },
+    userGrowth: [
+      { month: "Jan", users: 350 },
+      { month: "Feb", users: 510 },
+      { month: "Mar", users: 620 },
+      { month: "Apr", users: 700 },
+      { month: "May", users: 820 },
+      { month: "Jun", users: 930 },
+      { month: "Jul", users: 1050 },
+      { month: "Aug", users: 1180 },
+      { month: "Sep", users: 1450 },
+      { month: "Oct", users: 1650 },
+    ],
+    revenueGrowth: [
+      { month: "Jan", revenue: 0.2 },
+      { month: "Feb", revenue: 0.6 },
+      { month: "Mar", revenue: 0.55 },
+      { month: "Apr", revenue: 1.15 },
+      { month: "May", revenue: 1.6 },
+      { month: "Jun", revenue: 1.3 },
+      { month: "Jul", revenue: 1.95 },
+      { month: "Aug", revenue: 2.48 },
+      { month: "Sep", revenue: 2.2 },
+      { month: "Oct", revenue: 2.95 },
+    ],
+    plans: [
+      { name: "Free", percent: 40, count: 57, color: "#5b74ff" },
+      { name: "Pro", percent: 35, count: 50, color: "#2783ff" },
+      { name: "Business", percent: 20, count: 28, color: "#ffb21c" },
+      { name: "Enterprise", percent: 5, count: 7, color: "#ff454b" },
+    ],
+    totalSubscriptions: 142,
+    aiMetrics: [
+      { label: "Total Requests", display: "84,520", change: "18%", direction: "up", icon: Sparkles, color: "purple" },
+      { label: "Tokens Used", display: "8.4M", change: "22%", direction: "up", icon: Hexagon, color: "orange" },
+      { label: "Avg. Response Time", display: "1.2s", change: "12%", direction: "down", icon: Clock3, color: "green", isGood: true },
+      { label: "Failed Requests", display: "124", change: "40%", direction: "down", icon: TriangleAlert, color: "red", isBad: true },
+    ],
+    recentOrganizations: [
+      { name: "ABC Technologies", plan: "Business Plan", users: 84, status: "Active", time: "2 hours ago", icon: Building2, color: "blue" },
+      { name: "XYZ Software", plan: "Pro Plan", users: 26, status: "Active", time: "5 hours ago", icon: Code2, color: "blue" },
+      { name: "Startup Labs", plan: "Free Plan", users: 5, status: "Trial", time: "1 day ago", icon: TriangleAlert, color: "orange" },
+      { name: "DesignHub", plan: "Pro Plan", users: 18, status: "Active", time: "2 days ago", icon: Palette, color: "dark-blue" },
+      { name: "NextGen Solutions", plan: "Business Plan", users: 42, status: "Active", time: "2 days ago", icon: Mail, color: "pink" },
+    ],
+    recentActivities: [
+      { time: "10:42 AM", initial: "H", user: "Himanshu", role: "(Super Admin)", action: "Changed SMTP config", details: "Updated email settings", color: "blue" },
+      { time: "10:31 AM", initial: "R", user: "Rahul Sharma", role: "(Admin)", action: "Invited user", details: "priya@abc.com", color: "light-blue" },
+      { time: "10:20 AM", initial: "H", user: "Himanshu", role: "(Super Admin)", action: "Suspended organization", details: "XYZ Software", color: "blue" },
+      { time: "09:55 AM", initial: "A", user: "Amit Verma", role: "(Admin)", action: "Changed plan", details: "Pro → Business", color: "sky" },
+      { time: "09:32 AM", initial: "P", user: "System", role: "", action: "AI usage limit updated", details: "Increased limit to 50,000", color: "lavender" },
+    ],
+  },
+  "Last 30 Days": {
+    kpis: {
+      organizations: { value: "182", trend: "10.8%", direction: "up", sub: "+ 18 in last 30 days" },
+      users: { value: "1,192", trend: "7.9%", direction: "up", sub: "+ 82 in last 30 days" },
+      revenue: { value: "₹2.36L", trend: "14.5%", direction: "up", sub: "+ ₹29,800 in last 30 days" },
+      subscriptions: { value: "138", trend: "4.8%", direction: "up", sub: "19 trials • 7 expiring" },
+    },
+    userGrowth: [
+      { month: "Wk 1", users: 1100 },
+      { month: "Wk 2", users: 1240 },
+      { month: "Wk 3", users: 1420 },
+      { month: "Wk 4", users: 1650 },
+    ],
+    revenueGrowth: [
+      { month: "Wk 1", revenue: 2.1 },
+      { month: "Wk 2", revenue: 2.3 },
+      { month: "Wk 3", revenue: 2.48 },
+      { month: "Wk 4", revenue: 2.95 },
+    ],
+    plans: [
+      { name: "Free", percent: 42, count: 58, color: "#5b74ff" },
+      { name: "Pro", percent: 34, count: 47, color: "#2783ff" },
+      { name: "Business", percent: 19, count: 26, color: "#ffb21c" },
+      { name: "Enterprise", percent: 5, count: 7, color: "#ff454b" },
+    ],
+    totalSubscriptions: 138,
+    aiMetrics: [
+      { label: "Total Requests", display: "79,410", change: "15%", direction: "up", icon: Sparkles, color: "purple" },
+      { label: "Tokens Used", display: "7.8M", change: "18%", direction: "up", icon: Hexagon, color: "orange" },
+      { label: "Avg. Response Time", display: "1.18s", change: "10%", direction: "down", icon: Clock3, color: "green", isGood: true },
+      { label: "Failed Requests", display: "96", change: "35%", direction: "down", icon: TriangleAlert, color: "red", isBad: true },
+    ],
+    recentOrganizations: [
+      { name: "NovaTech Solutions", plan: "Enterprise Plan", users: 120, status: "Active", time: "3 days ago", icon: Building2, color: "blue" },
+      { name: "ABC Technologies", plan: "Business Plan", users: 84, status: "Active", time: "5 days ago", icon: Building2, color: "blue" },
+      { name: "XYZ Software", plan: "Pro Plan", users: 26, status: "Active", time: "1 week ago", icon: Code2, color: "blue" },
+      { name: "PixelCraft Studio", plan: "Pro Plan", users: 14, status: "Active", time: "2 weeks ago", icon: Palette, color: "dark-blue" },
+      { name: "Startup Labs", plan: "Free Plan", users: 5, status: "Trial", time: "3 weeks ago", icon: TriangleAlert, color: "orange" },
+    ],
+    recentActivities: [
+      { time: "Yesterday", initial: "H", user: "Himanshu", role: "(Super Admin)", action: "Backup executed", details: "All DB clusters verified", color: "blue" },
+      { time: "3 days ago", initial: "N", user: "Neha Sen", role: "(Admin)", action: "Upgraded plan", details: "Free → Pro Tier", color: "sky" },
+      { time: "5 days ago", initial: "H", user: "Himanshu", role: "(Super Admin)", action: "Rotated API key", details: "Gemini 2.0 Flash production", color: "blue" },
+      { time: "1 week ago", initial: "V", user: "Vikram Mehta", role: "(Admin)", action: "Invited 5 users", details: "vikram@novatech.io", color: "lavender" },
+      { time: "2 weeks ago", initial: "P", user: "System", role: "", action: "Auto-renewed license", details: "Business Plan (ABC Tech)", color: "light-blue" },
+    ],
+  },
+  "This Quarter": {
+    kpis: {
+      organizations: { value: "210", trend: "15.6%", direction: "up", sub: "+ 48 this quarter" },
+      users: { value: "1,520", trend: "14.2%", direction: "up", sub: "+ 230 this quarter" },
+      revenue: { value: "₹7.15L", trend: "21.4%", direction: "up", sub: "+ ₹1,12,000 this quarter" },
+      subscriptions: { value: "164", trend: "9.8%", direction: "up", sub: "28 trials • 12 expiring" },
+    },
+    userGrowth: [
+      { month: "Aug", users: 1180 },
+      { month: "Sep", users: 1450 },
+      { month: "Oct", users: 1650 },
+    ],
+    revenueGrowth: [
+      { month: "Aug", revenue: 2.48 },
+      { month: "Sep", revenue: 2.2 },
+      { month: "Oct", revenue: 2.95 },
+    ],
+    plans: [
+      { name: "Free", percent: 38, count: 62, color: "#5b74ff" },
+      { name: "Pro", percent: 36, count: 59, color: "#2783ff" },
+      { name: "Business", percent: 21, count: 35, color: "#ffb21c" },
+      { name: "Enterprise", percent: 5, count: 8, color: "#ff454b" },
+    ],
+    totalSubscriptions: 164,
+    aiMetrics: [
+      { label: "Total Requests", display: "248,600", change: "28%", direction: "up", icon: Sparkles, color: "purple" },
+      { label: "Tokens Used", display: "24.5M", change: "31%", direction: "up", icon: Hexagon, color: "orange" },
+      { label: "Avg. Response Time", display: "1.22s", change: "8%", direction: "down", icon: Clock3, color: "green", isGood: true },
+      { label: "Failed Requests", display: "310", change: "25%", direction: "down", icon: TriangleAlert, color: "red", isBad: true },
+    ],
+    recentOrganizations: [
+      { name: "ABC Technologies", plan: "Business Plan", users: 84, status: "Active", time: "Aug 15", icon: Building2, color: "blue" },
+      { name: "NovaTech Solutions", plan: "Enterprise Plan", users: 120, status: "Active", time: "Aug 29", icon: Building2, color: "blue" },
+      { name: "XYZ Software", plan: "Pro Plan", users: 26, status: "Active", time: "Sep 04", icon: Code2, color: "blue" },
+      { name: "DesignHub", plan: "Pro Plan", users: 18, status: "Active", time: "Sep 18", icon: Palette, color: "dark-blue" },
+      { name: "NextGen Solutions", plan: "Business Plan", users: 42, status: "Active", time: "Oct 02", icon: Mail, color: "pink" },
+    ],
+    recentActivities: [
+      { time: "Sep 28", initial: "H", user: "Himanshu", role: "(Super Admin)", action: "Quarterly Audit", details: "SOC2 Compliance passed", color: "blue" },
+      { time: "Sep 15", initial: "R", user: "Rahul Sharma", role: "(Admin)", action: "Added Workspace", details: "Product Team Alpha", color: "light-blue" },
+      { time: "Aug 30", initial: "A", user: "Amit Verma", role: "(Admin)", action: "Upgraded seat count", details: "Added 15 new seats", color: "sky" },
+      { time: "Aug 18", initial: "P", user: "System", role: "", action: "Database migrated", details: "Upgraded to PostgreSQL 16", color: "lavender" },
+      { time: "Aug 02", initial: "H", user: "Himanshu", role: "(Super Admin)", action: "Onboarded Enterprise", details: "NovaTech Solutions", color: "blue" },
+    ],
+  },
+  "This Year": {
+    kpis: {
+      organizations: { value: "248", trend: "28.4%", direction: "up", sub: "+ 112 this year" },
+      users: { value: "1,840", trend: "34.1%", direction: "up", sub: "+ 540 this year" },
+      revenue: { value: "₹26.4L", trend: "42.0%", direction: "up", sub: "+ ₹7,80,000 this year" },
+      subscriptions: { value: "198", trend: "19.5%", direction: "up", sub: "34 trials • 15 expiring" },
+    },
+    userGrowth: [
+      { month: "Jan", users: 350 }, { month: "Feb", users: 510 }, { month: "Mar", users: 620 },
+      { month: "Apr", users: 700 }, { month: "May", users: 820 }, { month: "Jun", users: 930 },
+      { month: "Jul", users: 1050 }, { month: "Aug", users: 1180 }, { month: "Sep", users: 1450 },
+      { month: "Oct", users: 1650 },
+    ],
+    revenueGrowth: [
+      { month: "Jan", revenue: 0.2 }, { month: "Feb", revenue: 0.6 }, { month: "Mar", revenue: 0.55 },
+      { month: "Apr", revenue: 1.15 }, { month: "May", revenue: 1.6 }, { month: "Jun", revenue: 1.3 },
+      { month: "Jul", revenue: 1.95 }, { month: "Aug", revenue: 2.48 }, { month: "Sep", revenue: 2.2 },
+      { month: "Oct", revenue: 2.95 },
+    ],
+    plans: [
+      { name: "Free", percent: 35, count: 69, color: "#5b74ff" },
+      { name: "Pro", percent: 38, count: 75, color: "#2783ff" },
+      { name: "Business", percent: 21, count: 42, color: "#ffb21c" },
+      { name: "Enterprise", percent: 6, count: 12, color: "#ff454b" },
+    ],
+    totalSubscriptions: 198,
+    aiMetrics: [
+      { label: "Total Requests", display: "892,100", change: "45%", direction: "up", icon: Sparkles, color: "purple" },
+      { label: "Tokens Used", display: "89.2M", change: "52%", direction: "up", icon: Hexagon, color: "orange" },
+      { label: "Avg. Response Time", display: "1.24s", change: "15%", direction: "down", icon: Clock3, color: "green", isGood: true },
+      { label: "Failed Requests", display: "1,180", change: "18%", direction: "down", icon: TriangleAlert, color: "red", isBad: true },
+    ],
+    recentOrganizations: [
+      { name: "ABC Technologies", plan: "Business Plan", users: 84, status: "Active", time: "Jan 12", icon: Building2, color: "blue" },
+      { name: "XYZ Software", plan: "Pro Plan", users: 26, status: "Active", time: "Feb 04", icon: Code2, color: "blue" },
+      { name: "NovaTech Solutions", plan: "Enterprise Plan", users: 120, status: "Active", time: "Apr 18", icon: Building2, color: "blue" },
+      { name: "DesignHub", plan: "Pro Plan", users: 18, status: "Active", time: "May 22", icon: Palette, color: "dark-blue" },
+      { name: "NextGen Solutions", plan: "Business Plan", users: 42, status: "Active", time: "Jun 30", icon: Mail, color: "pink" },
+    ],
+    recentActivities: [
+      { time: "Oct 24", initial: "H", user: "Himanshu", role: "(Super Admin)", action: "Platform update v2.4", details: "AI Gateway and Multi-tenant routing", color: "blue" },
+      { time: "Jul 15", initial: "R", user: "Rahul Sharma", role: "(Admin)", action: "Created Org", details: "ABC Technologies", color: "light-blue" },
+      { time: "May 10", initial: "H", user: "Himanshu", role: "(Super Admin)", action: "Stripe Connect enabled", details: "Automated billing settlements", color: "blue" },
+      { time: "Mar 04", initial: "P", user: "System", role: "", action: "Annual Security Audit", details: "Penetration tests passed", color: "lavender" },
+      { time: "Jan 01", initial: "H", user: "Himanshu", role: "(Super Admin)", action: "System initialized", details: "TeamFlow AI v2.0 launched", color: "blue" },
+    ],
+  },
+  "Today": {
+    kpis: {
+      organizations: { value: "186", trend: "1.2%", direction: "up", sub: "+ 2 today" },
+      users: { value: "1,248", trend: "0.8%", direction: "up", sub: "+ 9 today" },
+      revenue: { value: "₹2.48L", trend: "2.1%", direction: "up", sub: "+ ₹4,200 today" },
+      subscriptions: { value: "142", trend: "0.5%", direction: "up", sub: "2 trials expiring" },
+    },
+    userGrowth: [
+      { month: "08:00", users: 40 },
+      { month: "10:00", users: 95 },
+      { month: "12:00", users: 140 },
+      { month: "14:00", users: 180 },
+      { month: "16:00", users: 210 },
+      { month: "18:00", users: 248 },
+    ],
+    revenueGrowth: [
+      { month: "08:00", revenue: 0.4 },
+      { month: "10:00", revenue: 0.9 },
+      { month: "12:00", revenue: 1.4 },
+      { month: "14:00", revenue: 1.8 },
+      { month: "16:00", revenue: 2.1 },
+      { month: "18:00", revenue: 2.48 },
+    ],
+    plans: [
+      { name: "Free", percent: 40, count: 57, color: "#5b74ff" },
+      { name: "Pro", percent: 35, count: 50, color: "#2783ff" },
+      { name: "Business", percent: 20, count: 28, color: "#ffb21c" },
+      { name: "Enterprise", percent: 5, count: 7, color: "#ff454b" },
+    ],
+    totalSubscriptions: 142,
+    aiMetrics: [
+      { label: "Total Requests", display: "4,120", change: "4%", direction: "up", icon: Sparkles, color: "purple" },
+      { label: "Tokens Used", display: "410K", change: "6%", direction: "up", icon: Hexagon, color: "orange" },
+      { label: "Avg. Response Time", display: "1.15s", change: "5%", direction: "down", icon: Clock3, color: "green", isGood: true },
+      { label: "Failed Requests", display: "6", change: "60%", direction: "down", icon: TriangleAlert, color: "red", isBad: true },
+    ],
+    recentOrganizations: [
+      { name: "ABC Technologies", plan: "Business Plan", users: 84, status: "Active", time: "2 hours ago", icon: Building2, color: "blue" },
+      { name: "XYZ Software", plan: "Pro Plan", users: 26, status: "Active", time: "5 hours ago", icon: Code2, color: "blue" },
+    ],
+    recentActivities: [
+      { time: "10:42 AM", initial: "H", user: "Himanshu", role: "(Super Admin)", action: "Changed SMTP config", details: "Updated email settings", color: "blue" },
+      { time: "10:31 AM", initial: "R", user: "Rahul Sharma", role: "(Admin)", action: "Invited user", details: "priya@abc.com", color: "light-blue" },
+      { time: "10:20 AM", initial: "H", user: "Himanshu", role: "(Super Admin)", action: "Suspended organization", details: "XYZ Software", color: "blue" },
+      { time: "09:55 AM", initial: "A", user: "Amit Verma", role: "(Admin)", action: "Changed plan", details: "Pro → Business", color: "sky" },
+      { time: "09:32 AM", initial: "P", user: "System", role: "", action: "AI usage limit updated", details: "Increased limit to 50,000", color: "lavender" },
+    ],
+  },
+  "Last 7 Days": {
+    kpis: {
+      organizations: { value: "186", trend: "3.4%", direction: "up", sub: "+ 7 this week" },
+      users: { value: "1,248", trend: "2.6%", direction: "up", sub: "+ 31 this week" },
+      revenue: { value: "₹2.48L", trend: "4.8%", direction: "up", sub: "+ ₹11,200 this week" },
+      subscriptions: { value: "142", trend: "1.8%", direction: "up", sub: "4 trials • 2 expiring" },
+    },
+    userGrowth: [
+      { month: "Mon", users: 1120 }, { month: "Tue", users: 1145 }, { month: "Wed", users: 1180 },
+      { month: "Thu", users: 1210 }, { month: "Fri", users: 1225 }, { month: "Sat", users: 1238 },
+      { month: "Sun", users: 1248 },
+    ],
+    revenueGrowth: [
+      { month: "Mon", revenue: 1.8 }, { month: "Tue", revenue: 1.95 }, { month: "Wed", revenue: 2.1 },
+      { month: "Thu", revenue: 2.2 }, { month: "Fri", revenue: 2.35 }, { month: "Sat", revenue: 2.42 },
+      { month: "Sun", revenue: 2.48 },
+    ],
+    plans: [
+      { name: "Free", percent: 40, count: 57, color: "#5b74ff" },
+      { name: "Pro", percent: 35, count: 50, color: "#2783ff" },
+      { name: "Business", percent: 20, count: 28, color: "#ffb21c" },
+      { name: "Enterprise", percent: 5, count: 7, color: "#ff454b" },
+    ],
+    totalSubscriptions: 142,
+    aiMetrics: [
+      { label: "Total Requests", display: "21,840", change: "9%", direction: "up", icon: Sparkles, color: "purple" },
+      { label: "Tokens Used", display: "2.1M", change: "14%", direction: "up", icon: Hexagon, color: "orange" },
+      { label: "Avg. Response Time", display: "1.16s", change: "10%", direction: "down", icon: Clock3, color: "green", isGood: true },
+      { label: "Failed Requests", display: "32", change: "28%", direction: "down", icon: TriangleAlert, color: "red", isBad: true },
+    ],
+    recentOrganizations: [
+      { name: "ABC Technologies", plan: "Business Plan", users: 84, status: "Active", time: "2 hours ago", icon: Building2, color: "blue" },
+      { name: "XYZ Software", plan: "Pro Plan", users: 26, status: "Active", time: "5 hours ago", icon: Code2, color: "blue" },
+      { name: "Startup Labs", plan: "Free Plan", users: 5, status: "Trial", time: "1 day ago", icon: TriangleAlert, color: "orange" },
+      { name: "DesignHub", plan: "Pro Plan", users: 18, status: "Active", time: "2 days ago", icon: Palette, color: "dark-blue" },
+    ],
+    recentActivities: [
+      { time: "Today", initial: "H", user: "Himanshu", role: "(Super Admin)", action: "Changed SMTP config", details: "Updated email settings", color: "blue" },
+      { time: "Yesterday", initial: "R", user: "Rahul Sharma", role: "(Admin)", action: "Invited user", details: "priya@abc.com", color: "light-blue" },
+      { time: "3 days ago", initial: "H", user: "Himanshu", role: "(Super Admin)", action: "Suspended organization", details: "XYZ Software", color: "blue" },
+      { time: "5 days ago", initial: "A", user: "Amit Verma", role: "(Admin)", action: "Changed plan", details: "Pro → Business", color: "sky" },
+      { time: "6 days ago", initial: "P", user: "System", role: "", action: "AI usage limit updated", details: "Increased limit to 50,000", color: "lavender" },
+    ],
+  },
+};
+
+const growthByRange = {
+  "This Year": [
+    { month: "Jan", users: 350 }, { month: "Feb", users: 510 }, { month: "Mar", users: 620 },
+    { month: "Apr", users: 700 }, { month: "May", users: 820 }, { month: "Jun", users: 930 },
+    { month: "Jul", users: 1050 }, { month: "Aug", users: 1180 }, { month: "Sep", users: 1450 },
+    { month: "Oct", users: 1650 },
   ],
-  "30d": [
-    { name: "Week 1", organizations: 82, users: 1240 },
-    { name: "Week 2", organizations: 94, users: 1510 },
-    { name: "Week 3", organizations: 107, users: 1760 },
-    { name: "Week 4", organizations: 128, users: 2180 },
+  "Last Year": [
+    { month: "Jan", users: 220 }, { month: "Feb", users: 300 }, { month: "Mar", users: 390 },
+    { month: "Apr", users: 450 }, { month: "May", users: 530 }, { month: "Jun", users: 610 },
+    { month: "Jul", users: 720 }, { month: "Aug", users: 800 }, { month: "Sep", users: 890 },
+    { month: "Oct", users: 980 },
   ],
-  "6m": [
-    { name: "May", organizations: 52, users: 740 },
-    { name: "Jun", organizations: 64, users: 930 },
-    { name: "Jul", organizations: 73, users: 1100 },
-    { name: "Aug", organizations: 88, users: 1390 },
-    { name: "Sep", organizations: 105, users: 1740 },
-    { name: "Oct", organizations: 128, users: 2180 },
-  ],
-  "12m": [
-    { name: "Nov", organizations: 24, users: 310 },
-    { name: "Dec", organizations: 31, users: 420 },
-    { name: "Jan", organizations: 40, users: 550 },
-    { name: "Feb", organizations: 48, users: 680 },
-    { name: "Mar", organizations: 57, users: 810 },
-    { name: "Apr", organizations: 65, users: 960 },
-    { name: "May", organizations: 72, users: 1120 },
-    { name: "Jun", organizations: 82, users: 1310 },
-    { name: "Jul", organizations: 91, users: 1510 },
-    { name: "Aug", organizations: 103, users: 1740 },
-    { name: "Sep", organizations: 115, users: 1960 },
-    { name: "Oct", organizations: 128, users: 2180 },
+  "Last 6 Months": [
+    { month: "May", users: 820 }, { month: "Jun", users: 930 }, { month: "Jul", users: 1050 },
+    { month: "Aug", users: 1180 }, { month: "Sep", users: 1450 }, { month: "Oct", users: 1650 },
   ],
 };
 
-const revenueData = {
-  "7d": [
-    { name: "Mon", revenue: 1240 },
-    { name: "Tue", revenue: 1580 },
-    { name: "Wed", revenue: 1420 },
-    { name: "Thu", revenue: 1860 },
-    { name: "Fri", revenue: 1740 },
-    { name: "Sat", revenue: 2150 },
-    { name: "Sun", revenue: 2380 },
+const revenueByRange = {
+  "This Year": [
+    { month: "Jan", revenue: 0.2 }, { month: "Feb", revenue: 0.6 }, { month: "Mar", revenue: 0.55 },
+    { month: "Apr", revenue: 1.15 }, { month: "May", revenue: 1.6 }, { month: "Jun", revenue: 1.3 },
+    { month: "Jul", revenue: 1.95 }, { month: "Aug", revenue: 2.48 }, { month: "Sep", revenue: 2.2 },
+    { month: "Oct", revenue: 2.95 },
   ],
-  "30d": [
-    { name: "Week 1", revenue: 6200 },
-    { name: "Week 2", revenue: 7800 },
-    { name: "Week 3", revenue: 9100 },
-    { name: "Week 4", revenue: 12400 },
+  "Last Year": [
+    { month: "Jan", revenue: 0.1 }, { month: "Feb", revenue: 0.25 }, { month: "Mar", revenue: 0.35 },
+    { month: "Apr", revenue: 0.5 }, { month: "May", revenue: 0.75 }, { month: "Jun", revenue: 0.9 },
+    { month: "Jul", revenue: 1.1 }, { month: "Aug", revenue: 1.3 }, { month: "Sep", revenue: 1.55 },
+    { month: "Oct", revenue: 1.8 },
   ],
-  "6m": [
-    { name: "May", revenue: 18400 },
-    { name: "Jun", revenue: 22100 },
-    { name: "Jul", revenue: 25800 },
-    { name: "Aug", revenue: 30200 },
-    { name: "Sep", revenue: 34700 },
-    { name: "Oct", revenue: 42100 },
-  ],
-  "12m": [
-    { name: "Nov", revenue: 8200 },
-    { name: "Dec", revenue: 10500 },
-    { name: "Jan", revenue: 14200 },
-    { name: "Feb", revenue: 16800 },
-    { name: "Mar", revenue: 19300 },
-    { name: "Apr", revenue: 21500 },
-    { name: "May", revenue: 18400 },
-    { name: "Jun", revenue: 22100 },
-    { name: "Jul", revenue: 25800 },
-    { name: "Aug", revenue: 30200 },
-    { name: "Sep", revenue: 34700 },
-    { name: "Oct", revenue: 42100 },
+  "Last 6 Months": [
+    { month: "May", revenue: 1.6 }, { month: "Jun", revenue: 1.3 }, { month: "Jul", revenue: 1.95 },
+    { month: "Aug", revenue: 2.48 }, { month: "Sep", revenue: 2.2 }, { month: "Oct", revenue: 2.95 },
   ],
 };
 
-const subscriptionData = [
-  { name: "Free", value: 45 },
-  { name: "Pro", value: 35 },
-  { name: "Business", value: 20 },
-];
-
-const subscriptionColors = ["#94A3B8", "#7C6CF2", "#22B8A7"];
-
-const organizations = [
-  {
-    id: 1,
-    name: "Acme Technologies",
-    initials: "AT",
-    email: "admin@acmetech.com",
-    plan: "Business",
-    users: 248,
-    status: "Active",
-    color: "#E8E5FF",
-    textColor: "#6554C0",
-  },
-  {
-    id: 2,
-    name: "Nova Solutions",
-    initials: "NS",
-    email: "hello@novasolutions.com",
-    plan: "Pro",
-    users: 124,
-    status: "Active",
-    color: "#DDF7EE",
-    textColor: "#16866C",
-  },
-  {
-    id: 3,
-    name: "PixelCraft Studio",
-    initials: "PC",
-    email: "team@pixelcraft.io",
-    plan: "Pro",
-    users: 86,
-    status: "Active",
-    color: "#FFF0D8",
-    textColor: "#B7791F",
-  },
-  {
-    id: 4,
-    name: "Vertex Digital",
-    initials: "VD",
-    email: "contact@vertex.digital",
-    plan: "Free",
-    users: 32,
-    status: "Pending",
-    color: "#DDEBFF",
-    textColor: "#356BC5",
-  },
-];
-
-const activities = [
-  {
-    id: 1,
-    title: "New organization registered",
-    description: "Acme Technologies joined the platform",
-    time: "12 minutes ago",
-    type: "organization",
-  },
-  {
-    id: 2,
-    title: "Subscription upgraded",
-    description: "Nova Solutions upgraded to Pro",
-    time: "38 minutes ago",
-    type: "subscription",
-  },
-  {
-    id: 3,
-    title: "New user registered",
-    description: "A new member joined PixelCraft Studio",
-    time: "1 hour ago",
-    type: "user",
-  },
-  {
-    id: 4,
-    title: "Security settings updated",
-    description: "Platform security configuration changed",
-    time: "2 hours ago",
-    type: "security",
-  },
-];
-
-const dateOptions = [
-  { label: "7 Days", value: "7d" },
-  { label: "30 Days", value: "30d" },
-  { label: "6 Months", value: "6m" },
-  { label: "12 Months", value: "12m" },
-];
-
-const tooltipStyle = {
-  borderRadius: "12px",
-  border: "1px solid #E9EAF2",
-  boxShadow: "0 8px 24px rgba(25, 25, 55, 0.09)",
-  fontSize: "12px",
-  padding: "8px 12px",
+const aiMetricsByRange = {
+  "This Month": [
+    { label: "Total Requests", display: "84,520", change: "18%", direction: "up", icon: Sparkles, color: "purple" },
+    { label: "Tokens Used", display: "8.4M", change: "22%", direction: "up", icon: Hexagon, color: "orange" },
+    { label: "Avg. Response Time", display: "1.2s", change: "12%", direction: "down", icon: Clock3, color: "green", isGood: true },
+    { label: "Failed Requests", display: "124", change: "40%", direction: "down", icon: TriangleAlert, color: "red", isBad: true },
+  ],
+  "This Week": [
+    { label: "Total Requests", display: "21,840", change: "9%", direction: "up", icon: Sparkles, color: "purple" },
+    { label: "Tokens Used", display: "2.1M", change: "14%", direction: "up", icon: Hexagon, color: "orange" },
+    { label: "Avg. Response Time", display: "1.1s", change: "10%", direction: "down", icon: Clock3, color: "green", isGood: true },
+    { label: "Failed Requests", display: "32", change: "28%", direction: "down", icon: TriangleAlert, color: "red", isBad: true },
+  ],
 };
 
-const formatNumber = (value) =>
-  Number(value).toLocaleString("en-IN");
+const systemHealthServices = [
+  { name: "API Server", status: "Operational", detail: "99.99% uptime" },
+  { name: "Database", status: "Operational", detail: "32ms latency" },
+  { name: "Authentication", status: "Operational", detail: "99.98% uptime" },
+  { name: "SMTP", status: "Operational", detail: "99.8% success" },
+  { name: "AI Service", status: "Operational", detail: "1.2s response" },
+  { name: "File Storage", status: "Operational", detail: "42% used" },
+];
 
-const formatCurrency = (value) =>
-  `₹${Number(value).toLocaleString("en-IN")}`;
+/* =========================================================================
+   Live User Growth Bar Chart (SVG with hover tooltip & responsive viewbox)
+   ========================================================================= */
+function LiveUserGrowthChart({ data }) {
+  const [hoveredIndex, setHoveredIndex] = useState(null);
 
-function SuperAdminDashboard() {
-  const navigate = useNavigate();
+  const width = 480;
+  const height = 155;
+  const margin = { left: 35, right: 12, top: 15, bottom: 25 };
+  const plotWidth = width - margin.left - margin.right;
+  const plotHeight = height - margin.top - margin.bottom;
 
-  const [dateRange, setDateRange] = useState("6m");
-  const [refreshCount, setRefreshCount] = useState(0);
-  const [lastUpdated, setLastUpdated] = useState(new Date());
+  const maxVal = Math.max(...data.map((d) => d.users || 0), 1000);
+  const yMax = Math.ceil(maxVal / 500) * 500;
+  const yTicks = [0, yMax / 3, (yMax / 3) * 2, yMax].map((n) => Math.round(n));
 
-  const selectedGrowthData = useMemo(
-    () => growthData[dateRange] ?? growthData["6m"],
-    [dateRange]
+  return (
+    <div className="sa-chart-container">
+      <svg
+        className="sa-svg-chart"
+        viewBox={`0 0 ${width} ${height}`}
+        preserveAspectRatio="none"
+      >
+        {/* Horizontal grid lines */}
+        {yTicks.map((tick) => {
+          const y = margin.top + plotHeight - (tick / yMax) * plotHeight;
+          return (
+            <g key={tick}>
+              <line
+                x1={margin.left}
+                y1={y}
+                x2={width - margin.right}
+                y2={y}
+                stroke="#eef2f8"
+                strokeDasharray="3 3"
+              />
+              <text
+                x={margin.left - 6}
+                y={y + 3.5}
+                textAnchor="end"
+                className="sa-axis-label"
+              >
+                {tick >= 1000 ? `${(tick / 1000).toFixed(tick % 1000 === 0 ? 0 : 1)}K` : tick}
+              </text>
+            </g>
+          );
+        })}
+
+        {/* Bars */}
+        {data.map((item, index) => {
+          const step = plotWidth / data.length;
+          const barWidth = Math.min(22, step * 0.58);
+          const barHeight = Math.max(4, Math.min(plotHeight, (item.users / yMax) * plotHeight));
+          const x = margin.left + index * step + (step - barWidth) / 2;
+          const y = margin.top + plotHeight - barHeight;
+          const isHovered = hoveredIndex === index;
+
+          return (
+            <g
+              key={item.month}
+              className="sa-chart-bar-group"
+              onMouseEnter={() => setHoveredIndex(index)}
+              onMouseLeave={() => setHoveredIndex(null)}
+            >
+              <rect
+                x={x}
+                y={y}
+                width={barWidth}
+                height={barHeight}
+                rx="3.5"
+                fill={isHovered ? "#3b66ff" : "#5b74ff"}
+                className="sa-bar-rect"
+              />
+              <text
+                x={x + barWidth / 2}
+                y={height - 7}
+                textAnchor="middle"
+                className={`sa-axis-label ${isHovered ? "is-active" : ""}`}
+              >
+                {item.month}
+              </text>
+            </g>
+          );
+        })}
+      </svg>
+
+      {/* Floating Tooltip */}
+      {hoveredIndex !== null && data[hoveredIndex] && (
+        <div
+          className="sa-chart-tooltip"
+          style={{
+            left: `${
+              ((margin.left +
+                hoveredIndex * (plotWidth / data.length) +
+                plotWidth / data.length / 2) /
+                width) *
+              100
+            }%`,
+            top: "10px",
+          }}
+        >
+          <strong>{data[hoveredIndex].users.toLocaleString()}</strong> users
+          <small>{data[hoveredIndex].month}</small>
+        </div>
+      )}
+    </div>
   );
+}
 
-  const selectedRevenueData = useMemo(
-    () => revenueData[dateRange] ?? revenueData["6m"],
-    [dateRange]
-  );
+/* =========================================================================
+   Live Revenue Growth Curve Chart (SVG Area with gradient & points)
+   ========================================================================= */
+function LiveRevenueGrowthChart({ data }) {
+  const [hoveredIndex, setHoveredIndex] = useState(null);
 
-  const latestGrowth =
-    selectedGrowthData[selectedGrowthData.length - 1];
+  const width = 480;
+  const height = 155;
+  const margin = { left: 35, right: 12, top: 15, bottom: 25 };
+  const plotWidth = width - margin.left - margin.right;
+  const plotHeight = height - margin.top - margin.bottom;
 
-  const totalRevenue = useMemo(
-    () =>
-      selectedRevenueData.reduce(
-        (total, item) => total + item.revenue,
-        0
-      ),
-    [selectedRevenueData]
-  );
+  const maxVal = Math.max(...data.map((d) => d.revenue || 0), 2.5);
+  const yMax = Math.ceil(maxVal);
+  const yTicks = [0, yMax / 3, (yMax / 3) * 2, yMax].map((n) => Math.round(n * 10) / 10);
 
-  const handleRefresh = () => {
-    setRefreshCount((count) => count + 1);
-    setLastUpdated(new Date());
+  const points = data.map((item, index) => {
+    const x =
+      margin.left +
+      (data.length === 1 ? plotWidth / 2 : (index / (data.length - 1)) * plotWidth);
+    const y = margin.top + plotHeight - (item.revenue / yMax) * plotHeight;
+    return { ...item, x, y };
+  });
+
+  // Smooth SVG curve path builder
+  const createSmoothPath = (pts) => {
+    if (pts.length === 0) return "";
+    let d = `M ${pts[0].x} ${pts[0].y}`;
+    for (let i = 0; i < pts.length - 1; i++) {
+      const p0 = i > 0 ? pts[i - 1] : pts[0];
+      const p1 = pts[i];
+      const p2 = pts[i + 1];
+      const p3 = i !== pts.length - 2 ? pts[i + 2] : p2;
+
+      const cp1x = p1.x + (p2.x - p0.x) / 6;
+      const cp1y = p1.y + (p2.y - p0.y) / 6;
+      const cp2x = p2.x - (p3.x - p1.x) / 6;
+      const cp2y = p2.y - (p3.y - p1.y) / 6;
+
+      d += ` C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${p2.x} ${p2.y}`;
+    }
+    return d;
   };
 
-  const stats = [
-    {
-      title: "Total Organizations",
-      value: "128",
-      change: "+12.8%",
-      positive: true,
-      description: "compared to last month",
-      icon: Building2,
-      iconClass: "sa-icon-purple",
-      data: [30, 38, 34, 48, 45, 59, 67],
-    },
-    {
-      title: "Total Users",
-      value: "2,180",
-      change: "+18.6%",
-      positive: true,
-      description: "compared to last month",
-      icon: Users,
-      iconClass: "sa-icon-blue",
-      data: [24, 32, 30, 43, 48, 55, 69],
-    },
-    {
-      title: "Monthly Revenue",
-      value: "₹4.21L",
-      change: "+8.4%",
-      positive: true,
-      description: "compared to last month",
-      icon: DollarSign,
-      iconClass: "sa-icon-green",
-      data: [28, 33, 31, 45, 40, 58, 68],
-    },
-    {
-      title: "Platform Activity",
-      value: "94.8%",
-      change: "-1.2%",
-      positive: false,
-      description: "compared to last month",
-      icon: Activity,
-      iconClass: "sa-icon-orange",
-      data: [68, 64, 72, 65, 73, 68, 62],
-    },
-  ];
+  const linePath = createSmoothPath(points);
+  const areaPath = `${linePath} L ${points[points.length - 1].x} ${
+    margin.top + plotHeight
+  } L ${points[0].x} ${margin.top + plotHeight} Z`;
 
-  const activityIcon = (type) => {
-    switch (type) {
-      case "organization":
-        return <Building2 size={17} />;
-      case "subscription":
-        return <DollarSign size={17} />;
-      case "user":
-        return <Users size={17} />;
-      default:
-        return <ShieldCheck size={17} />;
+  return (
+    <div className="sa-chart-container">
+      <svg
+        className="sa-svg-chart"
+        viewBox={`0 0 ${width} ${height}`}
+        preserveAspectRatio="none"
+      >
+        <defs>
+          <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#10b981" stopOpacity="0.28" />
+            <stop offset="100%" stopColor="#10b981" stopOpacity="0.02" />
+          </linearGradient>
+        </defs>
+
+        {/* Horizontal grid lines */}
+        {yTicks.map((tick) => {
+          const y = margin.top + plotHeight - (tick / yMax) * plotHeight;
+          return (
+            <g key={tick}>
+              <line
+                x1={margin.left}
+                y1={y}
+                x2={width - margin.right}
+                y2={y}
+                stroke="#eef2f8"
+                strokeDasharray="3 3"
+              />
+              <text
+                x={margin.left - 6}
+                y={y + 3.5}
+                textAnchor="end"
+                className="sa-axis-label"
+              >
+                {tick === 0 ? "0" : `${tick}L`}
+              </text>
+            </g>
+          );
+        })}
+
+        {/* Area fill */}
+        <path d={areaPath} fill="url(#revenueGradient)" />
+
+        {/* Line */}
+        <path
+          d={linePath}
+          fill="none"
+          stroke="#10b981"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+
+        {/* Data points */}
+        {points.map((pt, index) => {
+          const isHovered = hoveredIndex === index;
+          return (
+            <g
+              key={pt.month}
+              className="sa-chart-point-group"
+              onMouseEnter={() => setHoveredIndex(index)}
+              onMouseLeave={() => setHoveredIndex(null)}
+            >
+              <circle
+                cx={pt.x}
+                cy={pt.y}
+                r={isHovered ? 5.5 : 3.5}
+                fill="#ffffff"
+                stroke="#10b981"
+                strokeWidth={isHovered ? 3 : 2.5}
+                className="sa-point-circle"
+              />
+              <circle cx={pt.x} cy={pt.y} r={12} fill="transparent" />
+              <text
+                x={pt.x}
+                y={height - 7}
+                textAnchor="middle"
+                className={`sa-axis-label ${isHovered ? "is-active" : ""}`}
+              >
+                {pt.month}
+              </text>
+            </g>
+          );
+        })}
+      </svg>
+
+      {/* Floating Tooltip */}
+      {hoveredIndex !== null && points[hoveredIndex] && (
+        <div
+          className="sa-chart-tooltip"
+          style={{
+            left: `${(points[hoveredIndex].x / width) * 100}%`,
+            top: "10px",
+          }}
+        >
+          <strong>₹{points[hoveredIndex].revenue}L</strong> revenue
+          <small>{points[hoveredIndex].month}</small>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* =========================================================================
+   Live Plan Distribution Donut Chart
+   ========================================================================= */
+function LivePlanDistribution({ plans, totalCount = 142 }) {
+  const [activePlan, setActivePlan] = useState(null);
+
+  const radius = 46;
+  const strokeWidth = 16;
+  const circumference = 2 * Math.PI * radius;
+
+  let cumulativeOffset = 0;
+  const segments = plans.map((plan) => {
+    const dashLength = (plan.percent / 100) * circumference;
+    const item = {
+      ...plan,
+      dashLength,
+      offset: cumulativeOffset,
+    };
+    cumulativeOffset += dashLength;
+    return item;
+  });
+
+  const highlightedPlan = activePlan
+    ? plans.find((p) => p.name === activePlan)
+    : null;
+
+  return (
+    <div className="sa-donut-wrap">
+      <div className="sa-donut-chart-box">
+        <svg viewBox="0 0 120 120" className="sa-donut-svg">
+          <circle
+            cx="60"
+            cy="60"
+            r={radius}
+            fill="none"
+            stroke="#edf1f8"
+            strokeWidth={strokeWidth}
+          />
+          {segments.map((seg) => (
+            <circle
+              key={seg.name}
+              cx="60"
+              cy="60"
+              r={radius}
+              fill="none"
+              stroke={seg.color}
+              strokeWidth={activePlan === seg.name ? strokeWidth + 4 : strokeWidth}
+              strokeDasharray={`${seg.dashLength} ${circumference - seg.dashLength}`}
+              strokeDashoffset={-seg.offset}
+              transform="rotate(-90 60 60)"
+              className="sa-donut-segment"
+              onMouseEnter={() => setActivePlan(seg.name)}
+              onMouseLeave={() => setActivePlan(null)}
+            />
+          ))}
+        </svg>
+
+        <div className="sa-donut-center-text">
+          <span className="sa-donut-center-val">
+            {highlightedPlan ? `${highlightedPlan.percent}%` : totalCount}
+          </span>
+          <span className="sa-donut-center-label">
+            {highlightedPlan ? highlightedPlan.name : "Total"}
+          </span>
+        </div>
+      </div>
+
+      <div className="sa-donut-legend">
+        {plans.map((plan) => (
+          <div
+            key={plan.name}
+            className={`sa-donut-legend-item ${
+              activePlan === plan.name ? "is-active" : ""
+            }`}
+            onMouseEnter={() => setActivePlan(plan.name)}
+            onMouseLeave={() => setActivePlan(null)}
+          >
+            <span
+              className="sa-donut-legend-dot"
+              style={{ backgroundColor: plan.color }}
+            />
+            <span className="sa-donut-legend-name">{plan.name}</span>
+            <span className="sa-donut-legend-pct">{plan.percent}%</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* =========================================================================
+   MAIN SUPER ADMIN DASHBOARD COMPONENT
+   ========================================================================= */
+function SuperAdminDashboard() {
+  const navigate = useNavigate();
+  const [dateFilter, setDateFilter] = useState("Oct 1, 2024 - Oct 31, 2024");
+  const [userGrowthFilter, setUserGrowthFilter] = useState("This Year");
+  const [revenueFilter, setRevenueFilter] = useState("This Year");
+  const [aiUsageFilter, setAiUsageFilter] = useState("This Month");
+  const [dateMenuOpen, setDateMenuOpen] = useState(false);
+  const [customStart, setCustomStart] = useState("2024-10-01");
+  const [customEnd, setCustomEnd] = useState("2024-10-31");
+  const dateDropdownRef = useRef(null);
+
+  // Close date menu when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dateDropdownRef.current && !dateDropdownRef.current.contains(event.target)) {
+        setDateMenuOpen(false);
+      }
     }
+    if (dateMenuOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [dateMenuOpen]);
+
+  // Compute live data based on active date range
+  const currentData = useMemo(() => {
+    if (DASHBOARD_DATA_BY_RANGE[dateFilter]) {
+      return DASHBOARD_DATA_BY_RANGE[dateFilter];
+    }
+    // Fallback dynamic computation for custom date range
+    return {
+      kpis: {
+        organizations: { value: "190", trend: "11.2%", direction: "up", sub: "+ 22 selected period" },
+        users: { value: "1,290", trend: "9.1%", direction: "up", sub: "+ 104 selected period" },
+        revenue: { value: "₹2.62L", trend: "17.4%", direction: "up", sub: "+ ₹38,200 selected period" },
+        subscriptions: { value: "148", trend: "6.0%", direction: "up", sub: "23 trials • 8 expiring" },
+      },
+      userGrowth: [
+        { month: "P1", users: 1150 },
+        { month: "P2", users: 1280 },
+        { month: "P3", users: 1420 },
+        { month: "P4", users: 1650 },
+      ],
+      revenueGrowth: [
+        { month: "P1", revenue: 2.1 },
+        { month: "P2", revenue: 2.35 },
+        { month: "P3", revenue: 2.5 },
+        { month: "P4", revenue: 2.95 },
+      ],
+      plans: [
+        { name: "Free", percent: 39, count: 58, color: "#5b74ff" },
+        { name: "Pro", percent: 36, count: 53, color: "#2783ff" },
+        { name: "Business", percent: 20, count: 30, color: "#ffb21c" },
+        { name: "Enterprise", percent: 5, count: 7, color: "#ff454b" },
+      ],
+      totalSubscriptions: 148,
+      aiMetrics: [
+        { label: "Total Requests", display: "86,400", change: "17%", direction: "up", icon: Sparkles, color: "purple" },
+        { label: "Tokens Used", display: "8.6M", change: "20%", direction: "up", icon: Hexagon, color: "orange" },
+        { label: "Avg. Response Time", display: "1.19s", change: "11%", direction: "down", icon: Clock3, color: "green", isGood: true },
+        { label: "Failed Requests", display: "118", change: "38%", direction: "down", icon: TriangleAlert, color: "red", isBad: true },
+      ],
+      recentOrganizations: DASHBOARD_DATA_BY_RANGE["Oct 1, 2024 - Oct 31, 2024"].recentOrganizations,
+      recentActivities: DASHBOARD_DATA_BY_RANGE["Oct 1, 2024 - Oct 31, 2024"].recentActivities,
+    };
+  }, [dateFilter]);
+
+  const growthData = useMemo(() => {
+    if (userGrowthFilter && userGrowthFilter !== "Default" && growthByRange[userGrowthFilter]) {
+      return growthByRange[userGrowthFilter];
+    }
+    return currentData.userGrowth;
+  }, [userGrowthFilter, currentData]);
+
+  const revenueData = useMemo(() => {
+    if (revenueFilter && revenueFilter !== "Default" && revenueByRange[revenueFilter]) {
+      return revenueByRange[revenueFilter];
+    }
+    return currentData.revenueGrowth;
+  }, [revenueFilter, currentData]);
+
+  const aiMetrics = useMemo(() => {
+    if (aiUsageFilter === "This Week") {
+      return aiMetricsByRange["This Week"];
+    }
+    return currentData.aiMetrics;
+  }, [aiUsageFilter, currentData]);
+
+  const handleApplyCustomDate = () => {
+    if (!customStart || !customEnd) return;
+    const label = `${customStart} - ${customEnd}`;
+    setDateFilter(label);
+    setDateMenuOpen(false);
   };
 
   return (
-    <div className="superadmin-dashboard">
-      {/* Page header */}
-      <header className="sa-page-header">
-        <div className="sa-page-heading">
-          <div className="sa-eyebrow">
-            <Sparkles size={14} />
-            <span>PLATFORM OVERVIEW</span>
-          </div>
-
-          <h1>Dashboard Overview</h1>
-
-          <p>
-            Welcome back! Here&apos;s what&apos;s happening across
-            TeamFlow AI.
-          </p>
+    <div className="sa-page-container sa-dashboard-root">
+      {/* 1. Header Row */}
+      <section className="sa-page-header">
+        <div className="sa-page-header-left">
+          <h1>
+            Welcome back, Himanshu <span className="sa-wave-emoji">👋</span>
+          </h1>
+          <p>Here's what's happening with TeamFlow AI today.</p>
         </div>
 
-        <div className="sa-header-actions">
-          <span className="sa-updated-label">
-            <span className="sa-live-dot" />
-            Demo data
-          </span>
-
-          <button
-            type="button"
-            className="sa-refresh-button"
-            onClick={handleRefresh}
-            title="Refresh dashboard view"
-          >
-            <RefreshCw
-              size={16}
-              className={refreshCount > 0 ? "sa-refresh-icon" : ""}
-            />
-            Refresh
-          </button>
-        </div>
-      </header>
-
-      <div className="sa-last-updated">
-        Last refreshed: {lastUpdated.toLocaleTimeString()}
-      </div>
-
-      {/* Welcome banner */}
-      <section className="sa-welcome-banner">
-        <div className="sa-welcome-content">
-          <span className="sa-welcome-tag">
-            <ShieldCheck size={14} />
-            SUPER ADMIN CONTROL CENTER
-          </span>
-
-          <h2>Your platform, at a glance.</h2>
-
-          <p>
-            Monitor organizations, user growth, subscriptions, and
-            platform performance from one place.
-          </p>
-
-          <button
-            type="button"
-            className="sa-welcome-button"
-            onClick={() => navigate("/superadmin/organizations")}
-          >
-            Manage organizations
-            <ArrowUpRight size={16} />
-          </button>
-        </div>
-
-        <div className="sa-welcome-decoration" aria-hidden="true">
-          <div className="sa-decoration-circle sa-circle-one" />
-          <div className="sa-decoration-circle sa-circle-two" />
-          <div className="sa-decoration-icon">
-            <Activity size={52} strokeWidth={1.4} />
-          </div>
-          <span className="sa-decoration-dot sa-dot-one" />
-          <span className="sa-decoration-dot sa-dot-two" />
-          <span className="sa-decoration-dot sa-dot-three" />
-        </div>
-      </section>
-
-      {/* KPI cards */}
-      <section className="sa-stats-grid" aria-label="Platform statistics">
-        {stats.map((stat) => {
-          const Icon = stat.icon;
-          const gradientId = `gradient-${stat.title
-            .replace(/\s/g, "")
-            .replace(/[^a-zA-Z0-9]/g, "")}`;
-
-          const chartColor = stat.positive ? "#7C6CF2" : "#F59E0B";
-
-          return (
-            <article className="sa-stat-card" key={stat.title}>
-              <div className="sa-stat-top">
-                <div className={`sa-stat-icon ${stat.iconClass}`}>
-                  <Icon size={20} />
-                </div>
-
-                <button
-                  type="button"
-                  className="sa-card-more"
-                  aria-label={`More information about ${stat.title}`}
-                  title={stat.title}
-                  onClick={() => {
-                    if (stat.title === "Total Organizations") {
-                      navigate("/superadmin/organizations");
-                    }
-                  }}
-                >
-                  <MoreHorizontal size={20} />
-                </button>
-              </div>
-
-              <p className="sa-stat-title">{stat.title}</p>
-
-              <div className="sa-stat-value-row">
-                <h3>{stat.value}</h3>
-
-                <span
-                  className={`sa-stat-change ${
-                    stat.positive
-                      ? "sa-change-positive"
-                      : "sa-change-negative"
-                  }`}
-                >
-                  {stat.positive ? (
-                    <ArrowUpRight size={14} />
-                  ) : (
-                    <ArrowDownRight size={14} />
-                  )}
-                  {stat.change}
-                </span>
-              </div>
-
-              <p className="sa-stat-description">
-                {stat.description}
-              </p>
-
-              <div className="sa-stat-sparkline">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart
-                    data={stat.data.map((value, index) => ({
-                      index,
-                      value,
-                    }))}
-                    margin={{ top: 3, right: 0, left: 0, bottom: 0 }}
-                  >
-                    <defs>
-                      <linearGradient
-                        id={gradientId}
-                        x1="0"
-                        y1="0"
-                        x2="0"
-                        y2="1"
-                      >
-                        <stop
-                          offset="0%"
-                          stopColor={chartColor}
-                          stopOpacity={0.25}
-                        />
-                        <stop
-                          offset="100%"
-                          stopColor={chartColor}
-                          stopOpacity={0.01}
-                        />
-                      </linearGradient>
-                    </defs>
-
-                    <Area
-                      type="monotone"
-                      dataKey="value"
-                      stroke={chartColor}
-                      strokeWidth={2}
-                      fill={`url(#${gradientId})`}
-                      isAnimationActive
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
-            </article>
-          );
-        })}
-      </section>
-
-      {/* Analytics heading and filters */}
-      <div className="sa-section-heading">
-        <div>
-          <h2>Platform analytics</h2>
-          <p>Explore growth and revenue across your platform.</p>
-        </div>
-
-        <div
-          className="sa-date-filters"
-          aria-label="Chart date range"
-          role="group"
-        >
-          {dateOptions.map((option) => (
+        <div className="sa-page-header-actions">
+          <div className="sa-date-selector-wrapper" ref={dateDropdownRef}>
             <button
-              key={option.value}
               type="button"
-              className={
-                dateRange === option.value ? "sa-filter-active" : ""
-              }
-              onClick={() => setDateRange(option.value)}
-              aria-pressed={dateRange === option.value}
+              className="sa-date-btn"
+              onClick={() => setDateMenuOpen((prev) => !prev)}
             >
-              {option.label}
+              <CalendarDays size={16} className="sa-calendar-icon" />
+              <span>{dateFilter}</span>
+              <ChevronDown size={14} />
             </button>
-          ))}
-        </div>
-      </div>
 
-      {/* Main charts */}
-      <section className="sa-charts-grid">
-        <article className="sa-chart-card sa-growth-chart-card">
-          <div className="sa-chart-header">
-            <div>
-              <h3>Platform growth</h3>
-              <p>Organizations and registered users</p>
-            </div>
-
-            <span className="sa-chart-icon sa-chart-icon-purple">
-              <TrendingUp size={19} />
-            </span>
-          </div>
-
-          <div className="sa-chart-summary">
-            <div>
-              <span className="sa-summary-label">Organizations</span>
-              <strong>{formatNumber(latestGrowth.organizations)}</strong>
-            </div>
-
-            <div>
-              <span className="sa-summary-label">Users</span>
-              <strong>{formatNumber(latestGrowth.users)}</strong>
-            </div>
-          </div>
-
-          <div className="sa-chart-container">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart
-                data={selectedGrowthData}
-                margin={{ top: 12, right: 12, left: -12, bottom: 0 }}
-              >
-                <CartesianGrid
-                  stroke="#EEEFF5"
-                  strokeDasharray="4 4"
-                  vertical={false}
-                />
-
-                <XAxis
-                  dataKey="name"
-                  axisLine={false}
-                  tickLine={false}
-                  tick={{ fill: "#9293A6", fontSize: 11 }}
-                  dy={10}
-                  minTickGap={8}
-                />
-
-                <YAxis
-                  axisLine={false}
-                  tickLine={false}
-                  tick={{ fill: "#9293A6", fontSize: 11 }}
-                  tickFormatter={formatNumber}
-                  width={48}
-                />
-
-                <Tooltip
-                  contentStyle={tooltipStyle}
-                  formatter={(value, name) => [
-                    formatNumber(value),
-                    name === "organizations" ? "Organizations" : "Users",
-                  ]}
-                  labelStyle={{
-                    color: "#292A42",
-                    fontWeight: 600,
-                    marginBottom: 4,
-                  }}
-                />
-
-                <Legend
-                  verticalAlign="top"
-                  align="right"
-                  iconType="circle"
-                  iconSize={8}
-                  wrapperStyle={{
-                    fontSize: "11px",
-                    paddingBottom: "14px",
-                  }}
-                  formatter={(value) =>
-                    value === "organizations" ? "Organizations" : "Users"
-                  }
-                />
-
-                <Line
-                  type="monotone"
-                  dataKey="organizations"
-                  name="organizations"
-                  stroke="#7C6CF2"
-                  strokeWidth={2.5}
-                  dot={{ r: 3, fill: "#7C6CF2", strokeWidth: 0 }}
-                  activeDot={{
-                    r: 6,
-                    strokeWidth: 2,
-                    stroke: "#FFFFFF",
-                  }}
-                  isAnimationActive
-                />
-
-                <Line
-                  type="monotone"
-                  dataKey="users"
-                  name="users"
-                  stroke="#21B8A6"
-                  strokeWidth={2.5}
-                  dot={{ r: 3, fill: "#21B8A6", strokeWidth: 0 }}
-                  activeDot={{
-                    r: 6,
-                    strokeWidth: 2,
-                    stroke: "#FFFFFF",
-                  }}
-                  isAnimationActive
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </article>
-
-        {/* Revenue chart */}
-        <article className="sa-chart-card sa-revenue-chart-card">
-          <div className="sa-chart-header">
-            <div>
-              <h3>Revenue trends</h3>
-              <p>Revenue over the selected period</p>
-            </div>
-
-            <span className="sa-chart-icon sa-chart-icon-green">
-              <DollarSign size={19} />
-            </span>
-          </div>
-
-          <div className="sa-revenue-total">
-            <strong>{formatCurrency(totalRevenue)}</strong>
-            <span>
-              <TrendingUp size={13} />
-              Sample revenue
-            </span>
-          </div>
-
-          <div className="sa-chart-container">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart
-                data={selectedRevenueData}
-                margin={{ top: 12, right: 8, left: -8, bottom: 0 }}
-                barCategoryGap="30%"
-              >
-                <CartesianGrid
-                  stroke="#EEEFF5"
-                  strokeDasharray="4 4"
-                  vertical={false}
-                />
-
-                <XAxis
-                  dataKey="name"
-                  axisLine={false}
-                  tickLine={false}
-                  tick={{ fill: "#9293A6", fontSize: 11 }}
-                  dy={10}
-                  minTickGap={8}
-                />
-
-                <YAxis
-                  axisLine={false}
-                  tickLine={false}
-                  tick={{ fill: "#9293A6", fontSize: 10 }}
-                  tickFormatter={(value) =>
-                    value >= 1000
-                      ? `₹${Number(value / 1000).toLocaleString("en-IN")}k`
-                      : `₹${value}`
-                  }
-                  width={52}
-                />
-
-                <Tooltip
-                  contentStyle={tooltipStyle}
-                  formatter={(value) => [formatCurrency(value), "Revenue"]}
-                  labelStyle={{
-                    color: "#292A42",
-                    fontWeight: 600,
-                    marginBottom: 4,
-                  }}
-                />
-
-                <Bar
-                  dataKey="revenue"
-                  name="Revenue"
-                  fill="#21B8A6"
-                  radius={[5, 5, 0, 0]}
-                  maxBarSize={42}
-                  isAnimationActive
-                />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </article>
-      </section>
-
-      {/* Subscription and platform health */}
-      <section className="sa-secondary-grid">
-        <article className="sa-chart-card sa-subscription-card">
-          <div className="sa-chart-header">
-            <div>
-              <h3>Subscription distribution</h3>
-              <p>Illustrative plan mix across organizations</p>
-            </div>
-
-            <span className="sa-chart-icon sa-chart-icon-blue">
-              <Building2 size={19} />
-            </span>
-          </div>
-
-          <div className="sa-subscription-content">
-            <div className="sa-donut-container">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={subscriptionData}
-                    dataKey="value"
-                    nameKey="name"
-                    cx="50%"
-                    cy="50%"
-                    innerRadius="58%"
-                    outerRadius="82%"
-                    paddingAngle={4}
-                    stroke="none"
-                    isAnimationActive
+            {dateMenuOpen && (
+              <div className="sa-date-dropdown">
+                {[
+                  "Oct 1, 2024 - Oct 31, 2024",
+                  "Today",
+                  "Last 7 Days",
+                  "Last 30 Days",
+                  "This Quarter",
+                  "This Year",
+                ].map((item) => (
+                  <button
+                    key={item}
+                    type="button"
+                    className={`sa-date-option ${
+                      dateFilter === item ? "is-selected" : ""
+                    }`}
+                    onClick={() => {
+                      setDateFilter(item);
+                      setDateMenuOpen(false);
+                    }}
                   >
-                    {subscriptionData.map((entry, index) => (
-                      <Cell
-                        key={entry.name}
-                        fill={subscriptionColors[index]}
-                      />
-                    ))}
-                  </Pie>
+                    {item}
+                  </button>
+                ))}
 
-                  <Tooltip
-                    contentStyle={tooltipStyle}
-                    formatter={(value) => [`${value}%`, "Organizations"]}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
-
-              <div className="sa-donut-center">
-                <strong>128</strong>
-                <span>Organizations</span>
-              </div>
-            </div>
-
-            <div className="sa-subscription-legend">
-              {subscriptionData.map((item, index) => (
-                <div
-                  className="sa-subscription-legend-item"
-                  key={item.name}
-                >
-                  <span
-                    className="sa-legend-dot"
-                    style={{ backgroundColor: subscriptionColors[index] }}
-                  />
-                  <span className="sa-legend-name">{item.name}</span>
-                  <strong>{item.value}%</strong>
+                {/* Custom Date Range Picker */}
+                <div className="sa-date-custom-box">
+                  <div className="sa-date-custom-title">Custom Range</div>
+                  <div className="sa-date-inputs-row">
+                    <input
+                      type="date"
+                      className="sa-date-input"
+                      value={customStart}
+                      onChange={(e) => setCustomStart(e.target.value)}
+                    />
+                    <input
+                      type="date"
+                      className="sa-date-input"
+                      value={customEnd}
+                      onChange={(e) => setCustomEnd(e.target.value)}
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    className="sa-date-apply-btn"
+                    onClick={handleApplyCustomDate}
+                  >
+                    Apply Range
+                  </button>
                 </div>
-              ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* 2. Top 4 KPI Stat Cards (Live with selected Date Range) */}
+      <section className="sa-kpi-grid">
+        {/* Organizations */}
+        <article className="sa-kpi-card">
+          <div className="sa-kpi-icon-box blue">
+            <Users size={24} strokeWidth={2.2} />
+          </div>
+          <div className="sa-kpi-body">
+            <p className="sa-kpi-title">Organizations</p>
+            <div className="sa-kpi-val-row">
+              <span className="sa-kpi-value">{currentData.kpis.organizations.value}</span>
+              <span className="sa-kpi-trend positive">
+                <ArrowUpRight size={14} /> {currentData.kpis.organizations.trend}
+              </span>
             </div>
+            <span className="sa-kpi-subtitle">{currentData.kpis.organizations.sub}</span>
           </div>
         </article>
 
-        {/* Platform health */}
-        <article className="sa-chart-card sa-health-card">
-          <div className="sa-chart-header">
-            <div>
-              <h3>Platform health</h3>
-              <p>Illustrative service status</p>
-            </div>
-
-            <span className="sa-health-status">
-              <span className="sa-live-dot" />
-              Demo
-            </span>
+        {/* Total Users */}
+        <article className="sa-kpi-card">
+          <div className="sa-kpi-icon-box sky">
+            <User size={24} strokeWidth={2.2} />
           </div>
-
-          <div className="sa-health-score">
-            <div>
-              <span className="sa-health-label">Platform activity</span>
-              <strong>94.8%</strong>
+          <div className="sa-kpi-body">
+            <p className="sa-kpi-title">Total Users</p>
+            <div className="sa-kpi-val-row">
+              <span className="sa-kpi-value">{currentData.kpis.users.value}</span>
+              <span className="sa-kpi-trend positive">
+                <ArrowUpRight size={14} /> {currentData.kpis.users.trend}
+              </span>
             </div>
-
-            <span className="sa-health-trend">
-              <TrendingUp size={14} />
-              Healthy
-            </span>
+            <span className="sa-kpi-subtitle">{currentData.kpis.users.sub}</span>
           </div>
+        </article>
 
-          <div
-            className="sa-health-progress"
-            role="progressbar"
-            aria-label="Platform activity"
-            aria-valuenow={94.8}
-            aria-valuemin={0}
-            aria-valuemax={100}
-          >
-            <div style={{ width: "94.8%" }} />
+        {/* Monthly Revenue */}
+        <article className="sa-kpi-card">
+          <div className="sa-kpi-icon-box green">
+            <span className="sa-kpi-currency-symbol">₹</span>
           </div>
-
-          <div className="sa-health-items">
-            <div className="sa-health-item">
-              <span className="sa-health-item-icon sa-health-ok">
-                <CheckCircle2 size={17} />
-              </span>
-
-              <div className="sa-health-item-content">
-                <strong>Application services</strong>
-                <span>Demo status: operational</span>
-              </div>
-
-              <span className="sa-health-pill">Healthy</span>
-            </div>
-
-            <div className="sa-health-item">
-              <span className="sa-health-item-icon sa-health-ok">
-                <ShieldCheck size={17} />
-              </span>
-
-              <div className="sa-health-item-content">
-                <strong>Security monitoring</strong>
-                <span>Live checks not connected</span>
-              </div>
-
-              <span className="sa-health-pill sa-health-pill-muted">
-                Demo
+          <div className="sa-kpi-body">
+            <p className="sa-kpi-title">Monthly Revenue</p>
+            <div className="sa-kpi-val-row">
+              <span className="sa-kpi-value">{currentData.kpis.revenue.value}</span>
+              <span className="sa-kpi-trend positive">
+                <ArrowUpRight size={14} /> {currentData.kpis.revenue.trend}
               </span>
             </div>
+            <span className="sa-kpi-subtitle">{currentData.kpis.revenue.sub}</span>
+          </div>
+        </article>
 
-            <div className="sa-health-item">
-              <span className="sa-health-item-icon sa-health-warning">
-                <Clock size={17} />
-              </span>
-
-              <div className="sa-health-item-content">
-                <strong>Background jobs</strong>
-                <span>Live checks not connected</span>
-              </div>
-
-              <span className="sa-health-pill sa-health-pill-muted">
-                Demo
+        {/* Active Subscriptions */}
+        <article className="sa-kpi-card">
+          <div className="sa-kpi-icon-box amber">
+            <Crown size={24} strokeWidth={2.2} />
+          </div>
+          <div className="sa-kpi-body">
+            <p className="sa-kpi-title">Active Subscriptions</p>
+            <div className="sa-kpi-val-row">
+              <span className="sa-kpi-value">{currentData.kpis.subscriptions.value}</span>
+              <span className="sa-kpi-trend positive">
+                <ArrowUpRight size={14} /> {currentData.kpis.subscriptions.trend}
               </span>
             </div>
+            <span className="sa-kpi-subtitle">{currentData.kpis.subscriptions.sub}</span>
           </div>
         </article>
       </section>
 
-      {/* Organizations and recent activity */}
-      <section className="sa-bottom-grid">
-        <article className="sa-table-card">
-          <div className="sa-panel-header">
-            <div>
-              <h3>Recent organizations</h3>
-              <p>Overview of organizations on the platform</p>
+      {/* 3. Middle Row: 3 Live Charts */}
+      <section className="sa-charts-row">
+        {/* User Growth */}
+        <article className="sa-card sa-chart-card">
+          <div className="sa-card-header">
+            <h3>User Growth</h3>
+            <div className="sa-select-filter">
+              <select
+                value={userGrowthFilter}
+                onChange={(e) => setUserGrowthFilter(e.target.value)}
+              >
+                <option value="This Year">This Year</option>
+                <option value="Last Year">Last Year</option>
+                <option value="Last 6 Months">Last 6 Months</option>
+              </select>
+              <ChevronDown size={13} className="sa-chevron" />
             </div>
+          </div>
+          <LiveUserGrowthChart data={growthData} />
+        </article>
 
+        {/* Revenue Growth */}
+        <article className="sa-card sa-chart-card">
+          <div className="sa-card-header">
+            <h3>Revenue Growth</h3>
+            <div className="sa-select-filter">
+              <select
+                value={revenueFilter}
+                onChange={(e) => setRevenueFilter(e.target.value)}
+              >
+                <option value="This Year">This Year</option>
+                <option value="Last Year">Last Year</option>
+                <option value="Last 6 Months">Last 6 Months</option>
+              </select>
+              <ChevronDown size={13} className="sa-chevron" />
+            </div>
+          </div>
+          <LiveRevenueGrowthChart data={revenueData} />
+        </article>
+
+        {/* Plan Distribution (Live Donut with Center Count) */}
+        <article className="sa-card sa-chart-card sa-plan-dist-card">
+          <div className="sa-card-header">
+            <h3>Plan Distribution</h3>
+          </div>
+          <LivePlanDistribution
+            plans={currentData.plans}
+            totalCount={currentData.totalSubscriptions}
+          />
+        </article>
+      </section>
+
+      {/* 4. Three Cards Row: Recent Orgs, AI Usage, System Health */}
+      <section className="sa-middle-grid">
+        {/* Recent Organizations */}
+        <article className="sa-card sa-panel-card">
+          <div className="sa-card-header">
+            <h3>Recent Organizations</h3>
             <button
               type="button"
-              className="sa-text-button"
+              className="sa-card-link"
               onClick={() => navigate("/superadmin/organizations")}
             >
-              View all
-              <ExternalLink size={14} />
+              View all <ArrowRight size={13} />
             </button>
           </div>
 
-          <div className="sa-table-wrapper">
-            <table className="sa-organizations-table">
-              <thead>
-                <tr>
-                  <th>Organization</th>
-                  <th>Plan</th>
-                  <th>Users</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {organizations.map((organization) => (
-                  <tr key={organization.id}>
-                    <td>
-                      <div className="sa-organization-cell">
-                        <div
-                          className="sa-organization-avatar"
-                          style={{
-                            backgroundColor: organization.color,
-                            color: organization.textColor,
-                          }}
-                        >
-                          {organization.initials}
-                        </div>
-
-                        <div className="sa-organization-info">
-                          <strong>{organization.name}</strong>
-                          <span>{organization.email}</span>
-                        </div>
-                      </div>
-                    </td>
-
-                    <td>
-                      <span
-                        className={`sa-plan-badge sa-plan-${organization.plan.toLowerCase()}`}
-                      >
-                        {organization.plan}
-                      </span>
-                    </td>
-
-                    <td className="sa-user-count">
-                      {formatNumber(organization.users)}
-                    </td>
-
-                    <td>
-                      <span
-                        className={`sa-status-badge ${
-                          organization.status === "Active"
-                            ? "sa-status-active"
-                            : "sa-status-pending"
-                        }`}
-                      >
-                        <span />
-                        {organization.status}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="sa-recent-orgs-list">
+            {currentData.recentOrganizations.map((org) => {
+              const Icon = org.icon;
+              return (
+                <div key={org.name} className="sa-recent-org-item">
+                  <div className={`sa-org-avatar-icon ${org.color}`}>
+                    <Icon size={18} strokeWidth={2.1} />
+                  </div>
+                  <div className="sa-org-info">
+                    <strong>{org.name}</strong>
+                    <span>
+                      {org.plan} • {org.users} users
+                    </span>
+                  </div>
+                  <span
+                    className={`sa-pill ${
+                      org.status === "Trial" ? "sa-pill-trial" : "sa-pill-active"
+                    }`}
+                  >
+                    {org.status}
+                  </span>
+                  <span className="sa-org-time">{org.time}</span>
+                </div>
+              );
+            })}
           </div>
         </article>
 
-        {/* Recent activity */}
-        <article className="sa-activity-card">
-          <div className="sa-panel-header">
-            <div>
-              <h3>Recent activity</h3>
-              <p>Latest platform events</p>
+        {/* AI Usage */}
+        <article className="sa-card sa-panel-card">
+          <div className="sa-card-header">
+            <h3>AI Usage</h3>
+            <div className="sa-select-filter">
+              <select
+                value={aiUsageFilter}
+                onChange={(e) => setAiUsageFilter(e.target.value)}
+              >
+                <option value="This Month">This Month</option>
+                <option value="This Week">This Week</option>
+              </select>
+              <ChevronDown size={13} className="sa-chevron" />
             </div>
+          </div>
 
+          <div className="sa-ai-metrics-list">
+            {aiMetrics.map((item) => {
+              const Icon = item.icon;
+              const DirectionIcon =
+                item.direction === "up" ? ArrowUpRight : ArrowDownRight;
+
+              return (
+                <div key={item.label} className="sa-ai-metric-item">
+                  <div className={`sa-ai-icon-box ${item.color}`}>
+                    <Icon size={18} strokeWidth={2.2} />
+                  </div>
+                  <span className="sa-ai-label">{item.label}</span>
+                  <span className="sa-ai-value">{item.display}</span>
+                  <span
+                    className={`sa-ai-trend ${
+                      item.isBad ? "negative" : "positive"
+                    }`}
+                  >
+                    <DirectionIcon size={13} /> {item.change}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </article>
+
+        {/* System Health */}
+        <article className="sa-card sa-panel-card">
+          <div className="sa-card-header">
+            <h3>System Health</h3>
             <button
               type="button"
-              className="sa-icon-button"
-              title="Activity preview"
-              aria-label="Activity preview"
-              onClick={() => navigate("/superadmin/activity-logs")}
+              className="sa-card-link"
+              onClick={() => navigate("/superadmin/system-health")}
             >
-              <MoreHorizontal size={20} />
+              View details <ArrowRight size={13} />
             </button>
           </div>
 
-          <div className="sa-activity-list">
-            {activities.map((activity, index) => (
-              <div className="sa-activity-item" key={activity.id}>
-                <div
-                  className={`sa-activity-icon sa-activity-${activity.type}`}
-                >
-                  {activityIcon(activity.type)}
-                </div>
-
-                <div className="sa-activity-content">
-                  <strong>{activity.title}</strong>
-                  <p>{activity.description}</p>
-
-                  <span className="sa-activity-time">
-                    <Clock size={11} />
-                    {activity.time}
-                  </span>
-                </div>
-
-                {index !== activities.length - 1 && (
-                  <div className="sa-activity-connector" />
-                )}
+          <div className="sa-system-health-list">
+            {systemHealthServices.map((service) => (
+              <div key={service.name} className="sa-health-item">
+                <span className="sa-health-name">{service.name}</span>
+                <span className="sa-health-status">
+                  <span className="sa-health-dot" />
+                  {service.status}
+                </span>
+                <span className="sa-health-detail">{service.detail}</span>
               </div>
             ))}
           </div>
-
-          <button
-            type="button"
-            className="sa-activity-footer-button"
-            onClick={() => navigate("/superadmin/activity-logs")}
-          >
-            View activity logs
-            <ArrowUpRight size={15} />
-          </button>
         </article>
       </section>
 
-      {/* Dashboard footer */}
-      <footer className="sa-dashboard-footer">
-        <span>
-          <ShieldCheck size={14} />
-          TeamFlow AI · Super Admin Console
-        </span>
+      {/* 5. Bottom Table: Recent Activity */}
+      <section className="sa-card sa-activity-card">
+        <div className="sa-card-header">
+          <h3>Recent Activity</h3>
+          <button
+            type="button"
+            className="sa-card-link"
+            onClick={() => navigate("/superadmin/activity-logs")}
+          >
+            View all <ArrowRight size={13} />
+          </button>
+        </div>
 
-        <span>Frontend demo · Backend integration pending</span>
-      </footer>
+        <div className="sa-table-wrapper">
+          <table className="sa-table">
+            <thead>
+              <tr>
+                <th style={{ width: "12%" }}>Time</th>
+                <th style={{ width: "26%" }}>User</th>
+                <th style={{ width: "24%" }}>Action</th>
+                <th style={{ width: "26%" }}>Details</th>
+                <th style={{ width: "12%" }}>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {currentData.recentActivities.map((act, index) => (
+                <tr key={`${act.time}-${index}`}>
+                  <td className="sa-time-cell">{act.time}</td>
+                  <td>
+                    <div className="sa-user-badge">
+                      <span className={`sa-avatar-circle ${act.color}`}>
+                        {act.initial}
+                      </span>
+                      <span>
+                        <strong>{act.user}</strong>{" "}
+                        <span className="sa-role-text">{act.role}</span>
+                      </span>
+                    </div>
+                  </td>
+                  <td className="sa-action-cell">{act.action}</td>
+                  <td className="sa-details-cell">{act.details}</td>
+                  <td>
+                    <span className="sa-pill sa-pill-success">Success</span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
     </div>
   );
 }

@@ -1,0 +1,294 @@
+/* ==========================================================================
+   TEAMFLOW AI — EMPLOYEE APPLICATION SHELL
+   Layout grid: Sidebar (240px) + Topbar (64px) + Scrollable Main Content
+   ========================================================================== */
+
+.employee-shell {
+  display: flex;
+  width: 100%;
+  height: 100vh;
+  min-height: 100vh;
+  background: var(--tf-bg, #F7F9FC);
+  color: var(--tf-text-primary, #111827);
+  font-family: var(--tf-font, "Inter", sans-serif);
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.employee-main-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  height: 100vh;
+  overflow: hidden;
+  position: relative;
+}
+
+.employee-content-area {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 20px 24px 40px;
+  box-sizing: border-box;
+  background: var(--tf-bg, #F7F9FC);
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: var(--tf-border, #E5E7EB) transparent;
+}
+
+.employee-content-area.no-scroll {
+  overflow: hidden;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - var(--tf-topbar-height, 64px));
+}
+
+.employee-content-area::-webkit-scrollbar {
+  width: 6px;
+}
+
+.employee-content-area::-webkit-scrollbar-thumb {
+  background: var(--tf-border, #E5E7EB);
+  border-radius: 4px;
+}
+
+/* ==========================================================================
+   SHARED MODAL STYLES
+   ========================================================================== */
+
+.tf-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 16px;
+  animation: modalFadeIn 0.18s ease;
+}
+
+.tf-modal-card {
+  width: 100%;
+  max-width: 480px;
+  background: var(--tf-card-bg, #FFFFFF);
+  border: 1px solid var(--tf-border, #E5E7EB);
+  border-radius: var(--tf-radius-xl, 16px);
+  box-shadow: var(--tf-shadow-xl);
+  overflow: hidden;
+  animation: modalSlideUp 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.tf-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 20px 20px 16px;
+  border-bottom: 1px solid var(--tf-border, #E5E7EB);
+}
+
+.tf-modal-title-group {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.tf-modal-icon-box {
+  width: 38px;
+  height: 38px;
+  border-radius: var(--tf-radius-md, 10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.tf-modal-icon-box.task {
+  background: var(--tf-info-bg, #EBF2FE);
+  color: var(--tf-info, #3B82F6);
+}
+
+.tf-modal-icon-box.bug {
+  background: var(--tf-danger-bg, #FEE2E2);
+  color: var(--tf-danger, #EF4444);
+}
+
+.tf-modal-icon-box.event {
+  background: var(--tf-purple-bg, #F3E8FF);
+  color: var(--tf-purple, #8B5CF6);
+}
+
+.tf-modal-title-group h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--tf-text-primary, #111827);
+}
+
+.tf-modal-title-group p {
+  margin: 3px 0 0;
+  font-size: 12px;
+  color: var(--tf-text-secondary, #64748B);
+}
+
+.tf-modal-close {
+  background: transparent;
+  border: none;
+  color: var(--tf-text-muted, #94A3B8);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: var(--tf-radius-sm, 6px);
+  transition: all 0.15s ease;
+}
+
+.tf-modal-close:hover {
+  background: var(--tf-card-hover, #F1F5F9);
+  color: var(--tf-text-primary, #111827);
+}
+
+.tf-modal-form {
+  padding: 18px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.tf-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tf-form-group label {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--tf-text-primary, #111827);
+}
+
+.tf-form-group input,
+.tf-form-group select,
+.tf-form-group textarea {
+  width: 100%;
+  height: 40px;
+  padding: 0 12px;
+  background: var(--tf-card-subtle, #F8FAFC);
+  border: 1px solid var(--tf-border, #E5E7EB);
+  border-radius: var(--tf-radius-md, 8px);
+  color: var(--tf-text-primary, #111827);
+  font-size: 13.5px;
+  font-family: inherit;
+  box-sizing: border-box;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.tf-form-group textarea {
+  height: auto;
+  padding: 10px 12px;
+  resize: vertical;
+}
+
+.tf-form-group input:focus,
+.tf-form-group select:focus,
+.tf-form-group textarea:focus {
+  border-color: var(--tf-primary, #6C4CF6);
+  background: var(--tf-card-bg, #FFFFFF);
+  box-shadow: 0 0 0 3px var(--tf-primary-light, rgba(108, 76, 246, 0.12));
+}
+
+.tf-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.tf-modal-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.tf-btn-secondary {
+  height: 38px;
+  padding: 0 16px;
+  background: transparent;
+  border: 1px solid var(--tf-border, #E5E7EB);
+  border-radius: var(--tf-radius-md, 8px);
+  color: var(--tf-text-secondary, #64748B);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.tf-btn-secondary:hover {
+  background: var(--tf-card-hover, #F1F5F9);
+  color: var(--tf-text-primary, #111827);
+}
+
+.tf-btn-primary {
+  height: 38px;
+  padding: 0 16px;
+  background: var(--tf-primary, #6C4CF6);
+  border: none;
+  border-radius: var(--tf-radius-md, 8px);
+  color: #FFFFFF;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 2px 6px rgba(108, 76, 246, 0.25);
+  transition: all 0.15s ease;
+}
+
+.tf-btn-primary:hover {
+  background: var(--tf-primary-hover, #5935E8);
+}
+
+.tf-btn-primary.danger {
+  background: var(--tf-danger, #EF4444);
+  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.25);
+}
+
+.tf-btn-primary.danger:hover {
+  background: #DC2626;
+}
+
+@keyframes modalFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes modalSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 991px) {
+  .employee-content-area {
+    padding: 20px 20px 40px;
+  }
+}
+
+@media (max-width: 767px) {
+  .employee-content-area {
+    padding: 16px 14px 32px;
+  }
+  .tf-form-row {
+    grid-template-columns: 1fr;
+  }
+}

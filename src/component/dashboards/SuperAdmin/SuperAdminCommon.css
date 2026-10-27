@@ -1,0 +1,1647 @@
+/* ==========================================================================
+   TEAMFLOW AI — SUPER ADMIN UNIFIED DESIGN SYSTEM
+   Standardizes typography, colors, spacing, cards, tables, and alignment
+   across all 17 Super Admin sections.
+   ========================================================================== */
+
+:root {
+  --sa-bg: #f5f7fc;
+  --sa-surface: #ffffff;
+  --sa-border: #e2e8f0;
+  --sa-border-subtle: #edf2f7;
+  --sa-text-main: #0f172a;
+  --sa-text-secondary: #475569;
+  --sa-text-muted: #64748b;
+  --sa-text-light: #94a3b8;
+  
+  --sa-primary: #3b66ff;
+  --sa-primary-hover: #2b54ea;
+  --sa-primary-light: #eff3fe;
+  
+  --sa-success: #10b981;
+  --sa-success-bg: #dcfce7;
+  --sa-success-text: #15803d;
+  
+  --sa-warning: #f59e0b;
+  --sa-warning-bg: #fef3c7;
+  --sa-warning-text: #b45309;
+  
+  --sa-danger: #ef4444;
+  --sa-danger-bg: #fee2e2;
+  --sa-danger-text: #b91c1c;
+  
+  --sa-info: #0284c7;
+  --sa-info-bg: #e0f2fe;
+  --sa-info-text: #0369a1;
+  
+  --sa-purple: #8b5cf6;
+  --sa-purple-bg: #f3e8ff;
+  --sa-purple-text: #7e22ce;
+  
+  --sa-radius-sm: 6px;
+  --sa-radius-md: 10px;
+  --sa-radius-lg: 14px;
+  --sa-radius-full: 9999px;
+  
+  --sa-shadow-sm: 0 1px 2px 0 rgba(15, 23, 42, 0.04);
+  --sa-shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.06), 0 2px 4px -2px rgba(15, 23, 42, 0.04);
+}
+
+/* Global Super Admin Alignment & Normalization */
+.superadmin-content {
+  padding: 22px 28px 28px !important;
+  background: #f5f7fc !important;
+  min-height: calc(100vh - 60px) !important;
+}
+
+.org-page,
+.users-page,
+.subscriptions-page,
+.analytics-page,
+.activity-logs-page,
+.sa-settings {
+  padding: 0 !important;
+  background: transparent !important;
+  max-width: 1600px !important;
+  margin: 0 auto !important;
+  min-height: auto !important;
+}
+
+/* Harmonize brand colors to vibrant royal blue across all sections */
+.org-page {
+  --org-primary: #3b66ff !important;
+  --org-primary-hover: #2654ea !important;
+}
+
+.users-page {
+  --users-primary: #3b66ff !important;
+}
+
+.subscriptions-page {
+  --sub-primary: #3b66ff !important;
+}
+
+/* Page Container */
+.sa-page-container {
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 0;
+  color: var(--sa-text-main);
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 13px;
+  box-sizing: border-box;
+}
+
+.sa-page-container * {
+  box-sizing: border-box;
+}
+
+/* Page Header */
+.sa-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.sa-page-header-left h1 {
+  margin: 0 0 3px 0;
+  color: var(--sa-text-main);
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.5px;
+}
+
+.sa-page-header-left p {
+  margin: 0;
+  color: var(--sa-text-muted);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.sa-page-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Standard Buttons */
+.sa-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 38px;
+  padding: 0 14px;
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 550;
+  border-radius: var(--sa-radius-md);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.sa-btn-primary {
+  background: var(--sa-primary);
+  color: #ffffff;
+}
+
+.sa-btn-primary:hover {
+  background: var(--sa-primary-hover);
+  box-shadow: 0 2px 8px rgba(59, 102, 255, 0.25);
+}
+
+.sa-btn-secondary {
+  background: #ffffff;
+  color: var(--sa-text-main);
+  border-color: var(--sa-border);
+}
+
+.sa-btn-secondary:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.sa-btn-danger {
+  background: var(--sa-danger);
+  color: #ffffff;
+}
+
+.sa-btn-danger:hover {
+  background: #dc2626;
+}
+
+.sa-btn-sm {
+  height: 32px;
+  padding: 0 10px;
+  font-size: 12px;
+  border-radius: var(--sa-radius-sm);
+}
+
+/* Date Range Button */
+.sa-date-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 38px;
+  padding: 0 14px;
+  background: #ffffff;
+  border: 1px solid var(--sa-border);
+  border-radius: var(--sa-radius-md);
+  color: var(--sa-text-main);
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+
+.sa-date-btn:hover {
+  border-color: #cbd5e1;
+}
+
+/* Standard KPI Stats Grid (4 columns) */
+.sa-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.sa-kpi-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  background: #ffffff;
+  border: 1px solid var(--sa-border);
+  border-radius: var(--sa-radius-lg);
+  box-shadow: var(--sa-shadow-sm);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.sa-kpi-card:hover {
+  box-shadow: var(--sa-shadow-md);
+}
+
+.sa-kpi-icon-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  flex-shrink: 0;
+  border-radius: 12px;
+}
+
+.sa-kpi-icon-box.blue {
+  background: #eff3fe;
+  color: #3b66ff;
+}
+
+.sa-kpi-icon-box.sky {
+  background: #e0f2fe;
+  color: #0284c7;
+}
+
+.sa-kpi-icon-box.green {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.sa-kpi-icon-box.amber {
+  background: #fef3c7;
+  color: #f59e0b;
+}
+
+.sa-kpi-icon-box.purple {
+  background: #f3e8ff;
+  color: #8b5cf6;
+}
+
+.sa-kpi-icon-box.red {
+  background: #fee2e2;
+  color: #ef4444;
+}
+
+.sa-kpi-body {
+  min-width: 0;
+  flex: 1;
+}
+
+.sa-kpi-title {
+  margin: 0 0 3px 0;
+  color: var(--sa-text-muted);
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.sa-kpi-val-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.sa-kpi-value {
+  color: var(--sa-text-main);
+  font-size: 26px;
+  font-weight: 750;
+  line-height: 1.15;
+  letter-spacing: -0.5px;
+}
+
+.sa-kpi-trend {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+.sa-kpi-trend.positive {
+  color: #10b981;
+}
+
+.sa-kpi-trend.negative {
+  color: #ef4444;
+}
+
+.sa-kpi-subtitle {
+  display: block;
+  margin-top: 4px;
+  color: var(--sa-text-muted);
+  font-size: 11.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Panels and Cards */
+.sa-card {
+  background: #ffffff;
+  border: 1px solid var(--sa-border);
+  border-radius: var(--sa-radius-lg);
+  padding: 16px 20px;
+  box-shadow: var(--sa-shadow-sm);
+  min-width: 0;
+}
+
+.sa-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.sa-card-header h2,
+.sa-card-header h3 {
+  margin: 0;
+  color: var(--sa-text-main);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+}
+
+.sa-card-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--sa-primary);
+  background: transparent;
+  border: 0;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0;
+}
+
+.sa-card-link:hover {
+  text-decoration: underline;
+}
+
+.sa-select-filter {
+  display: inline-flex;
+  align-items: center;
+  position: relative;
+}
+
+.sa-select-filter select {
+  appearance: none;
+  background: #ffffff;
+  border: 1px solid var(--sa-border);
+  border-radius: var(--sa-radius-sm);
+  padding: 5px 26px 5px 10px;
+  font-family: inherit;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--sa-text-main);
+  cursor: pointer;
+  outline: none;
+}
+
+.sa-select-filter select:focus {
+  border-color: var(--sa-primary);
+}
+
+.sa-select-filter .sa-chevron {
+  position: absolute;
+  right: 8px;
+  pointer-events: none;
+  color: var(--sa-text-muted);
+}
+
+/* Search Bar in Section */
+.sa-filter-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.sa-search-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #ffffff;
+  border: 1px solid var(--sa-border);
+  border-radius: var(--sa-radius-md);
+  padding: 0 12px;
+  height: 38px;
+  min-width: 280px;
+}
+
+.sa-search-box input {
+  border: 0;
+  background: transparent;
+  font-family: inherit;
+  font-size: 12.5px;
+  color: var(--sa-text-main);
+  outline: none;
+  width: 100%;
+}
+
+.sa-search-box input::placeholder {
+  color: var(--sa-text-light);
+}
+
+/* Standard Badges / Pills */
+.sa-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: var(--sa-radius-full);
+  font-size: 11px;
+  font-weight: 550;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
+.sa-pill-success,
+.sa-pill-active {
+  background: var(--sa-success-bg);
+  color: var(--sa-success-text);
+}
+
+.sa-pill-warning,
+.sa-pill-trial {
+  background: var(--sa-warning-bg);
+  color: var(--sa-warning-text);
+}
+
+.sa-pill-danger,
+.sa-pill-failed,
+.sa-pill-suspended {
+  background: var(--sa-danger-bg);
+  color: var(--sa-danger-text);
+}
+
+.sa-pill-info,
+.sa-pill-pro {
+  background: var(--sa-info-bg);
+  color: var(--sa-info-text);
+}
+
+.sa-pill-purple,
+.sa-pill-enterprise {
+  background: var(--sa-purple-bg);
+  color: var(--sa-purple-text);
+}
+
+.sa-pill-neutral {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+/* Standard Tables */
+.sa-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.sa-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  white-space: nowrap;
+  font-size: 12px;
+}
+
+.sa-table th {
+  padding: 10px 14px;
+  color: var(--sa-text-muted);
+  font-weight: 600;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  border-bottom: 1px solid var(--sa-border);
+  background: #fafbfd;
+}
+
+.sa-table td {
+  padding: 12px 14px;
+  color: var(--sa-text-main);
+  border-bottom: 1px solid var(--sa-border-subtle);
+  vertical-align: middle;
+}
+
+.sa-table tr:last-child td {
+  border-bottom: none;
+}
+
+.sa-table tr:hover td {
+  background: #f9fbfe;
+}
+
+/* User avatar initials */
+.sa-user-badge {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sa-avatar-circle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #ffffff;
+  flex-shrink: 0;
+}
+
+.sa-avatar-circle.blue {
+  background: #3b66ff;
+}
+
+.sa-avatar-circle.sky {
+  background: #0ea5e9;
+}
+
+.sa-avatar-circle.purple {
+  background: #8b5cf6;
+}
+
+.sa-avatar-circle.amber {
+  background: #f59e0b;
+}
+
+.sa-avatar-circle.green {
+  background: #10b981;
+}
+
+.sa-avatar-circle.gray {
+  background: #64748b;
+}
+
+/* Modal standard */
+.sa-modal-backdrop {
+  position: fixed !important;
+  inset: 0 !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  height: 100dvh !important;
+  background: rgba(15, 23, 42, 0.65) !important;
+  backdrop-filter: blur(4px) !important;
+  z-index: 99999 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 16px !important;
+  box-sizing: border-box !important;
+}
+
+.sa-modal-content {
+  background: #ffffff;
+  border-radius: var(--sa-radius-lg);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  width: 100%;
+  max-width: 520px;
+  max-height: 90vh;
+  overflow-y: auto;
+  border: 1px solid var(--sa-border);
+}
+
+.sa-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--sa-border);
+}
+
+.sa-modal-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--sa-text-main);
+}
+
+.sa-modal-close {
+  background: transparent;
+  border: 0;
+  color: var(--sa-text-muted);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  display: flex;
+}
+
+.sa-modal-close:hover {
+  background: #f1f5f9;
+  color: var(--sa-text-main);
+}
+
+.sa-modal-body {
+  padding: 20px;
+}
+
+.sa-modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 14px 20px;
+  border-top: 1px solid var(--sa-border);
+  background: #f8fafc;
+  border-radius: 0 0 var(--sa-radius-lg) var(--sa-radius-lg);
+}
+
+.sa-form-group {
+  margin-bottom: 14px;
+}
+
+.sa-form-group label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--sa-text-main);
+  margin-bottom: 6px;
+}
+
+.sa-form-input,
+.sa-form-select,
+.sa-form-textarea {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--sa-border);
+  border-radius: var(--sa-radius-md);
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--sa-text-main);
+  background: #ffffff;
+  outline: none;
+}
+
+.sa-form-input:focus,
+.sa-form-select:focus,
+.sa-form-textarea:focus {
+  border-color: var(--sa-primary);
+  box-shadow: 0 0 0 3px rgba(59, 102, 255, 0.1);
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .sa-kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .sa-kpi-grid {
+    grid-template-columns: 1fr;
+  }
+  .sa-page-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+
+/* ==========================================================================
+   Super Admin Profile Dropdown (Modern 6-Option Account Menu)
+   ========================================================================== */
+
+.superadmin-profile-dropdown {
+  position: absolute;
+  top: calc(100% + 10px) !important;
+  right: 0 !important;
+  z-index: 1200 !important;
+  min-width: 250px !important;
+  padding: 8px !important;
+  background: #ffffff !important;
+  border: 1px solid var(--sa-border) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 16px 36px rgba(15, 23, 42, 0.12) !important;
+  animation: saDropdownFadeIn 0.15s ease-out;
+}
+
+@keyframes saDropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.sa-profile-dropdown-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px 10px;
+}
+
+.sa-dropdown-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #3b66ff, #1d4ed8);
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 15px;
+  flex-shrink: 0;
+}
+
+.sa-dropdown-user-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.sa-dropdown-user-info strong {
+  font-size: 13px;
+  font-weight: 650;
+  color: #0f172a;
+  line-height: 1.25;
+}
+
+.sa-dropdown-user-info span {
+  font-size: 11px;
+  color: #64748b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sa-dropdown-role-tag {
+  display: inline-block;
+  margin-top: 3px;
+  font-size: 10px !important;
+  font-weight: 600;
+  color: #3b66ff !important;
+  background: #eff3fe;
+  padding: 1px 6px;
+  border-radius: 4px;
+  width: fit-content;
+}
+
+.sa-dropdown-divider {
+  height: 1px;
+  background: #e2e8f0;
+  margin: 6px 0;
+}
+
+.sa-dropdown-item {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  width: 100% !important;
+  padding: 8px 10px !important;
+  text-align: left !important;
+  color: #1e293b !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 6px !important;
+  font-size: 12.5px !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+}
+
+.sa-dropdown-item svg {
+  color: #64748b !important;
+  flex-shrink: 0 !important;
+  transition: color 0.15s ease !important;
+}
+
+.sa-dropdown-item:hover {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+}
+
+.sa-dropdown-item:hover svg {
+  color: #3b66ff !important;
+}
+
+.sa-dropdown-danger {
+  color: #dc2626 !important;
+}
+
+.sa-dropdown-danger svg {
+  color: #dc2626 !important;
+}
+
+.sa-dropdown-danger:hover {
+  background: #fee2e2 !important;
+  color: #b91c1c !important;
+}
+
+
+/* ==========================================================================
+   Subscriptions Plan Price Editing Styles
+   ========================================================================== */
+
+.subscriptions-plan-price-row {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 8px !important;
+  margin: 12px 0 16px !important;
+  flex-wrap: wrap !important;
+}
+
+.subscriptions-plan-price-row .subscriptions-plan-price {
+  margin: 0 !important;
+}
+
+.subscriptions-edit-price-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  background: #eff3fe !important;
+  color: #3b66ff !important;
+  border: 1px solid #dbeafe !important;
+  padding: 5px 9px !important;
+  border-radius: 6px !important;
+  font-size: 11.5px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+}
+
+.subscriptions-edit-price-btn:hover {
+  background: #3b66ff !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 6px rgba(59, 102, 255, 0.25) !important;
+}
+
+.subscriptions-catalogue-row {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  padding: 12px 0 !important;
+  border-bottom: 1px solid #eef2f8 !important;
+}
+
+.subscriptions-catalogue-price-action {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+}
+
+/* ==========================================================================
+   TEAMFLOW AI — SUPER ADMIN COMPREHENSIVE DARK MODE SYSTEM
+   Deep rich navy theme (#0b1120 background, #111c35 surfaces)
+   Applied automatically across ALL components, sidebar, and pages when darkMode is on.
+   ========================================================================== */
+
+.superadmin-layout.sa-dark-mode {
+  --sa-bg: #0b1120;
+  --sa-surface: #111c35;
+  --sa-border: #1f2d4d;
+  --sa-border-subtle: #192540;
+  --sa-text-main: #f8fafc;
+  --sa-text-secondary: #cbd5e1;
+  --sa-text-muted: #94a3b8;
+  --sa-text-light: #64748b;
+
+  --sa-primary: #4f75ff;
+  --sa-primary-hover: #3b66ff;
+  --sa-primary-light: rgba(79, 117, 255, 0.15);
+
+  --layout-bg: #0b1120;
+  --layout-surface: #111c35;
+  --layout-text: #f8fafc;
+  --layout-muted: #94a3b8;
+  --layout-border: #1f2d4d;
+  
+  background: #0b1120 !important;
+  color: #f8fafc !important;
+}
+
+/* 1. Base Layout Containers */
+.sa-dark-mode .superadmin-main {
+  background: #0b1120 !important;
+}
+
+.sa-dark-mode .superadmin-content {
+  background: #0b1120 !important;
+  color: #f8fafc !important;
+}
+
+/* 2. Topbar & Header */
+.sa-dark-mode .superadmin-topbar {
+  background: #111c35 !important;
+  border-bottom: 1px solid #1f2d4d !important;
+}
+
+.sa-dark-mode .superadmin-search {
+  background: #172442 !important;
+  border-color: #233355 !important;
+}
+
+.sa-dark-mode .superadmin-search input {
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .superadmin-search input::placeholder {
+  color: #64748b !important;
+}
+
+.sa-dark-mode .sa-search-icon {
+  color: #94a3b8 !important;
+}
+
+.sa-dark-mode .superadmin-notification-button,
+.sa-dark-mode .superadmin-theme-toggle {
+  background: #172442 !important;
+  border-color: #233355 !important;
+  color: #cbd5e1 !important;
+}
+
+.sa-dark-mode .superadmin-notification-button:hover,
+.sa-dark-mode .superadmin-theme-toggle:hover {
+  background: #202f52 !important;
+  color: #ffffff !important;
+}
+
+.sa-dark-mode .superadmin-profile-trigger {
+  background: #172442 !important;
+  border-color: #233355 !important;
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .superadmin-top-profile-text strong {
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .superadmin-top-profile-text small {
+  color: #94a3b8 !important;
+}
+
+.sa-dark-mode .superadmin-profile-dropdown {
+  background: #111c35 !important;
+  border-color: #233355 !important;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.5) !important;
+}
+
+.sa-dark-mode .sa-profile-dropdown-header {
+  border-color: #1f2d4d !important;
+}
+
+.sa-dark-mode .sa-dropdown-user-info strong {
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .sa-dropdown-user-info span {
+  color: #94a3b8 !important;
+}
+
+.sa-dark-mode .sa-dropdown-divider {
+  background: #1f2d4d !important;
+}
+
+.sa-dark-mode .sa-dropdown-item {
+  color: #cbd5e1 !important;
+}
+
+.sa-dark-mode .sa-dropdown-item:hover {
+  background: #172442 !important;
+  color: #ffffff !important;
+}
+
+/* 3. Sidebar in Dark Mode */
+.sa-dark-mode .superadmin-sidebar {
+  background: #111c35 !important;
+  border-right: 1px solid #1f2d4d !important;
+  color: #cbd5e1 !important;
+}
+
+.sa-dark-mode .superadmin-sidebar-header {
+  background: #111c35 !important;
+  border-bottom: 1px solid #1f2d4d !important;
+}
+
+.sa-dark-mode .superadmin-brand span {
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .superadmin-brand small {
+  color: #94a3b8 !important;
+}
+
+.sa-dark-mode .superadmin-nav-group-title {
+  color: #64748b !important;
+}
+
+.sa-dark-mode .superadmin-nav-item {
+  color: #94a3b8 !important;
+}
+
+.sa-dark-mode .superadmin-nav-item:hover {
+  background: #172442 !important;
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .superadmin-nav-item.active {
+  background: #3b66ff !important;
+  color: #ffffff !important;
+}
+
+.sa-dark-mode .superadmin-sidebar-profile {
+  background: #172442 !important;
+  border-color: #233355 !important;
+}
+
+.sa-dark-mode .superadmin-sidebar-profile-name {
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .superadmin-sidebar-profile-role {
+  color: #94a3b8 !important;
+}
+
+/* 4. Cards & Content Panels Across All Views */
+.sa-dark-mode .sa-card,
+.sa-dark-mode .sa-kpi-card,
+.sa-dark-mode .sa-panel-card,
+.sa-dark-mode .sa-chart-card,
+.sa-dark-mode .sa-activity-card,
+.sa-dark-mode .sa-user-role-table-card,
+.sa-dark-mode .sa-matrix-card,
+.sa-dark-mode .sa-role-summary-card,
+.sa-dark-mode .analytics-panel,
+.sa-dark-mode .analytics-metric-card,
+.sa-dark-mode .org-card,
+.sa-dark-mode .users-card,
+.sa-dark-mode .plan-card,
+.sa-dark-mode .sub-card,
+.sa-dark-mode .logs-panel,
+.sa-dark-mode .logs-metric-card,
+.sa-dark-mode .sa-health-card,
+.sa-dark-mode .sa-ticket-card,
+.sa-dark-mode .sa-ticket-panel,
+.sa-dark-mode .sa-ticket-list-panel,
+.sa-dark-mode .sa-ticket-detail-panel {
+  background: #111c35 !important;
+  border-color: #1f2d4d !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35) !important;
+  color: #f8fafc !important;
+}
+
+/* 5. Typography */
+.sa-dark-mode h1,
+.sa-dark-mode h2,
+.sa-dark-mode h3,
+.sa-dark-mode h4,
+.sa-dark-mode strong {
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode p,
+.sa-dark-mode .sa-kpi-subtitle,
+.sa-dark-mode .sa-role-text,
+.sa-dark-mode .sa-org-time,
+.sa-dark-mode .sa-health-detail,
+.sa-dark-mode .sa-card-header p {
+  color: #94a3b8 !important;
+}
+
+.sa-dark-mode .sa-kpi-title {
+  color: #94a3b8 !important;
+}
+
+.sa-dark-mode .sa-kpi-value {
+  color: #f8fafc !important;
+}
+
+/* 6. Form Controls, Search, Inputs & Selects */
+.sa-dark-mode input,
+.sa-dark-mode select,
+.sa-dark-mode textarea {
+  background: #172442 !important;
+  border-color: #233355 !important;
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode input::placeholder,
+.sa-dark-mode textarea::placeholder {
+  color: #64748b !important;
+}
+
+.sa-dark-mode .sa-search-box {
+  background: #172442 !important;
+  border-color: #233355 !important;
+}
+
+.sa-dark-mode .sa-search-box input {
+  background: transparent !important;
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .sa-select-filter select {
+  background: #172442 !important;
+  border-color: #233355 !important;
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .sa-select-filter .sa-chevron {
+  color: #94a3b8 !important;
+}
+
+.sa-dark-mode .sa-date-btn {
+  background: #172442 !important;
+  border-color: #233355 !important;
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .sa-date-dropdown {
+  background: #111c35 !important;
+  border-color: #233355 !important;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.5) !important;
+}
+
+.sa-dark-mode .sa-date-option {
+  color: #cbd5e1 !important;
+}
+
+.sa-dark-mode .sa-date-option:hover {
+  background: #172442 !important;
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .sa-date-option.is-selected {
+  background: rgba(59, 102, 255, 0.25) !important;
+  color: #6088ff !important;
+}
+
+.sa-dark-mode .sa-date-custom-box {
+  border-color: #233355 !important;
+}
+
+.sa-dark-mode .sa-date-input {
+  background: #172442 !important;
+  border-color: #233355 !important;
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .sa-billing-toggle {
+  background: #172442 !important;
+  border-color: #233355 !important;
+}
+
+.sa-dark-mode .sa-billing-tab {
+  color: #94a3b8 !important;
+}
+
+.sa-dark-mode .sa-billing-tab.is-active {
+  background: #3b66ff !important;
+  color: #ffffff !important;
+}
+
+.sa-dark-mode .sa-role-inline-select {
+  background: #172442 !important;
+  border-color: #233355 !important;
+  color: #f8fafc !important;
+}
+
+/* 7. Buttons */
+.sa-dark-mode .sa-btn-secondary {
+  background: #172442 !important;
+  border-color: #233355 !important;
+  color: #e2e8f0 !important;
+}
+
+.sa-dark-mode .sa-btn-secondary:hover {
+  background: #202f52 !important;
+  border-color: #3b4d75 !important;
+  color: #ffffff !important;
+}
+
+/* 8. Tables */
+.sa-dark-mode .sa-table th {
+  background: #172442 !important;
+  color: #94a3b8 !important;
+  border-bottom: 1px solid #1f2d4d !important;
+}
+
+.sa-dark-mode .sa-table td {
+  border-bottom: 1px solid #1f2d4d !important;
+  color: #e2e8f0 !important;
+}
+
+.sa-dark-mode .sa-table tbody tr:hover td {
+  background: #15223e !important;
+}
+
+.sa-dark-mode .sa-time-cell {
+  color: #94a3b8 !important;
+}
+
+.sa-dark-mode .sa-action-cell {
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .sa-details-cell {
+  color: #94a3b8 !important;
+}
+
+/* 9. Permissions Matrix Table */
+.sa-dark-mode .sa-matrix-table td {
+  border-color: #1f2d4d !important;
+}
+
+.sa-dark-mode .sa-perm-check.yes {
+  background: rgba(16, 185, 129, 0.2) !important;
+  color: #34d399 !important;
+}
+
+.sa-dark-mode .sa-perm-check.no {
+  background: rgba(239, 68, 68, 0.15) !important;
+  color: #f87171 !important;
+}
+
+/* 10. Dashboard Widgets & Lists */
+.sa-dark-mode .sa-card-header {
+  border-bottom-color: #1f2d4d !important;
+}
+
+.sa-dark-mode .sa-recent-org-item {
+  border-bottom: 1px solid #1f2d4d !important;
+}
+
+.sa-dark-mode .sa-recent-org-item:hover {
+  background: #172442 !important;
+}
+
+.sa-dark-mode .sa-ai-metric-item {
+  border-bottom: 1px solid #1f2d4d !important;
+}
+
+.sa-dark-mode .sa-ai-label {
+  color: #cbd5e1 !important;
+}
+
+.sa-dark-mode .sa-ai-value {
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .sa-health-item {
+  border-bottom: 1px solid #1f2d4d !important;
+}
+
+.sa-dark-mode .sa-health-name {
+  color: #f8fafc !important;
+}
+
+/* 11. Live SVG Charts in Dark Mode */
+.sa-dark-mode .sa-svg-chart line {
+  stroke: #1f2d4d !important;
+}
+
+.sa-dark-mode .sa-axis-label {
+  fill: #94a3b8 !important;
+}
+
+.sa-dark-mode .sa-axis-label.is-active {
+  fill: #f8fafc !important;
+}
+
+.sa-dark-mode .sa-chart-tooltip {
+  background: #172442 !important;
+  border: 1px solid #233355 !important;
+  color: #f8fafc !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5) !important;
+}
+
+.sa-dark-mode .sa-donut-wrap .sa-donut-center-val {
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .sa-donut-wrap .sa-donut-center-label {
+  color: #94a3b8 !important;
+}
+
+.sa-dark-mode .sa-donut-legend-name {
+  color: #cbd5e1 !important;
+}
+
+.sa-dark-mode .sa-donut-legend-pct {
+  color: #94a3b8 !important;
+}
+
+.sa-dark-mode .sa-donut-svg circle:first-child {
+  stroke: #1f2d4d !important;
+}
+
+/* 12. Modals */
+.sa-dark-mode .sa-modal-backdrop {
+  background: rgba(0, 0, 0, 0.75) !important;
+}
+
+.sa-dark-mode .sa-modal-content {
+  background: #111c35 !important;
+  border: 1px solid #233355 !important;
+  color: #f8fafc !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6) !important;
+}
+
+.sa-dark-mode .sa-modal-header {
+  border-bottom: 1px solid #1f2d4d !important;
+}
+
+.sa-dark-mode .sa-modal-footer {
+  border-top: 1px solid #1f2d4d !important;
+  background: #0d1527 !important;
+}
+
+.sa-dark-mode .sa-form-label {
+  color: #cbd5e1 !important;
+}
+
+.sa-dark-mode .sa-form-input,
+.sa-dark-mode .sa-form-select,
+.sa-dark-mode .sa-form-textarea {
+  background: #172442 !important;
+  border-color: #233355 !important;
+  color: #f8fafc !important;
+}
+
+/* 13. Toast Banner */
+.sa-dark-mode .sa-toast-banner {
+  background: #172442 !important;
+  border-color: #233355 !important;
+  color: #10b981 !important;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.45) !important;
+}
+
+/* 14. Pill Badges In Dark Mode */
+.sa-dark-mode .sa-pill-neutral {
+  background: #172442 !important;
+  color: #94a3b8 !important;
+  border: 1px solid #233355 !important;
+}
+
+.sa-dark-mode .sa-pill-active,
+.sa-dark-mode .sa-pill-success {
+  background: rgba(16, 185, 129, 0.18) !important;
+  color: #34d399 !important;
+  border: 1px solid rgba(16, 185, 129, 0.3) !important;
+}
+
+.sa-dark-mode .sa-pill-trial,
+.sa-dark-mode .sa-pill-warning {
+  background: rgba(245, 158, 11, 0.18) !important;
+  color: #fbbf24 !important;
+  border: 1px solid rgba(245, 158, 11, 0.3) !important;
+}
+
+.sa-dark-mode .sa-pill-danger {
+  background: rgba(239, 68, 68, 0.18) !important;
+  color: #f87171 !important;
+  border: 1px solid rgba(239, 68, 68, 0.3) !important;
+}
+
+/* 15. Subscriptions Edit Price Modal & Pricing Cards */
+.sa-dark-mode .subscriptions-edit-price-btn {
+  background: #1c2744 !important;
+  color: #6088ff !important;
+  border-color: #2a3a60 !important;
+}
+
+.sa-dark-mode .subscriptions-edit-price-btn:hover {
+  background: #3b66ff !important;
+  color: #ffffff !important;
+}
+
+.sa-dark-mode .subscriptions-catalogue-row {
+  border-bottom-color: #1f2d4d !important;
+}
+
+/* 16. Help & Support In Dark Mode */
+.sa-dark-mode .sa-ticket-item {
+  border-bottom-color: #1f2d4d !important;
+}
+
+.sa-dark-mode .sa-ticket-item:hover,
+.sa-dark-mode .sa-ticket-item.is-selected {
+  background: #172442 !important;
+}
+
+.sa-dark-mode .sa-chat-bubble-agent {
+  background: #1c2a4b !important;
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .sa-chat-bubble-client {
+  background: #172442 !important;
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .sa-chat-reply-box {
+  background: #111c35 !important;
+  border-top-color: #1f2d4d !important;
+}
+
+/* 17. Legacy & Page-Specific Class Coverage for Dark Mode */
+.sa-dark-mode .org-stat-card,
+.sa-dark-mode .org-table-panel,
+.sa-dark-mode .org-modal-card,
+.sa-dark-mode .users-stat-card,
+.sa-dark-mode .users-panel,
+.sa-dark-mode .users-table-panel,
+.sa-dark-mode .users-modal,
+.sa-dark-mode .subscriptions-metric-card,
+.sa-dark-mode .subscriptions-plan-card,
+.sa-dark-mode .subscriptions-table-panel,
+.sa-dark-mode .subscriptions-modal,
+.sa-dark-mode .subscriptions-modal-dialog,
+.sa-dark-mode .subscriptions-modal-card,
+.sa-dark-mode .subscriptions-action-menu,
+.sa-dark-mode .sa-settings-summary,
+.sa-dark-mode .sa-settings-content,
+.sa-dark-mode .sa-settings-section,
+.sa-dark-mode .sa-settings-card,
+.sa-dark-mode .logs-panel,
+.sa-dark-mode .logs-metric-card {
+  background: #111c35 !important;
+  border-color: #1f2d4d !important;
+  color: #f8fafc !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35) !important;
+}
+
+.sa-dark-mode .org-search,
+.sa-dark-mode .org-filter,
+.sa-dark-mode .org-filter-select,
+.sa-dark-mode .users-search,
+.sa-dark-mode .users-filter-control,
+.sa-dark-mode .subscriptions-search,
+.sa-dark-mode .subscriptions-filter-select,
+.sa-dark-mode .analytics-period-control,
+.sa-dark-mode .logs-search-input,
+.sa-dark-mode .logs-filter-select {
+  background: #172442 !important;
+  border-color: #233355 !important;
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .org-search input,
+.sa-dark-mode .users-search input,
+.sa-dark-mode .subscriptions-search input,
+.sa-dark-mode .logs-search-input input {
+  background: transparent !important;
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .org-table th,
+.sa-dark-mode .users-table th,
+.sa-dark-mode .subscriptions-table th,
+.sa-dark-mode .analytics-table th,
+.sa-dark-mode .logs-table th {
+  background: #172442 !important;
+  color: #94a3b8 !important;
+  border-bottom: 1px solid #1f2d4d !important;
+}
+
+.sa-dark-mode .org-table td,
+.sa-dark-mode .users-table td,
+.sa-dark-mode .subscriptions-table td,
+.sa-dark-mode .analytics-table td,
+.sa-dark-mode .logs-table td {
+  border-bottom: 1px solid #1f2d4d !important;
+  color: #e2e8f0 !important;
+}
+
+.sa-dark-mode .org-table tr:hover td,
+.sa-dark-mode .users-table tr:hover td,
+.sa-dark-mode .subscriptions-table tr:hover td,
+.sa-dark-mode .analytics-table tr:hover td,
+.sa-dark-mode .logs-table tr:hover td {
+  background: #15223e !important;
+}
+
+.sa-dark-mode .org-button-secondary,
+.sa-dark-mode .org-reset-button,
+.sa-dark-mode .users-secondary-button,
+.sa-dark-mode .users-reset-button,
+.sa-dark-mode .subscriptions-button-light,
+.sa-dark-mode .subscriptions-reset-button,
+.sa-dark-mode .analytics-export-button,
+.sa-dark-mode .logs-export-button,
+.sa-dark-mode .logs-reset-button {
+  background: #172442 !important;
+  border-color: #233355 !important;
+  color: #e2e8f0 !important;
+}
+
+.sa-dark-mode .org-button-secondary:hover,
+.sa-dark-mode .users-secondary-button:hover,
+.sa-dark-mode .subscriptions-button-light:hover,
+.sa-dark-mode .analytics-export-button:hover {
+  background: #202f52 !important;
+  border-color: #3b4d75 !important;
+  color: #ffffff !important;
+}
+
+.sa-dark-mode .sa-settings-nav-item {
+  color: #94a3b8 !important;
+}
+
+.sa-dark-mode .sa-settings-nav-item:hover {
+  background: #172442 !important;
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .sa-settings-nav-item.is-active {
+  background: #3b66ff !important;
+  color: #ffffff !important;
+}
+
+.sa-dark-mode .sa-settings-field {
+  border-color: #1f2d4d !important;
+}
+
+.sa-dark-mode .sa-settings-field-title {
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .sa-settings-field-desc {
+  color: #94a3b8 !important;
+}
+
+
+/* 18. Notifications Dropdown Dark Mode */
+.sa-dark-mode .superadmin-notification-button:hover,
+.sa-dark-mode .superadmin-notification-button.is-active {
+  background: #172442 !important;
+  color: #6088ff !important;
+}
+
+.sa-dark-mode .sa-notification-count {
+  border-color: #111c35 !important;
+}
+
+.sa-dark-mode .superadmin-notifications-dropdown {
+  background: #111c35 !important;
+  border-color: #233355 !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55) !important;
+}
+
+.sa-dark-mode .sa-notif-header {
+  background: #172442 !important;
+  border-bottom-color: #1f2d4d !important;
+}
+
+.sa-dark-mode .sa-notif-header-title strong {
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .sa-notif-badge {
+  background: rgba(59, 102, 255, 0.25) !important;
+  color: #6088ff !important;
+}
+
+.sa-dark-mode .sa-notif-badge-read {
+  background: #1f2d4d !important;
+  color: #94a3b8 !important;
+}
+
+.sa-dark-mode .sa-notif-action-btn {
+  color: #6088ff !important;
+}
+
+.sa-dark-mode .sa-notif-action-btn:hover {
+  background: #202f52 !important;
+}
+
+.sa-dark-mode .sa-notif-item {
+  background: #111c35 !important;
+  border-bottom-color: #1f2d4d !important;
+}
+
+.sa-dark-mode .sa-notif-item:hover {
+  background: #172442 !important;
+}
+
+.sa-dark-mode .sa-notif-item.is-unread {
+  background: #13203c !important;
+}
+
+.sa-dark-mode .sa-notif-title {
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .sa-notif-desc {
+  color: #94a3b8 !important;
+}
+
+.sa-dark-mode .sa-notif-category {
+  color: #94a3b8 !important;
+}
+
+.sa-dark-mode .sa-notif-time {
+  color: #64748b !important;
+}
+
+.sa-dark-mode .sa-notif-footer {
+  background: #172442 !important;
+  border-top-color: #1f2d4d !important;
+}
+
+.sa-dark-mode .sa-notif-footer-link {
+  color: #6088ff !important;
+}

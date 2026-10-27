@@ -1,0 +1,134 @@
+/* ==========================================================================
+   TEAMFLOW AI — EMPLOYEE DESIGN TOKENS
+   Strictly scoped to .employee-shell and .employee-dark
+   ========================================================================== */
+
+:root {
+  --tf-font: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --tf-sidebar-width: 240px;
+  --tf-topbar-height: 64px;
+}
+
+/* Light Theme (Default) */
+.employee-shell {
+  --tf-bg: #F7F9FC;
+  --tf-card-bg: #FFFFFF;
+  --tf-card-subtle: #F8FAFC;
+  --tf-card-hover: #F1F5F9;
+  --tf-border: #E5E7EB;
+  --tf-border-subtle: #F1F5F9;
+  --tf-border-focus: #6C4CF6;
+
+  /* Text */
+  --tf-text-primary: #111827;
+  --tf-text-secondary: #64748B;
+  --tf-text-muted: #94A3B8;
+  --tf-text-inverse: #FFFFFF;
+
+  /* Brand / Primary */
+  --tf-primary: #6C4CF6;
+  --tf-primary-hover: #5935E8;
+  --tf-primary-active: #4A28D4;
+  --tf-primary-light: #F2EEFF;
+  --tf-primary-border: #DDD6FE;
+  --tf-primary-glow: rgba(108, 76, 246, 0.25);
+
+  /* Status Colors */
+  --tf-success: #16A34A;
+  --tf-success-bg: #DCFCE7;
+  --tf-success-border: #BBF7D0;
+  --tf-success-text: #15803D;
+
+  --tf-warning: #F59E0B;
+  --tf-warning-bg: #FEF3C7;
+  --tf-warning-border: #FDE68A;
+  --tf-warning-text: #B45309;
+
+  --tf-danger: #EF4444;
+  --tf-danger-bg: #FEE2E2;
+  --tf-danger-border: #FECACA;
+  --tf-danger-text: #B91C1C;
+
+  --tf-info: #3B82F6;
+  --tf-info-bg: #EBF2FE;
+  --tf-info-border: #BFDBFE;
+  --tf-info-text: #1D4ED8;
+
+  --tf-purple: #8B5CF6;
+  --tf-purple-bg: #F3E8FF;
+
+  /* Shadows */
+  --tf-shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --tf-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --tf-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+  --tf-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+  --tf-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+
+  /* Radii */
+  --tf-radius-sm: 6px;
+  --tf-radius-md: 10px;
+  --tf-radius-lg: 14px;
+  --tf-radius-xl: 18px;
+  --tf-radius-full: 9999px;
+
+  /* Transitions */
+  --tf-transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Dark Theme */
+.employee-shell.tf-dark,
+[data-theme="dark"] .employee-shell,
+html[data-theme="dark"] .employee-shell {
+  --tf-bg: #111827;
+  --tf-card-bg: #1F2937;
+  --tf-card-subtle: #273449;
+  --tf-card-hover: #2E3E56;
+  --tf-border: #374151;
+  --tf-border-subtle: #263344;
+  --tf-border-focus: #7C5CFF;
+
+  /* Text */
+  --tf-text-primary: #F9FAFB;
+  --tf-text-secondary: #9CA3AF;
+  --tf-text-muted: #6B7280;
+  --tf-text-inverse: #111827;
+
+  /* Brand / Primary */
+  --tf-primary: #7C5CFF;
+  --tf-primary-hover: #8D71FF;
+  --tf-primary-active: #6C4CF6;
+  --tf-primary-light: rgba(124, 92, 255, 0.16);
+  --tf-primary-border: rgba(124, 92, 255, 0.35);
+  --tf-primary-glow: rgba(124, 92, 255, 0.35);
+
+  /* Status Colors */
+  --tf-success: #22C55E;
+  --tf-success-bg: rgba(34, 197, 94, 0.16);
+  --tf-success-border: rgba(34, 197, 94, 0.35);
+  --tf-success-text: #4ADE80;
+
+  --tf-warning: #F59E0B;
+  --tf-warning-bg: rgba(245, 158, 11, 0.16);
+  --tf-warning-border: rgba(245, 158, 11, 0.35);
+  --tf-warning-text: #FBBF24;
+
+  --tf-danger: #EF4444;
+  --tf-danger-bg: rgba(239, 68, 68, 0.16);
+  --tf-danger-border: rgba(239, 68, 68, 0.35);
+  --tf-danger-text: #F87171;
+
+  --tf-info: #3B82F6;
+  --tf-info-bg: rgba(59, 130, 246, 0.16);
+  --tf-info-border: rgba(59, 130, 246, 0.35);
+  --tf-info-text: #60A5FA;
+
+  --tf-purple: #A78BFA;
+  --tf-purple-bg: rgba(167, 139, 250, 0.16);
+
+  /* Shadows */
+  --tf-shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.2);
+  --tf-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
+  --tf-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.35), 0 2px 4px -2px rgba(0, 0, 0, 0.25);
+  --tf-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.45), 0 4px 6px -4px rgba(0, 0, 0, 0.3);
+  --tf-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.55), 0 8px 10px -6px rgba(0, 0, 0, 0.4);
+}

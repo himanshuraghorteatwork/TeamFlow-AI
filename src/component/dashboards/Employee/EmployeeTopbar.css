@@ -1,0 +1,803 @@
+/* ==========================================================================
+   TEAMFLOW AI — EMPLOYEE TOPBAR
+   Navbar with Search on left, Theme Switch Toggle (Light <-> Dark mode),
+   Notifications Bell with red badge, Help, and Profile Avatar
+   ========================================================================== */
+
+.tf-topbar {
+  height: var(--tf-topbar-height, 64px);
+  min-height: var(--tf-topbar-height, 64px);
+  background: #FFFFFF;
+  border-bottom: 1px solid #ECEEF3;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  position: sticky;
+  top: 0;
+  z-index: 90;
+  box-sizing: border-box;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+/* Left: Mobile Toggle & Global Search */
+.tf-topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  max-width: 520px;
+}
+
+.tf-mobile-toggle-btn {
+  display: none;
+  background: transparent;
+  border: none;
+  color: #1E293B;
+  padding: 6px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.tf-mobile-toggle-btn:hover {
+  background: #F1F5F9;
+}
+
+.tf-global-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: 440px;
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  padding: 0 12px;
+  height: 38px;
+  transition: all 0.15s ease;
+}
+
+.tf-global-search.focused,
+.tf-global-search:focus-within {
+  background: #FFFFFF;
+  border-color: #5051F9;
+  box-shadow: 0 0 0 3px rgba(80, 81, 249, 0.12);
+}
+
+.tf-search-icon {
+  color: #94A3B8;
+  margin-right: 8px;
+  flex-shrink: 0;
+}
+
+.tf-search-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: #1E293B;
+  font-size: 13px;
+  font-family: inherit;
+  width: 100%;
+}
+
+.tf-search-input::placeholder {
+  color: #94A3B8;
+  font-size: 13px;
+}
+
+.tf-search-clear {
+  background: transparent;
+  border: none;
+  color: #94A3B8;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+}
+
+.tf-search-clear:hover {
+  color: #1E293B;
+  background: #E2E8F0;
+}
+
+.tf-topbar-shortcut-badge {
+  font-size: 11px;
+  font-weight: 500;
+  color: #94A3B8;
+  background: #F1F5F9;
+  border: 1px solid #E2E8F0;
+  border-radius: 4px;
+  padding: 2px 6px;
+  white-space: nowrap;
+  pointer-events: none;
+  font-family: inherit;
+}
+
+[data-theme="dark"] .tf-topbar-shortcut-badge {
+  background: #1E293B;
+  border-color: #334155;
+  color: #64748B;
+}
+
+/* Search Dropdown */
+.tf-search-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 10px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+  padding: 6px;
+  z-index: 200;
+  animation: topbarFadeIn 0.15s ease;
+}
+
+.tf-search-quick-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  color: #475569;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.tf-search-quick-item:hover {
+  background: #F1F5F9;
+  color: #1E293B;
+}
+
+.tf-search-quick-item.ai-item {
+  color: #5051F9;
+  background: #EEF2FF;
+  font-weight: 500;
+}
+
+.tf-search-quick-item.ai-item:hover {
+  background: #E0E7FF;
+}
+
+/* Right Action Group */
+.tf-topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* ==========================================================================
+   THEME TOGGLE SWITCH (Light <-> Dark Mode)
+   Modern sliding pill toggle with sun/moon indicators
+   ========================================================================== */
+
+.tf-theme-toggle-switch {
+  position: relative;
+  width: 60px;
+  height: 32px;
+  border-radius: 9999px;
+  background: #F1F5F9;
+  border: 1px solid #CBD5E1;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 7px;
+  box-sizing: border-box;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  outline: none;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.tf-theme-toggle-switch:hover {
+  border-color: #94A3B8;
+}
+
+.tf-theme-toggle-switch:focus-visible {
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
+}
+
+/* Icons inside the switch track */
+.tf-toggle-label-sun,
+.tf-toggle-label-moon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+  transition: color 0.2s ease, opacity 0.2s ease;
+}
+
+.tf-toggle-label-sun {
+  color: #F59E0B;
+}
+
+.tf-toggle-label-moon {
+  color: #94A3B8;
+}
+
+/* Sliding Knob */
+.tf-toggle-knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 24px;
+  height: 24px;
+  border-radius: 9999px;
+  background: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15), 0 1px 2px rgba(0, 0, 0, 0.1);
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.25s ease;
+  z-index: 2;
+}
+
+.tf-toggle-knob .knob-icon.sun {
+  color: #D97706;
+}
+
+.tf-toggle-knob .knob-icon.moon {
+  color: #FFFFFF;
+}
+
+/* Dark Mode State of the Toggle Switch */
+.tf-theme-toggle-switch.is-dark {
+  background: #1E293B;
+  border-color: #475569;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.35);
+}
+
+.tf-theme-toggle-switch.is-dark .tf-toggle-label-sun {
+  color: #64748B;
+  opacity: 0.6;
+}
+
+.tf-theme-toggle-switch.is-dark .tf-toggle-label-moon {
+  color: #818CF8;
+}
+
+.tf-theme-toggle-switch.is-dark .tf-toggle-knob {
+  transform: translateX(28px);
+  background: #6366F1;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.35);
+}
+
+/* ==========================================================================
+   Icon Buttons (Bell & Help)
+   ========================================================================== */
+
+.tf-icon-wrapper {
+  position: relative;
+}
+
+.tf-icon-button {
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  position: relative;
+  transition: background 0.15s ease;
+}
+
+.tf-icon-button:hover {
+  background: #F1F5F9;
+}
+
+.tf-bell-icon,
+.tf-help-icon {
+  color: #334155;
+  transition: color 0.15s ease;
+}
+
+.tf-notif-badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 16px;
+  height: 16px;
+  background: #EF4444;
+  color: #FFFFFF;
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+/* Notifications Dropdown */
+.tf-notifications-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: -10px;
+  width: 320px;
+  background: #FFFFFF;
+  border: 1px solid #ECEEF3;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.12);
+  z-index: 200;
+  overflow: hidden;
+  animation: topbarFadeIn 0.15s ease;
+}
+
+.tf-notif-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-bottom: 1px solid #F1F4F9;
+}
+
+.tf-notif-header strong {
+  font-size: 13.5px;
+  color: #1E293B;
+}
+
+.tf-notif-count-label {
+  font-size: 11px;
+  color: #5051F9;
+  background: #EEF2FF;
+  padding: 2px 6px;
+  border-radius: 6px;
+  margin-left: 8px;
+  font-weight: 600;
+}
+
+.tf-notif-mark {
+  background: transparent;
+  border: none;
+  color: #5051F9;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.tf-notif-list {
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+.tf-notif-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 11px 14px;
+  border-bottom: 1px solid #F8FAFC;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.tf-notif-item:hover {
+  background: #F8FAFC;
+}
+
+.tf-notif-item.unread {
+  background: #FAF8FF;
+}
+
+.tf-notif-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 9999px;
+  background: #5051F9;
+  margin-top: 5px;
+  flex-shrink: 0;
+}
+
+.tf-notif-item:not(.unread) .tf-notif-dot {
+  background: transparent;
+}
+
+.tf-notif-body strong {
+  display: block;
+  font-size: 12.5px;
+  color: #1E293B;
+}
+
+.tf-notif-body p {
+  margin: 2px 0 3px;
+  font-size: 12px;
+  color: #64748B;
+  line-height: 1.35;
+}
+
+.tf-notif-body small {
+  font-size: 10.5px;
+  color: #94A3B8;
+}
+
+.tf-notif-footer {
+  padding: 9px 14px;
+  border-top: 1px solid #F1F4F9;
+  text-align: center;
+}
+
+.tf-notif-footer button {
+  background: transparent;
+  border: none;
+  color: #5051F9;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+/* Help Dropdown */
+.tf-help-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: -10px;
+  width: 260px;
+  background: #FFFFFF;
+  border: 1px solid #ECEEF3;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.12);
+  z-index: 200;
+  padding: 14px;
+  animation: topbarFadeIn 0.15s ease;
+}
+
+.tf-help-header strong {
+  display: block;
+  font-size: 13.5px;
+  color: #1E293B;
+  margin-bottom: 8px;
+}
+
+.tf-help-content p {
+  margin: 0 0 10px;
+  font-size: 12px;
+  color: #64748B;
+}
+
+.tf-help-shortcut {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  font-size: 12px;
+  color: #334155;
+}
+
+.tf-help-shortcut kbd {
+  background: #F1F5F9;
+  border: 1px solid #E2E8F0;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-family: inherit;
+}
+
+.tf-help-footer {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid #F1F4F9;
+  text-align: center;
+}
+
+.tf-help-footer button {
+  background: transparent;
+  border: none;
+  color: #5051F9;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+/* User Profile */
+.tf-profile-wrapper {
+  position: relative;
+}
+
+.tf-profile-button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 8px;
+  transition: background 0.15s ease;
+}
+
+.tf-profile-button:hover {
+  background: #F8FAFC;
+}
+
+.tf-profile-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 9999px;
+  background: #2563EB;
+  color: #FFFFFF;
+  font-size: 14px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.tf-profile-meta {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+.tf-profile-name {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #1E293B;
+  line-height: 1.2;
+}
+
+.tf-profile-role {
+  font-size: 11.5px;
+  color: #64748B;
+  line-height: 1.2;
+}
+
+/* Profile Dropdown */
+.tf-profile-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 220px;
+  background: #FFFFFF;
+  border: 1px solid #ECEEF3;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.12);
+  padding: 6px;
+  z-index: 200;
+  animation: topbarFadeIn 0.15s ease;
+}
+
+.tf-dropdown-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+}
+
+.tf-dropdown-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 9999px;
+  background: #2563EB;
+  color: #FFFFFF;
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.tf-dropdown-user-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.tf-dropdown-user-info strong {
+  font-size: 13px;
+  color: #1E293B;
+}
+
+.tf-user-role-badge {
+  font-size: 10.5px;
+  color: #5051F9;
+  font-weight: 600;
+}
+
+.tf-dropdown-user-info small {
+  font-size: 10.5px;
+  color: #94A3B8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tf-dropdown-divider {
+  height: 1px;
+  background: #F1F4F9;
+  margin: 4px 0;
+}
+
+.tf-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 10px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  font-size: 12.5px;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.tf-menu-item:hover {
+  background: #F8FAFC;
+  color: #1E293B;
+}
+
+.tf-logout-btn {
+  color: #EF4444;
+}
+
+.tf-logout-btn:hover {
+  background: #FEE2E2;
+  color: #DC2626;
+}
+
+@keyframes topbarFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ==========================================================================
+   DARK THEME STYLES FOR TOPBAR
+   ========================================================================== */
+
+.employee-shell.tf-dark .tf-topbar,
+[data-theme="dark"] .tf-topbar {
+  background: #1E293B;
+  border-bottom-color: #334155;
+}
+
+.employee-shell.tf-dark .tf-mobile-toggle-btn,
+[data-theme="dark"] .tf-mobile-toggle-btn {
+  color: #F8FAFC;
+}
+
+.employee-shell.tf-dark .tf-global-search,
+[data-theme="dark"] .tf-global-search {
+  background: #0F172A;
+  border-color: #334155;
+}
+
+.employee-shell.tf-dark .tf-global-search.focused,
+.employee-shell.tf-dark .tf-global-search:focus-within,
+[data-theme="dark"] .tf-global-search.focused,
+[data-theme="dark"] .tf-global-search:focus-within {
+  background: #1E293B;
+  border-color: #6366F1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+}
+
+.employee-shell.tf-dark .tf-search-input,
+[data-theme="dark"] .tf-search-input {
+  color: #F8FAFC;
+}
+
+.employee-shell.tf-dark .tf-search-input::placeholder,
+[data-theme="dark"] .tf-search-input::placeholder {
+  color: #64748B;
+}
+
+.employee-shell.tf-dark .tf-search-dropdown,
+[data-theme="dark"] .tf-search-dropdown {
+  background: #1E293B;
+  border-color: #334155;
+}
+
+.employee-shell.tf-dark .tf-search-quick-item,
+[data-theme="dark"] .tf-search-quick-item {
+  color: #CBD5E1;
+}
+
+.employee-shell.tf-dark .tf-search-quick-item:hover,
+[data-theme="dark"] .tf-search-quick-item:hover {
+  background: #334155;
+  color: #F8FAFC;
+}
+
+.employee-shell.tf-dark .tf-search-quick-item.ai-item,
+[data-theme="dark"] .tf-search-quick-item.ai-item {
+  background: rgba(99, 102, 241, 0.18);
+  color: #A5B4FC;
+}
+
+.employee-shell.tf-dark .tf-bell-icon,
+.employee-shell.tf-dark .tf-help-icon,
+[data-theme="dark"] .tf-bell-icon,
+[data-theme="dark"] .tf-help-icon {
+  color: #CBD5E1;
+}
+
+.employee-shell.tf-dark .tf-icon-button:hover,
+[data-theme="dark"] .tf-icon-button:hover {
+  background: #334155;
+}
+
+.employee-shell.tf-dark .tf-notifications-dropdown,
+.employee-shell.tf-dark .tf-help-dropdown,
+.employee-shell.tf-dark .tf-profile-dropdown,
+[data-theme="dark"] .tf-notifications-dropdown,
+[data-theme="dark"] .tf-help-dropdown,
+[data-theme="dark"] .tf-profile-dropdown {
+  background: #1E293B;
+  border-color: #334155;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+}
+
+.employee-shell.tf-dark .tf-notif-header,
+.employee-shell.tf-dark .tf-notif-footer,
+.employee-shell.tf-dark .tf-help-footer,
+.employee-shell.tf-dark .tf-dropdown-divider,
+[data-theme="dark"] .tf-notif-header,
+[data-theme="dark"] .tf-notif-footer,
+[data-theme="dark"] .tf-help-footer,
+[data-theme="dark"] .tf-dropdown-divider {
+  border-color: #334155;
+  background-color: transparent;
+}
+
+.employee-shell.tf-dark .tf-notif-header strong,
+.employee-shell.tf-dark .tf-notif-body strong,
+.employee-shell.tf-dark .tf-help-header strong,
+.employee-shell.tf-dark .tf-profile-name,
+.employee-shell.tf-dark .tf-dropdown-user-info strong,
+[data-theme="dark"] .tf-notif-header strong,
+[data-theme="dark"] .tf-notif-body strong,
+[data-theme="dark"] .tf-help-header strong,
+[data-theme="dark"] .tf-profile-name,
+[data-theme="dark"] .tf-dropdown-user-info strong {
+  color: #F8FAFC;
+}
+
+.employee-shell.tf-dark .tf-notif-body p,
+.employee-shell.tf-dark .tf-help-content p,
+.employee-shell.tf-dark .tf-profile-role,
+.employee-shell.tf-dark .tf-help-shortcut,
+[data-theme="dark"] .tf-notif-body p,
+[data-theme="dark"] .tf-help-content p,
+[data-theme="dark"] .tf-profile-role,
+[data-theme="dark"] .tf-help-shortcut {
+  color: #94A3B8;
+}
+
+.employee-shell.tf-dark .tf-notif-item:hover,
+.employee-shell.tf-dark .tf-profile-button:hover,
+.employee-shell.tf-dark .tf-menu-item:hover,
+[data-theme="dark"] .tf-notif-item:hover,
+[data-theme="dark"] .tf-profile-button:hover,
+[data-theme="dark"] .tf-menu-item:hover {
+  background: #334155;
+  color: #F8FAFC;
+}
+
+.employee-shell.tf-dark .tf-notif-item.unread,
+[data-theme="dark"] .tf-notif-item.unread {
+  background: #232B3E;
+}
+
+@media (max-width: 991px) {
+  .tf-mobile-toggle-btn {
+    display: flex;
+  }
+  .tf-profile-meta {
+    display: none;
+  }
+}

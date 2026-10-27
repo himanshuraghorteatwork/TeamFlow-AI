@@ -1,91 +1,165 @@
-
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import {
   LayoutDashboard,
   Building2,
   Users,
-  ChartNoAxesCombined,
-  Activity,
+  Gem,
   CreditCard,
-  Settings,
+  Receipt,
+  FileText,
+  Mail,
+  LayoutTemplate,
+  Megaphone,
+  Sliders,
+  Sparkles,
+  ChartNoAxesCombined,
   ShieldCheck,
-  LogOut,
+  HeartPulse,
+  Shield,
+  Settings,
   X,
-  Layers,
-  ChevronRight,
+  KeyRound,
+  LifeBuoy,
 } from "lucide-react";
 
 import "./SuperAdminSidebar.css";
 
-const navigationItems = [
+const navigationGroups = [
   {
-    label: "Dashboard",
-    path: "/superadmin/dashboard",
-    icon: LayoutDashboard,
+    title: "OVERVIEW",
+    items: [
+      {
+        label: "Dashboard",
+        path: "/superadmin/dashboard",
+        icon: LayoutDashboard,
+      },
+    ],
   },
   {
-    label: "Organizations",
-    path: "/superadmin/organizations",
-    icon: Building2,
+    title: "TENANT MANAGEMENT",
+    items: [
+      {
+        label: "Organizations",
+        path: "/superadmin/organizations",
+        icon: Building2,
+      },
+      {
+        label: "Users",
+        path: "/superadmin/users",
+        icon: Users,
+      },
+      {
+        label: "Roles & Permissions",
+        path: "/superadmin/roles",
+        icon: KeyRound,
+      },
+    ],
   },
   {
-    label: "Users",
-    path: "/superadmin/users",
-    icon: Users,
+    title: "BILLING & REVENUE",
+    items: [
+      {
+        label: "Plans",
+        path: "/superadmin/plans",
+        icon: Gem,
+      },
+      {
+        label: "Subscriptions",
+        path: "/superadmin/subscriptions",
+        icon: CreditCard,
+      },
+      {
+        label: "Billing & Payments",
+        path: "/superadmin/billing",
+        icon: Receipt,
+      },
+      {
+        label: "Invoices",
+        path: "/superadmin/invoices",
+        icon: FileText,
+      },
+    ],
   },
   {
-    label: "Analytics",
-    path: "/superadmin/analytics",
-    icon: ChartNoAxesCombined,
+    title: "COMMUNICATION",
+    items: [
+      {
+        label: "SMTP / Email",
+        path: "/superadmin/email",
+        icon: Mail,
+      },
+      {
+        label: "Email Templates",
+        path: "/superadmin/email-templates",
+        icon: LayoutTemplate,
+      },
+      {
+        label: "Announcements",
+        path: "/superadmin/announcements",
+        icon: Megaphone,
+      },
+      {
+        label: "Help & Support",
+        path: "/superadmin/help-support",
+        icon: LifeBuoy,
+      },
+    ],
   },
   {
-    label: "Activity Logs",
-    path: "/superadmin/activity-logs",
-    icon: Activity,
+    title: "AI MANAGEMENT",
+    items: [
+      {
+        label: "AI Configuration",
+        path: "/superadmin/ai-configuration",
+        icon: Sliders,
+      },
+      {
+        label: "AI Usage",
+        path: "/superadmin/ai-usage",
+        icon: Sparkles,
+      },
+    ],
   },
   {
-    label: "Subscriptions",
-    path: "/superadmin/subscriptions",
-    icon: CreditCard,
+    title: "MONITORING",
+    items: [
+      {
+        label: "Analytics",
+        path: "/superadmin/analytics",
+        icon: ChartNoAxesCombined,
+      },
+      {
+        label: "Audit Logs",
+        path: "/superadmin/activity-logs",
+        icon: ShieldCheck,
+      },
+      {
+        label: "System Health",
+        path: "/superadmin/system-health",
+        icon: HeartPulse,
+      },
+    ],
   },
   {
-    label: "Settings",
-    path: "/superadmin/settings",
-    icon: Settings,
+    title: "PLATFORM",
+    items: [
+      {
+        label: "Security",
+        path: "/superadmin/security",
+        icon: Shield,
+      },
+      {
+        label: "Settings",
+        path: "/superadmin/settings",
+        icon: Settings,
+      },
+    ],
   },
 ];
 
-function SuperAdminSidebar({
-  sidebarOpen = false,
-  setSidebarOpen,
-}) {
-  const navigate = useNavigate();
-
+function SuperAdminSidebar({ sidebarOpen = false, setSidebarOpen }) {
   const closeSidebar = () => {
     setSidebarOpen?.(false);
-  };
-
-  const handleLogout = () => {
-    [
-      "teamflow_current_user",
-      "teamflow_superadmin",
-      "teamflow_admin",
-      "teamflow_admin_logged_in",
-      "teamflow_teamlead",
-      "teamflow_user",
-    ].forEach((key) => {
-      localStorage.removeItem(key);
-      sessionStorage.removeItem(key);
-    });
-
-    closeSidebar();
-
-    navigate("/choose-role", { replace: true });
-  };
-
-  const handlePlatformControl = () => {
-    closeSidebar();
-    navigate("/superadmin/settings");
   };
 
   return (
@@ -103,18 +177,42 @@ function SuperAdminSidebar({
           onClick={closeSidebar}
         >
           <div className="superadmin-brand-icon">
-            <Layers size={25} strokeWidth={2} />
+            <svg
+              width="26"
+              height="26"
+              viewBox="0 0 28 28"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <rect width="28" height="28" rx="8" fill="url(#tf-logo-bg)" />
+              <path
+                d="M8 9H20M14 9V19M11 19H17"
+                stroke="white"
+                strokeWidth="2.4"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <circle cx="21" cy="7" r="2.5" fill="#38bdf8" />
+              <defs>
+                <linearGradient
+                  id="tf-logo-bg"
+                  x1="0"
+                  y1="0"
+                  x2="28"
+                  y2="28"
+                  gradientUnits="userSpaceOnUse"
+                >
+                  <stop stopColor="#4361ee" />
+                  <stop offset="0.5" stopColor="#3a0ca3" />
+                  <stop offset="1" stopColor="#f72585" />
+                </linearGradient>
+              </defs>
+            </svg>
           </div>
 
-          <div className="superadmin-brand-text">
-            <span className="superadmin-brand-name">
-              TeamFlow <span>AI</span>
-            </span>
-
-            <span className="superadmin-brand-caption">
-              Super Admin Console
-            </span>
-          </div>
+          <span className="superadmin-brand-name">
+            TeamFlow <span>AI</span>
+          </span>
         </NavLink>
 
         <button
@@ -123,127 +221,51 @@ function SuperAdminSidebar({
           onClick={closeSidebar}
           aria-label="Close sidebar"
         >
-          <X size={20} />
+          <X size={18} />
         </button>
       </div>
 
-      {/* Super Admin Workspace */}
-      <div className="superadmin-workspace">
-        <div className="superadmin-workspace-icon">
-          <ShieldCheck size={21} strokeWidth={2} />
-        </div>
-
-        <div className="superadmin-workspace-info">
-          <span className="superadmin-workspace-title">
-            Super Admin
-          </span>
-
-          <span className="superadmin-workspace-subtitle">
-            Full Platform Access
-          </span>
-        </div>
-
-        <span
-          className="superadmin-status-dot"
-          title="Active"
-          aria-label="Active"
-        />
-      </div>
-
-      {/* Navigation */}
+      {/* Navigation List */}
       <nav className="superadmin-navigation">
-        <p className="superadmin-nav-heading">
-          PLATFORM MANAGEMENT
-        </p>
-
-        <div className="superadmin-nav-links">
-          {navigationItems.map((item) => {
-            const Icon = item.icon;
-
-            return (
-              <NavLink
-                key={item.path}
-                to={item.path}
-                end={item.path === "/superadmin/dashboard"}
-                className={({ isActive }) =>
-                  `superadmin-nav-link ${
-                    isActive ? "superadmin-nav-link-active" : ""
-                  }`
-                }
-                onClick={closeSidebar}
-              >
-                <Icon
-                  className="superadmin-nav-icon"
-                  size={19}
-                  strokeWidth={1.9}
-                />
-
-                <span className="superadmin-nav-label">
-                  {item.label}
-                </span>
-
-                <span
-                  className="superadmin-nav-indicator"
-                  aria-hidden="true"
-                />
-              </NavLink>
-            );
-          })}
-        </div>
-      </nav>
-
-      {/* Bottom Section */}
-      <div className="superadmin-sidebar-bottom">
-        <button
-          type="button"
-          className="superadmin-support-card"
-          onClick={handlePlatformControl}
-        >
-          <div className="superadmin-support-icon">
-            <ShieldCheck size={20} strokeWidth={2} />
-          </div>
-
-          <div className="superadmin-support-info">
-            <span className="superadmin-support-title">
-              Platform Control
-            </span>
-
-            <span className="superadmin-support-text">
-              Manage the entire platform
-            </span>
-          </div>
-
-          <ChevronRight
-            className="superadmin-support-arrow"
-            size={18}
-          />
-        </button>
-
-        {/* Profile with one Logout button */}
-        <div className="superadmin-profile">
-          <div className="superadmin-profile-avatar">SA</div>
-
-          <div className="superadmin-profile-info">
-            <span className="superadmin-profile-name">
-              Super Admin
-            </span>
-
-            <span className="superadmin-profile-role">
-              Platform Owner
-            </span>
-          </div>
-
-          <button
-            type="button"
-            className="superadmin-logout-button"
-            onClick={handleLogout}
-            title="Logout"
-            aria-label="Logout"
+        {navigationGroups.map((group) => (
+          <section
+            className="superadmin-nav-group"
+            key={group.title}
+            aria-label={group.title}
           >
-            <LogOut size={19} strokeWidth={1.9} />
-          </button>
-        </div>
-      </div>
+            {group.title !== "OVERVIEW" && (
+              <p className="superadmin-nav-heading">{group.title}</p>
+            )}
+
+            <div className="superadmin-nav-links">
+              {group.items.map((item) => {
+                const Icon = item.icon;
+
+                return (
+                  <NavLink
+                    key={item.path}
+                    to={item.path}
+                    end
+                    className={({ isActive }) =>
+                      `superadmin-nav-link ${
+                        isActive ? "superadmin-nav-link-active" : ""
+                      }`
+                    }
+                    onClick={closeSidebar}
+                  >
+                    <Icon
+                      className="superadmin-nav-icon"
+                      size={17}
+                      strokeWidth={1.9}
+                    />
+                    <span className="superadmin-nav-label">{item.label}</span>
+                  </NavLink>
+                );
+              })}
+            </div>
+          </section>
+        ))}
+      </nav>
     </aside>
   );
 }

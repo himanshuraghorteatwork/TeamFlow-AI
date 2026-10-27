@@ -1,347 +1,437 @@
-/* =========================================================
-   TEAMFLOW AI - APP SIDEBAR
-   Standard employee sidebar component (Width: 241px / Mobile: 68px)
-========================================================= */
+/* ==========================================================================
+   TEAMFLOW AI — EMPLOYEE SIDEBAR
+   Clean, modern, strictly matching the screenshot design reference
+   ========================================================================== */
 
 .app-sidebar {
-  position: fixed;
+  width: var(--tf-sidebar-width, 240px);
+  min-width: var(--tf-sidebar-width, 240px);
+  max-width: var(--tf-sidebar-width, 240px);
+  height: 100vh;
+  position: sticky;
   top: 0;
   left: 0;
-  bottom: 0;
-  z-index: 1000;
-
+  background: #FFFFFF;
+  border-right: 1px solid #ECEEF3;
   display: flex;
   flex-direction: column;
-  flex: 0 0 241px;
-  width: 241px;
-  min-width: 241px;
-  height: 100vh;
-  height: 100dvh;
-
-  padding: 16px 11px 12px;
-  background: #111831;
-  color: #fff;
+  z-index: 100;
   box-sizing: border-box;
-  overflow-x: hidden;
-  overflow-y: auto;
+  user-select: none;
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Sidebar Header */
+.app-sidebar-header {
+  height: var(--tf-topbar-height, 64px);
+  min-height: var(--tf-topbar-height, 64px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 18px;
+  border-bottom: 1px solid #F1F4F9;
 }
 
 .app-sidebar-brand {
   display: flex;
   align-items: center;
-  gap: 12px;
-  min-height: 48px;
-  padding: 0 12px;
-  margin-bottom: 14px;
-  color: #fff;
+  gap: 10px;
   text-decoration: none;
+  color: #111827;
 }
 
-.app-brand-icon,
-.app-workspace-icon {
+.app-brand-logo {
   display: flex;
-  flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  width: 37px;
-  height: 37px;
-  border-radius: 12px;
-  background: #6842ff;
-  color: #fff;
+  flex-shrink: 0;
 }
 
-.app-brand-name {
-  font-size: 17px;
-  font-weight: 750;
-  white-space: nowrap;
+.app-brand-title {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #1E293B;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
-.app-brand-name span {
-  color: #a78bfa;
+.app-brand-ai {
+  color: #1E293B;
+  font-weight: 700;
 }
 
-.app-workspace-switcher {
+.app-sidebar-close-btn {
+  display: none;
+  background: transparent;
+  border: none;
+  color: #64748B;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 8px;
+}
+
+.app-sidebar-close-btn:hover {
+  background: #F1F5F9;
+  color: #111827;
+}
+
+/* Navigation Scroll Area */
+.app-sidebar-scroll {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 12px 14px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  scrollbar-width: thin;
+  scrollbar-color: #E2E8F0 transparent;
+}
+
+.app-sidebar-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+
+.app-sidebar-scroll::-webkit-scrollbar-thumb {
+  background: #E2E8F0;
+  border-radius: 4px;
+}
+
+/* Top Dashboard Pill Button */
+.app-nav-top-dashboard {
+  width: 100%;
+}
+
+.app-sidebar-dashboard-btn {
   display: flex;
   align-items: center;
   gap: 10px;
   width: 100%;
-  min-height: 50px;
-  padding: 8px 10px;
-  margin: 6px 0 16px;
-  border: 0;
-  border-radius: 11px;
-  background: #1d2542;
-  color: #fff;
-  text-align: left;
-  cursor: pointer;
-}
-
-.app-workspace-info {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-}
-
-.app-workspace-info strong {
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: #5051F9;
+  color: #FFFFFF !important;
   font-size: 13.5px;
   font-weight: 600;
-  color: #ffffff;
+  text-decoration: none;
+  box-shadow: 0 4px 12px rgba(80, 81, 249, 0.25);
+  box-sizing: border-box;
+  transition: all 0.15s ease;
 }
 
-.app-workspace-info small {
-  color: #94a3b8;
-  font-size: 11px;
+.app-sidebar-dashboard-btn:hover {
+  background: #4344E6;
+  color: #FFFFFF;
 }
 
+.app-dashboard-icon {
+  color: #FFFFFF;
+  flex-shrink: 0;
+}
+
+/* Nav Groups */
 .app-sidebar-nav {
   display: flex;
   flex-direction: column;
-  gap: 5px;
-  flex-shrink: 0;
+  gap: 14px;
+  flex: 1;
 }
 
+.app-nav-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.app-nav-section-title {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #94A3B8;
+  padding: 6px 10px 5px;
+}
+
+.app-nav-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* Nav Item Link */
 .app-sidebar-link {
   display: flex;
   align-items: center;
-  gap: 14px;
-  min-height: 45px;
-  padding: 0 14px;
-  border-radius: 11px;
-  color: #e5e9f6;
+  gap: 11px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  color: #475569;
   font-size: 13px;
+  font-weight: 500;
   text-decoration: none;
-  transition: background 0.15s ease;
+  transition: all 0.15s ease;
 }
 
 .app-sidebar-link:hover {
-  background: #202846;
-  color: #fff;
+  background: #F8FAFC;
+  color: #1E293B;
+}
+
+.app-nav-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #64748B;
+}
+
+.app-sidebar-link:hover .app-nav-icon {
+  color: #1E293B;
+}
+
+.app-nav-text {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .app-sidebar-link.active {
-  background: #6842ff;
-  color: #fff;
+  background: #F1F4FF;
+  color: #5051F9;
+  font-weight: 600;
 }
 
-.app-sidebar-profile {
+.app-sidebar-link.active .app-nav-icon {
+  color: #5051F9;
+}
+
+/* Bottom Organization Card */
+.app-sidebar-org-card {
   display: flex;
   align-items: center;
   gap: 10px;
+  padding: 10px 12px;
   margin-top: auto;
-  padding: 15px 8px 4px;
-  border-top: 1px solid #29314a;
-  flex-shrink: 0;
+  background: #F8FAFC;
+  border: 1px solid #EDF2F7;
+  border-radius: 12px;
+  box-sizing: border-box;
+  cursor: pointer;
+  transition: all 0.15s ease;
 }
 
-.app-profile-avatar {
+.app-sidebar-org-card:hover {
+  background: #F1F5F9;
+  border-color: #E2E8F0;
+}
+
+.app-org-icon-box {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: #EEF2FF;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  object-fit: cover;
 }
 
-.app-profile-initials {
-  background: linear-gradient(135deg, #6842ff, #a78bfa);
-  color: #fff;
-  font-weight: 700;
-  font-size: 13px;
-}
-
-.app-profile-info {
+.app-org-details {
   display: flex;
-  flex: 1;
   flex-direction: column;
-  gap: 4px;
   min-width: 0;
+  flex: 1;
 }
 
-.app-profile-info strong {
-  font-size: 12px;
-}
-
-.app-profile-info span {
+.app-org-name {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #1E293B;
+  white-space: nowrap;
   overflow: hidden;
-  color: #c0c9e3;
-  font-size: 10px;
   text-overflow: ellipsis;
+}
+
+.app-org-role {
+  font-size: 11px;
+  color: #64748B;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.app-org-arrow {
+  color: #94A3B8;
+  flex-shrink: 0;
+}
+
+/* Mobile Drawer Backdrop */
+.app-sidebar-backdrop {
+  display: none;
+}
+
+/* ==========================================================================
+   DARK THEME STYLES FOR SIDEBAR
+   ========================================================================== */
+
+.employee-shell.tf-dark .app-sidebar,
+[data-theme="dark"] .app-sidebar {
+  background: #1E293B;
+  border-right-color: #334155;
+}
+
+.employee-shell.tf-dark .app-sidebar-header,
+[data-theme="dark"] .app-sidebar-header {
+  border-bottom-color: #334155;
+}
+
+.employee-shell.tf-dark .app-brand-title,
+.employee-shell.tf-dark .app-brand-ai,
+[data-theme="dark"] .app-brand-title,
+[data-theme="dark"] .app-brand-ai {
+  color: #F8FAFC;
+}
+
+.employee-shell.tf-dark .app-nav-section-title,
+[data-theme="dark"] .app-nav-section-title {
+  color: #64748B;
+}
+
+.employee-shell.tf-dark .app-sidebar-link,
+[data-theme="dark"] .app-sidebar-link {
+  color: #94A3B8;
+}
+
+.employee-shell.tf-dark .app-sidebar-link:hover,
+[data-theme="dark"] .app-sidebar-link:hover {
+  background: #334155;
+  color: #F8FAFC;
+}
+
+.employee-shell.tf-dark .app-sidebar-link.active,
+[data-theme="dark"] .app-sidebar-link.active {
+  background: rgba(80, 81, 249, 0.2);
+  color: #818CF8;
+}
+
+.employee-shell.tf-dark .app-sidebar-link.active .app-nav-icon,
+[data-theme="dark"] .app-sidebar-link.active .app-nav-icon {
+  color: #818CF8;
+}
+
+.employee-shell.tf-dark .app-sidebar-org-card,
+[data-theme="dark"] .app-sidebar-org-card {
+  background: #0F172A;
+  border-color: #334155;
+}
+
+.employee-shell.tf-dark .app-sidebar-org-card:hover,
+[data-theme="dark"] .app-sidebar-org-card:hover {
+  background: #162032;
+  border-color: #475569;
+}
+
+.employee-shell.tf-dark .app-org-name,
+[data-theme="dark"] .app-org-name {
+  color: #F8FAFC;
+}
+
+.employee-shell.tf-dark .app-org-role,
+[data-theme="dark"] .app-org-role {
+  color: #94A3B8;
+}
+
+.employee-shell.tf-dark .app-org-icon-box,
+[data-theme="dark"] .app-org-icon-box {
+  background: #1E293B;
+}
+
+/* Responsive Behavior */
+@media (max-width: 991px) {
+  .app-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    height: 100vh;
+    transform: translateX(-100%);
+    box-shadow: none;
+    z-index: 1000;
+  }
+
+  .app-sidebar.open {
+    transform: translateX(0);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.35);
+  }
+
+  .app-sidebar-close-btn {
+    display: flex;
+  }
+
+  .app-sidebar-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.5);
+    backdrop-filter: blur(2px);
+    z-index: 999;
+    animation: fadeIn 0.2s ease;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+/* =========================================
+   TEAMFLOW AI BRAND
+========================================= */
+
+.logo-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
   white-space: nowrap;
 }
 
-.app-sidebar-profile-btn {
+.logo-icon-brand {
+  width: 28px;
+  height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 5px;
-  border: 0;
-  background: transparent;
-  color: #fff;
-  cursor: pointer;
-  text-decoration: none;
-  border-radius: 6px;
-  transition: background 0.15s ease;
-}
-
-.app-sidebar-profile-btn:hover {
-  background: #202846;
-}
-
-@media (max-width: 700px) {
-  .app-sidebar {
-    flex-basis: 68px;
-    width: 68px;
-    min-width: 68px;
-    padding: 12px 7px;
-  }
-
-  .app-sidebar-brand {
-    justify-content: center;
-    padding: 0;
-  }
-
-  .app-brand-name,
-  .app-workspace-info,
-  .app-workspace-switcher > svg,
-  .app-sidebar-link span,
-  .app-profile-info,
-  .app-sidebar-profile-btn {
-    display: none;
-  }
-
-  .app-workspace-switcher {
-    justify-content: center;
-    padding: 8px 0;
-  }
-
-  .app-sidebar-link {
-    justify-content: center;
-    padding: 0;
-  }
-
-  .app-sidebar-profile {
-    justify-content: center;
-    padding-right: 0;
-    padding-left: 0;
-  }
-}
-/* =========================================================
-   SIDEBAR BOTTOM SECTION
-========================================================= */
-
-.sidebar-bottom {
-  margin-top: auto;
-  padding: 12px 0 4px;
-}
-
-
-/* =========================================================
-   LOGOUT BUTTON
-========================================================= */
-
-.sidebar-logout {
-  width: 100%;
-  height: 44px;
-
-  display: flex;
-  align-items: center;
-  gap: 12px;
-
-  padding: 0 14px;
-
-  border: 1px solid transparent;
-  border-radius: 10px;
-
-  background: transparent;
-
-  color: #64748b;
-
-  font-family: inherit;
-  font-size: 13.5px;
-  font-weight: 500;
-
-  cursor: pointer;
-
-  text-align: left;
-
-  transition:
-    background-color 0.2s ease,
-    color 0.2s ease,
-    border-color 0.2s ease,
-    transform 0.15s ease;
-}
-
-
-/* Icon */
-
-.sidebar-logout svg {
   flex-shrink: 0;
-
-  color: #64748b;
-
-  transition:
-    color 0.2s ease,
-    transform 0.2s ease;
 }
 
-
-/* Hover */
-
-.sidebar-logout:hover {
-  background: #fef2f2;
-
-  color: #dc2626;
-
-  border-color: #fee2e2;
+.logo-icon-brand svg {
+  display: block;
+  width: 28px;
+  height: 28px;
 }
 
-
-.sidebar-logout:hover svg {
-  color: #dc2626;
-
-  transform: translateX(2px);
+.logo-text {
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.3px;
+  color: #111827;
 }
 
-
-/* Active / Click */
-
-.sidebar-logout:active {
-  transform: scale(0.98);
+.logo-ai {
+  color: #4361ee;
+  font-weight: 700;
 }
 
-
-/* Keyboard accessibility */
-
-.sidebar-logout:focus-visible {
-  outline: 2px solid #8b5cf6;
-  outline-offset: 2px;
+.dark .logo-text {
+  color: #f8fafc;
 }
 
-
-/* =========================================================
-   DARK MODE SUPPORT
-========================================================= */
-
-.dark .sidebar-logout {
-  color: #94a3b8;
-}
-
-.dark .sidebar-logout svg {
-  color: #94a3b8;
-}
-
-.dark .sidebar-logout:hover {
-  background: rgba(239, 68, 68, 0.1);
-
-  color: #f87171;
-
-  border-color: rgba(239, 68, 68, 0.2);
-}
-
-.dark .sidebar-logout:hover svg {
-  color: #f87171;
+.dark .logo-ai {
+  color: #8b9cff;
 }

@@ -1044,3 +1044,48 @@
     padding: 20px 12px;
   }
 }
+/* ==========================================================================
+   EMPLOYEE SHELL INTEGRATION & SCOPED DARK MODE FOR TEAM
+   ========================================================================== */
+
+.employee-shell .team-main {
+  margin-left: 0 !important;
+  padding: 0 !important;
+}
+
+.employee-shell.tf-dark .team-stat-card,
+[data-theme="dark"] .team-stat-card,
+.employee-shell.tf-dark .team-table-card,
+[data-theme="dark"] .team-table-card,
+.employee-shell.tf-dark .team-toolbar,
+[data-theme="dark"] .team-toolbar,
+.employee-shell.tf-dark .team-modal,
+[data-theme="dark"] .team-modal {
+  background: var(--tf-card-bg, #1F2937);
+  border-color: var(--tf-border, #374151);
+  color: var(--tf-text-primary, #F9FAFB);
+}
+
+.employee-shell.tf-dark .team-header h1,
+[data-theme="dark"] .team-header h1,
+.employee-shell.tf-dark .team-stat-card strong,
+[data-theme="dark"] .team-stat-card strong,
+.employee-shell.tf-dark .team-table th,
+[data-theme="dark"] .team-table th,
+.employee-shell.tf-dark .team-table td,
+[data-theme="dark"] .team-table td {
+  color: var(--tf-text-primary, #F9FAFB);
+}
+
+.employee-shell.tf-dark .team-search input,
+[data-theme="dark"] .team-search input,
+.employee-shell.tf-dark .team-filter-select,
+[data-theme="dark"] .team-filter-select,
+.employee-shell.tf-dark .team-modal input,
+[data-theme="dark"] .team-modal input,
+.employee-shell.tf-dark .team-modal select,
+[data-theme="dark"] .team-modal select {
+  background: var(--tf-card-subtle, #273449);
+  border-color: var(--tf-border, #374151);
+  color: var(--tf-text-primary, #F9FAFB);
+}
