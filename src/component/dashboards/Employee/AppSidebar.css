@@ -99,38 +99,6 @@
   border-radius: 4px;
 }
 
-/* Top Dashboard Pill Button */
-.app-nav-top-dashboard {
-  width: 100%;
-}
-
-.app-sidebar-dashboard-btn {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  width: 100%;
-  padding: 10px 14px;
-  border-radius: 10px;
-  background: #5051F9;
-  color: #FFFFFF !important;
-  font-size: 13.5px;
-  font-weight: 600;
-  text-decoration: none;
-  box-shadow: 0 4px 12px rgba(80, 81, 249, 0.25);
-  box-sizing: border-box;
-  transition: all 0.15s ease;
-}
-
-.app-sidebar-dashboard-btn:hover {
-  background: #4344E6;
-  color: #FFFFFF;
-}
-
-.app-dashboard-icon {
-  color: #FFFFFF;
-  flex-shrink: 0;
-}
-
 /* Nav Groups */
 .app-sidebar-nav {
   display: flex;
@@ -167,7 +135,7 @@
   display: flex;
   align-items: center;
   gap: 11px;
-  padding: 8px 10px;
+  padding: 8.5px 12px;
   border-radius: 8px;
   color: #475569;
   font-size: 13px;
@@ -201,13 +169,19 @@
 }
 
 .app-sidebar-link.active {
-  background: #F1F4FF;
-  color: #5051F9;
+  background: #3B66FF;
+  color: #FFFFFF !important;
   font-weight: 600;
+  box-shadow: 0 4px 12px rgba(59, 102, 255, 0.25);
+}
+
+.app-sidebar-link.active:hover {
+  background: #2F59FA;
+  color: #FFFFFF !important;
 }
 
 .app-sidebar-link.active .app-nav-icon {
-  color: #5051F9;
+  color: #FFFFFF !important;
 }
 
 /* Bottom Organization Card */
@@ -315,13 +289,20 @@
 
 .employee-shell.tf-dark .app-sidebar-link.active,
 [data-theme="dark"] .app-sidebar-link.active {
-  background: rgba(80, 81, 249, 0.2);
-  color: #818CF8;
+  background: #3B66FF;
+  color: #FFFFFF !important;
+  box-shadow: 0 4px 14px rgba(59, 102, 255, 0.35);
+}
+
+.employee-shell.tf-dark .app-sidebar-link.active:hover,
+[data-theme="dark"] .app-sidebar-link.active:hover {
+  background: #2F59FA;
+  color: #FFFFFF !important;
 }
 
 .employee-shell.tf-dark .app-sidebar-link.active .app-nav-icon,
 [data-theme="dark"] .app-sidebar-link.active .app-nav-icon {
-  color: #818CF8;
+  color: #FFFFFF !important;
 }
 
 .employee-shell.tf-dark .app-sidebar-org-card,

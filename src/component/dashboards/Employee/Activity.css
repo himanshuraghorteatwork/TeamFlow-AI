@@ -4,9 +4,9 @@
    ========================================================================== */
 
 .tf-activity-page {
-  padding: 24px 32px 48px;
-  max-width: 1560px;
-  margin: 0 auto;
+  
+  max-width: 1900px;
+  
   font-family: inherit;
   color: var(--tf-text, #0F172A);
   position: relative;

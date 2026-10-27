@@ -426,7 +426,11 @@ function Settings() {
   };
 
   return (
-    <EmployeeShell activeRoute="/employee/settings" noScroll>
+    <EmployeeShell
+      activeRoute="/employee/settings"
+      noScroll
+      searchPlaceholder="Search tasks, projects, files, meetings or people..."
+    >
       {/* Toast Notification */}
       {toastMessage && (
         <div className="tf-settings-toast" role="alert">

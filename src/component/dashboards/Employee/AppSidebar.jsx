@@ -23,6 +23,11 @@ const navSections = [
     title: "MY WORK",
     items: [
       {
+        label: "Dashboard",
+        path: "/employee/dashboard",
+        icon: Home,
+      },
+      {
         label: "My Tasks",
         path: "/employee/tasks",
         icon: CheckSquare,
@@ -101,8 +106,9 @@ const navSections = [
   },
 ];
 
-function AppSidebar({ isOpen = false, onClose }) {
+function AppSidebar({ isOpen = false, onClose, activeRoute }) {
   const location = useLocation();
+  const currentPath = activeRoute || location.pathname;
 
   // Check if a navigation item is active
   const isItemActive = (itemPath) => {
@@ -110,19 +116,81 @@ function AppSidebar({ isOpen = false, onClose }) {
 
     if (search) {
       return (
-        location.pathname === pathname &&
+        currentPath === pathname &&
         location.search.includes(search)
       );
     }
 
-    return location.pathname === pathname;
-  };
+    if (itemPath === "/employee/dashboard") {
+      return (
+        currentPath === "/employee/dashboard" ||
+        currentPath === "/dashboard" ||
+        currentPath === "/employee"
+      );
+    }
 
-  // Dashboard active state
-  const isDashboardActive =
-    location.pathname === "/employee/dashboard" ||
-    location.pathname === "/dashboard" ||
-    location.pathname === "/employee";
+    if (itemPath === "/employee/settings") {
+      return (
+        currentPath === "/employee/settings" ||
+        currentPath === "/settings" ||
+        currentPath === "/employee/notifications" ||
+        currentPath === "/employee/profile"
+      );
+    }
+
+    if (itemPath === "/employee/activity") {
+      return (
+        currentPath === "/employee/activity" ||
+        currentPath === "/activity" ||
+        currentPath === "/employee/my-activity"
+      );
+    }
+
+    if (itemPath === "/employee/team-progress") {
+      return (
+        currentPath === "/employee/team-progress" ||
+        currentPath === "/team-progress" ||
+        currentPath === "/employee/progress"
+      );
+    }
+
+    if (itemPath === "/employee/tasks") {
+      return currentPath === "/employee/tasks" || currentPath === "/tasks";
+    }
+
+    if (itemPath === "/employee/projects") {
+      return currentPath === "/employee/projects" || currentPath === "/projects";
+    }
+
+    if (itemPath === "/employee/bugs") {
+      return currentPath === "/employee/bugs" || currentPath === "/bugs";
+    }
+
+    if (itemPath === "/employee/calendar") {
+      return currentPath === "/employee/calendar" || currentPath === "/calendar";
+    }
+
+    if (itemPath === "/employee/files") {
+      return currentPath === "/employee/files" || currentPath === "/files";
+    }
+
+    if (itemPath === "/employee/chat") {
+      return currentPath === "/employee/chat" || currentPath === "/chat";
+    }
+
+    if (itemPath === "/employee/meetings") {
+      return currentPath === "/employee/meetings" || currentPath === "/meetings";
+    }
+
+    if (itemPath === "/employee/ai-assistant") {
+      return (
+        currentPath === "/employee/ai-assistant" ||
+        currentPath === "/ai-assistant"
+      );
+    }
+
+    return currentPath === pathname;
+  };
 
   return (
     <>
@@ -256,33 +324,6 @@ function AppSidebar({ isOpen = false, onClose }) {
             NAVIGATION SCROLL AREA
         ========================================== */}
         <div className="app-sidebar-scroll">
-
-          {/* =======================================
-              DASHBOARD BUTTON
-          ======================================== */}
-          <div className="app-nav-top-dashboard">
-
-            <NavLink
-              to="/employee/dashboard"
-              className={`app-sidebar-dashboard-btn ${
-                isDashboardActive ? "active" : ""
-              }`}
-              onClick={onClose}
-            >
-
-              <Home
-                size={18}
-                strokeWidth={2.2}
-                className="app-dashboard-icon"
-              />
-
-              <span>
-                Dashboard
-              </span>
-
-            </NavLink>
-
-          </div>
 
           {/* =========================================
               MAIN NAVIGATION

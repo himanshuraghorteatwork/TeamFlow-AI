@@ -26,7 +26,7 @@
   align-items: center;
   gap: 12px;
   flex: 1;
-  max-width: 520px;
+  max-width: 540px;
 }
 
 .tf-mobile-toggle-btn {
@@ -48,12 +48,14 @@
   display: flex;
   align-items: center;
   width: 100%;
-  max-width: 440px;
+  max-width: 480px;
   background: #F8FAFC;
   border: 1px solid #E2E8F0;
   border-radius: 8px;
   padding: 0 12px;
   height: 38px;
+  gap: 10px;
+  box-sizing: border-box;
   transition: all 0.15s ease;
 }
 
@@ -64,29 +66,51 @@
   box-shadow: 0 0 0 3px rgba(80, 81, 249, 0.12);
 }
 
+.tf-topbar-search-icon,
 .tf-search-icon {
+  position: static !important;
   color: #94A3B8;
-  margin-right: 8px;
+  width: 16px;
+  height: 16px;
   flex-shrink: 0;
+  pointer-events: none;
+  margin: 0;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
 }
 
+.tf-topbar-search-input,
 .tf-search-input {
-  flex: 1;
+  flex: 1 1 0%;
+  min-width: 0;
   border: none;
   outline: none;
   background: transparent;
   color: #1E293B;
   font-size: 13px;
   font-family: inherit;
-  width: 100%;
+  padding: 0;
+  margin: 0;
+  height: 100%;
+  line-height: normal;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
+.tf-topbar-search-input::placeholder,
 .tf-search-input::placeholder {
   color: #94A3B8;
   font-size: 13px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
+.tf-topbar-search-clear,
 .tf-search-clear {
+  position: static !important;
   background: transparent;
   border: none;
   color: #94A3B8;
@@ -96,24 +120,37 @@
   align-items: center;
   justify-content: center;
   border-radius: 9999px;
+  flex-shrink: 0;
+  margin-left: auto;
 }
 
+.tf-topbar-search-clear:hover,
 .tf-search-clear:hover {
   color: #1E293B;
   background: #E2E8F0;
 }
 
 .tf-topbar-shortcut-badge {
+  position: static !important;
   font-size: 11px;
   font-weight: 500;
   color: #94A3B8;
   background: #F1F5F9;
   border: 1px solid #E2E8F0;
   border-radius: 4px;
-  padding: 2px 6px;
+  padding: 2px 7px;
   white-space: nowrap;
   pointer-events: none;
   font-family: inherit;
+  flex-shrink: 0;
+  margin-left: auto;
+  line-height: 1.3;
+}
+
+@media (max-width: 640px) {
+  .tf-topbar-shortcut-badge {
+    display: none;
+  }
 }
 
 [data-theme="dark"] .tf-topbar-shortcut-badge {
@@ -686,12 +723,16 @@
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
 }
 
+.employee-shell.tf-dark .tf-topbar-search-input,
 .employee-shell.tf-dark .tf-search-input,
+[data-theme="dark"] .tf-topbar-search-input,
 [data-theme="dark"] .tf-search-input {
   color: #F8FAFC;
 }
 
+.employee-shell.tf-dark .tf-topbar-search-input::placeholder,
 .employee-shell.tf-dark .tf-search-input::placeholder,
+[data-theme="dark"] .tf-topbar-search-input::placeholder,
 [data-theme="dark"] .tf-search-input::placeholder {
   color: #64748B;
 }

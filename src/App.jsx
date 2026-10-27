@@ -166,78 +166,33 @@ function App() {
       <Route path="/admin/security" element={<AdminSecurity />} />
 
       {/* EMPLOYEE ROUTES */}
-      <Route
-        path="/employee"
-        element={<Navigate to="/employee/dashboard" replace />}
-      />
-      <Route
-        path="/dashboard"
-        element={<Navigate to="/employee/dashboard" replace />}
-      />
+      <Route path="/employee" element={<Navigate to="/employee/dashboard" replace />} />
+      <Route path="/dashboard" element={<Navigate to="/employee/dashboard" replace />} />
       <Route path="/employee/dashboard" element={<Dashboard />} />
-      <Route
-        path="/chat"
-        element={<Navigate to="/employee/chat" replace />}
-      />
+      <Route path="/chat" element={<Navigate to="/employee/chat" replace />} />
       <Route path="/employee/chat" element={<Chat />} />
-      <Route
-        path="/tasks"
-        element={<Navigate to="/employee/tasks" replace />}
-      />
+      <Route path="/tasks" element={<Navigate to="/employee/tasks" replace />} />
       <Route path="/employee/tasks" element={<Tasks />} />
-      <Route
-        path="/projects"
-        element={<Navigate to="/employee/projects" replace />}
-      />
+      <Route path="/projects" element={<Navigate to="/employee/projects" replace />} />
       <Route path="/employee/projects" element={<Projects />} />
       <Route path="/employee/bugs" element={<Bugs />} />
       <Route path="/employee/calendar" element={<Calendar />} />
-      <Route
-        path="/meetings"
-        element={<Navigate to="/employee/meetings" replace />}
-      />
+      <Route path="/meetings" element={<Navigate to="/employee/meetings" replace />} />
       <Route path="/employee/meetings" element={<Meetings />} />
       <Route path="/employee/team" element={<Team />} />
-      <Route
-        path="/files"
-        element={<Navigate to="/employee/files" replace />}
-      />
+      <Route path="/files" element={<Navigate to="/employee/files" replace />}/>
       <Route path="/employee/files" element={<File />} />
-      <Route
-        path="/ai-assistant"
-        element={<Navigate to="/employee/ai-assistant" replace />}
-      />
+      <Route path="/ai-assistant" element={<Navigate to="/employee/ai-assistant" replace />} />
       <Route path="/employee/ai-assistant" element={<EmployeeAI />} />
-      <Route
-        path="/settings"
-        element={<Navigate to="/employee/settings" replace />}
-      />
+      <Route path="/settings" element={<Navigate to="/employee/settings" replace />}/>
       <Route path="/employee/settings" element={<EmployeeSettings />} />
-      <Route
-        path="/employee/notifications"
-        element={<Navigate to="/employee/settings" replace />}
-      />
-      <Route
-        path="/employee/profile"
-        element={<Navigate to="/employee/settings" replace />}
-      />
-      <Route
-        path="/activity"
-        element={<Navigate to="/employee/activity" replace />}
-      />
-      <Route
-        path="/employee/my-activity"
-        element={<Navigate to="/employee/activity" replace />}
-      />
+      <Route path="/employee/notifications" element={<Navigate to="/employee/settings" replace />} />
+      <Route path="/employee/profile" element={<Navigate to="/employee/settings" replace />} />
+      <Route path="/activity" element={<Navigate to="/employee/activity" replace />} />
+      <Route path="/employee/my-activity" element={<Navigate to="/employee/activity" replace />} />
       <Route path="/employee/activity" element={<Activity />} />
-      <Route
-        path="/team-progress"
-        element={<Navigate to="/employee/team-progress" replace />}
-      />
-      <Route
-        path="/employee/progress"
-        element={<Navigate to="/employee/team-progress" replace />}
-      />
+      <Route path="/team-progress" element={<Navigate to="/employee/team-progress" replace />} />
+      <Route path="/employee/progress" element={<Navigate to="/employee/team-progress" replace />} />
       <Route path="/employee/team-progress" element={<TeamProgress />} />
 
       {/* TEAM LEAD ROUTES */}
@@ -265,10 +220,7 @@ function App() {
       </Route>
 
       {/* OLD TEAM LEAD URL */}
-      <Route
-        path="/team-lead-dashboard"
-        element={<Navigate to="/teamlead/dashboard" replace />}
-      />
+      <Route path="/team-lead-dashboard" element={<Navigate to="/teamlead/dashboard" replace />} />
 
       {/* 404 */}
       <Route path="*" element={<Navigate to="/" replace />} />

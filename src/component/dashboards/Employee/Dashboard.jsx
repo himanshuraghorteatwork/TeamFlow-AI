@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   Folder,
@@ -360,6 +360,33 @@ function Dashboard() {
   // Date range picker toggle
   const [dateRangeOpen, setDateRangeOpen] = useState(false);
   const [currentDateRange, setCurrentDateRange] = useState("Oct 1, 2024 - Oct 31, 2024");
+  const [customStartDate, setCustomStartDate] = useState("2024-10-01");
+  const [customEndDate, setCustomEndDate] = useState("2024-10-31");
+  const dateRangeRef = useRef(null);
+
+  // Close date picker dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dateRangeRef.current && !dateRangeRef.current.contains(e.target)) {
+        setDateRangeOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleApplyCustomRange = () => {
+    if (customStartDate && customEndDate) {
+      const formatDate = (dateStr) => {
+        const [year, month, day] = dateStr.split("-");
+        const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        const m = months[parseInt(month, 10) - 1] || month;
+        return `${m} ${parseInt(day, 10)}, ${year}`;
+      };
+      setCurrentDateRange(`${formatDate(customStartDate)} - ${formatDate(customEndDate)}`);
+    }
+    setDateRangeOpen(false);
+  };
 
   // File preview modal
   const [fileModal, setFileModal] = useState(null);
@@ -561,11 +588,12 @@ function Dashboard() {
             <p>Here's your tasks, projects and updates for today.</p>
           </div>
 
-          <div className="tf-emp-date-range-container">
+          <div className="tf-emp-date-range-container" ref={dateRangeRef}>
             <button
               type="button"
               className="tf-emp-date-range-btn"
               onClick={() => setDateRangeOpen(!dateRangeOpen)}
+              aria-expanded={dateRangeOpen}
             >
               <Calendar size={15} color="#475569" />
               <span>{currentDateRange}</span>
@@ -574,46 +602,70 @@ function Dashboard() {
 
             {dateRangeOpen && (
               <div className="tf-emp-date-picker-dropdown">
+                {/* Active selection banner at top */}
                 <button
                   type="button"
-                  className={currentDateRange.includes("Oct 1, 2024") ? "selected" : ""}
+                  className={`tf-emp-date-preset-item ${
+                    currentDateRange === "Oct 1, 2024 - Oct 31, 2024" ||
+                    !["Today", "Last 7 Days", "Last 30 Days", "This Quarter", "This Year"].includes(currentDateRange)
+                      ? "active"
+                      : ""
+                  }`}
                   onClick={() => {
-                    setCurrentDateRange("Oct 1, 2024 - Oct 31, 2024");
+                    if (["Today", "Last 7 Days", "Last 30 Days", "This Quarter", "This Year"].includes(currentDateRange)) {
+                      setCurrentDateRange("Oct 1, 2024 - Oct 31, 2024");
+                    }
                     setDateRangeOpen(false);
                   }}
                 >
-                  Oct 1, 2024 - Oct 31, 2024 (Full Month)
+                  {!["Today", "Last 7 Days", "Last 30 Days", "This Quarter", "This Year"].includes(currentDateRange)
+                    ? currentDateRange
+                    : "Oct 1, 2024 - Oct 31, 2024"}
                 </button>
-                <button
-                  type="button"
-                  className={currentDateRange.includes("This Week") ? "selected" : ""}
-                  onClick={() => {
-                    setCurrentDateRange("Oct 21, 2024 - Oct 27, 2024");
-                    setDateRangeOpen(false);
-                  }}
-                >
-                  This Week (Oct 21 - Oct 27, 2024)
-                </button>
-                <button
-                  type="button"
-                  className={currentDateRange.includes("Last 30") ? "selected" : ""}
-                  onClick={() => {
-                    setCurrentDateRange("Last 30 Days");
-                    setDateRangeOpen(false);
-                  }}
-                >
-                  Last 30 Days
-                </button>
-                <button
-                  type="button"
-                  className={currentDateRange.includes("Q4") ? "selected" : ""}
-                  onClick={() => {
-                    setCurrentDateRange("Q4 2024 (Oct - Dec)");
-                    setDateRangeOpen(false);
-                  }}
-                >
-                  Q4 2024 (Oct 1 - Dec 31, 2024)
-                </button>
+
+                {/* Preset List */}
+                {["Today", "Last 7 Days", "Last 30 Days", "This Quarter", "This Year"].map((preset) => (
+                  <button
+                    key={preset}
+                    type="button"
+                    className={`tf-emp-date-preset-item ${currentDateRange === preset ? "active" : ""}`}
+                    onClick={() => {
+                      setCurrentDateRange(preset);
+                      setDateRangeOpen(false);
+                    }}
+                  >
+                    {preset}
+                  </button>
+                ))}
+
+                {/* Divider */}
+                <div className="tf-emp-date-divider" />
+
+                {/* Custom Range Section */}
+                <div className="tf-emp-custom-range-block">
+                  <div className="tf-emp-custom-range-label">CUSTOM RANGE</div>
+                  <div className="tf-emp-custom-range-inputs">
+                    <input
+                      type="date"
+                      className="tf-emp-custom-date-input"
+                      value={customStartDate}
+                      onChange={(e) => setCustomStartDate(e.target.value)}
+                    />
+                    <input
+                      type="date"
+                      className="tf-emp-custom-date-input"
+                      value={customEndDate}
+                      onChange={(e) => setCustomEndDate(e.target.value)}
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    className="tf-emp-apply-range-btn"
+                    onClick={handleApplyCustomRange}
+                  >
+                    Apply Range
+                  </button>
+                </div>
               </div>
             )}
           </div>
