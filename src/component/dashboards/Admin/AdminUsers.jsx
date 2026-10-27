@@ -25,9 +25,12 @@ import {
   Layers,
   Sparkles,
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
   ArrowUpDown,
   ArrowUp,
   ArrowDown,
+  Calendar,
 } from "lucide-react";
 
 import AdminSidebar from "./AdminSidebar.jsx";
@@ -69,7 +72,9 @@ export default function AdminUsers() {
   const [statusFilter, setStatusFilter] = useState("All Status");
   const [workspaceFilter, setWorkspaceFilter] = useState("All Workspaces");
   const [sortKey, setSortKey] = useState("name");
-  const [sortOrder, setSortOrder] = useState("asc"); // 'asc' | 'desc'
+  const [sortOrder, setSortOrder] = useState("asc");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [perPage, setPerPage] = useState(8); // 'asc' | 'desc'
 
   // Selection & Bulk Actions
   const [selectedIds, setSelectedIds] = useState([]);
@@ -78,6 +83,7 @@ export default function AdminUsers() {
   const [showModal, setShowModal] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
   const [viewingUser, setViewingUser] = useState(null);
+  const [confirmDelete, setConfirmDelete] = useState(null); // { type: 'single' | 'bulk' | 'reset', id, name, count }
   const [openMenu, setOpenMenu] = useState(null);
   const [exportOpen, setExportOpen] = useState(false);
   const [toast, setToast] = useState(null);
@@ -180,6 +186,11 @@ export default function AdminUsers() {
     });
 
     return [...list].sort((a, b) => {
+      if (sortKey === "id") {
+        const numA = Number(a.id) || 0;
+        const numB = Number(b.id) || 0;
+        return sortOrder === "asc" ? numA - numB : numB - numA;
+      }
       let valA = a[sortKey] || "";
       let valB = b[sortKey] || "";
 
@@ -191,6 +202,16 @@ export default function AdminUsers() {
       return 0;
     });
   }, [usersList, search, roleFilter, statusFilter, workspaceFilter, sortKey, sortOrder]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, roleFilter, statusFilter, workspaceFilter, sortKey, sortOrder]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredUsers.length / perPage));
+  const paginatedUsers = useMemo(() => {
+    const start = (currentPage - 1) * perPage;
+    return filteredUsers.slice(start, start + perPage);
+  }, [filteredUsers, currentPage, perPage]);
 
   // Statistics
   const stats = useMemo(() => {
@@ -243,7 +264,7 @@ export default function AdminUsers() {
   const handleSubmit = (event) => {
     event.preventDefault();
     if (!form.name.trim() || !form.email.trim()) {
-      alert("Please enter a valid full name and email.");
+      showToast("Please enter a valid full name and email.", "error");
       return;
     }
 
@@ -286,16 +307,38 @@ export default function AdminUsers() {
   };
 
   const deleteUser = (id, userName) => {
-    const confirmed = window.confirm(
-      `Are you sure you want to delete user "${userName || "this user"}"? This action cannot be undone.`
-    );
-    if (!confirmed) return;
-
-    const remaining = usersList.filter((u) => u.id !== id);
-    saveUsers(remaining);
-    setSelectedIds((prev) => prev.filter((item) => item !== id));
     setOpenMenu(null);
-    showToast(`User deleted.`);
+    setConfirmDelete({
+      type: "single",
+      id,
+      name: userName || "this user",
+    });
+  };
+
+  const handleConfirmDeleteExecution = () => {
+    if (!confirmDelete) return;
+
+    if (confirmDelete.type === "single") {
+      const remaining = usersList.filter((u) => u.id !== confirmDelete.id);
+      saveUsers(remaining);
+      setSelectedIds((prev) => prev.filter((item) => item !== confirmDelete.id));
+      if (viewingUser && viewingUser.id === confirmDelete.id) {
+        setViewingUser(null);
+      }
+      showToast(`User "${confirmDelete.name}" deleted.`);
+    } else if (confirmDelete.type === "bulk") {
+      const count = selectedIds.length;
+      const remaining = usersList.filter((u) => !selectedIds.includes(u.id));
+      saveUsers(remaining);
+      setSelectedIds([]);
+      showToast(`${count} users permanently deleted.`);
+    } else if (confirmDelete.type === "reset") {
+      saveUsers(initialUsers);
+      setSelectedIds([]);
+      showToast("User database reset to demo defaults.");
+    }
+
+    setConfirmDelete(null);
   };
 
   const toggleUserStatus = (id) => {
@@ -338,15 +381,10 @@ export default function AdminUsers() {
 
   const handleBulkDelete = () => {
     if (selectedIds.length === 0) return;
-    const confirmed = window.confirm(
-      `Permanently delete ${selectedIds.length} selected users?`
-    );
-    if (!confirmed) return;
-
-    const remaining = usersList.filter((u) => !selectedIds.includes(u.id));
-    saveUsers(remaining);
-    setSelectedIds([]);
-    showToast(`${selectedIds.length} users deleted.`);
+    setConfirmDelete({
+      type: "bulk",
+      count: selectedIds.length,
+    });
   };
 
   // Export
@@ -390,13 +428,9 @@ export default function AdminUsers() {
   };
 
   const resetDemoData = () => {
-    const confirmed = window.confirm(
-      "Reset user management database to factory demo data?"
-    );
-    if (!confirmed) return;
-    saveUsers(initialUsers);
-    setSelectedIds([]);
-    showToast("User database reset to demo defaults.");
+    setConfirmDelete({
+      type: "reset",
+    });
   };
 
   return (
@@ -643,7 +677,7 @@ export default function AdminUsers() {
           {/* TABLE META HEADER */}
           <div className="admin-users-meta-header">
             <span>
-              Showing {filteredUsers.length} of {usersList.length} users
+              Showing {filteredUsers.length === 0 ? 0 : (currentPage - 1) * perPage + 1} - {Math.min(currentPage * perPage, filteredUsers.length)} of {filteredUsers.length} users
             </span>
             <button
               type="button"
@@ -672,7 +706,12 @@ export default function AdminUsers() {
                         aria-label="Select all users"
                       />
                     </th>
-                    <th style={{ width: 48, textAlign: "center" }}>#</th>
+                    <th className="sortable-th" style={{ width: 110, textAlign: "center" }} onClick={() => handleSort("id")}>
+                      <div className="th-content" style={{ justifyContent: "center" }}>
+                        <span># User ID</span>
+                        {renderSortIcon("id")}
+                      </div>
+                    </th>
                     <th className="sortable-th" onClick={() => handleSort("name")}>
                       <div className="th-content">
                         <span>User Member</span>
@@ -715,7 +754,7 @@ export default function AdminUsers() {
                 </thead>
 
                 <tbody>
-                  {filteredUsers.map((user, idx) => {
+                  {paginatedUsers.map((user, idx) => {
                     const isSelected = selectedIds.includes(user.id);
                     return (
                       <tr
@@ -732,7 +771,12 @@ export default function AdminUsers() {
                         </td>
 
                         <td style={{ textAlign: "center" }}>
-                          <span className="admin-row-num">{idx + 1}</span>
+                          <span
+                            className="admin-row-num user-id-pill"
+                            title={`User ID: USR-${String(user.id).padStart(3, "0")}`}
+                          >
+                            USR-{String(user.id).length > 6 ? String(user.id).slice(-4) : String(user.id).padStart(3, "0")}
+                          </span>
                         </td>
 
                         {/* USER AVATAR + DETAILS */}
@@ -768,7 +812,13 @@ export default function AdminUsers() {
 
                         {/* DEPARTMENT */}
                         <td>
-                          <span className="admin-users-dept-badge">
+                          <span
+                            className={`admin-users-dept-badge dept-${(
+                              user.department || "Engineering"
+                            )
+                              .toLowerCase()
+                              .replace(/[^a-z0-9]/g, "-")}`}
+                          >
                             {user.department || "Engineering"}
                           </span>
                         </td>
@@ -861,6 +911,73 @@ export default function AdminUsers() {
                   </button>
                 </div>
               )}
+            </div>
+
+            {/* PAGINATION BAR */}
+            <div className="admin-users-pagination-bar">
+              <div className="admin-users-per-page">
+                <label>Rows per page:</label>
+                <select
+                  value={perPage}
+                  onChange={(e) => {
+                    setPerPage(Number(e.target.value));
+                    setCurrentPage(1);
+                  }}
+                  className="per-page-select"
+                >
+                  <option value={5}>5</option>
+                  <option value={8}>8</option>
+                  <option value={10}>10</option>
+                  <option value={20}>20</option>
+                  <option value={50}>50</option>
+                </select>
+              </div>
+
+              <div className="admin-users-page-info">
+                Showing {filteredUsers.length === 0 ? 0 : (currentPage - 1) * perPage + 1} -{" "}
+                {Math.min(currentPage * perPage, filteredUsers.length)} of {filteredUsers.length} users
+              </div>
+
+              <div className="admin-users-pagination-nav">
+                <button
+                  type="button"
+                  className="page-nav-btn"
+                  disabled={currentPage <= 1}
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  title="Previous Page"
+                >
+                  <ChevronLeft size={15} />
+                  <span>Prev</span>
+                </button>
+
+                <div className="page-numbers">
+                  {Array.from({ length: totalPages }, (_, i) => i + 1)
+                    .filter((p) => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1)
+                    .map((p, i, arr) => (
+                      <React.Fragment key={p}>
+                        {i > 0 && p - arr[i - 1] > 1 && <span className="page-ellipsis">…</span>}
+                        <button
+                          type="button"
+                          className={`page-num-btn ${currentPage === p ? "active" : ""}`}
+                          onClick={() => setCurrentPage(p)}
+                        >
+                          {p}
+                        </button>
+                      </React.Fragment>
+                    ))}
+                </div>
+
+                <button
+                  type="button"
+                  className="page-nav-btn"
+                  disabled={currentPage >= totalPages}
+                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                  title="Next Page"
+                >
+                  <span>Next</span>
+                  <ChevronRight size={15} />
+                </button>
+              </div>
             </div>
           </section>
         </main>
@@ -1026,29 +1143,47 @@ export default function AdminUsers() {
             if (e.target === e.currentTarget) setViewingUser(null);
           }}
         >
-          <div className="admin-users-modal view-modal">
-            <div className="admin-users-modal-header">
-              <div>
-                <h2>User Profile Overview</h2>
-                <p>Complete organizational credential records.</p>
+          <div className="admin-users-modal user-profile-overview-modal" role="dialog" aria-modal="true">
+            <div className="admin-users-modal-header profile-overview-header">
+              <div className="profile-header-title-wrap">
+                <div className="profile-header-icon">
+                  <ShieldCheck size={20} />
+                </div>
+                <div>
+                  <h2>User Profile Overview</h2>
+                  <p>Complete organizational credential records & tenant access.</p>
+                </div>
               </div>
               <button
                 type="button"
                 className="admin-users-modal-close"
                 onClick={() => setViewingUser(null)}
+                aria-label="Close modal"
               >
                 <X size={20} />
               </button>
             </div>
 
             <div className="admin-users-view-body">
+              {/* HERO SECTION */}
               <div className="admin-users-view-hero">
-                <div className="admin-users-view-avatar">
-                  {viewingUser.initials || "U"}
+                <div className="admin-users-view-avatar-wrap">
+                  <div className="admin-users-view-avatar">
+                    {viewingUser.initials || "U"}
+                  </div>
+                  <span className={`avatar-status-indicator status-${(viewingUser.status || "active").toLowerCase()}`} />
                 </div>
-                <div>
-                  <h3>{viewingUser.name}</h3>
-                  <p>{viewingUser.email}</p>
+                <div className="admin-users-view-hero-info">
+                  <div className="hero-name-row">
+                    <h3>{viewingUser.name}</h3>
+                    <span className="user-id-badge">
+                      USR-{String(viewingUser.id).length > 6 ? String(viewingUser.id).slice(-4) : String(viewingUser.id).padStart(3, "0")}
+                    </span>
+                  </div>
+                  <p className="hero-email">
+                    <Mail size={14} />
+                    <span>{viewingUser.email}</span>
+                  </p>
                   <div className="admin-users-view-badges">
                     <span
                       className={`admin-users-role role-${(
@@ -1057,6 +1192,7 @@ export default function AdminUsers() {
                         .toLowerCase()
                         .replace(/\s+/g, "-")}`}
                     >
+                      <Shield size={12} />
                       {viewingUser.role}
                     </span>
                     <span
@@ -1067,48 +1203,132 @@ export default function AdminUsers() {
                       <span className="status-dot" />
                       {viewingUser.status}
                     </span>
+                    <span
+                      className={`admin-users-dept-badge dept-${(
+                        viewingUser.department || "Engineering"
+                      )
+                        .toLowerCase()
+                        .replace(/[^a-z0-9]/g, "-")}`}
+                    >
+                      {viewingUser.department || "Engineering"}
+                    </span>
                   </div>
                 </div>
               </div>
 
+              {/* DETAILS GRID */}
               <div className="admin-users-view-grid">
                 <div className="view-grid-item">
-                  <label>Workspace</label>
+                  <div className="grid-item-header">
+                    <Building2 size={15} />
+                    <label>Workspace</label>
+                  </div>
                   <span>{viewingUser.workspace || "TeamFlow Workspace"}</span>
                 </div>
                 <div className="view-grid-item">
-                  <label>Department</label>
+                  <div className="grid-item-header">
+                    <Briefcase size={15} />
+                    <label>Department</label>
+                  </div>
                   <span>{viewingUser.department || "Engineering"}</span>
                 </div>
                 <div className="view-grid-item">
-                  <label>Joined Date</label>
+                  <div className="grid-item-header">
+                    <Calendar size={15} />
+                    <label>Joined Date</label>
+                  </div>
                   <span>{viewingUser.joined || "Oct 21, 2026"}</span>
                 </div>
                 <div className="view-grid-item">
-                  <label>Phone</label>
+                  <div className="grid-item-header">
+                    <Phone size={15} />
+                    <label>Contact Phone</label>
+                  </div>
                   <span>{viewingUser.phone || "+1 (555) 019-2834"}</span>
                 </div>
               </div>
             </div>
 
-            <div className="admin-users-modal-actions">
+            <div className="admin-users-modal-actions profile-overview-actions">
               <button
                 type="button"
-                className="admin-users-cancel-btn"
+                className="admin-users-delete-btn"
                 onClick={() => {
-                  const userToEdit = viewingUser;
-                  setViewingUser(null);
-                  openEditModal(userToEdit);
+                  const targetUser = viewingUser;
+                  setConfirmDelete({
+                    type: "single",
+                    id: targetUser.id,
+                    name: targetUser.name,
+                  });
                 }}
               >
-                <Pencil size={15} /> Edit User
+                <Trash2 size={15} /> Delete User
+              </button>
+              <div className="profile-actions-right">
+                <button
+                  type="button"
+                  className="admin-users-cancel-btn"
+                  onClick={() => {
+                    const userToEdit = viewingUser;
+                    setViewingUser(null);
+                    openEditModal(userToEdit);
+                  }}
+                >
+                  <Pencil size={15} /> Edit User
+                </button>
+                <button
+                  type="button"
+                  className="admin-users-save-btn"
+                  onClick={() => setViewingUser(null)}
+                >
+                  Done
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* DELETE / RESET CONFIRMATION MODAL (ZERO JS ALERTS) */}
+      {confirmDelete && (
+        <div
+          className="admin-users-modal-overlay"
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget) setConfirmDelete(null);
+          }}
+        >
+          <div className="admin-users-modal sm delete-confirm-modal" role="dialog" aria-modal="true">
+            <div className="delete-modal-icon-wrap">
+              <Trash2 size={24} />
+            </div>
+            <h2>
+              {confirmDelete.type === "single"
+                ? "Delete User Account?"
+                : confirmDelete.type === "bulk"
+                ? `Delete ${confirmDelete.count} Users?`
+                : "Reset to Demo Users?"}
+            </h2>
+            <p>
+              {confirmDelete.type === "single"
+                ? `Are you sure you want to permanently delete user "${confirmDelete.name}"? All assigned roles, workspaces, and permissions will be removed.`
+                : confirmDelete.type === "bulk"
+                ? `Are you sure you want to permanently delete ${confirmDelete.count} selected users? This action cannot be undone.`
+                : "Are you sure you want to restore default demo users? Any newly created users and role adjustments will be overwritten."}
+            </p>
+            <div className="modal-actions delete-modal-actions">
+              <button
+                type="button"
+                className="btn-cancel"
+                onClick={() => setConfirmDelete(null)}
+              >
+                Cancel
               </button>
               <button
                 type="button"
-                className="admin-users-save-btn"
-                onClick={() => setViewingUser(null)}
+                className="btn-danger"
+                onClick={handleConfirmDeleteExecution}
               >
-                Close
+                {confirmDelete.type === "reset" ? "Reset to Demo" : "Delete User"}
               </button>
             </div>
           </div>

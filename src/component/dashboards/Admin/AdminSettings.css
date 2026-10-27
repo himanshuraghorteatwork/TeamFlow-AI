@@ -1606,3 +1606,65 @@
 .dark .theme-quick-switch-row p {
   color: #94a3b8;
 }
+
+
+/* =========================================================
+   TOP SETTINGS MODULE NAVIGATION TABS
+========================================================= */
+.tfAdminSettings__moduleTabs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--border-color, #e2e8f0);
+}
+
+:root.dark .tfAdminSettings__moduleTabs {
+  border-bottom-color: #334155;
+}
+
+.tfAdminSettings__moduleTab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-muted, #64748b);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+:root.dark .tfAdminSettings__moduleTab {
+  color: #94a3b8;
+}
+
+.tfAdminSettings__moduleTab:hover {
+  background: var(--bg-hover, #f1f5f9);
+  color: var(--text-color, #0f172a);
+}
+
+:root.dark .tfAdminSettings__moduleTab:hover {
+  background: #1e293b;
+  color: #f8fafc;
+}
+
+.tfAdminSettings__moduleTab--active {
+  background: var(--bg-card, #ffffff) !important;
+  color: var(--primary, #3b82f6) !important;
+  border-color: var(--border-color, #e2e8f0) !important;
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+:root.dark .tfAdminSettings__moduleTab--active {
+  background: #1e293b !important;
+  color: #60a5fa !important;
+  border-color: #334155 !important;
+}

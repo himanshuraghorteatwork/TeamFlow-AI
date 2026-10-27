@@ -1,4424 +1,1997 @@
 /* =========================================================
-   TEAMFLOW AI - ADMIN DASHBOARD
-   COMPLETE DESKTOP + TABLET + MOBILE CSS
-   IMPORTANT:
-   - Scoped only to Admin Dashboard
-   - Does not affect Landing Page
-   - Sidebar width: 228px
+   TEAMFLOW AI - EXECUTIVE SAAS ADMIN DASHBOARD STYLES
+   Pixel-perfect match to modern SaaS dashboard layout
 ========================================================= */
 
-.tfAdminDashboard {
-  --tf-sidebar-width: 228px;
-
-  --tf-primary: #5b5cf0;
-  --tf-primary-hover: #4f46e5;
-  --tf-primary-soft: #f0edff;
-
-  --tf-bg: #f7f9fc;
-  --tf-surface: #ffffff;
-
-  --tf-text: #101828;
-  --tf-text-2: #344054;
-  --tf-secondary: #667085;
-  --tf-muted: #98a2b3;
-
-  --tf-border: #e4e8f0;
-
-  --tf-green: #12b981;
-  --tf-blue: #2684ff;
-  --tf-orange: #f59e0b;
-  --tf-red: #ef476f;
-
-  width: 100%;
+.tfSaasAdmin {
+  --admin-sidebar-width: 228px;
   min-height: 100vh;
-
-  background: var(--tf-bg);
-  color: var(--tf-text);
-
-  font-family:
-    Inter,
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    sans-serif;
-}
-
-.tfAdminDashboard *,
-.tfAdminDashboard *::before,
-.tfAdminDashboard *::after {
-  box-sizing: border-box;
-}
-
-
-/* =========================================================
-   MAIN AREA
-   Sidebar occupies 228px.
-========================================================= */
-
-.tfAdminDashboard__main {
-  width: calc(100% - var(--tf-sidebar-width));
-  min-width: 0;
-  min-height: 100vh;
-
-  margin-left: var(--tf-sidebar-width);
-
-  background: var(--tf-bg);
-}
-
-
-/* =========================================================
-   TOPBAR
-========================================================= */
-
-.tfAdminDashboard__topbar {
-  position: sticky;
-  top: 0;
-  z-index: 900;
-
-  width: 100%;
-  height: 64px;
-
-  padding: 0 28px;
-
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  gap: 18px;
-
-  border-bottom: 1px solid var(--tf-border);
-
-  background: rgba(255, 255, 255, 0.98);
-
-  backdrop-filter: blur(12px);
-}
-
-.tfAdminDashboard__topbarLeft {
-  min-width: 0;
-  flex: 1;
-
-  display: flex;
-  align-items: center;
-
-  gap: 12px;
-}
-
-.tfAdminDashboard__topbarActions {
-  flex: 0 0 auto;
-
-  display: flex;
-  align-items: center;
-
-  gap: 8px;
-}
-
-
-/* =========================================================
-   MOBILE MENU
-========================================================= */
-
-.tfAdminDashboard__mobileMenu {
-  width: 40px;
-  height: 40px;
-
-  flex: 0 0 40px;
-
-  display: none;
-  place-items: center;
-
-  padding: 0;
-
-  border: 1px solid var(--tf-border);
-  border-radius: 9px;
-
-  color: #475467;
-  background: #ffffff;
-
-  cursor: pointer;
-}
-
-
-/* =========================================================
-   SEARCH BAR
-========================================================= */
-
-.tfAdminDashboard__searchWrap {
-  position: relative;
-
-  width: 100%;
-  max-width: 700px;
-}
-
-.tfAdminDashboard__search {
-  width: 100%;
-  height: 40px;
-
-  padding: 0 12px;
-
-  display: flex;
-  align-items: center;
-
-  gap: 9px;
-
-  border: 1px solid #dfe4ec;
-  border-radius: 8px;
-
   background: #f8fafc;
-
-  transition:
-    border-color 160ms ease,
-    box-shadow 160ms ease,
-    background 160ms ease;
-}
-
-.tfAdminDashboard__search:focus-within {
-  border-color: #aaa2ff;
-  background: #ffffff;
-
-  box-shadow: 0 0 0 3px rgba(91, 92, 240, 0.08);
-}
-
-.tfAdminDashboard__search svg {
-  flex: 0 0 auto;
-
-  color: #8490a4;
-}
-
-.tfAdminDashboard__search input {
-  width: 100%;
-  min-width: 0;
-  flex: 1;
-
-  padding: 0;
-
-  border: 0;
-  outline: none;
-
-  color: #344054;
-  background: transparent;
-
-  font: inherit;
-  font-size: 13px;
-}
-
-.tfAdminDashboard__search input::placeholder {
-  color: #98a2b3;
-}
-
-.tfAdminDashboard__search kbd {
-  flex: 0 0 auto;
-
-  padding: 3px 6px;
-
-  border: 1px solid #dfe4ec;
-  border-radius: 5px;
-
-  color: #98a2b3;
-  background: #ffffff;
-
-  font-family: inherit;
-  font-size: 9px;
-}
-
-.tfAdminDashboard__clearSearch {
-  width: 28px;
-  height: 28px;
-
-  flex: 0 0 28px;
-
-  display: grid;
-  place-items: center;
-
-  padding: 0;
-
-  border: 0;
-  border-radius: 6px;
-
-  color: #667085;
-  background: transparent;
-
-  cursor: pointer;
-}
-
-.tfAdminDashboard__clearSearch:hover {
-  background: #eef1f5;
-}
-
-
-/* =========================================================
-   SEARCH RESULTS
-========================================================= */
-
-.tfAdminDashboard__searchResults {
-  position: absolute;
-
-  top: calc(100% + 8px);
-  left: 0;
-  right: 0;
-
-  z-index: 2000;
-
-  max-height: 380px;
-
-  padding: 7px;
-
-  overflow-y: auto;
-
-  border: 1px solid var(--tf-border);
-  border-radius: 12px;
-
-  background: #ffffff;
-
-  box-shadow: 0 18px 45px rgba(16, 24, 40, 0.14);
-}
-
-.tfAdminDashboard__searchResults > button {
-  width: 100%;
-  min-height: 48px;
-
-  padding: 9px 10px;
-
+  color: #0f172a;
   display: flex;
-  align-items: center;
-
-  gap: 12px;
-
-  border: 0;
-  border-radius: 8px;
-
-  color: #344054;
-  background: transparent;
-
-  font-family: inherit;
-  text-align: left;
-
-  cursor: pointer;
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
-.tfAdminDashboard__searchResults > button:hover {
-  background: #f7f5ff;
+:root.dark .tfSaasAdmin,
+.dark .tfSaasAdmin {
+  background: #090d16;
+  color: #f8fafc;
 }
 
-.tfAdminDashboard__searchResults > button > span {
-  min-width: 70px;
-
-  padding: 4px 7px;
-
-  border-radius: 6px;
-
-  color: var(--tf-primary);
-  background: var(--tf-primary-soft);
-
-  font-size: 10px;
-  font-weight: 700;
-}
-
-.tfAdminDashboard__searchResults > button > div {
-  min-width: 0;
-
+.tfSaasAdmin__container {
+  margin-left: var(--admin-sidebar-width);
+  width: calc(100% - var(--admin-sidebar-width));
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
-
-  gap: 2px;
+  background: inherit;
+  transition: margin-left 0.2s ease, width 0.2s ease;
 }
-
-.tfAdminDashboard__searchResults strong {
-  overflow: hidden;
-
-  color: #1d2939;
-
-  font-size: 12px;
-
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.tfAdminDashboard__searchResults small {
-  color: var(--tf-muted);
-
-  font-size: 10px;
-}
-
-.tfAdminDashboard__searchEmpty {
-  padding: 24px;
-
-  color: var(--tf-muted);
-
-  font-size: 12px;
-  text-align: center;
-}
-
-
-/* =========================================================
-   DROPDOWN WRAPPER
-========================================================= */
-
-.tfAdminDashboard__dropdownWrap {
-  position: relative;
-
-  flex: 0 0 auto;
-}
-
-
-/* =========================================================
-   CREATE BUTTON
-========================================================= */
-
-.tfAdminDashboard__createButton {
-  height: 40px;
-
-  padding: 0 15px;
-
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  gap: 7px;
-
-  border: 0;
-  border-radius: 8px;
-
-  color: #ffffff;
-
-  background: linear-gradient(
-    135deg,
-    #5263f5,
-    #6840f5
-  );
-
-  font-family: inherit;
-  font-size: 12px;
-  font-weight: 600;
-
-  cursor: pointer;
-
-  transition:
-    transform 160ms ease,
-    box-shadow 160ms ease;
-}
-
-.tfAdminDashboard__createButton:hover {
-  transform: translateY(-1px);
-
-  box-shadow: 0 6px 16px rgba(82, 99, 245, 0.24);
-}
-
-
-/* =========================================================
-   TOPBAR ICON BUTTONS
-========================================================= */
-
-.tfAdminDashboard__iconButton {
-  position: relative;
-
-  width: 40px;
-  height: 40px;
-
-  flex: 0 0 40px;
-
-  display: grid;
-  place-items: center;
-
-  padding: 0;
-
-  border: 1px solid var(--tf-border);
-  border-radius: 8px;
-
-  color: #344054;
-  background: #ffffff;
-
-  cursor: pointer;
-}
-
-.tfAdminDashboard__iconButton:hover {
-  color: var(--tf-primary);
-
-  border-color: #cbc5ff;
-  background: #faf9ff;
-}
-
-.tfAdminDashboard__notificationBadge {
-  position: absolute;
-
-  top: -5px;
-  right: -5px;
-
-  min-width: 17px;
-  height: 17px;
-
-  padding: 0 4px;
-
-  display: grid;
-  place-items: center;
-
-  border: 2px solid #ffffff;
-  border-radius: 20px;
-
-  color: #ffffff;
-  background: #ef4444;
-
-  font-size: 9px;
-  font-weight: 700;
-}
-
-
-/* =========================================================
-   PROFILE
-========================================================= */
-
-.tfAdminDashboard__profile {
-  min-width: 180px;
-  height: 42px;
-
-  padding: 4px 9px;
-
-  display: flex;
-  align-items: center;
-
-  gap: 9px;
-
-  border: 1px solid var(--tf-border);
-  border-radius: 9px;
-
-  color: var(--tf-text);
-  background: #ffffff;
-
-  font-family: inherit;
-
-  cursor: pointer;
-}
-
-.tfAdminDashboard__profile:hover {
-  border-color: #cbc5ff;
-  background: #faf9ff;
-}
-
-.tfAdminDashboard__profileAvatar {
-  width: 32px;
-  height: 32px;
-
-  flex: 0 0 32px;
-
-  display: grid;
-  place-items: center;
-
-  border-radius: 50%;
-
-  color: #ffffff;
-  background: #6840f5;
-
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.tfAdminDashboard__profileText {
-  min-width: 0;
-  flex: 1;
-
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-}
-
-.tfAdminDashboard__profileText strong {
-  max-width: 115px;
-
-  overflow: hidden;
-
-  color: #101828;
-
-  font-size: 12px;
-  line-height: 1.25;
-  font-weight: 600;
-
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.tfAdminDashboard__profileText small {
-  margin-top: 2px;
-
-  color: #98a2b3;
-
-  font-size: 10px;
-}
-
-.tfAdminDashboard__profileArrow,
-.tfAdminDashboard__profileArrow--open {
-  flex: 0 0 auto;
-
-  color: #98a2b3;
-
-  transition: transform 180ms ease;
-}
-
-.tfAdminDashboard__profileArrow--open {
-  transform: rotate(180deg);
-}
-
-
-/* =========================================================
-   COMMON DROPDOWNS
-========================================================= */
-
-.tfAdminDashboard__simpleDropdown,
-.tfAdminDashboard__notificationDropdown,
-.tfAdminDashboard__accountMenu {
-  position: absolute;
-
-  top: calc(100% + 9px);
-  right: 0;
-
-  z-index: 2000;
-
-  border: 1px solid var(--tf-border);
-  border-radius: 13px;
-
-  background: #ffffff;
-
-  box-shadow: 0 18px 45px rgba(16, 24, 40, 0.14);
-}
-
-
-/* =========================================================
-   CREATE DROPDOWN
-========================================================= */
-
-.tfAdminDashboard__simpleDropdown {
-  width: 220px;
-
-  padding: 7px;
-}
-
-.tfAdminDashboard__simpleDropdown button {
-  width: 100%;
-  min-height: 42px;
-
-  padding: 8px 10px;
-
-  display: flex;
-  align-items: center;
-
-  gap: 10px;
-
-  border: 0;
-  border-radius: 8px;
-
-  color: #344054;
-  background: transparent;
-
-  font-family: inherit;
-  font-size: 12px;
-  text-align: left;
-
-  cursor: pointer;
-}
-
-.tfAdminDashboard__simpleDropdown button:hover {
-  color: var(--tf-primary);
-  background: #f7f5ff;
-}
-
-
-/* =========================================================
-   NOTIFICATION DROPDOWN
-========================================================= */
-
-.tfAdminDashboard__notificationDropdown {
-  width: 340px;
-
-  overflow: hidden;
-}
-
-.tfAdminDashboard__dropdownHeader {
-  min-height: 50px;
-
-  padding: 12px 15px;
-
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  gap: 12px;
-
-  border-bottom: 1px solid #eef1f5;
-}
-
-.tfAdminDashboard__dropdownHeader strong {
-  color: #101828;
-
-  font-size: 14px;
-}
-
-.tfAdminDashboard__dropdownHeader button {
-  padding: 4px;
-
-  border: 0;
-
-  color: var(--tf-primary);
-  background: transparent;
-
-  font-family: inherit;
-  font-size: 11px;
-  font-weight: 600;
-
-  cursor: pointer;
-}
-
-.tfAdminDashboard__notificationItem {
-  width: 100%;
-
-  padding: 12px 15px;
-
-  display: flex;
-
-  gap: 11px;
-
-  border: 0;
-  border-bottom: 1px solid #f0f2f5;
-
-  background: #ffffff;
-
-  font-family: inherit;
-  text-align: left;
-
-  cursor: pointer;
-}
-
-.tfAdminDashboard__notificationItem:hover {
-  background: #faf9ff;
-}
-
-.tfAdminDashboard__notificationIcon {
-  width: 34px;
-  height: 34px;
-
-  flex: 0 0 34px;
-
-  display: grid;
-  place-items: center;
-
-  border-radius: 8px;
-
-  color: var(--tf-primary);
-  background: var(--tf-primary-soft);
-}
-
-.tfAdminDashboard__notificationItem > div {
-  min-width: 0;
-
-  display: flex;
-  flex-direction: column;
-}
-
-.tfAdminDashboard__notificationItem strong {
-  color: #344054;
-
-  font-size: 12px;
-}
-
-.tfAdminDashboard__notificationItem p {
-  margin: 3px 0;
-
-  color: #667085;
-
-  font-size: 11px;
-}
-
-.tfAdminDashboard__notificationItem small {
-  color: #98a2b3;
-
-  font-size: 10px;
-}
-
-
-/* =========================================================
-   ACCOUNT MENU
-========================================================= */
-
-.tfAdminDashboard__accountMenu {
-  width: 300px;
-
-  padding: 9px;
-}
-
-.tfAdminDashboard__accountHeader {
-  padding: 10px;
-
-  display: flex;
-  align-items: center;
-
-  gap: 11px;
-}
-
-.tfAdminDashboard__accountAvatar {
-  width: 42px;
-  height: 42px;
-
-  flex: 0 0 42px;
-
-  display: grid;
-  place-items: center;
-
-  border-radius: 50%;
-
-  color: #ffffff;
-  background: var(--tf-primary);
-
-  font-size: 15px;
-  font-weight: 700;
-}
-
-.tfAdminDashboard__accountHeader > div:last-child {
-  min-width: 0;
-
-  display: flex;
-  flex-direction: column;
-}
-
-.tfAdminDashboard__accountHeader strong {
-  color: #1d2939;
-
-  font-size: 13px;
-}
-
-.tfAdminDashboard__accountHeader span {
-  margin-top: 2px;
-
-  overflow: hidden;
-
-  color: #667085;
-
-  font-size: 11px;
-
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.tfAdminDashboard__accountMenuSection {
-  padding-top: 5px;
-
-  display: flex;
-  flex-direction: column;
-
-  border-top: 1px solid #eef1f5;
-}
-
-.tfAdminDashboard__accountMenuSection > button {
-  width: 100%;
-  min-height: 48px;
-
-  padding: 7px 9px;
-
-  display: flex;
-  align-items: center;
-
-  gap: 11px;
-
-  border: 0;
-  border-radius: 9px;
-
-  color: #344054;
-  background: transparent;
-
-  font-family: inherit;
-  text-align: left;
-
-  cursor: pointer;
-}
-
-.tfAdminDashboard__accountMenuSection > button:hover {
-  color: var(--tf-primary);
-  background: #f7f5ff;
-}
-
-.tfAdminDashboard__accountMenuSection > button > span {
-  display: flex;
-  flex-direction: column;
-
-  gap: 2px;
-}
-
-.tfAdminDashboard__accountMenuSection strong {
-  font-size: 12px;
-}
-
-.tfAdminDashboard__accountMenuSection small {
-  color: #98a2b3;
-
-  font-size: 10px;
-}
-
-.tfAdminDashboard__accountLogout {
-  margin-top: 5px;
-  padding-top: 5px;
-
-  border-top: 1px solid #eef1f5;
-}
-
-.tfAdminDashboard__accountLogout button {
-  width: 100%;
-  height: 44px;
-
-  padding: 0 10px;
-
-  display: flex;
-  align-items: center;
-
-  gap: 10px;
-
-  border: 0;
-  border-radius: 8px;
-
-  color: #e5485d;
-  background: transparent;
-
-  font-family: inherit;
-  font-size: 12px;
-  font-weight: 600;
-
-  cursor: pointer;
-}
-
-.tfAdminDashboard__accountLogout button:hover {
-  background: #fff1f3;
-}
-
-
-/* =========================================================
-   DASHBOARD CONTENT
-   THIS FIXES THE LEFT-SHIFT PROBLEM
-========================================================= */
-
-.tfAdminDashboard__content {
-  width: 100%;
-  max-width: none;
-
-  margin: 0;
-  box-sizing: border-box;
-
-  padding:
-    24px
-    28px
-    36px;
-}
-
-
-/* =========================================================
-   PAGE HEADER
-========================================================= */
-
-.tfAdminDashboard__pageHeader {
-  width: 100%;
-
-  margin-bottom: 18px;
-
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  gap: 24px;
-}
-
-.tfAdminDashboard__pageHeader > div:first-child {
-  min-width: 0;
-}
-
-.tfAdminDashboard__pageHeader h1 {
-  margin: 0;
-
-  color: #101828;
-
-  font-size: 28px;
-  line-height: 1.2;
-  font-weight: 700;
-
-  letter-spacing: -0.5px;
-}
-
-.tfAdminDashboard__pageHeader p {
-  margin: 5px 0 0;
-
-  color: #667085;
-
-  font-size: 13px;
-  line-height: 1.5;
-}
-
-.tfAdminDashboard__dateButton {
-  min-width: 205px;
-  height: 40px;
-
-  padding: 0 13px;
-
-  flex: 0 0 auto;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  gap: 8px;
-
-  border: 1px solid var(--tf-border);
-  border-radius: 9px;
-
-  color: #344054;
-  background: #ffffff;
-
-  font-family: inherit;
-  font-size: 11px;
-
-  cursor: pointer;
-}
-
-
-/* =========================================================
-   KPI CARDS
-========================================================= */
-
-.tfAdminDashboard__statsGrid {
-  width: 100%;
-
-  margin-bottom: 16px;
-
-  display: grid;
-
-  grid-template-columns:
-    repeat(4, minmax(0, 1fr));
-
-  gap: 14px;
-}
-
-.tfAdminDashboard__statCard {
-  min-width: 0;
-  min-height: 112px;
-
-  padding: 17px 18px;
-
-  display: flex;
-  align-items: center;
-
-  gap: 14px;
-
-  border: 1px solid var(--tf-border);
-  border-radius: 13px;
-
-  color: var(--tf-text);
-  background: #ffffff;
-
-  box-shadow: 0 2px 8px rgba(16, 24, 40, 0.035);
-
-  font-family: inherit;
-  text-align: left;
-
-  cursor: pointer;
-
-  transition:
-    transform 160ms ease,
-    border-color 160ms ease,
-    box-shadow 160ms ease;
-}
-
-.tfAdminDashboard__statCard:hover {
-  transform: translateY(-2px);
-
-  border-color: #c9c4ff;
-
-  box-shadow: 0 8px 20px rgba(16, 24, 40, 0.07);
-}
-
-.tfAdminDashboard__statIcon {
-  width: 46px;
-  height: 46px;
-
-  flex: 0 0 46px;
-
-  display: grid;
-  place-items: center;
-
-  border-radius: 11px;
-}
-
-.tfAdminDashboard__statIcon--purple {
-  color: #6840f5;
-  background: #f0ecff;
-}
-
-.tfAdminDashboard__statIcon--blue {
-  color: #2684ff;
-  background: #e9f3ff;
-}
-
-.tfAdminDashboard__statIcon--indigo {
-  color: #5263f5;
-  background: #eef0ff;
-}
-
-.tfAdminDashboard__statIcon--green {
-  color: #12b981;
-  background: #e8f9f2;
-}
-
-.tfAdminDashboard__statContent {
-  min-width: 0;
-  flex: 1;
-}
-
-.tfAdminDashboard__statContent > span {
-  display: block;
-
-  color: #475467;
-
-  font-size: 12px;
-  font-weight: 500;
-}
-
-.tfAdminDashboard__statContent > div {
-  margin-top: 4px;
-
-  display: flex;
-  align-items: center;
-
-  gap: 8px;
-}
-
-.tfAdminDashboard__statContent strong {
-  color: #101828;
-
-  font-size: 27px;
-  line-height: 1;
-  font-weight: 700;
-}
-
-.tfAdminDashboard__statContent small {
-  padding: 3px 7px;
-
-  display: inline-flex;
-  align-items: center;
-
-  gap: 3px;
-
-  border-radius: 20px;
-
-  color: #079455;
-  background: #ecfdf3;
-
-  font-size: 10px;
-  font-weight: 600;
-}
-
-.tfAdminDashboard__statContent p {
-  margin: 7px 0 0;
-
-  color: #98a2b3;
-
-  font-size: 10px;
-}
-
-
-/* =========================================================
-   COMMON GRID
-========================================================= */
-
-.tfAdminDashboard__grid {
-  width: 100%;
-
-  display: grid;
-
-  gap: 14px;
-}
-
-
-/* =========================================================
-   TASK + PROJECT + TEAM
-========================================================= */
-
-.tfAdminDashboard__grid--3 {
-  margin-bottom: 16px;
-
-  grid-template-columns:
-    minmax(0, 1.05fr)
-    minmax(0, 1fr)
-    minmax(0, 0.92fr);
-
-  align-items: stretch;
-}
-
-
-/* =========================================================
-   TWO COLUMN ROWS
-========================================================= */
-
-.tfAdminDashboard__grid--2 {
-  margin-bottom: 16px;
-
-  grid-template-columns:
-    repeat(2, minmax(0, 1fr));
-
-  align-items: stretch;
-}
-
-.tfAdminDashboard__grid--projectsTasks {
-  grid-template-columns:
-    minmax(0, 1.35fr)
-    minmax(360px, 0.95fr);
-}
-
-.tfAdminDashboard__grid--bottom {
-  grid-template-columns:
-    minmax(0, 1.2fr)
-    minmax(360px, 0.8fr);
-}
-
-
-/* =========================================================
-   COMMON CARD
-========================================================= */
-
-.tfAdminDashboard__card {
-  width: 100%;
-  min-width: 0;
-
-  padding: 17px 18px;
-
-  border: 1px solid var(--tf-border);
-  border-radius: 13px;
-
-  background: #ffffff;
-
-  box-shadow: 0 2px 8px rgba(16, 24, 40, 0.035);
-}
-
-.tfAdminDashboard__cardHeader {
-  width: 100%;
-  min-height: 28px;
-
-  margin-bottom: 13px;
-
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  gap: 12px;
-}
-
-.tfAdminDashboard__cardHeader h2 {
-  margin: 0;
-
-  color: #172033;
-
-  font-size: 15px;
-  line-height: 1.3;
-  font-weight: 650;
-}
-
-.tfAdminDashboard__cardHeader button {
-  padding: 3px 0;
-
-  display: inline-flex;
-  align-items: center;
-
-  gap: 4px;
-
-  border: 0;
-
-  color: var(--tf-primary);
-  background: transparent;
-
-  font-family: inherit;
-  font-size: 10px;
-  font-weight: 600;
-
-  cursor: pointer;
-}
-
-.tfAdminDashboard__cardHeader button:hover {
-  color: var(--tf-primary-hover);
-}
-
-
-/* =========================================================
-   TASK STATUS DONUT
-========================================================= */
-
-.tfAdminDashboard__taskOverview {
-  width: 100%;
-  min-height: 190px;
-
-  padding: 5px 8px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  gap: clamp(28px, 4vw, 60px);
-}
-
-.tfAdminDashboard__donut {
-  position: relative;
-
-  width: 142px;
-  height: 142px;
-
-  flex: 0 0 142px;
-
-  display: grid;
-  place-items: center;
-
-  border-radius: 50%;
-}
-
-.tfAdminDashboard__donut::after {
-  content: "";
-
-  position: absolute;
-
-  width: 94px;
-  height: 94px;
-
-  border-radius: 50%;
-
-  background: #ffffff;
-}
-
-.tfAdminDashboard__donutCenter {
-  position: relative;
-  z-index: 2;
-
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.tfAdminDashboard__donutCenter strong {
-  color: #101828;
-
-  font-size: 23px;
-  line-height: 1;
-  font-weight: 700;
-}
-
-.tfAdminDashboard__donutCenter span {
-  margin-top: 5px;
-
-  color: #98a2b3;
-
-  font-size: 10px;
-}
-
-.tfAdminDashboard__legend {
-  width: 155px;
-
-  display: flex;
-  flex-direction: column;
-
-  gap: 12px;
-}
-
-.tfAdminDashboard__legendRow {
-  width: 100%;
-
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  gap: 15px;
-}
-
-.tfAdminDashboard__legendRow > span {
-  display: flex;
-  align-items: center;
-
-  gap: 7px;
-
-  color: #475467;
-
-  font-size: 11px;
-}
-
-.tfAdminDashboard__legendRow strong {
-  min-width: 20px;
-
-  color: #344054;
-
-  font-size: 11px;
-  text-align: right;
-}
-
-.tfAdminDashboard__legendDot {
-  width: 8px;
-  height: 8px;
-
-  flex: 0 0 8px;
-
-  border-radius: 50%;
-}
-
-.tfAdminDashboard__legendDot--completed {
-  background: var(--tf-green);
-}
-
-.tfAdminDashboard__legendDot--progress {
-  background: var(--tf-blue);
-}
-
-.tfAdminDashboard__legendDot--todo {
-  background: #6840f5;
-}
-
-.tfAdminDashboard__legendDot--overdue {
-  background: var(--tf-red);
-}
-
-
-/* =========================================================
-   PROJECT PROGRESS
-========================================================= */
-
-.tfAdminDashboard__progressList {
-  width: 100%;
-
-  padding: 3px 0 5px;
-
-  display: flex;
-  flex-direction: column;
-
-  gap: 15px;
-}
-
-.tfAdminDashboard__progressItem {
-  width: 100%;
-}
-
-.tfAdminDashboard__progressItem > div:first-child {
-  width: 100%;
-
-  margin-bottom: 6px;
-
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  gap: 12px;
-}
-
-.tfAdminDashboard__progressItem strong {
-  min-width: 0;
-
-  overflow: hidden;
-
-  color: #344054;
-
-  font-size: 11px;
-  font-weight: 500;
-
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.tfAdminDashboard__progressItem span {
-  flex: 0 0 auto;
-
-  color: #667085;
-
-  font-size: 10px;
-
-  white-space: nowrap;
-}
-
-.tfAdminDashboard__progressTrack {
-  width: 100%;
-  height: 7px;
-
-  overflow: hidden;
-
-  border-radius: 20px;
-
-  background: #edf0f5;
-}
-
-.tfAdminDashboard__progressTrack > span {
-  height: 100%;
-
-  display: block;
-
-  border-radius: inherit;
-
-  background: linear-gradient(
-    90deg,
-    #6840f5,
-    #5263f5
-  );
-}
-
-
-/* =========================================================
-   TEAM MEMBERS
-========================================================= */
-
-.tfAdminDashboard__memberList {
-  width: 100%;
-
-  display: flex;
-  flex-direction: column;
-}
-
-.tfAdminDashboard__member {
-  width: 100%;
-  min-height: 47px;
-
-  padding: 6px 0;
-
-  display: flex;
-  align-items: center;
-
-  gap: 10px;
-
-  border-bottom: 1px solid #f0f2f5;
-}
-
-.tfAdminDashboard__member:last-child {
-  border-bottom: 0;
-}
-
-.tfAdminDashboard__memberAvatar {
-  width: 38px;
-  height: 38px;
-
-  flex: 0 0 38px;
-
-  display: grid;
-  place-items: center;
-
-  border-radius: 50%;
-
-  color: #6840f5;
-  background: #f0ecff;
-
-  font-size: 10px;
-  font-weight: 700;
-}
-
-.tfAdminDashboard__memberInfo {
-  min-width: 0;
-  flex: 1;
-
-  display: flex;
-  flex-direction: column;
-
-  gap: 2px;
-}
-
-.tfAdminDashboard__memberInfo strong {
-  overflow: hidden;
-
-  color: #344054;
-
-  font-size: 11px;
-  font-weight: 600;
-
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.tfAdminDashboard__memberInfo span {
-  color: #98a2b3;
-
-  font-size: 10px;
-}
-
-.tfAdminDashboard__memberStatus {
-  margin-left: auto;
-
-  flex: 0 0 auto;
-
-  display: flex;
-  align-items: center;
-
-  gap: 5px;
-
-  color: #667085;
-
-  font-size: 10px;
-
-  white-space: nowrap;
-}
-
-.tfAdminDashboard__memberStatus i {
-  width: 7px;
-  height: 7px;
-
-  flex: 0 0 7px;
-
-  border-radius: 50%;
-
-  background: #98a2b3;
-}
-
-.tfAdminDashboard__memberStatus--online i {
-  background: var(--tf-green);
-}
-
-.tfAdminDashboard__memberStatus--meeting i {
-  background: var(--tf-orange);
-}
-
-.tfAdminDashboard__memberStatus--offline i {
-  background: #98a2b3;
-}
-
-
-/* =========================================================
-   TABLE
-========================================================= */
-
-.tfAdminDashboard__tableScroll {
-  width: 100%;
-
-  overflow-x: auto;
-}
-
-.tfAdminDashboard__table {
-  width: 100%;
-  border-collapse: collapse;
-  color: #475467;
-  font-size: 12px;
-}
-
-.tfAdminDashboard__table th {
-  height: 38px;
-  padding: 8px 12px;
-  border-bottom: 1px solid var(--tf-border);
-  color: #64748b;
-  background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  text-align: left;
-  white-space: nowrap;
-}
-
-.tfAdminDashboard__table td {
-  height: 48px;
-  padding: 8px 12px;
-  border-bottom: 1px solid #f0f2f5;
-  vertical-align: middle;
-}
-
-.tfAdminDashboard__table tbody tr:last-child td {
-  border-bottom: 0;
-}
-
-.tfAdminDashboard__table tbody tr {
-  transition: background 0.15s ease;
-}
-
-.tfAdminDashboard__table tbody tr:hover {
-  background: linear-gradient(90deg, rgba(99, 102, 241, 0.04) 0%, rgba(248, 250, 252, 0.9) 100%);
-}
-
-.tfAdminDashboard__table td strong {
-  color: #1e293b;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.admin-row-num {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 24px;
-  height: 22px;
-  padding: 0 5px;
-  border-radius: 6px;
-  font-size: 11px;
-  font-weight: 700;
-  color: #6366f1;
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(168, 85, 247, 0.08) 100%);
-  border: 1px solid rgba(99, 102, 241, 0.18);
-}
-
-
-/* =========================================================
-   TABLE PROGRESS
-========================================================= */
-
-.tfAdminDashboard__tableProgress {
-  min-width: 140px;
-
-  display: flex;
-  align-items: center;
-
-  gap: 8px;
-}
-
-.tfAdminDashboard__tableProgress > div {
-  width: 95px;
-  height: 6px;
-
-  overflow: hidden;
-
-  border-radius: 20px;
-
-  background: #edf0f5;
-}
-
-.tfAdminDashboard__tableProgress > div span {
-  height: 100%;
-
-  display: block;
-
-  border-radius: inherit;
-
-  background: #6840f5;
-}
-
-.tfAdminDashboard__tableProgress small {
-  min-width: 34px;
-
-  color: #667085;
-
-  font-size: 10px;
-}
-
-
-/* =========================================================
-   STATUS BADGES
-========================================================= */
-
-.tfAdminDashboard__status,
-.tfAdminDashboard__priority {
-  padding: 4px 8px;
-
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  border-radius: 20px;
-
-  font-size: 10px;
-  line-height: 1.2;
-  font-weight: 600;
-
-  white-space: nowrap;
-}
-
-.tfAdminDashboard__status--on-track,
-.tfAdminDashboard__status--active,
-.tfAdminDashboard__status--completed,
-.tfAdminDashboard__priority--low {
-  color: #087a55;
-  background: #e8f9f2;
-}
-
-.tfAdminDashboard__status--in-progress {
-  color: #1769aa;
-  background: #eaf4ff;
-}
-
-.tfAdminDashboard__status--at-risk,
-.tfAdminDashboard__status--on-hold,
-.tfAdminDashboard__priority--medium {
-  color: #a56400;
-  background: #fff5dd;
-}
-
-.tfAdminDashboard__status--delayed,
-.tfAdminDashboard__status--overdue,
-.tfAdminDashboard__priority--high,
-.tfAdminDashboard__priority--critical {
-  color: #c73650;
-  background: #fff0f3;
-}
-
-
-/* =========================================================
-   TABLE ACTIONS
-========================================================= */
-
-.tfAdminDashboard__rowActions {
-  display: flex;
-  align-items: center;
-
-  gap: 6px;
-}
-
-.tfAdminDashboard__rowActions button {
-  width: 31px;
-  height: 31px;
-
-  flex: 0 0 31px;
-
-  display: grid;
-  place-items: center;
-
-  padding: 0;
-
-  border: 1px solid var(--tf-border);
-  border-radius: 7px;
-
-  color: #667085;
-  background: #ffffff;
-
-  cursor: pointer;
-}
-
-.tfAdminDashboard__rowActions button:hover {
-  color: var(--tf-primary);
-
-  border-color: #cbc5ff;
-  background: #f7f5ff;
-}
-
-.tfAdminDashboard__rowActions button.danger:hover {
-  color: var(--tf-red);
-
-  border-color: #ffc8d2;
-  background: #fff0f3;
-}
-
-
-/* =========================================================
-   UPCOMING TASKS
-========================================================= */
-
-.tfAdminDashboard__taskList {
-  width: 100%;
-
-  display: flex;
-  flex-direction: column;
-}
-
-.tfAdminDashboard__task {
-  width: 100%;
-  min-height: 49px;
-
-  padding: 7px 0;
-
-  display: flex;
-  align-items: center;
-
-  gap: 10px;
-
-  border-bottom: 1px solid #f0f2f5;
-}
-
-.tfAdminDashboard__task:last-child {
-  border-bottom: 0;
-}
-
-.tfAdminDashboard__taskCheck {
-  width: 22px;
-  height: 22px;
-
-  flex: 0 0 22px;
-
-  display: grid;
-  place-items: center;
-
-  padding: 0;
-
-  border: 1px solid #cfd6e3;
-  border-radius: 50%;
-
-  color: #ffffff;
-  background: #ffffff;
-
-  cursor: pointer;
-}
-
-.tfAdminDashboard__taskCheck:hover {
-  border-color: var(--tf-green);
-}
-
-.tfAdminDashboard__taskCheck.active {
-  border-color: var(--tf-green);
-  background: var(--tf-green);
-}
-
-.tfAdminDashboard__taskInfo {
-  min-width: 0;
-  flex: 1;
-
-  display: flex;
-  flex-direction: column;
-
-  gap: 2px;
-}
-
-.tfAdminDashboard__taskInfo strong {
-  overflow: hidden;
-
-  color: #344054;
-
-  font-size: 11px;
-  font-weight: 600;
-
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.tfAdminDashboard__taskInfo span {
-  color: #98a2b3;
-
-  font-size: 10px;
-}
-
-.tfAdminDashboard__taskDue {
-  min-width: 74px;
-
-  color: #667085;
-
-  font-size: 10px;
-
-  text-align: right;
-
-  white-space: nowrap;
-}
-
-
-/* =========================================================
-   ACTIVITY
-========================================================= */
-
-.tfAdminDashboard__activityUser {
-  min-width: 150px;
-
-  display: flex;
-  align-items: center;
-
-  gap: 8px;
-}
-
-.tfAdminDashboard__activityUser > span {
-  width: 29px;
-  height: 29px;
-
-  flex: 0 0 29px;
-
-  display: grid;
-  place-items: center;
-
-  border-radius: 50%;
-
-  color: var(--tf-primary);
-  background: var(--tf-primary-soft);
-
-  font-size: 9px;
-  font-weight: 700;
-}
-
-.tfAdminDashboard__activityUser > div {
-  min-width: 0;
-
-  display: flex;
-  flex-direction: column;
-}
-
-.tfAdminDashboard__activityUser small {
-  margin-top: 2px;
-
-  color: #98a2b3;
-
-  font-size: 9px;
-}
-
-
-/* =========================================================
-   AI USAGE
-========================================================= */
-
-.tfAdminDashboard__aiLayout {
-  width: 100%;
-
-  display: grid;
-
-  grid-template-columns:
-    minmax(0, 1.2fr)
-    minmax(180px, 0.8fr);
-
-  gap: 18px;
-}
-
-.tfAdminDashboard__aiUsage {
-  min-width: 0;
-}
-
-.tfAdminDashboard__aiLabel {
-  color: #667085;
-
-  font-size: 11px;
-}
-
-.tfAdminDashboard__aiNumber {
-  margin-top: 5px;
-
-  display: flex;
-  align-items: center;
-
-  gap: 10px;
-
-  color: #101828;
-
-  font-size: 28px;
-  line-height: 1.1;
-  font-weight: 700;
-}
-
-.tfAdminDashboard__aiNumber span {
-  padding: 4px 7px;
-
-  display: inline-flex;
-  align-items: center;
-
-  gap: 3px;
-
-  border-radius: 20px;
-
-  color: #079455;
-  background: #ecfdf3;
-
-  font-size: 10px;
-  font-weight: 600;
-}
-
-.tfAdminDashboard__miniChart {
-  height: 95px;
-
-  margin-top: 15px;
-
-  display: flex;
-  align-items: flex-end;
-
-  gap: 7px;
-
-  border-bottom: 1px solid #edf0f5;
-}
-
-.tfAdminDashboard__miniChart span {
-  flex: 1;
-
-  min-height: 5px;
-
-  border-radius: 4px 4px 0 0;
-
-  background: linear-gradient(
-    180deg,
-    #8177ff,
-    #5263f5
-  );
-}
-
-.tfAdminDashboard__aiFeatures {
-  display: flex;
-  flex-direction: column;
-
-  gap: 7px;
-}
-
-.tfAdminDashboard__aiFeature {
-  min-height: 38px;
-
-  padding: 7px 9px;
-
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  gap: 10px;
-
-  border-radius: 8px;
-
-  background: #fafbfc;
-}
-
-.tfAdminDashboard__aiFeature span {
-  min-width: 0;
-
-  display: flex;
-  align-items: center;
-
-  gap: 7px;
-
-  color: #667085;
-
-  font-size: 10px;
-}
-
-.tfAdminDashboard__aiFeature strong {
-  flex: 0 0 auto;
-
-  color: #344054;
-
-  font-size: 10px;
-}
-
-
-/* =========================================================
-   LARGE DESKTOP
-========================================================= */
-
-@media (min-width: 1700px) {
-  .tfAdminDashboard__content {
-    max-width: none;
-
-    padding-left: 28px;
-    padding-right: 28px;
-  }
-}
-
-
-/* =========================================================
-   LAPTOP
-========================================================= */
-
-@media (max-width: 1400px) {
-  .tfAdminDashboard__content {
-    max-width: none;
-
-    padding-left: 24px;
-    padding-right: 24px;
-  }
-
-  .tfAdminDashboard__topbar {
-    padding-left: 24px;
-    padding-right: 24px;
-  }
-
-  .tfAdminDashboard__searchWrap {
-    max-width: 600px;
-  }
-}
-
-
-/* =========================================================
-   SMALL LAPTOP
-========================================================= */
-
-@media (max-width: 1250px) {
-  .tfAdminDashboard__grid--3 {
-    grid-template-columns:
-      repeat(2, minmax(0, 1fr));
-  }
-
-  .tfAdminDashboard__grid--3 > :last-child {
-    grid-column: 1 / -1;
-  }
-
-  .tfAdminDashboard__grid--projectsTasks,
-  .tfAdminDashboard__grid--bottom {
-    grid-template-columns: 1fr;
-  }
-
-  .tfAdminDashboard__profile {
-    min-width: 44px;
-    width: 44px;
-
-    padding: 5px;
-
-    justify-content: center;
-  }
-
-  .tfAdminDashboard__profileText,
-  .tfAdminDashboard__profileArrow,
-  .tfAdminDashboard__profileArrow--open {
-    display: none;
-  }
-}
-
-
-/* =========================================================
-   TABLET
-========================================================= */
 
 @media (max-width: 991px) {
-  .tfAdminDashboard__main {
-    width: 100%;
-
+  .tfSaasAdmin__container {
     margin-left: 0;
-  }
-
-  .tfAdminDashboard__mobileMenu {
-    display: grid;
-  }
-
-  .tfAdminDashboard__topbar {
-    padding-left: 16px;
-    padding-right: 16px;
-  }
-
-  .tfAdminDashboard__content {
-    max-width: none;
-
-    padding:
-      20px
-      18px
-      28px;
-  }
-
-  .tfAdminDashboard__statsGrid {
-    grid-template-columns:
-      repeat(2, minmax(0, 1fr));
-  }
-
-  .tfAdminDashboard__grid--3,
-  .tfAdminDashboard__grid--2,
-  .tfAdminDashboard__grid--projectsTasks,
-  .tfAdminDashboard__grid--bottom {
-    grid-template-columns: 1fr;
-  }
-
-  .tfAdminDashboard__grid--3 > :last-child {
-    grid-column: auto;
-  }
-
-  .tfAdminDashboard__searchWrap {
-    max-width: none;
-  }
-}
-
-
-/* =========================================================
-   MOBILE
-========================================================= */
-
-@media (max-width: 767px) {
-  .tfAdminDashboard__topbar {
-    height: 60px;
-
-    padding: 0 12px;
-
-    gap: 8px;
-  }
-
-  .tfAdminDashboard__mobileMenu,
-  .tfAdminDashboard__iconButton {
-    width: 38px;
-    height: 38px;
-
-    flex-basis: 38px;
-  }
-
-  .tfAdminDashboard__search {
-    height: 38px;
-  }
-
-  .tfAdminDashboard__search kbd {
-    display: none;
-  }
-
-  .tfAdminDashboard__createButton {
-    width: 38px;
-    height: 38px;
-
-    padding: 0;
-  }
-
-  .tfAdminDashboard__createButton span {
-    display: none;
-  }
-
-  .tfAdminDashboard__profile {
-    width: 38px;
-    min-width: 38px;
-    height: 38px;
-
-    padding: 3px;
-  }
-
-  .tfAdminDashboard__profileAvatar {
-    width: 30px;
-    height: 30px;
-
-    flex-basis: 30px;
-  }
-
-  .tfAdminDashboard__content {
-    padding:
-      16px
-      14px
-      28px;
-  }
-
-  .tfAdminDashboard__pageHeader {
-    align-items: stretch;
-    flex-direction: column;
-
-    gap: 12px;
-  }
-
-  .tfAdminDashboard__pageHeader h1 {
-    font-size: 24px;
-  }
-
-  .tfAdminDashboard__pageHeader p {
-    font-size: 12px;
-  }
-
-  .tfAdminDashboard__dateButton {
     width: 100%;
-    min-width: 0;
-  }
-
-  .tfAdminDashboard__statsGrid {
-    gap: 10px;
-  }
-
-  .tfAdminDashboard__statCard {
-    min-height: 102px;
-
-    padding: 14px;
-  }
-
-  .tfAdminDashboard__card {
-    padding: 15px;
-  }
-
-  .tfAdminDashboard__taskOverview {
-    min-height: auto;
-
-    padding: 10px 0;
-
-    flex-direction: column;
-
-    gap: 20px;
-  }
-
-  .tfAdminDashboard__legend {
-    width: 100%;
-    max-width: 260px;
-  }
-
-  .tfAdminDashboard__aiLayout {
-    grid-template-columns: 1fr;
-  }
-
-  .tfAdminDashboard__notificationDropdown,
-  .tfAdminDashboard__accountMenu {
-    position: fixed;
-
-    top: 67px;
-    right: 12px;
-
-    width: min(
-      340px,
-      calc(100vw - 24px)
-    );
   }
 }
 
-
-/* =========================================================
-   SMALL MOBILE
-========================================================= */
-
-@media (max-width: 560px) {
-  .tfAdminDashboard__content {
-    padding:
-      14px
-      10px
-      26px;
-  }
-
-  .tfAdminDashboard__statsGrid {
-    grid-template-columns: 1fr;
-  }
-
-  .tfAdminDashboard__pageHeader h1 {
-    font-size: 22px;
-  }
-
-  .tfAdminDashboard__table {
-    min-width: 680px;
-  }
-
-  .tfAdminDashboard__task {
-    min-height: 52px;
-  }
-
-  .tfAdminDashboard__taskDue {
-    min-width: 62px;
-  }
-}
-
-
-/* =========================================================
-   VERY SMALL MOBILE
-========================================================= */
-
-@media (max-width: 420px) {
-  .tfAdminDashboard__topbar {
-    padding-left: 8px;
-    padding-right: 8px;
-  }
-
-  .tfAdminDashboard__topbarActions {
-    gap: 5px;
-  }
-
-  .tfAdminDashboard__createButton {
-    display: none;
-  }
-
-  .tfAdminDashboard__search input {
-    font-size: 11px;
-  }
-
-  .tfAdminDashboard__content {
-    padding-left: 8px;
-    padding-right: 8px;
-  }
-
-  .tfAdminDashboard__card {
-    padding: 14px;
-  }
-
-  .tfAdminDashboard__notificationDropdown,
-  .tfAdminDashboard__accountMenu {
-    right: 8px;
-
-    width: calc(100vw - 16px);
-  }
-}
-
-
-/* =========================================================
-   ACCESSIBILITY
-========================================================= */
-
-.tfAdminDashboard button:focus-visible,
-.tfAdminDashboard input:focus-visible {
-  outline: 2px solid var(--tf-primary);
-  outline-offset: 2px;
-}
-
-
-/* =========================================================
-   REDUCED MOTION
-========================================================= */
-
-@media (prefers-reduced-motion: reduce) {
-  .tfAdminDashboard *,
-  .tfAdminDashboard *::before,
-  .tfAdminDashboard *::after {
-    animation-duration: 0.01ms !important;
-    transition-duration: 0.01ms !important;
-  }
-}
-
-
-
-/* =========================================================
-   LIVE GRAPH (ORGANIZATION VELOCITY & TELEMETRY) STYLES
-========================================================= */
-.tfAdminDashboard__liveGraphCard {
-  margin-bottom: 22px;
-  position: relative;
-  overflow: visible;
-}
-
-.tfAdminDashboard__liveHeaderTitle {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.tfAdminDashboard__liveBadge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: #ecfdf5;
-  border: 1px solid #a7f3d0;
-  padding: 3px 9px;
-  border-radius: 9999px;
-  font-size: 11px;
-  font-weight: 600;
-  color: #065f46;
-}
-
-.tfAdminDashboard__liveDot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #10b981;
-  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.3);
-  animation: pulseLiveDot 1.8s infinite;
-}
-
-@keyframes pulseLiveDot {
-  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.6); }
-  70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
-  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
-}
-
-.tfAdminDashboard__liveSubtext {
-  margin: 4px 0 0 0;
-  font-size: 12.5px;
-  color: #64748b;
-}
-
-.tfAdminDashboard__chartActions {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.tfAdminDashboard__rangeGroup {
-  display: inline-flex;
-  background: #f1f5f9;
-  border-radius: 8px;
-  padding: 3px;
-  gap: 2px;
-}
-
-.tfAdminDashboard__rangeBtn {
-  background: none;
-  border: none;
-  padding: 5px 12px;
-  font-size: 12px;
-  font-weight: 500;
-  color: #64748b;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.tfAdminDashboard__rangeBtn:hover {
-  color: #0f172a;
-}
-
-.tfAdminDashboard__rangeBtn.active {
-  background: #6366f1;
-  color: #ffffff;
-  font-weight: 600;
-}
-
-.tfAdminDashboard__chartLegend {
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  margin: 6px 0 14px 0;
-}
-
-.tfAdminDashboard__legendItem {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  color: #475569;
-  font-weight: 500;
-}
-
-.tfAdminDashboard__legendColorDot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-}
-
-.tfAdminDashboard__legendColorDot.purple { background: #6366f1; }
-.tfAdminDashboard__legendColorDot.cyan { background: #06b6d4; }
-
-.tfAdminDashboard__svgWrap {
-  position: relative;
+.tfSaasAdmin__content {
   width: 100%;
-}
-
-.tfAdminDashboard__svgChart {
-  width: 100%;
-  height: auto;
-  display: block;
-}
-
-.tfAdminDashboard__chartGridline {
-  color: #e2e8f0;
-}
-
-.tfAdminDashboard__chartAxisText {
-  font-size: 11px;
-  fill: #94a3b8;
-  font-family: inherit;
-}
-
-.tfAdminDashboard__tooltip {
-  position: absolute;
-  transform: translateX(-50%);
-  background: #1e293b;
-  color: #ffffff;
-  border-radius: 8px;
-  padding: 8px 12px;
-  font-size: 11.5px;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
-  pointer-events: none;
-  z-index: 20;
-  white-space: nowrap;
-}
-
-.tfAdminDashboard__tooltip .tooltip-date {
-  font-weight: 700;
-  margin-bottom: 4px;
-  border-bottom: 1px solid #334155;
-  padding-bottom: 2px;
-  color: #f8fafc;
-}
-
-.tfAdminDashboard__tooltip .tooltip-row {
+  padding: 22px 28px 40px;
+  box-sizing: border-box;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-top: 2px;
-}
-
-.tfAdminDashboard__tooltip .tooltip-row.purple strong { color: #a5b4fc; }
-.tfAdminDashboard__tooltip .tooltip-row.cyan strong { color: #67e8f9; }
-
-/* =========================================================
-   TEAMFLOW AI - ADMIN DASHBOARD COMPLETE DARK MODE COMPATIBILITY
-========================================================= */
-
-html.dark .tfAdminDashboard,
-.dark .tfAdminDashboard {
-  --tf-bg: #0f172a;
-  --tf-surface: #1e293b;
-  --tf-text: #f8fafc;
-  --tf-text-2: #e2e8f0;
-  --tf-secondary: #94a3b8;
-  --tf-muted: #64748b;
-  --tf-border: #334155;
-  background: #0f172a;
-  color: #f8fafc;
-}
-
-html.dark .tfAdminDashboard__main,
-.dark .tfAdminDashboard__main {
-  background: #0f172a;
-}
-
-html.dark .tfAdminDashboard__pageHeader h1,
-.dark .tfAdminDashboard__pageHeader h1 {
-  color: #f8fafc;
-}
-
-html.dark .tfAdminDashboard__pageHeader p,
-.dark .tfAdminDashboard__pageHeader p {
-  color: #94a3b8;
-}
-
-html.dark .tfAdminDashboard__dateButton,
-.dark .tfAdminDashboard__dateButton {
-  background: #1e293b;
-  border-color: #334155;
-  color: #f8fafc;
-}
-
-html.dark .tfAdminDashboard__dateButton:hover,
-.dark .tfAdminDashboard__dateButton:hover {
-  background: #334155;
-}
-
-html.dark .tfAdminDashboard__statCard,
-.dark .tfAdminDashboard__statCard {
-  background: #1e293b;
-  border-color: #334155;
-}
-
-html.dark .tfAdminDashboard__statCard:hover,
-.dark .tfAdminDashboard__statCard:hover {
-  border-color: #475569;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
-}
-
-html.dark .tfAdminDashboard__statContent span,
-.dark .tfAdminDashboard__statContent span {
-  color: #94a3b8;
-}
-
-html.dark .tfAdminDashboard__statContent strong,
-.dark .tfAdminDashboard__statContent strong {
-  color: #f8fafc;
-}
-
-html.dark .tfAdminDashboard__statContent small,
-.dark .tfAdminDashboard__statContent small {
-  color: #64748b;
-}
-
-html.dark .tfAdminDashboard__card,
-.dark .tfAdminDashboard__card {
-  background: #1e293b;
-  border-color: #334155;
-  color: #f8fafc;
-}
-
-html.dark .tfAdminDashboard__cardHeader h2,
-.dark .tfAdminDashboard__cardHeader h2 {
-  color: #f8fafc;
-}
-
-html.dark .tfAdminDashboard__cardHeader button,
-.dark .tfAdminDashboard__cardHeader button {
-  color: #818cf8;
-}
-
-/* Donut Chart Fix */
-html.dark .tfAdminDashboard__donutCenter,
-.dark .tfAdminDashboard__donutCenter {
-  background: #1e293b;
-  color: #f8fafc;
-}
-
-html.dark .tfAdminDashboard__donutCenter strong,
-.dark .tfAdminDashboard__donutCenter strong {
-  color: #f8fafc;
-}
-
-html.dark .tfAdminDashboard__donutCenter span,
-.dark .tfAdminDashboard__donutCenter span {
-  color: #94a3b8;
-}
-
-html.dark .tfAdminDashboard__legendRow,
-.dark .tfAdminDashboard__legendRow {
-  color: #cbd5e1;
-}
-
-html.dark .tfAdminDashboard__legendRow strong,
-.dark .tfAdminDashboard__legendRow strong {
-  color: #f8fafc;
-}
-
-/* Project Progress Fix */
-html.dark .tfAdminDashboard__progressItem,
-.dark .tfAdminDashboard__progressItem {
-  color: #f8fafc;
-}
-
-html.dark .tfAdminDashboard__progressItem span,
-.dark .tfAdminDashboard__progressItem span {
-  color: #e2e8f0;
-}
-
-html.dark .tfAdminDashboard__progressItem strong,
-.dark .tfAdminDashboard__progressItem strong {
-  color: #f8fafc;
-}
-
-html.dark .tfAdminDashboard__progressTrack,
-.dark .tfAdminDashboard__progressTrack {
-  background: #334155;
-}
-
-/* Team Members Fix */
-html.dark .tfAdminDashboard__member,
-.dark .tfAdminDashboard__member {
-  border-bottom-color: #334155;
-}
-
-html.dark .tfAdminDashboard__memberInfo strong,
-.dark .tfAdminDashboard__memberInfo strong {
-  color: #f8fafc;
-}
-
-html.dark .tfAdminDashboard__memberInfo span,
-.dark .tfAdminDashboard__memberInfo span {
-  color: #94a3b8;
-}
-
-/* Recent Projects Table Fix */
-html.dark .tfAdminDashboard__tableScroll,
-.dark .tfAdminDashboard__tableScroll {
-  border-color: #334155;
-}
-
-html.dark .tfAdminDashboard__table th,
-.dark .tfAdminDashboard__table th {
-  background: #0f172a;
-  border-bottom-color: #334155;
-  color: #94a3b8;
-}
-
-html.dark .tfAdminDashboard__table td,
-.dark .tfAdminDashboard__table td {
-  border-bottom-color: #334155;
-  color: #cbd5e1;
-}
-
-html.dark .tfAdminDashboard__table td strong,
-.dark .tfAdminDashboard__table td strong {
-  color: #f8fafc;
-}
-
-html.dark .tfAdminDashboard__table tbody tr:hover,
-.dark .tfAdminDashboard__table tbody tr:hover {
-  background: rgba(255, 255, 255, 0.03);
-}
-
-html.dark .tfAdminDashboard__rowActions button,
-.dark .tfAdminDashboard__rowActions button {
-  background: #0f172a;
-  border-color: #334155;
-  color: #94a3b8;
-}
-
-html.dark .tfAdminDashboard__rowActions button:hover,
-.dark .tfAdminDashboard__rowActions button:hover {
-  background: #334155;
-  color: #f8fafc;
-}
-
-/* Upcoming Tasks Fix */
-html.dark .tfAdminDashboard__task,
-.dark .tfAdminDashboard__task {
-  border-bottom-color: #334155;
-}
-
-html.dark .tfAdminDashboard__taskInfo strong,
-.dark .tfAdminDashboard__taskInfo strong {
-  color: #f8fafc;
-}
-
-html.dark .tfAdminDashboard__taskInfo span,
-.dark .tfAdminDashboard__taskInfo span {
-  color: #94a3b8;
-}
-
-html.dark .tfAdminDashboard__taskDue,
-.dark .tfAdminDashboard__taskDue {
-  color: #94a3b8;
-}
-
-/* Organization Activity Fix */
-html.dark .tfAdminDashboard__activityUser strong,
-.dark .tfAdminDashboard__activityUser strong {
-  color: #f8fafc;
-}
-
-html.dark .tfAdminDashboard__activityUser p,
-.dark .tfAdminDashboard__activityUser p {
-  color: #94a3b8;
-}
-
-html.dark .tfAdminDashboard__activityUser small,
-.dark .tfAdminDashboard__activityUser small {
-  color: #64748b;
-}
-
-/* AI Usage Fix */
-html.dark .tfAdminDashboard__aiLabel,
-.dark .tfAdminDashboard__aiLabel {
-  color: #94a3b8;
-}
-
-html.dark .tfAdminDashboard__aiNumber,
-.dark .tfAdminDashboard__aiNumber {
-  color: #f8fafc;
-}
-
-html.dark .tfAdminDashboard__aiFeature,
-.dark .tfAdminDashboard__aiFeature {
-  color: #cbd5e1;
-}
-
-html.dark .tfAdminDashboard__aiFeature span,
-.dark .tfAdminDashboard__aiFeature span {
-  color: #cbd5e1;
-}
-
-html.dark .tfAdminDashboard__aiFeature strong,
-.dark .tfAdminDashboard__aiFeature strong {
-  color: #f8fafc;
-}
-
-/* Live Graph Card in Dark Mode */
-html.dark .tfAdminDashboard__liveGraphCard,
-.dark .tfAdminDashboard__liveGraphCard {
-  background: #1e293b;
-  border-color: #334155;
-}
-
-html.dark .tfAdminDashboard__rangeBtn,
-.dark .tfAdminDashboard__rangeBtn {
-  background: #0f172a;
-  border-color: #334155;
-  color: #94a3b8;
-}
-
-html.dark .tfAdminDashboard__rangeBtn:hover,
-.dark .tfAdminDashboard__rangeBtn:hover {
-  color: #f8fafc;
-}
-
-html.dark .tfAdminDashboard__rangeBtn.active,
-.dark .tfAdminDashboard__rangeBtn.active {
-  background: #6366f1;
-  color: #ffffff;
-  border-color: #6366f1;
-}
-
-html.dark .tfAdminDashboard__chartGridline,
-.dark .tfAdminDashboard__chartGridline {
-  color: #334155;
-}
-
-html.dark .tfAdminDashboard__chartAxisText,
-.dark .tfAdminDashboard__chartAxisText {
-  fill: #64748b;
-}
-
-
-/* =========================================================
-   DATE RANGE DROPDOWN STYLES
-========================================================= */
-.tfAdminDashboard__dateWrapper {
-  position: relative;
-  display: inline-block;
-}
-
-.tf-rotate-180 {
-  transform: rotate(180deg);
-  transition: transform 0.15s ease;
-}
-
-.tfAdminDashboard__dateMenu {
-  position: absolute;
-  top: calc(100% + 6px);
-  right: 0;
-  z-index: 100;
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
-  padding: 6px;
-  min-width: 260px;
-  animation: fadeInDateMenu 0.15s ease-out;
-}
-
-@keyframes fadeInDateMenu {
-  from { opacity: 0; transform: translateY(-4px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.tfAdminDashboard__dateMenuTitle {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: #64748b;
-  padding: 8px 10px 6px;
-  border-bottom: 1px solid #f1f5f9;
-  margin-bottom: 4px;
-}
-
-.tfAdminDashboard__dateMenuItem {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 10px;
-  border: none;
-  background: transparent;
-  color: #334155;
-  font-size: 13px;
-  font-weight: 500;
-  border-radius: 6px;
-  cursor: pointer;
-  text-align: left;
-  transition: all 0.12s ease;
-}
-
-.tfAdminDashboard__dateMenuItem:hover {
-  background: #f1f5f9;
-  color: #0f172a;
-}
-
-.tfAdminDashboard__dateMenuItem.active {
-  background: #ede9fe;
-  color: #6366f1;
-  font-weight: 600;
-}
-
-.tf-check-visible {
-  color: #6366f1;
-  opacity: 1;
-}
-
-.tf-check-hidden {
-  opacity: 0;
-}
-
-.dark .tfAdminDashboard__dateMenu {
-  background: #1e293b;
-  border-color: #334155;
-}
-
-.dark .tfAdminDashboard__dateMenuTitle {
-  color: #94a3b8;
-  border-color: #334155;
-}
-
-.dark .tfAdminDashboard__dateMenuItem {
-  color: #cbd5e1;
-}
-
-.dark .tfAdminDashboard__dateMenuItem:hover {
-  background: #0f172a;
-  color: #f8fafc;
-}
-
-.dark .tfAdminDashboard__dateMenuItem.active {
-  background: #312e81;
-  color: #a5b4fc;
-}
-
-.dark .tf-check-visible {
-  color: #a5b4fc;
+  flex-direction: column;
+  gap: 20px;
 }
 
 /* =========================================================
-   COMPACT SAAS LIVE TELEMETRY GRAPH
+   HEADER SECTION: GREETING & DATE RANGE PICKER
 ========================================================= */
-
-.tfAdminDashboard__liveGraphCard {
-  margin-bottom: 22px;
-  padding: 18px 22px 14px;
-  position: relative;
-  overflow: visible;
-}
-
-.tfAdminDashboard__compactChartHeader {
+.tfSaasAdmin__header {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 16px;
   flex-wrap: wrap;
-  margin-bottom: 14px;
 }
 
-.tfAdminDashboard__chartControlsRow {
-  display: flex;
-  align-items: center;
-  gap: 18px;
-}
-
-.tfAdminDashboard__liveHeaderTitle {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.tfAdminDashboard__liveHeaderTitle h2 {
-  font-size: 16px;
-  font-weight: 700;
-  margin: 0;
-  color: var(--tf-text-dark, #0f172a);
-}
-
-.tfAdminDashboard__liveSubtext {
-  font-size: 12px;
-  color: var(--tf-muted, #64748b);
-  margin: 3px 0 0;
-}
-
-.tfAdminDashboard__liveBadge {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 2px 7px;
-  border-radius: 999px;
-  font-size: 10.5px;
-  font-weight: 700;
-  background: #dcfce7;
-  color: #15803d;
-}
-
-.tfAdminDashboard__liveDot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #16a34a;
-  animation: pulseLive 1.8s infinite;
-}
-
-.tfAdminDashboard__chartLegend {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-
-.tfAdminDashboard__legendItem {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  font-weight: 500;
-  color: #64748b;
-}
-
-.tfAdminDashboard__legendColorDot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-}
-
-.tfAdminDashboard__legendColorDot.purple { background: #6366f1; }
-.tfAdminDashboard__legendColorDot.cyan { background: #06b6d4; }
-
-.tfAdminDashboard__rangeGroup {
-  display: inline-flex;
-  background: #f1f5f9;
-  padding: 2px;
-  border-radius: 8px;
-  gap: 2px;
-}
-
-.tfAdminDashboard__rangeBtn {
-  border: none;
-  background: transparent;
-  font-size: 11.5px;
-  font-weight: 600;
-  color: #64748b;
-  padding: 4px 10px;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.tfAdminDashboard__rangeBtn.active {
-  background: #ffffff;
-  color: #4f46e5;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.tfAdminDashboard__svgWrap {
-  position: relative;
-  width: 100%;
-  max-height: 180px;
-}
-
-.tfAdminDashboard__svgChart {
-  width: 100%;
-  height: 170px;
-  max-height: 175px;
-  display: block;
-}
-
-.dark .tfAdminDashboard__rangeGroup {
-  background: #0f172a;
-}
-
-.dark .tfAdminDashboard__rangeBtn.active {
-  background: #1e293b;
-  color: #818cf8;
-}
-
-.dark .tfAdminDashboard__liveHeaderTitle h2 {
-  color: #f8fafc;
-}
-
-/* =========================================================
-   TWO-CHART SAAS ANALYTICS GRID
-========================================================= */
-
-.tfAdminDashboard__analyticsGrid {
-  display: grid;
-  grid-template-columns: 1.5fr 1.15fr;
-  gap: 22px;
-  margin-bottom: 22px;
-}
-
-@media (max-width: 1100px) {
-  .tfAdminDashboard__analyticsGrid {
-    grid-template-columns: 1fr;
-  }
-}
-
-.tfAdminDashboard__analyticsCard {
-  margin-bottom: 0;
-  padding: 18px 22px 14px;
-  position: relative;
-  overflow: visible;
-}
-
-.tfAdminDashboard__barSvgWrap {
-  position: relative;
-  width: 100%;
-}
-
-.tfAdminDashboard__barSvg {
-  width: 100%;
-  height: 175px;
-  display: block;
-}
-
-.bar-rect {
-  transition: opacity 0.15s ease, y 0.2s ease, height 0.2s ease;
-  cursor: pointer;
-}
-
-.bar-group:hover .bar-rect {
-  filter: brightness(1.1);
-}
-
-.tfAdminDashboard__barTooltip {
-  position: absolute;
-  top: 10px;
-  transform: translateX(-50%);
-  background: #0f172a;
-  color: #ffffff;
-  padding: 6px 12px;
-  border-radius: 8px;
-  font-size: 11.5px;
-  pointer-events: none;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
-  z-index: 20;
-  animation: fadeIn 0.15s ease;
-}
-
-.tfAdminDashboard__barTooltip strong {
-  display: block;
-  font-size: 11px;
-  color: #94a3b8;
-  margin-bottom: 2px;
-  text-transform: uppercase;
-}
-
-.tfAdminDashboard__barTooltip .tt-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.tfAdminDashboard__barTooltip .tt-row.purple b { color: #a5b4fc; }
-.tfAdminDashboard__barTooltip .tt-row.cyan b { color: #67e8f9; }
-
-/* DONUT DISTRIBUTION STYLES */
-.tfAdminDashboard__donutLayout {
-  display: flex;
-  align-items: center;
-  gap: 22px;
-  padding: 8px 0;
-}
-
-.tfAdminDashboard__donutWrap {
-  position: relative;
-  width: 150px;
-  height: 150px;
-  flex-shrink: 0;
-}
-
-.tfAdminDashboard__donutSvg {
-  width: 100%;
-  height: 100%;
-  transform: rotate(-90deg);
-}
-
-.donut-segment {
-  cursor: pointer;
-}
-
-.tfAdminDashboard__donutCenter {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  pointer-events: none;
-}
-
-.tfAdminDashboard__donutCenter strong {
-  font-size: 20px;
+.tfSaasAdmin__headerText h1 {
+  font-size: 1.625rem;
   font-weight: 700;
   color: #0f172a;
-  line-height: 1;
-}
-
-.tfAdminDashboard__donutCenter span {
-  font-size: 10.5px;
-  color: #64748b;
-  margin-top: 3px;
-}
-
-.tfAdminDashboard__distLegend {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.dist-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 6px 10px;
-  border-radius: 8px;
-  transition: all 0.15s ease;
-  cursor: pointer;
-}
-
-.dist-item:hover,
-.dist-item.hovered {
-  background: #f1f5f9;
-}
-
-.dist-left {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.dist-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.dist-name {
-  font-size: 12.5px;
-  font-weight: 600;
-  color: #334155;
-}
-
-.dist-right {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.dist-count {
-  font-size: 11.5px;
-  color: #94a3b8;
-}
-
-.dist-pct {
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.tfAdminDashboard__tagSmall {
-  font-size: 11px;
-  font-weight: 700;
-  color: #6366f1;
-  background: rgba(99, 102, 241, 0.12);
-  padding: 2px 7px;
-  border-radius: 6px;
-}
-
-.dark .tfAdminDashboard__donutCenter strong {
-  color: #f8fafc;
-}
-
-.dark .dist-name {
-  color: #e2e8f0;
-}
-
-.dark .dist-item:hover,
-.dark .dist-item.hovered {
-  background: #334155;
-}
-
-/* =========================================================
-   EXACT 4-ROW DASHBOARD LAYOUT & CARD STYLES
-========================================================= */
-
-.tfAdminDashboard__cardSelectWrap {
-  position: relative;
-}
-
-.tfAdminDashboard__cardSelect {
-  appearance: none;
-  background: #f8fafc url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") no-repeat right 8px center;
-  border: 1px solid #e2e8f0;
-  border-radius: 7px;
-  padding: 4px 24px 4px 10px;
-  font-size: 11.5px;
-  font-weight: 600;
-  color: #475569;
-  cursor: pointer;
-  outline: none;
-  transition: all 0.15s ease;
-}
-
-.tfAdminDashboard__cardSelect:hover {
-  border-color: #cbd5e1;
-  background-color: #f1f5f9;
-}
-
-.tfAdminDashboard__viewAllBtn {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  border: none;
-  background: transparent;
-  color: #4f46e5;
-  font-size: 11.5px;
-  font-weight: 600;
-  cursor: pointer;
-  padding: 2px 4px;
-  transition: all 0.15s ease;
-}
-
-.tfAdminDashboard__viewAllBtn:hover {
-  color: #3730a3;
-  transform: translateX(2px);
-}
-
-/* DONUT CHART SVG */
-.tfAdminDashboard__donutWrapper {
-  position: relative;
-  width: 140px;
-  height: 140px;
-  flex: 0 0 140px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.tfAdminDashboard__donutSvg {
-  width: 100%;
-  height: 100%;
-}
-
-.tfAdminDashboard__legendValues {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.tfAdminDashboard__legendPct {
-  font-size: 11px;
-  font-weight: 600;
-  color: #64748b;
-  min-width: 28px;
-  text-align: right;
-}
-
-/* AVATAR STACK */
-.tfAdminDashboard__avatarStack {
-  display: flex;
-  align-items: center;
-}
-
-.tfAdminDashboard__stackedAvatar {
-  width: 25px;
-  height: 25px;
-  border-radius: 50%;
-  border: 2px solid #ffffff;
-  margin-left: -7px;
-  overflow: hidden;
-  background: #ede9fe;
-  color: #6366f1;
-  font-size: 10px;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
-}
-
-.tfAdminDashboard__stackedAvatar:first-child {
-  margin-left: 0;
-}
-
-.tfAdminDashboard__stackedAvatar img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.tfAdminDashboard__stackedBadge {
-  margin-left: 5px;
-  font-size: 11px;
-  font-weight: 600;
-  color: #64748b;
-}
-
-.tfAdminDashboard__dateCell,
-.tfAdminDashboard__timeCell {
-  font-size: 11.5px;
-  color: #64748b;
-  font-weight: 500;
-}
-
-/* ACTIVITY USER */
-.tfAdminDashboard__activityAvatar {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  border: 1px solid transparent;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 11px;
-  font-weight: 700;
-  flex-shrink: 0;
-}
-
-.tfAdminDashboard__activityUserText {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-
-.tfAdminDashboard__activityUserText strong {
-  font-size: 12px;
-  color: #1e293b;
-  font-weight: 600;
-}
-
-.tfAdminDashboard__activityUserText small {
-  font-size: 11px;
-  color: #64748b;
-}
-
-.tfAdminDashboard__activityDetail {
-  font-size: 11.5px;
-  color: #334155;
-  font-weight: 500;
-}
-
-/* AI USAGE CHART */
-.tfAdminDashboard__aiHeaderBlock {
-  margin-bottom: 12px;
-}
-
-.tfAdminDashboard__aiNumberRow {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.tfAdminDashboard__aiBigNum {
-  font-size: 26px;
-  font-weight: 800;
-  color: #0f172a;
+  margin: 0 0 4px 0;
   letter-spacing: -0.02em;
 }
 
-.tfAdminDashboard__aiGrowthBadge {
+:root.dark .tfSaasAdmin__headerText h1,
+.dark .tfSaasAdmin__headerText h1 {
+  color: #f8fafc;
+}
+
+.tfSaasAdmin__headerText p {
+  font-size: 0.875rem;
+  color: #64748b;
+  margin: 0;
+}
+
+:root.dark .tfSaasAdmin__headerText p,
+.dark .tfSaasAdmin__headerText p {
+  color: #94a3b8;
+}
+
+.tfSaasAdmin__headerControls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* =========================================================
+   CUSTOM DATE PICKER & CALENDAR POPOVER
+========================================================= */
+.tfSaasAdmin__datePickerWrapper {
+  position: relative;
+  display: inline-block;
+  user-select: none;
+}
+
+.tfSaasAdmin__dateTriggerBtn {
   display: inline-flex;
   align-items: center;
-  gap: 3px;
-  padding: 2px 7px;
-  background: #ecfdf5;
-  color: #059669;
-  border-radius: 20px;
-  font-size: 11px;
-  font-weight: 700;
-}
-
-.tfAdminDashboard__aiChartWrapper {
-  display: flex;
-  align-items: stretch;
   gap: 8px;
-  height: 125px;
-  margin-top: 10px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 9px;
+  padding: 7px 14px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+  outline: none;
 }
 
-.tfAdminDashboard__aiYAxis {
+:root.dark .tfSaasAdmin__dateTriggerBtn,
+.dark .tfSaasAdmin__dateTriggerBtn,
+body.dark-theme .tfSaasAdmin__dateTriggerBtn,
+[data-theme="dark"] .tfSaasAdmin__dateTriggerBtn {
+  background: #111827;
+  border-color: #1f2937;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.tfSaasAdmin__dateTriggerBtn:hover {
+  border-color: #cbd5e1;
+  background: #f8fafc;
+}
+
+:root.dark .tfSaasAdmin__dateTriggerBtn:hover,
+.dark .tfSaasAdmin__dateTriggerBtn:hover,
+body.dark-theme .tfSaasAdmin__dateTriggerBtn:hover,
+[data-theme="dark"] .tfSaasAdmin__dateTriggerBtn:hover {
+  border-color: #374151;
+  background: #1a2234;
+}
+
+.tfSaasAdmin__dateTriggerBtn.active {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+  background: #ffffff;
+}
+
+:root.dark .tfSaasAdmin__dateTriggerBtn.active,
+.dark .tfSaasAdmin__dateTriggerBtn.active,
+body.dark-theme .tfSaasAdmin__dateTriggerBtn.active,
+[data-theme="dark"] .tfSaasAdmin__dateTriggerBtn.active {
+  border-color: #6366f1;
+  background: #111827;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
+}
+
+.tfSaasAdmin__dateTriggerBtn .date-icon {
+  color: #6366f1;
+  flex-shrink: 0;
+}
+
+:root.dark .tfSaasAdmin__dateTriggerBtn .date-icon,
+.dark .tfSaasAdmin__dateTriggerBtn .date-icon {
+  color: #818cf8;
+}
+
+.tfSaasAdmin__dateTriggerBtn .date-label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #1e293b;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+:root.dark .tfSaasAdmin__dateTriggerBtn .date-label,
+.dark .tfSaasAdmin__dateTriggerBtn .date-label {
+  color: #f1f5f9;
+}
+
+.tfSaasAdmin__dateTriggerBtn .chevron-icon {
+  color: #94a3b8;
+  margin-left: 2px;
+  transition: transform 0.2s ease;
+}
+
+.tfSaasAdmin__dateTriggerBtn .chevron-icon.rotate {
+  transform: rotate(180deg);
+  color: #6366f1;
+}
+
+/* CALENDAR POPOVER (COMPACT & FULLY VISIBLE) */
+.tfSaasAdmin__calendarPopover {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 1050;
+  width: 440px;
+  max-width: calc(100vw - 24px);
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 16px 36px -6px rgba(15, 23, 42, 0.18), 0 0 0 1px rgba(15, 23, 42, 0.05);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-sizing: border-box;
+  animation: tfCalendarPopIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes tfCalendarPopIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+:root.dark .tfSaasAdmin__calendarPopover,
+.dark .tfSaasAdmin__calendarPopover,
+body.dark-theme .tfSaasAdmin__calendarPopover,
+[data-theme="dark"] .tfSaasAdmin__calendarPopover {
+  background: #0f172a;
+  border-color: #1e293b;
+  box-shadow: 0 16px 36px -6px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+
+/* POPOVER HEADER */
+.tfSaasAdmin__calendarHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 14px;
+  border-bottom: 1px solid #f1f5f9;
+  background: #f8fafc;
+  box-sizing: border-box;
+}
+
+:root.dark .tfSaasAdmin__calendarHeader,
+.dark .tfSaasAdmin__calendarHeader,
+body.dark-theme .tfSaasAdmin__calendarHeader,
+[data-theme="dark"] .tfSaasAdmin__calendarHeader {
+  background: #111827;
+  border-color: #1e293b;
+}
+
+.tfSaasAdmin__calendarHeaderTitle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.775rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+:root.dark .tfSaasAdmin__calendarHeaderTitle,
+.dark .tfSaasAdmin__calendarHeaderTitle {
+  color: #f1f5f9;
+}
+
+.tfSaasAdmin__calendarHeaderTitle .header-cal-icon {
+  color: #6366f1;
+}
+
+.tfSaasAdmin__calendarCloseBtn {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  padding: 2px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.tfSaasAdmin__calendarCloseBtn:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+:root.dark .tfSaasAdmin__calendarCloseBtn:hover,
+.dark .tfSaasAdmin__calendarCloseBtn:hover {
+  background: #1f2937;
+  color: #f8fafc;
+}
+
+/* POPOVER BODY */
+.tfSaasAdmin__calendarBody {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  min-height: auto;
+  box-sizing: border-box;
+}
+
+/* PRESETS SIDEBAR */
+.tfSaasAdmin__presetsCol {
+  padding: 6px 5px;
+  border-right: 1px solid #f1f5f9;
+  background: #fcfcfd;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  box-sizing: border-box;
+}
+
+:root.dark .tfSaasAdmin__presetsCol,
+.dark .tfSaasAdmin__presetsCol,
+body.dark-theme .tfSaasAdmin__presetsCol,
+[data-theme="dark"] .tfSaasAdmin__presetsCol {
+  background: #0f172a;
+  border-color: #1e293b;
+}
+
+.tfSaasAdmin__presetsHeading {
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #94a3b8;
+  padding: 2px 6px 3px;
+}
+
+.tfSaasAdmin__presetsList {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.tfSaasAdmin__presetBtn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 7px;
+  border-radius: 5px;
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: #475569;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s ease;
+  box-sizing: border-box;
+}
+
+:root.dark .tfSaasAdmin__presetBtn,
+.dark .tfSaasAdmin__presetBtn {
+  color: #94a3b8;
+}
+
+.tfSaasAdmin__presetBtn:hover {
+  background: #f1f5f9;
+  color: #1e293b;
+}
+
+:root.dark .tfSaasAdmin__presetBtn:hover,
+.dark .tfSaasAdmin__presetBtn:hover {
+  background: #1e293b;
+  color: #f8fafc;
+}
+
+.tfSaasAdmin__presetBtn.active {
+  background: #eef2ff;
+  color: #4f46e5;
+  font-weight: 600;
+}
+
+:root.dark .tfSaasAdmin__presetBtn.active,
+.dark .tfSaasAdmin__presetBtn.active {
+  background: rgba(99, 102, 241, 0.18);
+  color: #818cf8;
+}
+
+.tfSaasAdmin__presetBtn .preset-check {
+  color: #4f46e5;
+  flex-shrink: 0;
+}
+
+:root.dark .tfSaasAdmin__presetBtn .preset-check,
+.dark .tfSaasAdmin__presetBtn .preset-check {
+  color: #818cf8;
+}
+
+/* CALENDAR RIGHT COLUMN */
+.tfSaasAdmin__calendarCol {
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+/* MONTH NAVIGATION */
+.tfSaasAdmin__monthNav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding-bottom: 2px;
+  box-sizing: border-box;
+}
+
+.tfSaasAdmin__monthTitleWrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tfSaasAdmin__currentMonthLabel {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: -0.01em;
+}
+
+:root.dark .tfSaasAdmin__currentMonthLabel,
+.dark .tfSaasAdmin__currentMonthLabel {
+  color: #f8fafc;
+}
+
+.tfSaasAdmin__todayJumpBtn {
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-size: 0.6rem;
+  font-weight: 600;
+  color: #6366f1;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+:root.dark .tfSaasAdmin__todayJumpBtn,
+.dark .tfSaasAdmin__todayJumpBtn {
+  background: #1e293b;
+  border-color: #334155;
+  color: #818cf8;
+}
+
+.tfSaasAdmin__todayJumpBtn:hover {
+  background: #e0e7ff;
+}
+
+.tfSaasAdmin__navBtn {
+  width: 24px;
+  height: 24px;
+  border-radius: 5px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid #e2e8f0;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+:root.dark .tfSaasAdmin__navBtn,
+.dark .tfSaasAdmin__navBtn {
+  border-color: #334155;
+  color: #94a3b8;
+}
+
+.tfSaasAdmin__navBtn:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+  border-color: #cbd5e1;
+}
+
+:root.dark .tfSaasAdmin__navBtn:hover,
+.dark .tfSaasAdmin__navBtn:hover {
+  background: #1e293b;
+  color: #f8fafc;
+}
+
+/* WEEKDAYS HEADER */
+.tfSaasAdmin__weekdaysRow {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.tfSaasAdmin__weekdayHeader {
+  font-size: 0.64rem;
+  font-weight: 700;
+  color: #94a3b8;
+  padding: 2px 0;
+  text-transform: uppercase;
+}
+
+/* DAYS GRID */
+.tfSaasAdmin__daysGrid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  row-gap: 2px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.tfSaasAdmin__dayCell {
+  position: relative;
+  height: 27px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  font-size: 0.76rem;
+  font-weight: 500;
+  color: #1e293b;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  padding: 0;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+:root.dark .tfSaasAdmin__dayCell,
+.dark .tfSaasAdmin__dayCell {
+  color: #e2e8f0;
+}
+
+.tfSaasAdmin__dayCell:hover {
+  background: #f1f5f9;
+}
+
+:root.dark .tfSaasAdmin__dayCell:hover,
+.dark .tfSaasAdmin__dayCell:hover {
+  background: #1e293b;
+}
+
+.tfSaasAdmin__dayCell.outside-month {
+  color: #cbd5e1;
+  opacity: 0.5;
+}
+
+:root.dark .tfSaasAdmin__dayCell.outside-month,
+.dark .tfSaasAdmin__dayCell.outside-month {
+  color: #475569;
+}
+
+/* RANGE HIGHLIGHTING */
+.tfSaasAdmin__dayCell.in-range {
+  background: #eef2ff !important;
+  color: #4338ca !important;
+  border-radius: 0 !important;
+}
+
+:root.dark .tfSaasAdmin__dayCell.in-range,
+.dark .tfSaasAdmin__dayCell.in-range {
+  background: rgba(99, 102, 241, 0.22) !important;
+  color: #c7d2fe !important;
+}
+
+.tfSaasAdmin__dayCell.hover-preview {
+  background: #f5f7ff;
+  color: #4338ca;
+  border-radius: 0;
+}
+
+:root.dark .tfSaasAdmin__dayCell.hover-preview,
+.dark .tfSaasAdmin__dayCell.hover-preview {
+  background: rgba(99, 102, 241, 0.15);
+  color: #a5b4fc;
+}
+
+.tfSaasAdmin__dayCell.range-start {
+  background: #4f46e5 !important;
+  color: #ffffff !important;
+  font-weight: 700;
+  border-top-left-radius: 6px !important;
+  border-bottom-left-radius: 6px !important;
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+}
+
+.tfSaasAdmin__dayCell.range-end {
+  background: #4f46e5 !important;
+  color: #ffffff !important;
+  font-weight: 700;
+  border-top-right-radius: 6px !important;
+  border-bottom-right-radius: 6px !important;
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+}
+
+.tfSaasAdmin__dayCell.range-single {
+  background: #4f46e5 !important;
+  color: #ffffff !important;
+  font-weight: 700;
+  border-radius: 6px !important;
+}
+
+.tfSaasAdmin__dayCell .cell-num {
+  z-index: 1;
+  font-size: 0.76rem;
+}
+
+/* RANGE BADGES ROW */
+.tfSaasAdmin__rangeInputRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 7px;
+  padding: 4px 8px;
+  margin-top: 3px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+:root.dark .tfSaasAdmin__rangeInputRow,
+.dark .tfSaasAdmin__rangeInputRow,
+body.dark-theme .tfSaasAdmin__rangeInputRow,
+[data-theme="dark"] .tfSaasAdmin__rangeInputRow {
+  background: #111827;
+  border-color: #1e293b;
+}
+
+.tfSaasAdmin__rangeBadge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.tfSaasAdmin__rangeBadge .badge-lbl {
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+}
+
+.tfSaasAdmin__rangeBadge .badge-val {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #0f172a;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  padding: 1px 5px;
+}
+
+:root.dark .tfSaasAdmin__rangeBadge .badge-lbl,
+.dark .tfSaasAdmin__rangeBadge .badge-lbl {
+  color: #94a3b8;
+}
+
+:root.dark .tfSaasAdmin__rangeBadge .badge-val,
+.dark .tfSaasAdmin__rangeBadge .badge-val {
+  background: #0f172a;
+  border-color: #1e293b;
+  color: #f8fafc;
+}
+
+.tfSaasAdmin__rangeArrow {
+  color: #94a3b8;
+  font-weight: 600;
+  font-size: 0.6875rem;
+}
+
+.tfSaasAdmin__rangeDuration {
+  background: #eef2ff;
+  color: #4f46e5;
+  font-size: 0.62rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+:root.dark .tfSaasAdmin__rangeDuration,
+.dark .tfSaasAdmin__rangeDuration {
+  background: rgba(99, 102, 241, 0.2);
+  color: #a5b4fc;
+}
+
+/* CALENDAR FOOTER */
+.tfSaasAdmin__calendarFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  border-top: 1px solid #f1f5f9;
+  background: #f8fafc;
+}
+
+:root.dark .tfSaasAdmin__calendarFooter,
+.dark .tfSaasAdmin__calendarFooter,
+body.dark-theme .tfSaasAdmin__calendarFooter,
+[data-theme="dark"] .tfSaasAdmin__calendarFooter {
+  background: #111827;
+  border-color: #1e293b;
+}
+
+.tfSaasAdmin__btnReset {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: transparent;
+  border: none;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #64748b;
+  cursor: pointer;
+  padding: 3px 6px;
+  border-radius: 5px;
+  transition: all 0.15s ease;
+}
+
+:root.dark .tfSaasAdmin__btnReset,
+.dark .tfSaasAdmin__btnReset {
+  color: #94a3b8;
+}
+
+.tfSaasAdmin__btnReset:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+:root.dark .tfSaasAdmin__btnReset:hover,
+.dark .tfSaasAdmin__btnReset:hover {
+  background: #1f2937;
+  color: #f8fafc;
+}
+
+.tfSaasAdmin__footerRightBtns {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tfSaasAdmin__btnCancel {
+  background: transparent;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 4px 9px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+:root.dark .tfSaasAdmin__btnCancel,
+.dark .tfSaasAdmin__btnCancel {
+  border-color: #334155;
+  color: #94a3b8;
+}
+
+.tfSaasAdmin__btnCancel:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+:root.dark .tfSaasAdmin__btnCancel:hover,
+.dark .tfSaasAdmin__btnCancel:hover {
+  background: #1e293b;
+  color: #f8fafc;
+}
+
+.tfSaasAdmin__btnApply {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #4f46e5;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(79, 70, 229, 0.3);
+  transition: all 0.15s ease;
+}
+
+.tfSaasAdmin__btnApply:hover {
+  background: #4338ca;
+  box-shadow: 0 2px 4px rgba(79, 70, 229, 0.4);
+}
+
+@media (max-width: 640px) {
+  .tfSaasAdmin__calendarPopover {
+    width: 300px;
+  }
+  .tfSaasAdmin__calendarBody {
+    grid-template-columns: 1fr;
+  }
+  .tfSaasAdmin__presetsCol {
+    border-right: none;
+    border-bottom: 1px solid #f1f5f9;
+    max-height: 90px;
+    overflow-y: auto;
+  }
+}
+
+/* =========================================================
+   GLOBAL CARD STYLES
+========================================================= */
+.tfSaasAdmin__card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 18px 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+  display: flex;
+  flex-direction: column;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+:root.dark .tfSaasAdmin__card,
+.dark .tfSaasAdmin__card {
+  background: #111827;
+  border-color: #1f2937;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.tfSaasAdmin__cardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  gap: 12px;
+}
+
+.tfSaasAdmin__cardHeader h2 {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+:root.dark .tfSaasAdmin__cardHeader h2,
+.dark .tfSaasAdmin__cardHeader h2 {
+  color: #f8fafc;
+}
+
+.tfSaasAdmin__selectPill {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 3px 8px;
+}
+
+:root.dark .tfSaasAdmin__selectPill,
+.dark .tfSaasAdmin__selectPill {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+.tfSaasAdmin__selectPill select {
+  appearance: none;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #475569;
+  cursor: pointer;
+  padding-right: 14px;
+}
+
+:root.dark .tfSaasAdmin__selectPill select,
+.dark .tfSaasAdmin__selectPill select {
+  color: #cbd5e1;
+}
+
+.tfSaasAdmin__selectPill svg {
+  position: absolute;
+  right: 6px;
+  pointer-events: none;
+  color: #94a3b8;
+}
+
+.tfSaasAdmin__viewAllBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: transparent;
+  border: none;
+  color: #4f46e5;
+  font-size: 0.78125rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+:root.dark .tfSaasAdmin__viewAllBtn,
+.dark .tfSaasAdmin__viewAllBtn {
+  color: #818cf8;
+}
+
+.tfSaasAdmin__viewAllBtn:hover {
+  background: rgba(79, 70, 229, 0.08);
+  gap: 6px;
+}
+
+/* =========================================================
+   ROW 1: 4 KPI CARDS WITH SPARKLINES
+========================================================= */
+.tfSaasAdmin__kpiGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 1200px) {
+  .tfSaasAdmin__kpiGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .tfSaasAdmin__kpiGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.tfSaasAdmin__kpiCard {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px 18px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+:root.dark .tfSaasAdmin__kpiCard,
+.dark .tfSaasAdmin__kpiCard {
+  background: #111827;
+  border-color: #1f2937;
+}
+
+.tfSaasAdmin__kpiCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px -2px rgba(0, 0, 0, 0.08);
+  border-color: #cbd5e1;
+}
+
+:root.dark .tfSaasAdmin__kpiCard:hover,
+.dark .tfSaasAdmin__kpiCard:hover {
+  border-color: #374151;
+  box-shadow: 0 6px 16px -2px rgba(0, 0, 0, 0.35);
+}
+
+.tfSaasAdmin__kpiLeft {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.tfSaasAdmin__kpiIconBox {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.tfSaasAdmin__kpiIconBox--blue {
+  background: #eff6ff;
+  color: #3b82f6;
+}
+
+:root.dark .tfSaasAdmin__kpiIconBox--blue,
+.dark .tfSaasAdmin__kpiIconBox--blue {
+  background: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+}
+
+.tfSaasAdmin__kpiIconBox--purple {
+  background: #f5f3ff;
+  color: #8b5cf6;
+}
+
+:root.dark .tfSaasAdmin__kpiIconBox--purple,
+.dark .tfSaasAdmin__kpiIconBox--purple {
+  background: rgba(139, 92, 246, 0.15);
+  color: #a78bfa;
+}
+
+.tfSaasAdmin__kpiIconBox--green {
+  background: #ecfdf5;
+  color: #10b981;
+}
+
+:root.dark .tfSaasAdmin__kpiIconBox--green,
+.dark .tfSaasAdmin__kpiIconBox--green {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+}
+
+.tfSaasAdmin__kpiIconBox--red {
+  background: #fef2f2;
+  color: #ef4444;
+}
+
+:root.dark .tfSaasAdmin__kpiIconBox--red,
+.dark .tfSaasAdmin__kpiIconBox--red {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+}
+
+.tfSaasAdmin__kpiMeta {
+  display: flex;
+  flex-direction: column;
+}
+
+.tfSaasAdmin__kpiLabel {
+  font-size: 0.75rem;
+  color: #64748b;
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+
+:root.dark .tfSaasAdmin__kpiLabel,
+.dark .tfSaasAdmin__kpiLabel {
+  color: #94a3b8;
+}
+
+.tfSaasAdmin__kpiValueRow {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.tfSaasAdmin__kpiValue {
+  font-size: 1.375rem;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.2;
+}
+
+:root.dark .tfSaasAdmin__kpiValue,
+.dark .tfSaasAdmin__kpiValue {
+  color: #f8fafc;
+}
+
+.tfSaasAdmin__kpiTrend {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.text-green {
+  color: #10b981 !important;
+}
+
+.text-red {
+  color: #ef4444 !important;
+}
+
+.tfSaasAdmin__kpiSub {
+  font-size: 0.6875rem;
+  color: #94a3b8;
+  margin-top: 2px;
+}
+
+.tfSaasAdmin__kpiSpark {
+  width: 84px;
+  height: 38px;
+  flex-shrink: 0;
+}
+
+.tfSaasAdmin__kpiSpark svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* =========================================================
+   ROW 2: 3 ANALYTICS CARDS (GRID 3)
+========================================================= */
+.tfSaasAdmin__middleGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 1100px) {
+  .tfSaasAdmin__middleGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* 1. User Growth Card */
+.tfSaasAdmin__growthChartContainer {
+  display: flex;
+  gap: 12px;
+  height: 180px;
+  padding-top: 8px;
+}
+
+.tfSaasAdmin__growthYAxis {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  font-size: 9.5px;
+  font-size: 0.6875rem;
   color: #94a3b8;
-  font-weight: 600;
-  padding-bottom: 20px;
+  font-weight: 500;
   text-align: right;
-  min-width: 24px;
+  width: 24px;
+  padding-bottom: 22px;
 }
 
-.tfAdminDashboard__aiBarsContainer {
+.tfSaasAdmin__growthBarsArea {
   position: relative;
   flex: 1;
   display: flex;
   flex-direction: column;
 }
 
-.tfAdminDashboard__aiGridLines {
+.tfSaasAdmin__gridLines {
   position: absolute;
-  inset: 0 0 20px 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 22px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   pointer-events: none;
 }
 
-.tfAdminDashboard__aiGridLines .grid-line {
+.tfSaasAdmin__gridLines span {
   width: 100%;
-  height: 1px;
-  background: #f1f5f9;
+  border-bottom: 1px dashed #e2e8f0;
 }
 
-.tfAdminDashboard__aiBars {
+:root.dark .tfSaasAdmin__gridLines span,
+.dark .tfSaasAdmin__gridLines span {
+  border-bottom-color: #1f2937;
+}
+
+.tfSaasAdmin__barsTrack {
   position: relative;
   z-index: 2;
   flex: 1;
   display: flex;
   align-items: flex-end;
-  gap: 6px;
-  padding-bottom: 20px;
+  justify-content: space-between;
+  gap: 8px;
+  padding-bottom: 22px;
 }
 
-.tfAdminDashboard__aiBarCol {
+.tfSaasAdmin__barGroup {
   flex: 1;
   height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: flex-end;
   position: relative;
 }
 
-.tfAdminDashboard__aiBarTrack {
+.tfSaasAdmin__barRail {
   width: 100%;
+  max-width: 22px;
   height: 100%;
   display: flex;
   align-items: flex-end;
   justify-content: center;
 }
 
-.tfAdminDashboard__aiBarFill {
+.tfSaasAdmin__barFill {
   width: 100%;
-  max-width: 18px;
-  border-radius: 4px 4px 0 0;
-  background: linear-gradient(180deg, #6366f1 0%, #4f46e5 100%);
-  transition: all 0.2s ease;
-  cursor: pointer;
+  background: #3b82f6;
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+  transition: height 0.4s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s ease;
 }
 
-.tfAdminDashboard__aiBarFill:hover {
-  background: linear-gradient(180deg, #818cf8 0%, #6366f1 100%);
-  transform: scaleY(1.04);
-  transform-origin: bottom;
+.tfSaasAdmin__barGroup:hover .tfSaasAdmin__barFill {
+  background: #2563eb;
 }
 
-.tfAdminDashboard__aiMonthLabel {
+.tfSaasAdmin__barLabel {
   position: absolute;
-  bottom: -18px;
-  font-size: 9.5px;
-  font-weight: 600;
-  color: #94a3b8;
-  white-space: nowrap;
+  bottom: -20px;
+  font-size: 0.6875rem;
+  color: #64748b;
+  font-weight: 500;
 }
 
-/* TOP AI FEATURES */
-.tfAdminDashboard__aiFeatures {
+:root.dark .tfSaasAdmin__barLabel,
+.dark .tfSaasAdmin__barLabel {
+  color: #94a3b8;
+}
+
+/* 2. Task Status Overview Card */
+.tfSaasAdmin__taskOverviewBody {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  height: 180px;
+}
+
+.tfSaasAdmin__donutBox {
+  position: relative;
+  width: 140px;
+  height: 140px;
+  flex-shrink: 0;
+}
+
+.tfSaasAdmin__donutSvg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(0deg);
+}
+
+.tfSaasAdmin__donutCenterText {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  pointer-events: none;
+}
+
+.tfSaasAdmin__donutCenterText strong {
+  display: block;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.1;
+}
+
+:root.dark .tfSaasAdmin__donutCenterText strong,
+.dark .tfSaasAdmin__donutCenterText strong {
+  color: #f8fafc;
+}
+
+.tfSaasAdmin__donutCenterText span {
+  font-size: 0.6875rem;
+  color: #64748b;
+}
+
+.tfSaasAdmin__statusList {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 
-.tfAdminDashboard__aiFeaturesTitle {
-  font-size: 12px;
-  font-weight: 700;
-  color: #334155;
-  margin-bottom: 2px;
+.tfSaasAdmin__statusRow {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.8125rem;
 }
 
-.tfAdminDashboard__aiFeatLeft {
+.status-label-group {
   display: flex;
   align-items: center;
   gap: 8px;
+  color: #334155;
+  font-weight: 500;
 }
 
-.tfAdminDashboard__featIcon {
-  width: 24px;
-  height: 24px;
-  border-radius: 6px;
+:root.dark .status-label-group,
+.dark .status-label-group {
+  color: #e2e8f0;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.dot-green {
+  background-color: #10b981;
+}
+
+.dot-blue {
+  background-color: #3b82f6;
+}
+
+.dot-amber {
+  background-color: #f59e0b;
+}
+
+.dot-red {
+  background-color: #ef4444;
+}
+
+.status-pct {
+  color: #64748b;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.status-count {
+  color: #0f172a;
+  font-weight: 600;
+  font-size: 0.8125rem;
+  text-align: right;
+  min-width: 32px;
+}
+
+:root.dark .status-count,
+.dark .status-count {
+  color: #f8fafc;
+}
+
+/* 3. Project Progress Card */
+.tfSaasAdmin__projectProgressList {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  justify-content: center;
+  height: 180px;
+}
+
+.tfSaasAdmin__progressRow {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.progress-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.78125rem;
+}
+
+.proj-name {
+  color: #1e293b;
+  font-weight: 600;
+}
+
+:root.dark .proj-name,
+.dark .proj-name {
+  color: #f1f5f9;
+}
+
+.proj-pct {
+  color: #64748b;
+  font-weight: 600;
+}
+
+.progress-rail {
+  width: 100%;
+  height: 7px;
+  background: #f1f5f9;
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+:root.dark .progress-rail,
+.dark .progress-rail {
+  background: #1e293b;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 9999px;
+  transition: width 0.4s ease;
+}
+
+/* =========================================================
+   ROW 3: 4 SECONDARY METRIC CARDS
+========================================================= */
+.tfSaasAdmin__secGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 1100px) {
+  .tfSaasAdmin__secGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .tfSaasAdmin__secGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.tfSaasAdmin__secCard {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+:root.dark .tfSaasAdmin__secCard,
+.dark .tfSaasAdmin__secCard {
+  background: #111827;
+  border-color: #1f2937;
+}
+
+.tfSaasAdmin__secCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  border-color: #cbd5e1;
+}
+
+:root.dark .tfSaasAdmin__secCard:hover,
+.dark .tfSaasAdmin__secCard:hover {
+  border-color: #374151;
+}
+
+.sec-icon-box {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
 }
 
-/* DARK MODE OVERRIDES FOR NEW ELEMENTS */
-.dark .tfAdminDashboard__cardSelect {
-  background-color: #1e293b;
-  border-color: #334155;
-  color: #cbd5e1;
+.sec-icon-purple {
+  background: #f5f3ff;
+  color: #8b5cf6;
 }
 
-.dark .tfAdminDashboard__donutSvg circle:first-child {
-  stroke: #334155;
+:root.dark .sec-icon-purple,
+.dark .sec-icon-purple {
+  background: rgba(139, 92, 246, 0.15);
+  color: #a78bfa;
 }
 
-.dark .tfAdminDashboard__stackedAvatar {
-  border-color: #1e293b;
+.sec-icon-blue {
+  background: #eff6ff;
+  color: #3b82f6;
 }
 
-.dark .tfAdminDashboard__aiBigNum {
-  color: #f8fafc;
+:root.dark .sec-icon-blue,
+.dark .sec-icon-blue {
+  background: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
 }
 
-.dark .tfAdminDashboard__aiGridLines .grid-line {
-  background: #334155;
-}
-
-.dark .tfAdminDashboard__activityUserText strong {
-  color: #f8fafc;
-}
-
-.dark .tfAdminDashboard__activityDetail {
-  color: #cbd5e1;
-}
-
-.dark .tfAdminDashboard__aiFeaturesTitle {
-  color: #e2e8f0;
-}
-
-/* =========================================================
-   DASHBOARD ENHANCEMENTS: QUICK ACTIONS, HEALTH & GRAPH CONTROLS
-========================================================= */
-
-.tfAdminDashboard__headerActions {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.tfAdminDashboard__exportBtn {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  padding: 8px 14px;
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 9px;
-  color: #334155;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.16s ease;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
-}
-
-.tfAdminDashboard__exportBtn:hover {
-  background: #f8fafc;
-  border-color: #cbd5e1;
-  color: #6366f1;
-  transform: translateY(-1px);
-}
-
-.tfAdminDashboard__dateMenuDivider {
-  height: 1px;
-  background: #e2e8f0;
-  margin: 4px 0;
-}
-
-.tfAdminDashboard__dateMenuItem.custom-range-btn {
-  color: #6366f1;
-  font-weight: 600;
-}
-
-.tfAdminDashboard__quickActions {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 12px;
-  margin-top: -6px;
-  margin-bottom: 6px;
-}
-
-.tfAdminDashboard__quickActionBtn {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 14px;
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
-}
-
-.tfAdminDashboard__quickActionBtn:hover {
-  border-color: #cbd5e1;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-}
-
-.tfAdminDashboard__quickActionBtn .quick-action-icon {
-  width: 28px;
-  height: 28px;
-  border-radius: 7px;
-  display: grid;
-  place-items: center;
-  flex-shrink: 0;
-}
-
-.quick-action-icon.ws { background: rgba(99, 102, 241, 0.12); color: #6366f1; }
-.quick-action-icon.user { background: rgba(16, 185, 129, 0.12); color: #10b981; }
-.quick-action-icon.proj { background: rgba(245, 158, 11, 0.12); color: #f59e0b; }
-.quick-action-icon.task { background: rgba(14, 165, 233, 0.12); color: #0ea5e9; }
-.quick-action-icon.rep { background: rgba(168, 85, 247, 0.12); color: #a855f7; }
-
-.tfAdminDashboard__quickActionBtn span:last-child {
-  font-size: 13px;
-  font-weight: 600;
-  color: #1e293b;
-}
-
-.tfAdminDashboard__healthBanner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 12px 18px;
-  background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(6, 182, 212, 0.06) 100%);
-  border: 1px solid rgba(16, 185, 129, 0.25);
-  border-radius: 11px;
-  flex-wrap: wrap;
-}
-
-.health-banner-left {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.status-live-beacon {
-  position: relative;
-  width: 12px;
-  height: 12px;
-  display: inline-flex;
-}
-
-.beacon-dot {
-  position: absolute;
-  inset: 1px;
-  background: #10b981;
-  border-radius: 50%;
-}
-
-.beacon-ping {
-  position: absolute;
-  inset: -2px;
-  border-radius: 50%;
-  background: rgba(16, 185, 129, 0.5);
-  animation: beaconPulse 1.8s cubic-bezier(0, 0, 0.2, 1) infinite;
-}
-
-@keyframes beaconPulse {
-  0% { transform: scale(0.9); opacity: 0.8; }
-  100% { transform: scale(2.2); opacity: 0; }
-}
-
-.health-text strong {
-  display: block;
-  font-size: 13.5px;
-  color: #065f46;
-}
-
-.health-text small {
-  font-size: 12px;
-  color: #047857;
-}
-
-.health-metrics-row {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-
-.health-metric-item {
-  font-size: 12.5px;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  color: #065f46;
-}
-
-.health-metric-item strong {
-  color: #047857;
-  font-weight: 700;
-}
-
-.health-divider {
-  width: 1px;
-  height: 14px;
-  background: rgba(16, 185, 129, 0.3);
-}
-
-.tfAdminDashboard__cardHeaderTitle {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.tfAdminDashboard__badgeTag {
-  font-size: 11px;
-  font-weight: 700;
-  padding: 2px 7px;
-  border-radius: 6px;
-  background: #f1f5f9;
-  color: #64748b;
-  letter-spacing: 0.03em;
-}
-
-.tfAdminDashboard__cardActionsGroup {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.tfAdminDashboard__cardSelect.sm {
-  height: 28px;
-  padding: 0 8px;
-  font-size: 12px;
-}
-
-.tfAdminDashboard__statusBarsContainer {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 8px 4px;
-}
-
-.status-bar-row {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.bar-label-group {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 13px;
-}
-
-.bar-name {
-  color: #475569;
-  font-weight: 600;
-}
-
-.bar-value {
-  font-size: 12.5px;
-  font-weight: 700;
-}
-
-.bar-value.text-green { color: #10b981; }
-.bar-value.text-blue { color: #3b82f6; }
-.bar-value.text-amber { color: #f59e0b; }
-.bar-value.text-red { color: #ef4444; }
-
-.bar-track {
-  height: 8px;
-  background: #f1f5f9;
-  border-radius: 999px;
-  overflow: hidden;
-}
-
-.bar-fill {
-  height: 100%;
-  border-radius: 999px;
-  transition: width 0.4s ease;
-}
-
-.bar-fill.bg-green { background: #10b981; }
-.bar-fill.bg-blue { background: #3b82f6; }
-.bar-fill.bg-amber { background: #f59e0b; }
-.bar-fill.bg-red { background: #ef4444; }
-
-.tfAdminDashboard__statusListContainer {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.status-list-card {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 9px 12px;
-  border-radius: 8px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-}
-
-.status-list-text {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-.status-list-text strong {
-  font-size: 13px;
-  color: #0f172a;
-}
-
-.status-list-text small {
-  font-size: 11.5px;
-  color: #64748b;
-}
-
-.status-count-badge {
-  font-size: 13px;
-  font-weight: 700;
-  padding: 2px 8px;
-  border-radius: 6px;
-}
-
-.status-count-badge.green { background: #dcfce7; color: #15803d; }
-.status-count-badge.blue { background: #dbeafe; color: #1d4ed8; }
-.status-count-badge.amber { background: #fef3c7; color: #b45309; }
-.status-count-badge.red { background: #fee2e2; color: #b91c1c; }
-
-.tfAdminDashboard__aiDistributionView {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  padding: 12px 0;
-}
-
-.model-alloc-item {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.model-alloc-labels {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 13px;
-}
-
-.model-alloc-labels span {
-  font-weight: 600;
-  color: #334155;
-}
-
-.model-alloc-labels strong {
-  color: #0f172a;
-}
-
-.model-alloc-track {
-  height: 8px;
-  background: #f1f5f9;
-  border-radius: 999px;
-  overflow: hidden;
-}
-
-.model-alloc-fill {
-  height: 100%;
-  border-radius: 999px;
-  transition: width 0.4s ease;
-}
-
-.model-alloc-fill.purple { background: linear-gradient(90deg, #6366f1, #8b5cf6); }
-.model-alloc-fill.blue { background: linear-gradient(90deg, #0284c7, #38bdf8); }
-.model-alloc-fill.green { background: linear-gradient(90deg, #10b981, #34d399); }
-
-.tfAdminDashboard__aiSummaryCards {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  padding: 10px 0;
-}
-
-.ai-stat-box {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 12px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-}
-
-.ai-stat-box .stat-label {
-  font-size: 11.5px;
-  color: #64748b;
-  font-weight: 600;
-}
-
-.ai-stat-box .stat-number {
-  font-size: 20px;
-  font-weight: 700;
-  color: #0f172a;
-}
-
-.ai-stat-box .stat-sub {
-  font-size: 11px;
-  color: #94a3b8;
-}
-
-.tfAdminDashboard__modalOverlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(15, 23, 42, 0.5);
-  backdrop-filter: blur(4px);
-  z-index: 99999;
-  display: grid;
-  place-items: center;
-  padding: 20px;
-}
-
-.tfAdminDashboard__customDateModal {
-  width: 100%;
-  max-width: 440px;
-  background: #ffffff;
-  border-radius: 14px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-  overflow: hidden;
-  border: 1px solid #e2e8f0;
-}
-
-.tfAdminDashboard__customDateModal .modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 20px;
-  border-bottom: 1px solid #f1f5f9;
-}
-
-.modal-title-wrap {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: #6366f1;
-}
-
-.modal-title-wrap h3 {
-  font-size: 16px;
-  font-weight: 700;
-  color: #0f172a;
-  margin: 0;
-}
-
-.modal-close-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: #94a3b8;
-  display: grid;
-  place-items: center;
-  padding: 4px;
-}
-
-.tfAdminDashboard__customDateModal .modal-body {
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.tfAdminDashboard__customDateModal .modal-body p {
-  font-size: 13px;
-  color: #64748b;
-  margin: 0;
-}
-
-.date-inputs-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
-
-.date-input-group {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.date-input-group label {
-  font-size: 12px;
-  font-weight: 600;
-  color: #475569;
-}
-
-.date-input-group input {
-  padding: 8px 10px;
-  border: 1px solid #cbd5e1;
-  border-radius: 7px;
-  font-size: 13px;
-  outline: none;
-}
-
-.quick-ranges {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.quick-ranges button {
-  flex: 1;
-  padding: 6px 10px;
-  border: 1px solid #e2e8f0;
-  background: #f8fafc;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 600;
-  color: #475569;
-  cursor: pointer;
-}
-
-.quick-ranges button:hover {
-  background: #ede9fe;
-  color: #4f46e5;
-  border-color: #c7d2fe;
-}
-
-.tfAdminDashboard__customDateModal .modal-footer {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 10px;
-  padding: 14px 20px;
-  background: #f8fafc;
-  border-top: 1px solid #f1f5f9;
-}
-
-.tfAdminDashboard__customDateModal .btn-cancel {
-  padding: 8px 14px;
-  border: 1px solid #cbd5e1;
-  background: #ffffff;
-  border-radius: 7px;
-  font-size: 13px;
-  font-weight: 600;
-  color: #475569;
-  cursor: pointer;
-}
-
-.tfAdminDashboard__customDateModal .btn-apply {
-  padding: 8px 16px;
-  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
-  border: none;
-  border-radius: 7px;
-  font-size: 13px;
-  font-weight: 600;
-  color: #ffffff;
-  cursor: pointer;
-  box-shadow: 0 2px 6px rgba(99, 102, 241, 0.35);
-}
-
-.tfAdminDashboard__toast {
-  position: fixed;
-  bottom: 24px;
-  right: 28px;
-  background: #0f172a;
-  color: #f8fafc;
-  padding: 12px 18px;
-  border-radius: 9px;
-  font-size: 13.5px;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.25);
-  z-index: 99999;
-  border-left: 4px solid #10b981;
-}
-
-.tfAdminDashboard__toast svg {
+.sec-icon-green {
+  background: #ecfdf5;
   color: #10b981;
 }
 
+:root.dark .sec-icon-green,
+.dark .sec-icon-green {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+}
+
+.sec-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.sec-label {
+  font-size: 0.75rem;
+  color: #64748b;
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+
+:root.dark .sec-label,
+.dark .sec-label {
+  color: #94a3b8;
+}
+
+.sec-val-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.sec-val {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+:root.dark .sec-val,
+.dark .sec-val {
+  color: #f8fafc;
+}
+
+.sec-trend {
+  font-size: 0.6875rem;
+  font-weight: 600;
+}
+
+.sec-sub {
+  font-size: 0.6875rem;
+  color: #94a3b8;
+  margin-top: 1px;
+}
+
 /* =========================================================
-   UNIVERSAL FONT SIZE UPGRADES FOR READABILITY
+   ROW 4: 3 BOTTOM CARDS (RECENT USERS | RECENT PROJECTS | SYSTEM HEALTH)
 ========================================================= */
-
-.tfAdminDashboard__cardHeader h2 {
-  font-size: 15.5px !important;
+.tfSaasAdmin__bottomGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
 }
 
-.tfAdminDashboard__table th {
-  font-size: 12px !important;
-  font-weight: 700 !important;
+@media (max-width: 1200px) {
+  .tfSaasAdmin__bottomGrid {
+    grid-template-columns: 1fr;
+  }
 }
 
-.tfAdminDashboard__table td {
-  font-size: 13.5px !important;
+.tfSaasAdmin__tableCard {
+  padding: 16px 18px 12px;
 }
 
-.tfAdminDashboard__dateCell,
-.tfAdminDashboard__timeCell {
-  font-size: 12.5px !important;
+.tfSaasAdmin__tableWrap {
+  overflow-x: auto;
 }
 
-.tfAdminDashboard__legendRow span {
-  font-size: 13px !important;
+.tfSaasAdmin__table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
 }
 
-.tfAdminDashboard__legendValues strong {
-  font-size: 13.5px !important;
+.tfSaasAdmin__table th {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 8px 10px;
+  border-bottom: 1px solid #f1f5f9;
 }
 
-.tfAdminDashboard__legendPct {
-  font-size: 12px !important;
+:root.dark .tfSaasAdmin__table th,
+.dark .tfSaasAdmin__table th {
+  color: #94a3b8;
+  border-bottom-color: #1f2937;
 }
 
-.tfAdminDashboard__progressItem strong {
-  font-size: 13.5px !important;
+.tfSaasAdmin__table td {
+  padding: 10px 10px;
+  font-size: 0.78125rem;
+  color: #1e293b;
+  border-bottom: 1px solid #f8fafc;
+  vertical-align: middle;
 }
 
-.tfAdminDashboard__progressItem span {
-  font-size: 13px !important;
+:root.dark .tfSaasAdmin__table td,
+.dark .tfSaasAdmin__table td {
+  color: #e2e8f0;
+  border-bottom-color: #111827;
 }
 
-.tfAdminDashboard__memberInfo strong {
-  font-size: 13.5px !important;
+.tfSaasAdmin__table tr:last-child td {
+  border-bottom: none;
 }
 
-.tfAdminDashboard__memberInfo span {
-  font-size: 12px !important;
+/* User cell */
+.user-info-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-.tfAdminDashboard__taskText strong {
-  font-size: 13.5px !important;
+.user-avatar-chip {
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  flex-shrink: 0;
 }
 
-.tfAdminDashboard__taskText span {
-  font-size: 12px !important;
+.user-name {
+  font-weight: 600;
+  color: #0f172a;
 }
 
-.tfAdminDashboard__taskDue {
-  font-size: 12px !important;
-}
-
-.tfAdminDashboard__activityUserText strong {
-  font-size: 13.5px !important;
-}
-
-.tfAdminDashboard__activityUserText small {
-  font-size: 12px !important;
-}
-
-.tfAdminDashboard__activityDetail {
-  font-size: 12.5px !important;
-}
-
-.tfAdminDashboard__aiFeature span {
-  font-size: 13px !important;
-}
-
-.tfAdminDashboard__aiFeature strong {
-  font-size: 13px !important;
-}
-
-/* DARK MODE OVERRIDES FOR NEW ELEMENTS */
-.dark .tfAdminDashboard__exportBtn {
-  background: #1e293b;
-  border-color: #334155;
+:root.dark .user-name,
+.dark .user-name {
   color: #f8fafc;
 }
 
-.dark .tfAdminDashboard__quickActionBtn {
-  background: #1e293b;
-  border-color: #334155;
+.text-muted {
+  color: #64748b !important;
 }
 
-.dark .tfAdminDashboard__quickActionBtn span:last-child {
+:root.dark .text-muted,
+.dark .text-muted {
+  color: #94a3b8 !important;
+}
+
+.role-badge {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+}
+
+.role-lead {
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+:root.dark .role-lead,
+.dark .role-lead {
+  background: rgba(37, 99, 235, 0.15);
+  color: #60a5fa;
+}
+
+.role-member {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+:root.dark .role-member,
+.dark .role-member {
+  background: #1e293b;
+  color: #94a3b8;
+}
+
+.status-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+  font-size: 0.75rem;
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.dot-active {
+  background: #10b981;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+}
+
+.dot-inactive {
+  background: #ef4444;
+}
+
+/* Project cell in table */
+.project-name-cell {
+  color: #0f172a;
+  font-weight: 600;
+}
+
+:root.dark .project-name-cell,
+.dark .project-name-cell {
   color: #f8fafc;
 }
 
-.dark .tfAdminDashboard__healthBanner {
-  background: rgba(16, 185, 129, 0.12);
-  border-color: rgba(16, 185, 129, 0.35);
+.team-avatar-stack {
+  display: flex;
+  align-items: center;
 }
 
-.dark .health-text strong {
-  color: #6ee7b7;
+.stacked-avatar {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1.5px solid #ffffff;
+  margin-left: -6px;
+  object-fit: cover;
 }
 
-.dark .health-text small {
+.stacked-avatar:first-child {
+  margin-left: 0;
+}
+
+:root.dark .stacked-avatar,
+.dark .stacked-avatar {
+  border-color: #111827;
+}
+
+.avatar-extra {
+  font-size: 0.6875rem;
+  color: #64748b;
+  font-weight: 600;
+  margin-left: 4px;
+}
+
+.table-progress-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 100px;
+}
+
+.table-progress-rail {
+  flex: 1;
+  height: 6px;
+  background: #f1f5f9;
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+:root.dark .table-progress-rail,
+.dark .table-progress-rail {
+  background: #1e293b;
+}
+
+.table-progress-fill {
+  height: 100%;
+  border-radius: 9999px;
+}
+
+.table-progress-pct {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: #64748b;
+  width: 26px;
+  text-align: right;
+}
+
+.project-status-pill {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+}
+
+.status-success {
+  background: #ecfdf5;
+  color: #059669;
+}
+
+:root.dark .status-success,
+.dark .status-success {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+}
+
+.status-warning {
+  background: #fffbeb;
+  color: #d97706;
+}
+
+:root.dark .status-warning,
+.dark .status-warning {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+}
+
+.status-danger {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+:root.dark .status-danger,
+.dark .status-danger {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+}
+
+/* 3. System Health Card */
+.tfSaasAdmin__healthList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.health-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 0.8125rem;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #f8fafc;
+}
+
+:root.dark .health-row,
+.dark .health-row {
+  border-bottom-color: #1f2937;
+}
+
+.health-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.health-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.health-icon-box {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: #f8fafc;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+:root.dark .health-icon-box,
+.dark .health-icon-box {
+  background: #1e293b;
+  color: #94a3b8;
+}
+
+.health-name {
+  font-weight: 500;
+  color: #1e293b;
+}
+
+:root.dark .health-name,
+.dark .health-name {
+  color: #f1f5f9;
+}
+
+.health-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.health-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #10b981;
+}
+
+.health-metric {
+  font-size: 0.75rem;
+  color: #64748b;
+  font-weight: 500;
+  min-width: 78px;
+  text-align: right;
+}
+
+:root.dark .health-metric,
+.dark .health-metric {
+  color: #94a3b8;
+}
+
+/* =========================================================
+   SYSTEM HEALTH DIAGNOSTIC MODAL
+========================================================= */
+.health-details-modal {
+  max-width: 580px;
+  width: 95%;
+  border-radius: 16px;
+  padding: 24px;
+}
+
+.health-modal-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.health-overall-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-bottom: 18px;
+}
+
+:root.dark .health-overall-banner,
+.dark .health-overall-banner {
+  background: rgba(16, 185, 129, 0.1);
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+.pulse-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.25);
+  margin-top: 5px;
+  flex-shrink: 0;
+}
+
+.health-overall-banner strong {
+  display: block;
+  font-size: 0.875rem;
+  color: #065f46;
+  margin-bottom: 2px;
+}
+
+:root.dark .health-overall-banner strong,
+.dark .health-overall-banner strong {
+  color: #34d399;
+}
+
+.health-overall-banner p {
+  font-size: 0.8125rem;
+  color: #047857;
+  margin: 0;
+  line-height: 1.4;
+}
+
+:root.dark .health-overall-banner p,
+.dark .health-overall-banner p {
   color: #a7f3d0;
 }
 
-.dark .health-metric-item {
-  color: #a7f3d0;
+.health-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
 }
 
-.dark .health-metric-item strong {
-  color: #6ee7b7;
+@media (max-width: 520px) {
+  .health-detail-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
-.dark .tfAdminDashboard__badgeTag {
-  background: #334155;
-  color: #cbd5e1;
+.health-detail-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 12px 14px;
 }
 
-.dark .status-list-card {
+:root.dark .health-detail-card,
+.dark .health-detail-card {
   background: #1e293b;
   border-color: #334155;
 }
 
-.dark .status-list-text strong {
-  color: #f8fafc;
+.health-detail-card-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
 }
 
-.dark .status-list-text small {
+.health-icon-box.sm {
+  width: 24px;
+  height: 24px;
+}
+
+.health-detail-stat {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  margin-top: 4px;
+}
+
+.health-detail-stat span {
+  color: #64748b;
+}
+
+:root.dark .health-detail-stat span,
+.dark .health-detail-stat span {
   color: #94a3b8;
-}
-
-.dark .model-alloc-labels span {
-  color: #cbd5e1;
-}
-
-.dark .model-alloc-labels strong {
-  color: #f8fafc;
-}
-
-.dark .ai-stat-box {
-  background: #1e293b;
-  border-color: #334155;
-}
-
-.dark .ai-stat-box .stat-label {
-  color: #94a3b8;
-}
-
-.dark .ai-stat-box .stat-number {
-  color: #f8fafc;
-}
-
-.dark .tfAdminDashboard__customDateModal {
-  background: #0f172a;
-  border-color: #334155;
-}
-
-.dark .tfAdminDashboard__customDateModal .modal-header {
-  border-color: #1e293b;
-}
-
-.dark .modal-title-wrap h3 {
-  color: #f8fafc;
-}
-
-.dark .tfAdminDashboard__customDateModal .modal-body p {
-  color: #94a3b8;
-}
-
-.dark .date-input-group label {
-  color: #cbd5e1;
-}
-
-.dark .date-input-group input {
-  background: #1e293b;
-  border-color: #334155;
-  color: #f8fafc;
-}
-
-.dark .quick-ranges button {
-  background: #1e293b;
-  border-color: #334155;
-  color: #cbd5e1;
-}
-
-.dark .tfAdminDashboard__customDateModal .modal-footer {
-  background: #0b1120;
-  border-color: #1e293b;
-}
-
-.dark .tfAdminDashboard__customDateModal .btn-cancel {
-  background: #1e293b;
-  border-color: #334155;
-  color: #cbd5e1;
 }

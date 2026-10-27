@@ -30,6 +30,7 @@ export default function AdminTopbar({
   onCreateProject,
   onCreateTask,
   onInviteUser,
+  hideCreate = false,
 }) {
   const navigate = useNavigate();
 
@@ -59,7 +60,6 @@ export default function AdminTopbar({
   // Dropdown visibility states
   const [search, setSearch] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
-  const [createOpen, setCreateOpen] = useState(false);
   const [notificationOpen, setNotificationOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(3);
   const [profileOpen, setProfileOpen] = useState(false);
@@ -67,7 +67,6 @@ export default function AdminTopbar({
 
   // Refs for outside click
   const searchRef = useRef(null);
-  const createRef = useRef(null);
   const notificationRef = useRef(null);
   const profileRef = useRef(null);
 
@@ -109,39 +108,50 @@ export default function AdminTopbar({
     localStorage.setItem("teamflow_admin_dark", String(darkMode));
   }, [darkMode]);
 
+  // Global smooth theme transition wrapper
+  const applyThemeTransition = (action) => {
+    document.documentElement.classList.add("theme-transitioning");
+    action();
+    window.clearTimeout(window.__tfThemeTimer);
+    window.__tfThemeTimer = window.setTimeout(() => {
+      document.documentElement.classList.remove("theme-transitioning");
+    }, 380);
+  };
+
   const toggleDarkMode = () => {
-    setDarkMode((prev) => {
-      const next = !prev;
-      if (next) {
-        document.documentElement.classList.add("dark");
-      } else {
-        document.documentElement.classList.remove("dark");
-      }
-      localStorage.setItem("teamflow_admin_dark", String(next));
-      localStorage.setItem("teamflow_theme_mode", next ? "dark" : "light");
-      window.dispatchEvent(new Event("teamflow_theme_update"));
-      return next;
+    applyThemeTransition(() => {
+      setDarkMode((prev) => {
+        const next = !prev;
+        if (next) {
+          document.documentElement.classList.add("dark");
+        } else {
+          document.documentElement.classList.remove("dark");
+        }
+        localStorage.setItem("teamflow_admin_dark", String(next));
+        localStorage.setItem("teamflow_theme_mode", next ? "dark" : "light");
+        window.dispatchEvent(new Event("teamflow_theme_update"));
+        return next;
+      });
     });
   };
 
   const setExplicitTheme = (isDark) => {
-    setDarkMode(isDark);
-    if (isDark) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
-    localStorage.setItem("teamflow_admin_dark", String(isDark));
-    localStorage.setItem("teamflow_theme_mode", isDark ? "dark" : "light");
-    window.dispatchEvent(new Event("teamflow_theme_update"));
+    applyThemeTransition(() => {
+      setDarkMode(isDark);
+      if (isDark) {
+        document.documentElement.classList.add("dark");
+      } else {
+        document.documentElement.classList.remove("dark");
+      }
+      localStorage.setItem("teamflow_admin_dark", String(isDark));
+      localStorage.setItem("teamflow_theme_mode", isDark ? "dark" : "light");
+      window.dispatchEvent(new Event("teamflow_theme_update"));
+    });
   };
 
   // Close dropdowns on click outside
   useEffect(() => {
     const handleOutsideClick = (event) => {
-      if (createRef.current && !createRef.current.contains(event.target)) {
-        setCreateOpen(false);
-      }
       if (notificationRef.current && !notificationRef.current.contains(event.target)) {
         setNotificationOpen(false);
       }
@@ -167,7 +177,6 @@ export default function AdminTopbar({
         setSearchOpen(true);
       }
       if (e.key === "Escape") {
-        setCreateOpen(false);
         setNotificationOpen(false);
         setProfileOpen(false);
         setSearchOpen(false);
@@ -249,7 +258,6 @@ export default function AdminTopbar({
   }, [search]);
 
   const goTo = (path) => {
-    setCreateOpen(false);
     setNotificationOpen(false);
     setProfileOpen(false);
     setSearchOpen(false);
@@ -347,83 +355,30 @@ export default function AdminTopbar({
           </div>
         </div>
 
-        {/* TOPBAR RIGHT: CREATE, DARK MODE, NOTIFICATIONS, HELP, PROFILE */}
+        {/* TOPBAR RIGHT: DARK MODE, NOTIFICATIONS, HELP, PROFILE */}
         <div className="tfAdminTopbar__actions">
-          {/* + CREATE BUTTON */}
-          <div className="tfAdminTopbar__dropdownWrap" ref={createRef}>
-            <button
-              type="button"
-              className="tfAdminTopbar__createButton"
-              onClick={() => {
-                setCreateOpen((c) => !c);
-                setNotificationOpen(false);
-                setProfileOpen(false);
-              }}
-            >
-              <Plus size={17} />
-              <span>Create</span>
-              <ChevronDown size={14} />
-            </button>
-
-            {createOpen && (
-              <div className="tfAdminTopbar__simpleDropdown">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setCreateOpen(false);
-                    if (onCreateWorkspace) onCreateWorkspace();
-                    else goTo("/admin/workspaces");
-                  }}
-                >
-                  <Building2 size={17} />
-                  <span>Create Workspace</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setCreateOpen(false);
-                    if (onCreateProject) onCreateProject();
-                    else goTo("/admin/projects");
-                  }}
-                >
-                  <FolderKanban size={17} />
-                  <span>Create Project</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setCreateOpen(false);
-                    if (onCreateTask) onCreateTask();
-                    else goTo("/admin/tasks");
-                  }}
-                >
-                  <ListChecks size={17} />
-                  <span>Create Task</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setCreateOpen(false);
-                    if (onInviteUser) onInviteUser();
-                    else goTo("/admin/users");
-                  }}
-                >
-                  <Users size={17} />
-                  <span>Invite User</span>
-                </button>
-              </div>
-            )}
-          </div>
-
-          {/* THEME TOGGLE BUTTON / PILL */}
-          <div className="tfAdminTopbar__themePill" title={`Current theme: ${darkMode ? "Dark" : "Light"}. Click to toggle.`}>
+          {/* THEME TOGGLE BUTTON / PILL WITH SMOOTH TRANSITION */}
+          <div
+            className={`tfAdminTopbar__themePill ${darkMode ? "is-dark" : "is-light"}`}
+            title={`Current theme: ${darkMode ? "Dark Mode" : "Light Mode"}. Click to toggle.`}
+            onClick={toggleDarkMode}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                toggleDarkMode();
+              }
+            }}
+          >
+            <span className="tfAdminTopbar__themePillSlider" aria-hidden="true" />
             <button
               type="button"
               className={`tfAdminTopbar__themeBtn ${!darkMode ? "active" : ""}`}
-              onClick={() => setExplicitTheme(false)}
+              onClick={(e) => {
+                e.stopPropagation();
+                setExplicitTheme(false);
+              }}
               aria-label="Light mode"
               title="Switch to Light mode"
             >
@@ -432,7 +387,10 @@ export default function AdminTopbar({
             <button
               type="button"
               className={`tfAdminTopbar__themeBtn ${darkMode ? "active" : ""}`}
-              onClick={() => setExplicitTheme(true)}
+              onClick={(e) => {
+                e.stopPropagation();
+                setExplicitTheme(true);
+              }}
               aria-label="Dark mode"
               title="Switch to Dark mode"
             >
@@ -447,7 +405,6 @@ export default function AdminTopbar({
               className="tfAdminTopbar__iconButton"
               onClick={() => {
                 setNotificationOpen((c) => !c);
-                setCreateOpen(false);
                 setProfileOpen(false);
               }}
               aria-label="Notifications"
@@ -532,7 +489,6 @@ export default function AdminTopbar({
               className="tfAdminTopbar__profile"
               onClick={() => {
                 setProfileOpen((c) => !c);
-                setCreateOpen(false);
                 setNotificationOpen(false);
               }}
               aria-expanded={profileOpen}

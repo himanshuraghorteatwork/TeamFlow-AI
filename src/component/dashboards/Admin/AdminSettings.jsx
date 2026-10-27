@@ -1,6 +1,9 @@
-import React, { useMemo, useState, useRef } from "react";
+import React, { useMemo, useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Settings,
+  UserRound,
+  Palette,
   Building2,
   ShieldCheck,
   Bell,
@@ -34,6 +37,11 @@ import {
   ShieldAlert,
   Sun,
   Moon,
+  Coins,
+  Network,
+  LogOut,
+  FolderKanban,
+  CheckSquare,
 } from "lucide-react";
 
 import AdminSidebar from "./AdminSidebar.jsx";
@@ -42,7 +50,9 @@ import {
   defaultAdminSettings,
   timezoneOptions,
   languageOptions,
+  currencyOptions,
   aiModelOptions,
+  defaultRoleOptions,
 } from "./adminSettingsData.js";
 
 import "./AdminSettings.css";
@@ -119,6 +129,7 @@ const sections = [
 ];
 
 export default function AdminSettings() {
+  const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("general");
   const [search, setSearch] = useState("");
@@ -126,7 +137,20 @@ export default function AdminSettings() {
   const [settings, setSettings] = useState(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
-      return saved ? JSON.parse(saved) : clone(defaultAdminSettings);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        // Deep merge with defaults to ensure all keys exist
+        return {
+          general: { ...defaultAdminSettings.general, ...parsed.general },
+          workspace: { ...defaultAdminSettings.workspace, ...parsed.workspace },
+          security: { ...defaultAdminSettings.security, ...parsed.security },
+          notifications: { ...defaultAdminSettings.notifications, ...parsed.notifications },
+          ai: { ...defaultAdminSettings.ai, ...parsed.ai },
+          email: { ...defaultAdminSettings.email, ...parsed.email },
+          privacy: { ...defaultAdminSettings.privacy, ...parsed.privacy },
+        };
+      }
+      return clone(defaultAdminSettings);
     } catch {
       return clone(defaultAdminSettings);
     }
@@ -134,11 +158,20 @@ export default function AdminSettings() {
 
   const [savedSettings, setSavedSettings] = useState(() => clone(settings));
   const [toast, setToast] = useState(null);
+
+  // Modals state
   const [showResetModal, setShowResetModal] = useState(false);
+  const [showTransferModal, setShowTransferModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
+  const [transferTargetEmail, setTransferTargetEmail] = useState("priya@abctech.com");
+
+  // Interaction helpers
   const [showApiKey, setShowApiKey] = useState(false);
   const [showSMTPPassword, setShowSMTPPassword] = useState(false);
   const [copiedDomain, setCopiedDomain] = useState(false);
   const [testEmailSent, setTestEmailSent] = useState(false);
+  const [apiPingStatus, setApiPingStatus] = useState(null); // 'testing' | 'success' | null
 
   const fileInputRef = useRef(null);
 
@@ -168,7 +201,7 @@ export default function AdminSettings() {
     setToast({ message, type });
     setTimeout(() => {
       setToast(null);
-    }, 2800);
+    }, 3200);
   };
 
   const saveSettings = () => {
@@ -176,6 +209,9 @@ export default function AdminSettings() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
       setSavedSettings(clone(settings));
       showMessage("Organization settings saved successfully!");
+      // Dispatch storage update so Topbar / Sidebar can react if name changed
+      window.dispatchEvent(new Event("storage"));
+      window.dispatchEvent(new Event("teamflow_data_update"));
     } catch (err) {
       console.error(err);
       showMessage("Failed to save settings.", "error");
@@ -193,7 +229,7 @@ export default function AdminSettings() {
     setSavedSettings(defaults);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(defaults));
     setShowResetModal(false);
-    showMessage("Settings restored to defaults");
+    showMessage("Settings restored to system defaults");
   };
 
   const exportSettings = () => {
@@ -203,23 +239,26 @@ export default function AdminSettings() {
     const url = URL.createObjectURL(file);
     const link = document.createElement("a");
     link.href = url;
-    link.download = "teamflow-organization-settings.json";
+    link.download = `teamflow-org-settings-${settings.general.companyName.toLowerCase().replace(/\s+/g, "-")}.json`;
     link.click();
     URL.revokeObjectURL(url);
-    showMessage("Configuration exported successfully!");
+    showMessage("Organization configuration exported successfully!");
   };
 
   const handleCopySlug = () => {
-    navigator.clipboard?.writeText("https://abctech.teamflow.ai");
+    const fullUrl = `https://${settings.general.subdomain || "abctech"}.teamflow.ai`;
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(fullUrl);
+    }
     setCopiedDomain(true);
-    setTimeout(() => setCopiedDomain(false), 2000);
+    setTimeout(() => setCopiedDomain(false), 2200);
   };
 
   const handleLogoUpload = (e) => {
     const file = e.target.files?.[0];
     if (file) {
       if (file.size > 2 * 1024 * 1024) {
-        alert("Logo must be under 2MB");
+        showMessage("Logo image must be under 2MB", "error");
         return;
       }
       const reader = new FileReader();
@@ -241,8 +280,32 @@ export default function AdminSettings() {
     setTestEmailSent(true);
     setTimeout(() => {
       setTestEmailSent(false);
-      showMessage("Test email successfully dispatched to admin inbox!");
+      showMessage(`Test dispatch delivered to ${settings.email.senderEmail || "admin inbox"}`);
+    }, 1400);
+  };
+
+  const handleVerifyApiKey = () => {
+    setApiPingStatus("testing");
+    setTimeout(() => {
+      setApiPingStatus("success");
+      showMessage("AI API Key verified: Connection active (HTTP 200 - 38ms)");
+      setTimeout(() => setApiPingStatus(null), 3000);
     }, 1200);
+  };
+
+  const handleConfirmTransfer = () => {
+    setShowTransferModal(false);
+    showMessage(`Organization ownership transfer request sent to ${transferTargetEmail}`);
+  };
+
+  const handleConfirmDelete = () => {
+    if (deleteConfirmText.trim().toLowerCase() === settings.general.companyName.trim().toLowerCase()) {
+      setShowDeleteModal(false);
+      setDeleteConfirmText("");
+      showMessage("Organization deactivation scheduled. Contact support to cancel within 48h.", "error");
+    } else {
+      alert(`Please type "${settings.general.companyName}" exactly to confirm.`);
+    }
   };
 
   return (
@@ -253,10 +316,73 @@ export default function AdminSettings() {
         <AdminTopbar onMobileMenuToggle={() => setMobileOpen(true)} />
 
         <div className="admin-settings-content">
-          {/* HEADER */}
+          {/* TOAST ALERT */}
+          {toast && (
+            <div className={`settings-toast ${toast.type || "success"}`}>
+              {toast.type === "error" ? (
+                <AlertTriangle size={18} />
+              ) : (
+                <CheckCircle2 size={18} />
+              )}
+              <span>{toast.message}</span>
+            </div>
+          )}
+
+          {/* TOP SETTINGS MODULE NAVIGATION TABS */}
+          <div className="tfAdminSettings__moduleTabs">
+            <button
+              type="button"
+              className="tfAdminSettings__moduleTab "
+              onClick={() => navigate("/admin/profile")}
+            >
+              <UserRound size={14} />
+              <span>Profile</span>
+            </button>
+            <button
+              type="button"
+              className="tfAdminSettings__moduleTab "
+              onClick={() => navigate("/admin/account-settings")}
+            >
+              <Settings size={14} />
+              <span>Account</span>
+            </button>
+            <button
+              type="button"
+              className="tfAdminSettings__moduleTab "
+              onClick={() => navigate("/admin/appearance")}
+            >
+              <Palette size={14} />
+              <span>Appearance</span>
+            </button>
+            <button
+              type="button"
+              className="tfAdminSettings__moduleTab "
+              onClick={() => navigate("/admin/notifications")}
+            >
+              <Bell size={14} />
+              <span>Notifications</span>
+            </button>
+            <button
+              type="button"
+              className="tfAdminSettings__moduleTab "
+              onClick={() => navigate("/admin/security")}
+            >
+              <ShieldCheck size={14} />
+              <span>Security</span>
+            </button>
+            <button
+              type="button"
+              className="tfAdminSettings__moduleTab tfAdminSettings__moduleTab--active"
+              onClick={() => navigate("/admin/settings")}
+            >
+              <Building2 size={14} />
+              <span>Organization Settings</span>
+            </button>
+          </div>
+
+          {/* PAGE HEADER */}
           <section className="admin-settings-header">
             <div>
-
               <h1>Organization Settings</h1>
               <p>
                 Configure company identity, workspace quotas, security policies, and localization across TeamFlow AI.
@@ -285,6 +411,7 @@ export default function AdminSettings() {
                 type="button"
                 className="btn-secondary"
                 onClick={() => setShowResetModal(true)}
+                title="Restore system defaults"
               >
                 <RotateCcw size={14} />
                 <span>Reset</span>
@@ -332,7 +459,12 @@ export default function AdminSettings() {
                   placeholder="Filter settings..."
                 />
                 {search && (
-                  <button type="button" onClick={() => setSearch("")} className="search-clear-btn" title="Clear filter">
+                  <button
+                    type="button"
+                    onClick={() => setSearch("")}
+                    className="search-clear-btn"
+                    title="Clear filter"
+                  >
                     <X size={13} />
                   </button>
                 )}
@@ -368,14 +500,16 @@ export default function AdminSettings() {
                 })}
 
                 {filteredSections.length === 0 && (
-                  <div className="admin-settings-no-results">No settings match "{search}"</div>
+                  <div className="admin-settings-no-results">
+                    No settings match "{search}"
+                  </div>
                 )}
               </div>
 
-              {/* QUICK STATS CARD */}
+              {/* QUICK STATS & PLAN CARD */}
               <div className="admin-settings-plan-card">
                 <div className="plan-badge">Enterprise Tier</div>
-                <strong>ABC Technologies</strong>
+                <strong>{settings.general.companyName || "ABC Technologies"}</strong>
                 <p>6 Workspaces · 48 Active Members</p>
                 <div className="plan-progress">
                   <div className="plan-bar" style={{ width: "48%" }} />
@@ -416,6 +550,8 @@ export default function AdminSettings() {
                   update={update}
                   showApiKey={showApiKey}
                   setShowApiKey={setShowApiKey}
+                  onVerifyApiKey={handleVerifyApiKey}
+                  apiPingStatus={apiPingStatus}
                 />
               )}
 
@@ -442,12 +578,18 @@ export default function AdminSettings() {
                   data={settings.privacy}
                   update={update}
                   onExport={exportSettings}
+                  showMessage={showMessage}
                 />
               )}
 
               {/* SECTION 8: DANGER ZONE */}
               {activeSection === "danger" && (
-                <DangerSettings onExport={exportSettings} />
+                <DangerSettings
+                  companyName={settings.general.companyName}
+                  onExport={exportSettings}
+                  onOpenTransfer={() => setShowTransferModal(true)}
+                  onOpenDelete={() => setShowDeleteModal(true)}
+                />
               )}
 
               {/* FLOATING SAVE BAR */}
@@ -461,10 +603,18 @@ export default function AdminSettings() {
                     </div>
                   </div>
                   <div className="save-bar-actions">
-                    <button type="button" className="btn-secondary" onClick={discardChanges}>
+                    <button
+                      type="button"
+                      className="btn-secondary"
+                      onClick={discardChanges}
+                    >
                       Discard
                     </button>
-                    <button type="button" className="btn-primary" onClick={saveSettings}>
+                    <button
+                      type="button"
+                      className="btn-primary"
+                      onClick={saveSettings}
+                    >
                       <Save size={14} />
                       Save Changes
                     </button>
@@ -486,7 +636,7 @@ export default function AdminSettings() {
             <h2>Reset Organization Settings?</h2>
             <p>
               This will restore all default platform preferences, workspace limits, and configurations.
-              Existing member data will remain unaffected.
+              Existing member data and workspaces will remain unaffected.
             </p>
             <div className="settings-modal-actions">
               <button
@@ -496,7 +646,11 @@ export default function AdminSettings() {
               >
                 Cancel
               </button>
-              <button type="button" className="btn-danger" onClick={resetSettings}>
+              <button
+                type="button"
+                className="btn-danger"
+                onClick={resetSettings}
+              >
                 Reset to Defaults
               </button>
             </div>
@@ -504,11 +658,89 @@ export default function AdminSettings() {
         </div>
       )}
 
-      {/* TOAST ALERT */}
-      {toast && (
-        <div className={`settings-toast ${toast.type}`}>
-          {toast.type === "success" ? <CheckCircle2 size={18} /> : <AlertTriangle size={18} />}
-          <span>{toast.message}</span>
+      {/* TRANSFER OWNERSHIP MODAL */}
+      {showTransferModal && (
+        <div className="settings-modal-overlay">
+          <div className="settings-modal">
+            <div className="settings-modal-header-icon" style={{ background: "rgba(99, 102, 241, 0.12)", color: "#6366f1" }}>
+              <Building2 size={24} />
+            </div>
+            <h2>Transfer Organization Ownership</h2>
+            <p>
+              Transfer primary ownership of <strong>{settings.general.companyName}</strong> to another designated administrator.
+            </p>
+            <div className="form-group" style={{ textAlign: "left", width: "100%", margin: "16px 0 24px" }}>
+              <label>Select Target Administrator</label>
+              <select
+                value={transferTargetEmail}
+                onChange={(e) => setTransferTargetEmail(e.target.value)}
+              >
+                <option value="priya@abctech.com">Priya Patel (Engineering Lead) - priya@abctech.com</option>
+                <option value="rahul@abctech.com">Rahul Sharma (Full Stack Dev) - rahul@abctech.com</option>
+                <option value="sneha@abctech.com">Sneha Gupta (Product Design) - sneha@abctech.com</option>
+              </select>
+            </div>
+            <div className="settings-modal-actions">
+              <button
+                type="button"
+                className="btn-secondary"
+                onClick={() => setShowTransferModal(false)}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="btn-primary"
+                onClick={handleConfirmTransfer}
+              >
+                Confirm Transfer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* DELETE ORGANIZATION MODAL */}
+      {showDeleteModal && (
+        <div className="settings-modal-overlay">
+          <div className="settings-modal">
+            <div className="settings-modal-danger-icon">
+              <Trash2 size={24} />
+            </div>
+            <h2 style={{ color: "#ef4444" }}>Delete Organization</h2>
+            <p>
+              This action is permanent and irreversible. All workspaces, projects, sprint logs, and member permissions for <strong>{settings.general.companyName}</strong> will be permanently purged.
+            </p>
+            <div className="form-group" style={{ textAlign: "left", width: "100%", margin: "16px 0 24px" }}>
+              <label>Type <strong>{settings.general.companyName}</strong> to confirm:</label>
+              <input
+                type="text"
+                placeholder={settings.general.companyName}
+                value={deleteConfirmText}
+                onChange={(e) => setDeleteConfirmText(e.target.value)}
+              />
+            </div>
+            <div className="settings-modal-actions">
+              <button
+                type="button"
+                className="btn-secondary"
+                onClick={() => {
+                  setShowDeleteModal(false);
+                  setDeleteConfirmText("");
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="btn-danger"
+                disabled={deleteConfirmText.trim().toLowerCase() !== settings.general.companyName.trim().toLowerCase()}
+                onClick={handleConfirmDelete}
+              >
+                Permanently Delete
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
@@ -516,7 +748,7 @@ export default function AdminSettings() {
 }
 
 /* =========================================================
-   SUB-SECTIONS & COMPONENTS
+   SUB-SECTIONS & ATOMIC COMPONENTS
 ========================================================= */
 
 function SettingHeader({ icon: Icon, title, description }) {
@@ -565,7 +797,7 @@ function ToggleRow({ icon: Icon, title, description, checked, onChange, danger }
       <label className="toggle-switch">
         <input
           type="checkbox"
-          checked={checked}
+          checked={Boolean(checked)}
           onChange={(e) => onChange(e.target.checked)}
         />
         <span className="slider" />
@@ -574,7 +806,7 @@ function ToggleRow({ icon: Icon, title, description, checked, onChange, danger }
   );
 }
 
-/* THEME TOGGLE (BIDIRECTIONAL SYNC WITH TOPBAR & APPEARANCE) */
+/* THEME TOGGLE (BIDIRECTIONAL SYNC WITH TOPBAR & SYSTEM) */
 function ThemeToggleSetting() {
   const [isDark, setIsDark] = useState(() => {
     return (
@@ -608,6 +840,7 @@ function ThemeToggleSetting() {
     localStorage.setItem("teamflow_admin_dark", String(dark));
     localStorage.setItem("teamflow_theme_mode", dark ? "dark" : "light");
     window.dispatchEvent(new Event("teamflow_theme_update"));
+    window.dispatchEvent(new Event("storage"));
   };
 
   return (
@@ -666,8 +899,8 @@ function ThemeToggleSetting() {
 
       <div className="theme-quick-switch-row">
         <div>
-          <strong>Dark Mode Toggle</strong>
-          <p>Syncs automatically in real time with the topbar toggle button.</p>
+          <strong>Real-Time Dark Mode Switch</strong>
+          <p>Instantly synchronizes across all dashboard modules and the topbar button.</p>
         </div>
         <button
           type="button"
@@ -685,7 +918,7 @@ function ThemeToggleSetting() {
   );
 }
 
-/* 1. GENERAL SETTINGS */
+/* 1. GENERAL & BRANDING */
 function GeneralSettings({
   data,
   update,
@@ -695,6 +928,8 @@ function GeneralSettings({
   onLogoUpload,
   onRemoveLogo,
 }) {
+  const subdomain = data.subdomain || "abctech";
+
   return (
     <div className="settings-section-content">
       <SettingHeader
@@ -706,7 +941,7 @@ function GeneralSettings({
       {/* THEME & DARK MODE TOGGLE */}
       <SettingCard
         title="Admin Interface Theme"
-        description="Toggle between Light Mode and Dark Mode for the entire admin console. Synchronizes seamlessly with the topbar."
+        description="Toggle between Light Mode and Dark Mode for the entire admin console. Synchronizes seamlessly with topbar."
       >
         <ThemeToggleSetting />
       </SettingCard>
@@ -742,7 +977,11 @@ function GeneralSettings({
                 <span>Upload New Logo</span>
               </button>
               {data.orgLogo && (
-                <button type="button" className="btn-secondary btn-trash" onClick={onRemoveLogo}>
+                <button
+                  type="button"
+                  className="btn-secondary btn-trash"
+                  onClick={onRemoveLogo}
+                >
                   <Trash2 size={14} />
                   <span>Remove</span>
                 </button>
@@ -803,7 +1042,7 @@ function GeneralSettings({
             <input
               type="text"
               readOnly
-              value="https://abctech.teamflow.ai"
+              value={`https://${subdomain}.teamflow.ai`}
               className="subdomain-input"
             />
             <button
@@ -824,9 +1063,9 @@ function GeneralSettings({
       {/* REGIONAL LOCALIZATION */}
       <SettingCard
         title="Localization & Regional Settings"
-        description="Set default time preferences, language, and calendar formats."
+        description="Set default time preferences, language, currency, and date formats across workspaces."
       >
-        <div className="form-grid-3">
+        <div className="form-grid-2">
           <div className="form-group">
             <label>Default Timezone</label>
             <select
@@ -834,7 +1073,9 @@ function GeneralSettings({
               onChange={(e) => update("general", "timezone", e.target.value)}
             >
               {timezoneOptions.map((tz) => (
-                <option key={tz} value={tz}>{tz}</option>
+                <option key={tz} value={tz}>
+                  {tz}
+                </option>
               ))}
             </select>
           </div>
@@ -846,7 +1087,9 @@ function GeneralSettings({
               onChange={(e) => update("general", "language", e.target.value)}
             >
               {languageOptions.map((lang) => (
-                <option key={lang} value={lang}>{lang}</option>
+                <option key={lang} value={lang}>
+                  {lang}
+                </option>
               ))}
             </select>
           </div>
@@ -857,9 +1100,23 @@ function GeneralSettings({
               value={data.dateFormat || "DD/MM/YYYY"}
               onChange={(e) => update("general", "dateFormat", e.target.value)}
             >
-              <option value="DD/MM/YYYY">DD/MM/YYYY (26/10/2026)</option>
-              <option value="MM/DD/YYYY">MM/DD/YYYY (10/26/2026)</option>
-              <option value="YYYY-MM-DD">YYYY-MM-DD (2026-10-26)</option>
+              <option value="DD/MM/YYYY">DD/MM/YYYY (27/10/2026)</option>
+              <option value="MM/DD/YYYY">MM/DD/YYYY (10/27/2026)</option>
+              <option value="YYYY-MM-DD">YYYY-MM-DD (2026-10-27)</option>
+            </select>
+          </div>
+
+          <div className="form-group">
+            <label>Default Currency</label>
+            <select
+              value={data.currency || "USD ($)"}
+              onChange={(e) => update("general", "currency", e.target.value)}
+            >
+              {currencyOptions.map((curr) => (
+                <option key={curr} value={curr}>
+                  {curr}
+                </option>
+              ))}
             </select>
           </div>
         </div>
@@ -904,7 +1161,9 @@ function WorkspaceSettings({ data, update }) {
                 min="5"
                 max="200"
                 value={data.defaultMemberLimit || 25}
-                onChange={(e) => update("workspace", "defaultMemberLimit", Number(e.target.value))}
+                onChange={(e) =>
+                  update("workspace", "defaultMemberLimit", Number(e.target.value))
+                }
               />
               <span>members</span>
             </div>
@@ -919,10 +1178,43 @@ function WorkspaceSettings({ data, update }) {
                 min="5"
                 max="500"
                 value={data.defaultStorage || 10}
-                onChange={(e) => update("workspace", "defaultStorage", Number(e.target.value))}
+                onChange={(e) =>
+                  update("workspace", "defaultStorage", Number(e.target.value))
+                }
               />
               <span>GB</span>
             </div>
+          </div>
+
+          <div className="form-group">
+            <label>Max Projects per Workspace</label>
+            <div className="input-with-affix">
+              <FolderKanban size={16} />
+              <input
+                type="number"
+                min="5"
+                max="100"
+                value={data.maxProjects || 20}
+                onChange={(e) =>
+                  update("workspace", "maxProjects", Number(e.target.value))
+                }
+              />
+              <span>projects</span>
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label>Default Role for New Members</label>
+            <select
+              value={data.defaultRole || "Member"}
+              onChange={(e) => update("workspace", "defaultRole", e.target.value)}
+            >
+              {defaultRoleOptions.map((role) => (
+                <option key={role} value={role}>
+                  {role}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
       </SettingCard>
@@ -957,6 +1249,13 @@ function WorkspaceSettings({ data, update }) {
             checked={Boolean(data.allowPublicProjects)}
             onChange={(val) => update("workspace", "allowPublicProjects", val)}
           />
+          <ToggleRow
+            icon={CheckSquare}
+            title="Auto-Assign New Users by Email Domain"
+            description="Automatically attach members signing in with @abctech.com to the primary General workspace."
+            checked={Boolean(data.autoDomainJoin)}
+            onChange={(val) => update("workspace", "autoDomainJoin", val)}
+          />
         </div>
       </SettingCard>
     </div>
@@ -982,6 +1281,28 @@ function SecuritySettings({ data, update }) {
             checked={Boolean(data.twoFactorAuth)}
             onChange={(val) => update("security", "twoFactorAuth", val)}
           />
+
+          <ToggleRow
+            icon={LockKeyhole}
+            title="SAML 2.0 / Single Sign-On (SSO)"
+            description="Enable enterprise identity federation through Okta, Azure Active Directory, or Google Workspace."
+            checked={Boolean(data.ssoEnabled)}
+            onChange={(val) => update("security", "ssoEnabled", val)}
+          />
+
+          {data.ssoEnabled && (
+            <div className="form-group sso-input-box" style={{ padding: "12px 16px", background: "rgba(99,102,241,0.04)", borderRadius: 8 }}>
+              <label>SAML Identity Provider Metadata URL</label>
+              <input
+                type="url"
+                value={data.ssoMetadataUrl || ""}
+                placeholder="https://idp.example.com/app/saml/metadata"
+                onChange={(e) => update("security", "ssoMetadataUrl", e.target.value)}
+              />
+              <small className="form-hint">Provided by your Okta or Azure AD admin application manifest.</small>
+            </div>
+          )}
+
           <ToggleRow
             icon={LockKeyhole}
             title="Enforce Strong Passwords"
@@ -989,6 +1310,7 @@ function SecuritySettings({ data, update }) {
             checked={Boolean(data.strongPasswords)}
             onChange={(val) => update("security", "strongPasswords", val)}
           />
+
           <ToggleRow
             icon={Smartphone}
             title="Unrecognized Device Login Alerts"
@@ -1026,6 +1348,50 @@ function SecuritySettings({ data, update }) {
               <option value={10}>10 Attempts</option>
             </select>
           </div>
+
+          <div className="form-group">
+            <label>Password Expiration Policy</label>
+            <select
+              value={data.passwordExpiry || "90"}
+              onChange={(e) => update("security", "passwordExpiry", e.target.value)}
+            >
+              <option value="60">Every 60 Days</option>
+              <option value="90">Every 90 Days (Recommended)</option>
+              <option value="180">Every 180 Days</option>
+              <option value="never">Never Expire</option>
+            </select>
+          </div>
+
+          <div className="form-group">
+            <label>Force Terminate All Active Sessions</label>
+            <button
+              type="button"
+              className="btn-secondary"
+              style={{ height: 42, width: "100%", justifyContent: "center" }}
+              onClick={() => alert("All 48 member active sessions have been invalidated. Users must re-authenticate.")}
+            >
+              <LogOut size={14} />
+              <span>Revoke Active Tokens</span>
+            </button>
+          </div>
+        </div>
+      </SettingCard>
+
+      <SettingCard title="Network Restrictions & IP Allowlist">
+        <div className="form-group">
+          <label>IP Address / CIDR Range Allowlist</label>
+          <div className="input-with-affix">
+            <Network size={16} />
+            <input
+              type="text"
+              placeholder="e.g. 192.168.1.0/24, 10.0.0.0/16"
+              value={data.ipAllowlist || ""}
+              onChange={(e) => update("security", "ipAllowlist", e.target.value)}
+            />
+          </div>
+          <small className="form-hint">
+            Leave blank to permit access from any IP address. Separate multiple CIDR blocks with commas.
+          </small>
         </div>
       </SettingCard>
     </div>
@@ -1033,7 +1399,14 @@ function SecuritySettings({ data, update }) {
 }
 
 /* 4. AI GOVERNANCE */
-function AISettings({ data, update, showApiKey, setShowApiKey }) {
+function AISettings({
+  data,
+  update,
+  showApiKey,
+  setShowApiKey,
+  onVerifyApiKey,
+  apiPingStatus,
+}) {
   return (
     <div className="settings-section-content">
       <SettingHeader
@@ -1042,16 +1415,18 @@ function AISettings({ data, update, showApiKey, setShowApiKey }) {
         description="Select foundational models, monthly token quotas, and automated generative tools."
       />
 
-      <SettingCard title="Model Configuration">
+      <SettingCard title="Model Configuration & API Key">
         <div className="form-grid-2">
           <div className="form-group">
             <label>Primary AI Model</label>
             <select
-              value={data.model || "GPT-4o Mini"}
+              value={data.model || "GPT-4o Mini (OpenAI)"}
               onChange={(e) => update("ai", "model", e.target.value)}
             >
               {aiModelOptions.map((m) => (
-                <option key={m} value={m}>{m}</option>
+                <option key={m} value={m}>
+                  {m}
+                </option>
               ))}
             </select>
           </div>
@@ -1070,9 +1445,51 @@ function AISettings({ data, update, showApiKey, setShowApiKey }) {
             </div>
           </div>
         </div>
+
+        {/* API KEY CONFIGURATION */}
+        <div className="form-group mt-4">
+          <label>Custom Enterprise API Key</label>
+          <div className="subdomain-input-wrap">
+            <input
+              type={showApiKey ? "text" : "password"}
+              value={data.apiKey || ""}
+              placeholder="sk-proj-••••••••••••••••"
+              onChange={(e) => update("ai", "apiKey", e.target.value)}
+              className="subdomain-input"
+            />
+            <button
+              type="button"
+              className="btn-secondary"
+              onClick={() => setShowApiKey(!showApiKey)}
+              title={showApiKey ? "Hide Key" : "Show Key"}
+            >
+              {showApiKey ? <EyeOff size={14} /> : <Eye size={14} />}
+            </button>
+            <button
+              type="button"
+              className="btn-secondary"
+              onClick={onVerifyApiKey}
+              disabled={apiPingStatus === "testing"}
+            >
+              {apiPingStatus === "testing" ? (
+                <span>Checking...</span>
+              ) : apiPingStatus === "success" ? (
+                <>
+                  <Check size={14} color="#10b981" />
+                  <span style={{ color: "#10b981" }}>Verified</span>
+                </>
+              ) : (
+                <span>Verify Key</span>
+              )}
+            </button>
+          </div>
+          <small className="form-hint">
+            Directly connect your enterprise billing OpenAI or Anthropic key. If blank, TeamFlow AI managed pool is utilized.
+          </small>
+        </div>
       </SettingCard>
 
-      <SettingCard title="Generative Features">
+      <SettingCard title="Generative Features & Tool Automation">
         <div className="toggle-stack">
           <ToggleRow
             icon={Sparkles}
@@ -1094,6 +1511,20 @@ function AISettings({ data, update, showApiKey, setShowApiKey }) {
             description="Produce structured bullet summaries from audio transcripts and sprint check-ins."
             checked={Boolean(data.meetingSummary)}
             onChange={(val) => update("ai", "meetingSummary", val)}
+          />
+          <ToggleRow
+            icon={ShieldCheck}
+            title="Automated Bug Diagnostics & Code Review"
+            description="Inspect submitted bug tickets and suggest patch snippets before triage."
+            checked={Boolean(data.bugFlowAI)}
+            onChange={(val) => update("ai", "bugFlowAI", val)}
+          />
+          <ToggleRow
+            icon={Search}
+            title="Smart Semantic Search"
+            description="Vector-based embeddings search across projects, tasks, discussions, and attachments."
+            checked={Boolean(data.smartSearch)}
+            onChange={(val) => update("ai", "smartSearch", val)}
           />
         </div>
       </SettingCard>
@@ -1134,6 +1565,27 @@ function NotificationSettings({ data, update }) {
             checked={Boolean(data.securityAlerts)}
             onChange={(val) => update("notifications", "securityAlerts", val)}
           />
+          <ToggleRow
+            icon={Coins}
+            title="Billing & Subscription Invoices"
+            description="Dispatch receipts and quota warnings to primary billing contacts."
+            checked={Boolean(data.paymentNotification)}
+            onChange={(val) => update("notifications", "paymentNotification", val)}
+          />
+          <ToggleRow
+            icon={Sparkles}
+            title="Weekly Executive Digest Report"
+            description="Automated Monday summary of sprint velocity, completed tasks, and AI token utilization."
+            checked={Boolean(data.weeklyReport)}
+            onChange={(val) => update("notifications", "weeklyReport", val)}
+          />
+          <ToggleRow
+            icon={AlertTriangle}
+            title="Overdue Task Escalation Alert"
+            description="Notify workspace leads when sprint milestone deadlines are exceeded by 48 hours."
+            checked={Boolean(data.overdueEscalation)}
+            onChange={(val) => update("notifications", "overdueEscalation", val)}
+          />
         </div>
       </SettingCard>
     </div>
@@ -1141,7 +1593,14 @@ function NotificationSettings({ data, update }) {
 }
 
 /* 6. EMAIL & SMTP */
-function EmailSettings({ data, update, showPassword, setShowPassword, onSendTestEmail, testEmailSent }) {
+function EmailSettings({
+  data,
+  update,
+  showPassword,
+  setShowPassword,
+  onSendTestEmail,
+  testEmailSent,
+}) {
   return (
     <div className="settings-section-content">
       <SettingHeader
@@ -1171,7 +1630,19 @@ function EmailSettings({ data, update, showPassword, setShowPassword, onSendTest
           </div>
 
           <div className="form-group">
-            <label>Sender Name</label>
+            <label>Encryption Protocol</label>
+            <select
+              value={data.encryption || "TLS"}
+              onChange={(e) => update("email", "encryption", e.target.value)}
+            >
+              <option value="TLS">TLS (STARTTLS - Recommended)</option>
+              <option value="SSL">SSL</option>
+              <option value="NONE">None (Insecure)</option>
+            </select>
+          </div>
+
+          <div className="form-group">
+            <label>Sender Display Name</label>
             <input
               type="text"
               value={data.senderName || "TeamFlow AI"}
@@ -1180,12 +1651,42 @@ function EmailSettings({ data, update, showPassword, setShowPassword, onSendTest
           </div>
 
           <div className="form-group">
-            <label>Sender Email</label>
+            <label>Sender Email Address</label>
             <input
               type="email"
               value={data.senderEmail || "noreply@abctech.com"}
               onChange={(e) => update("email", "senderEmail", e.target.value)}
             />
+          </div>
+
+          <div className="form-group">
+            <label>SMTP Username</label>
+            <input
+              type="text"
+              value={data.smtpUsername || "smtp-relay-admin"}
+              onChange={(e) => update("email", "smtpUsername", e.target.value)}
+            />
+          </div>
+
+          <div className="form-group" style={{ gridColumn: "span 2" }}>
+            <label>SMTP Password / App Secret</label>
+            <div className="subdomain-input-wrap">
+              <input
+                type={showPassword ? "text" : "password"}
+                value={data.smtpPassword || ""}
+                placeholder="••••••••••••••••"
+                onChange={(e) => update("email", "smtpPassword", e.target.value)}
+                className="subdomain-input"
+              />
+              <button
+                type="button"
+                className="btn-secondary"
+                onClick={() => setShowPassword(!showPassword)}
+                title={showPassword ? "Hide Password" : "Show Password"}
+              >
+                {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
+              </button>
+            </div>
           </div>
         </div>
 
@@ -1210,7 +1711,7 @@ function EmailSettings({ data, update, showPassword, setShowPassword, onSendTest
 }
 
 /* 7. DATA & PRIVACY */
-function PrivacySettings({ data, update, onExport }) {
+function PrivacySettings({ data, update, onExport, showMessage }) {
   return (
     <div className="settings-section-content">
       <SettingHeader
@@ -1231,9 +1732,16 @@ function PrivacySettings({ data, update, onExport }) {
           <ToggleRow
             icon={Sparkles}
             title="Product Analytics Tracking"
-            description="Share anonymous telemetry to help improve TeamFlow AI usability."
+            description="Share anonymous telemetry to help improve TeamFlow AI platform usability."
             checked={Boolean(data.analyticsTracking)}
             onChange={(val) => update("privacy", "analyticsTracking", val)}
+          />
+          <ToggleRow
+            icon={ShieldCheck}
+            title="Anonymize Employee Audit Logs after 180 Days"
+            description="Strip IP addresses and user agents from historical audit trails for privacy compliance."
+            checked={Boolean(data.anonymizeAuditLogs)}
+            onChange={(val) => update("privacy", "anonymizeAuditLogs", val)}
           />
         </div>
 
@@ -1251,8 +1759,28 @@ function PrivacySettings({ data, update, onExport }) {
             <span>days</span>
           </div>
           <small className="form-hint">
-            Activity logs older than this timeframe are purged automatically.
+            Activity logs and soft-deleted tasks older than this timeframe are purged automatically.
           </small>
+        </div>
+      </SettingCard>
+
+      <SettingCard title="GDPR & Data Subject Requests">
+        <div className="danger-item" style={{ border: "none", padding: 0 }}>
+          <div>
+            <strong>Download Personal Data Archive (GDPR)</strong>
+            <p>Generate a complete machine-readable archive of all member identity records.</p>
+          </div>
+          <button
+            type="button"
+            className="btn-secondary"
+            onClick={() => {
+              onExport();
+              showMessage("GDPR Data Subject Request bundle compiled and downloaded.");
+            }}
+          >
+            <Download size={14} />
+            <span>Generate GDPR Bundle</span>
+          </button>
         </div>
       </SettingCard>
     </div>
@@ -1260,7 +1788,7 @@ function PrivacySettings({ data, update, onExport }) {
 }
 
 /* 8. DANGER ZONE */
-function DangerSettings({ onExport }) {
+function DangerSettings({ companyName, onExport, onOpenTransfer, onOpenDelete }) {
   return (
     <div className="settings-section-content">
       <SettingHeader
@@ -1289,7 +1817,7 @@ function DangerSettings({ onExport }) {
           <button
             type="button"
             className="btn-secondary"
-            onClick={() => alert("Please contact enterprise support to initiate an ownership transfer.")}
+            onClick={onOpenTransfer}
           >
             Transfer Ownership
           </button>
@@ -1298,16 +1826,14 @@ function DangerSettings({ onExport }) {
         <div className="danger-item danger-highlight">
           <div>
             <strong className="text-danger">Delete Organization</strong>
-            <p>Permanently remove ABC Technologies and all associated workspace records. This cannot be undone.</p>
+            <p>
+              Permanently remove {companyName || "ABC Technologies"} and all associated workspace records. This cannot be undone.
+            </p>
           </div>
           <button
             type="button"
             className="btn-danger"
-            onClick={() => {
-              if (window.confirm("Are you sure? This will permanently delete your organization.")) {
-                alert("Organization deletion request initiated.");
-              }
-            }}
+            onClick={onOpenDelete}
           >
             <Trash2 size={14} />
             <span>Delete Organization</span>

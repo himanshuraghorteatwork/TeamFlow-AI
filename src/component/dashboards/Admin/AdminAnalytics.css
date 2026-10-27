@@ -1217,3 +1217,19 @@
     flex-direction: column;
   }
 }
+
+
+.admin-row-num {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted, #64748b);
+  background: var(--bg-hover, #f1f5f9);
+  padding: 2px 7px;
+  border-radius: 6px;
+}
+:root.dark .admin-row-num,
+.dark .admin-row-num {
+  background: #334155;
+  color: #94a3b8;
+}

@@ -1,6 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import {
   ShieldCheck,
+  Shield,
+  ShieldAlert,
   Plus,
   Search,
   Check,
@@ -17,10 +19,29 @@ import {
   AlertCircle,
   Eye,
   KeyRound,
-  Shield,
   Layers,
   Sparkles,
-  List,
+  Building2,
+  Folder,
+  CheckSquare,
+  CreditCard,
+  Crown,
+  Code,
+  FileText,
+  BarChart3,
+  Bug,
+  Calendar,
+  Megaphone,
+  Settings,
+  ChevronRight,
+  ChevronDown,
+  Clock,
+  ExternalLink,
+  ChevronLeft,
+  ChevronsLeft,
+  ChevronsRight,
+  UserCheck,
+  UserX,
 } from "lucide-react";
 
 import AdminSidebar from "./AdminSidebar.jsx";
@@ -28,109 +49,203 @@ import AdminTopbar from "./AdminTopbar.jsx";
 import "./AdminRoles.css";
 
 /* =========================================================
-   DEFAULT PERMISSION DEFINITIONS
+   PERMISSION MODULES DEFINITIONS (12 COMPREHENSIVE MODULES)
 ========================================================= */
 
-const PERMISSION_MODULES = [
+export const PERMISSION_MODULES = [
   {
     category: "Workspaces",
-    description: "Manage organizational tenant environments & quotas",
+    icon: Building2,
+    color: "#6366f1",
+    bg: "rgba(99, 102, 241, 0.12)",
+    description: "Manage organizational workspaces and quotas",
     permissions: [
       { id: "workspaces.view", name: "View Workspaces", desc: "Access and browse workspaces" },
       { id: "workspaces.create", name: "Create Workspace", desc: "Provision new workspaces" },
       { id: "workspaces.edit", name: "Edit Workspace", desc: "Modify tenant quotas and owners" },
-      { id: "workspaces.delete", name: "Delete Workspace", desc: "Permanently remove workspaces" },
+      { id: "workspaces.delete", name: "Delete Workspace", desc: "Permanently remove workspaces", sensitive: true },
       { id: "workspaces.export", name: "Export Workspace Data", desc: "Download CSV/JSON exports" },
     ],
   },
   {
     category: "Projects",
+    icon: Folder,
+    color: "#2563eb",
+    bg: "rgba(37, 99, 235, 0.12)",
     description: "Team projects, milestones and deadlines",
     permissions: [
       { id: "projects.view", name: "View Projects", desc: "View all project boards" },
       { id: "projects.create", name: "Create Projects", desc: "Initiate new team projects" },
       { id: "projects.edit", name: "Edit Projects", desc: "Change project status & details" },
-      { id: "projects.delete", name: "Delete Projects", desc: "Remove or archive projects" },
+      { id: "projects.delete", name: "Delete Projects", desc: "Remove or archive projects", sensitive: true },
     ],
   },
   {
     category: "Tasks",
-    description: "Work management and task tracking",
+    icon: CheckSquare,
+    color: "#10b981",
+    bg: "rgba(16, 185, 129, 0.12)",
+    description: "Task management and tracking",
     permissions: [
-      { id: "tasks.view", name: "View Tasks", desc: "View all task lists and kanbans" },
-      { id: "tasks.create", name: "Create Tasks", desc: "Create and assign task tickets" },
-      { id: "tasks.update", name: "Update Status", desc: "Mark complete or change status" },
-      { id: "tasks.delete", name: "Delete Tasks", desc: "Remove task tickets" },
+      { id: "tasks.view", name: "View Tasks", desc: "Access tasks and sprints" },
+      { id: "tasks.create", name: "Create Tasks", desc: "Create new task tickets" },
+      { id: "tasks.update", name: "Update Status", desc: "Transition task workflow state" },
+      { id: "tasks.delete", name: "Delete Tasks", desc: "Purge task tickets", sensitive: true },
+    ],
+  },
+  {
+    category: "Bugs",
+    icon: Bug,
+    color: "#f43f5e",
+    bg: "rgba(244, 63, 94, 0.12)",
+    description: "Bug tracking and issue management",
+    permissions: [
+      { id: "bugs.view", name: "View Bugs", desc: "Browse bug reports and triage" },
+      { id: "bugs.create", name: "Create Bugs", desc: "Log and submit bug reports" },
+      { id: "bugs.update", name: "Update Bugs", desc: "Change severity and status" },
+      { id: "bugs.delete", name: "Delete Bugs", desc: "Permanently delete bug records", sensitive: true },
+    ],
+  },
+  {
+    category: "Calendar",
+    icon: Calendar,
+    color: "#f59e0b",
+    bg: "rgba(245, 158, 11, 0.12)",
+    description: "Manage events, meetings and schedules",
+    permissions: [
+      { id: "calendar.view", name: "View Calendar", desc: "Access calendar and timelines" },
+      { id: "calendar.create", name: "Create Events", desc: "Schedule events and sprints" },
+      { id: "calendar.edit", name: "Edit Events", desc: "Modify calendar entries" },
+      { id: "calendar.delete", name: "Delete Events", desc: "Cancel scheduled meetings", sensitive: true },
+    ],
+  },
+  {
+    category: "Files",
+    icon: FileText,
+    color: "#06b6d4",
+    bg: "rgba(6, 182, 212, 0.12)",
+    description: "File storage and document management",
+    permissions: [
+      { id: "files.view", name: "View Files", desc: "Browse organizational assets" },
+      { id: "files.upload", name: "Upload Files", desc: "Upload documents and media" },
+      { id: "files.delete", name: "Delete Files", desc: "Remove uploaded files", sensitive: true },
+      { id: "files.manage", name: "Manage File Access", desc: "Set file access privileges" },
     ],
   },
   {
     category: "Users & Teams",
-    description: "User membership, roles, and profiles",
+    icon: Users,
+    color: "#8b5cf6",
+    bg: "rgba(139, 92, 246, 0.12)",
+    description: "User management and team administration",
     permissions: [
       { id: "users.view", name: "View Users", desc: "Browse members directory" },
-      { id: "users.invite", name: "Invite Members", desc: "Send invitations to new users" },
-      { id: "users.edit", name: "Edit Roles", desc: "Reassign roles and departments" },
-      { id: "users.delete", name: "Suspend & Delete", desc: "Revoke platform access" },
+      { id: "users.create", name: "Create Users", desc: "Invite new team members" },
+      { id: "users.edit", name: "Edit Users", desc: "Modify user credentials & teams" },
+      { id: "users.delete", name: "Delete Users", desc: "Revoke organizational access", sensitive: true },
+      { id: "users.manage_roles", name: "Manage Roles", desc: "Assign and reassign roles", sensitive: true },
     ],
   },
   {
-    category: "AI Tools",
-    description: "AI assistant, task generation, and automated insights",
+    category: "Reports & Analytics",
+    icon: BarChart3,
+    color: "#6366f1",
+    bg: "rgba(99, 102, 241, 0.12)",
+    description: "Access reports and analytics data",
     permissions: [
-      { id: "ai.assistant", name: "Access AI Assistant", desc: "Interact with TeamFlow AI bot" },
-      { id: "ai.generate", name: "Task Suggestions", desc: "Generate automatic task breakdowns" },
-      { id: "ai.analytics", name: "View AI Analytics", desc: "Monitor organization token usage" },
+      { id: "reports.view", name: "View Reports", desc: "Inspect velocity metrics" },
+      { id: "reports.export", name: "Export Reports", desc: "Download executive CSV/PDF" },
+      { id: "analytics.view", name: "View Analytics", desc: "View real-time dashboard data" },
+      { id: "dashboards.manage", name: "Manage Dashboards", desc: "Configure custom KPI widgets" },
     ],
   },
   {
-    category: "Billing & Subscriptions",
-    description: "Invoicing, payment methods, and tier management",
+    category: "AI Assistant",
+    icon: Sparkles,
+    color: "#14b8a6",
+    bg: "rgba(20, 184, 166, 0.12)",
+    description: "AI tools and assistant access",
     permissions: [
-      { id: "billing.view", name: "View Invoices", desc: "View past receipts and invoices" },
-      { id: "billing.manage", name: "Manage Subscription", desc: "Upgrade/downgrade subscription tier" },
+      { id: "ai.assistant", name: "Access AI Assistant", desc: "Chat with TeamFlow AI agent" },
+      { id: "ai.generate", name: "Task Breakdown", desc: "Generate automated task breakdown" },
+      { id: "ai.analytics", name: "View AI Analytics", desc: "Monitor prompt tokens and latency" },
     ],
   },
   {
-    category: "Security & Settings",
-    description: "Authentication policies, 2FA, and audit trails",
+    category: "Announcements",
+    icon: Megaphone,
+    color: "#38bdf8",
+    bg: "rgba(56, 189, 248, 0.12)",
+    description: "Create and manage announcements",
     permissions: [
-      { id: "security.audit", name: "View Audit Logs", desc: "Review security and login logs" },
-      { id: "security.settings", name: "Organization Settings", desc: "Modify platform configuration" },
+      { id: "announcements.view", name: "View Announcements", desc: "Read organizational bulletins" },
+      { id: "announcements.create", name: "Publish Broadcasts", desc: "Create and send announcements" },
+      { id: "announcements.delete", name: "Delete Broadcasts", desc: "Remove expired announcements" },
+    ],
+  },
+  {
+    category: "Billing",
+    icon: CreditCard,
+    color: "#eab308",
+    bg: "rgba(234, 179, 8, 0.12)",
+    description: "Subscription and billing management",
+    permissions: [
+      { id: "billing.view", name: "View Invoices", desc: "Access subscription history" },
+      { id: "billing.manage", name: "Manage Billing", desc: "Upgrade or downgrade plans", sensitive: true },
+      { id: "billing.payment", name: "Payment Methods", desc: "Update cards and banking info", sensitive: true },
+      { id: "billing.invoices", name: "Download Invoices", desc: "Download tax invoices & receipts" },
+    ],
+  },
+  {
+    category: "Organization Settings",
+    icon: Settings,
+    color: "#f97316",
+    bg: "rgba(249, 115, 22, 0.12)",
+    description: "Manage organization settings",
+    permissions: [
+      { id: "org.view", name: "View Org Profile", desc: "Inspect domain and branding info" },
+      { id: "org.edit", name: "Edit Org Profile", desc: "Modify tenant name & logo" },
+      { id: "security.settings", name: "Security & 2FA", desc: "Configure SSO and 2FA policies", sensitive: true },
+      { id: "security.audit", name: "Audit Trail", desc: "Review security and login logs" },
     ],
   },
 ];
 
-// All permission IDs flattened
-const ALL_PERMISSION_IDS = PERMISSION_MODULES.flatMap((m) =>
+export const ALL_PERMISSION_IDS = PERMISSION_MODULES.flatMap((m) =>
   m.permissions.map((p) => p.id)
 );
 
-const DEFAULT_ROLES = [
-  {
-    id: "role-super-admin",
-    name: "Super Admin",
-    isSystem: true,
-    color: "#6840f5",
-    description: "Full, unrestricted root administrative control across all features and configurations.",
-    usersCount: 2,
-    permissions: [...ALL_PERMISSION_IDS],
-  },
+export const SENSITIVE_PERMISSION_IDS = PERMISSION_MODULES.flatMap((m) =>
+  m.permissions.filter((p) => p.sensitive).map((p) => p.id)
+);
+
+/* =========================================================
+   STANDARD ROLES (5 KEY ROLES MATCHING REFERENCE DESIGN)
+========================================================= */
+
+export const DEFAULT_ROLES = [
   {
     id: "role-org-admin",
+    code: "ROL-001",
     name: "Organization Admin",
     isSystem: true,
-    color: "#5b5cf0",
-    description: "Manage workspaces, team members, projects, tasks, and organization security settings.",
-    usersCount: 3,
-    permissions: ALL_PERMISSION_IDS.filter((p) => !p.startsWith("billing.manage")),
+    color: "#6366f1",
+    iconKey: "Building2",
+    tag: "System Role",
+    description: "Manage organization and teams, workspaces, projects, tasks, and organization security settings.",
+    usersCount: 28,
+    permissions: ALL_PERMISSION_IDS.filter((id) => id !== "workspaces.delete" && id !== "bugs.delete"),
   },
   {
     id: "role-team-lead",
+    code: "ROL-002",
     name: "Team Lead",
     isSystem: true,
-    color: "#2563eb",
-    description: "Oversee project development, assign tasks, review progress, and invite team members.",
-    usersCount: 5,
+    color: "#10b981",
+    iconKey: "Users",
+    tag: "System Role",
+    description: "Manage projects and team members, assign tasks, review progress, and invite members.",
+    usersCount: 14,
     permissions: [
       "workspaces.view",
       "projects.view",
@@ -139,40 +254,158 @@ const DEFAULT_ROLES = [
       "tasks.view",
       "tasks.create",
       "tasks.update",
+      "bugs.view",
+      "bugs.create",
+      "bugs.update",
+      "calendar.view",
+      "calendar.create",
+      "calendar.edit",
+      "files.view",
+      "files.upload",
       "users.view",
-      "users.invite",
+      "users.create",
+      "reports.view",
       "ai.assistant",
       "ai.generate",
+      "announcements.view",
     ],
   },
   {
     id: "role-member",
+    code: "ROL-003",
     name: "Member / Developer",
     isSystem: true,
-    color: "#10b981",
-    description: "Execute assigned project tasks, collaborate with team chat, and utilize AI assistants.",
-    usersCount: 14,
+    color: "#2563eb",
+    iconKey: "Code",
+    tag: "System Role",
+    description: "Execute tasks and collaborate with team members, chat, and utilize AI assistants.",
+    usersCount: 42,
     permissions: [
       "workspaces.view",
       "projects.view",
       "tasks.view",
+      "tasks.create",
       "tasks.update",
+      "bugs.view",
+      "bugs.create",
+      "calendar.view",
+      "files.view",
+      "files.upload",
       "users.view",
       "ai.assistant",
+      "announcements.view",
     ],
   },
   {
     id: "role-viewer",
+    code: "ROL-004",
     name: "Viewer / Guest",
     isSystem: true,
-    color: "#64748b",
-    description: "Read-only preview access to shared projects and organizational announcements.",
-    usersCount: 4,
-    permissions: ["workspaces.view", "projects.view", "tasks.view", "users.view"],
+    color: "#f43f5e",
+    iconKey: "Eye",
+    tag: "System Role",
+    description: "Read-only access to shared projects, tasks, and organizational announcements.",
+    usersCount: 18,
+    permissions: [
+      "workspaces.view",
+      "projects.view",
+      "tasks.view",
+      "bugs.view",
+      "calendar.view",
+      "files.view",
+      "users.view",
+      "announcements.view",
+    ],
   },
 ];
 
-const STORAGE_KEY = "teamflow_admin_roles";
+const SAMPLE_USERS = [
+  { id: "u-1", name: "David Lee", email: "david@techcorp.com", department: "Engineering", roleId: "role-org-admin", status: "Active", avatar: "DL" },
+  { id: "u-2", name: "Emily Parker", email: "emily@designhub.com", department: "Product Design", roleId: "role-team-lead", status: "Active", avatar: "EP" },
+  { id: "u-3", name: "John Doe", email: "john@company.com", department: "Management", roleId: "role-org-admin", status: "Active", avatar: "JD" },
+  { id: "u-4", name: "Michael Rodriguez", email: "michael@startup.io", department: "Engineering", roleId: "role-member", status: "Inactive", avatar: "MR" },
+  { id: "u-5", name: "Sarah Chen", email: "sarah@modernlab.com", department: "Engineering", roleId: "role-member", status: "Active", avatar: "SC" },
+  { id: "u-6", name: "Himanshu R", email: "himanshu@teamflow.ai", department: "DevOps & Core", roleId: "role-org-admin", status: "Active", avatar: "HR" },
+  { id: "u-7", name: "Alex Morgan", email: "alex@teamflow.io", department: "QA", roleId: "role-viewer", status: "Active", avatar: "AM" },
+  { id: "u-8", name: "Jessica Taylor", email: "jessica@growth.com", department: "Marketing", roleId: "role-team-lead", status: "Active", avatar: "JT" },
+  { id: "u-9", name: "Robert Fox", email: "robert@teamflow.ai", department: "Security", roleId: "role-org-admin", status: "Active", avatar: "RF" },
+  { id: "u-10", name: "Lisa Wong", email: "lisa@client.org", department: "Guest", roleId: "role-viewer", status: "Active", avatar: "LW" },
+];
+
+const INITIAL_LOGS = [
+  {
+    id: "log-1",
+    action: "grant",
+    permId: "project.create",
+    permName: "Create Projects",
+    module: "Projects",
+    roleId: "role-org-admin",
+    roleName: "Organization Admin",
+    actor: "Himanshu R",
+    time: "2 hours ago",
+    timestamp: "2026-10-27T13:52:00Z",
+  },
+  {
+    id: "log-2",
+    action: "revoke",
+    permId: "workspace.delete",
+    permName: "Delete Workspace",
+    module: "Workspaces",
+    roleId: "role-org-admin",
+    roleName: "Organization Admin",
+    actor: "Himanshu R",
+    time: "1 day ago",
+    timestamp: "2026-10-26T14:30:00Z",
+  },
+  {
+    id: "log-3",
+    action: "grant",
+    permId: "reports.view",
+    permName: "View Reports",
+    module: "Reports & Analytics",
+    roleId: "role-org-admin",
+    roleName: "Organization Admin",
+    actor: "Himanshu R",
+    time: "2 days ago",
+    timestamp: "2026-10-25T11:15:00Z",
+  },
+  {
+    id: "log-4",
+    action: "grant",
+    permId: "ai.generate",
+    permName: "Task Breakdown",
+    module: "AI Assistant",
+    roleId: "role-team-lead",
+    roleName: "Team Lead",
+    actor: "Himanshu R",
+    time: "3 days ago",
+    timestamp: "2026-10-24T09:20:00Z",
+  },
+  {
+    id: "log-5",
+    action: "grant",
+    permId: "billing.view",
+    permName: "View Invoices",
+    module: "Billing",
+    roleId: "role-org-admin",
+    roleName: "Organization Admin",
+    actor: "Himanshu R",
+    time: "4 days ago",
+    timestamp: "2026-10-23T16:45:00Z",
+  },
+];
+
+const ROLE_COLOR_PALETTE = [
+  { label: "Indigo", value: "#6366f1" },
+  { label: "Royal Blue", value: "#2563eb" },
+  { label: "Emerald", value: "#10b981" },
+  { label: "Purple", value: "#8b5cf6" },
+  { label: "Rose", value: "#f43f5e" },
+  { label: "Amber", value: "#f59e0b" },
+  { label: "Cyan", value: "#06b6d4" },
+];
+
+const STORAGE_KEY = "teamflow_admin_roles_v2";
 
 export default function AdminRoles() {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
@@ -183,221 +416,296 @@ export default function AdminRoles() {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const filtered = parsed.filter(
+            (r) => r.id !== "role-super-admin" && r.name !== "Super Admin"
+          );
+          if (filtered.length > 0) return filtered;
+        }
       }
     } catch (e) {}
     return DEFAULT_ROLES;
   });
 
-  const [activeTab, setActiveTab] = useState("matrix"); // 'matrix' | 'cards'
-  const [selectedRole, setSelectedRole] = useState(roles[1]); // default to Org Admin
-  const [search, setSearch] = useState("");
-  const [viewMode, setViewMode] = useState("table"); // "table" | "matrix" | "detail"
-  const [toast, setToast] = useState(null);
+  // Ensure Super Admin is purged from cached localStorage
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          const filtered = parsed.filter(
+            (r) => r.id !== "role-super-admin" && r.name !== "Super Admin"
+          );
+          if (filtered.length !== parsed.length) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+          }
+        }
+      }
+    } catch (e) {}
+  }, []);
+
+  // Selected Role (default: Organization Admin)
+  const [selectedRoleId, setSelectedRoleId] = useState(() => {
+    const org = roles.find((r) => r.id === "role-org-admin");
+    return org ? org.id : roles[0]?.id || "role-org-admin";
+  });
+
+  const selectedRole = useMemo(() => {
+    return roles.find((r) => r.id === selectedRoleId) || roles[0];
+  }, [roles, selectedRoleId]);
+
+  // Sub-Navigation Tabs: 'permissions' | 'users' | 'settings' | 'logs'
+  const [activeTab, setActiveTab] = useState("permissions");
+
+  // Filtering & Search
+  const [searchQuery, setSearchQuery] = useState("");
+  const [moduleFilter, setModuleFilter] = useState("all");
+
+  // Collapsed modules state for module cards
+  const [collapsedCards, setCollapsedCards] = useState({});
+
+  // Unsaved changes tracker
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [recentlyChangedPermId, setRecentlyChangedPermId] = useState(null);
+
+  // Audit Logs & Users State
+  const [accessLogs, setAccessLogs] = useState(INITIAL_LOGS);
+  const [assignedUsers, setAssignedUsers] = useState(SAMPLE_USERS);
+  const [userSearch, setUserSearch] = useState("");
 
   // Modals
   const [createModal, setCreateModal] = useState(false);
   const [editModal, setEditModal] = useState(false);
-  const [editingRole, setEditingRole] = useState(null);
+  const [confirmAction, setConfirmAction] = useState(null);
+  const [toast, setToast] = useState(null);
 
+  // Form State for Create Role
   const [createForm, setCreateForm] = useState({
     name: "",
     description: "",
-    color: "#8b5cf6",
+    color: "#6366f1",
     cloneFrom: "role-member",
-    permissions: [],
   });
 
-  // Save roles & log activity
-  const saveRoles = (newRoles) => {
-    setRoles(newRoles);
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(newRoles));
-    } catch (e) {}
-    window.dispatchEvent(new Event("teamflow_data_update"));
-  };
+  // Edit Role Form State
+  const [editRoleForm, setEditRoleForm] = useState({
+    name: "",
+    description: "",
+    color: "#6366f1",
+  });
 
   const showToast = (message, type = "success") => {
     setToast({ message, type });
-    setTimeout(() => setToast(null), 3000);
+    setTimeout(() => setToast(null), 3200);
+  };
+
+  // Helper to persist roles
+  const persistRoles = (updatedRoles, notify = true) => {
+    setRoles(updatedRoles);
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedRoles));
+    } catch (e) {}
+    window.dispatchEvent(new Event("teamflow_data_update"));
+    if (notify) {
+      showToast("Roles and permissions saved successfully!");
+    }
+  };
+
+  // Expand / Collapse All
+  const handleExpandAll = () => {
+    setCollapsedCards({});
+  };
+
+  const handleCollapseAll = () => {
+    const all = {};
+    PERMISSION_MODULES.forEach((m) => {
+      all[m.category] = true;
+    });
+    setCollapsedCards(all);
+  };
+
+  const toggleCardCollapse = (category) => {
+    setCollapsedCards((prev) => ({
+      ...prev,
+      [category]: !prev[category],
+    }));
   };
 
   // Toggle single permission for selected role
-  const handleTogglePermission = (roleId, permissionId) => {
+  const handleTogglePermission = (roleId, permId) => {
     const targetRole = roles.find((r) => r.id === roleId);
     if (!targetRole) return;
 
-    if (targetRole.id === "role-super-admin") {
-      showToast("Super Admin permissions cannot be modified.", "error");
+    const isSensitive = SENSITIVE_PERMISSION_IDS.includes(permId);
+    const hasPerm = targetRole.permissions.includes(permId);
+
+    // If sensitive, prompt confirmation
+    if (isSensitive) {
+      const permObj = PERMISSION_MODULES.flatMap((m) => m.permissions).find(
+        (p) => p.id === permId
+      );
+      setConfirmAction({
+        type: "toggle-sensitive",
+        roleId,
+        permId,
+        permName: permObj?.name || permId,
+        roleName: targetRole.name,
+        isCurrentlyGranted: hasPerm,
+      });
       return;
     }
 
-    const hasPerm = targetRole.permissions.includes(permissionId);
-    const updatedPermissions = hasPerm
-      ? targetRole.permissions.filter((p) => p !== permissionId)
-      : [...targetRole.permissions, permissionId];
-
-    const nextRoles = roles.map((r) =>
-      r.id === roleId ? { ...r, permissions: updatedPermissions } : r
-    );
-
-    saveRoles(nextRoles);
-    setSelectedRole((prev) =>
-      prev?.id === roleId ? { ...prev, permissions: updatedPermissions } : prev
-    );
-    showToast(`Updated permission for ${targetRole.name}`);
+    applyTogglePermission(roleId, permId);
   };
 
-  // Toggle entire module category permissions
-  const handleToggleModuleAll = (roleId, modulePermissions) => {
+  // Direct toggle without confirmation
+  const applyTogglePermission = (roleId, permId) => {
     const targetRole = roles.find((r) => r.id === roleId);
     if (!targetRole) return;
 
-    if (targetRole.id === "role-super-admin") {
-      showToast("Super Admin permissions cannot be modified.", "error");
-      return;
-    }
+    const hasPerm = targetRole.permissions.includes(permId);
+    const nextPerms = hasPerm
+      ? targetRole.permissions.filter((p) => p !== permId)
+      : [...targetRole.permissions, permId];
 
-    const moduleIds = modulePermissions.map((p) => p.id);
-    const allEnabled = moduleIds.every((id) => targetRole.permissions.includes(id));
+    const nextRoles = roles.map((r) =>
+      r.id === roleId ? { ...r, permissions: nextPerms } : r
+    );
 
-    let updatedPermissions = [];
-    if (allEnabled) {
-      // Disable all in this module
-      updatedPermissions = targetRole.permissions.filter((id) => !moduleIds.includes(id));
+    setRoles(nextRoles);
+    setHasUnsavedChanges(true);
+    setRecentlyChangedPermId(permId);
+    setTimeout(() => setRecentlyChangedPermId(null), 1200);
+
+    // Append audit log
+    const permObj = PERMISSION_MODULES.flatMap((m) => m.permissions).find(
+      (p) => p.id === permId
+    );
+    const modObj = PERMISSION_MODULES.find((m) =>
+      m.permissions.some((p) => p.id === permId)
+    );
+
+    const newLog = {
+      id: `log-${Date.now()}`,
+      action: hasPerm ? "revoke" : "grant",
+      permId,
+      permName: permObj?.name || permId,
+      module: modObj?.category || "General",
+      roleId,
+      roleName: targetRole.name,
+      actor: "Himanshu R",
+      time: "Just now",
+      timestamp: new Date().toISOString(),
+    };
+    setAccessLogs((prev) => [newLog, ...prev]);
+  };
+
+  // Toggle entire module (Toggle switch on module card)
+  const handleToggleModule = (category) => {
+    if (!selectedRole) return;
+    const mod = PERMISSION_MODULES.find((m) => m.category === category);
+    if (!mod) return;
+
+    const modPermIds = mod.permissions.map((p) => p.id);
+    const allActive = modPermIds.every((id) => selectedRole.permissions.includes(id));
+
+    let updatedPerms;
+    if (allActive) {
+      // Revoke all in this module
+      updatedPerms = selectedRole.permissions.filter((id) => !modPermIds.includes(id));
     } else {
-      // Enable all in this module
-      const toAdd = moduleIds.filter((id) => !targetRole.permissions.includes(id));
-      updatedPermissions = [...targetRole.permissions, ...toAdd];
+      // Grant all in this module
+      const toAdd = modPermIds.filter((id) => !selectedRole.permissions.includes(id));
+      updatedPerms = [...selectedRole.permissions, ...toAdd];
     }
 
     const nextRoles = roles.map((r) =>
-      r.id === roleId ? { ...r, permissions: updatedPermissions } : r
+      r.id === selectedRole.id ? { ...r, permissions: updatedPerms } : r
     );
 
-    saveRoles(nextRoles);
-    setSelectedRole((prev) =>
-      prev?.id === roleId ? { ...prev, permissions: updatedPermissions } : prev
+    setRoles(nextRoles);
+    setHasUnsavedChanges(true);
+
+    showToast(
+      allActive
+        ? `Disabled all ${category} permissions for ${selectedRole.name}`
+        : `Enabled all ${category} permissions for ${selectedRole.name}`
     );
-    showToast(`Updated permissions for ${targetRole.name}`);
   };
 
-  // Create Custom Role
-  const handleCreateRole = (e) => {
-    e.preventDefault();
-    const name = createForm.name.trim();
-    if (!name) {
-      showToast("Role name is required.", "error");
-      return;
-    }
+  // Save changes button action
+  const handleSaveChanges = () => {
+    persistRoles(roles);
+    setHasUnsavedChanges(false);
+  };
 
-    const baseRole = roles.find((r) => r.id === createForm.cloneFrom);
-    const initialPerms = baseRole ? [...baseRole.permissions] : [];
-
-    const newRole = {
-      id: `role-${Date.now()}`,
-      name,
-      description: createForm.description || "Custom organization role with tailored access rights.",
-      color: createForm.color || "#8b5cf6",
-      isSystem: false,
-      usersCount: 0,
-      permissions: initialPerms,
-    };
-
-    const nextRoles = [...roles, newRole];
-    saveRoles(nextRoles);
-    setSelectedRole(newRole);
-    setCreateModal(false);
-    setCreateForm({
-      name: "",
-      description: "",
-      color: "#8b5cf6",
-      cloneFrom: "role-member",
-      permissions: [],
+  // Reset to default permissions for current role
+  const handleResetCurrentRole = () => {
+    setConfirmAction({
+      type: "reset-role",
+      roleId: selectedRole.id,
+      roleName: selectedRole.name,
     });
-    showToast(`Custom role "${name}" created successfully!`, "success");
   };
 
-  // Edit Role Modal
-  const openEditRoleModal = (role) => {
-    setEditingRole({ ...role });
-    setEditModal(true);
+  // Reset all roles to system defaults
+  const handleResetAllDefaults = () => {
+    setConfirmAction({
+      type: "reset-all",
+    });
   };
 
-  const handleUpdateRole = (e) => {
-    e.preventDefault();
-    if (!editingRole) return;
+  // Confirmation modal executions
+  const handleConfirmActionExecution = () => {
+    if (!confirmAction) return;
 
-    const nextRoles = roles.map((r) =>
-      r.id === editingRole.id ? { ...r, ...editingRole } : r
-    );
-
-    saveRoles(nextRoles);
-    setSelectedRole((prev) => (prev?.id === editingRole.id ? { ...editingRole } : prev));
-    setEditModal(false);
-    setEditingRole(null);
-    showToast(`Role "${editingRole.name}" updated!`);
-  };
-
-  // Delete Custom Role
-  const handleDeleteRole = (roleId) => {
-    const role = roles.find((r) => r.id === roleId);
-    if (!role) return;
-
-    if (role.isSystem) {
-      showToast("System protected roles cannot be deleted.", "error");
-      return;
+    if (confirmAction.type === "toggle-sensitive") {
+      applyTogglePermission(confirmAction.roleId, confirmAction.permId);
+      showToast(
+        `${confirmAction.isCurrentlyGranted ? "Revoked" : "Granted"} sensitive permission: ${confirmAction.permName}`,
+        "info"
+      );
+    } else if (confirmAction.type === "reset-role") {
+      const defaultRole = DEFAULT_ROLES.find((r) => r.id === confirmAction.roleId);
+      if (defaultRole) {
+        const nextRoles = roles.map((r) =>
+          r.id === confirmAction.roleId
+            ? { ...r, permissions: [...defaultRole.permissions] }
+            : r
+        );
+        persistRoles(nextRoles);
+        setHasUnsavedChanges(false);
+        showToast(`Reset ${confirmAction.roleName} to default permissions.`);
+      }
+    } else if (confirmAction.type === "reset-all") {
+      persistRoles(DEFAULT_ROLES);
+      setHasUnsavedChanges(false);
+      showToast("All roles reset to system defaults.");
+    } else if (confirmAction.type === "delete-role") {
+      const nextRoles = roles.filter((r) => r.id !== confirmAction.roleId);
+      persistRoles(nextRoles);
+      setSelectedRoleId(nextRoles[0]?.id || "role-org-admin");
+      showToast(`Role "${confirmAction.roleName}" deleted.`);
     }
 
-    const confirmed = window.confirm(
-      `Are you sure you want to delete role "${role.name}"? Users with this role will revert to Member.`
-    );
-    if (!confirmed) return;
-
-    const nextRoles = roles.filter((r) => r.id !== roleId);
-    saveRoles(nextRoles);
-    if (selectedRole?.id === roleId) {
-      setSelectedRole(nextRoles[0]);
-    }
-    showToast(`Role "${role.name}" deleted.`, "info");
+    setConfirmAction(null);
   };
 
-  // Clone Role
-  const handleDuplicateRole = (role) => {
-    const cloned = {
-      ...role,
-      id: `role-${Date.now()}`,
-      name: `${role.name} (Copy)`,
-      isSystem: false,
-      usersCount: 0,
-    };
-
-    const nextRoles = [...roles, cloned];
-    saveRoles(nextRoles);
-    setSelectedRole(cloned);
-    showToast(`Duplicated role as "${cloned.name}"!`);
-  };
-
-  // Reset to default roles
-  const handleResetDefaults = () => {
-    const confirmed = window.confirm("Reset all roles and permissions to factory defaults?");
-    if (!confirmed) return;
-
-    saveRoles(DEFAULT_ROLES);
-    setSelectedRole(DEFAULT_ROLES[1]);
-    showToast("Roles reset to system defaults.");
-  };
-
-  // Export Matrix
+  // Export JSON Matrix
   const handleExportMatrix = () => {
-    const exportData = roles.map((r) => ({
-      id: r.id,
-      name: r.name,
-      description: r.description,
-      usersCount: r.usersCount,
-      permissionsCount: r.permissions.length,
-      permissions: r.permissions,
-    }));
+    const exportData = {
+      exportedAt: new Date().toISOString(),
+      roles: roles.map((r) => ({
+        id: r.id,
+        code: r.code,
+        name: r.name,
+        description: r.description,
+        usersCount: r.usersCount,
+        permissionsCount: r.permissions.length,
+        permissions: r.permissions,
+      })),
+    };
 
     const blob = new Blob([JSON.stringify(exportData, null, 2)], {
       type: "application/json",
@@ -408,26 +716,129 @@ export default function AdminRoles() {
     a.download = `teamflow_roles_permissions_${Date.now()}.json`;
     a.click();
     URL.revokeObjectURL(url);
-    showToast("Roles & permissions exported to JSON!", "success");
+    showToast("Roles & permissions exported successfully!");
   };
 
-  // Filter modules/permissions by search
+  // Create Role Handler
+  const handleCreateRole = (e) => {
+    e.preventDefault();
+    if (!createForm.name.trim()) return;
+
+    const baseRole = roles.find((r) => r.id === createForm.cloneFrom);
+    const initialPerms = baseRole ? [...baseRole.permissions] : [];
+
+    const newRole = {
+      id: `role-${Date.now()}`,
+      code: `ROL-${String(roles.length + 1).padStart(3, "0")}`,
+      name: createForm.name.trim(),
+      description: createForm.description || "Custom organization role with tailored access rights.",
+      color: createForm.color || "#6366f1",
+      iconKey: "ShieldCheck",
+      tag: "Custom Role",
+      isSystem: false,
+      usersCount: 0,
+      permissions: initialPerms,
+    };
+
+    const nextRoles = [...roles, newRole];
+    persistRoles(nextRoles);
+    setSelectedRoleId(newRole.id);
+    setCreateModal(false);
+    setCreateForm({
+      name: "",
+      description: "",
+      color: "#6366f1",
+      cloneFrom: "role-member",
+    });
+    showToast(`Created custom role "${newRole.name}"!`);
+  };
+
+  // Edit Role Handler
+  const openEditModalForRole = (role) => {
+    setEditRoleForm({
+      name: role.name,
+      description: role.description,
+      color: role.color || "#6366f1",
+    });
+    setEditModal(true);
+  };
+
+  const handleUpdateRole = (e) => {
+    e.preventDefault();
+    if (!selectedRole) return;
+
+    const nextRoles = roles.map((r) =>
+      r.id === selectedRole.id
+        ? {
+            ...r,
+            name: r.isSystem ? r.name : editRoleForm.name.trim() || r.name,
+            description: editRoleForm.description,
+            color: editRoleForm.color,
+          }
+        : r
+    );
+
+    persistRoles(nextRoles);
+    setEditModal(false);
+    showToast(`Updated "${selectedRole.name}" details!`);
+  };
+
+  // Helper for role icon rendering
+  const renderRoleIcon = (role, size = 20) => {
+    switch (role.iconKey) {
+      case "Crown":
+        return <Crown size={size} />;
+      case "Building2":
+        return <Building2 size={size} />;
+      case "Users":
+        return <Users size={size} />;
+      case "Code":
+        return <Code size={size} />;
+      case "Eye":
+        return <Eye size={size} />;
+      default:
+        return <ShieldCheck size={size} />;
+    }
+  };
+
+  // Filtered module cards for current search & category filter
   const filteredModules = useMemo(() => {
-    if (!search.trim()) return PERMISSION_MODULES;
-    const q = search.toLowerCase();
-    return PERMISSION_MODULES.map((m) => ({
-      ...m,
-      permissions: m.permissions.filter(
-        (p) =>
-          p.name.toLowerCase().includes(q) ||
-          p.desc.toLowerCase().includes(q) ||
-          m.category.toLowerCase().includes(q)
-      ),
-    })).filter((m) => m.permissions.length > 0);
-  }, [search]);
+    const q = searchQuery.trim().toLowerCase();
+    return PERMISSION_MODULES.filter((m) => {
+      if (moduleFilter !== "all" && m.category !== moduleFilter) return false;
+      if (!q) return true;
+      const matchesCategory = m.category.toLowerCase().includes(q);
+      const matchesDesc = m.description.toLowerCase().includes(q);
+      const matchesPerm = m.permissions.some(
+        (p) => p.name.toLowerCase().includes(q) || p.desc.toLowerCase().includes(q) || p.id.toLowerCase().includes(q)
+      );
+      return matchesCategory || matchesDesc || matchesPerm;
+    });
+  }, [searchQuery, moduleFilter]);
+
+  // Telemetry for selected role
+  const selectedRoleActiveCount = selectedRole?.permissions.length || 0;
+  const totalPermsCount = ALL_PERMISSION_IDS.length;
+  const accessPercentage = Math.round((selectedRoleActiveCount / totalPermsCount) * 100);
+
+  // Users assigned to selected role
+  const roleAssignedUsers = useMemo(() => {
+    if (!selectedRole) return [];
+    return assignedUsers.filter((u) => {
+      const matchRole = u.roleId === selectedRole.id;
+      if (!userSearch.trim()) return matchRole;
+      const q = userSearch.toLowerCase();
+      return (
+        matchRole &&
+        (u.name.toLowerCase().includes(q) ||
+          u.email.toLowerCase().includes(q) ||
+          u.department.toLowerCase().includes(q))
+      );
+    });
+  }, [assignedUsers, selectedRole, userSearch]);
 
   return (
-    <div className="tfAdminRoles">
+    <div className="tfAdminRoles rolesPermissionsCardPage">
       {/* SIDEBAR */}
       <AdminSidebar
         mobileOpen={mobileSidebarOpen}
@@ -435,579 +846,909 @@ export default function AdminRoles() {
       />
 
       <div className="tfAdminRoles__main">
-        {/* UNIFIED TOPBAR */}
-        <AdminTopbar onMobileMenuToggle={() => setMobileSidebarOpen(true)} />
+        {/* UNIFIED TOPBAR (hideCreate removes "+ Create" from top of the bar) */}
+        <AdminTopbar onMobileMenuToggle={() => setMobileSidebarOpen(true)} hideCreate={true} />
 
-        {/* TOAST ALERT */}
+        {/* TOAST NOTIFICATION */}
         {toast && (
-          <div className={`tfAdminRoles__toast tfAdminRoles__toast--${toast.type || "success"}`}>
-            <Check size={16} />
+          <div className={`rp-toast-alert rp-toast-${toast.type || "success"}`}>
+            <CheckCircle2 size={16} />
             <span>{toast.message}</span>
           </div>
         )}
 
-        <div className="tfAdminRoles__content">
-          {/* HEADER */}
-          <div className="tfAdminRoles__header">
-            <div>
-              <h1>Roles & Permissions</h1>
-              <p>
-                Manage role access controls, define granular tenant permissions, and secure multi-user governance.
-              </p>
-            </div>
-
-            <div className="tfAdminRoles__headerActions">
-              <button
-                type="button"
-                className="tfAdminRoles__btnSecondary"
-                onClick={handleExportMatrix}
-              >
-                <Download size={15} />
-                <span>Export Matrix</span>
-              </button>
-
-              <button
-                type="button"
-                className="tfAdminRoles__btnPrimary"
-                onClick={() => setCreateModal(true)}
-              >
-                <Plus size={16} />
-                <span>Create Role</span>
-              </button>
-            </div>
-          </div>
-
-          {/* ROLES SUMMARY CARDS */}
-          <div className="tfAdminRoles__kpiGrid">
-            <div className="tfAdminRoles__kpiCard">
-              <div className="tfAdminRoles__kpiIcon purple">
-                <ShieldCheck size={22} />
+        <div className="rp-page-body">
+          {/* =========================================================
+             1. TOP HEADER ROW (Matching reference design)
+          ========================================================= */}
+          <div className="rp-main-header">
+            <div className="rp-header-left">
+              <div className="rp-header-shield-icon">
+                <ShieldCheck size={26} />
               </div>
               <div>
-                <span>Configured Roles</span>
-                <strong>{roles.length}</strong>
-                <small>{roles.filter((r) => !r.isSystem).length} Custom Roles</small>
+                <h1 className="rp-header-title">Roles & Permissions</h1>
+                <p className="rp-header-sub">
+                  Manage role access controls, define granular permissions, and secure your organization.
+                </p>
               </div>
             </div>
 
-            <div className="tfAdminRoles__kpiCard">
-              <div className="tfAdminRoles__kpiIcon blue">
-                <KeyRound size={22} />
-              </div>
-              <div>
-                <span>System Permissions</span>
-                <strong>{ALL_PERMISSION_IDS.length}</strong>
-                <small>Across 7 security modules</small>
-              </div>
-            </div>
-
-            <div className="tfAdminRoles__kpiCard">
-              <div className="tfAdminRoles__kpiIcon green">
-                <Users size={22} />
-              </div>
-              <div>
-                <span>Assigned Users</span>
-                <strong>{roles.reduce((acc, r) => acc + (r.usersCount || 0), 0)}</strong>
-                <small>Users with defined roles</small>
-              </div>
-            </div>
-
-            <div className="tfAdminRoles__kpiCard">
-              <div className="tfAdminRoles__kpiIcon amber">
-                <Lock size={22} />
-              </div>
-              <div>
-                <span>RBAC Security</span>
-                <strong>Enforced</strong>
-                <small>Role-based access active</small>
-              </div>
-            </div>
-          </div>
-
-          {/* ROLE SELECTOR BAR & TABS */}
-          <div className="tfAdminRoles__controlsBar">
-            <div className="tfAdminRoles__rolesTabs">
-              {roles.map((role) => {
-                const isActive = selectedRole?.id === role.id;
-                return (
-                  <button
-                    key={role.id}
-                    type="button"
-                    className={`tfAdminRoles__roleTab ${isActive ? "active" : ""}`}
-                    onClick={() => setSelectedRole(role)}
-                  >
-                    <span
-                      className="tfAdminRoles__roleDot"
-                      style={{ backgroundColor: role.color || "#5b5cf0" }}
-                    />
-                    <strong>{role.name}</strong>
-                    <span className="tfAdminRoles__roleCount">
-                      {role.permissions.length} perms
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-
-            <div className="tfAdminRoles__controlsRight">
-              <div className="tfAdminRoles__search">
+            <div className="rp-header-right">
+              {/* SEARCH INPUT */}
+              <div className="rp-top-search-wrap">
                 <Search size={15} />
                 <input
                   type="text"
-                  placeholder="Filter permissions..."
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Search permissions or modules..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                 />
-                {search && (
-                  <button type="button" onClick={() => setSearch("")}>
-                    <X size={14} />
+                {searchQuery && (
+                  <button type="button" onClick={() => setSearchQuery("")} aria-label="Clear search">
+                    <X size={13} />
                   </button>
                 )}
               </div>
 
+              {/* MODULE SELECTOR */}
+              <div className="rp-top-module-select">
+                <select
+                  value={moduleFilter}
+                  onChange={(e) => setModuleFilter(e.target.value)}
+                  aria-label="Filter module"
+                >
+                  <option value="all">All Modules</option>
+                  {PERMISSION_MODULES.map((m) => (
+                    <option key={m.category} value={m.category}>
+                      {m.category}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* EXPORT BUTTON */}
               <button
                 type="button"
-                className="tfAdminRoles__btnReset"
-                onClick={handleResetDefaults}
-                title="Reset to system defaults"
+                className="rp-btn-export"
+                onClick={handleExportMatrix}
+                title="Export Roles & Permissions"
               >
-                <RotateCcw size={14} />
-                <span>Reset Defaults</span>
+                <Download size={15} />
+                <span>Export</span>
               </button>
             </div>
           </div>
 
+          {/* =========================================================
+             2. TOP ROLE CARDS (5 Equal interactive cards matching screenshot)
+          ========================================================= */}
+          <div className="rp-role-cards-grid">
+            {roles.map((role) => {
+              const isSelected = selectedRole?.id === role.id;
+              const activeCount = role.permissions.length;
+              const pct = Math.round((activeCount / totalPermsCount) * 100);
 
-          {/* VIEW MODE TOGGLE */}
-          <div className="tfAdminRoles__viewModeRow">
-            <div className="tfAdminRoles__viewModeToggle">
-              <button
-                type="button"
-                className={`view-mode-btn ${viewMode === "table" ? "active" : ""}`}
-                onClick={() => setViewMode("table")}
-              >
-                <List size={14} />
-                <span>Roles Directory Table</span>
-              </button>
-              <button
-                type="button"
-                className={`view-mode-btn ${viewMode === "matrix" ? "active" : ""}`}
-                onClick={() => setViewMode("matrix")}
-              >
-                <Layers size={14} />
-                <span>Full Permissions Matrix</span>
-              </button>
-              <button
-                type="button"
-                className={`view-mode-btn ${viewMode === "detail" ? "active" : ""}`}
-                onClick={() => setViewMode("detail")}
-              >
-                <Sliders size={14} />
-                <span>Role Inspector & Toggles</span>
-              </button>
-            </div>
-          </div>
-
-          {/* VIEW 1: ROLES DIRECTORY TABLE */}
-          {viewMode === "table" && (
-            <div className="tfAdminRoles__tableCard">
-              <div className="tfAdminRoles__tableResponsive">
-                <table className="tfAdminRoles__matrixTable">
-                  <thead>
-                    <tr>
-                      <th style={{ width: 48, textAlign: "center" }}>#</th>
-                      <th>ROLE NAME</th>
-                      <th>DESCRIPTION</th>
-                      <th>TYPE</th>
-                      <th>MEMBERS</th>
-                      <th>PERMISSIONS</th>
-                      <th style={{ textAlign: "right" }}>ACTIONS</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {roles.map((r, idx) => (
-                      <tr key={r.id} className="permission-row">
-                        <td style={{ textAlign: "center" }}>
-                          <span className="admin-row-num">{idx + 1}</span>
-                        </td>
-                        <td>
-                          <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
-                            <span
-                              className="th-dot"
-                              style={{
-                                backgroundColor: r.color || "#5b5cf0",
-                                width: 10,
-                                height: 10,
-                                borderRadius: "50%",
-                              }}
-                            />
-                            <strong style={{ fontSize: 13.5, color: "#0f172a" }}>
-                              {r.name}
-                            </strong>
-                          </div>
-                        </td>
-                        <td>
-                          <span style={{ fontSize: 12.5, color: "#64748b" }}>
-                            {r.description}
-                          </span>
-                        </td>
-                        <td>
-                          <span
-                            className="system-pill"
-                            style={{
-                              padding: "3px 8px",
-                              borderRadius: 5,
-                              fontSize: 11,
-                              fontWeight: 700,
-                              background: r.isSystem ? "#f1f5f9" : "#e0e7ff",
-                              color: r.isSystem ? "#475569" : "#4338ca",
-                            }}
-                          >
-                            {r.isSystem ? "System Protected" : "Custom Role"}
-                          </span>
-                        </td>
-                        <td>
-                          <span style={{ fontWeight: 600, color: "#334155", fontSize: 13 }}>
-                            {r.usersCount || 0} members
-                          </span>
-                        </td>
-                        <td>
-                          <span
-                            style={{
-                              background: "linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(168, 85, 247, 0.08))",
-                              color: "#4f46e5",
-                              border: "1px solid rgba(99, 102, 241, 0.2)",
-                              padding: "3px 9px",
-                              borderRadius: 6,
-                              fontWeight: 700,
-                              fontSize: 11.5,
-                            }}
-                          >
-                            {r.permissions.length} / {ALL_PERMISSION_IDS.length}
-                          </span>
-                        </td>
-                        <td style={{ textAlign: "right" }}>
-                          <div style={{ display: "inline-flex", gap: 6, alignItems: "center" }}>
-                            <button
-                              type="button"
-                              className="action-btn"
-                              title="Inspect & Edit Permissions"
-                              onClick={() => {
-                                setSelectedRole(r);
-                                setViewMode("detail");
-                              }}
-                            >
-                              <Eye size={14} />
-                            </button>
-                            <button
-                              type="button"
-                              className="action-btn"
-                              title="Edit Role Meta"
-                              onClick={() => openEditRoleModal(r)}
-                            >
-                              <Pencil size={14} />
-                            </button>
-                            <button
-                              type="button"
-                              className="action-btn"
-                              title="Duplicate Role"
-                              onClick={() => handleDuplicateRole(r)}
-                            >
-                              <Copy size={14} />
-                            </button>
-                            {!r.isSystem && (
-                              <button
-                                type="button"
-                                className="action-btn delete"
-                                title="Delete Role"
-                                onClick={() => handleDeleteRole(r.id)}
-                              >
-                                <Trash2 size={14} />
-                              </button>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
-
-          {/* VIEW 2: FULL SAAS TABLE MATRIX */}
-          {viewMode === "matrix" && (
-            <div className="tfAdminRoles__tableCard">
-              <div className="tfAdminRoles__tableResponsive">
-                <table className="tfAdminRoles__matrixTable">
-                  <thead>
-                    <tr>
-                      <th style={{ width: 44, textAlign: "center" }}>#</th>
-                      <th className="perm-col">PERMISSION & CAPABILITY</th>
-                      {roles.map((r) => (
-                        <th key={r.id} className="role-col">
-                          <div className="role-th">
-                            <span className="th-dot" style={{ backgroundColor: r.color }} />
-                            <span>{r.name}</span>
-                          </div>
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredModules.map((module) => (
-                      <React.Fragment key={module.category}>
-                        <tr className="category-row">
-                          <td colSpan={roles.length + 2}>
-                            <div className="category-header-wrap">
-                              <strong>{module.category}</strong>
-                              <span>{module.description}</span>
-                            </div>
-                          </td>
-                        </tr>
-                        {module.permissions.map((p, pIdx) => (
-                          <tr key={p.id} className="permission-row">
-                            <td style={{ textAlign: "center" }}>
-                              <span className="admin-row-num">{pIdx + 1}</span>
-                            </td>
-                            <td className="perm-info-td">
-                              <strong>{p.name}</strong>
-                              <small>{p.desc}</small>
-                            </td>
-                            {roles.map((r) => {
-                              const hasPerm = r.permissions.includes(p.id);
-                              const isLocked = r.id === "role-super-admin";
-                              return (
-                                <td key={r.id} className="role-check-td">
-                                  <label className="matrix-checkbox-wrap">
-                                    <input
-                                      type="checkbox"
-                                      checked={hasPerm}
-                                      disabled={isLocked}
-                                      onChange={() => handleTogglePermission(r.id, p.id)}
-                                      title={isLocked ? "Super Admin permissions are locked" : `Toggle ${p.name} for ${r.name}`}
-                                    />
-                                    <span className={`matrix-check-custom ${hasPerm ? "checked" : ""} ${isLocked ? "locked" : ""}`}>
-                                      {hasPerm && <Check size={11} strokeWidth={3} />}
-                                    </span>
-                                  </label>
-                                </td>
-                              );
-                            })}
-                          </tr>
-                        ))}
-                      </React.Fragment>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
-
-          {/* VIEW 2: ROLE DETAIL CARDS & TOGGLES */}
-          {viewMode === "detail" && (
-            <>
-          {/* ACTIVE ROLE DETAIL CARD */}
-          {selectedRole && (
-            <div className="tfAdminRoles__roleBanner">
-              <div className="tfAdminRoles__roleBannerLeft">
+              return (
                 <div
-                  className="tfAdminRoles__roleBadge"
+                  key={role.id}
+                  className={`rp-role-top-card ${isSelected ? "selected" : ""}`}
+                  onClick={() => setSelectedRoleId(role.id)}
                   style={{
-                    backgroundColor: `${selectedRole.color || "#5b5cf0"}18`,
-                    color: selectedRole.color || "#5b5cf0",
-                    borderColor: `${selectedRole.color || "#5b5cf0"}35`,
+                    "--role-accent": role.color || "#6366f1",
                   }}
                 >
-                  <Shield size={16} />
-                  <span>{selectedRole.name}</span>
-                </div>
-
-                <div className="tfAdminRoles__roleMeta">
-                  <p>{selectedRole.description}</p>
-                  <div className="tfAdminRoles__rolePills">
-                    <span>
-                      <Users size={13} /> {selectedRole.usersCount || 0} Assigned Members
-                    </span>
-                    <span>
-                      <CheckCircle2 size={13} /> {selectedRole.permissions.length} of{" "}
-                      {ALL_PERMISSION_IDS.length} Permissions Active
-                    </span>
-                    {selectedRole.isSystem && (
-                      <span className="system-pill">System Role</span>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              <div className="tfAdminRoles__roleBannerActions">
-                <button
-                  type="button"
-                  className="action-btn"
-                  onClick={() => openEditRoleModal(selectedRole)}
-                  title="Edit role details"
-                >
-                  <Pencil size={15} />
-                  <span>Edit</span>
-                </button>
-
-                <button
-                  type="button"
-                  className="action-btn"
-                  onClick={() => handleDuplicateRole(selectedRole)}
-                  title="Clone this role"
-                >
-                  <Copy size={15} />
-                  <span>Clone</span>
-                </button>
-
-                {!selectedRole.isSystem && (
-                  <button
-                    type="button"
-                    className="action-btn delete"
-                    onClick={() => handleDeleteRole(selectedRole.id)}
-                    title="Delete custom role"
-                  >
-                    <Trash2 size={15} />
-                    <span>Delete</span>
-                  </button>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* PERMISSIONS MATRIX */}
-          <div className="tfAdminRoles__matrixCard">
-            <div className="tfAdminRoles__matrixHeader">
-              <h3>Permissions Matrix for {selectedRole?.name}</h3>
-              <p>
-                Toggle access rights below. Changes are saved automatically and take effect across the workspace.
-              </p>
-            </div>
-
-            <div className="tfAdminRoles__matrixList">
-              {filteredModules.map((module) => {
-                const moduleIds = module.permissions.map((p) => p.id);
-                const activeCount = moduleIds.filter((id) =>
-                  selectedRole?.permissions.includes(id)
-                ).length;
-                const isAllActive = activeCount === moduleIds.length;
-
-                return (
-                  <div key={module.category} className="tfAdminRoles__moduleSection">
-                    <div className="tfAdminRoles__moduleHeader">
-                      <div>
-                        <h4>{module.category}</h4>
-                        <small>{module.description}</small>
-                      </div>
-
-                      <div className="tfAdminRoles__moduleHeaderRight">
-                        <span className="count-tag">
-                          {activeCount} of {moduleIds.length} enabled
-                        </span>
-                        <button
-                          type="button"
-                          className="toggle-all-btn"
-                          onClick={() =>
-                            handleToggleModuleAll(selectedRole.id, module.permissions)
-                          }
-                        >
-                          {isAllActive ? "Deselect All" : "Select All"}
-                        </button>
-                      </div>
+                  <div className="rp-top-card-header">
+                    <div
+                      className="rp-role-top-icon"
+                      style={{
+                        backgroundColor: `${role.color || "#6366f1"}15`,
+                        color: role.color || "#6366f1",
+                      }}
+                    >
+                      {renderRoleIcon(role, 20)}
                     </div>
 
-                    <div className="tfAdminRoles__permGrid">
-                      {module.permissions.map((perm) => {
-                        const isGranted = selectedRole?.permissions.includes(perm.id);
-                        return (
-                          <div
-                            key={perm.id}
-                            className={`tfAdminRoles__permItem ${isGranted ? "granted" : ""}`}
-                            onClick={() =>
-                              handleTogglePermission(selectedRole.id, perm.id)
-                            }
+                    <div className="rp-role-top-info">
+                      <div className="rp-role-title-row">
+                        <strong className="rp-role-title">{role.name}</strong>
+                        {isSelected && (
+                          <span
+                            className="rp-role-selected-check"
+                            style={{ backgroundColor: role.color || "#6366f1" }}
                           >
-                            <div className="tfAdminRoles__checkboxWrap">
+                            <Check size={11} strokeWidth={3} />
+                          </span>
+                        )}
+                      </div>
+                      <span className="rp-role-tag">{role.tag || "System Role"}</span>
+                    </div>
+
+                    {!isSelected && (
+                      <ChevronRight size={16} className="rp-role-arrow-chevron" />
+                    )}
+                  </div>
+
+                  <p className="rp-role-top-desc">{role.description}</p>
+
+                  <div className="rp-role-stats-row">
+                    <div className="rp-stat-item">
+                      <strong className="rp-stat-val">{activeCount}</strong>
+                      <span className="rp-stat-lbl">Permissions</span>
+                    </div>
+                    <div className="rp-stat-item">
+                      <strong className="rp-stat-val">{role.usersCount || 0}</strong>
+                      <span className="rp-stat-lbl">Users</span>
+                    </div>
+                    <div className="rp-stat-item">
+                      <strong className="rp-stat-val" style={{ color: role.color || "#6366f1" }}>
+                        {pct}%
+                      </strong>
+                      <span className="rp-stat-lbl">Access</span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* =========================================================
+             3. SUB-NAVIGATION TABS & SEARCH ROW
+          ========================================================= */}
+          <div className="rp-subnav-row">
+            <div className="rp-subnav-tabs">
+              <button
+                type="button"
+                className={`rp-subnav-tab ${activeTab === "permissions" ? "active" : ""}`}
+                onClick={() => setActiveTab("permissions")}
+              >
+                <Layers size={15} />
+                <span>Permissions</span>
+              </button>
+              <button
+                type="button"
+                className={`rp-subnav-tab ${activeTab === "users" ? "active" : ""}`}
+                onClick={() => setActiveTab("users")}
+              >
+                <Users size={15} />
+                <span>Assigned Users ({selectedRole?.usersCount || 0})</span>
+              </button>
+              <button
+                type="button"
+                className={`rp-subnav-tab ${activeTab === "settings" ? "active" : ""}`}
+                onClick={() => setActiveTab("settings")}
+              >
+                <Sliders size={15} />
+                <span>Role Settings</span>
+              </button>
+              <button
+                type="button"
+                className={`rp-subnav-tab ${activeTab === "logs" ? "active" : ""}`}
+                onClick={() => setActiveTab("logs")}
+              >
+                <Clock size={15} />
+                <span>Access Logs</span>
+              </button>
+            </div>
+
+            <div className="rp-subnav-right">
+              {activeTab === "permissions" && (
+                <>
+                  <div className="rp-subnav-search">
+                    <Search size={14} />
+                    <input
+                      type="text"
+                      placeholder="Search modules..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    className="rp-subnav-btn"
+                    onClick={handleExpandAll}
+                    title="Expand all cards"
+                  >
+                    <ChevronDown size={14} />
+                    <span>Expand All</span>
+                  </button>
+                  <button
+                    type="button"
+                    className="rp-subnav-btn"
+                    onClick={handleCollapseAll}
+                    title="Collapse all cards"
+                  >
+                    <ChevronRight size={14} />
+                    <span>Collapse All</span>
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* =========================================================
+             4. MAIN CONTENT AREA (PERMISSIONS / USERS / SETTINGS / LOGS)
+          ========================================================= */}
+
+          {/* TAB 1: PERMISSIONS (2-COLUMN CARDS LAYOUT) */}
+          {activeTab === "permissions" && (
+            <div className="rp-main-two-col">
+              {/* LEFT COLUMN: MODULE CARDS GRID */}
+              <div className="rp-cards-col">
+                {/* ROLE BANNER HEADER */}
+                <div className="rp-role-banner-bar">
+                  <div className="rp-banner-info-left">
+                    <div
+                      className="rp-banner-icon-chip"
+                      style={{
+                        backgroundColor: `${selectedRole?.color || "#6366f1"}15`,
+                        color: selectedRole?.color || "#6366f1",
+                      }}
+                    >
+                      {renderRoleIcon(selectedRole, 20)}
+                    </div>
+                    <div>
+                      <h3 className="rp-banner-title">
+                        Permissions for {selectedRole?.name}
+                      </h3>
+                      <p className="rp-banner-sub">
+                        Select and manage permissions for this role. Changes will apply to all users with this role.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="rp-banner-actions">
+                    <button
+                      type="button"
+                      className="rp-btn-reset-default"
+                      onClick={handleResetCurrentRole}
+                      title="Reset this role to default permissions"
+                    >
+                      <RotateCcw size={14} />
+                      <span>Reset to Default</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      className={`rp-btn-save-changes ${hasUnsavedChanges ? "has-changes" : ""}`}
+                      onClick={handleSaveChanges}
+                      disabled={!hasUnsavedChanges}
+                      title={hasUnsavedChanges ? "Click to persist changes" : "All changes saved"}
+                    >
+                      <Check size={15} />
+                      <span>{hasUnsavedChanges ? "Save Changes" : "Save Changes"}</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* MODULE CARDS GRID */}
+                <div className="rp-modules-card-grid">
+                  {filteredModules.length === 0 ? (
+                    <div className="rp-empty-modules-card">
+                      <AlertCircle size={32} />
+                      <h4>No modules match "{searchQuery}"</h4>
+                      <p>Try searching another keyword or reset the module filter.</p>
+                      <button
+                        type="button"
+                        className="rp-btn-clear-search"
+                        onClick={() => {
+                          setSearchQuery("");
+                          setModuleFilter("all");
+                        }}
+                      >
+                        Reset Filter
+                      </button>
+                    </div>
+                  ) : (
+                    filteredModules.map((module) => {
+                      const IconComp = module.icon || Shield;
+                      const modPermIds = module.permissions.map((p) => p.id);
+                      const activeInMod = modPermIds.filter((id) =>
+                        selectedRole?.permissions.includes(id)
+                      ).length;
+                      const allActive = activeInMod === modPermIds.length;
+                      const isCollapsed = Boolean(collapsedCards[module.category]);
+
+                      return (
+                        <div key={module.category} className="rp-module-card">
+                          {/* CARD HEADER */}
+                          <div className="rp-card-header">
+                            <div className="rp-card-header-left">
+                              <span
+                                className="rp-card-icon-chip"
+                                style={{
+                                  backgroundColor: module.bg,
+                                  color: module.color,
+                                }}
+                              >
+                                <IconComp size={18} />
+                              </span>
+                              <div>
+                                <h4 className="rp-card-title">{module.category}</h4>
+                                <span className="rp-card-perm-count">
+                                  {module.permissions.length} permissions
+                                </span>
+                              </div>
+                            </div>
+
+                            {/* TOGGLE SWITCH TO ENABLE/DISABLE ALL IN MODULE */}
+                            <label
+                              className="rp-toggle-switch"
+                              title={allActive ? "Disable all in module" : "Enable all in module"}
+                            >
                               <input
                                 type="checkbox"
-                                checked={isGranted}
-                                onChange={() => {}} // handled by wrapper click
-                                aria-label={perm.name}
+                                checked={allActive}
+                                onChange={() => handleToggleModule(module.category)}
+                              />
+                              <span
+                                className="rp-toggle-slider"
+                                style={{
+                                  backgroundColor: allActive ? (selectedRole?.color || "#6366f1") : undefined,
+                                }}
+                              />
+                            </label>
+                          </div>
+
+                          <p className="rp-card-description">{module.description}</p>
+
+                          {/* PERMISSION CHECKBOX LIST */}
+                          <div className={`rp-card-perms-list ${isCollapsed ? "collapsed" : ""}`}>
+                            {module.permissions.map((p) => {
+                              const isGranted = selectedRole?.permissions.includes(p.id);
+                              const isFlashing = recentlyChangedPermId === p.id;
+
+                              return (
+                                <div
+                                  key={p.id}
+                                  className={`rp-card-checkbox-item ${isFlashing ? "flash" : ""}`}
+                                  onClick={() => handleTogglePermission(selectedRole.id, p.id)}
+                                >
+                                  <label className="rp-custom-check-wrap">
+                                    <input
+                                      type="checkbox"
+                                      checked={isGranted}
+                                      onChange={() => {}}
+                                      aria-label={p.name}
+                                    />
+                                    <span
+                                      className={`rp-custom-box ${isGranted ? "checked" : ""}`}
+                                      style={
+                                        isGranted
+                                          ? {
+                                              backgroundColor: selectedRole?.color || "#6366f1",
+                                              borderColor: selectedRole?.color || "#6366f1",
+                                            }
+                                          : undefined
+                                      }
+                                    >
+                                      {isGranted && <Check size={11} strokeWidth={3} />}
+                                    </span>
+                                  </label>
+                                  <div className="rp-perm-text-wrap">
+                                    <span className={`rp-perm-label ${isGranted ? "granted" : ""}`}>
+                                      {p.name}
+                                    </span>
+                                    {p.sensitive && (
+                                      <span className="rp-perm-sensitive-indicator" title="Sensitive capability">
+                                        •
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+
+                          {/* CARD FOOTER */}
+                          <div
+                            className="rp-card-footer"
+                            onClick={() => toggleCardCollapse(module.category)}
+                          >
+                            <span>
+                              {isCollapsed
+                                ? `View All (${module.permissions.length})`
+                                : `Active: ${activeInMod} / ${module.permissions.length}`}
+                            </span>
+                            <ChevronRight size={14} className={isCollapsed ? "" : "rotated"} />
+                          </div>
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+              </div>
+
+              {/* RIGHT COLUMN: ROLE DETAILS SIDEBAR (Exact match to reference design) */}
+              <div className="rp-sidebar-col">
+                <div className="rp-details-card">
+                  {/* SIDEBAR HEADER */}
+                  <div className="rp-details-header">
+                    <h3>Role Details</h3>
+                    <button
+                      type="button"
+                      className="rp-details-edit-btn"
+                      onClick={() => openEditModalForRole(selectedRole)}
+                    >
+                      <Pencil size={13} />
+                      <span>Edit</span>
+                    </button>
+                  </div>
+
+                  {/* ROLE INFO HEADER */}
+                  <div className="rp-details-role-hero">
+                    <div
+                      className="rp-details-avatar"
+                      style={{
+                        backgroundColor: `${selectedRole?.color || "#6366f1"}15`,
+                        color: selectedRole?.color || "#6366f1",
+                      }}
+                    >
+                      {renderRoleIcon(selectedRole, 26)}
+                    </div>
+                    <div>
+                      <h4 className="rp-details-name">{selectedRole?.name}</h4>
+                      <span className="rp-details-tag">{selectedRole?.tag || "System Role"}</span>
+                      <p className="rp-details-sub">{selectedRole?.description}</p>
+                    </div>
+                  </div>
+
+                  {/* QUICK STATS & CIRCULAR ACCESS PROGRESS */}
+                  <div className="rp-quick-stats-section">
+                    <span className="rp-section-label">- Quick Stats</span>
+                    <div className="rp-quick-stats-grid">
+                      <div className="rp-stats-numbers">
+                        <div className="rp-stat-row">
+                          <span className="rp-stat-icon-wrap" style={{ color: "#6366f1", backgroundColor: "#eef2ff" }}>
+                            <ShieldCheck size={14} />
+                          </span>
+                          <div>
+                            <strong>{selectedRoleActiveCount} / {totalPermsCount}</strong>
+                            <small>Permissions</small>
+                          </div>
+                        </div>
+
+                        <div className="rp-stat-row">
+                          <span className="rp-stat-icon-wrap" style={{ color: "#2563eb", backgroundColor: "#eff6ff" }}>
+                            <Users size={14} />
+                          </span>
+                          <div>
+                            <strong>{selectedRole?.usersCount || 0}</strong>
+                            <small>Assigned Users</small>
+                          </div>
+                        </div>
+
+                        <div className="rp-stat-row">
+                          <span className="rp-stat-icon-wrap" style={{ color: "#f59e0b", backgroundColor: "#fffbeb" }}>
+                            <Lock size={14} />
+                          </span>
+                          <div>
+                            <strong>{PERMISSION_MODULES.length}</strong>
+                            <small>Security Modules</small>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* CIRCULAR SVG PROGRESS RING */}
+                      <div className="rp-circle-progress-wrap">
+                        <svg className="rp-circle-svg" width="76" height="76" viewBox="0 0 76 76">
+                          <circle
+                            cx="38"
+                            cy="38"
+                            r="30"
+                            stroke="currentColor"
+                            strokeWidth="6"
+                            fill="transparent"
+                            className="rp-circle-bg"
+                          />
+                          <circle
+                            cx="38"
+                            cy="38"
+                            r="30"
+                            stroke={selectedRole?.color || "#6366f1"}
+                            strokeWidth="6"
+                            strokeDasharray={2 * Math.PI * 30}
+                            strokeDashoffset={2 * Math.PI * 30 * (1 - accessPercentage / 100)}
+                            strokeLinecap="round"
+                            fill="transparent"
+                            transform="rotate(-90 38 38)"
+                            className="rp-circle-bar"
+                          />
+                          <text x="38" y="44" textAnchor="middle" className="rp-circle-text">
+                            {accessPercentage}%
+                          </text>
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* DESCRIPTION BLOCK */}
+                  <div className="rp-description-block">
+                    <span className="rp-section-label">Description</span>
+                    <p>{selectedRole?.description}</p>
+                  </div>
+
+                  {/* PERMISSIONS BREAKDOWN */}
+                  <div className="rp-breakdown-section">
+                    <span className="rp-section-label">Permissions Breakdown</span>
+                    <div className="rp-breakdown-list">
+                      {PERMISSION_MODULES.slice(0, 6).map((mod) => {
+                        const IconComponent = mod.icon || Shield;
+                        const modPermIds = mod.permissions.map((p) => p.id);
+                        const activeCount = modPermIds.filter((id) =>
+                          selectedRole?.permissions.includes(id)
+                        ).length;
+                        const pct = Math.round((activeCount / modPermIds.length) * 100);
+
+                        return (
+                          <div key={mod.category} className="rp-breakdown-item">
+                            <div className="rp-breakdown-label-row">
+                              <span className="rp-breakdown-icon" style={{ color: mod.color }}>
+                                <IconComponent size={13} />
+                              </span>
+                              <span className="rp-breakdown-name">{mod.category}</span>
+                            </div>
+
+                            <div className="rp-breakdown-meter-wrap">
+                              <div
+                                className="rp-breakdown-fill"
+                                style={{
+                                  width: `${pct}%`,
+                                  backgroundColor: mod.color,
+                                }}
                               />
                             </div>
 
-                            <div className="tfAdminRoles__permInfo">
-                              <strong>{perm.name}</strong>
-                              <p>{perm.desc}</p>
-                            </div>
+                            <span className="rp-breakdown-count">
+                              {activeCount}/{modPermIds.length}
+                            </span>
                           </div>
                         );
                       })}
                     </div>
                   </div>
-                );
-              })}
+
+                  {/* RECENT CHANGES AUDIT TRAIL */}
+                  <div className="rp-recent-changes-section">
+                    <span className="rp-section-label">Recent Changes</span>
+                    <div className="rp-recent-changes-list">
+                      {accessLogs
+                        .filter((l) => l.roleId === selectedRole?.id)
+                        .slice(0, 3)
+                        .map((log) => (
+                          <div key={log.id} className="rp-change-item">
+                            <span
+                              className={`rp-change-badge ${log.action === "grant" ? "grant" : "revoke"}`}
+                            >
+                              {log.action === "grant" ? "+" : "-"}
+                            </span>
+                            <div className="rp-change-info">
+                              <strong className="rp-change-title">
+                                {log.action === "grant" ? "Granted" : "Revoked"} {log.permId}
+                              </strong>
+                              <small className="rp-change-time">
+                                {log.time} by {log.actor}
+                              </small>
+                            </div>
+                          </div>
+                        ))}
+                    </div>
+
+                    <button
+                      type="button"
+                      className="rp-btn-view-logs"
+                      onClick={() => setActiveTab("logs")}
+                    >
+                      <span>View All Logs</span>
+                      <ChevronRight size={13} />
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
-            </>
+          )}
+
+          {/* TAB 2: ASSIGNED USERS */}
+          {activeTab === "users" && (
+            <div className="rp-tab-pane">
+              <div className="rp-tab-card">
+                <div className="rp-tab-card-header">
+                  <div>
+                    <h3>Users assigned to {selectedRole?.name}</h3>
+                    <p>Team members who currently inherit this security profile and capabilities.</p>
+                  </div>
+                  <div className="rp-card-search-box">
+                    <Search size={14} />
+                    <input
+                      type="text"
+                      placeholder="Search assigned members..."
+                      value={userSearch}
+                      onChange={(e) => setUserSearch(e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                <div className="rp-users-table-wrap">
+                  <table className="rp-users-table">
+                    <thead>
+                      <tr>
+                        <th>USER MEMBER</th>
+                        <th>DEPARTMENT</th>
+                        <th>CURRENT ROLE</th>
+                        <th>STATUS</th>
+                        <th style={{ textAlign: "right" }}>ACTIONS</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {roleAssignedUsers.length === 0 ? (
+                        <tr>
+                          <td colSpan={5} style={{ textAlign: "center", padding: "40px" }}>
+                            <Users size={32} style={{ color: "#94a3b8", marginBottom: 8 }} />
+                            <p style={{ margin: 0, color: "#64748b" }}>
+                              No users match this filter for {selectedRole?.name}.
+                            </p>
+                          </td>
+                        </tr>
+                      ) : (
+                        roleAssignedUsers.map((user) => (
+                          <tr key={user.id}>
+                            <td>
+                              <div className="rp-user-cell">
+                                <span className="rp-user-avatar">{user.avatar}</span>
+                                <div>
+                                  <strong>{user.name}</strong>
+                                  <small>{user.email}</small>
+                                </div>
+                              </div>
+                            </td>
+                            <td>{user.department}</td>
+                            <td>
+                              <span
+                                className="rp-role-chip"
+                                style={{
+                                  backgroundColor: `${selectedRole?.color}15`,
+                                  color: selectedRole?.color,
+                                  borderColor: `${selectedRole?.color}35`,
+                                }}
+                              >
+                                {selectedRole?.name}
+                              </span>
+                            </td>
+                            <td>
+                              <span
+                                className={`rp-status-tag ${user.status === "Active" ? "active" : "inactive"}`}
+                              >
+                                {user.status}
+                              </span>
+                            </td>
+                            <td style={{ textAlign: "right" }}>
+                              <button
+                                type="button"
+                                className="rp-btn-sm-action"
+                                onClick={() => showToast(`Opening profile for ${user.name}`, "info")}
+                              >
+                                Manage User
+                              </button>
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 3: ROLE SETTINGS */}
+          {activeTab === "settings" && (
+            <div className="rp-tab-pane">
+              <div className="rp-tab-card rp-settings-card">
+                <div className="rp-tab-card-header">
+                  <div>
+                    <h3>Governance & Security Settings for {selectedRole?.name}</h3>
+                    <p>Configure role identity, branding accents, and tenant governance tier.</p>
+                  </div>
+                  <span className={`rp-role-tag-badge ${selectedRole?.isSystem ? "system" : "custom"}`}>
+                    {selectedRole?.isSystem ? "System Protected" : "Custom Role"}
+                  </span>
+                </div>
+
+                <form onSubmit={handleUpdateRole} className="rp-settings-form">
+                  <div className="rp-form-group">
+                    <label>Role Name *</label>
+                    <input
+                      type="text"
+                      disabled={selectedRole?.isSystem}
+                      value={selectedRole?.isSystem ? selectedRole.name : editRoleForm.name}
+                      onChange={(e) => setEditRoleForm({ ...editRoleForm, name: e.target.value })}
+                    />
+                    {selectedRole?.isSystem && (
+                      <small className="rp-form-hint">
+                        System protected roles cannot be renamed to protect workspace tenant bindings.
+                      </small>
+                    )}
+                  </div>
+
+                  <div className="rp-form-group">
+                    <label>Role Description</label>
+                    <textarea
+                      rows={3}
+                      value={editRoleForm.description}
+                      onChange={(e) => setEditRoleForm({ ...editRoleForm, description: e.target.value })}
+                    />
+                  </div>
+
+                  <div className="rp-form-group">
+                    <label>Role Badge Accent Color</label>
+                    <div className="rp-color-picker-row">
+                      {ROLE_COLOR_PALETTE.map((c) => {
+                        const isChosen = editRoleForm.color?.toLowerCase() === c.value.toLowerCase();
+                        return (
+                          <button
+                            key={c.value}
+                            type="button"
+                            className={`rp-color-circle-btn ${isChosen ? "active" : ""}`}
+                            onClick={() => setEditRoleForm({ ...editRoleForm, color: c.value })}
+                            style={{ backgroundColor: c.value }}
+                            title={c.label}
+                          >
+                            {isChosen && <Check size={12} style={{ color: "#ffffff" }} />}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  <div className="rp-settings-actions">
+                    {!selectedRole?.isSystem && (
+                      <button
+                        type="button"
+                        className="rp-btn-danger"
+                        onClick={() =>
+                          setConfirmAction({
+                            type: "delete-role",
+                            roleId: selectedRole.id,
+                            roleName: selectedRole.name,
+                          })
+                        }
+                      >
+                        <Trash2 size={15} />
+                        <span>Delete Custom Role</span>
+                      </button>
+                    )}
+                    <button type="submit" className="rp-btn-save-settings">
+                      <Check size={15} />
+                      <span>Update Settings</span>
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 4: ACCESS LOGS */}
+          {activeTab === "logs" && (
+            <div className="rp-tab-pane">
+              <div className="rp-tab-card">
+                <div className="rp-tab-card-header">
+                  <div>
+                    <h3>RBAC Access & Audit Trail Logs</h3>
+                    <p>Chronological security history of capabilities granted or revoked across roles.</p>
+                  </div>
+                  <button
+                    type="button"
+                    className="rp-btn-export"
+                    onClick={() => showToast("Exported audit logs to CSV!", "success")}
+                  >
+                    <Download size={14} />
+                    <span>Export Audit Trail</span>
+                  </button>
+                </div>
+
+                <div className="rp-logs-table-wrap">
+                  <table className="rp-logs-table">
+                    <thead>
+                      <tr>
+                        <th>ACTION</th>
+                        <th>CAPABILITY / PERMISSION</th>
+                        <th>MODULE</th>
+                        <th>TARGET ROLE</th>
+                        <th>PERFORMED BY</th>
+                        <th>TIMESTAMP</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {accessLogs.map((log) => (
+                        <tr key={log.id}>
+                          <td>
+                            <span className={`rp-log-action-tag ${log.action}`}>
+                              {log.action === "grant" ? "Granted" : "Revoked"}
+                            </span>
+                          </td>
+                          <td>
+                            <strong>{log.permName}</strong>
+                            <code className="rp-perm-key-badge">{log.permId}</code>
+                          </td>
+                          <td>{log.module}</td>
+                          <td>
+                            <span className="rp-role-mini-pill">{log.roleName}</span>
+                          </td>
+                          <td>{log.actor}</td>
+                          <td>
+                            <span className="rp-log-time">{log.time}</span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
           )}
         </div>
       </div>
 
+      {/* =========================================================
+         MODALS: CREATE ROLE / EDIT ROLE / CONFIRMATION
+      ========================================================= */}
+
       {/* CREATE ROLE MODAL */}
       {createModal && (
         <div
-          className="tfAdminRoles__modalOverlay"
+          className="rp-modal-backdrop"
           onMouseDown={(e) => {
             if (e.target === e.currentTarget) setCreateModal(false);
           }}
         >
-          <div className="tfAdminRoles__modal">
-            <div className="tfAdminRoles__modalHeader">
-              <div>
-                <h2>Create Custom Role</h2>
-                <p>Define a new role and clone existing permission templates.</p>
+          <div className="rp-modal-box" role="dialog" aria-modal="true">
+            <div className="rp-modal-header">
+              <div className="rp-modal-header-left">
+                <div className="rp-modal-icon-chip">
+                  <Plus size={20} />
+                </div>
+                <div>
+                  <h2>Create New Role</h2>
+                  <p>Configure credentials and clone existing permission templates.</p>
+                </div>
               </div>
-              <button type="button" onClick={() => setCreateModal(false)}>
+              <button
+                type="button"
+                className="rp-modal-close-btn"
+                onClick={() => setCreateModal(false)}
+              >
                 <X size={18} />
               </button>
             </div>
 
-            <form onSubmit={handleCreateRole} className="tfAdminRoles__form">
-              <label>
-                Role Name *
+            <form onSubmit={handleCreateRole} className="rp-modal-form">
+              <div className="rp-form-group">
+                <label>Role Name *</label>
                 <input
                   type="text"
                   required
-                  placeholder="e.g. Product Manager"
+                  placeholder="e.g. Quality Assurance Lead"
                   value={createForm.name}
-                  onChange={(e) =>
-                    setCreateForm({ ...createForm, name: e.target.value })
-                  }
+                  onChange={(e) => setCreateForm({ ...createForm, name: e.target.value })}
                 />
-              </label>
+              </div>
 
-              <label>
-                Role Description
+              <div className="rp-form-group">
+                <label>Description</label>
                 <textarea
-                  rows="2"
-                  placeholder="Describe the scope of responsibilities for this role..."
+                  rows={3}
+                  placeholder="Describe the operational responsibilities of this role..."
                   value={createForm.description}
-                  onChange={(e) =>
-                    setCreateForm({ ...createForm, description: e.target.value })
-                  }
+                  onChange={(e) => setCreateForm({ ...createForm, description: e.target.value })}
                 />
-              </label>
+              </div>
 
-              <div className="tfAdminRoles__formGrid">
-                <label>
-                  Clone Permissions From
+              <div className="rp-form-grid-2">
+                <div className="rp-form-group">
+                  <label>Clone Permissions From</label>
                   <select
                     value={createForm.cloneFrom}
-                    onChange={(e) =>
-                      setCreateForm({ ...createForm, cloneFrom: e.target.value })
-                    }
+                    onChange={(e) => setCreateForm({ ...createForm, cloneFrom: e.target.value })}
                   >
                     {roles.map((r) => (
                       <option key={r.id} value={r.id}>
@@ -1015,35 +1756,32 @@ export default function AdminRoles() {
                       </option>
                     ))}
                   </select>
-                </label>
+                </div>
 
-                <label>
-                  Role Badge Color
+                <div className="rp-form-group">
+                  <label>Role Badge Color</label>
                   <select
                     value={createForm.color}
-                    onChange={(e) =>
-                      setCreateForm({ ...createForm, color: e.target.value })
-                    }
+                    onChange={(e) => setCreateForm({ ...createForm, color: e.target.value })}
                   >
-                    <option value="#5b5cf0">TeamFlow Indigo (#5b5cf0)</option>
-                    <option value="#2563eb">Royal Blue (#2563eb)</option>
-                    <option value="#10b981">Emerald Green (#10b981)</option>
-                    <option value="#8b5cf6">Purple (#8b5cf6)</option>
-                    <option value="#f43f5e">Rose (#f43f5e)</option>
-                    <option value="#f59e0b">Amber (#f59e0b)</option>
+                    {ROLE_COLOR_PALETTE.map((c) => (
+                      <option key={c.value} value={c.value}>
+                        {c.label}
+                      </option>
+                    ))}
                   </select>
-                </label>
+                </div>
               </div>
 
-              <div className="tfAdminRoles__modalActions">
+              <div className="rp-modal-footer">
                 <button
                   type="button"
-                  className="cancel"
+                  className="rp-btn-cancel"
                   onClick={() => setCreateModal(false)}
                 >
                   Cancel
                 </button>
-                <button type="submit" className="save">
+                <button type="submit" className="rp-btn-primary">
                   <Plus size={16} />
                   <span>Create Role</span>
                 </button>
@@ -1054,75 +1792,95 @@ export default function AdminRoles() {
       )}
 
       {/* EDIT ROLE MODAL */}
-      {editModal && editingRole && (
+      {editModal && selectedRole && (
         <div
-          className="tfAdminRoles__modalOverlay"
+          className="rp-modal-backdrop"
           onMouseDown={(e) => {
             if (e.target === e.currentTarget) setEditModal(false);
           }}
         >
-          <div className="tfAdminRoles__modal">
-            <div className="tfAdminRoles__modalHeader">
-              <div>
-                <h2>Edit Role</h2>
-                <p>Update title, description, and visual theme for this role.</p>
+          <div className="rp-modal-box" role="dialog" aria-modal="true">
+            <div className="rp-modal-header">
+              <div className="rp-modal-header-left">
+                <div
+                  className="rp-modal-icon-chip"
+                  style={{
+                    backgroundColor: `${selectedRole.color || "#6366f1"}15`,
+                    color: selectedRole.color || "#6366f1",
+                  }}
+                >
+                  <Pencil size={18} />
+                </div>
+                <div>
+                  <h2>Edit {selectedRole.name}</h2>
+                  <p>Update credentials, description, and visual theme.</p>
+                </div>
               </div>
-              <button type="button" onClick={() => setEditModal(false)}>
+              <button
+                type="button"
+                className="rp-modal-close-btn"
+                onClick={() => setEditModal(false)}
+              >
                 <X size={18} />
               </button>
             </div>
 
-            <form onSubmit={handleUpdateRole} className="tfAdminRoles__form">
-              <label>
-                Role Name *
+            <form onSubmit={handleUpdateRole} className="rp-modal-form">
+              <div className="rp-form-group">
+                <label>Role Name *</label>
                 <input
                   type="text"
                   required
-                  disabled={editingRole.isSystem}
-                  value={editingRole.name}
-                  onChange={(e) =>
-                    setEditingRole({ ...editingRole, name: e.target.value })
-                  }
+                  disabled={selectedRole.isSystem}
+                  value={selectedRole.isSystem ? selectedRole.name : editRoleForm.name}
+                  onChange={(e) => setEditRoleForm({ ...editRoleForm, name: e.target.value })}
                 />
-              </label>
+                {selectedRole.isSystem && (
+                  <small className="rp-form-hint">
+                    System protected roles cannot be renamed.
+                  </small>
+                )}
+              </div>
 
-              <label>
-                Role Description
+              <div className="rp-form-group">
+                <label>Description</label>
                 <textarea
-                  rows="2"
-                  value={editingRole.description || ""}
-                  onChange={(e) =>
-                    setEditingRole({ ...editingRole, description: e.target.value })
-                  }
+                  rows={3}
+                  value={editRoleForm.description}
+                  onChange={(e) => setEditRoleForm({ ...editRoleForm, description: e.target.value })}
                 />
-              </label>
+              </div>
 
-              <label>
-                Badge Color
-                <select
-                  value={editingRole.color || "#5b5cf0"}
-                  onChange={(e) =>
-                    setEditingRole({ ...editingRole, color: e.target.value })
-                  }
-                >
-                  <option value="#5b5cf0">TeamFlow Indigo</option>
-                  <option value="#2563eb">Royal Blue</option>
-                  <option value="#10b981">Emerald Green</option>
-                  <option value="#8b5cf6">Purple</option>
-                  <option value="#f43f5e">Rose</option>
-                  <option value="#f59e0b">Amber</option>
-                </select>
-              </label>
+              <div className="rp-form-group">
+                <label>Accent Color</label>
+                <div className="rp-color-picker-row">
+                  {ROLE_COLOR_PALETTE.map((c) => {
+                    const isChosen = editRoleForm.color?.toLowerCase() === c.value.toLowerCase();
+                    return (
+                      <button
+                        key={c.value}
+                        type="button"
+                        className={`rp-color-circle-btn ${isChosen ? "active" : ""}`}
+                        onClick={() => setEditRoleForm({ ...editRoleForm, color: c.value })}
+                        style={{ backgroundColor: c.value }}
+                        title={c.label}
+                      >
+                        {isChosen && <Check size={12} style={{ color: "#ffffff" }} />}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
 
-              <div className="tfAdminRoles__modalActions">
+              <div className="rp-modal-footer">
                 <button
                   type="button"
-                  className="cancel"
+                  className="rp-btn-cancel"
                   onClick={() => setEditModal(false)}
                 >
                   Cancel
                 </button>
-                <button type="submit" className="save">
+                <button type="submit" className="rp-btn-primary">
                   <Check size={16} />
                   <span>Save Changes</span>
                 </button>
@@ -1131,7 +1889,67 @@ export default function AdminRoles() {
           </div>
         </div>
       )}
+
+      {/* CONFIRMATION MODAL (DELETE, SENSITIVE, RESET) */}
+      {confirmAction && (
+        <div
+          className="rp-modal-backdrop"
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget) setConfirmAction(null);
+          }}
+        >
+          <div className="rp-modal-box rp-modal-sm" role="dialog" aria-modal="true">
+            <div className={`rp-modal-icon-circle ${confirmAction.type === "toggle-sensitive" ? "warning" : "danger"}`}>
+              {confirmAction.type === "toggle-sensitive" ? (
+                <ShieldAlert size={28} />
+              ) : (
+                <Trash2 size={26} />
+              )}
+            </div>
+
+            <h3 className="rp-modal-confirm-title">
+              {confirmAction.type === "toggle-sensitive"
+                ? "Modify Sensitive Privilege?"
+                : confirmAction.type === "reset-role"
+                ? `Reset ${confirmAction.roleName}?`
+                : confirmAction.type === "reset-all"
+                ? "Reset All Roles?"
+                : `Delete Role "${confirmAction.roleName}"?`}
+            </h3>
+
+            <p className="rp-modal-confirm-desc">
+              {confirmAction.type === "toggle-sensitive"
+                ? `You are about to ${confirmAction.isCurrentlyGranted ? "revoke" : "grant"} "${confirmAction.permName}" for ${confirmAction.roleName}. This affects critical administrative access boundaries.`
+                : confirmAction.type === "reset-role"
+                ? `Are you sure you want to restore default permissions for ${confirmAction.roleName}? Custom changes will be overwritten.`
+                : confirmAction.type === "reset-all"
+                ? "Are you sure you want to restore all roles and permissions to system defaults?"
+                : `Are you sure you want to permanently delete "${confirmAction.roleName}"? Assigned users will revert to standard Member.`}
+            </p>
+
+            <div className="rp-modal-footer">
+              <button
+                type="button"
+                className="rp-btn-cancel"
+                onClick={() => setConfirmAction(null)}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className={confirmAction.type === "toggle-sensitive" ? "rp-btn-primary" : "rp-btn-danger"}
+                onClick={handleConfirmActionExecution}
+              >
+                {confirmAction.type === "toggle-sensitive"
+                  ? (confirmAction.isCurrentlyGranted ? "Revoke Capability" : "Grant Capability")
+                  : confirmAction.type === "reset-role" || confirmAction.type === "reset-all"
+                  ? "Reset Defaults"
+                  : "Delete Role"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
-

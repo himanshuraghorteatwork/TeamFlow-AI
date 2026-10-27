@@ -204,7 +204,7 @@ export default function AdminActivityLogs() {
   const handleCreateLog = (e) => {
     e.preventDefault();
     if (!newLogData.action || !newLogData.entity) {
-      alert("Please fill in Action and Resource Target.");
+      showToast("Please fill in Action and Resource Target.", "error");
       return;
     }
     const newEntry = {

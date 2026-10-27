@@ -68,6 +68,7 @@ export default function AdminAppearance() {
   });
 
   const applyThemeMode = (mode) => {
+    document.documentElement.classList.add("theme-transitioning");
     let isDark = false;
     if (mode === "dark") {
       isDark = true;
@@ -86,6 +87,11 @@ export default function AdminAppearance() {
     localStorage.setItem("teamflow_admin_dark", String(isDark));
     localStorage.setItem("teamflow_theme_mode", mode);
     window.dispatchEvent(new Event("teamflow_theme_update"));
+
+    window.clearTimeout(window.__tfThemeTimerApp);
+    window.__tfThemeTimerApp = window.setTimeout(() => {
+      document.documentElement.classList.remove("theme-transitioning");
+    }, 380);
   };
 
   const applyAccentColor = (hex) => {
@@ -221,45 +227,54 @@ export default function AdminAppearance() {
           </div>
 
           {/* NAV TABS */}
-          <div className="tfAdminAppearance__tabs">
+          <div className="tfAdminSettings__moduleTabs">
             <button
               type="button"
-              className="tfAdminAppearance__tab"
+              className="tfAdminSettings__moduleTab "
               onClick={() => navigate("/admin/profile")}
             >
-              <UserRound size={15} />
+              <UserRound size={14} />
               <span>Profile</span>
             </button>
             <button
               type="button"
-              className="tfAdminAppearance__tab"
+              className="tfAdminSettings__moduleTab "
               onClick={() => navigate("/admin/account-settings")}
             >
-              <Settings size={15} />
-              <span>Account Settings</span>
+              <Settings size={14} />
+              <span>Account</span>
             </button>
             <button
               type="button"
-              className="tfAdminAppearance__tab tfAdminAppearance__tab--active"
+              className="tfAdminSettings__moduleTab tfAdminSettings__moduleTab--active"
+              onClick={() => navigate("/admin/appearance")}
             >
-              <Palette size={15} />
+              <Palette size={14} />
               <span>Appearance</span>
             </button>
             <button
               type="button"
-              className="tfAdminAppearance__tab"
+              className="tfAdminSettings__moduleTab "
               onClick={() => navigate("/admin/notifications")}
             >
-              <Bell size={15} />
+              <Bell size={14} />
               <span>Notifications</span>
             </button>
             <button
               type="button"
-              className="tfAdminAppearance__tab"
+              className="tfAdminSettings__moduleTab "
               onClick={() => navigate("/admin/security")}
             >
-              <ShieldCheck size={15} />
+              <ShieldCheck size={14} />
               <span>Security</span>
+            </button>
+            <button
+              type="button"
+              className="tfAdminSettings__moduleTab "
+              onClick={() => navigate("/admin/settings")}
+            >
+              <Building2 size={14} />
+              <span>Organization Settings</span>
             </button>
           </div>
 

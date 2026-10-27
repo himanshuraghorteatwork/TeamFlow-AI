@@ -842,3 +842,95 @@
   }
 }
 
+
+
+/* =========================================================
+   ENHANCED INVOICE ACTIONS STYLING (SAAS POLISHED)
+========================================================= */
+.invoice-row-actions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  white-space: nowrap;
+  min-width: 175px;
+}
+
+.inv-action-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid var(--border-color, #e2e8f0);
+  background: var(--bg-card, #ffffff);
+  color: var(--primary, #4f46e5);
+}
+
+.inv-action-pill:hover {
+  background: var(--primary-soft, #ede9fe);
+  border-color: var(--primary, #4f46e5);
+  box-shadow: 0 2px 6px rgba(79, 70, 229, 0.15);
+}
+
+:root.dark .inv-action-pill {
+  background: #1e293b;
+  border-color: #334155;
+  color: #818cf8;
+}
+
+:root.dark .inv-action-pill:hover {
+  background: rgba(99, 102, 241, 0.2);
+  border-color: #6366f1;
+}
+
+.inv-action-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 7px;
+  border: 1px solid var(--border-color, #e2e8f0);
+  background: var(--bg-card, #ffffff);
+  color: var(--text-muted, #64748b);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.inv-action-icon:hover {
+  background: var(--bg-hover, #f1f5f9);
+  color: var(--text-color, #0f172a);
+}
+
+:root.dark .inv-action-icon {
+  background: #1e293b;
+  border-color: #334155;
+  color: #94a3b8;
+}
+
+:root.dark .inv-action-icon:hover {
+  background: #334155;
+  color: #f8fafc;
+}
+
+.inv-action-icon.inv-status-btn:hover {
+  border-color: #f59e0b;
+  color: #d97706;
+  background: #fef3c7;
+}
+
+.inv-action-icon.inv-delete-btn:hover {
+  border-color: #fecaca;
+  color: #ef4444;
+  background: #fef2f2;
+}
+
+:root.dark .inv-action-icon.inv-delete-btn:hover {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: #ef4444;
+}

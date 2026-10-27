@@ -1070,3 +1070,186 @@
     grid-template-columns: 1fr;
   }
 }
+
+
+/* =========================================================
+   PAGINATION STYLING FOR ADMIN REPORTS
+========================================================= */
+.admin-reports-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  background: var(--bg-card, #ffffff);
+  border-top: 1px solid var(--border-color, #e2e8f0);
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+:root.dark .admin-reports-pagination {
+  background: var(--bg-card, #0f172a);
+  border-top-color: var(--border-color, #1e293b);
+}
+
+.admin-reports-pagination .pagination-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.8125rem;
+  color: var(--text-muted, #64748b);
+  font-weight: 500;
+}
+
+:root.dark .admin-reports-pagination .pagination-info {
+  color: #94a3b8;
+}
+
+.admin-reports-pagination .per-page-select {
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color, #e2e8f0);
+  background: var(--bg-hover, #f8fafc);
+  color: var(--text-color, #0f172a);
+  font-size: 0.8125rem;
+  outline: none;
+  cursor: pointer;
+}
+
+:root.dark .admin-reports-pagination .per-page-select {
+  background: #1e293b;
+  border-color: #334155;
+  color: #f8fafc;
+}
+
+.admin-reports-pagination .pagination-buttons {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.admin-reports-pagination .page-nav-btn {
+  padding: 5px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color, #e2e8f0);
+  background: var(--bg-card, #ffffff);
+  color: var(--text-color, #0f172a);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+:root.dark .admin-reports-pagination .page-nav-btn {
+  background: #1e293b;
+  border-color: #334155;
+  color: #f8fafc;
+}
+
+.admin-reports-pagination .page-nav-btn:hover:not(:disabled) {
+  background: var(--primary, #3b82f6);
+  color: #ffffff;
+  border-color: var(--primary, #3b82f6);
+}
+
+.admin-reports-pagination .page-nav-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.admin-reports-pagination .page-numbers {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.admin-reports-pagination .page-num-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-muted, #64748b);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+:root.dark .admin-reports-pagination .page-num-btn {
+  color: #94a3b8;
+}
+
+.admin-reports-pagination .page-num-btn:hover {
+  background: var(--bg-hover, #f1f5f9);
+  color: var(--text-color, #0f172a);
+}
+
+:root.dark .admin-reports-pagination .page-num-btn:hover {
+  background: #1e293b;
+  color: #f8fafc;
+}
+
+.admin-reports-pagination .page-num-btn.active {
+  background: var(--primary, #3b82f6);
+  color: #ffffff;
+  border-color: var(--primary, #3b82f6);
+}
+
+
+/* =========================================================
+   REPORT ACTIONS OVERLAP FIX & SPACING ENHANCEMENT
+========================================================= */
+.admin-reports-table .actions-cell {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 8px !important;
+  white-space: nowrap !important;
+  min-width: 180px !important;
+}
+
+.admin-reports-table .action-btn {
+  padding: 6px 12px !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  border-radius: 6px !important;
+  transition: all 0.2s ease !important;
+}
+
+.admin-reports-table .action-btn.preview:hover {
+  background: var(--bg-hover, #f1f5f9) !important;
+  border-color: #cbd5e1 !important;
+}
+
+.admin-reports-table .action-btn.download:hover {
+  background: #ede9fe !important;
+  border-color: #6366f1 !important;
+  color: #6366f1 !important;
+}
+
+.admin-reports-table .action-btn.delete:hover {
+  background: #fef2f2 !important;
+  border-color: #fecaca !important;
+  color: #ef4444 !important;
+}
+
+:root.dark .admin-reports-table .action-btn {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #cbd5e1 !important;
+}
+
+:root.dark .admin-reports-table .action-btn:hover {
+  background: #334155 !important;
+  color: #f8fafc !important;
+}

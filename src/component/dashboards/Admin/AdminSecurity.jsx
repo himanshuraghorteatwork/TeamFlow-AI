@@ -245,45 +245,54 @@ export default function AdminSecurity() {
           </div>
 
           {/* NAV TABS */}
-          <div className="tfAdminSecurity__tabs">
+          <div className="tfAdminSettings__moduleTabs">
             <button
               type="button"
-              className="tfAdminSecurity__tab"
+              className="tfAdminSettings__moduleTab "
               onClick={() => navigate("/admin/profile")}
             >
-              <UserRound size={15} />
+              <UserRound size={14} />
               <span>Profile</span>
             </button>
             <button
               type="button"
-              className="tfAdminSecurity__tab"
+              className="tfAdminSettings__moduleTab "
               onClick={() => navigate("/admin/account-settings")}
             >
-              <Settings size={15} />
-              <span>Account Settings</span>
+              <Settings size={14} />
+              <span>Account</span>
             </button>
             <button
               type="button"
-              className="tfAdminSecurity__tab"
+              className="tfAdminSettings__moduleTab "
               onClick={() => navigate("/admin/appearance")}
             >
-              <Palette size={15} />
+              <Palette size={14} />
               <span>Appearance</span>
             </button>
             <button
               type="button"
-              className="tfAdminSecurity__tab"
+              className="tfAdminSettings__moduleTab "
               onClick={() => navigate("/admin/notifications")}
             >
-              <Bell size={15} />
+              <Bell size={14} />
               <span>Notifications</span>
             </button>
             <button
               type="button"
-              className="tfAdminSecurity__tab tfAdminSecurity__tab--active"
+              className="tfAdminSettings__moduleTab tfAdminSettings__moduleTab--active"
+              onClick={() => navigate("/admin/security")}
             >
-              <ShieldCheck size={15} />
+              <ShieldCheck size={14} />
               <span>Security</span>
+            </button>
+            <button
+              type="button"
+              className="tfAdminSettings__moduleTab "
+              onClick={() => navigate("/admin/settings")}
+            >
+              <Building2 size={14} />
+              <span>Organization Settings</span>
             </button>
           </div>
 

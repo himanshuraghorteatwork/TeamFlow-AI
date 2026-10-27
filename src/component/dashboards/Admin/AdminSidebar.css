@@ -69,23 +69,40 @@
 }
 
 .tfAdminSidebar__brandMark {
-  width: 32px;
-  height: 32px;
-  flex: 0 0 32px;
-  display: grid;
-  place-items: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
   border-radius: 8px;
-  color: var(--primary);
-  background: var(--primary-soft);
+  background: transparent;
 }
 
+.tfAdminSidebar__brandTitle {
+  display: flex;
+  align-items: baseline;
+  gap: 3px;
+}
+
+.tfAdminSidebar__brandTitle strong,
 .tfAdminSidebar__brand strong {
-  color: var(--text-dark);
-  font-size: 16px;
-  font-weight: 700;
-  line-height: 1;
+  color: #0b132b;
+  font-size: 19px;
+  font-weight: 750;
+  line-height: 1.2;
+  letter-spacing: -0.5px;
   white-space: nowrap;
-  letter-spacing: -0.01em;
+}
+
+.tfAdminSidebar__brandAi,
+.tfAdminSidebar__brandTitle span {
+  color: #3b66ff !important;
+  font-size: 19px;
+  font-weight: 800;
+}
+
+.dark .tfAdminSidebar__brandTitle strong,
+.dark .tfAdminSidebar__brand strong {
+  color: #f8fafc;
 }
 
 .tfAdminSidebar__mobileClose {

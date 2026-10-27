@@ -138,6 +138,9 @@ function App() {
       />
       <Route path="/admin/dashboard" element={<AdminDashboard />} />
       <Route path="/admin/workspaces" element={<AdminWorkspace />} />
+      <Route path="/admin/workspace" element={<Navigate to="/admin/workspaces" replace />} />
+      <Route path="/admin/organization" element={<Navigate to="/admin/settings" replace />} />
+      <Route path="/admin/organization-settings" element={<Navigate to="/admin/settings" replace />} />
       <Route path="/admin/users" element={<AdminUsers />} />
       <Route path="/admin/projects" element={<AdminProjects />} />
       <Route path="/admin/tasks" element={<AdminTasks />} />

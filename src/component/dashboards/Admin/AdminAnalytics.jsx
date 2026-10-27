@@ -747,6 +747,7 @@ export default function AdminAnalytics() {
                 <table className="admin-analytics-table">
                   <thead>
                     <tr>
+                      <th style={{ width: 44, textAlign: "center" }}>#</th>
                       <th>WORKSPACE</th>
                       <th>DEPARTMENT</th>
                       <th>PLAN</th>
@@ -758,13 +759,16 @@ export default function AdminAnalytics() {
                   <tbody>
                     {filteredWorkspaces.length === 0 ? (
                       <tr>
-                        <td colSpan="6" className="empty-cell">
+                        <td colSpan="7" className="empty-cell">
                           No workspaces match your query.
                         </td>
                       </tr>
                     ) : (
-                      filteredWorkspaces.map((ws) => (
+                      filteredWorkspaces.map((ws, idx) => (
                         <tr key={ws.name}>
+                          <td style={{ textAlign: "center" }}>
+                            <span className="admin-row-num">{idx + 1}</span>
+                          </td>
                           <td>
                             <div className="workspace-name-cell">
                               <span className="ws-avatar">{ws.name.slice(0, 2).toUpperCase()}</span>

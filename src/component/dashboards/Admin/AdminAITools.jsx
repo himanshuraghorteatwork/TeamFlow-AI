@@ -23,6 +23,8 @@ import {
   ArrowUpDown,
   ArrowUp,
   ArrowDown,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 
 import AdminSidebar from "./AdminSidebar.jsx";
@@ -47,6 +49,8 @@ export default function AdminAITools() {
   const [viewMode, setViewMode] = useState("table"); // 'table' | 'grid'
   const [sortKey, setSortKey] = useState("name");
   const [sortOrder, setSortOrder] = useState("asc");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [perPage, setPerPage] = useState(6);
 
   // Prompt Playground State
   const [promptInput, setPromptInput] = useState("");
@@ -113,7 +117,7 @@ export default function AdminAITools() {
       return matchesSearch && matchesCategory;
     });
 
-    return [...list].sort((a, b) => {
+    const sortedList = [...list].sort((a, b) => {
       let valA = a[sortKey];
       let valB = b[sortKey];
 
@@ -136,7 +140,14 @@ export default function AdminAITools() {
       if (valA > valB) return sortOrder === "asc" ? 1 : -1;
       return 0;
     });
+    return sortedList;
   }, [tools, search, categoryFilter, sortKey, sortOrder]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredTools.length / perPage));
+  const paginatedTools = useMemo(() => {
+    const start = (currentPage - 1) * perPage;
+    return filteredTools.slice(start, start + perPage);
+  }, [filteredTools, currentPage, perPage]);
 
   const stats = useMemo(() => {
     const total = tools.length;
@@ -395,10 +406,10 @@ export default function AdminAITools() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredTools.map((t, idx) => (
+                  {paginatedTools.map((t, idx) => (
                     <tr key={t.id} className={t.enabled ? "" : "row-disabled"}>
                       <td style={{ textAlign: "center" }}>
-                        <span className="admin-row-num">{idx + 1}</span>
+                        <span className="admin-row-num">{(currentPage - 1) * perPage + idx + 1}</span>
                       </td>
                       <td>
                         <div className="tool-title-cell">
@@ -475,11 +486,11 @@ export default function AdminAITools() {
           ) : (
             /* TOOLS GRID */
             <div className="admin-ai-grid">
-              {filteredTools.map((t, idx) => (
+              {paginatedTools.map((t, idx) => (
                 <div key={t.id} className={`ai-tool-card ${t.enabled ? "" : "disabled"}`}>
                   <div className="tool-card-top">
                     <div className="tool-card-info">
-                      <span className="admin-row-num sm">{idx + 1}</span>
+                      <span className="admin-row-num sm">{(currentPage - 1) * perPage + idx + 1}</span>
                       <div className="tool-avatar"><Bot size={20} /></div>
                       <div>
                         <h3 className="clickable-title" onClick={() => setViewingTool(t)}>{t.name}</h3>
@@ -511,6 +522,52 @@ export default function AdminAITools() {
               ))}
             </div>
           )}
+
+          {/* PAGINATION BAR */}
+          <div className="admin-ai-pagination-bar">
+            <div className="admin-ai-per-page">
+              <label>Rows per page:</label>
+              <select
+                value={perPage}
+                onChange={(e) => {
+                  setPerPage(Number(e.target.value));
+                  setCurrentPage(1);
+                }}
+                className="per-page-select"
+              >
+                <option value={6}>6</option>
+                <option value={12}>12</option>
+                <option value={24}>24</option>
+              </select>
+            </div>
+
+            <div className="admin-ai-page-info">
+              Showing {filteredTools.length === 0 ? 0 : (currentPage - 1) * perPage + 1} -{" "}
+              {Math.min(currentPage * perPage, filteredTools.length)} of {filteredTools.length} AI tools
+            </div>
+
+            <div className="admin-ai-pagination-nav">
+              <button
+                type="button"
+                className="page-nav-btn"
+                disabled={currentPage <= 1}
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              >
+                <ChevronLeft size={14} /> Prev
+              </button>
+              <span className="current-page-tag">
+                {currentPage} / {totalPages}
+              </span>
+              <button
+                type="button"
+                className="page-nav-btn"
+                disabled={currentPage >= totalPages}
+                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+              >
+                Next <ChevronRight size={14} />
+              </button>
+            </div>
+          </div>
         </main>
       </div>
 

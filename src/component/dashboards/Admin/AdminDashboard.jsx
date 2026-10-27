@@ -1,32 +1,31 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
-
+import React, { useEffect, useMemo, useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   CalendarDays,
+  Calendar,
   Users,
-  Building2,
   FolderKanban,
   ListChecks,
+  Bug,
+  Building2,
+  Database,
+  Activity,
+  Zap,
   TrendingUp,
   ArrowRight,
-  Check,
   ChevronDown,
-  Sparkles,
-  MessageSquare,
-  Lightbulb,
-  FileText,
-  Layers,
-  Plus,
-  Download,
-  Activity,
-  CheckCircle2,
-  Zap,
-  BarChart3,
-  PieChart,
-  SlidersHorizontal,
-  Filter,
-  ArrowUpDown,
+  ChevronLeft,
+  ChevronRight,
+  RotateCcw,
+  Check,
+  Server,
+  ShieldCheck,
+  HardDrive,
+  Mail,
+  Bot,
   X,
+  CheckCircle2,
+  ExternalLink,
 } from "lucide-react";
 
 import AdminSidebar from "./AdminSidebar.jsx";
@@ -34,1373 +33,1379 @@ import AdminTopbar from "./AdminTopbar.jsx";
 import "./AdminDashboard.css";
 
 /* =========================================================
-   TIMEFRAME DATA MATRIX
-   Dynamic data that responds to user selection
+   ANIMATED NUMBER COMPONENT
 ========================================================= */
+function AnimatedNumber({ value, prefix = "", suffix = "" }) {
+  const numericValue = useMemo(() => {
+    if (typeof value === "number") return value;
+    const cleaned = String(value).replace(/[^0-9]/g, "");
+    return parseInt(cleaned, 10) || 0;
+  }, [value]);
 
-const TIMEFRAME_DATA = {
+  const [displayValue, setDisplayValue] = useState(numericValue);
+
+  useEffect(() => {
+    let startVal = displayValue;
+    let endVal = numericValue;
+    if (startVal === endVal) return;
+
+    let startTime = null;
+    const duration = 400;
+
+    const step = (timestamp) => {
+      if (!startTime) startTime = timestamp;
+      const progress = Math.min((timestamp - startTime) / duration, 1);
+      const factor = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+      const current = Math.floor(startVal + (endVal - startVal) * factor);
+      setDisplayValue(current);
+      if (progress < 1) {
+        requestAnimationFrame(step);
+      }
+    };
+
+    const animId = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(animId);
+  }, [numericValue]);
+
+  return (
+    <span className="tf-live-num">
+      {prefix}
+      {displayValue.toLocaleString()}
+      {suffix}
+    </span>
+  );
+}
+
+/* =========================================================
+   TIMEFRAME DATA PRESETS
+========================================================= */
+const TIMEFRAME_PRESETS = {
   "This Month": {
     label: "Oct 1, 2024 - Oct 31, 2024",
-    stats: {
-      users: 48,
-      usersTrend: "↑ 12%",
-      usersSub: "+ 5 this month",
-      workspaces: 6,
-      workspacesTrend: "↑ 20%",
-      workspacesSub: "+ 1 this month",
-      projects: 12,
-      projectsTrend: "↑ 9%",
-      projectsSub: "+ 1 this month",
-      tasks: 248,
-      tasksTrend: "↑ 15%",
-      tasksSub: "+ 32 this month",
+    users: 248,
+    usersTrend: "↑ 12%",
+    usersSub: "+ 26 this month",
+    projects: 48,
+    projectsTrend: "↑ 20%",
+    projectsSub: "+ 8 this month",
+    tasks: 1256,
+    tasksTrend: "↑ 15%",
+    tasksSub: "+ 165 this month",
+    bugs: 86,
+    bugsTrend: "↑ 8%",
+    bugsSub: "+ 12 this month",
+    activeWorkspaces: 12,
+    activeWorkspacesTrend: "↑ 9%",
+    activeWorkspacesSub: "+1 this month",
+    activeTeams: 8,
+    activeTeamsTrend: "↑ 14%",
+    activeTeamsSub: "+1 this month",
+    storageUsed: "426 GB",
+    storageUsedTrend: "↑ 12%",
+    storageUsedSub: "of 1 TB",
+    apiCalls: "84,520",
+    apiCallsTrend: "↑ 18%",
+    apiCallsSub: "+12,250 this month",
+    taskBreakdown: {
+      total: 1256,
+      completed: 565,
+      completedPct: 45,
+      inProgress: 314,
+      inProgressPct: 25,
+      pending: 251,
+      pendingPct: 20,
+      overdue: 126,
+      overduePct: 10,
     },
-    taskStatus: {
-      total: 248,
-      completed: 120,
-      completedPct: 48,
-      inProgress: 68,
-      inProgressPct: 27,
-      todo: 45,
-      todoPct: 18,
-      overdue: 15,
-      overduePct: 6,
-    },
-    projects: [
-      {
-        id: 1,
-        name: "TeamFlow Website",
-        progress: 85,
-        status: "On Track",
-        dueDate: "Oct 25, 2024",
-        team: [
-          { name: "Priya Patel", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=faces" },
-          { name: "Rahul Sharma", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=faces" },
-          { name: "Sneha Gupta", avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces" },
-        ],
-        extraTeamCount: 3,
-        color: "#10b981",
-      },
-      {
-        id: 2,
-        name: "Mobile App",
-        progress: 62,
-        status: "In Progress",
-        dueDate: "Nov 10, 2024",
-        team: [
-          { name: "Abhishek Verma", avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=faces" },
-          { name: "Priya Patel", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=faces" },
-          { name: "Rahul Sharma", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=faces" },
-        ],
-        extraTeamCount: 5,
-        color: "#3b82f6",
-      },
-      {
-        id: 3,
-        name: "AI Integration",
-        progress: 40,
-        status: "At Risk",
-        dueDate: "Nov 18, 2024",
-        team: [
-          { name: "David Lee", avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=faces" },
-          { name: "Sneha Gupta", avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces" },
-        ],
-        extraTeamCount: 4,
-        color: "#f59e0b",
-      },
-      {
-        id: 4,
-        name: "Marketing Portal",
-        progress: 25,
-        status: "Delayed",
-        dueDate: "Dec 05, 2024",
-        team: [
-          { name: "Elena Rostova", avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop&crop=faces" },
-          { name: "Alex Rivera", avatar: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=100&h=100&fit=crop&crop=faces" },
-        ],
-        extraTeamCount: 2,
-        color: "#ef4444",
-      },
+    userGrowth: [
+      { label: "Jan", val: 32, height: "13%" },
+      { label: "Feb", val: 48, height: "19%" },
+      { label: "Mar", val: 65, height: "26%" },
+      { label: "Apr", val: 82, height: "33%" },
+      { label: "May", val: 104, height: "42%" },
+      { label: "Jun", val: 132, height: "53%" },
+      { label: "Jul", val: 160, height: "64%" },
+      { label: "Aug", val: 188, height: "75%" },
+      { label: "Sep", val: 216, height: "86%" },
+      { label: "Oct", val: 248, height: "99%" },
     ],
-    tasks: [
-      { id: 1, title: "Review UI design", project: "TeamFlow Website", priority: "High", dueDisplay: "Today", completed: false },
-      { id: 2, title: "API integration testing", project: "Mobile App", priority: "Medium", dueDisplay: "Tomorrow", completed: false },
-      { id: 3, title: "Update project documentation", project: "AI Integration", priority: "Low", dueDisplay: "Oct 26", completed: false },
-      { id: 4, title: "Team meeting preparation", project: "Internal", priority: "Medium", dueDisplay: "Oct 28", completed: false },
+    projectProgress: [
+      { id: 1, name: "Website Redesign", progress: 85, color: "#6366f1" },
+      { id: 2, name: "Mobile App", progress: 70, color: "#0ea5e9" },
+      { id: 3, name: "AI Integration", progress: 60, color: "#10b981" },
+      { id: 4, name: "Marketing Portal", progress: 45, color: "#f59e0b" },
+      { id: 5, name: "Internal Tools", progress: 30, color: "#ef4444" },
     ],
-    activities: [
-      { id: 1, time: "10:42 AM", user: "Priya Patel", role: "Team Lead", avatarColor: "#3b82f6", letter: "P", action: "Created a project", details: "TeamFlow Website" },
-      { id: 2, time: "10:20 AM", user: "Rahul Sharma", role: "Developer", avatarColor: "#6366f1", letter: "R", action: "Invited a user", details: "sneha@abc.com" },
-      { id: 3, time: "09:55 AM", user: "Sneha Gupta", role: "Designer", avatarColor: "#f97316", letter: "S", action: "Updated task status", details: "UI Design - In Progress" },
-      { id: 4, time: "09:32 AM", user: "Abhishek Verma", role: "Developer", avatarColor: "#06b6d4", letter: "A", action: "Added a comment", details: "API integration issue" },
-      { id: 5, time: "09:10 AM", user: "Priya Patel", role: "Team Lead", avatarColor: "#3b82f6", letter: "P", action: "Created a workspace", details: "Development Team" },
-    ],
-    aiUsage: {
-      totalRequests: "12,480",
-      growth: "↑ 18%",
-      monthly: [
-        { month: "Jan", height: 18 },
-        { month: "Feb", height: 26 },
-        { month: "Mar", height: 35 },
-        { month: "Apr", height: 44 },
-        { month: "May", height: 52 },
-        { month: "Jun", height: 60 },
-        { month: "Jul", height: 68 },
-        { month: "Aug", height: 78 },
-        { month: "Sep", height: 88 },
-        { month: "Oct", height: 98 },
-      ],
-      features: [
-        { id: 1, name: "Chat Assistant", percentage: 42, color: "#f97316", icon: "chat" },
-        { id: 2, name: "Task Suggestions", percentage: 24, color: "#3b82f6", icon: "task" },
-        { id: 3, name: "Content Generation", percentage: 18, color: "#10b981", icon: "content" },
-        { id: 4, name: "Summaries", percentage: 10, color: "#f59e0b", icon: "summary" },
-        { id: 5, name: "Other", percentage: 6, color: "#8b5cf6", icon: "other" },
-      ],
-    },
   },
 
   "Today": {
     label: "Today (Oct 26, 2024)",
-    stats: {
-      users: 48,
-      usersTrend: "↑ 6%",
-      usersSub: "18 active members",
-      workspaces: 6,
-      workspacesTrend: "↑ 10%",
-      workspacesSub: "4 units active",
-      projects: 8,
-      projectsTrend: "↑ 4%",
-      projectsSub: "3 sprints updated",
-      tasks: 18,
-      tasksTrend: "↑ 18%",
-      tasksSub: "+ 10 closed today",
+    users: 248,
+    usersTrend: "↑ 4%",
+    usersSub: "64 active today",
+    projects: 48,
+    projectsTrend: "↑ 2%",
+    projectsSub: "6 updated sprints",
+    tasks: 42,
+    tasksTrend: "↑ 18%",
+    tasksSub: "+ 22 completed today",
+    bugs: 84,
+    bugsTrend: "↓ 2%",
+    bugsSub: "4 resolved today",
+    activeWorkspaces: 12,
+    activeWorkspacesTrend: "↑ 5%",
+    activeWorkspacesSub: "All active",
+    activeTeams: 8,
+    activeTeamsTrend: "↑ 6%",
+    activeTeamsSub: "On shift",
+    storageUsed: "426 GB",
+    storageUsedTrend: "↑ 2%",
+    storageUsedSub: "of 1 TB",
+    apiCalls: "3,420",
+    apiCallsTrend: "↑ 14%",
+    apiCallsSub: "Normal latency",
+    taskBreakdown: {
+      total: 42,
+      completed: 22,
+      completedPct: 52,
+      inProgress: 12,
+      inProgressPct: 29,
+      pending: 6,
+      pendingPct: 14,
+      overdue: 2,
+      overduePct: 5,
     },
-    taskStatus: {
-      total: 18,
-      completed: 10,
-      completedPct: 56,
-      inProgress: 5,
-      inProgressPct: 28,
-      todo: 3,
-      todoPct: 16,
-      overdue: 0,
-      overduePct: 0,
-    },
-    projects: [
-      {
-        id: 1,
-        name: "TeamFlow Website",
-        progress: 88,
-        status: "On Track",
-        dueDate: "Today 6:00 PM",
-        team: [
-          { name: "Priya Patel", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=faces" },
-          { name: "Rahul Sharma", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=faces" },
-        ],
-        extraTeamCount: 3,
-        color: "#10b981",
-      },
-      {
-        id: 2,
-        name: "Mobile App",
-        progress: 64,
-        status: "In Progress",
-        dueDate: "Today 8:00 PM",
-        team: [
-          { name: "Abhishek Verma", avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=faces" },
-          { name: "Rahul Sharma", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=faces" },
-        ],
-        extraTeamCount: 4,
-        color: "#3b82f6",
-      },
-      {
-        id: 3,
-        name: "AI Integration",
-        progress: 42,
-        status: "At Risk",
-        dueDate: "Review Due",
-        team: [
-          { name: "David Lee", avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=faces" },
-        ],
-        extraTeamCount: 3,
-        color: "#f59e0b",
-      },
-      {
-        id: 4,
-        name: "Marketing Portal",
-        progress: 25,
-        status: "Delayed",
-        dueDate: "Pending Assets",
-        team: [
-          { name: "Elena Rostova", avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop&crop=faces" },
-        ],
-        extraTeamCount: 2,
-        color: "#ef4444",
-      },
+    userGrowth: [
+      { label: "08:00", val: 12, height: "18%" },
+      { label: "10:00", val: 28, height: "42%" },
+      { label: "12:00", val: 45, height: "68%" },
+      { label: "14:00", val: 56, height: "84%" },
+      { label: "16:00", val: 64, height: "96%" },
     ],
-    tasks: [
-      { id: 1, title: "Review UI design", project: "TeamFlow Website", priority: "High", dueDisplay: "Today", completed: true },
-      { id: 2, title: "API integration testing", project: "Mobile App", priority: "Medium", dueDisplay: "Today", completed: false },
-      { id: 3, title: "Deploy staging build", project: "Mobile App", priority: "High", dueDisplay: "Today", completed: true },
-      { id: 4, title: "Team sync standup", project: "Internal", priority: "Low", dueDisplay: "Today", completed: true },
+    projectProgress: [
+      { id: 1, name: "Website Redesign", progress: 88, color: "#6366f1" },
+      { id: 2, name: "Mobile App", progress: 72, color: "#0ea5e9" },
+      { id: 3, name: "AI Integration", progress: 62, color: "#10b981" },
+      { id: 4, name: "Marketing Portal", progress: 48, color: "#f59e0b" },
+      { id: 5, name: "Internal Tools", progress: 32, color: "#ef4444" },
     ],
-    activities: [
-      { id: 1, time: "10:42 AM", user: "Priya Patel", role: "Team Lead", avatarColor: "#3b82f6", letter: "P", action: "Created a project", details: "TeamFlow Website" },
-      { id: 2, time: "10:20 AM", user: "Rahul Sharma", role: "Developer", avatarColor: "#6366f1", letter: "R", action: "Invited a user", details: "sneha@abc.com" },
-      { id: 3, time: "09:55 AM", user: "Sneha Gupta", role: "Designer", avatarColor: "#f97316", letter: "S", action: "Updated task status", details: "UI Design - In Progress" },
-      { id: 4, time: "09:32 AM", user: "Abhishek Verma", role: "Developer", avatarColor: "#06b6d4", letter: "A", action: "Added a comment", details: "API integration issue" },
-      { id: 5, time: "09:10 AM", user: "Priya Patel", role: "Team Lead", avatarColor: "#3b82f6", letter: "P", action: "Created a workspace", details: "Development Team" },
-    ],
-    aiUsage: {
-      totalRequests: "620",
-      growth: "↑ 8%",
-      monthly: [
-        { month: "8 AM", height: 20 },
-        { month: "9 AM", height: 35 },
-        { month: "10 AM", height: 60 },
-        { month: "11 AM", height: 80 },
-        { month: "12 PM", height: 50 },
-        { month: "1 PM", height: 45 },
-        { month: "2 PM", height: 75 },
-        { month: "3 PM", height: 90 },
-        { month: "4 PM", height: 85 },
-        { month: "Now", height: 100 },
-      ],
-      features: [
-        { id: 1, name: "Chat Assistant", percentage: 48, color: "#f97316", icon: "chat" },
-        { id: 2, name: "Task Suggestions", percentage: 22, color: "#3b82f6", icon: "task" },
-        { id: 3, name: "Content Generation", percentage: 16, color: "#10b981", icon: "content" },
-        { id: 4, name: "Summaries", percentage: 10, color: "#f59e0b", icon: "summary" },
-        { id: 5, name: "Other", percentage: 4, color: "#8b5cf6", icon: "other" },
-      ],
-    },
-  },
-
-  "Yesterday": {
-    label: "Yesterday (Oct 25, 2024)",
-    stats: {
-      users: 48,
-      usersTrend: "↑ 5%",
-      usersSub: "16 active sessions",
-      workspaces: 6,
-      workspacesTrend: "↑ 8%",
-      workspacesSub: "4 units active",
-      projects: 8,
-      projectsTrend: "↑ 5%",
-      projectsSub: "2 milestones closed",
-      tasks: 24,
-      tasksTrend: "↑ 20%",
-      tasksSub: "+ 16 completed",
-    },
-    taskStatus: {
-      total: 24,
-      completed: 16,
-      completedPct: 67,
-      inProgress: 5,
-      inProgressPct: 21,
-      todo: 3,
-      todoPct: 12,
-      overdue: 0,
-      overduePct: 0,
-    },
-    projects: [
-      {
-        id: 1,
-        name: "TeamFlow Website",
-        progress: 85,
-        status: "On Track",
-        dueDate: "Oct 25, 2024",
-        team: [
-          { name: "Priya Patel", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=faces" },
-          { name: "Rahul Sharma", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=faces" },
-        ],
-        extraTeamCount: 3,
-        color: "#10b981",
-      },
-      {
-        id: 2,
-        name: "Mobile App",
-        progress: 60,
-        status: "In Progress",
-        dueDate: "Nov 10, 2024",
-        team: [
-          { name: "Abhishek Verma", avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=faces" },
-          { name: "Rahul Sharma", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=faces" },
-        ],
-        extraTeamCount: 4,
-        color: "#3b82f6",
-      },
-      {
-        id: 3,
-        name: "AI Integration",
-        progress: 38,
-        status: "At Risk",
-        dueDate: "Nov 18, 2024",
-        team: [
-          { name: "David Lee", avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=faces" },
-        ],
-        extraTeamCount: 3,
-        color: "#f59e0b",
-      },
-      {
-        id: 4,
-        name: "Marketing Portal",
-        progress: 24,
-        status: "Delayed",
-        dueDate: "Dec 05, 2024",
-        team: [
-          { name: "Elena Rostova", avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop&crop=faces" },
-        ],
-        extraTeamCount: 2,
-        color: "#ef4444",
-      },
-    ],
-    tasks: [
-      { id: 1, title: "Auth token refresh", project: "Backend API", priority: "High", dueDisplay: "Yesterday", completed: true },
-      { id: 2, title: "Component library review", project: "TeamFlow Website", priority: "Medium", dueDisplay: "Yesterday", completed: true },
-      { id: 3, title: "Staging database migration", project: "Backend API", priority: "High", dueDisplay: "Yesterday", completed: true },
-      { id: 4, title: "Sprint retrospectives", project: "Internal", priority: "Low", dueDisplay: "Yesterday", completed: true },
-    ],
-    activities: [
-      { id: 1, time: "Yesterday 5:15 PM", user: "Rahul Sharma", role: "Developer", avatarColor: "#6366f1", letter: "R", action: "Merged PR #142", details: "Fix WebSocket reconnects" },
-      { id: 2, time: "Yesterday 3:40 PM", user: "Priya Patel", role: "Team Lead", avatarColor: "#3b82f6", letter: "P", action: "Approved release", details: "v2.4.0-rc1" },
-      { id: 3, time: "Yesterday 2:10 PM", user: "Sneha Gupta", role: "Designer", avatarColor: "#f97316", letter: "S", action: "Uploaded assets", details: "Figma SaaS Design Kit" },
-      { id: 4, time: "Yesterday 11:30 AM", user: "Abhishek Verma", role: "Developer", avatarColor: "#06b6d4", letter: "A", action: "Closed issue", details: "Ticket #409 resolved" },
-      { id: 5, time: "Yesterday 9:00 AM", user: "Priya Patel", role: "Team Lead", avatarColor: "#3b82f6", letter: "P", action: "Sprint kickoff", details: "Sprint 42 Plan" },
-    ],
-    aiUsage: {
-      totalRequests: "840",
-      growth: "↑ 12%",
-      monthly: [
-        { month: "8 AM", height: 18 },
-        { month: "10 AM", height: 42 },
-        { month: "12 PM", height: 68 },
-        { month: "2 PM", height: 85 },
-        { month: "4 PM", height: 80 },
-        { month: "6 PM", height: 62 },
-        { month: "8 PM", height: 48 },
-        { month: "10 PM", height: 32 },
-        { month: "11 PM", height: 22 },
-        { month: "Close", height: 15 },
-      ],
-      features: [
-        { id: 1, name: "Chat Assistant", percentage: 44, color: "#f97316", icon: "chat" },
-        { id: 2, name: "Task Suggestions", percentage: 26, color: "#3b82f6", icon: "task" },
-        { id: 3, name: "Content Generation", percentage: 15, color: "#10b981", icon: "content" },
-        { id: 4, name: "Summaries", percentage: 10, color: "#f59e0b", icon: "summary" },
-        { id: 5, name: "Other", percentage: 5, color: "#8b5cf6", icon: "other" },
-      ],
-    },
   },
 
   "7 Days": {
     label: "Last 7 Days (Oct 20 - Oct 26, 2024)",
-    stats: {
-      users: 48,
-      usersTrend: "↑ 10%",
-      usersSub: "+ 2 new members",
-      workspaces: 6,
-      workspacesTrend: "↑ 15%",
-      workspacesSub: "6 active units",
-      projects: 10,
-      projectsTrend: "↑ 8%",
-      projectsSub: "+ 1 this week",
-      tasks: 72,
-      tasksTrend: "↑ 14%",
-      tasksSub: "+ 38 closed this week",
+    users: 248,
+    usersTrend: "↑ 8%",
+    usersSub: "+ 12 this week",
+    projects: 48,
+    projectsTrend: "↑ 10%",
+    projectsSub: "+ 3 this week",
+    tasks: 312,
+    tasksTrend: "↑ 20%",
+    tasksSub: "+ 156 completed",
+    bugs: 84,
+    bugsTrend: "↑ 4%",
+    bugsSub: "+ 8 new issues",
+    activeWorkspaces: 12,
+    activeWorkspacesTrend: "↑ 9%",
+    activeWorkspacesSub: "100% health",
+    activeTeams: 8,
+    activeTeamsTrend: "↑ 10%",
+    activeTeamsSub: "Stable quotas",
+    storageUsed: "426 GB",
+    storageUsedTrend: "↑ 5%",
+    storageUsedSub: "of 1 TB",
+    apiCalls: "21,800",
+    apiCallsTrend: "↑ 16%",
+    apiCallsSub: "High throughput",
+    taskBreakdown: {
+      total: 312,
+      completed: 156,
+      completedPct: 50,
+      inProgress: 82,
+      inProgressPct: 26,
+      pending: 52,
+      pendingPct: 17,
+      overdue: 22,
+      overduePct: 7,
     },
-    taskStatus: {
-      total: 72,
-      completed: 38,
-      completedPct: 53,
-      inProgress: 20,
-      inProgressPct: 28,
-      todo: 11,
-      todoPct: 15,
-      overdue: 3,
-      overduePct: 4,
-    },
-    projects: [
-      {
-        id: 1,
-        name: "TeamFlow Website",
-        progress: 85,
-        status: "On Track",
-        dueDate: "Oct 25, 2024",
-        team: [
-          { name: "Priya Patel", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=faces" },
-          { name: "Rahul Sharma", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=faces" },
-        ],
-        extraTeamCount: 3,
-        color: "#10b981",
-      },
-      {
-        id: 2,
-        name: "Mobile App",
-        progress: 62,
-        status: "In Progress",
-        dueDate: "Nov 10, 2024",
-        team: [
-          { name: "Abhishek Verma", avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=faces" },
-          { name: "Priya Patel", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=faces" },
-        ],
-        extraTeamCount: 5,
-        color: "#3b82f6",
-      },
-      {
-        id: 3,
-        name: "AI Integration",
-        progress: 40,
-        status: "At Risk",
-        dueDate: "Nov 18, 2024",
-        team: [
-          { name: "David Lee", avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=faces" },
-        ],
-        extraTeamCount: 4,
-        color: "#f59e0b",
-      },
-      {
-        id: 4,
-        name: "Marketing Portal",
-        progress: 25,
-        status: "Delayed",
-        dueDate: "Dec 05, 2024",
-        team: [
-          { name: "Elena Rostova", avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop&crop=faces" },
-        ],
-        extraTeamCount: 2,
-        color: "#ef4444",
-      },
+    userGrowth: [
+      { label: "Mon", val: 185, height: "74%" },
+      { label: "Tue", val: 198, height: "80%" },
+      { label: "Wed", val: 210, height: "85%" },
+      { label: "Thu", val: 226, height: "91%" },
+      { label: "Fri", val: 238, height: "96%" },
+      { label: "Sat", val: 242, height: "97%" },
+      { label: "Sun", val: 248, height: "99%" },
     ],
-    tasks: [
-      { id: 1, title: "Review UI design", project: "TeamFlow Website", priority: "High", dueDisplay: "Today", completed: false },
-      { id: 2, title: "API integration testing", project: "Mobile App", priority: "Medium", dueDisplay: "Tomorrow", completed: false },
-      { id: 3, title: "Update project documentation", project: "AI Integration", priority: "Low", dueDisplay: "Oct 26", completed: false },
-      { id: 4, title: "Team meeting preparation", project: "Internal", priority: "Medium", dueDisplay: "Oct 28", completed: false },
+    projectProgress: [
+      { id: 1, name: "Website Redesign", progress: 85, color: "#6366f1" },
+      { id: 2, name: "Mobile App", progress: 70, color: "#0ea5e9" },
+      { id: 3, name: "AI Integration", progress: 60, color: "#10b981" },
+      { id: 4, name: "Marketing Portal", progress: 45, color: "#f59e0b" },
+      { id: 5, name: "Internal Tools", progress: 30, color: "#ef4444" },
     ],
-    activities: [
-      { id: 1, time: "Oct 26", user: "Priya Patel", role: "Team Lead", avatarColor: "#3b82f6", letter: "P", action: "Created a project", details: "TeamFlow Website" },
-      { id: 2, time: "Oct 25", user: "Rahul Sharma", role: "Developer", avatarColor: "#6366f1", letter: "R", action: "Invited a user", details: "sneha@abc.com" },
-      { id: 3, time: "Oct 24", user: "Sneha Gupta", role: "Designer", avatarColor: "#f97316", letter: "S", action: "Updated task status", details: "UI Design - In Progress" },
-      { id: 4, time: "Oct 23", user: "Abhishek Verma", role: "Developer", avatarColor: "#06b6d4", letter: "A", action: "Added a comment", details: "API integration issue" },
-      { id: 5, time: "Oct 22", user: "Priya Patel", role: "Team Lead", avatarColor: "#3b82f6", letter: "P", action: "Created a workspace", details: "Development Team" },
-    ],
-    aiUsage: {
-      totalRequests: "4,150",
-      growth: "↑ 14%",
-      monthly: [
-        { month: "Mon", height: 38 },
-        { month: "Tue", height: 52 },
-        { month: "Wed", height: 65 },
-        { month: "Thu", height: 80 },
-        { month: "Fri", height: 92 },
-        { month: "Sat", height: 42 },
-        { month: "Sun", height: 58 },
-        { month: "Mon", height: 74 },
-        { month: "Tue", height: 88 },
-        { month: "Today", height: 100 },
-      ],
-      features: [
-        { id: 1, name: "Chat Assistant", percentage: 45, color: "#f97316", icon: "chat" },
-        { id: 2, name: "Task Suggestions", percentage: 25, color: "#3b82f6", icon: "task" },
-        { id: 3, name: "Content Generation", percentage: 17, color: "#10b981", icon: "content" },
-        { id: 4, name: "Summaries", percentage: 9, color: "#f59e0b", icon: "summary" },
-        { id: 5, name: "Other", percentage: 4, color: "#8b5cf6", icon: "other" },
-      ],
-    },
-  },
-
-  "Last Month": {
-    label: "Last Month (Sep 1 - Sep 30, 2024)",
-    stats: {
-      users: 43,
-      usersTrend: "↑ 10%",
-      usersSub: "+ 4 in September",
-      workspaces: 5,
-      workspacesTrend: "↑ 15%",
-      workspacesSub: "+ 1 in September",
-      projects: 11,
-      projectsTrend: "↑ 8%",
-      projectsSub: "+ 2 in September",
-      tasks: 216,
-      tasksTrend: "↑ 12%",
-      tasksSub: "+ 28 in September",
-    },
-    taskStatus: {
-      total: 216,
-      completed: 112,
-      completedPct: 52,
-      inProgress: 58,
-      inProgressPct: 27,
-      todo: 36,
-      todoPct: 17,
-      overdue: 10,
-      overduePct: 4,
-    },
-    projects: [
-      {
-        id: 1,
-        name: "TeamFlow Website",
-        progress: 65,
-        status: "In Progress",
-        dueDate: "Sep 30, 2024",
-        team: [
-          { name: "Priya Patel", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=faces" },
-          { name: "Rahul Sharma", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=faces" },
-        ],
-        extraTeamCount: 3,
-        color: "#10b981",
-      },
-      {
-        id: 2,
-        name: "Mobile App",
-        progress: 45,
-        status: "In Progress",
-        dueDate: "Oct 15, 2024",
-        team: [
-          { name: "Abhishek Verma", avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=faces" },
-        ],
-        extraTeamCount: 3,
-        color: "#3b82f6",
-      },
-      {
-        id: 3,
-        name: "AI Integration",
-        progress: 20,
-        status: "At Risk",
-        dueDate: "Oct 30, 2024",
-        team: [
-          { name: "David Lee", avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=faces" },
-        ],
-        extraTeamCount: 2,
-        color: "#f59e0b",
-      },
-      {
-        id: 4,
-        name: "Marketing Portal",
-        progress: 10,
-        status: "On Track",
-        dueDate: "Nov 15, 2024",
-        team: [
-          { name: "Elena Rostova", avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop&crop=faces" },
-        ],
-        extraTeamCount: 2,
-        color: "#ef4444",
-      },
-    ],
-    tasks: [
-      { id: 1, title: "Database schema migration", project: "Backend API", priority: "High", dueDisplay: "Sep 28", completed: true },
-      { id: 2, title: "OAuth 2.0 implementation", project: "Backend API", priority: "Critical", dueDisplay: "Sep 25", completed: true },
-      { id: 3, title: "Figma wireframe design", project: "TeamFlow Website", priority: "Medium", dueDisplay: "Sep 22", completed: true },
-      { id: 4, title: "Quarterly planning sync", project: "Internal", priority: "Low", dueDisplay: "Sep 20", completed: true },
-    ],
-    activities: [
-      { id: 1, time: "Sep 30", user: "Priya Patel", role: "Team Lead", avatarColor: "#3b82f6", letter: "P", action: "Closed milestone", details: "Sprint 40 Release" },
-      { id: 2, time: "Sep 28", user: "Rahul Sharma", role: "Developer", avatarColor: "#6366f1", letter: "R", action: "Completed task", details: "Database migration" },
-      { id: 3, time: "Sep 24", user: "Sneha Gupta", role: "Designer", avatarColor: "#f97316", letter: "S", action: "Published component", details: "SaaS Design System" },
-      { id: 4, time: "Sep 20", user: "Abhishek Verma", role: "Developer", avatarColor: "#06b6d4", letter: "A", action: "Created repository", details: "teamflow-core-api" },
-      { id: 5, time: "Sep 15", user: "Priya Patel", role: "Team Lead", avatarColor: "#3b82f6", letter: "P", action: "Created a workspace", details: "Research Lab" },
-    ],
-    aiUsage: {
-      totalRequests: "10,240",
-      growth: "↑ 15%",
-      monthly: [
-        { month: "W1", height: 32 },
-        { month: "W2", height: 48 },
-        { month: "W3", height: 68 },
-        { month: "W4", height: 82 },
-        { month: "Sep 10", height: 58 },
-        { month: "Sep 15", height: 72 },
-        { month: "Sep 20", height: 88 },
-        { month: "Sep 25", height: 82 },
-        { month: "Sep 28", height: 92 },
-        { month: "Sep 30", height: 98 },
-      ],
-      features: [
-        { id: 1, name: "Chat Assistant", percentage: 40, color: "#f97316", icon: "chat" },
-        { id: 2, name: "Task Suggestions", percentage: 25, color: "#3b82f6", icon: "task" },
-        { id: 3, name: "Content Generation", percentage: 18, color: "#10b981", icon: "content" },
-        { id: 4, name: "Summaries", percentage: 11, color: "#f59e0b", icon: "summary" },
-        { id: 5, name: "Other", percentage: 6, color: "#8b5cf6", icon: "other" },
-      ],
-    },
-  },
-
-  "All Time": {
-    label: "All Time (Complete History)",
-    stats: {
-      users: 54,
-      usersTrend: "↑ 28%",
-      usersSub: "Total registered",
-      workspaces: 6,
-      workspacesTrend: "↑ 20%",
-      workspacesSub: "Active organizations",
-      projects: 16,
-      projectsTrend: "↑ 33%",
-      projectsSub: "Lifetime projects",
-      tasks: 480,
-      tasksTrend: "↑ 45%",
-      tasksSub: "+ 285 tasks completed",
-    },
-    taskStatus: {
-      total: 480,
-      completed: 285,
-      completedPct: 59,
-      inProgress: 115,
-      inProgressPct: 24,
-      todo: 62,
-      todoPct: 13,
-      overdue: 18,
-      overduePct: 4,
-    },
-    projects: [
-      {
-        id: 1,
-        name: "TeamFlow Website",
-        progress: 100,
-        status: "On Track",
-        dueDate: "Completed",
-        team: [
-          { name: "Priya Patel", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=faces" },
-          { name: "Rahul Sharma", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=faces" },
-        ],
-        extraTeamCount: 3,
-        color: "#10b981",
-      },
-      {
-        id: 2,
-        name: "Mobile App",
-        progress: 75,
-        status: "In Progress",
-        dueDate: "Nov 10, 2024",
-        team: [
-          { name: "Abhishek Verma", avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=faces" },
-        ],
-        extraTeamCount: 5,
-        color: "#3b82f6",
-      },
-      {
-        id: 3,
-        name: "AI Integration",
-        progress: 55,
-        status: "At Risk",
-        dueDate: "Nov 18, 2024",
-        team: [
-          { name: "David Lee", avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=faces" },
-        ],
-        extraTeamCount: 4,
-        color: "#f59e0b",
-      },
-      {
-        id: 4,
-        name: "Marketing Portal",
-        progress: 40,
-        status: "Delayed",
-        dueDate: "Dec 05, 2024",
-        team: [
-          { name: "Elena Rostova", avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop&crop=faces" },
-        ],
-        extraTeamCount: 2,
-        color: "#ef4444",
-      },
-    ],
-    tasks: [
-      { id: 1, title: "Review UI design", project: "TeamFlow Website", priority: "High", dueDisplay: "Today", completed: false },
-      { id: 2, title: "API integration testing", project: "Mobile App", priority: "Medium", dueDisplay: "Tomorrow", completed: false },
-      { id: 3, title: "Update project documentation", project: "AI Integration", priority: "Low", dueDisplay: "Oct 26", completed: false },
-      { id: 4, title: "Team meeting preparation", project: "Internal", priority: "Medium", dueDisplay: "Oct 28", completed: false },
-    ],
-    activities: [
-      { id: 1, time: "Oct 26", user: "Priya Patel", role: "Team Lead", avatarColor: "#3b82f6", letter: "P", action: "Created a project", details: "TeamFlow Website" },
-      { id: 2, time: "Oct 25", user: "Rahul Sharma", role: "Developer", avatarColor: "#6366f1", letter: "R", action: "Invited a user", details: "sneha@abc.com" },
-      { id: 3, time: "Oct 20", user: "Sneha Gupta", role: "Designer", avatarColor: "#f97316", letter: "S", action: "Updated task status", details: "UI Design - In Progress" },
-      { id: 4, time: "Oct 15", user: "Abhishek Verma", role: "Developer", avatarColor: "#06b6d4", letter: "A", action: "Added a comment", details: "API integration issue" },
-      { id: 5, time: "Oct 01", user: "Priya Patel", role: "Team Lead", avatarColor: "#3b82f6", letter: "P", action: "Created a workspace", details: "Development Team" },
-    ],
-    aiUsage: {
-      totalRequests: "48,920",
-      growth: "↑ 32%",
-      monthly: [
-        { month: "Q1", height: 25 },
-        { month: "Q2", height: 45 },
-        { month: "Q3", height: 65 },
-        { month: "Q4", height: 85 },
-        { month: "Jul", height: 60 },
-        { month: "Aug", height: 75 },
-        { month: "Sep", height: 90 },
-        { month: "Oct", height: 98 },
-        { month: "Nov", height: 80 },
-        { month: "Peak", height: 100 },
-      ],
-      features: [
-        { id: 1, name: "Chat Assistant", percentage: 46, color: "#f97316", icon: "chat" },
-        { id: 2, name: "Task Suggestions", percentage: 24, color: "#3b82f6", icon: "task" },
-        { id: 3, name: "Content Generation", percentage: 17, color: "#10b981", icon: "content" },
-        { id: 4, name: "Summaries", percentage: 9, color: "#f59e0b", icon: "summary" },
-        { id: 5, name: "Other", percentage: 4, color: "#8b5cf6", icon: "other" },
-      ],
-    },
   },
 };
 
-const TEAM_MEMBERS_DATA = [
-  { id: 1, name: "Priya Patel", role: "Team Lead", status: "Online", color: "#3b82f6", letter: "P" },
-  { id: 2, name: "Rahul Sharma", role: "Developer", status: "Online", color: "#6366f1", letter: "R" },
-  { id: 3, name: "Sneha Gupta", role: "Designer", status: "In a meeting", color: "#f97316", letter: "S" },
-  { id: 4, name: "Abhishek Verma", role: "Developer", status: "Offline", color: "#06b6d4", letter: "A" },
+/* =========================================================
+   STATIC SUB-DATASETS (MATCHING THE SCREENSHOT EXACTLY)
+========================================================= */
+const RECENT_USERS = [
+  { id: 1, initials: "RS", name: "Rahul Sharma", email: "rahul@abc.com", role: "Team Lead", status: "Active", joined: "2 hours ago", avatarBg: "#eff6ff", avatarColor: "#3b82f6" },
+  { id: 2, initials: "PP", name: "Priya Patel", email: "priya@xyz.com", role: "Member", status: "Active", joined: "5 hours ago", avatarBg: "#eef2ff", avatarColor: "#6366f1" },
+  { id: 3, initials: "AK", name: "Amit Kumar", email: "amit@startup.com", role: "Member", status: "Active", joined: "1 day ago", avatarBg: "#f5f3ff", avatarColor: "#8b5cf6" },
+  { id: 4, initials: "SS", name: "Sneha Singh", email: "sneha@designhub.com", role: "Member", status: "Active", joined: "2 days ago", avatarBg: "#fdf2f8", avatarColor: "#ec4899" },
+  { id: 5, initials: "VR", name: "Vikram Reddy", email: "vikram@nextgen.com", role: "Member", status: "Inactive", joined: "3 days ago", avatarBg: "#fef2f2", avatarColor: "#ef4444" },
 ];
+
+const RECENT_PROJECTS = [
+  {
+    id: 1,
+    name: "Website Redesign",
+    extraTeam: "+3",
+    progress: 85,
+    barColor: "#6366f1",
+    status: "On Track",
+    statusType: "success",
+    team: [
+      { name: "Priya Patel", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&fit=crop" },
+      { name: "Rahul Sharma", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&fit=crop" },
+    ],
+  },
+  {
+    id: 2,
+    name: "Mobile App",
+    extraTeam: "+5",
+    progress: 70,
+    barColor: "#0ea5e9",
+    status: "On Track",
+    statusType: "success",
+    team: [
+      { name: "Abhishek Verma", avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&h=80&fit=crop" },
+      { name: "Priya Patel", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&fit=crop" },
+    ],
+  },
+  {
+    id: 3,
+    name: "AI Integration",
+    extraTeam: "+4",
+    progress: 60,
+    barColor: "#10b981",
+    status: "At Risk",
+    statusType: "warning",
+    team: [
+      { name: "David Lee", avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop" },
+      { name: "Sarah Chen", avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&h=80&fit=crop" },
+    ],
+  },
+  {
+    id: 4,
+    name: "Marketing Portal",
+    extraTeam: "+2",
+    progress: 45,
+    barColor: "#f59e0b",
+    status: "On Track",
+    statusType: "success",
+    team: [
+      { name: "Elena Rostova", avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=80&h=80&fit=crop" },
+      { name: "Sneha Gupta", avatar: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=80&h=80&fit=crop" },
+    ],
+  },
+  {
+    id: 5,
+    name: "Internal Tools",
+    extraTeam: "+3",
+    progress: 30,
+    barColor: "#ef4444",
+    status: "Delayed",
+    statusType: "danger",
+    team: [
+      { name: "Alex Rivera", avatar: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=80&h=80&fit=crop" },
+      { name: "Michael Chang", avatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=80&h=80&fit=crop" },
+    ],
+  },
+];
+
+const SYSTEM_HEALTH_ITEMS = [
+  { id: 1, name: "API Server", icon: Server, status: "Operational", metric: "99.9% uptime" },
+  { id: 2, name: "Database", icon: Database, status: "Operational", metric: "32ms latency" },
+  { id: 3, name: "Authentication", icon: ShieldCheck, status: "Operational", metric: "99.8% uptime" },
+  { id: 4, name: "File Storage", icon: HardDrive, status: "Operational", metric: "42% used" },
+  { id: 5, name: "Email Service", icon: Mail, status: "Operational", metric: "99.7% success" },
+  { id: 6, name: "AI Service", icon: Bot, status: "Operational", metric: "1.2s response" },
+];
+
+/* =========================================================
+   CUSTOM CALENDAR CONSTANTS & HELPERS
+========================================================= */
+const MONTH_NAMES = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
+
+const MONTH_SHORT = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+];
+
+const CALENDAR_PRESETS = [
+  { id: "Today", label: "Today", start: "2024-10-26", end: "2024-10-26" },
+  { id: "Yesterday", label: "Yesterday", start: "2024-10-25", end: "2024-10-25" },
+  { id: "7 Days", label: "Last 7 Days", start: "2024-10-20", end: "2024-10-26" },
+  { id: "30 Days", label: "Last 30 Days", start: "2024-09-27", end: "2024-10-26" },
+  { id: "This Month", label: "This Month", start: "2024-10-01", end: "2024-10-31" },
+  { id: "Last Month", label: "Last Month", start: "2024-09-01", end: "2024-09-30" },
+  { id: "This Year", label: "This Year", start: "2024-01-01", end: "2024-12-31" },
+  { id: "custom", label: "Custom Range", start: "", end: "" },
+];
+
+function formatPrettyDate(str) {
+  if (!str) return "";
+  const parts = str.split("-").map(Number);
+  if (parts.length < 3) return str;
+  const [y, m, d] = parts;
+  return `${MONTH_SHORT[m - 1]} ${d}, ${y}`;
+}
+
+function formatDateRangeStr(start, end) {
+  if (!start || !end) return "";
+  if (start === end) return formatPrettyDate(start);
+  return `${formatPrettyDate(start)} - ${formatPrettyDate(end)}`;
+}
+
+function buildCustomDataset(startDate, endDate) {
+  const s = new Date(startDate);
+  const e = new Date(endDate);
+  const days = Math.max(1, Math.round(Math.abs(e - s) / (1000 * 60 * 60 * 24)) + 1);
+  const label = formatDateRangeStr(startDate, endDate);
+
+  const tasksTotal = Math.max(12, Math.round(1256 * (days / 31)));
+  const completed = Math.round(tasksTotal * 0.45);
+  const inProgress = Math.round(tasksTotal * 0.25);
+  const pending = Math.round(tasksTotal * 0.20);
+  const overdue = Math.max(0, tasksTotal - (completed + inProgress + pending));
+
+  let userGrowth = [];
+  if (days <= 7) {
+    const daysArr = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].slice(0, days);
+    userGrowth = daysArr.map((lbl, idx) => ({
+      label: lbl,
+      val: Math.round(200 + idx * 8),
+      height: `${Math.min(99, Math.round(50 + idx * 7))}%`,
+    }));
+  } else if (days <= 35) {
+    userGrowth = [
+      { label: "W1", val: 54, height: "22%" },
+      { label: "W2", val: 98, height: "40%" },
+      { label: "W3", val: 172, height: "70%" },
+      { label: "W4", val: 248, height: "99%" },
+    ];
+  } else {
+    userGrowth = [
+      { label: "Jan", val: 32, height: "13%" },
+      { label: "Feb", val: 48, height: "19%" },
+      { label: "Mar", val: 65, height: "26%" },
+      { label: "Apr", val: 82, height: "33%" },
+      { label: "May", val: 104, height: "42%" },
+      { label: "Jun", val: 132, height: "53%" },
+      { label: "Jul", val: 160, height: "64%" },
+      { label: "Aug", val: 188, height: "75%" },
+      { label: "Sep", val: 216, height: "86%" },
+      { label: "Oct", val: 248, height: "99%" },
+    ];
+  }
+
+  return {
+    label,
+    users: 248,
+    usersTrend: `↑ ${Math.min(25, Math.max(2, Math.round(days * 0.4)))}%`,
+    usersSub: `+ ${Math.max(2, Math.round(days * 0.8))} in this range`,
+    projects: 48,
+    projectsTrend: "↑ 20%",
+    projectsSub: "+ 8 active sprints",
+    tasks: tasksTotal,
+    tasksTrend: "↑ 15%",
+    tasksSub: `+ ${Math.max(5, Math.round(tasksTotal * 0.15))} this period`,
+    bugs: Math.min(120, Math.max(30, Math.round(18 + days * 2.2))),
+    bugsTrend: "↑ 8%",
+    bugsSub: "Active issues in range",
+    activeWorkspaces: 12,
+    activeWorkspacesTrend: "↑ 9%",
+    activeWorkspacesSub: "Healthy uptime",
+    activeTeams: 8,
+    activeTeamsTrend: "↑ 14%",
+    activeTeamsSub: "All teams active",
+    storageUsed: "426 GB",
+    storageUsedTrend: "↑ 12%",
+    storageUsedSub: "of 1 TB",
+    apiCalls: (Math.round(days * 2726)).toLocaleString(),
+    apiCallsTrend: "↑ 18%",
+    apiCallsSub: "Normal latency",
+    taskBreakdown: {
+      total: tasksTotal,
+      completed,
+      completedPct: 45,
+      inProgress,
+      inProgressPct: 25,
+      pending,
+      pendingPct: 20,
+      overdue,
+      overduePct: 10,
+    },
+    userGrowth,
+    projectProgress: [
+      { id: 1, name: "Website Redesign", progress: 85, color: "#6366f1" },
+      { id: 2, name: "Mobile App", progress: 70, color: "#0ea5e9" },
+      { id: 3, name: "AI Integration", progress: 60, color: "#10b981" },
+      { id: 4, name: "Marketing Portal", progress: 45, color: "#f59e0b" },
+      { id: 5, name: "Internal Tools", progress: 30, color: "#ef4444" },
+    ],
+  };
+}
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
-  const location = useLocation();
+  const [mobileOpen, setMobileOpen] = useState(false);
 
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [dateFilter, setDateFilter] = useState("This Month");
-  const [dateDropdownOpen, setDateDropdownOpen] = useState(false);
-  const [customDateModalOpen, setCustomDateModalOpen] = useState(false);
-  const [customStartDate, setCustomStartDate] = useState("2024-10-01");
-  const [customEndDate, setCustomEndDate] = useState("2024-10-31");
-  const [toast, setToast] = useState(null);
+  // Global Timeframe selection
+  const [dateRangeKey, setDateRangeKey] = useState("This Month");
+  const [customDataset, setCustomDataset] = useState(null);
 
-  // INDEPENDENT GRAPH / SECTION FILTERS
-  const [taskDateFilter, setTaskDateFilter] = useState("This Month");
-  const [taskChartType, setTaskChartType] = useState("donut"); // 'donut' | 'bars' | 'list'
-  
-  const [projectProgressFilter, setProjectProgressFilter] = useState("all");
-  const [projectProgressSort, setProjectProgressSort] = useState("highest"); // 'highest' | 'lowest' | 'name'
+  // Calendar popover & range selection state
+  const calendarRef = useRef(null);
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+  const [selectedPreset, setSelectedPreset] = useState("This Month");
+  const [startDate, setStartDate] = useState("2024-10-01");
+  const [endDate, setEndDate] = useState("2024-10-31");
 
-  const [recentProjectsFilter, setRecentProjectsFilter] = useState("all");
-  const [recentProjectsSort, setRecentProjectsSort] = useState("recent");
+  // Temporary selection inside the popover (committed only on "Apply")
+  const [tempStartDate, setTempStartDate] = useState("2024-10-01");
+  const [tempEndDate, setTempEndDate] = useState("2024-10-31");
+  const [tempPreset, setTempPreset] = useState("This Month");
+  const [hoverDate, setHoverDate] = useState(null);
+  const [isSelectingRange, setIsSelectingRange] = useState(false);
 
-  const [activityFilter, setActivityFilter] = useState("all");
-  const [activitySort, setActivitySort] = useState("newest");
+  // Month navigation for the calendar grid (default: October 2024)
+  const [calendarViewDate, setCalendarViewDate] = useState(new Date(2024, 9, 1));
 
-  const [aiDateFilter, setAiDateFilter] = useState("This Month");
-  const [aiChartType, setAiChartType] = useState("bar"); // 'bar' | 'distribution' | 'summary'
+  // Resolved Dataset
+  const dataset = useMemo(() => {
+    if (dateRangeKey === "Custom" && customDataset) {
+      return customDataset;
+    }
+    return TIMEFRAME_PRESETS[dateRangeKey] || TIMEFRAME_PRESETS["This Month"];
+  }, [dateRangeKey, customDataset]);
 
-  // Timeframe presets for the header dropdown
-  const DATE_PRESETS = [
-    { id: "This Month", label: "Oct 1, 2024 - Oct 31, 2024" },
-    { id: "Today", label: "Today (Oct 26, 2024)" },
-    { id: "Yesterday", label: "Yesterday (Oct 25, 2024)" },
-    { id: "7 Days", label: "Last 7 Days (Oct 20 - Oct 26, 2024)" },
-    { id: "Last Month", label: "Last Month (Sep 1 - Sep 30, 2024)" },
-    { id: "All Time", label: "All Time (Complete History)" },
-  ];
-
-  // Active global dataset derived from selected dateFilter
-  const activeDataset = useMemo(() => {
-    return TIMEFRAME_DATA[dateFilter] || TIMEFRAME_DATA["This Month"];
-  }, [dateFilter]);
-
-  // Task Status Overview independent dataset
-  const taskStatusDataset = useMemo(() => {
-    return TIMEFRAME_DATA[taskDateFilter] || activeDataset;
-  }, [taskDateFilter, activeDataset]);
-
-  // AI Usage independent dataset
-  const aiDataset = useMemo(() => {
-    return TIMEFRAME_DATA[aiDateFilter] || activeDataset;
-  }, [aiDateFilter, activeDataset]);
-
-  // Tasks state that allows interactive checking per timeframe
-  const [tasksState, setTasksState] = useState(() => activeDataset.tasks);
-
-  // Synchronize tasks when timeframe changes
+  // Click outside to dismiss calendar popover
   useEffect(() => {
-    setTasksState(activeDataset.tasks);
-  }, [activeDataset]);
+    function handleClickOutside(event) {
+      if (calendarRef.current && !calendarRef.current.contains(event.target)) {
+        setIsCalendarOpen(false);
+      }
+    }
+    if (isCalendarOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => {
+        document.removeEventListener("mousedown", handleClickOutside);
+      };
+    }
+  }, [isCalendarOpen]);
 
-  // Auto-dismiss toast
+  // Escape key to close popover
   useEffect(() => {
-    if (toast) {
-      const t = setTimeout(() => setToast(null), 3000);
-      return () => clearTimeout(t);
+    function handleKeyDown(e) {
+      if (e.key === "Escape") {
+        setIsCalendarOpen(false);
+      }
     }
-  }, [toast]);
+    if (isCalendarOpen) {
+      window.addEventListener("keydown", handleKeyDown);
+      return () => window.removeEventListener("keydown", handleKeyDown);
+    }
+  }, [isCalendarOpen]);
 
-  // Toggle tasks interactively
-  const toggleTask = (taskId) => {
-    setTasksState((prev) =>
-      prev.map((t) => (t.id === taskId ? { ...t, completed: !t.completed } : t))
-    );
+  // Calendar Toggle
+  const handleToggleCalendar = () => {
+    if (!isCalendarOpen) {
+      setTempStartDate(startDate);
+      setTempEndDate(endDate);
+      setTempPreset(selectedPreset);
+      setIsSelectingRange(false);
+      setHoverDate(null);
+      if (startDate) {
+        const [y, m] = startDate.split("-").map(Number);
+        if (!isNaN(y) && !isNaN(m)) {
+          setCalendarViewDate(new Date(y, m - 1, 1));
+        }
+      }
+    }
+    setIsCalendarOpen((prev) => !prev);
   };
 
-  // Status badge styling helper
-  const getStatusBadge = (status) => {
-    switch (status) {
-      case "On Track":
-        return <span className="tfAdminDashboard__status tfAdminDashboard__status--on-track">On Track</span>;
-      case "In Progress":
-        return <span className="tfAdminDashboard__status tfAdminDashboard__status--in-progress">In Progress</span>;
-      case "At Risk":
-        return <span className="tfAdminDashboard__status tfAdminDashboard__status--at-risk">At Risk</span>;
-      case "Delayed":
-        return <span className="tfAdminDashboard__status tfAdminDashboard__status--delayed">Delayed</span>;
-      default:
-        return <span className="tfAdminDashboard__status">{status}</span>;
-    }
+  // Month Navigation Handlers
+  const handlePrevMonth = () => {
+    setCalendarViewDate(new Date(calendarViewDate.getFullYear(), calendarViewDate.getMonth() - 1, 1));
   };
 
-  // Priority badge helper
-  const getPriorityBadge = (priority) => {
-    switch (priority) {
-      case "High":
-        return <span className="tfAdminDashboard__priority tfAdminDashboard__priority--high">● High</span>;
-      case "Medium":
-        return <span className="tfAdminDashboard__priority tfAdminDashboard__priority--medium">● Medium</span>;
-      case "Low":
-        return <span className="tfAdminDashboard__priority tfAdminDashboard__priority--low">● Low</span>;
-      default:
-        return <span className="tfAdminDashboard__priority">● {priority}</span>;
-    }
+  const handleNextMonth = () => {
+    setCalendarViewDate(new Date(calendarViewDate.getFullYear(), calendarViewDate.getMonth() + 1, 1));
   };
 
-  // Feature icon helper
-  const renderFeatureIcon = (type) => {
-    switch (type) {
-      case "chat":
-        return (
-          <span className="tfAdminDashboard__featIcon" style={{ background: "#ffedd5", color: "#ea580c" }}>
-            <MessageSquare size={13} />
-          </span>
-        );
-      case "task":
-        return (
-          <span className="tfAdminDashboard__featIcon" style={{ background: "#dbeafe", color: "#2563eb" }}>
-            <Lightbulb size={13} />
-          </span>
-        );
-      case "content":
-        return (
-          <span className="tfAdminDashboard__featIcon" style={{ background: "#dcfce7", color: "#16a34a" }}>
-            <FileText size={13} />
-          </span>
-        );
-      case "summary":
-        return (
-          <span className="tfAdminDashboard__featIcon" style={{ background: "#fef3c7", color: "#d97706" }}>
-            <Layers size={13} />
-          </span>
-        );
-      default:
-        return (
-          <span className="tfAdminDashboard__featIcon" style={{ background: "#ede9fe", color: "#7c3aed" }}>
-            <Sparkles size={13} />
-          </span>
-        );
+  const handleTodayMonth = () => {
+    setCalendarViewDate(new Date(2024, 9, 1));
+  };
+
+  // Day Selection Handlers
+  const handleDayClick = (dateStr) => {
+    const [y, m] = dateStr.split("-").map(Number);
+    if (y !== calendarViewDate.getFullYear() || m - 1 !== calendarViewDate.getMonth()) {
+      setCalendarViewDate(new Date(y, m - 1, 1));
+    }
+
+    if (!isSelectingRange) {
+      setTempStartDate(dateStr);
+      setTempEndDate(dateStr);
+      setIsSelectingRange(true);
+      setTempPreset("custom");
+    } else {
+      if (dateStr < tempStartDate) {
+        setTempEndDate(tempStartDate);
+        setTempStartDate(dateStr);
+      } else {
+        setTempEndDate(dateStr);
+      }
+      setIsSelectingRange(false);
+      setHoverDate(null);
+      setTempPreset("custom");
     }
   };
 
-  /* =========================================================
-     DYNAMIC SVG DONUT CALCULATIONS (R = 54, C ~ 339.292)
-  ========================================================= */
-  const C = 2 * Math.PI * 54;
-  const taskStatusCounts = taskStatusDataset.taskStatus;
-  const taskTotal = Math.max(1, taskStatusCounts.total);
-
-  const p1 = (taskStatusCounts.completed / taskTotal) * C;
-  const p2 = (taskStatusCounts.inProgress / taskTotal) * C;
-  const p3 = (taskStatusCounts.todo / taskTotal) * C;
-  const p4 = (taskStatusCounts.overdue / taskTotal) * C;
-
-  // Filtered & Sorted Project Progress
-  const filteredProgressProjects = useMemo(() => {
-    let list = [...activeDataset.projects];
-    if (projectProgressFilter !== "all") {
-      list = list.filter((p) => p.status.toLowerCase().replace(/\s+/g, "-") === projectProgressFilter);
+  const handleDayHover = (dateStr) => {
+    if (isSelectingRange) {
+      setHoverDate(dateStr);
     }
-    list.sort((a, b) => {
-      if (projectProgressSort === "highest") return b.progress - a.progress;
-      if (projectProgressSort === "lowest") return a.progress - b.progress;
-      if (projectProgressSort === "name") return a.name.localeCompare(b.name);
-      return 0;
-    });
-    return list;
-  }, [activeDataset.projects, projectProgressFilter, projectProgressSort]);
+  };
 
-  // Filtered & Sorted Recent Projects Table
-  const filteredRecentProjects = useMemo(() => {
-    let list = [...activeDataset.projects];
-    if (recentProjectsFilter !== "all") {
-      list = list.filter((p) => p.status.toLowerCase().replace(/\s+/g, "-") === recentProjectsFilter);
+  const handleSelectPreset = (preset) => {
+    setTempPreset(preset.id);
+    setIsSelectingRange(false);
+    setHoverDate(null);
+    if (preset.id !== "custom" && preset.start && preset.end) {
+      setTempStartDate(preset.start);
+      setTempEndDate(preset.end);
+      const [y, m] = preset.start.split("-").map(Number);
+      if (!isNaN(y) && !isNaN(m)) {
+        setCalendarViewDate(new Date(y, m - 1, 1));
+      }
     }
-    list.sort((a, b) => {
-      if (recentProjectsSort === "progress-desc") return b.progress - a.progress;
-      if (recentProjectsSort === "progress-asc") return a.progress - b.progress;
-      if (recentProjectsSort === "name") return a.name.localeCompare(b.name);
-      return 0;
-    });
-    return list;
-  }, [activeDataset.projects, recentProjectsFilter, recentProjectsSort]);
+  };
 
-  // Filtered & Sorted Organization Activities
-  const filteredActivities = useMemo(() => {
-    let list = [...activeDataset.activities];
-    if (activityFilter !== "all") {
-      list = list.filter((act) =>
-        act.action.toLowerCase().includes(activityFilter.toLowerCase()) ||
-        act.details.toLowerCase().includes(activityFilter.toLowerCase())
-      );
+  const handleStartDateChange = (val) => {
+    setTempStartDate(val);
+    setTempPreset("custom");
+    if (val) {
+      const [y, m] = val.split("-").map(Number);
+      if (!isNaN(y) && !isNaN(m)) {
+        setCalendarViewDate(new Date(y, m - 1, 1));
+      }
     }
-    if (activitySort === "oldest") {
-      return [...list].reverse();
+  };
+
+  const handleEndDateChange = (val) => {
+    setTempEndDate(val);
+    setTempPreset("custom");
+  };
+
+  const handleResetToDefault = () => {
+    setTempStartDate("2024-10-01");
+    setTempEndDate("2024-10-31");
+    setTempPreset("This Month");
+    setIsSelectingRange(false);
+    setHoverDate(null);
+    setCalendarViewDate(new Date(2024, 9, 1));
+  };
+
+  const handleApplyRange = () => {
+    let finalStart = tempStartDate;
+    let finalEnd = tempEndDate;
+    if (finalStart > finalEnd) {
+      const swap = finalStart;
+      finalStart = finalEnd;
+      finalEnd = swap;
     }
-    return list;
-  }, [activeDataset.activities, activityFilter, activitySort]);
+    setStartDate(finalStart);
+    setEndDate(finalEnd);
+    setSelectedPreset(tempPreset);
+    setIsSelectingRange(false);
+    setHoverDate(null);
+
+    if (tempPreset === "This Month") {
+      setDateRangeKey("This Month");
+    } else if (tempPreset === "Today") {
+      setDateRangeKey("Today");
+    } else if (tempPreset === "7 Days") {
+      setDateRangeKey("7 Days");
+    } else {
+      setDateRangeKey("Custom");
+      setCustomDataset(buildCustomDataset(finalStart, finalEnd));
+    }
+
+    setIsCalendarOpen(false);
+  };
+
+  // Effective Range for Visual Highlighting in Grid
+  const effectiveRange = useMemo(() => {
+    if (isSelectingRange && hoverDate) {
+      if (hoverDate < tempStartDate) {
+        return { start: hoverDate, end: tempStartDate };
+      }
+      return { start: tempStartDate, end: hoverDate };
+    }
+    if (tempStartDate && tempEndDate) {
+      if (tempStartDate > tempEndDate) {
+        return { start: tempEndDate, end: tempStartDate };
+      }
+      return { start: tempStartDate, end: tempEndDate };
+    }
+    return { start: tempStartDate, end: tempStartDate };
+  }, [isSelectingRange, hoverDate, tempStartDate, tempEndDate]);
+
+  // Duration in days
+  const durationDays = useMemo(() => {
+    if (!effectiveRange.start || !effectiveRange.end) return 1;
+    const s = new Date(effectiveRange.start);
+    const e = new Date(effectiveRange.end);
+    return Math.max(1, Math.round(Math.abs(e - s) / (1000 * 60 * 60 * 24)) + 1);
+  }, [effectiveRange]);
+
+  // Generate 35 or 42 grid cells for the current viewed month
+  const calendarCells = useMemo(() => {
+    const year = calendarViewDate.getFullYear();
+    const month = calendarViewDate.getMonth();
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const totalDays = lastDay.getDate();
+    const startDay = firstDay.getDay(); // 0 is Sunday
+
+    const cells = [];
+    const prevMonthLastDay = new Date(year, month, 0).getDate();
+    for (let i = startDay - 1; i >= 0; i--) {
+      const d = prevMonthLastDay - i;
+      const prevM = month === 0 ? 11 : month - 1;
+      const prevY = month === 0 ? year - 1 : year;
+      const dateStr = `${prevY}-${String(prevM + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+      cells.push({ day: d, dateStr, isCurrentMonth: false });
+    }
+
+    for (let d = 1; d <= totalDays; d++) {
+      const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+      cells.push({ day: d, dateStr, isCurrentMonth: true });
+    }
+
+    const totalSlots = cells.length > 35 ? 42 : 35;
+    const remaining = totalSlots - cells.length;
+    for (let d = 1; d <= remaining; d++) {
+      const nextM = month === 11 ? 0 : month + 1;
+      const nextY = month === 11 ? year + 1 : year;
+      const dateStr = `${nextY}-${String(nextM + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+      cells.push({ day: d, dateStr, isCurrentMonth: false });
+    }
+
+    return cells;
+  }, [calendarViewDate]);
+
+  // Sub-card filter dropdown states
+  const [userGrowthTimeframe, setUserGrowthTimeframe] = useState("This Year");
+  const [taskStatusTimeframe, setTaskStatusTimeframe] = useState("This Month");
+  const [projectProgressTimeframe, setProjectProgressTimeframe] = useState("This Month");
+
+  // Health modal state
+  const [healthModalOpen, setHealthModalOpen] = useState(false);
+
+  // Derived user growth bars
+  const userGrowthBars = useMemo(() => {
+    if (userGrowthTimeframe === "Last 6 Months") {
+      return dataset.userGrowth.slice(-6);
+    }
+    if (userGrowthTimeframe === "This Month") {
+      return [
+        { label: "W1", val: 54, height: "22%" },
+        { label: "W2", val: 98, height: "40%" },
+        { label: "W3", val: 172, height: "70%" },
+        { label: "W4", val: 248, height: "99%" },
+      ];
+    }
+    return dataset.userGrowth;
+  }, [userGrowthTimeframe, dataset]);
+
+  // Donut chart math for Task Status Overview
+  const taskData = dataset.taskBreakdown;
+  const radius = 54;
+  const circumference = 2 * Math.PI * radius; // ~339.29
+  const strokeW = 16;
+
+  // Offsets for 4 slices
+  const cPct = taskData.completedPct / 100;
+  const ipPct = taskData.inProgressPct / 100;
+  const pPct = taskData.pendingPct / 100;
+  const oPct = taskData.overduePct / 100;
+
+  const lenCompleted = cPct * circumference;
+  const lenInProgress = ipPct * circumference;
+  const lenPending = pPct * circumference;
+  const lenOverdue = oPct * circumference;
+
+  const offCompleted = 0;
+  const offInProgress = -lenCompleted;
+  const offPending = -(lenCompleted + lenInProgress);
+  const offOverdue = -(lenCompleted + lenInProgress + lenPending);
 
   return (
-    <div className="tfAdminDashboard">
-      {/* SIDEBAR */}
-      <AdminSidebar mobileOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+    <div className="tfSaasAdmin">
+      {/* SIDEBAR NAVIGATION */}
+      <AdminSidebar mobileOpen={mobileOpen} onClose={() => setMobileOpen(false)} />
 
-      {/* MAIN CONTAINER */}
-      <main className="tfAdminDashboard__main">
+      <div className="tfSaasAdmin__container">
         {/* TOPBAR */}
-        <AdminTopbar onMobileMenuToggle={() => setSidebarOpen(true)} />
+        <AdminTopbar onMobileMenuToggle={() => setMobileOpen(true)} />
 
-        {/* DASHBOARD CONTENT BODY */}
-        <div className="tfAdminDashboard__content">
-          {/* ===============================================
-              PAGE HEADER: GREETING & DYNAMIC DATE TIMEFRAME
-          =============================================== */}
-          <section className="tfAdminDashboard__pageHeader">
-            <div>
+        <main className="tfSaasAdmin__content">
+          {/* =========================================================
+              HEADER SECTION: GREETING & DATE RANGE PICKER
+          ========================================================= */}
+          <section className="tfSaasAdmin__header">
+            <div className="tfSaasAdmin__headerText">
               <h1>Welcome back, Amit! 👋</h1>
-              <p>Here's an overview of your organization's activity today.</p>
+              <p>Here's what's happening in your organization today.</p>
             </div>
 
-            <div className="tfAdminDashboard__dateWrapper">
-              <button
-                type="button"
-                className="tfAdminDashboard__dateButton"
-                onClick={() => setDateDropdownOpen((prev) => !prev)}
-                title="Filter dashboard by timeframe"
-              >
-                <CalendarDays size={16} />
-                <span>{activeDataset.label}</span>
-                <ChevronDown size={14} className={dateDropdownOpen ? "tf-rotate-180" : ""} />
-              </button>
+            <div className="tfSaasAdmin__headerControls">
+              <div className="tfSaasAdmin__datePickerWrapper" ref={calendarRef}>
+                <button
+                  type="button"
+                  className={`tfSaasAdmin__dateTriggerBtn ${isCalendarOpen ? "active" : ""}`}
+                  onClick={handleToggleCalendar}
+                  aria-label="Filter dashboard by date range"
+                  aria-expanded={isCalendarOpen}
+                >
+                  <CalendarDays size={16} className="date-icon" />
+                  <span className="date-label">{dataset.label}</span>
+                  <ChevronDown size={14} className={`chevron-icon ${isCalendarOpen ? "rotate" : ""}`} />
+                </button>
 
-              {dateDropdownOpen && (
-                <div className="tfAdminDashboard__dateMenu">
-                  <div className="tfAdminDashboard__dateMenuTitle">Select Timeframe</div>
-                  {DATE_PRESETS.map((p) => (
-                    <button
-                      key={p.id}
-                      type="button"
-                      className={`tfAdminDashboard__dateMenuItem ${dateFilter === p.id ? "active" : ""}`}
-                      onClick={() => {
-                        setDateFilter(p.id);
-                        setDateDropdownOpen(false);
-                      }}
-                    >
-                      <Check size={14} className={dateFilter === p.id ? "tf-check-visible" : "tf-check-hidden"} />
-                      <span>{p.label}</span>
-                    </button>
-                  ))}
-                  <div className="tfAdminDashboard__dateMenuDivider" />
-                  <button
-                    type="button"
-                    className="tfAdminDashboard__dateMenuItem custom-range-btn"
-                    onClick={() => {
-                      setDateDropdownOpen(false);
-                      setCustomDateModalOpen(true);
-                    }}
+                {/* CUSTOM INTERACTIVE CALENDAR POPOVER */}
+                {isCalendarOpen && (
+                  <div
+                    className="tfSaasAdmin__calendarPopover"
+                    role="dialog"
+                    aria-modal="true"
+                    aria-label="Custom Date Range Picker"
                   >
-                    <SlidersHorizontal size={14} />
-                    <span>Custom Date Range...</span>
-                  </button>
-                </div>
-              )}
+                    <div className="tfSaasAdmin__calendarHeader">
+                      <div className="tfSaasAdmin__calendarHeaderTitle">
+                        <Calendar size={14} className="header-cal-icon" />
+                        <span>Custom Date Range</span>
+                      </div>
+                      <button
+                        type="button"
+                        className="tfSaasAdmin__calendarCloseBtn"
+                        onClick={() => setIsCalendarOpen(false)}
+                        title="Close date picker"
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+
+                    <div className="tfSaasAdmin__calendarBody">
+                      {/* Presets Sidebar */}
+                      <div className="tfSaasAdmin__presetsCol">
+                        <span className="tfSaasAdmin__presetsHeading">Presets</span>
+                        <div className="tfSaasAdmin__presetsList">
+                          {CALENDAR_PRESETS.map((preset) => {
+                            const isActive = tempPreset === preset.id;
+                            return (
+                              <button
+                                key={preset.id}
+                                type="button"
+                                className={`tfSaasAdmin__presetBtn ${isActive ? "active" : ""}`}
+                                onClick={() => handleSelectPreset(preset)}
+                              >
+                                <span>{preset.label}</span>
+                                {isActive && <Check size={11} className="preset-check" />}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      {/* Interactive Calendar Month */}
+                      <div className="tfSaasAdmin__calendarCol">
+                        {/* Month Navigation */}
+                        <div className="tfSaasAdmin__monthNav">
+                          <button
+                            type="button"
+                            className="tfSaasAdmin__navBtn"
+                            onClick={handlePrevMonth}
+                            title="Previous Month"
+                          >
+                            <ChevronLeft size={13} />
+                          </button>
+
+                          <div className="tfSaasAdmin__monthTitleWrap">
+                            <span className="tfSaasAdmin__currentMonthLabel">
+                              {MONTH_NAMES[calendarViewDate.getMonth()]} {calendarViewDate.getFullYear()}
+                            </span>
+                            <button
+                              type="button"
+                              className="tfSaasAdmin__todayJumpBtn"
+                              onClick={handleTodayMonth}
+                              title="Jump to current demo month (Oct 2024)"
+                            >
+                              Current
+                            </button>
+                          </div>
+
+                          <button
+                            type="button"
+                            className="tfSaasAdmin__navBtn"
+                            onClick={handleNextMonth}
+                            title="Next Month"
+                          >
+                            <ChevronRight size={13} />
+                          </button>
+                        </div>
+
+                        {/* Weekday headers */}
+                        <div className="tfSaasAdmin__weekdaysRow">
+                          {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((day) => (
+                            <span key={day} className="tfSaasAdmin__weekdayHeader">
+                              {day}
+                            </span>
+                          ))}
+                        </div>
+
+                        {/* Days Grid */}
+                        <div className="tfSaasAdmin__daysGrid">
+                          {calendarCells.map((cell, idx) => {
+                            const isStart = cell.dateStr === effectiveRange.start;
+                            const isEnd = cell.dateStr === effectiveRange.end;
+                            const isSingle = isStart && isEnd;
+                            const isInRange =
+                              cell.dateStr > effectiveRange.start && cell.dateStr < effectiveRange.end;
+                            const isRangePreview =
+                              isSelectingRange &&
+                              hoverDate &&
+                              ((cell.dateStr >= tempStartDate && cell.dateStr <= hoverDate) ||
+                                (cell.dateStr <= tempStartDate && cell.dateStr >= hoverDate));
+
+                            return (
+                              <button
+                                key={`${cell.dateStr}-${idx}`}
+                                type="button"
+                                className={`tfSaasAdmin__dayCell ${
+                                  !cell.isCurrentMonth ? "outside-month" : ""
+                                } ${isSingle ? "range-single" : ""} ${
+                                  isStart && !isSingle ? "range-start" : ""
+                                } ${isEnd && !isSingle ? "range-end" : ""} ${
+                                  isInRange ? "in-range" : ""
+                                } ${isRangePreview ? "hover-preview" : ""}`}
+                                onClick={() => handleDayClick(cell.dateStr)}
+                                onMouseEnter={() => handleDayHover(cell.dateStr)}
+                                title={cell.dateStr}
+                              >
+                                <span className="cell-num">{cell.day}</span>
+                              </button>
+                            );
+                          })}
+                        </div>
+
+                        {/* Selected Range Display Badges */}
+                        <div className="tfSaasAdmin__rangeInputRow">
+                          <div className="tfSaasAdmin__rangeBadge">
+                            <span className="badge-lbl">Start</span>
+                            <span className="badge-val">{tempStartDate || "Select date"}</span>
+                          </div>
+                          <span className="tfSaasAdmin__rangeArrow">→</span>
+                          <div className="tfSaasAdmin__rangeBadge">
+                            <span className="badge-lbl">End</span>
+                            <span className="badge-val">{tempEndDate || "Select date"}</span>
+                          </div>
+                          <div className="tfSaasAdmin__rangeDuration">
+                            {durationDays} {durationDays === 1 ? "day" : "days"}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Popover Footer */}
+                    <div className="tfSaasAdmin__calendarFooter">
+                      <button
+                        type="button"
+                        className="tfSaasAdmin__btnReset"
+                        onClick={handleResetToDefault}
+                        title="Reset to default October 2024"
+                      >
+                        <RotateCcw size={12} />
+                        <span>Reset</span>
+                      </button>
+
+                      <div className="tfSaasAdmin__footerRightBtns">
+                        <button
+                          type="button"
+                          className="tfSaasAdmin__btnCancel"
+                          onClick={() => setIsCalendarOpen(false)}
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          type="button"
+                          className="tfSaasAdmin__btnApply"
+                          onClick={handleApplyRange}
+                        >
+                          <Check size={13} />
+                          <span>Apply Range</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </section>
 
-          {/* ===============================================
-              ROW 1: 4 DYNAMIC KPI CARDS
-          =============================================== */}
-          <section className="tfAdminDashboard__statsGrid">
-            {/* TOTAL USERS */}
-            <button
-              type="button"
-              className="tfAdminDashboard__statCard"
+          {/* =========================================================
+              ROW 1: 4 KPI CARDS WITH SPARKLINES
+          ========================================================= */}
+          <section className="tfSaasAdmin__kpiGrid">
+            {/* 1. TOTAL USERS */}
+            <article
+              className="tfSaasAdmin__kpiCard"
               onClick={() => navigate("/admin/users")}
+              title="Click to view all users"
             >
-              <span className="tfAdminDashboard__statIcon tfAdminDashboard__statIcon--purple">
-                <Users size={22} />
-              </span>
-              <div className="tfAdminDashboard__statContent">
-                <span>Total Users</span>
-                <div>
-                  <strong>{activeDataset.stats.users}</strong>
-                  <small>
-                    <TrendingUp size={11} />
-                    {activeDataset.stats.usersTrend}
-                  </small>
+              <div className="tfSaasAdmin__kpiLeft">
+                <div className="tfSaasAdmin__kpiIconBox tfSaasAdmin__kpiIconBox--blue">
+                  <Users size={22} />
                 </div>
-                <p>{activeDataset.stats.usersSub}</p>
-              </div>
-            </button>
-
-            {/* WORKSPACES */}
-            <button
-              type="button"
-              className="tfAdminDashboard__statCard"
-              onClick={() => navigate("/admin/workspaces")}
-            >
-              <span className="tfAdminDashboard__statIcon tfAdminDashboard__statIcon--blue">
-                <Building2 size={22} />
-              </span>
-              <div className="tfAdminDashboard__statContent">
-                <span>Workspaces</span>
-                <div>
-                  <strong>{activeDataset.stats.workspaces}</strong>
-                  <small>
-                    <TrendingUp size={11} />
-                    {activeDataset.stats.workspacesTrend}
-                  </small>
+                <div className="tfSaasAdmin__kpiMeta">
+                  <span className="tfSaasAdmin__kpiLabel">Total Users</span>
+                  <div className="tfSaasAdmin__kpiValueRow">
+                    <strong className="tfSaasAdmin__kpiValue">
+                      <AnimatedNumber value={dataset.users} />
+                    </strong>
+                    <span className="tfSaasAdmin__kpiTrend text-green">
+                      <TrendingUp size={12} />
+                      {dataset.usersTrend}
+                    </span>
+                  </div>
+                  <small className="tfSaasAdmin__kpiSub">{dataset.usersSub}</small>
                 </div>
-                <p>{activeDataset.stats.workspacesSub}</p>
               </div>
-            </button>
 
-            {/* PROJECTS */}
-            <button
-              type="button"
-              className="tfAdminDashboard__statCard"
+              {/* Blue Sparkline SVG */}
+              <div className="tfSaasAdmin__kpiSpark">
+                <svg viewBox="0 0 100 40" preserveAspectRatio="none">
+                  <defs>
+                    <linearGradient id="tfSparkBlue" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.32" />
+                      <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.0" />
+                    </linearGradient>
+                  </defs>
+                  <path
+                    d="M 0 32 C 20 32, 35 22, 55 20 C 75 18, 85 8, 100 4 L 100 40 L 0 40 Z"
+                    fill="url(#tfSparkBlue)"
+                  />
+                  <path
+                    d="M 0 32 C 20 32, 35 22, 55 20 C 75 18, 85 8, 100 4"
+                    fill="none"
+                    stroke="#3b82f6"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                  />
+                </svg>
+              </div>
+            </article>
+
+            {/* 2. TOTAL PROJECTS */}
+            <article
+              className="tfSaasAdmin__kpiCard"
               onClick={() => navigate("/admin/projects")}
+              title="Click to view all projects"
             >
-              <span className="tfAdminDashboard__statIcon tfAdminDashboard__statIcon--indigo">
-                <FolderKanban size={22} />
-              </span>
-              <div className="tfAdminDashboard__statContent">
-                <span>Projects</span>
-                <div>
-                  <strong>{activeDataset.stats.projects}</strong>
-                  <small>
-                    <TrendingUp size={11} />
-                    {activeDataset.stats.projectsTrend}
-                  </small>
+              <div className="tfSaasAdmin__kpiLeft">
+                <div className="tfSaasAdmin__kpiIconBox tfSaasAdmin__kpiIconBox--purple">
+                  <FolderKanban size={22} />
                 </div>
-                <p>{activeDataset.stats.projectsSub}</p>
+                <div className="tfSaasAdmin__kpiMeta">
+                  <span className="tfSaasAdmin__kpiLabel">Total Projects</span>
+                  <div className="tfSaasAdmin__kpiValueRow">
+                    <strong className="tfSaasAdmin__kpiValue">
+                      <AnimatedNumber value={dataset.projects} />
+                    </strong>
+                    <span className="tfSaasAdmin__kpiTrend text-green">
+                      <TrendingUp size={12} />
+                      {dataset.projectsTrend}
+                    </span>
+                  </div>
+                  <small className="tfSaasAdmin__kpiSub">{dataset.projectsSub}</small>
+                </div>
               </div>
-            </button>
 
-            {/* TOTAL TASKS */}
-            <button
-              type="button"
-              className="tfAdminDashboard__statCard"
-              onClick={() => navigate("/admin/tasks")}
-            >
-              <span className="tfAdminDashboard__statIcon tfAdminDashboard__statIcon--green">
-                <ListChecks size={22} />
-              </span>
-              <div className="tfAdminDashboard__statContent">
-                <span>Total Tasks</span>
-                <div>
-                  <strong>{activeDataset.stats.tasks}</strong>
-                  <small>
-                    <TrendingUp size={11} />
-                    {activeDataset.stats.tasksTrend}
-                  </small>
-                </div>
-                <p>{activeDataset.stats.tasksSub}</p>
+              {/* Purple Sparkline SVG with nodes */}
+              <div className="tfSaasAdmin__kpiSpark">
+                <svg viewBox="0 0 100 40" preserveAspectRatio="none">
+                  <defs>
+                    <linearGradient id="tfSparkPurple" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.32" />
+                      <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0.0" />
+                    </linearGradient>
+                  </defs>
+                  <path
+                    d="M 0 30 C 25 30, 35 20, 55 22 C 75 25, 85 10, 100 6 L 100 40 L 0 40 Z"
+                    fill="url(#tfSparkPurple)"
+                  />
+                  <path
+                    d="M 0 30 C 25 30, 35 20, 55 22 C 75 25, 85 10, 100 6"
+                    fill="none"
+                    stroke="#8b5cf6"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                  />
+                  <circle cx="55" cy="22" r="2.8" fill="#ffffff" stroke="#8b5cf6" strokeWidth="2" />
+                  <circle cx="100" cy="6" r="2.8" fill="#ffffff" stroke="#8b5cf6" strokeWidth="2" />
+                </svg>
               </div>
-            </button>
+            </article>
+
+            {/* 3. TOTAL TASKS */}
+            <article
+              className="tfSaasAdmin__kpiCard"
+              onClick={() => navigate("/admin/tasks")}
+              title="Click to view all tasks"
+            >
+              <div className="tfSaasAdmin__kpiLeft">
+                <div className="tfSaasAdmin__kpiIconBox tfSaasAdmin__kpiIconBox--green">
+                  <ListChecks size={22} />
+                </div>
+                <div className="tfSaasAdmin__kpiMeta">
+                  <span className="tfSaasAdmin__kpiLabel">Total Tasks</span>
+                  <div className="tfSaasAdmin__kpiValueRow">
+                    <strong className="tfSaasAdmin__kpiValue">
+                      <AnimatedNumber value={dataset.tasks} />
+                    </strong>
+                    <span className="tfSaasAdmin__kpiTrend text-green">
+                      <TrendingUp size={12} />
+                      {dataset.tasksTrend}
+                    </span>
+                  </div>
+                  <small className="tfSaasAdmin__kpiSub">{dataset.tasksSub}</small>
+                </div>
+              </div>
+
+              {/* Green Sparkline SVG */}
+              <div className="tfSaasAdmin__kpiSpark">
+                <svg viewBox="0 0 100 40" preserveAspectRatio="none">
+                  <defs>
+                    <linearGradient id="tfSparkGreen" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#10b981" stopOpacity="0.32" />
+                      <stop offset="100%" stopColor="#10b981" stopOpacity="0.0" />
+                    </linearGradient>
+                  </defs>
+                  <path
+                    d="M 0 34 C 20 34, 40 24, 60 22 C 80 18, 90 8, 100 4 L 100 40 L 0 40 Z"
+                    fill="url(#tfSparkGreen)"
+                  />
+                  <path
+                    d="M 0 34 C 20 34, 40 24, 60 22 C 80 18, 90 8, 100 4"
+                    fill="none"
+                    stroke="#10b981"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                  />
+                </svg>
+              </div>
+            </article>
+
+            {/* 4. OPEN BUGS */}
+            <article
+              className="tfSaasAdmin__kpiCard"
+              onClick={() => navigate("/admin/bugs")}
+              title="Click to view bug tracking"
+            >
+              <div className="tfSaasAdmin__kpiLeft">
+                <div className="tfSaasAdmin__kpiIconBox tfSaasAdmin__kpiIconBox--red">
+                  <Bug size={22} />
+                </div>
+                <div className="tfSaasAdmin__kpiMeta">
+                  <span className="tfSaasAdmin__kpiLabel">Open Bugs</span>
+                  <div className="tfSaasAdmin__kpiValueRow">
+                    <strong className="tfSaasAdmin__kpiValue">
+                      <AnimatedNumber value={dataset.bugs} />
+                    </strong>
+                    <span className="tfSaasAdmin__kpiTrend text-red">
+                      <TrendingUp size={12} />
+                      {dataset.bugsTrend}
+                    </span>
+                  </div>
+                  <small className="tfSaasAdmin__kpiSub">{dataset.bugsSub}</small>
+                </div>
+              </div>
+
+              {/* Red Sparkline SVG */}
+              <div className="tfSaasAdmin__kpiSpark">
+                <svg viewBox="0 0 100 40" preserveAspectRatio="none">
+                  <defs>
+                    <linearGradient id="tfSparkRed" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#ef4444" stopOpacity="0.3" />
+                      <stop offset="100%" stopColor="#ef4444" stopOpacity="0.0" />
+                    </linearGradient>
+                  </defs>
+                  <path
+                    d="M 0 30 C 20 30, 35 18, 55 22 C 75 25, 85 14, 100 8 L 100 40 L 0 40 Z"
+                    fill="url(#tfSparkRed)"
+                  />
+                  <path
+                    d="M 0 30 C 20 30, 35 18, 55 22 C 75 25, 85 14, 100 8"
+                    fill="none"
+                    stroke="#ef4444"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                  />
+                </svg>
+              </div>
+            </article>
           </section>
 
-          {/* ===============================================
-              ROW 2: TASK STATUS | PROJECT PROGRESS | TEAM MEMBERS
-          =============================================== */}
-          <section className="tfAdminDashboard__grid tfAdminDashboard__grid--3">
-            {/* 1. DYNAMIC TASK STATUS OVERVIEW */}
-            <article className="tfAdminDashboard__card">
-              <div className="tfAdminDashboard__cardHeader">
-                <div className="tfAdminDashboard__cardHeaderTitle">
-                  <h2>Task Status Overview</h2>
-                  <span className="tfAdminDashboard__badgeTag">{taskTotal} tasks</span>
-                </div>
-                <div className="tfAdminDashboard__cardActionsGroup">
+          {/* =========================================================
+              ROW 2: 3 ANALYTICS CARDS (USER GROWTH | TASK STATUS | PROJECT PROGRESS)
+          ========================================================= */}
+          <section className="tfSaasAdmin__middleGrid">
+            {/* 1. USER GROWTH CARD */}
+            <article className="tfSaasAdmin__card">
+              <div className="tfSaasAdmin__cardHeader">
+                <h2>User Growth</h2>
+                <div className="tfSaasAdmin__selectPill">
                   <select
-                    value={taskChartType}
-                    onChange={(e) => setTaskChartType(e.target.value)}
-                    className="tfAdminDashboard__cardSelect sm"
-                    title="Switch chart representation"
+                    value={userGrowthTimeframe}
+                    onChange={(e) => setUserGrowthTimeframe(e.target.value)}
+                    aria-label="Filter user growth timeframe"
                   >
-                    <option value="donut">🍩 Donut</option>
-                    <option value="bars">📊 Bars</option>
-                    <option value="list">📋 List</option>
+                    <option value="This Year">This Year</option>
+                    <option value="Last 6 Months">Last 6 Months</option>
+                    <option value="This Month">This Month</option>
                   </select>
+                  <ChevronDown size={13} />
+                </div>
+              </div>
 
+              <div className="tfSaasAdmin__growthChartContainer">
+                <div className="tfSaasAdmin__growthYAxis">
+                  <span>250</span>
+                  <span>200</span>
+                  <span>150</span>
+                  <span>100</span>
+                  <span>50</span>
+                  <span>0</span>
+                </div>
+
+                <div className="tfSaasAdmin__growthBarsArea">
+                  <div className="tfSaasAdmin__gridLines">
+                    <span /><span /><span /><span /><span />
+                  </div>
+
+                  <div className="tfSaasAdmin__barsTrack">
+                    {userGrowthBars.map((b) => (
+                      <div key={b.label} className="tfSaasAdmin__barGroup" title={`${b.label}: ${b.val} Users`}>
+                        <div className="tfSaasAdmin__barRail">
+                          <div className="tfSaasAdmin__barFill" style={{ height: b.height }} />
+                        </div>
+                        <span className="tfSaasAdmin__barLabel">{b.label}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </article>
+
+            {/* 2. TASK STATUS OVERVIEW CARD */}
+            <article className="tfSaasAdmin__card">
+              <div className="tfSaasAdmin__cardHeader">
+                <h2>Task Status Overview</h2>
+                <div className="tfSaasAdmin__selectPill">
                   <select
-                    value={taskDateFilter}
-                    onChange={(e) => setTaskDateFilter(e.target.value)}
-                    className="tfAdminDashboard__cardSelect"
-                    title="Filter Task Status by date"
+                    value={taskStatusTimeframe}
+                    onChange={(e) => setTaskStatusTimeframe(e.target.value)}
+                    aria-label="Filter task status timeframe"
                   >
                     <option value="This Month">This Month</option>
                     <option value="Today">Today</option>
-                    <option value="Yesterday">Yesterday</option>
                     <option value="7 Days">Last 7 Days</option>
-                    <option value="Last Month">Last Month</option>
-                    <option value="All Time">All Time</option>
                   </select>
+                  <ChevronDown size={13} />
                 </div>
               </div>
 
-              {taskChartType === "donut" && (
-                <div className="tfAdminDashboard__taskOverview">
-                  {/* DYNAMIC SVG DONUT CHART */}
-                  <div className="tfAdminDashboard__donutWrapper">
-                    <svg className="tfAdminDashboard__donutSvg" viewBox="0 0 150 150">
-                      <circle
-                        cx="75"
-                        cy="75"
-                        r="54"
-                        fill="none"
-                        stroke="#f1f5f9"
-                        strokeWidth="16"
-                      />
-                      {/* Overdue (Red) */}
-                      {taskStatusCounts.overdue > 0 && (
-                        <circle
-                          cx="75"
-                          cy="75"
-                          r="54"
-                          fill="none"
-                          stroke="#ef4444"
-                          strokeWidth="16"
-                          strokeDasharray={`${p4} ${C - p4}`}
-                          strokeDashoffset={-(p1 + p2 + p3)}
-                          transform="rotate(-90 75 75)"
-                        />
-                      )}
-                      {/* To Do (Amber) */}
-                      {taskStatusCounts.todo > 0 && (
-                        <circle
-                          cx="75"
-                          cy="75"
-                          r="54"
-                          fill="none"
-                          stroke="#f59e0b"
-                          strokeWidth="16"
-                          strokeDasharray={`${p3} ${C - p3}`}
-                          strokeDashoffset={-(p1 + p2)}
-                          transform="rotate(-90 75 75)"
-                        />
-                      )}
-                      {/* In Progress (Blue) */}
-                      {taskStatusCounts.inProgress > 0 && (
-                        <circle
-                          cx="75"
-                          cy="75"
-                          r="54"
-                          fill="none"
-                          stroke="#3b82f6"
-                          strokeWidth="16"
-                          strokeDasharray={`${p2} ${C - p2}`}
-                          strokeDashoffset={-p1}
-                          transform="rotate(-90 75 75)"
-                        />
-                      )}
-                      {/* Completed (Green) */}
-                      {taskStatusCounts.completed > 0 && (
-                        <circle
-                          cx="75"
-                          cy="75"
-                          r="54"
-                          fill="none"
-                          stroke="#10b981"
-                          strokeWidth="16"
-                          strokeDasharray={`${p1} ${C - p1}`}
-                          strokeDashoffset="0"
-                          transform="rotate(-90 75 75)"
-                        />
-                      )}
-                    </svg>
-                    <div className="tfAdminDashboard__donutCenter">
-                      <strong>{taskStatusCounts.total}</strong>
-                      <span>Total Tasks</span>
-                    </div>
-                  </div>
-
-                  {/* DYNAMIC LEGEND TABLE */}
-                  <div className="tfAdminDashboard__legend">
-                    <div className="tfAdminDashboard__legendRow">
-                      <span>
-                        <i className="tfAdminDashboard__legendDot tfAdminDashboard__legendDot--completed" />
-                        Completed
-                      </span>
-                      <div className="tfAdminDashboard__legendValues">
-                        <strong>{taskStatusCounts.completed}</strong>
-                        <span className="tfAdminDashboard__legendPct">{taskStatusCounts.completedPct}%</span>
-                      </div>
-                    </div>
-
-                    <div className="tfAdminDashboard__legendRow">
-                      <span>
-                        <i className="tfAdminDashboard__legendDot tfAdminDashboard__legendDot--progress" />
-                        In Progress
-                      </span>
-                      <div className="tfAdminDashboard__legendValues">
-                        <strong>{taskStatusCounts.inProgress}</strong>
-                        <span className="tfAdminDashboard__legendPct">{taskStatusCounts.inProgressPct}%</span>
-                      </div>
-                    </div>
-
-                    <div className="tfAdminDashboard__legendRow">
-                      <span>
-                        <i className="tfAdminDashboard__legendDot tfAdminDashboard__legendDot--todo" />
-                        To Do
-                      </span>
-                      <div className="tfAdminDashboard__legendValues">
-                        <strong>{taskStatusCounts.todo}</strong>
-                        <span className="tfAdminDashboard__legendPct">{taskStatusCounts.todoPct}%</span>
-                      </div>
-                    </div>
-
-                    <div className="tfAdminDashboard__legendRow">
-                      <span>
-                        <i className="tfAdminDashboard__legendDot tfAdminDashboard__legendDot--overdue" />
-                        Overdue
-                      </span>
-                      <div className="tfAdminDashboard__legendValues">
-                        <strong>{taskStatusCounts.overdue}</strong>
-                        <span className="tfAdminDashboard__legendPct">{taskStatusCounts.overduePct}%</span>
-                      </div>
-                    </div>
+              <div className="tfSaasAdmin__taskOverviewBody">
+                {/* SVG DONUT CHART */}
+                <div className="tfSaasAdmin__donutBox">
+                  <svg viewBox="0 0 140 140" className="tfSaasAdmin__donutSvg">
+                    {/* Background ring */}
+                    <circle
+                      cx="70"
+                      cy="70"
+                      r={radius}
+                      fill="none"
+                      stroke="var(--tf-border-color, #f1f5f9)"
+                      strokeWidth={strokeW}
+                    />
+                    {/* Overdue (Red) */}
+                    <circle
+                      cx="70"
+                      cy="70"
+                      r={radius}
+                      fill="none"
+                      stroke="#ef4444"
+                      strokeWidth={strokeW}
+                      strokeDasharray={`${lenOverdue} ${circumference - lenOverdue}`}
+                      strokeDashoffset={offOverdue}
+                      transform="rotate(-90 70 70)"
+                    />
+                    {/* Pending (Amber) */}
+                    <circle
+                      cx="70"
+                      cy="70"
+                      r={radius}
+                      fill="none"
+                      stroke="#f59e0b"
+                      strokeWidth={strokeW}
+                      strokeDasharray={`${lenPending} ${circumference - lenPending}`}
+                      strokeDashoffset={offPending}
+                      transform="rotate(-90 70 70)"
+                    />
+                    {/* In Progress (Blue) */}
+                    <circle
+                      cx="70"
+                      cy="70"
+                      r={radius}
+                      fill="none"
+                      stroke="#3b82f6"
+                      strokeWidth={strokeW}
+                      strokeDasharray={`${lenInProgress} ${circumference - lenInProgress}`}
+                      strokeDashoffset={offInProgress}
+                      transform="rotate(-90 70 70)"
+                    />
+                    {/* Completed (Emerald) */}
+                    <circle
+                      cx="70"
+                      cy="70"
+                      r={radius}
+                      fill="none"
+                      stroke="#10b981"
+                      strokeWidth={strokeW}
+                      strokeDasharray={`${lenCompleted} ${circumference - lenCompleted}`}
+                      strokeDashoffset={offCompleted}
+                      transform="rotate(-90 70 70)"
+                    />
+                  </svg>
+                  <div className="tfSaasAdmin__donutCenterText">
+                    <strong>
+                      <AnimatedNumber value={taskData.total} />
+                    </strong>
+                    <span>Total</span>
                   </div>
                 </div>
-              )}
 
-              {taskChartType === "bars" && (
-                <div className="tfAdminDashboard__statusBarsContainer">
-                  <div className="status-bar-row">
-                    <div className="bar-label-group">
-                      <span className="bar-name">Completed</span>
-                      <strong className="bar-value text-green">{taskStatusCounts.completed} ({taskStatusCounts.completedPct}%)</strong>
+                {/* STATUS LEGEND BREAKDOWN */}
+                <div className="tfSaasAdmin__statusList">
+                  <div className="tfSaasAdmin__statusRow">
+                    <div className="status-label-group">
+                      <span className="dot dot-green" />
+                      <span>Completed</span>
                     </div>
-                    <div className="bar-track">
-                      <div className="bar-fill bg-green" style={{ width: `${taskStatusCounts.completedPct}%` }} />
-                    </div>
+                    <span className="status-pct">{taskData.completedPct}%</span>
+                    <strong className="status-count">{taskData.completed}</strong>
                   </div>
 
-                  <div className="status-bar-row">
-                    <div className="bar-label-group">
-                      <span className="bar-name">In Progress</span>
-                      <strong className="bar-value text-blue">{taskStatusCounts.inProgress} ({taskStatusCounts.inProgressPct}%)</strong>
+                  <div className="tfSaasAdmin__statusRow">
+                    <div className="status-label-group">
+                      <span className="dot dot-blue" />
+                      <span>In Progress</span>
                     </div>
-                    <div className="bar-track">
-                      <div className="bar-fill bg-blue" style={{ width: `${taskStatusCounts.inProgressPct}%` }} />
-                    </div>
+                    <span className="status-pct">{taskData.inProgressPct}%</span>
+                    <strong className="status-count">{taskData.inProgress}</strong>
                   </div>
 
-                  <div className="status-bar-row">
-                    <div className="bar-label-group">
-                      <span className="bar-name">To Do</span>
-                      <strong className="bar-value text-amber">{taskStatusCounts.todo} ({taskStatusCounts.todoPct}%)</strong>
+                  <div className="tfSaasAdmin__statusRow">
+                    <div className="status-label-group">
+                      <span className="dot dot-amber" />
+                      <span>Pending</span>
                     </div>
-                    <div className="bar-track">
-                      <div className="bar-fill bg-amber" style={{ width: `${taskStatusCounts.todoPct}%` }} />
-                    </div>
+                    <span className="status-pct">{taskData.pendingPct}%</span>
+                    <strong className="status-count">{taskData.pending}</strong>
                   </div>
 
-                  <div className="status-bar-row">
-                    <div className="bar-label-group">
-                      <span className="bar-name">Overdue</span>
-                      <strong className="bar-value text-red">{taskStatusCounts.overdue} ({taskStatusCounts.overduePct}%)</strong>
+                  <div className="tfSaasAdmin__statusRow">
+                    <div className="status-label-group">
+                      <span className="dot dot-red" />
+                      <span>Overdue</span>
                     </div>
-                    <div className="bar-track">
-                      <div className="bar-fill bg-red" style={{ width: `${taskStatusCounts.overduePct}%` }} />
-                    </div>
+                    <span className="status-pct">{taskData.overduePct}%</span>
+                    <strong className="status-count">{taskData.overdue}</strong>
                   </div>
                 </div>
-              )}
-
-              {taskChartType === "list" && (
-                <div className="tfAdminDashboard__statusListContainer">
-                  <div className="status-list-card green-card">
-                    <CheckCircle2 size={16} />
-                    <div className="status-list-text">
-                      <strong>Completed Tasks</strong>
-                      <small>Successfully delivered</small>
-                    </div>
-                    <span className="status-count-badge green">{taskStatusCounts.completed}</span>
-                  </div>
-
-                  <div className="status-list-card blue-card">
-                    <Activity size={16} />
-                    <div className="status-list-text">
-                      <strong>In Progress</strong>
-                      <small>Actively worked on</small>
-                    </div>
-                    <span className="status-count-badge blue">{taskStatusCounts.inProgress}</span>
-                  </div>
-
-                  <div className="status-list-card amber-card">
-                    <ListChecks size={16} />
-                    <div className="status-list-text">
-                      <strong>To Do Backlog</strong>
-                      <small>Pending start</small>
-                    </div>
-                    <span className="status-count-badge amber">{taskStatusCounts.todo}</span>
-                  </div>
-
-                  <div className="status-list-card red-card">
-                    <Zap size={16} />
-                    <div className="status-list-text">
-                      <strong>Overdue Tasks</strong>
-                      <small>Past SLA target date</small>
-                    </div>
-                    <span className="status-count-badge red">{taskStatusCounts.overdue}</span>
-                  </div>
-                </div>
-              )}
+              </div>
             </article>
 
-            {/* 2. DYNAMIC PROJECT PROGRESS */}
-            <article className="tfAdminDashboard__card">
-              <div className="tfAdminDashboard__cardHeader">
+            {/* 3. PROJECT PROGRESS CARD */}
+            <article className="tfSaasAdmin__card">
+              <div className="tfSaasAdmin__cardHeader">
                 <h2>Project Progress</h2>
-                <div className="tfAdminDashboard__cardActionsGroup">
+                <div className="tfSaasAdmin__selectPill">
                   <select
-                    value={projectProgressFilter}
-                    onChange={(e) => setProjectProgressFilter(e.target.value)}
-                    className="tfAdminDashboard__cardSelect sm"
-                    title="Filter by status"
+                    value={projectProgressTimeframe}
+                    onChange={(e) => setProjectProgressTimeframe(e.target.value)}
+                    aria-label="Filter project progress timeframe"
                   >
-                    <option value="all">All Statuses</option>
-                    <option value="on-track">On Track</option>
-                    <option value="in-progress">In Progress</option>
-                    <option value="at-risk">At Risk</option>
-                    <option value="delayed">Delayed</option>
+                    <option value="This Month">This Month</option>
+                    <option value="This Quarter">This Quarter</option>
                   </select>
-                  <select
-                    value={projectProgressSort}
-                    onChange={(e) => setProjectProgressSort(e.target.value)}
-                    className="tfAdminDashboard__cardSelect sm"
-                    title="Sort projects"
-                  >
-                    <option value="highest">Progress: High-Low</option>
-                    <option value="lowest">Progress: Low-High</option>
-                    <option value="name">Name A-Z</option>
-                  </select>
+                  <ChevronDown size={13} />
                 </div>
               </div>
 
-              <div className="tfAdminDashboard__progressList">
-                {filteredProgressProjects.slice(0, 4).map((project) => (
-                  <div key={project.id} className="tfAdminDashboard__progressItem">
-                    <div>
-                      <strong>{project.name}</strong>
-                      <span>{project.progress}%</span>
+              <div className="tfSaasAdmin__projectProgressList">
+                {dataset.projectProgress.map((proj) => (
+                  <div key={proj.id} className="tfSaasAdmin__progressRow">
+                    <div className="progress-info">
+                      <span className="proj-name">{proj.name}</span>
+                      <strong className="proj-pct">{proj.progress}%</strong>
                     </div>
-                    <div className="tfAdminDashboard__progressTrack">
-                      <span
+                    <div className="progress-rail">
+                      <div
+                        className="progress-fill"
                         style={{
-                          width: `${project.progress}%`,
-                          backgroundColor: project.color || "#6366f1",
+                          width: `${proj.progress}%`,
+                          backgroundColor: proj.color,
                         }}
                       />
                     </div>
@@ -1408,161 +1413,221 @@ export default function AdminDashboard() {
                 ))}
               </div>
             </article>
+          </section>
 
-            {/* 3. TEAM MEMBERS */}
-            <article className="tfAdminDashboard__card">
-              <div className="tfAdminDashboard__cardHeader">
-                <h2>Team Members</h2>
-                <button
-                  type="button"
-                  onClick={() => navigate("/admin/users")}
-                  className="tfAdminDashboard__viewAllBtn"
-                >
-                  View all
-                  <ArrowRight size={13} />
-                </button>
+          {/* =========================================================
+              ROW 3: 4 SECONDARY METRIC CARDS
+          ========================================================= */}
+          <section className="tfSaasAdmin__secGrid">
+            {/* ACTIVE WORKSPACES */}
+            <article
+              className="tfSaasAdmin__secCard"
+              onClick={() => navigate("/admin/workspaces")}
+              title="Click to manage workspaces"
+            >
+              <div className="sec-icon-box sec-icon-purple">
+                <Building2 size={20} />
               </div>
+              <div className="sec-content">
+                <span className="sec-label">Active Workspaces</span>
+                <div className="sec-val-row">
+                  <strong className="sec-val">
+                    <AnimatedNumber value={dataset.activeWorkspaces} />
+                  </strong>
+                  <span className="sec-trend text-green">
+                    <TrendingUp size={11} />
+                    {dataset.activeWorkspacesTrend}
+                  </span>
+                </div>
+                <small className="sec-sub">{dataset.activeWorkspacesSub}</small>
+              </div>
+            </article>
 
-              <div className="tfAdminDashboard__memberList">
-                {TEAM_MEMBERS_DATA.map((member) => (
-                  <div key={member.id} className="tfAdminDashboard__member">
-                    <span
-                      className="tfAdminDashboard__memberAvatar"
-                      style={{
-                        background: `${member.color}15`,
-                        color: member.color,
-                        borderColor: `${member.color}30`,
-                      }}
-                    >
-                      {member.letter}
-                    </span>
+            {/* ACTIVE TEAMS */}
+            <article
+              className="tfSaasAdmin__secCard"
+              onClick={() => navigate("/admin/users")}
+              title="Click to manage teams"
+            >
+              <div className="sec-icon-box sec-icon-blue">
+                <Users size={20} />
+              </div>
+              <div className="sec-content">
+                <span className="sec-label">Active Teams</span>
+                <div className="sec-val-row">
+                  <strong className="sec-val">
+                    <AnimatedNumber value={dataset.activeTeams} />
+                  </strong>
+                  <span className="sec-trend text-green">
+                    <TrendingUp size={11} />
+                    {dataset.activeTeamsTrend}
+                  </span>
+                </div>
+                <small className="sec-sub">{dataset.activeTeamsSub}</small>
+              </div>
+            </article>
 
-                    <div className="tfAdminDashboard__memberInfo">
-                      <strong>{member.name}</strong>
-                      <span>{member.role}</span>
-                    </div>
+            {/* STORAGE USED */}
+            <article
+              className="tfSaasAdmin__secCard"
+              onClick={() => navigate("/admin/analytics")}
+              title="Click to view storage metrics"
+            >
+              <div className="sec-icon-box sec-icon-purple">
+                <Database size={20} />
+              </div>
+              <div className="sec-content">
+                <span className="sec-label">Storage Used</span>
+                <div className="sec-val-row">
+                  <strong className="sec-val">{dataset.storageUsed}</strong>
+                  <span className="sec-trend text-green">
+                    <TrendingUp size={11} />
+                    {dataset.storageUsedTrend}
+                  </span>
+                </div>
+                <small className="sec-sub">{dataset.storageUsedSub}</small>
+              </div>
+            </article>
 
-                    <div
-                      className={`tfAdminDashboard__memberStatus tfAdminDashboard__memberStatus--${member.status
-                        .toLowerCase()
-                        .replace(/\s+/g, "-")}`}
-                    >
-                      <i />
-                      <span>{member.status}</span>
-                    </div>
-                  </div>
-                ))}
+            {/* API CALLS */}
+            <article
+              className="tfSaasAdmin__secCard"
+              onClick={() => navigate("/admin/ai-usage")}
+              title="Click to view API logs"
+            >
+              <div className="sec-icon-box sec-icon-green">
+                <Activity size={20} />
+              </div>
+              <div className="sec-content">
+                <span className="sec-label">API Calls (This Month)</span>
+                <div className="sec-val-row">
+                  <strong className="sec-val">{dataset.apiCalls}</strong>
+                  <span className="sec-trend text-green">
+                    <TrendingUp size={11} />
+                    {dataset.apiCallsTrend}
+                  </span>
+                </div>
+                <small className="sec-sub">{dataset.apiCallsSub}</small>
               </div>
             </article>
           </section>
 
-          {/* ===============================================
-              ROW 3: RECENT PROJECTS | MY UPCOMING TASKS
-          =============================================== */}
-          <section className="tfAdminDashboard__grid tfAdminDashboard__grid--projectsTasks">
-            {/* RECENT PROJECTS TABLE */}
-            <article className="tfAdminDashboard__card">
-              <div className="tfAdminDashboard__cardHeader">
-                <div className="tfAdminDashboard__cardHeaderTitle">
-                  <h2>Recent Projects</h2>
-                  <span className="tfAdminDashboard__badgeTag">{filteredRecentProjects.length} projects</span>
-                </div>
-                <div className="tfAdminDashboard__cardActionsGroup">
-                  <select
-                    value={recentProjectsFilter}
-                    onChange={(e) => setRecentProjectsFilter(e.target.value)}
-                    className="tfAdminDashboard__cardSelect sm"
-                    title="Filter projects by status"
-                  >
-                    <option value="all">All Statuses</option>
-                    <option value="on-track">On Track</option>
-                    <option value="in-progress">In Progress</option>
-                    <option value="at-risk">At Risk</option>
-                    <option value="delayed">Delayed</option>
-                  </select>
-
-                  <select
-                    value={recentProjectsSort}
-                    onChange={(e) => setRecentProjectsSort(e.target.value)}
-                    className="tfAdminDashboard__cardSelect sm"
-                    title="Sort projects"
-                  >
-                    <option value="recent">Recent</option>
-                    <option value="progress-desc">Progress (High-Low)</option>
-                    <option value="progress-asc">Progress (Low-High)</option>
-                    <option value="name">Name (A-Z)</option>
-                  </select>
-
-                  <button
-                    type="button"
-                    onClick={() => navigate("/admin/projects")}
-                    className="tfAdminDashboard__viewAllBtn"
-                  >
-                    View all
-                    <ArrowRight size={13} />
-                  </button>
-                </div>
+          {/* =========================================================
+              ROW 4: 3 BOTTOM CARDS (RECENT USERS | RECENT PROJECTS | SYSTEM HEALTH)
+          ========================================================= */}
+          <section className="tfSaasAdmin__bottomGrid">
+            {/* 1. RECENT USERS */}
+            <article className="tfSaasAdmin__card tfSaasAdmin__tableCard">
+              <div className="tfSaasAdmin__cardHeader">
+                <h2>Recent Users</h2>
+                <button
+                  type="button"
+                  className="tfSaasAdmin__viewAllBtn"
+                  onClick={() => navigate("/admin/users")}
+                >
+                  <span>View all</span>
+                  <ArrowRight size={13} />
+                </button>
               </div>
 
-              <div className="tfAdminDashboard__tableScroll">
-                <table className="tfAdminDashboard__table">
+              <div className="tfSaasAdmin__tableWrap">
+                <table className="tfSaasAdmin__table">
                   <thead>
                     <tr>
-                      <th style={{ width: 44, textAlign: "center" }}>#</th>
-                      <th style={{ width: "26%" }}>Project</th>
-                      <th style={{ width: "22%" }}>Team</th>
-                      <th style={{ width: "22%" }}>Progress</th>
-                      <th style={{ width: "14%" }}>Status</th>
-                      <th style={{ width: "14%" }}>Due Date</th>
+                      <th>Name</th>
+                      <th>Email</th>
+                      <th>Role</th>
+                      <th>Status</th>
+                      <th>Joined</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredRecentProjects.slice(0, 5).map((project, idx) => (
-                      <tr key={project.id}>
-                        <td style={{ textAlign: "center" }}>
-                          <span className="admin-row-num">{idx + 1}</span>
+                    {RECENT_USERS.map((u) => (
+                      <tr key={u.id}>
+                        <td>
+                          <div className="user-info-cell">
+                            <span
+                              className="user-avatar-chip"
+                              style={{ backgroundColor: u.avatarBg, color: u.avatarColor }}
+                            >
+                              {u.initials}
+                            </span>
+                            <strong className="user-name">{u.name}</strong>
+                          </div>
+                        </td>
+                        <td className="text-muted">{u.email}</td>
+                        <td>
+                          <span className={`role-badge ${u.role === "Team Lead" ? "role-lead" : "role-member"}`}>
+                            {u.role}
+                          </span>
                         </td>
                         <td>
-                          <strong>{project.name}</strong>
+                          <span className="status-indicator">
+                            <span className={`status-dot ${u.status === "Active" ? "dot-active" : "dot-inactive"}`} />
+                            {u.status}
+                          </span>
+                        </td>
+                        <td className="text-muted">{u.joined}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </article>
+
+            {/* 2. RECENT PROJECTS */}
+            <article className="tfSaasAdmin__card tfSaasAdmin__tableCard">
+              <div className="tfSaasAdmin__cardHeader">
+                <h2>Recent Projects</h2>
+                <button
+                  type="button"
+                  className="tfSaasAdmin__viewAllBtn"
+                  onClick={() => navigate("/admin/projects")}
+                >
+                  <span>View all</span>
+                  <ArrowRight size={13} />
+                </button>
+              </div>
+
+              <div className="tfSaasAdmin__tableWrap">
+                <table className="tfSaasAdmin__table">
+                  <thead>
+                    <tr>
+                      <th>Project Name</th>
+                      <th>Team</th>
+                      <th>Progress</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {RECENT_PROJECTS.map((p) => (
+                      <tr key={p.id}>
+                        <td>
+                          <strong className="project-name-cell">{p.name}</strong>
                         </td>
                         <td>
-                          <div className="tfAdminDashboard__avatarStack">
-                            {project.team?.slice(0, 3).map((tm, idx) => (
-                              <span
-                                key={idx}
-                                className="tfAdminDashboard__stackedAvatar"
-                                title={tm.name}
-                              >
-                                {tm.avatar ? (
-                                  <img src={tm.avatar} alt={tm.name} />
-                                ) : (
-                                  tm.name.charAt(0)
-                                )}
-                              </span>
+                          <div className="team-avatar-stack">
+                            {p.team.map((m, i) => (
+                              <img key={i} src={m.avatar} alt={m.name} className="stacked-avatar" />
                             ))}
-                            {project.extraTeamCount > 0 && (
-                              <span className="tfAdminDashboard__stackedBadge">
-                                +{project.extraTeamCount}
-                              </span>
-                            )}
+                            {p.extraTeam && <span className="avatar-extra">{p.extraTeam}</span>}
                           </div>
                         </td>
                         <td>
-                          <div className="tfAdminDashboard__tableProgress">
-                            <div>
-                              <span
-                                style={{
-                                  width: `${project.progress}%`,
-                                  backgroundColor: project.color || "#6366f1",
-                                }}
+                          <div className="table-progress-cell">
+                            <div className="table-progress-rail">
+                              <div
+                                className="table-progress-fill"
+                                style={{ width: `${p.progress}%`, backgroundColor: p.barColor }}
                               />
                             </div>
-                            <small>{project.progress}%</small>
+                            <span className="table-progress-pct">{p.progress}%</span>
                           </div>
                         </td>
-                        <td>{getStatusBadge(project.status)}</td>
                         <td>
-                          <span className="tfAdminDashboard__dateCell">{project.dueDate}</span>
+                          <span className={`project-status-pill status-${p.statusType}`}>
+                            {p.status}
+                          </span>
                         </td>
                       </tr>
                     ))}
@@ -1571,421 +1636,117 @@ export default function AdminDashboard() {
               </div>
             </article>
 
-            {/* MY UPCOMING TASKS */}
-            <article className="tfAdminDashboard__card">
-              <div className="tfAdminDashboard__cardHeader">
-                <h2>My Upcoming Tasks</h2>
+            {/* 3. SYSTEM HEALTH */}
+            <article className="tfSaasAdmin__card">
+              <div className="tfSaasAdmin__cardHeader">
+                <h2>System Health</h2>
                 <button
                   type="button"
-                  onClick={() => navigate("/admin/tasks")}
-                  className="tfAdminDashboard__viewAllBtn"
+                  className="tfSaasAdmin__viewAllBtn"
+                  onClick={() => setHealthModalOpen(true)}
                 >
-                  View all
+                  <span>View details</span>
                   <ArrowRight size={13} />
                 </button>
               </div>
 
-              <div className="tfAdminDashboard__taskList">
-                {tasksState.slice(0, 4).map((task) => (
-                  <div key={task.id} className="tfAdminDashboard__task">
-                    <button
-                      type="button"
-                      className={`tfAdminDashboard__taskCheck ${task.completed ? "active" : ""}`}
-                      onClick={() => toggleTask(task.id)}
-                      aria-label="Toggle task completion"
-                    >
-                      {task.completed && <Check size={12} strokeWidth={3} />}
-                    </button>
+              <div className="tfSaasAdmin__healthList">
+                {SYSTEM_HEALTH_ITEMS.map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <div key={item.id} className="health-row">
+                      <div className="health-left">
+                        <div className="health-icon-box">
+                          <Icon size={16} />
+                        </div>
+                        <span className="health-name">{item.name}</span>
+                      </div>
 
-                    <div className="tfAdminDashboard__taskInfo">
-                      <strong
-                        style={
-                          task.completed
-                            ? { textDecoration: "line-through", opacity: 0.6 }
-                            : undefined
-                        }
-                      >
-                        {task.title}
-                      </strong>
-                      <span>{task.project}</span>
+                      <div className="health-right">
+                        <span className="health-status-badge">
+                          <span className="dot dot-green" />
+                          {item.status}
+                        </span>
+                        <span className="health-metric">{item.metric}</span>
+                      </div>
                     </div>
-
-                    {getPriorityBadge(task.priority)}
-
-                    <span className="tfAdminDashboard__taskDue">
-                      {task.dueDisplay || task.dueDate}
-                    </span>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </article>
           </section>
+        </main>
+      </div>
 
-          {/* ===============================================
-              ROW 4: ORGANIZATION ACTIVITY | AI USAGE
-          =============================================== */}
-          <section className="tfAdminDashboard__grid tfAdminDashboard__grid--bottom">
-            {/* ORGANIZATION ACTIVITY */}
-            <article className="tfAdminDashboard__card">
-              <div className="tfAdminDashboard__cardHeader">
-                <div className="tfAdminDashboard__cardHeaderTitle">
-                  <h2>Organization Activity</h2>
-                  <span className="tfAdminDashboard__badgeTag">{filteredActivities.length} events</span>
-                </div>
-                <div className="tfAdminDashboard__cardActionsGroup">
-                  <select
-                    value={activityFilter}
-                    onChange={(e) => setActivityFilter(e.target.value)}
-                    className="tfAdminDashboard__cardSelect sm"
-                    title="Filter activities"
-                  >
-                    <option value="all">All Activities</option>
-                    <option value="project">Project Events</option>
-                    <option value="workspace">Workspace Events</option>
-                    <option value="user">User Events</option>
-                    <option value="security">Security Events</option>
-                  </select>
-
-                  <select
-                    value={activitySort}
-                    onChange={(e) => setActivitySort(e.target.value)}
-                    className="tfAdminDashboard__cardSelect sm"
-                    title="Sort activities"
-                  >
-                    <option value="newest">Newest First</option>
-                    <option value="oldest">Oldest First</option>
-                  </select>
-
-                  <button
-                    type="button"
-                    onClick={() => navigate("/admin/activity")}
-                    className="tfAdminDashboard__viewAllBtn"
-                  >
-                    View all
-                    <ArrowRight size={13} />
-                  </button>
-                </div>
-              </div>
-
-              <div className="tfAdminDashboard__tableScroll">
-                <table className="tfAdminDashboard__table">
-                  <thead>
-                    <tr>
-                      <th style={{ width: 44, textAlign: "center" }}>#</th>
-                      <th style={{ width: "16%" }}>Time</th>
-                      <th style={{ width: "30%" }}>User</th>
-                      <th style={{ width: "24%" }}>Action</th>
-                      <th style={{ width: "26%" }}>Details</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredActivities.slice(0, 5).map((act, idx) => (
-                      <tr key={act.id}>
-                        <td style={{ textAlign: "center" }}>
-                          <span className="admin-row-num">{idx + 1}</span>
-                        </td>
-                        <td>
-                          <span className="tfAdminDashboard__timeCell">{act.time}</span>
-                        </td>
-                        <td>
-                          <div className="tfAdminDashboard__activityUser">
-                            <span
-                              className="tfAdminDashboard__activityAvatar"
-                              style={{
-                                background: `${act.avatarColor || "#6366f1"}15`,
-                                color: act.avatarColor || "#6366f1",
-                                borderColor: `${act.avatarColor || "#6366f1"}30`,
-                              }}
-                            >
-                              {act.letter || act.user.charAt(0)}
-                            </span>
-                            <div className="tfAdminDashboard__activityUserText">
-                              <strong>{act.user}</strong>
-                              <small>({act.role})</small>
-                            </div>
-                          </div>
-                        </td>
-                        <td>{act.action}</td>
-                        <td>
-                          <span className="tfAdminDashboard__activityDetail">{act.details}</span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </article>
-
-            {/* AI USAGE (ORGANIZATION) */}
-            <article className="tfAdminDashboard__card">
-              <div className="tfAdminDashboard__cardHeader">
-                <div className="tfAdminDashboard__cardHeaderTitle">
-                  <h2>AI Usage (Organization)</h2>
-                  <span className="tfAdminDashboard__badgeTag">{aiDataset.aiUsage.totalRequests} reqs</span>
-                </div>
-                <div className="tfAdminDashboard__cardActionsGroup">
-                  {/* CHART FORMAT DROPDOWN */}
-                  <select
-                    value={aiChartType}
-                    onChange={(e) => setAiChartType(e.target.value)}
-                    className="tfAdminDashboard__cardSelect sm"
-                    title="Switch AI usage representation"
-                  >
-                    <option value="bar">📊 Monthly Bars</option>
-                    <option value="distribution">🍩 Distribution</option>
-                    <option value="summary">📋 Summary</option>
-                  </select>
-
-                  {/* INDEPENDENT DATE RANGE FILTER FOR AI USAGE */}
-                  <select
-                    value={aiDateFilter}
-                    onChange={(e) => setAiDateFilter(e.target.value)}
-                    className="tfAdminDashboard__cardSelect"
-                    title="Filter AI Usage by date"
-                  >
-                    <option value="This Month">This Month</option>
-                    <option value="Today">Today</option>
-                    <option value="Yesterday">Yesterday</option>
-                    <option value="7 Days">Last 7 Days</option>
-                    <option value="Last Month">Last Month</option>
-                    <option value="All Time">All Time</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="tfAdminDashboard__aiLayout">
-                {/* LEFT METRIC & CHART VIEW */}
-                <div className="tfAdminDashboard__aiUsage">
-                  <div className="tfAdminDashboard__aiHeaderBlock">
-                    <div className="tfAdminDashboard__aiNumberRow">
-                      <span className="tfAdminDashboard__aiBigNum">
-                        {aiDataset.aiUsage.totalRequests}
-                      </span>
-                      <span className="tfAdminDashboard__aiGrowthBadge">
-                        <TrendingUp size={11} />
-                        {aiDataset.aiUsage.growth}
-                      </span>
-                    </div>
-                    <span className="tfAdminDashboard__aiLabel">Total AI Requests ({aiDateFilter})</span>
-                  </div>
-
-                  {aiChartType === "bar" && (
-                    <div className="tfAdminDashboard__aiChartWrapper">
-                      <div className="tfAdminDashboard__aiYAxis">
-                        <span>15K</span>
-                        <span>10K</span>
-                        <span>5K</span>
-                        <span>0</span>
-                      </div>
-
-                      <div className="tfAdminDashboard__aiBarsContainer">
-                        <div className="tfAdminDashboard__aiGridLines">
-                          <span className="grid-line" />
-                          <span className="grid-line" />
-                          <span className="grid-line" />
-                          <span className="grid-line" />
-                        </div>
-
-                        <div className="tfAdminDashboard__aiBars">
-                          {aiDataset.aiUsage.monthly.map((m, idx) => (
-                            <div key={idx} className="tfAdminDashboard__aiBarCol">
-                              <div className="tfAdminDashboard__aiBarTrack">
-                                <span
-                                  className="tfAdminDashboard__aiBarFill"
-                                  style={{ height: `${m.height}%` }}
-                                  title={`${m.month}: ${m.height}%`}
-                                />
-                              </div>
-                              <span className="tfAdminDashboard__aiMonthLabel">{m.month}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {aiChartType === "distribution" && (
-                    <div className="tfAdminDashboard__aiDistributionView">
-                      <div className="model-alloc-item">
-                        <div className="model-alloc-labels">
-                          <span>Claude 3.5 Sonnet (Coding)</span>
-                          <strong>42% (5,241 reqs)</strong>
-                        </div>
-                        <div className="model-alloc-track">
-                          <div className="model-alloc-fill purple" style={{ width: "42%" }} />
-                        </div>
-                      </div>
-
-                      <div className="model-alloc-item">
-                        <div className="model-alloc-labels">
-                          <span>GPT-4o (Chat & Reasoning)</span>
-                          <strong>38% (4,742 reqs)</strong>
-                        </div>
-                        <div className="model-alloc-track">
-                          <div className="model-alloc-fill blue" style={{ width: "38%" }} />
-                        </div>
-                      </div>
-
-                      <div className="model-alloc-item">
-                        <div className="model-alloc-labels">
-                          <span>TeamFlow Neural Core (Summaries)</span>
-                          <strong>20% (2,497 reqs)</strong>
-                        </div>
-                        <div className="model-alloc-track">
-                          <div className="model-alloc-fill green" style={{ width: "20%" }} />
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {aiChartType === "summary" && (
-                    <div className="tfAdminDashboard__aiSummaryCards">
-                      <div className="ai-stat-box">
-                        <span className="stat-label">Total Tokens Processed</span>
-                        <strong className="stat-number">18.4M</strong>
-                        <span className="stat-sub">Across all organization agents</span>
-                      </div>
-                      <div className="ai-stat-box">
-                        <span className="stat-label">Avg GPU Latency</span>
-                        <strong className="stat-number">24ms</strong>
-                        <span className="stat-sub">99.8% within SLA window</span>
-                      </div>
-                      <div className="ai-stat-box">
-                        <span className="stat-label">Est. Cost Savings</span>
-                        <strong className="stat-number">$1,420</strong>
-                        <span className="stat-sub">Compared to manual workload</span>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* RIGHT: TOP AI FEATURES */}
-                <div className="tfAdminDashboard__aiFeatures">
-                  <div className="tfAdminDashboard__aiFeaturesTitle">Top AI Features</div>
-                  {aiDataset.aiUsage.features.map((feat) => (
-                    <div key={feat.id} className="tfAdminDashboard__aiFeature">
-                      <div className="tfAdminDashboard__aiFeatLeft">
-                        {renderFeatureIcon(feat.icon)}
-                        <span>{feat.name}</span>
-                      </div>
-                      <strong>{feat.percentage}%</strong>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </article>
-          </section>
-        </div>
-      </main>
-
-      {/* CUSTOM DATE RANGE MODAL */}
-      {customDateModalOpen && (
+      {/* =========================================================
+          SYSTEM HEALTH DETAILS MODAL
+      ========================================================= */}
+      {healthModalOpen && (
         <div
-          className="tfAdminDashboard__modalOverlay"
-          onClick={(e) => {
-            if (e.target === e.currentTarget) setCustomDateModalOpen(false);
+          className="modal-overlay"
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget) setHealthModalOpen(false);
           }}
         >
-          <div className="tfAdminDashboard__customDateModal">
+          <div className="modal-box health-details-modal">
             <div className="modal-header">
-              <div className="modal-title-wrap">
-                <CalendarDays size={20} />
-                <h3>Custom Date Range</h3>
+              <div className="health-modal-title">
+                <CheckCircle2 size={20} className="text-green" />
+                <h2>System Infrastructure Telemetry</h2>
               </div>
               <button
                 type="button"
-                className="modal-close-btn"
-                onClick={() => setCustomDateModalOpen(false)}
+                className="modal-close"
+                onClick={() => setHealthModalOpen(false)}
               >
-                <X size={18} />
+                <X size={20} />
               </button>
             </div>
 
-            <div className="modal-body">
-              <p>Select custom start and end dates for analytics and executive metrics.</p>
-
-              <div className="date-inputs-grid">
-                <div className="date-input-group">
-                  <label htmlFor="customStart">Start Date</label>
-                  <input
-                    id="customStart"
-                    type="date"
-                    value={customStartDate}
-                    onChange={(e) => setCustomStartDate(e.target.value)}
-                  />
-                </div>
-
-                <div className="date-input-group">
-                  <label htmlFor="customEnd">End Date</label>
-                  <input
-                    id="customEnd"
-                    type="date"
-                    value={customEndDate}
-                    onChange={(e) => setCustomEndDate(e.target.value)}
-                  />
+            <div className="health-modal-body">
+              <div className="health-overall-banner">
+                <span className="pulse-dot" />
+                <div>
+                  <strong>All 6 Microservices Operational</strong>
+                  <p>Global load balancer routing 100% of telemetry traffic with zero detected anomalies.</p>
                 </div>
               </div>
 
-              <div className="quick-ranges">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setCustomStartDate("2024-10-01");
-                    setCustomEndDate("2024-10-31");
-                  }}
-                >
-                  This Month
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setCustomStartDate("2024-09-01");
-                    setCustomEndDate("2024-09-30");
-                  }}
-                >
-                  Last Month
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setCustomStartDate("2024-01-01");
-                    setCustomEndDate("2024-10-31");
-                  }}
-                >
-                  Year to Date
-                </button>
+              <div className="health-detail-grid">
+                {SYSTEM_HEALTH_ITEMS.map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <div key={item.id} className="health-detail-card">
+                      <div className="health-detail-card-top">
+                        <div className="health-icon-box sm">
+                          <Icon size={16} />
+                        </div>
+                        <strong>{item.name}</strong>
+                      </div>
+                      <div className="health-detail-stat">
+                        <span>Metric:</span>
+                        <strong>{item.metric}</strong>
+                      </div>
+                      <div className="health-detail-stat">
+                        <span>State:</span>
+                        <span className="text-green">● Operational</span>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
 
-            <div className="modal-footer">
+            <div className="modal-actions">
               <button
                 type="button"
-                className="btn-cancel"
-                onClick={() => setCustomDateModalOpen(false)}
+                className="btn-primary"
+                onClick={() => setHealthModalOpen(false)}
               >
-                Cancel
-              </button>
-              <button
-                type="button"
-                className="btn-apply"
-                onClick={() => {
-                  setDateFilter("This Month");
-                  setCustomDateModalOpen(false);
-                  setToast(`Custom date range applied: ${customStartDate} to ${customEndDate}`);
-                }}
-              >
-                Apply Date Range
+                Close Diagnostic View
               </button>
             </div>
           </div>
-        </div>
-      )}
-
-      {/* TOAST NOTIFICATION */}
-      {toast && (
-        <div className="tfAdminDashboard__toast">
-          <CheckCircle2 size={16} />
-          <span>{toast}</span>
         </div>
       )}
     </div>

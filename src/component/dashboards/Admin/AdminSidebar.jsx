@@ -90,11 +90,7 @@ const sidebarSections = [
   {
     label: "COLLABORATION",
     items: [
-      {
-        label: "Team Chat",
-        icon: MessageCircle,
-        path: "/admin/chat",
-      },
+      
       {
         label: "Announcements",
         icon: Megaphone,
@@ -246,15 +242,34 @@ export default function AdminSidebar({
             onClick={closeSidebar}
           >
             <div className="tfAdminSidebar__brandMark">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect width="24" height="24" rx="6" fill="url(#tfSideBrandGrad)" />
-                <path d="M6 8.5C6 7.67 6.67 7 7.5 7H16.5C17.33 7 18 7.67 18 8.5C18 9.33 17.33 10 16.5 10H13.2V16.5C13.2 17.33 12.53 18 11.7 18C10.87 18 10.2 17.33 10.2 16.5V10H7.5C6.67 10 6 9.33 6 8.5Z" fill="#ffffff" />
-                <circle cx="16.5" cy="8.5" r="1.6" fill="#38bdf8" />
+              <svg
+                width="26"
+                height="26"
+                viewBox="0 0 28 28"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <rect width="28" height="28" rx="8" fill="url(#tf-logo-bg-admin)" />
+                <path
+                  d="M8 9H20M14 9V19M11 19H17"
+                  stroke="white"
+                  strokeWidth="2.4"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <circle cx="21" cy="7" r="2.5" fill="#38bdf8" />
                 <defs>
-                  <linearGradient id="tfSideBrandGrad" x1="0" y1="0" x2="24" y2="24" gradientUnits="userSpaceOnUse">
-                    <stop stopColor="#3b82f6" />
-                    <stop offset="0.5" stopColor="#6366f1" />
-                    <stop offset="1" stopColor="#8b5cf6" />
+                  <linearGradient
+                    id="tf-logo-bg-admin"
+                    x1="0"
+                    y1="0"
+                    x2="28"
+                    y2="28"
+                    gradientUnits="userSpaceOnUse"
+                  >
+                    <stop stopColor="#4361ee" />
+                    <stop offset="0.5" stopColor="#3a0ca3" />
+                    <stop offset="1" stopColor="#f72585" />
                   </linearGradient>
                 </defs>
               </svg>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import {
   FileText,
+  Eye,
   Download,
   Search,
   Filter,
@@ -591,36 +592,31 @@ Support: billing@teamflow.ai | https://teamflow.ai
                           </span>
                         </td>
                         <td style={{ textAlign: "right" }}>
-                          <div className="row-actions">
+                          <div className="invoice-row-actions">
                             <button
-                              className="action-btn"
-                              title="Toggle Status (Paid / Pending / Refunded)"
-                              onClick={() => toggleInvoiceStatus(inv.id)}
-                            >
-                              <Clock size={14} />
-                            </button>
-                            <button
-                              className="action-btn"
-                              title="View Invoice Details"
+                              type="button"
+                              className="inv-action-pill inv-view-btn"
+                              title="View Receipt Statement"
                               onClick={() => setSelectedInvoice(inv)}
                             >
-                              <FileText size={15} />
-                              <span>View</span>
+                              <Eye size={13} />
+                              <span>View Receipt</span>
                             </button>
                             <button
-                              className="action-btn download"
-                              title="Download Receipt"
-                              onClick={() => handleDownloadPDF(inv)}
+                              type="button"
+                              className="inv-action-icon inv-status-btn"
+                              title="Toggle Status (Paid / Pending)"
+                              onClick={() => toggleInvoiceStatus(inv.id)}
                             >
-                              <Download size={15} />
-                              <span>Receipt</span>
+                              <Clock size={13} />
                             </button>
                             <button
-                              className="action-btn delete"
-                              title="Delete Statement"
+                              type="button"
+                              className="inv-action-icon inv-delete-btn"
+                              title="Delete Invoice"
                               onClick={() => deleteInvoice(inv.id)}
                             >
-                              <Trash2 size={15} />
+                              <Trash2 size={13} />
                             </button>
                           </div>
                         </td>

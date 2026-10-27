@@ -56,6 +56,8 @@ export default function AdminReports() {
   const [formatFilter, setFormatFilter] = useState("All");
   const [sortKey, setSortKey] = useState("createdAt");
   const [sortOrder, setSortOrder] = useState("desc");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [perPage, setPerPage] = useState(5);
 
   const [showGenerator, setShowGenerator] = useState(false);
   const [selectedReport, setSelectedReport] = useState(null);
@@ -134,6 +136,16 @@ export default function AdminReports() {
         return 0;
       });
   }, [reports, search, typeFilter, statusFilter, formatFilter, sortKey, sortOrder]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, typeFilter, statusFilter, formatFilter, sortKey, sortOrder]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredReports.length / perPage));
+  const paginatedReports = useMemo(() => {
+    const start = (currentPage - 1) * perPage;
+    return filteredReports.slice(start, start + perPage);
+  }, [filteredReports, currentPage, perPage]);
 
   const totalRecords = useMemo(() => {
     return reports.reduce((acc, r) => acc + (Number(r.records) || 0), 0);
@@ -515,10 +527,10 @@ export default function AdminReports() {
                       </td>
                     </tr>
                   ) : (
-                    filteredReports.map((report, idx) => (
+                    paginatedReports.map((report, idx) => (
                       <tr key={report.id}>
                         <td style={{ textAlign: "center" }}>
-                          <span className="admin-row-num">{idx + 1}</span>
+                          <span className="admin-row-num">{(currentPage - 1) * perPage + idx + 1}</span>
                         </td>
                         <td>
                           <div className="report-name-cell">

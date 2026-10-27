@@ -96,7 +96,7 @@ export const initialPlans = [
 export const initialSubscriptions = [
   {
     id: "SUB-1001",
-    workspace: "TeamFlow Workspace",
+    workspace: "TeamFlow Hub",
     owner: "John Doe",
     email: "john@company.com",
     plan: "Enterprise",

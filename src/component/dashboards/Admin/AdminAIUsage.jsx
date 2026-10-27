@@ -14,6 +14,8 @@ import {
   HardDrive,
   Clock,
   Layers,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 
 import AdminSidebar from "./AdminSidebar.jsx";
@@ -37,6 +39,8 @@ export default function AdminAIUsage() {
   const [tempCap, setTempCap] = useState(250);
   const [search, setSearch] = useState("");
   const [toast, setToast] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [perPage, setPerPage] = useState(5);
 
   useEffect(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
@@ -70,6 +74,12 @@ export default function AdminAIUsage() {
       return !term || l.user.toLowerCase().includes(term) || l.feature.toLowerCase().includes(term) || l.model.toLowerCase().includes(term);
     });
   }, [search]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredLogs.length / perPage));
+  const paginatedLogs = useMemo(() => {
+    const start = (currentPage - 1) * perPage;
+    return filteredLogs.slice(start, start + perPage);
+  }, [filteredLogs, currentPage, perPage]);
 
   return (
     <div className="admin-usage-app">
@@ -189,6 +199,7 @@ export default function AdminAIUsage() {
             <table className="admin-usage-table">
               <thead>
                 <tr>
+                  <th style={{ width: 44, textAlign: "center" }}>#</th>
                   <th>User</th>
                   <th>Feature / Trigger</th>
                   <th>Model</th>
@@ -199,8 +210,11 @@ export default function AdminAIUsage() {
                 </tr>
               </thead>
               <tbody>
-                {filteredLogs.map((l) => (
+                {paginatedLogs.map((l, idx) => (
                   <tr key={l.id}>
+                    <td style={{ textAlign: "center" }}>
+                      <span className="admin-row-num">{(currentPage - 1) * perPage + idx + 1}</span>
+                    </td>
                     <td><strong>{l.user}</strong></td>
                     <td><span className="feature-chip">{l.feature}</span></td>
                     <td>{l.model}</td>
@@ -212,6 +226,52 @@ export default function AdminAIUsage() {
                 ))}
               </tbody>
             </table>
+
+            {/* PAGINATION BAR */}
+            <div className="admin-usage-pagination-bar">
+              <div className="admin-usage-per-page">
+                <label>Rows per page:</label>
+                <select
+                  value={perPage}
+                  onChange={(e) => {
+                    setPerPage(Number(e.target.value));
+                    setCurrentPage(1);
+                  }}
+                  className="per-page-select"
+                >
+                  <option value={5}>5</option>
+                  <option value={10}>10</option>
+                  <option value={20}>20</option>
+                </select>
+              </div>
+
+              <div className="admin-usage-page-info">
+                Showing {filteredLogs.length === 0 ? 0 : (currentPage - 1) * perPage + 1} -{" "}
+                {Math.min(currentPage * perPage, filteredLogs.length)} of {filteredLogs.length} invocations
+              </div>
+
+              <div className="admin-usage-pagination-nav">
+                <button
+                  type="button"
+                  className="page-nav-btn"
+                  disabled={currentPage <= 1}
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                >
+                  <ChevronLeft size={14} /> Prev
+                </button>
+                <span className="current-page-tag">
+                  {currentPage} / {totalPages}
+                </span>
+                <button
+                  type="button"
+                  className="page-nav-btn"
+                  disabled={currentPage >= totalPages}
+                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                >
+                  Next <ChevronRight size={14} />
+                </button>
+              </div>
+            </div>
           </div>
         </main>
       </div>

@@ -526,3 +526,73 @@
   .admin-ai-grid { grid-template-columns: 1fr; }
   .playground-form { flex-direction: column; }
 }
+
+
+/* =========================================================
+   AI TOOLS PAGINATION STYLING
+========================================================= */
+.admin-ai-pagination-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  background: var(--bg-card, #ffffff);
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 12px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+:root.dark .admin-ai-pagination-bar,
+.dark .admin-ai-pagination-bar {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+.admin-ai-per-page {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8125rem;
+  color: var(--text-muted, #64748b);
+  font-weight: 500;
+}
+
+:root.dark .admin-ai-per-page,
+.dark .admin-ai-per-page {
+  color: #94a3b8;
+}
+
+.admin-ai-per-page .per-page-select {
+  padding: 5px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color, #e2e8f0);
+  background: var(--bg-hover, #f8fafc);
+  color: var(--text-color, #0f172a);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+:root.dark .admin-ai-per-page .per-page-select,
+.dark .admin-ai-per-page .per-page-select {
+  background: #0f172a;
+  border-color: #334155;
+  color: #f8fafc;
+}
+
+.admin-ai-page-info {
+  font-size: 0.8125rem;
+  color: var(--text-muted, #64748b);
+}
+
+:root.dark .admin-ai-page-info,
+.dark .admin-ai-page-info {
+  color: #94a3b8;
+}
+
+.admin-ai-pagination-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}

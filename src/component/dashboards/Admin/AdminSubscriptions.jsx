@@ -397,7 +397,7 @@ function AdminSubscriptions() {
                       onChange={(event) =>
                         setSearch(event.target.value)
                       }
-                      placeholder="Search workspace, owner, email or subscription..."
+                      placeholder="Search workspace, owner, or email..."
                     />
                   </div>
 
