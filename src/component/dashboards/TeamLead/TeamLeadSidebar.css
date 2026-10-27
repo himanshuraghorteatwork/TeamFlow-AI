@@ -10,11 +10,11 @@
   top: 0;
   z-index: 30;
   display: flex;
-  flex: 0 0 240px;
+  flex: 0 0 232px;
   flex-direction: column;
-  width: 240px;
+  width: 232px;
   height: 100vh;
-  padding: 16px 12px 12px;
+  padding: 0 12px;
   overflow-x: hidden;
   overflow-y: auto;
   background: var(--tf-sidebar-bg);
@@ -34,36 +34,42 @@
 .team-lead-sidebar::-webkit-scrollbar-thumb { background: #dbe1ee; border-radius: 8px; }
 
 .tls-brand {
-  display: flex; align-items: center; gap: 10px; width: 100%; min-height: 52px;
-  margin: 0 0 18px; padding: 0 5px 14px; border: 0; border-bottom: 1px solid #edf0f6;
+  display: flex; flex: 0 0 60px; align-items: center; gap: 10px; width: 100%; min-width: 0;
+  margin: 0; padding: 0 6px; border: 0; border-bottom: 1px solid #e8ecf4;
   color: #17213e; background: transparent; text-align: left;
 }
 .tls-logo {
-  display: grid; flex: 0 0 38px; place-items: center; width: 38px; height: 38px;
-  border-radius: 11px; color: #fff; background: linear-gradient(135deg, #705cf4, #4f65e9);
+  display: grid; flex: 0 0 26px; place-items: center; width: 26px; height: 26px;
 }
-.tls-brand-copy { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
-.tls-brand-name { font-size: 18px; line-height: 1.25; font-weight: 700; letter-spacing: -.04em; white-space: nowrap; }
-.tls-brand-name b { color: #6256e8; font-weight: 700; }
+.tls-brand-copy { display: flex; min-width: 0; }
+.tls-brand-name { color: #0b132b; font-size: 19px; line-height: 1.2; font-weight: 750; letter-spacing: -.5px; white-space: nowrap; }
+.tls-brand-name b { color: #3b66ff; font-weight: 800; }
 .tls-brand-sub { color: var(--tf-sidebar-muted); font-size: 12px; line-height: 1.4; }
 
-.tls-nav { display: flex; flex-direction: column; gap: 16px; }
-.tls-nav-group { display: flex; flex-direction: column; gap: 3px; }
+.tls-nav {
+  flex: 1 1 auto; min-height: 0; width: 100%; padding: 12px 0 32px;
+  overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain;
+  scrollbar-width: none; -ms-overflow-style: none;
+}
+.tls-nav::-webkit-scrollbar { display: none; width: 0; height: 0; }
+.tls-nav-group { display: block; width: 100%; margin: 0 0 14px; }
+.tls-nav-group:last-child { margin-bottom: 0; }
 .tls-section-label {
-  margin: 0 0 5px; padding: 0 10px; color: #78849a; font-size: 11px;
-  line-height: 1.4; font-weight: 700; letter-spacing: .065em;
+  margin: 8px 8px 6px; padding: 0; color: #8896ab; font-size: 10px;
+  line-height: 1.4; font-weight: 750; letter-spacing: .6px;
 }
-.tls-nav-item {
+.team-lead-sidebar .tls-nav-item {
   position: relative; display: flex; align-items: center; gap: 12px; width: 100%;
-  min-height: 42px; padding: 0 11px; border: 1px solid transparent; border-radius: 8px;
-  color: #3e4b65; background: transparent; font-size: 14px; line-height: 1.4;
-  font-weight: 500; text-align: left;
-  transition: background-color .18s ease, color .18s ease, border-color .18s ease, transform .18s ease;
+  min-height: 36px; padding: 8px 12px; border: 0; border-radius: 8px;
+  color: #475569; background: transparent; font: 500 12.5px/1.4 Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  text-align: left;
+  transition: all .15s ease;
 }
-.tls-nav-item svg { flex: 0 0 18px; color: currentColor; }
-.tls-nav-item:hover { color: #3547ce; background: #f3f5ff; }
-.tls-nav-item:active { transform: scale(.99); }
-.tls-nav-item.active { color: #4e55df; background: #eef0ff; border-color: #e3e6ff; font-weight: 600; box-shadow: inset 3px 0 0 #5963f5; }
+.team-lead-sidebar .tls-nav-item svg { flex: 0 0 17px; color: currentColor; }
+.tls-nav-group > .tls-nav-item + .tls-nav-item { margin-top: 2px; }
+.team-lead-sidebar .tls-nav-item:hover { color: #1e293b; background: #f3f6fc; }
+.team-lead-sidebar .tls-nav-item:active { transform: scale(.99); }
+.team-lead-sidebar .tls-nav-item.active { color: #fff; background: #3b66ff; font-weight: 600; box-shadow: 0 2px 6px rgba(59, 102, 255, .28); }
 .tls-nav-item span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 .tls-sidebar-bottom { margin-top: auto; padding-top: 20px; }
@@ -82,27 +88,8 @@
   transition: background-color .18s ease, border-color .18s ease;
 }
 .tls-support-button:hover { background: #f3f2ff; border-color: #c9c5ff; }
-.tls-profile-button {
-  display: flex; align-items: center; gap: 10px; width: 100%; min-height: 56px;
-  padding: 8px; border: 1px solid transparent; border-radius: 9px; color: #26334f;
-  background: transparent; text-align: left; transition: background-color .18s ease;
-}
-.tls-profile-button:hover { background: #f6f7fb; }
-.tls-avatar {
-  display: grid; flex: 0 0 36px; place-items: center; width: 36px; height: 36px;
-  border-radius: 50%; color: #fff; background: #6858df; font-size: 12px; font-weight: 700;
-}
-.tls-profile-copy { display: flex; flex: 1; flex-direction: column; gap: 2px; min-width: 0; }
-.tls-profile-copy b, .tls-profile-copy small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.tls-profile-copy b { color: #26334f; font-size: 13px; line-height: 1.4; font-weight: 600; }
-.tls-profile-copy small { color: var(--tf-sidebar-muted); font-size: 12px; line-height: 1.4; }
-.tls-logout { margin-top: 3px; color: #68758c; }
-.tls-logout:hover { color: #c72f45; background: #fff0f2; }
 .team-lead-sidebar button:focus-visible { outline: 2px solid #5963f5; outline-offset: 2px; }
 
-@media (max-width: 1199px) {
-  .team-lead-sidebar { flex-basis: 224px; width: 224px; }
-}
 @media (max-width: 767px) {
   /* Mobile navigation should be provided by the app's mobile drawer/trigger. */
   .team-lead-sidebar { display: none; }

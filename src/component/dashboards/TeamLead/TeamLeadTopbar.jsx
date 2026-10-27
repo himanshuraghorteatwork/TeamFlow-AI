@@ -14,9 +14,9 @@ import {
   MessageCircle,
   CalendarDays,
   Settings,
-  X,
   Bug,
   ArrowRight,
+  LogOut,
 } from "lucide-react";
 import "./TeamLeadTopbar.css";
 
@@ -266,16 +266,6 @@ export default function TeamLeadTopbar({ profileName = "Komal Pawar" }) {
           )}
         </div>
 
-        {/* Help Button */}
-        <button
-          className="tlt-icon-button"
-          aria-label="Help and support"
-          title="Help and support"
-          onClick={() => navigate("/teamlead/settings")}
-        >
-          <CircleHelp size={19} />
-        </button>
-
         {/* Dark Mode Toggle */}
         <button
           className="tlt-icon-button"
@@ -332,9 +322,12 @@ export default function TeamLeadTopbar({ profileName = "Komal Pawar" }) {
               >
                 <CircleHelp size={15} /> Help &amp; documentation
               </button>
-              <button className="logout" onClick={handleLogout}>
-                <X size={15} /> Sign out
-              </button>
+              <div className="tlt-profile-logout">
+                <button type="button" onClick={handleLogout}>
+                  <LogOut size={17} />
+                  <span>Logout</span>
+                </button>
+              </div>
             </div>
           )}
         </div>

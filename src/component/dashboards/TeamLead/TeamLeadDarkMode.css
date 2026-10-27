@@ -1,16 +1,16 @@
 /* =========================================================
-   TEAM LEAD DARK MODE (PAGES ONLY - SIDEBAR REMAINS LIGHT)
-   Applied to all pages and topbar when .dark-mode is active
+   TEAM LEAD DARK MODE
+   Applied to the Team Lead workspace when .dark-mode is active
 ========================================================= */
 
-/* Main layout wrapper & content (Sidebar is kept light) */
+/* Main layout wrapper and content */
 .dark-mode .teamlead-main-wrapper,
 .dark-mode .teamlead-layout-content {
   background: #101629 !important;
   color: #edf1ff;
 }
 
-/* Explicitly keep sidebar in its pristine light theme */
+/* Base sidebar styling, aligned with the workspace theme below */
 .dark-mode .team-lead-sidebar {
   background: #ffffff !important;
   border-right: 1px solid #e6eaf2 !important;
@@ -69,32 +69,6 @@
   background: #ffffff !important;
   border: 1px solid #e0e5f0 !important;
   color: #4e55d9 !important;
-}
-
-.dark-mode .team-lead-sidebar .tls-profile-button {
-  color: #26334f !important;
-  background: transparent !important;
-}
-
-.dark-mode .team-lead-sidebar .tls-profile-button:hover {
-  background: #f6f7fb !important;
-}
-
-.dark-mode .team-lead-sidebar .tls-profile-copy b {
-  color: #26334f !important;
-}
-
-.dark-mode .team-lead-sidebar .tls-profile-copy small {
-  color: #77839a !important;
-}
-
-.dark-mode .team-lead-sidebar .tls-logout {
-  color: #68758c !important;
-}
-
-.dark-mode .team-lead-sidebar .tls-logout:hover {
-  color: #c72f45 !important;
-  background: #fff0f2 !important;
 }
 
 /* ---------------------------------------------------------
@@ -170,7 +144,6 @@
 .dark-mode .tl-bug-card,
 .dark-mode .tl-bug-table-card,
 .dark-mode .tl-calendar-card,
-.dark-mode .tl-calendar-legend,
 .dark-mode .mt-stat-card,
 .dark-mode .mt-panel,
 .dark-mode .mt-card,
@@ -194,7 +167,9 @@
 .dark-mode .ntf-item,
 .dark-mode .ntf-toolbar,
 .dark-mode .ts-card,
-.dark-mode .ts-nav {
+.dark-mode .ts-nav,
+.dark-mode .tl-calendar-board,
+.dark-mode .tl-calendar-panel {
   background: #171f34 !important;
   border-color: #2b3550 !important;
   color: #edf1ff !important;
@@ -458,6 +433,384 @@
   border-color: #232c45 !important;
 }
 
+/* Calendar grid and event surfaces */
+.dark-mode .tl-calendar {
+  --cal-bg: #101629;
+  --cal-surface: #171f34;
+  --cal-text: #edf1ff;
+  --cal-muted: #93a0bd;
+  --cal-border: #2b3550;
+  --cal-primary-light: #29244a;
+}
+
+.dark-mode .tl-calendar-weekdays {
+  background: #131b2e !important;
+  border-color: #2b3550 !important;
+}
+
+.dark-mode .tl-calendar-weekdays > span,
+.dark-mode .tl-calendar-legend span,
+.dark-mode .tl-calendar-panel-heading > div > span,
+.dark-mode .tl-calendar-filter-label,
+.dark-mode .tl-calendar-more,
+.dark-mode .tl-calendar-event-meta,
+.dark-mode .tl-calendar-event p,
+.dark-mode .tl-calendar-empty span {
+  color: #93a0bd !important;
+}
+
+.dark-mode .tl-calendar-day {
+  background: #171f34 !important;
+  border-color: #2b3550 !important;
+  color: #edf1ff !important;
+}
+
+.dark-mode .tl-calendar-day.outside {
+  background: #131b2e !important;
+}
+
+.dark-mode .tl-calendar-day:not(.today) .tl-calendar-day-number {
+  color: #a3aec7 !important;
+}
+
+.dark-mode .tl-calendar-day:hover {
+  background: #202942 !important;
+}
+
+.dark-mode .tl-calendar-day.selected {
+  background: #252f52 !important;
+}
+
+.dark-mode .tl-calendar-filter {
+  background: #101629 !important;
+  border-color: #2b3550 !important;
+  color: #edf1ff !important;
+}
+
+.dark-mode .tl-calendar-add-inline,
+.dark-mode .tl-calendar-empty svg {
+  background: #252144 !important;
+  border-color: #453b76 !important;
+  color: #b7aaff !important;
+}
+
+.dark-mode .tl-calendar-event {
+  background: #131b2e !important;
+  border-color: #2b3550 !important;
+}
+
+.dark-mode .tl-calendar-event h3,
+.dark-mode .tl-calendar-empty strong {
+  color: #edf1ff !important;
+}
+
+.dark-mode .tl-calendar-event p,
+.dark-mode .tl-calendar-event-meta,
+.dark-mode .tl-calendar-upcoming-info > span {
+  border-color: #2b3550 !important;
+}
+
+.dark-mode .tl-calendar-upcoming-date {
+  background: #29244a !important;
+  color: #c4b5fd !important;
+}
+
+.dark-mode .tl-calendar-chip.meeting,
+.dark-mode .tl-calendar-event.meeting,
+.dark-mode .tl-calendar-category.meeting {
+  --event-bg: #2b2545;
+  --event-text: #c4b5fd;
+}
+
+.dark-mode .tl-calendar-chip.task,
+.dark-mode .tl-calendar-event.task,
+.dark-mode .tl-calendar-category.task {
+  --event-bg: #153a33;
+  --event-text: #7fe0bf;
+}
+
+.dark-mode .tl-calendar-chip.deadline,
+.dark-mode .tl-calendar-event.deadline,
+.dark-mode .tl-calendar-category.deadline {
+  --event-bg: #452431;
+  --event-text: #ff9cab;
+}
+
+.dark-mode .tl-calendar-chip.team,
+.dark-mode .tl-calendar-event.team,
+.dark-mode .tl-calendar-category.team {
+  --event-bg: #40331d;
+  --event-text: #f4c66d;
+}
+
+.dark-mode .tl-calendar-chip.personal,
+.dark-mode .tl-calendar-event.personal,
+.dark-mode .tl-calendar-category.personal {
+  --event-bg: #1e3448;
+  --event-text: #8dcaff;
+}
+
+/* Settings page controls and supporting surfaces */
+.dark-mode .ts-page {
+  --ts-ink: #edf1ff;
+  --ts-muted: #93a0bd;
+  --ts-border: #2b3550;
+}
+
+.dark-mode .ts-header-badge,
+.dark-mode .ts-nav-help,
+.dark-mode .ts-profile-photo-row,
+.dark-mode .ts-input-icon,
+.dark-mode .ts-password-input,
+.dark-mode .ts-theme-option,
+.dark-mode .ts-density-options > button,
+.dark-mode .ts-preference-summary,
+.dark-mode .ts-delivery-note,
+.dark-mode .ts-device-note,
+.dark-mode .ts-save-bar {
+  background: #131b2e !important;
+  border-color: #2b3550 !important;
+  color: #cbd5e9 !important;
+}
+
+.dark-mode .ts-nav-help > b,
+.dark-mode .ts-card-heading h3,
+.dark-mode .ts-profile-photo-row > div b,
+.dark-mode .ts-preference-summary > div b,
+.dark-mode .ts-setting-row > div b,
+.dark-mode .ts-delivery-note b,
+.dark-mode .ts-density-options b,
+.dark-mode .ts-device-note b,
+.dark-mode .ts-session-row b,
+.dark-mode .ts-theme-option > span:nth-child(2) b {
+  color: #edf1ff !important;
+}
+
+.dark-mode .ts-nav-help > small,
+.dark-mode .ts-card-heading p,
+.dark-mode .ts-profile-photo-row > div small,
+.dark-mode .ts-preference-summary > div small,
+.dark-mode .ts-setting-row > div small,
+.dark-mode .ts-delivery-note small,
+.dark-mode .ts-density-options small,
+.dark-mode .ts-device-note small,
+.dark-mode .ts-session-row small,
+.dark-mode .ts-theme-option > span:nth-child(2),
+.dark-mode .ts-nav-label,
+.dark-mode .ts-field {
+  color: #a3aec7 !important;
+}
+
+.dark-mode .ts-field > input,
+.dark-mode .ts-field > textarea,
+.dark-mode .ts-input-icon input,
+.dark-mode .ts-input-icon select,
+.dark-mode .ts-password-input input {
+  background: #101629 !important;
+  border-color: #2b3550 !important;
+  color: #edf1ff !important;
+}
+
+.dark-mode .ts-setting-row,
+.dark-mode .ts-session-row {
+  border-color: #2b3550 !important;
+}
+
+.dark-mode .ts-private-label,
+.dark-mode .ts-security-badge,
+.dark-mode .ts-role-pill,
+.dark-mode .ts-summary-icon,
+.dark-mode .ts-setting-icon {
+  background: #202942 !important;
+  border-color: #34405d !important;
+  color: #b7aaff !important;
+}
+
+.dark-mode .ts-section-icon {
+  border-color: #34405d !important;
+  background: #202942 !important;
+  color: #b7aaff !important;
+  box-shadow: none !important;
+}
+
+.dark-mode .ts-nav-item {
+  color: #cbd5e9 !important;
+}
+
+.dark-mode .ts-nav-item > svg:first-child {
+  color: #a3aec7 !important;
+}
+
+.dark-mode .ts-nav-item:hover,
+.dark-mode .ts-nav-item.active {
+  background: #202942 !important;
+  border-color: #34405d !important;
+  color: #c4b5fd !important;
+}
+
+.dark-mode .ts-nav-item.active > svg:first-child {
+  color: #b7aaff !important;
+}
+
+.dark-mode .ts-secondary-button,
+.dark-mode .ts-text-button {
+  background: #202942 !important;
+  border-color: #34405d !important;
+  color: #d7def0 !important;
+}
+
+.dark-mode .ts-text-button:hover {
+  background: #2a2435 !important;
+  border-color: #513447 !important;
+  color: #ff9cab !important;
+}
+
+.dark-mode .ts-password-hint {
+  background: #153a33 !important;
+  color: #a3aec7 !important;
+}
+
+.dark-mode .ts-note-status,
+.dark-mode .ts-current-session {
+  background: #153a33 !important;
+  color: #7fe0bf !important;
+}
+
+.dark-mode .ts-toggle {
+  background: #3a4560 !important;
+}
+
+.dark-mode .ts-toggle.on {
+  background: linear-gradient(100deg, #7558f0, #6646e8) !important;
+}
+
+.dark-mode .ts-save-bar {
+  background: rgba(19, 27, 46, 0.96) !important;
+}
+
+/* My Team cards, controls, menus, and dialogs */
+.dark-mode .mt-header h1,
+.dark-mode .mt-stat-card h2,
+.dark-mode .mt-panel-heading h2,
+.dark-mode .mt-member-card h3,
+.dark-mode .mt-progress-heading b,
+.dark-mode .mt-modal-header h2,
+.dark-mode .mt-profile-info h3,
+.dark-mode .mt-profile-details b,
+.dark-mode .mt-empty h3 {
+  color: #edf1ff !important;
+}
+
+.dark-mode .mt-header p,
+.dark-mode .mt-stat-card span,
+.dark-mode .mt-stat-card small,
+.dark-mode .mt-panel-heading p,
+.dark-mode .mt-role,
+.dark-mode .mt-email,
+.dark-mode .mt-project-count,
+.dark-mode .mt-progress-heading,
+.dark-mode .mt-task-summary span,
+.dark-mode .mt-modal-header p,
+.dark-mode .mt-profile-info > p,
+.dark-mode .mt-profile-details span,
+.dark-mode .mt-empty {
+  color: #a3aec7 !important;
+}
+
+.dark-mode .mt-member-card,
+.dark-mode .mt-dropdown,
+.dark-mode .mt-modal {
+  background: #171f34 !important;
+  border-color: #2b3550 !important;
+  color: #edf1ff !important;
+  box-shadow: none !important;
+}
+
+.dark-mode .mt-count {
+  background: #29244a !important;
+  color: #c4b5fd !important;
+}
+
+.dark-mode .mt-search {
+  background: #101629 !important;
+  border-color: #2b3550 !important;
+}
+
+.dark-mode .mt-search input {
+  background: transparent !important;
+  color: #edf1ff !important;
+}
+
+.dark-mode .mt-search input::placeholder {
+  color: #8390ad !important;
+}
+
+.dark-mode .mt-toolbar select,
+.dark-mode .mt-modal form select,
+.dark-mode .mt-modal form input {
+  background: #101629 !important;
+  border-color: #2b3550 !important;
+  color: #edf1ff !important;
+}
+
+.dark-mode .mt-toolbar select option,
+.dark-mode .mt-modal form select option {
+  background: #171f34;
+  color: #edf1ff;
+}
+
+.dark-mode .mt-menu-btn,
+.dark-mode .mt-close-btn,
+.dark-mode .mt-secondary-btn {
+  background: #202942 !important;
+  border-color: #34405d !important;
+  color: #cbd5e9 !important;
+}
+
+.dark-mode .mt-menu-btn:hover,
+.dark-mode .mt-close-btn:hover {
+  background: #2b3550 !important;
+  color: #c4b5fd !important;
+}
+
+.dark-mode .mt-dropdown button {
+  color: #d7def0 !important;
+}
+
+.dark-mode .mt-dropdown button:hover {
+  background: #202942 !important;
+}
+
+.dark-mode .mt-dropdown .mt-delete-action {
+  color: #ff9cab !important;
+}
+
+.dark-mode .mt-status.available {
+  background: #153a33 !important;
+  color: #7fe0bf !important;
+}
+
+.dark-mode .mt-status.away {
+  background: #40331d !important;
+  color: #f4c66d !important;
+}
+
+.dark-mode .mt-progress-track {
+  background: #2b3550 !important;
+}
+
+.dark-mode .mt-task-summary,
+.dark-mode .mt-profile-info,
+.dark-mode .mt-profile-details > div {
+  border-color: #2b3550 !important;
+}
+
+.dark-mode .mt-empty button {
+  background: #252144 !important;
+  border-color: #453b76 !important;
+  color: #c4b5fd !important;
+}
+
 /* Modals & Popovers across all pages */
 .dark-mode .tsg-modal,
 .dark-mode .pr-modal,
@@ -468,4 +821,1434 @@
   background: #171f34 !important;
   border: 1px solid #2b3550 !important;
   color: #edf1ff !important;
+}
+
+/* Align Team Lead dark mode with the Super Admin navy theme */
+.dark-mode {
+  color-scheme: dark;
+}
+
+.dark-mode .teamlead-layout,
+.dark-mode .teamlead-main-wrapper,
+.dark-mode .teamlead-layout-content,
+.dark-mode .tld-app,
+.dark-mode .meetings-page,
+.dark-mode .tf-files-page,
+.dark-mode .wl-page,
+.dark-mode .tl-project-page,
+.dark-mode .tl-task-page,
+.dark-mode .tl-bug-page,
+.dark-mode .tl-calendar,
+.dark-mode .mt-page,
+.dark-mode .tl-member-page,
+.dark-mode .tl-report-page,
+.dark-mode .ch-page,
+.dark-mode .tl-ai-page,
+.dark-mode .ai-summary-page,
+.dark-mode .tsg-page,
+.dark-mode .pr-page,
+.dark-mode .ntf-page,
+.dark-mode .ts-page {
+  background-color: #0f172a !important;
+  color: #f8fafc !important;
+}
+
+.dark-mode .team-lead-sidebar {
+  --tf-sidebar-bg: #111c35;
+  --tf-sidebar-text: #e2e8f0;
+  --tf-sidebar-muted: #94a3b8;
+  --tf-sidebar-border: #1f2d4d;
+  --tf-sidebar-primary: #3b66ff;
+  background: #111c35 !important;
+  border-color: #1f2d4d !important;
+  color: #e2e8f0 !important;
+  scrollbar-color: #334155 transparent;
+}
+
+.dark-mode .team-lead-sidebar .tls-brand {
+  border-bottom-color: #1f2d4d !important;
+  color: #f8fafc !important;
+}
+
+.dark-mode .team-lead-sidebar .tls-brand-name,
+.dark-mode .team-lead-sidebar .tls-brand-name b {
+  color: #f8fafc !important;
+}
+
+.dark-mode .team-lead-sidebar .tls-brand-name b {
+  color: #3b66ff !important;
+}
+
+.dark-mode .team-lead-sidebar .tls-brand-sub {
+  color: #94a3b8 !important;
+}
+
+.dark-mode .team-lead-sidebar .tls-section-label {
+  color: #64748b !important;
+}
+
+.dark-mode .team-lead-sidebar .tls-nav-item {
+  color: #94a3b8 !important;
+  border-color: transparent !important;
+  background: transparent !important;
+}
+
+.dark-mode .team-lead-sidebar .tls-nav-item:hover {
+  color: #f8fafc !important;
+  background: #172442 !important;
+}
+
+.dark-mode .team-lead-sidebar .tls-nav-item.active {
+  color: #ffffff !important;
+  background: #3b66ff !important;
+  border-color: #3b66ff !important;
+  box-shadow: 0 2px 6px rgba(59, 102, 255, 0.28) !important;
+}
+
+.dark-mode .team-lead-sidebar .tls-support-card {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+}
+
+.dark-mode .team-lead-sidebar .tls-support-copy b {
+  color: #f8fafc !important;
+}
+
+.dark-mode .team-lead-sidebar .tls-support-copy small {
+  color: #94a3b8 !important;
+}
+
+.dark-mode .team-lead-sidebar .tls-support-button {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  color: #a5b4fc !important;
+}
+
+.dark-mode .team-lead-sidebar .tls-support-button:hover {
+  background: #1e293b !important;
+  border-color: #5b5cf0 !important;
+}
+
+.dark-mode .teamlead-layout-content h1,
+.dark-mode .teamlead-layout-content h2,
+.dark-mode .teamlead-layout-content h3,
+.dark-mode .teamlead-layout-content h4,
+.dark-mode .teamlead-layout-content strong,
+.dark-mode .teamlead-layout-content b {
+  color: #f8fafc !important;
+}
+
+.dark-mode .teamlead-layout-content p,
+.dark-mode .teamlead-layout-content small,
+.dark-mode .teamlead-layout-content label,
+.dark-mode .teamlead-layout-content th,
+.dark-mode .teamlead-layout-content td,
+.dark-mode .teamlead-layout-content .mt-role,
+.dark-mode .teamlead-layout-content .mt-email,
+.dark-mode .teamlead-layout-content .mt-project-count,
+.dark-mode .teamlead-layout-content .mt-progress-heading,
+.dark-mode .teamlead-layout-content .mt-task-summary span {
+  color: #94a3b8 !important;
+}
+
+.dark-mode .tld-panel,
+.dark-mode .tld-stat-card,
+.dark-mode .meeting-stat-card,
+.dark-mode .meeting-card,
+.dark-mode .meeting-panel,
+.dark-mode .tf-files-summary-card,
+.dark-mode .tf-files-folder-card,
+.dark-mode .tf-files-list-section,
+.dark-mode .wl-stat-card,
+.dark-mode .wl-card,
+.dark-mode .tl-project-stat,
+.dark-mode .tl-project-card,
+.dark-mode .tl-project-list,
+.dark-mode .tl-task-card,
+.dark-mode .tl-task-column,
+.dark-mode .tl-bug-stat,
+.dark-mode .tl-bug-card,
+.dark-mode .tl-bug-table-card,
+.dark-mode .tl-calendar-card,
+.dark-mode .tl-calendar-board,
+.dark-mode .tl-calendar-panel,
+.dark-mode .mt-stat-card,
+.dark-mode .mt-panel,
+.dark-mode .mt-card,
+.dark-mode .mt-member-card,
+.dark-mode .tl-member-stat,
+.dark-mode .tl-member-panel,
+.dark-mode .tl-report-stat,
+.dark-mode .tl-report-card,
+.dark-mode .tl-report-panel,
+.dark-mode .ai-summary-card,
+.dark-mode .ai-summary-panel,
+.dark-mode .ai-summary-overview,
+.dark-mode .ai-summary-box,
+.dark-mode .tsg-stat-card,
+.dark-mode .tsg-card,
+.dark-mode .tsg-toolbar,
+.dark-mode .pr-stat-card,
+.dark-mode .pr-panel,
+.dark-mode .pr-table-card,
+.dark-mode .pr-toolbar,
+.dark-mode .ntf-stat-card,
+.dark-mode .ntf-item,
+.dark-mode .ntf-toolbar,
+.dark-mode .ts-card,
+.dark-mode .ts-nav,
+.dark-mode .ch-workspace,
+.dark-mode .ch-list-panel,
+.dark-mode .ch-conversation,
+.dark-mode .ch-details-panel {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+  box-shadow: none !important;
+}
+
+.dark-mode .teamlead-layout-content th,
+.dark-mode .teamlead-layout-content thead,
+.dark-mode .tl-calendar-weekdays,
+.dark-mode .tl-calendar-day.outside {
+  background-color: #0f172a !important;
+  border-color: #334155 !important;
+  color: #94a3b8 !important;
+}
+
+.dark-mode .teamlead-layout-content input,
+.dark-mode .teamlead-layout-content select,
+.dark-mode .teamlead-layout-content textarea,
+.dark-mode .mt-toolbar select,
+.dark-mode .mt-modal form select,
+.dark-mode .mt-modal form input,
+.dark-mode .tl-calendar-filter,
+.dark-mode .ch-list-search {
+  color-scheme: dark;
+  background-color: #0f172a !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+.dark-mode .teamlead-layout-content input::placeholder,
+.dark-mode .teamlead-layout-content textarea::placeholder {
+  color: #64748b !important;
+}
+
+.dark-mode .teamlead-layout-content tbody tr:hover,
+.dark-mode .tl-calendar-day:hover,
+.dark-mode .tl-calendar-day.selected {
+  background-color: #233152 !important;
+}
+
+.dark-mode .mt-dropdown,
+.dark-mode .mt-modal,
+.dark-mode .tsg-modal,
+.dark-mode .pr-modal,
+.dark-mode .ntf-modal,
+.dark-mode .meeting-modal,
+.dark-mode .tl-task-modal,
+.dark-mode .tl-bug-modal {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.45) !important;
+}
+
+.dark-mode .mt-stat-card h2,
+.dark-mode .mt-header h1,
+.dark-mode .mt-panel-heading h2,
+.dark-mode .mt-member-card h3,
+.dark-mode .mt-progress-heading b,
+.dark-mode .mt-modal-header h2,
+.dark-mode .mt-profile-info h3,
+.dark-mode .mt-profile-details b,
+.dark-mode .mt-empty h3 {
+  color: #f8fafc !important;
+}
+
+.dark-mode .mt-menu-btn,
+.dark-mode .mt-close-btn,
+.dark-mode .mt-secondary-btn,
+.dark-mode .ts-secondary-button,
+.dark-mode .ts-text-button {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  color: #cbd5e1 !important;
+}
+
+/* Tasks */
+.dark-mode .tl-task-stat,
+.dark-mode .tl-task-board,
+.dark-mode .tl-task-header-badge {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+  box-shadow: none !important;
+}
+
+.dark-mode .tl-task-stat b,
+.dark-mode .tl-task-board-header h2,
+.dark-mode .tl-task-card h4,
+.dark-mode .tl-task-modal-header h2 {
+  color: #f8fafc !important;
+}
+
+.dark-mode .tl-task-stat small,
+.dark-mode .tl-task-stat > div > span,
+.dark-mode .tl-task-header p,
+.dark-mode .tl-task-board-header p,
+.dark-mode .tl-task-description,
+.dark-mode .tl-task-due,
+.dark-mode .tl-task-modal-header p {
+  color: #94a3b8 !important;
+}
+
+.dark-mode .tl-task-column {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+}
+
+.dark-mode .tl-task-column-header h3 {
+  color: #e2e8f0 !important;
+}
+
+.dark-mode .tl-task-column-header > div > span {
+  background: #334155 !important;
+  color: #cbd5e1 !important;
+}
+
+.dark-mode .tl-task-card {
+  background: #18233c !important;
+  border-color: #334155 !important;
+}
+
+.dark-mode .tl-task-assignee:hover,
+.dark-mode .tl-task-assignee:focus-within {
+  background: #233152 !important;
+  border-color: #405276 !important;
+}
+
+.dark-mode .tl-task-assignee select {
+  color: #cbd5e1 !important;
+}
+
+.dark-mode .tl-task-modal-header,
+.dark-mode .tl-task-form-actions {
+  border-color: #334155 !important;
+}
+
+.dark-mode .tl-task-form-field,
+.dark-mode .tl-task-cancel-button {
+  color: #cbd5e1 !important;
+}
+
+/* Bugs */
+.dark-mode .tl-bug-ai-banner {
+  background: linear-gradient(110deg, #1d2340, #202b45) !important;
+  border-color: #334155 !important;
+}
+
+.dark-mode .tl-bug-ai-banner strong {
+  color: #f8fafc !important;
+}
+
+.dark-mode .tl-bug-ai-banner p,
+.dark-mode .tl-bug-page-header p {
+  color: #94a3b8 !important;
+}
+
+.dark-mode .tl-bug-ai-banner > button {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  color: #a5b4fc !important;
+}
+
+.dark-mode .tl-bug-workspace {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  box-shadow: none !important;
+}
+
+.dark-mode .tl-bug-controls {
+  border-color: #334155 !important;
+}
+
+.dark-mode .tl-bug-tabs button {
+  color: #94a3b8 !important;
+}
+
+.dark-mode .tl-bug-tabs button:hover,
+.dark-mode .tl-bug-tabs button.active {
+  background: #233152 !important;
+  color: #c7d2fe !important;
+}
+
+.dark-mode .tl-bug-tabs button span {
+  background: #334155 !important;
+  color: #e2e8f0 !important;
+}
+
+.dark-mode .tl-bug-search {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+}
+
+.dark-mode .tl-bug-title-cell > span,
+.dark-mode .tl-bug-title-cell small,
+.dark-mode .tl-bug-project,
+.dark-mode .tl-bug-assignee,
+.dark-mode .tl-bug-date {
+  color: #94a3b8 !important;
+}
+
+.dark-mode .tl-bug-title-cell strong {
+  color: #f8fafc !important;
+}
+
+.dark-mode .tl-bug-table tbody tr:hover {
+  background: #233152 !important;
+}
+
+.dark-mode .tl-bug-modal,
+.dark-mode .tl-bug-drawer {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+.dark-mode .tl-bug-modal-header,
+.dark-mode .tl-bug-drawer-header,
+.dark-mode .tl-bug-detail-section,
+.dark-mode .tl-bug-detail-grid > div {
+  border-color: #334155 !important;
+}
+
+.dark-mode .tl-bug-form-field,
+.dark-mode .tl-bug-detail-grid > div span,
+.dark-mode .tl-bug-ai-analysis > div > span {
+  color: #cbd5e1 !important;
+}
+
+.dark-mode .tl-bug-ai-analysis {
+  background: #18233c !important;
+  border-color: #334155 !important;
+}
+
+/* Team chat */
+.dark-mode .ch-topbar,
+.dark-mode .ch-conversation-header,
+.dark-mode .ch-details-heading,
+.dark-mode .ch-list-footer {
+  background: #151e34 !important;
+  border-color: #334155 !important;
+}
+
+.dark-mode .ch-workspace-switch b,
+.dark-mode .ch-list-heading h1,
+.dark-mode .ch-active-title h2,
+.dark-mode .ch-details-heading h2,
+.dark-mode .ch-details-summary h3,
+.dark-mode .ch-details-section-heading h3,
+.dark-mode .ch-message-meta b {
+  color: #f8fafc !important;
+}
+
+.dark-mode .ch-workspace-switch small,
+.dark-mode .ch-active-title p,
+.dark-mode .ch-thread-title time,
+.dark-mode .ch-thread-preview,
+.dark-mode .ch-list-section-title,
+.dark-mode .ch-date-divider,
+.dark-mode .ch-message-meta time,
+.dark-mode .ch-delivered,
+.dark-mode .ch-details-summary > p,
+.dark-mode .ch-member small,
+.dark-mode .ch-file small,
+.dark-mode .ch-pinned > small {
+  color: #94a3b8 !important;
+}
+
+.dark-mode .ch-list-panel,
+.dark-mode .ch-details-panel {
+  background: #151e34 !important;
+}
+
+.dark-mode .ch-conversation {
+  background: #0f172a !important;
+}
+
+.dark-mode .ch-thread:hover,
+.dark-mode .ch-member > button:hover,
+.dark-mode .ch-filter-tabs button:hover {
+  background: #233152 !important;
+}
+
+.dark-mode .ch-thread.active,
+.dark-mode .ch-filter-tabs button.active,
+.dark-mode .ch-conversation-actions > button.selected {
+  background: #29385b !important;
+  border-color: #405276 !important;
+  color: #c7d2fe !important;
+}
+
+.dark-mode .ch-thread-title b,
+.dark-mode .ch-member b,
+.dark-mode .ch-file b {
+  color: #e2e8f0 !important;
+}
+
+.dark-mode .ch-message-bubble,
+.dark-mode .ch-detail-stats,
+.dark-mode .ch-file,
+.dark-mode .ch-details-section-heading > button:not(.ch-view-all) {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+  box-shadow: none !important;
+}
+
+.dark-mode .ch-message-bubble p,
+.dark-mode .ch-message-bubble ul,
+.dark-mode .ch-detail-stats span,
+.dark-mode .ch-details-section-heading h3 span {
+  color: #cbd5e1 !important;
+}
+
+.dark-mode .ch-message.own .ch-message-bubble {
+  background: linear-gradient(135deg, #7058ed, #5140bc) !important;
+  border-color: #7564e6 !important;
+}
+
+.dark-mode .ch-composer {
+  background: #151e34 !important;
+  border-color: #334155 !important;
+}
+
+.dark-mode .ch-composer-tools > span,
+.dark-mode .ch-date-divider span,
+.dark-mode .ch-filter-tabs,
+.dark-mode .ch-details-section,
+.dark-mode .ch-details-bottom {
+  background-color: #151e34 !important;
+  border-color: #334155 !important;
+}
+
+.dark-mode .ch-date-divider b {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #cbd5e1 !important;
+}
+
+.dark-mode .ch-list-search button,
+.dark-mode .ch-pinned > p,
+.dark-mode .ch-add-members {
+  background: #233152 !important;
+  border-color: #334155 !important;
+  color: #c7d2fe !important;
+}
+
+/* Meetings */
+.dark-mode .meeting-content-card,
+.dark-mode .meeting-dropdown {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  box-shadow: none !important;
+}
+
+.dark-mode .meeting-content-header,
+.dark-mode .meeting-row,
+.dark-mode .meeting-list-footer {
+  border-color: #334155 !important;
+}
+
+.dark-mode .meeting-content-header h2,
+.dark-mode .meeting-title-line h3,
+.dark-mode .meeting-date-box strong,
+.dark-mode .meeting-empty-state h3,
+.dark-mode .meeting-detail-item strong,
+.dark-mode .meeting-modal-header h2 {
+  color: #f8fafc !important;
+}
+
+.dark-mode .meeting-content-header p,
+.dark-mode .meeting-stat-card p,
+.dark-mode .meeting-stat-card span,
+.dark-mode .meeting-description,
+.dark-mode .meeting-meta span,
+.dark-mode .meeting-location,
+.dark-mode .meeting-list-footer,
+.dark-mode .meeting-empty-state,
+.dark-mode .meeting-modal-header p,
+.dark-mode .meeting-details-description,
+.dark-mode .meeting-detail-item span {
+  color: #94a3b8 !important;
+}
+
+.dark-mode .meeting-row:hover {
+  background: #233152 !important;
+}
+
+.dark-mode .meeting-date-box {
+  background: #252b49 !important;
+  border-color: #3a4560 !important;
+}
+
+.dark-mode .meeting-view-btn,
+.dark-mode .meeting-more-btn,
+.dark-mode .meeting-close-btn,
+.dark-mode .meeting-cancel-btn {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  color: #cbd5e1 !important;
+}
+
+.dark-mode .meeting-dropdown button {
+  color: #cbd5e1 !important;
+}
+
+.dark-mode .meeting-dropdown button:hover {
+  background: #233152 !important;
+}
+
+.dark-mode .meeting-modal label {
+  color: #cbd5e1 !important;
+}
+
+/* AI Assistant */
+.dark-mode .tl-ai-page {
+  --ai-ink: #f8fafc;
+  --ai-muted: #94a3b8;
+  --ai-border: #334155;
+  background: #0f172a !important;
+}
+
+.dark-mode .tl-ai-topbar {
+  background: rgba(19, 27, 46, 0.98) !important;
+  border-color: #273553 !important;
+}
+
+.dark-mode .tl-ai-workspace b,
+.dark-mode .tl-ai-hero h1,
+.dark-mode .tl-ai-section-heading h2,
+.dark-mode .tl-ai-chat-heading > div > b,
+.dark-mode .tl-ai-message-meta b,
+.dark-mode .tl-ai-starter > b,
+.dark-mode .tl-ai-tip-card h2,
+.dark-mode .tl-ai-context-heading b {
+  color: #f8fafc !important;
+}
+
+.dark-mode .tl-ai-workspace small,
+.dark-mode .tl-ai-secure,
+.dark-mode .tl-ai-hero > p,
+.dark-mode .tl-ai-hero-meta span,
+.dark-mode .tl-ai-starter > small,
+.dark-mode .tl-ai-chat-heading > div > small,
+.dark-mode .tl-ai-message-meta time,
+.dark-mode .tl-ai-bubble p,
+.dark-mode .tl-ai-bubble ul,
+.dark-mode .tl-ai-composer-footer > span,
+.dark-mode .tl-ai-notice,
+.dark-mode .tl-ai-tip-card > p,
+.dark-mode .tl-ai-context-card,
+.dark-mode .tl-ai-message-meta {
+  color: #cbd5e1 !important;
+}
+
+.dark-mode .tl-ai-starters,
+.dark-mode .tl-ai-chat-card,
+.dark-mode .tl-ai-aside-card {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+  box-shadow: none !important;
+}
+
+.dark-mode .tl-ai-hero {
+  background: linear-gradient(120deg, #1e293b, #242b4a) !important;
+  border-color: #39466a !important;
+}
+
+.dark-mode .tl-ai-starter,
+.dark-mode .tl-ai-bubble,
+.dark-mode .tl-ai-composer,
+.dark-mode .tl-ai-tip-card > button {
+  background: #151e34 !important;
+  border-color: #334155 !important;
+  color: #e2e8f0 !important;
+}
+
+.dark-mode .tl-ai-message.user .tl-ai-bubble {
+  background: linear-gradient(135deg, #7058ed, #5140bc) !important;
+  border-color: #7564e6 !important;
+}
+
+.dark-mode .tl-ai-chat-heading,
+.dark-mode .tl-ai-composer-footer,
+.dark-mode .tl-ai-context-heading {
+  border-color: #334155 !important;
+}
+
+.dark-mode .tl-ai-tip-card {
+  background: radial-gradient(ellipse at 100% 0, #35305c 0, transparent 48%), #1e293b !important;
+}
+
+/* AI Summary */
+.dark-mode .ai-metric-card,
+.dark-mode .ai-panel {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+  box-shadow: none !important;
+}
+
+.dark-mode .ai-metric-label,
+.dark-mode .ai-metric-note,
+.dark-mode .ai-panel-heading p,
+.dark-mode .ai-summary-text p,
+.dark-mode .ai-completion-header span,
+.dark-mode .ai-completion-footer span,
+.dark-mode .ai-panel-footer > span,
+.dark-mode .ai-insight-content > p,
+.dark-mode .ai-insight-number,
+.dark-mode .ai-summary-header > div:first-child > p,
+.dark-mode .ai-summary-breadcrumb {
+  color: #94a3b8 !important;
+}
+
+.dark-mode .ai-metric-value,
+.dark-mode .ai-panel-heading h2,
+.dark-mode .ai-insight-title-row h3,
+.dark-mode .ai-completion-header strong {
+  color: #f8fafc !important;
+}
+
+.dark-mode .ai-period-select,
+.dark-mode .ai-icon-button,
+.dark-mode .ai-summary-text,
+.dark-mode .ai-insight-item,
+.dark-mode .ai-panel-header,
+.dark-mode .ai-panel-footer {
+  background: #151e34 !important;
+  border-color: #334155 !important;
+}
+
+.dark-mode .ai-period-select,
+.dark-mode .ai-period-select select,
+.dark-mode .ai-icon-button {
+  color: #cbd5e1 !important;
+}
+
+.dark-mode .ai-progress-track {
+  background: #334155 !important;
+}
+
+/* Team Performance */
+.dark-mode .tl-report-metric,
+.dark-mode .tl-report-goal-card {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  box-shadow: none !important;
+}
+
+.dark-mode .tl-report-metric > div > span,
+.dark-mode .tl-report-header p,
+.dark-mode .tl-report-updated,
+.dark-mode .tl-report-card-header p,
+.dark-mode .tl-report-chart-legend span,
+.dark-mode .tl-report-completion-legend span,
+.dark-mode .tl-report-goal-value span,
+.dark-mode .tl-report-goal-card > small,
+.dark-mode .tl-report-highlight p,
+.dark-mode .tl-report-project-row,
+.dark-mode .tl-report-team-row {
+  color: #94a3b8 !important;
+}
+
+.dark-mode .tl-report-metric strong,
+.dark-mode .tl-report-card-header h2,
+.dark-mode .tl-report-completion-legend b,
+.dark-mode .tl-report-goal-value strong,
+.dark-mode .tl-report-highlight h2 {
+  color: #f8fafc !important;
+}
+
+.dark-mode .tl-report-period,
+.dark-mode .tl-report-project-filter select,
+.dark-mode .tl-report-icon-button,
+.dark-mode .tl-report-highlight > button {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  color: #cbd5e1 !important;
+}
+
+.dark-mode .tl-report-tabs {
+  border-color: #334155 !important;
+}
+
+.dark-mode .tl-report-tabs button {
+  color: #94a3b8 !important;
+}
+
+.dark-mode .tl-report-tabs button:hover,
+.dark-mode .tl-report-tabs button.active {
+  color: #a5b4fc !important;
+}
+
+.dark-mode .tl-report-gridline {
+  stroke: #334155 !important;
+}
+
+.dark-mode .tl-report-axis-label {
+  fill: #94a3b8 !important;
+}
+
+.dark-mode .tl-report-dot {
+  stroke: #1e293b !important;
+}
+
+.dark-mode .tl-report-donut {
+  background: conic-gradient(#7357f5 var(--completion), #334155 0) !important;
+}
+
+.dark-mode .tl-report-donut > div {
+  background: #0f172a !important;
+}
+
+.dark-mode .tl-report-donut strong {
+  color: #f8fafc !important;
+}
+
+.dark-mode .tl-report-donut span {
+  color: #94a3b8 !important;
+}
+
+.dark-mode .tl-report-insight,
+.dark-mode .tl-report-highlight {
+  background: #202744 !important;
+  border-color: #39466a !important;
+}
+
+.dark-mode .tl-report-goal-track,
+.dark-mode .tl-report-project-progress > i,
+.dark-mode .tl-report-team-rate > i {
+  background: #334155 !important;
+}
+
+.dark-mode .tl-report-project-row,
+.dark-mode .tl-report-team-row {
+  border-color: #334155 !important;
+}
+
+/* Team Member */
+.dark-mode .tl-member-page {
+  color: #f8fafc !important;
+}
+
+.dark-mode .tl-member-header h1,
+.dark-mode .tl-member-panel-header h2,
+.dark-mode .tl-member-stat strong,
+.dark-mode .tl-member-identity strong,
+.dark-mode .tl-member-empty h3,
+.dark-mode .tl-member-help h3,
+.dark-mode .tl-member-modal h2 {
+  color: #f8fafc !important;
+}
+
+.dark-mode .tl-member-header p,
+.dark-mode .tl-member-panel-header p,
+.dark-mode .tl-member-stat > div > span,
+.dark-mode .tl-member-stat small,
+.dark-mode .tl-member-identity small,
+.dark-mode .tl-member-department,
+.dark-mode .tl-member-date,
+.dark-mode .tl-member-footer,
+.dark-mode .tl-member-footer > span:last-child,
+.dark-mode .tl-member-help p,
+.dark-mode .tl-member-modal > header p {
+  color: #94a3b8 !important;
+}
+
+.dark-mode .tl-member-panel-header,
+.dark-mode .tl-member-toolbar,
+.dark-mode .tl-member-footer {
+  border-color: #334155 !important;
+}
+
+.dark-mode .tl-member-count,
+.dark-mode .tl-member-avatar {
+  background: #302956 !important;
+  color: #c4b5fd !important;
+}
+
+.dark-mode .tl-member-stat-icon.purple {
+  background: #302956 !important;
+  color: #c4b5fd !important;
+}
+
+.dark-mode .tl-member-stat-icon.green {
+  background: #173a35 !important;
+  color: #6ee7b7 !important;
+}
+
+.dark-mode .tl-member-stat-icon.orange {
+  background: #3b3022 !important;
+  color: #fbbf24 !important;
+}
+
+.dark-mode .tl-member-stat-icon.blue {
+  background: #1e3150 !important;
+  color: #93c5fd !important;
+}
+
+.dark-mode .tl-member-search,
+.dark-mode .tl-member-filters select {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  color: #cbd5e1 !important;
+}
+
+.dark-mode .tl-member-search input {
+  background: transparent !important;
+  color: #f8fafc !important;
+}
+
+.dark-mode .tl-member-search input::placeholder {
+  color: #64748b !important;
+}
+
+.dark-mode .tl-member-search button,
+.dark-mode .tl-member-filters label > svg,
+.dark-mode .tl-member-actions > button {
+  color: #94a3b8 !important;
+}
+
+.dark-mode .tl-member-actions > button:hover {
+  background: #302956 !important;
+  color: #c4b5fd !important;
+}
+
+.dark-mode .tl-member-table th {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  color: #94a3b8 !important;
+}
+
+.dark-mode .tl-member-table td {
+  border-color: #334155 !important;
+  color: #cbd5e1 !important;
+}
+
+.dark-mode .tl-member-table tbody tr:hover {
+  background: #233152 !important;
+}
+
+.dark-mode .tl-member-role {
+  background: #302956 !important;
+  color: #c4b5fd !important;
+}
+
+.dark-mode .tl-member-role.admin {
+  background: #1e3150 !important;
+  color: #93c5fd !important;
+}
+
+.dark-mode .tl-member-role.developer {
+  background: #173a35 !important;
+  color: #6ee7b7 !important;
+}
+
+.dark-mode .tl-member-role.designer {
+  background: #3a2638 !important;
+  color: #f9a8d4 !important;
+}
+
+.dark-mode .tl-member-status.active {
+  background: #173a35 !important;
+  color: #6ee7b7 !important;
+}
+
+.dark-mode .tl-member-status.pending {
+  background: #3b3022 !important;
+  color: #fbbf24 !important;
+}
+
+.dark-mode .tl-member-menu {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4) !important;
+}
+
+.dark-mode .tl-member-menu > strong {
+  color: #94a3b8 !important;
+}
+
+.dark-mode .tl-member-menu > button {
+  color: #cbd5e1 !important;
+}
+
+.dark-mode .tl-member-menu > button:hover,
+.dark-mode .tl-member-menu > button.selected {
+  background: #302956 !important;
+  color: #c4b5fd !important;
+}
+
+.dark-mode .tl-member-menu > button.danger {
+  border-top-color: #334155 !important;
+  color: #f87171 !important;
+}
+
+.dark-mode .tl-member-empty {
+  color: #a5b4fc !important;
+}
+
+.dark-mode .tl-member-empty p {
+  color: #94a3b8 !important;
+}
+
+.dark-mode .tl-member-empty button,
+.dark-mode .tl-member-help > button {
+  background: #0f172a !important;
+  border-color: #475569 !important;
+  color: #c4b5fd !important;
+}
+
+.dark-mode .tl-member-help {
+  background: linear-gradient(110deg, #202744, #1e293b) !important;
+  border-color: #39466a !important;
+}
+
+.dark-mode .tl-member-help-icon {
+  background: #302956 !important;
+  color: #c4b5fd !important;
+}
+
+.dark-mode .tl-member-modal {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+  box-shadow: 0 22px 70px rgba(0, 0, 0, 0.5) !important;
+}
+
+.dark-mode .tl-member-modal-icon {
+  background: #302956 !important;
+  color: #c4b5fd !important;
+}
+
+.dark-mode .tl-member-modal > header > button,
+.dark-mode .tl-member-modal form > footer button:not(.submit) {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  color: #cbd5e1 !important;
+}
+
+.dark-mode .tl-member-modal form > label {
+  color: #cbd5e1 !important;
+}
+
+.dark-mode .tl-member-modal input,
+.dark-mode .tl-member-modal select {
+  color-scheme: dark;
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+.dark-mode .tl-member-modal input::placeholder {
+  color: #64748b !important;
+}
+
+/* Team Lead calendar */
+.dark-mode .tl-calendar {
+  --cal-bg: #0f172a;
+  --cal-surface: #1e293b;
+  --cal-text: #f8fafc;
+  --cal-muted: #94a3b8;
+  --cal-border: #334155;
+  --cal-primary-light: #302956;
+}
+
+.dark-mode .tl-calendar-header h1,
+.dark-mode .tl-calendar-month-controls h2,
+.dark-mode .tl-calendar-panel-heading h2 {
+  color: #f8fafc !important;
+}
+
+.dark-mode .tl-calendar-header p,
+.dark-mode .tl-calendar-legend span,
+.dark-mode .tl-calendar-panel-heading > div > span,
+.dark-mode .tl-calendar-filter-label,
+.dark-mode .tl-calendar-empty span,
+.dark-mode .tl-calendar-upcoming-empty {
+  color: #94a3b8 !important;
+}
+
+.dark-mode .tl-calendar-month-controls > button:not(.tl-calendar-today) {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #cbd5e1 !important;
+}
+
+.dark-mode .tl-calendar-month-controls > button:not(.tl-calendar-today):hover {
+  background: #233152 !important;
+  border-color: #475569 !important;
+  color: #c4b5fd !important;
+}
+
+.dark-mode .tl-calendar-today {
+  background: #302956 !important;
+  border-color: #4c4380 !important;
+  color: #c4b5fd !important;
+}
+
+.dark-mode .tl-calendar-today:hover {
+  background: #3a3267 !important;
+}
+
+.dark-mode .tl-calendar-weekdays {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+}
+
+.dark-mode .tl-calendar-weekdays > span {
+  color: #94a3b8 !important;
+}
+
+.dark-mode .tl-calendar-day {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #e2e8f0 !important;
+}
+
+.dark-mode .tl-calendar-day.outside {
+  background: #0f172a !important;
+}
+
+.dark-mode .tl-calendar-day.outside .tl-calendar-day-number {
+  color: #64748b !important;
+}
+
+.dark-mode .tl-calendar-day:not(.today) .tl-calendar-day-number {
+  color: #cbd5e1 !important;
+}
+
+.dark-mode .tl-calendar-day:hover {
+  background: #233152 !important;
+  box-shadow: inset 0 0 0 1px #475569 !important;
+}
+
+.dark-mode .tl-calendar-day.selected {
+  background: #252f52 !important;
+  box-shadow: inset 0 0 0 1.5px #7564e6 !important;
+}
+
+.dark-mode .tl-calendar-filter {
+  color-scheme: dark;
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+.dark-mode .tl-calendar-add-inline,
+.dark-mode .tl-calendar-empty svg {
+  background: #302956 !important;
+  border-color: #4c4380 !important;
+  color: #c4b5fd !important;
+}
+
+.dark-mode .tl-calendar-add-inline:hover {
+  background: #3a3267 !important;
+}
+
+.dark-mode .tl-calendar-event {
+  background: #151e34 !important;
+  border-color: #334155 !important;
+}
+
+.dark-mode .tl-calendar-event h3,
+.dark-mode .tl-calendar-empty strong,
+.dark-mode .tl-calendar-upcoming-info > b {
+  color: #f8fafc !important;
+}
+
+.dark-mode .tl-calendar-event-meta,
+.dark-mode .tl-calendar-event p,
+.dark-mode .tl-calendar-upcoming-info > small {
+  color: #94a3b8 !important;
+  border-color: #334155 !important;
+}
+
+.dark-mode .tl-calendar-event-top button,
+.dark-mode .tl-calendar-upcoming-item > svg {
+  color: #94a3b8 !important;
+}
+
+.dark-mode .tl-calendar-event-top button:hover {
+  background: #302956 !important;
+  color: #c4b5fd !important;
+}
+
+.dark-mode .tl-calendar-upcoming-item {
+  background: transparent !important;
+  border-color: #334155 !important;
+}
+
+.dark-mode .tl-calendar-upcoming-item:hover .tl-calendar-upcoming-info > b {
+  color: #c4b5fd !important;
+}
+
+.dark-mode .tl-calendar-upcoming-date {
+  background: #302956 !important;
+  color: #c4b5fd !important;
+}
+
+.dark-mode .tl-calendar-upcoming-date.task {
+  background: #173a35 !important;
+  color: #6ee7b7 !important;
+}
+
+.dark-mode .tl-calendar-upcoming-date.deadline {
+  background: #3a2630 !important;
+  color: #fda4af !important;
+}
+
+.dark-mode .tl-calendar-upcoming-date.team {
+  background: #3b3022 !important;
+  color: #fbbf24 !important;
+}
+
+.dark-mode .tl-calendar-upcoming-date.personal {
+  background: #1e3150 !important;
+  color: #93c5fd !important;
+}
+
+.dark-mode .tl-calendar-modal {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.55) !important;
+}
+
+.dark-mode .tl-calendar-modal-header h2 {
+  color: #f8fafc !important;
+}
+
+.dark-mode .tl-calendar-modal-header > button {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  color: #cbd5e1 !important;
+}
+
+.dark-mode .tl-calendar-modal-header > button:hover {
+  background: #302956 !important;
+  color: #c4b5fd !important;
+}
+
+.dark-mode .tl-calendar-modal form > label,
+.dark-mode .tl-calendar-form-row > label {
+  color: #cbd5e1 !important;
+}
+
+.dark-mode .tl-calendar-modal input,
+.dark-mode .tl-calendar-modal select,
+.dark-mode .tl-calendar-modal textarea {
+  color-scheme: dark;
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+.dark-mode .tl-calendar-modal input::placeholder,
+.dark-mode .tl-calendar-modal textarea::placeholder {
+  color: #64748b !important;
+}
+
+.dark-mode .tl-calendar-modal-actions {
+  border-color: #334155 !important;
+}
+
+.dark-mode .tl-calendar-modal-actions button:not(.submit) {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  color: #cbd5e1 !important;
+}
+
+.dark-mode .tl-calendar-modal-actions button:not(.submit):hover {
+  background: #233152 !important;
+}
+
+.dark-mode .tl-calendar-form-error {
+  background: #3a2630 !important;
+  border-color: #713745 !important;
+  color: #fda4af !important;
+}
+
+/* Chat interaction dialogs */
+.dark-mode .ch-dialog {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+  box-shadow: 0 22px 70px rgba(0, 0, 0, 0.5) !important;
+}
+
+.dark-mode .ch-dialog-header h2,
+.dark-mode .ch-dialog-member b {
+  color: #f8fafc !important;
+}
+
+.dark-mode .ch-dialog-header > button {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  color: #cbd5e1 !important;
+}
+
+.dark-mode .ch-dialog-form > label,
+.dark-mode .ch-dialog-pinned p {
+  color: #cbd5e1 !important;
+}
+
+.dark-mode .ch-channel-input,
+.dark-mode .ch-dialog-member {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  color: #94a3b8 !important;
+}
+
+.dark-mode .ch-channel-input input {
+  background: transparent !important;
+  color: #f8fafc !important;
+}
+
+.dark-mode .ch-channel-input input::placeholder {
+  color: #64748b !important;
+}
+
+.dark-mode .ch-dialog-hint,
+.dark-mode .ch-dialog-member small,
+.dark-mode .ch-dialog-pinned small {
+  color: #94a3b8 !important;
+}
+
+.dark-mode .ch-dialog-error {
+  color: #f87171 !important;
+}
+
+.dark-mode .ch-dialog-form > footer {
+  border-color: #334155 !important;
+}
+
+.dark-mode .ch-dialog-form > footer button:not(.primary) {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  color: #cbd5e1 !important;
+}
+
+.dark-mode .ch-dialog-member:hover {
+  background: #233152 !important;
+  border-color: #475569 !important;
+}
+
+.dark-mode .ch-dialog-pinned {
+  background: #151e34 !important;
+  border-color: #334155 !important;
+}
+
+/* Chat search fields */
+.dark-mode .ch-page .ch-list-search,
+.dark-mode .ch-page .ch-message-search {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  color: #94a3b8 !important;
+  box-shadow: none !important;
+}
+
+.dark-mode .ch-page .ch-list-search:focus-within,
+.dark-mode .ch-page .ch-message-search:focus-within {
+  background: #111c33 !important;
+  border-color: #7564e6 !important;
+  box-shadow: 0 0 0 3px rgba(117, 100, 230, 0.18) !important;
+}
+
+.dark-mode .ch-page .ch-list-search input,
+.dark-mode .ch-page .ch-message-search input {
+  background: transparent !important;
+  color: #f8fafc !important;
+  caret-color: #a5b4fc;
+}
+
+.dark-mode .ch-page .ch-list-search input::placeholder,
+.dark-mode .ch-page .ch-message-search input::placeholder {
+  color: #8492ad !important;
+  opacity: 1;
+}
+
+.dark-mode .ch-page .ch-list-search > svg,
+.dark-mode .ch-page .ch-message-search > svg,
+.dark-mode .ch-page .ch-message-search button,
+.dark-mode .ch-page .ch-list-search button {
+  color: #94a3b8 !important;
+}
+
+.dark-mode .ch-page .ch-list-search button {
+  background: #1e293b !important;
+}
+
+.dark-mode .ch-page .ch-list-search button:hover,
+.dark-mode .ch-page .ch-message-search button:hover {
+  background: #302956 !important;
+  color: #c4b5fd !important;
+}
+
+/* Team Lead dashboard date range selector */
+.dark-mode .tld-date-button {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #e2e8f0 !important;
+}
+
+.dark-mode .tld-date-button:hover {
+  background: #233152 !important;
+  border-color: #475569 !important;
+}
+
+.dark-mode .tld-date-dropdown {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.45) !important;
+}
+
+.dark-mode .tld-date-option {
+  color: #cbd5e1 !important;
+}
+
+.dark-mode .tld-date-option:hover {
+  background: #233152 !important;
+}
+
+.dark-mode .tld-date-option.is-selected {
+  background: #26375e !important;
+  color: #a5b4fc !important;
+}
+
+.dark-mode .tld-date-custom {
+  border-color: #334155 !important;
+}
+
+.dark-mode .tld-date-custom-title {
+  color: #94a3b8 !important;
+}
+
+.dark-mode .tld-date-inputs input {
+  color-scheme: dark;
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+.dark-mode .tld-date-error {
+  color: #f87171 !important;
+}
+
+.dark-mode .tl-project-number {
+  color: #94a3b8 !important;
 }

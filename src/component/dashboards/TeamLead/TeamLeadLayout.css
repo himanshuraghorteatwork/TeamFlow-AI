@@ -43,7 +43,7 @@
   width: 100%;
 }
 
-/* Dark Mode for Page Area Only (Sidebar remains light) */
+/* Base dark mode page background; the shared dark theme also styles the sidebar. */
 .dark-mode .teamlead-main-wrapper,
 .dark-mode .teamlead-layout-content {
   background: #101629;

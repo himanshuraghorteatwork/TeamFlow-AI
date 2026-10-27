@@ -571,7 +571,7 @@ export default function MyTeam() {
 
                 <button type="submit" className="mt-primary-btn">
                   <Plus size={17} />
-                  Add Member
+                  Add
                 </button>
               </div>
             </form>

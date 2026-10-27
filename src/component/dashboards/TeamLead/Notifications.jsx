@@ -124,12 +124,24 @@ export default function Notifications() {
   const [showPreferences, setShowPreferences] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
 
-  const [preferences, setPreferences] = useState({
+  const PREFERENCES_KEY = "teamflow_teamlead_notification_preferences";
+  const DEFAULT_PREFERENCES = {
     emailAlerts: true,
     inAppPush: true,
     criticalBugs: true,
     meetingReminders: true,
     aiDigest: true,
+  };
+
+  const [preferences, setPreferences] = useState(() => {
+    try {
+      const saved = localStorage.getItem(PREFERENCES_KEY);
+      return saved
+        ? { ...DEFAULT_PREFERENCES, ...JSON.parse(saved) }
+        : DEFAULT_PREFERENCES;
+    } catch {
+      return DEFAULT_PREFERENCES;
+    }
   });
 
   const unreadCount = useMemo(
@@ -454,10 +466,10 @@ export default function Notifications() {
                     type="checkbox"
                     checked={preferences.emailAlerts}
                     onChange={(e) =>
-                      setPreferences({
-                        ...preferences,
+                      setPreferences((prev) => ({
+                        ...prev,
                         emailAlerts: e.target.checked,
-                      })
+                      }))
                     }
                   />
                   <span className="ntf-slider" />
@@ -474,10 +486,10 @@ export default function Notifications() {
                     type="checkbox"
                     checked={preferences.inAppPush}
                     onChange={(e) =>
-                      setPreferences({
-                        ...preferences,
+                      setPreferences((prev) => ({
+                        ...prev,
                         inAppPush: e.target.checked,
-                      })
+                      }))
                     }
                   />
                   <span className="ntf-slider" />
@@ -494,10 +506,10 @@ export default function Notifications() {
                     type="checkbox"
                     checked={preferences.criticalBugs}
                     onChange={(e) =>
-                      setPreferences({
-                        ...preferences,
+                      setPreferences((prev) => ({
+                        ...prev,
                         criticalBugs: e.target.checked,
-                      })
+                      }))
                     }
                   />
                   <span className="ntf-slider" />
@@ -514,10 +526,10 @@ export default function Notifications() {
                     type="checkbox"
                     checked={preferences.meetingReminders}
                     onChange={(e) =>
-                      setPreferences({
-                        ...preferences,
+                      setPreferences((prev) => ({
+                        ...prev,
                         meetingReminders: e.target.checked,
-                      })
+                      }))
                     }
                   />
                   <span className="ntf-slider" />
@@ -534,10 +546,10 @@ export default function Notifications() {
                     type="checkbox"
                     checked={preferences.aiDigest}
                     onChange={(e) =>
-                      setPreferences({
-                        ...preferences,
+                      setPreferences((prev) => ({
+                        ...prev,
                         aiDigest: e.target.checked,
-                      })
+                      }))
                     }
                   />
                   <span className="ntf-slider" />
@@ -545,13 +557,26 @@ export default function Notifications() {
               </div>
             </div>
 
-            <div style={{ display: "flex", justifyContent: "flex-end" }}>
+            <div className="ntf-pref-footer">
+              <button
+                className="ntf-btn ntf-btn-secondary"
+                type="button"
+                onClick={() => setPreferences({ ...DEFAULT_PREFERENCES })}
+              >
+                Reset Defaults
+              </button>
               <button
                 className="ntf-btn ntf-btn-primary"
                 onClick={() => {
-                  setShowPreferences(false);
-                  setToastMessage("Notification preferences saved successfully.");
-                  setTimeout(() => setToastMessage(""), 3000);
+                  try {
+                    localStorage.setItem(PREFERENCES_KEY, JSON.stringify(preferences));
+                    setShowPreferences(false);
+                    setToastMessage("Notification preferences saved successfully.");
+                    setTimeout(() => setToastMessage(""), 3000);
+                  } catch {
+                    setToastMessage("Could not save preferences in this browser.");
+                    setTimeout(() => setToastMessage(""), 3000);
+                  }
                 }}
               >
                 Save Preferences

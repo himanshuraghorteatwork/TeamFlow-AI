@@ -256,9 +256,31 @@
   color: #4f5ff5;
 }
 
-.tlt-profile-menu button.logout:hover {
-  background: #ffebeb;
-  color: #d62b3a;
+.tlt-profile-logout {
+  padding-top: 6px;
+  border-top: 1px solid var(--tlt-border);
+}
+
+.tlt-profile-logout button {
+  width: 100%;
+  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #ef4444;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s ease;
+}
+
+.tlt-profile-logout button:hover {
+  background: #fef2f2;
 }
 
 .tlt-popover-heading {
@@ -359,22 +381,22 @@
 
 /* Dark Mode Universal Overrides */
 .dark-mode .tlt-topbar {
-  --tlt-bg: #171f34;
-  --tlt-text: #edf1ff;
-  --tlt-muted: #a3aec7;
-  --tlt-border: #2b3550;
-  --tlt-card-bg: #1a223a;
-  --tlt-input-bg: #101629;
+  --tlt-bg: rgba(19, 27, 46, 0.98);
+  --tlt-text: #f8fafc;
+  --tlt-muted: #94a3b8;
+  --tlt-border: #273553;
+  --tlt-card-bg: #151e34;
+  --tlt-input-bg: #18233c;
 }
 
 .dark-mode .tlt-search {
-  border-color: #2b3550;
+  border-color: #2b3b5c;
 }
 
 .dark-mode .tlt-search kbd {
-  background: #171f34;
-  border-color: #2b3550;
-  color: #a3aec7;
+  background: #1e293b;
+  border-color: #334155;
+  color: #cbd5e1;
 }
 
 .dark-mode .tlt-icon-button {
@@ -393,21 +415,34 @@
 
 .dark-mode .tlt-create-menu button:hover,
 .dark-mode .tlt-profile-menu button:hover {
-  background: #252e47;
+  background: #1e2a47;
+}
+
+.dark-mode .tlt-profile-logout {
+  border-color: #2b3b5c;
+}
+
+.dark-mode .tlt-profile-logout button {
+  color: #f87171;
+}
+
+.dark-mode .tlt-profile-logout button:hover {
+  background: #3a202c;
+  color: #fca5a5;
 }
 
 .dark-mode .tlt-view-all-notifications {
-  background: #202942;
-  border-color: #2b3550;
-  color: #7b8aff;
+  background: #1e2a47;
+  border-color: #2b3b5c;
+  color: #a5b4fc;
 }
 
 .dark-mode .tlt-notification-item:hover {
-  background: #202942;
+  background: #1e2a47;
 }
 
 .dark-mode .tlt-notification-item {
-  border-color: #28334e;
+  border-color: #2b3b5c;
 }
 
 /* Responsive */

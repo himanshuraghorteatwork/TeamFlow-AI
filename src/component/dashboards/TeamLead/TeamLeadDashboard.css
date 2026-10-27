@@ -49,6 +49,22 @@
 .tld-welcome-section h1 span { font-size: .9em; }
 .tld-welcome-section p { margin: 5px 0 0; color: var(--tld-muted); font-size: 13px; }
 .tld-welcome-actions { display: flex; align-items: center; gap: 10px; }
+.tld-date-selector { position: relative; }
+.tld-date-button { height: 38px; min-height: 38px; padding: 0 14px; border-color: #e2e8f0; border-radius: 10px; font-size: 12.5px; font-weight: 500; }
+.tld-date-button > span { white-space: nowrap; }
+.tld-date-dropdown { position: absolute; top: calc(100% + 6px); right: 0; z-index: 100; width: 280px; padding: 6px; border: 1px solid #e2e8f0; border-radius: 10px; background: #fff; box-shadow: 0 10px 25px rgba(15,23,42,.14); }
+.tld-date-option { display: block; width: 100%; padding: 8px 12px; border: 0; border-radius: 6px; background: transparent; color: #0f172a; font: inherit; font-size: 12.5px; text-align: left; cursor: pointer; }
+.tld-date-option:hover { background: #f1f5f9; }
+.tld-date-option.is-selected { background: #eff3fe; color: #3b66ff; font-weight: 600; }
+.tld-date-custom { display: grid; gap: 8px; margin-top: 6px; padding: 10px; border-top: 1px solid #e2e8f0; }
+.tld-date-custom-title { color: #64748b; font-size: 10px; font-weight: 750; letter-spacing: .6px; text-transform: uppercase; }
+.tld-date-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.tld-date-inputs input { width: 100%; min-width: 0; height: 34px; padding: 0 6px; border: 1px solid #e2e8f0; border-radius: 6px; background: #fff; color: #0f172a; font: inherit; font-size: 11px; }
+.tld-date-apply { min-height: 31px; border: 0; border-radius: 6px; background: #3b66ff; color: #fff; font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; }
+.tld-date-apply:hover { background: #2b54ea; }
+.tld-date-calendar-link { justify-self: center; padding: 2px 6px; border: 0; background: transparent; color: #3b66ff; font: inherit; font-size: 11px; cursor: pointer; }
+.tld-date-calendar-link:hover { text-decoration: underline; }
+.tld-date-error { margin: 0; color: #dc2626; font-size: 11px; }
 .tld-stats-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 14px; margin-bottom: 16px; }
 .tld-stat-card { display: flex; align-items: flex-start; gap: 13px; min-width: 0; padding: 18px 16px; border: 1px solid var(--tld-border); border-radius: 11px; background: var(--tld-card); box-shadow: var(--tld-shadow); }
 .tld-stat-icon { display: grid; place-items: center; flex: 0 0 43px; width: 43px; height: 43px; border-radius: 11px; }
@@ -176,6 +192,9 @@
   .tld-mobile-nav button { display: flex; align-items: center; justify-content: space-between; min-height: 42px; padding: 0 10px; border: 1px solid var(--tld-border); border-radius: 8px; color: #273451; background: #fff; font: inherit; cursor: pointer; }
   .tld-main { padding: 16px 12px; }
   .tld-welcome-section { align-items: flex-start; flex-direction: column; gap: 12px; }
+  .tld-welcome-actions { flex-wrap: wrap; }
+  .tld-date-button { max-width: calc(100vw - 42px); }
+  .tld-date-button > span { overflow: hidden; text-overflow: ellipsis; }
   .tld-welcome-section h1 { font-size: 25px; }
   .tld-stats-grid { gap: 10px; }
   .tld-stat-card { gap: 10px; padding: 14px 12px; }

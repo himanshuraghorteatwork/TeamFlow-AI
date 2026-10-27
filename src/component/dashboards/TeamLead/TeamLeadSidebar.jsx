@@ -2,7 +2,7 @@ import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
   Activity, BarChart3, Bug, CalendarDays, CheckSquare, FileText,
-  FolderKanban, House, LogOut, MessageCircle, Settings,
+  FolderKanban, House, MessageCircle, Settings,
   Sparkles, Users, UserRound, Bell, Clock3
 } from "lucide-react";
 import "./TeamLeadSidebar.css";
@@ -41,7 +41,7 @@ const NAV_GROUPS = [
   ]},
 ];
 
-export default function TeamLeadSidebar({ onLogout, onProfile, profileName = "Komal Pawar" }) {
+export default function TeamLeadSidebar() {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -49,22 +49,24 @@ export default function TeamLeadSidebar({ onLogout, onProfile, profileName = "Ko
     ? location.pathname.startsWith(path)
     : location.pathname === path;
 
-  const handleLogout = () => {
-    if (onLogout) return onLogout();
-    ["teamflow_current_user", "teamflow_teamlead", "teamflow_user", "token", "user"].forEach(key => {
-      localStorage.removeItem(key);
-      sessionStorage.removeItem(key);
-    });
-    navigate("/choose-role");
-  };
-
-  const initials = profileName.trim().split(/\s+/).map(part => part[0]).slice(0, 2).join("").toUpperCase();
-
   return (
     <aside className="team-lead-sidebar">
       <button type="button" className="tls-brand" onClick={() => navigate("/teamlead/dashboard")} aria-label="TeamFlow AI dashboard">
-        <span className="tls-logo"><Sparkles size={23} strokeWidth={2.2} /></span>
-        <span className="tls-brand-copy"><span className="tls-brand-name">TeamFlow <b>AI</b></span><span className="tls-brand-sub">Team workspace</span></span>
+        <span className="tls-logo" aria-hidden="true">
+          <svg width="26" height="26" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="28" height="28" rx="8" fill="url(#tf-teamlead-logo-bg)" />
+            <path d="M8 9H20M14 9V19M11 19H17" stroke="white" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+            <circle cx="21" cy="7" r="2.5" fill="#38bdf8" />
+            <defs>
+              <linearGradient id="tf-teamlead-logo-bg" x1="0" y1="0" x2="28" y2="28" gradientUnits="userSpaceOnUse">
+                <stop stopColor="#4361ee" />
+                <stop offset="0.5" stopColor="#3a0ca3" />
+                <stop offset="1" stopColor="#f72585" />
+              </linearGradient>
+            </defs>
+          </svg>
+        </span>
+        <span className="tls-brand-copy"><span className="tls-brand-name">TeamFlow <b>AI</b></span></span>
       </button>
 
       <nav className="tls-nav" aria-label="Team Lead navigation">
@@ -73,7 +75,7 @@ export default function TeamLeadSidebar({ onLogout, onProfile, profileName = "Ko
             const Icon = DASHBOARD_ITEM.icon;
             const active = location.pathname === DASHBOARD_ITEM.path;
             return <button type="button" className={`tls-nav-item ${active ? "active" : ""}`} aria-current={active ? "page" : undefined} onClick={() => navigate(DASHBOARD_ITEM.path)}>
-              <Icon size={18} strokeWidth={1.8} aria-hidden="true" /><span>{DASHBOARD_ITEM.label}</span>
+              <Icon size={17} strokeWidth={1.9} aria-hidden="true" /><span>{DASHBOARD_ITEM.label}</span>
             </button>;
           })()}
         </div>
@@ -82,7 +84,7 @@ export default function TeamLeadSidebar({ onLogout, onProfile, profileName = "Ko
           {group.items.map(({ label, icon: Icon, path }) => {
             const active = isActive(path);
             return <button key={label} type="button" className={`tls-nav-item ${active ? "active" : ""}`} aria-current={active ? "page" : undefined} onClick={() => navigate(path)}>
-              <Icon size={18} strokeWidth={1.8} aria-hidden="true" /><span>{label}</span>
+              <Icon size={17} strokeWidth={1.9} aria-hidden="true" /><span>{label}</span>
             </button>;
           })}
         </div>)}
@@ -93,10 +95,6 @@ export default function TeamLeadSidebar({ onLogout, onProfile, profileName = "Ko
           <div className="tls-support-heading"><span className="tls-support-icon"><MessageCircle size={19} /></span><span className="tls-support-copy"><b>Need help?</b><small>We're here for your team</small></span></div>
           <button className="tls-support-button" type="button" onClick={() => navigate("/teamlead/settings")}>Contact support</button>
         </div>
-        <button type="button" className="tls-profile-button" onClick={() => onProfile ? onProfile() : navigate("/teamlead/settings")} aria-label={`Open profile for ${profileName}`}>
-          <span className="tls-avatar">{initials}</span><span className="tls-profile-copy"><b>{profileName}</b><small>Team Lead</small></span><UserRound size={17} aria-hidden="true" />
-        </button>
-        <button type="button" className="tls-nav-item tls-logout" onClick={handleLogout}><LogOut size={17} strokeWidth={1.8} /><span>Sign out</span></button>
       </div>
     </aside>
   );

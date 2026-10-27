@@ -16,6 +16,7 @@ import {
   Send,
   Smile,
   Users,
+  UserPlus,
   Video,
   X,
 } from "lucide-react";
@@ -112,6 +113,10 @@ const SHARED_FILES = [
   { name: "Sprint timeline.xlsx", meta: "812 KB · Oct 20", type: "sheet" },
 ];
 
+const PINNED_MESSAGES = [
+  { author: "Sarah Wilson", date: "Oct 15", text: "Let's keep all of our important updates in one place. Great work, team!" },
+];
+
 const FILTERS = ["All", "Unread", "Channels", "Direct"];
 
 function Avatar({ initials, color, online, small = false }) {
@@ -132,8 +137,23 @@ export default function TeamLeadChat() {
   const [draft, setDraft] = useState("");
   const [detailsOpen, setDetailsOpen] = useState(true);
   const [mobileView, setMobileView] = useState("conversation");
+  const [dialog, setDialog] = useState(null);
+  const [channelName, setChannelName] = useState("");
+  const [dialogError, setDialogError] = useState("");
+  const [selectedMembers, setSelectedMembers] = useState([]);
+  const [threadMembers, setThreadMembers] = useState(() => Object.fromEntries(
+    STARTER_THREADS.filter(thread => thread.type === "channel")
+      .map(thread => [thread.id, MEMBERS.slice(0, 4)]),
+  ));
 
   const activeThread = threads.find(thread => thread.id === activeId) ?? threads[0];
+  const activeMembers = threadMembers[activeId]
+    ?? (activeThread.type === "direct"
+      ? MEMBERS.filter(member => member.name === activeThread.name)
+      : MEMBERS.slice(0, 4));
+  const availableMembers = MEMBERS.filter(member => (
+    !activeMembers.some(activeMember => activeMember.name === member.name)
+  ));
   const visibleThreads = useMemo(() => {
     const query = search.trim().toLowerCase();
     return threads.filter(thread => {
@@ -178,13 +198,32 @@ export default function TeamLeadChat() {
     setDraft("");
   }
 
-  function createChannel() {
-    const entry = window.prompt("Name your new channel");
-    if (entry === null) return;
-    const name = entry.trim().replace(/^#+/, "").trim();
-    if (!name) return;
+  function openDialog(type) {
+    setDialog(type);
+    setDialogError("");
+    setSelectedMembers([]);
+    if (type === "channel") setChannelName("");
+  }
+
+  function closeDialog() {
+    setDialog(null);
+    setDialogError("");
+    setSelectedMembers([]);
+  }
+
+  function createChannel(event) {
+    event.preventDefault();
+    const name = channelName.trim().replace(/^#+/, "").trim();
+    if (!name) {
+      setDialogError("Enter a channel name.");
+      return;
+    }
+    if (name.length > 50) {
+      setDialogError("Channel names must be 50 characters or fewer.");
+      return;
+    }
     if (threads.some(thread => thread.name.toLowerCase() === name.toLowerCase())) {
-      window.alert("A conversation with this name already exists.");
+      setDialogError("A conversation with this name already exists.");
       return;
     }
     const id = `channel-${Date.now()}`;
@@ -200,10 +239,29 @@ export default function TeamLeadChat() {
       messages: [{ id: `welcome-${id}`, author: "TeamFlow", initials: "TF", color: "#7158e8", time: "Now", text: `Welcome to #${name}! Start the conversation here.` }],
     };
     setThreads(previous => [thread, ...previous]);
+    setThreadMembers(previous => ({ ...previous, [id]: [MEMBERS[0]] }));
     setActiveId(id);
     setFilter("All");
     setSearch("");
     setMobileView("conversation");
+    closeDialog();
+  }
+
+  function addMembers(event) {
+    event.preventDefault();
+    if (selectedMembers.length === 0) {
+      setDialogError("Select at least one teammate to add.");
+      return;
+    }
+    const newMembers = availableMembers.filter(member => selectedMembers.includes(member.name));
+    setThreadMembers(previous => ({
+      ...previous,
+      [activeId]: [...activeMembers, ...newMembers],
+    }));
+    setThreads(previous => previous.map(thread => thread.id === activeId
+      ? { ...thread, members: thread.members + newMembers.length }
+      : thread));
+    closeDialog();
   }
 
   return (
@@ -212,7 +270,7 @@ export default function TeamLeadChat() {
         <aside className={`ch-list-panel${mobileView === "list" ? " mobile-active" : ""}`}>
           <div className="ch-list-heading">
             <div><span className="ch-kicker">YOUR WORKSPACE</span><h1>Messages <span>{threads.length}</span></h1></div>
-            <button type="button" className="ch-add-button" onClick={createChannel} aria-label="Create channel"><Plus size={19} /></button>
+            <button type="button" className="ch-add-button" onClick={() => openDialog("channel")} aria-label="Create channel"><Plus size={19} /></button>
           </div>
           <label className="ch-list-search"><Search size={16} /><input value={search} onChange={event => setSearch(event.target.value)} placeholder="Find a conversation" aria-label="Filter conversations" />{search && <button type="button" onClick={() => setSearch("")} aria-label="Clear search"><X size={14} /></button>}</label>
           <div className="ch-filter-tabs" role="tablist" aria-label="Filter conversations">
@@ -237,7 +295,7 @@ export default function TeamLeadChat() {
             })}
             {visibleThreads.length === 0 && <p className="ch-no-threads">No conversations match your search.</p>}
           </div>
-          <footer className="ch-list-footer"><span><i /> 8 teammates online</span><button type="button" onClick={createChannel}><Plus size={14} /> New channel</button></footer>
+          <footer className="ch-list-footer"><span><i /> 8 teammates online</span><button type="button" onClick={() => openDialog("channel")}><Plus size={14} /> New channel</button></footer>
         </aside>
 
         <main className={`ch-conversation${mobileView === "conversation" ? " mobile-active" : ""}`}>
@@ -292,19 +350,81 @@ export default function TeamLeadChat() {
               <div className="ch-detail-stats"><span><Users size={15} /> {activeThread.members} members</span><span><Bell size={15} /> Notifications on</span></div>
             </div>
             <section className="ch-details-section">
-              <div className="ch-details-section-heading"><h3>Members <span>{activeThread.members}</span></h3><button type="button" aria-label="Add members"><Plus size={16} /></button></div>
-              {MEMBERS.slice(0, 4).map(member => <div className="ch-member" key={member.name}><Avatar initials={member.initials} color={member.color} online={member.online} small /><span><b>{member.name}</b><small>{member.role}</small></span><button type="button" aria-label={`More options for ${member.name}`}><MoreHorizontal size={16} /></button></div>)}
-              <button type="button" className="ch-add-members"><Plus size={16} /> Add people</button>
+              <div className="ch-details-section-heading"><h3>Members <span>{activeThread.members}</span></h3><button type="button" aria-label="Add members" onClick={() => openDialog("members")}><Plus size={16} /></button></div>
+              {activeMembers.map(member => <div className="ch-member" key={member.name}><Avatar initials={member.initials} color={member.color} online={member.online} small /><span><b>{member.name}</b><small>{member.role}</small></span><button type="button" aria-label={`More options for ${member.name}`}><MoreHorizontal size={16} /></button></div>)}
+              <button type="button" className="ch-add-members" onClick={() => openDialog("members")}><Plus size={16} /> Add people</button>
             </section>
             <section className="ch-details-section">
-              <div className="ch-details-section-heading"><h3>Shared files</h3><button type="button" className="ch-view-all">View all</button></div>
+              <div className="ch-details-section-heading"><h3>Shared files</h3><button type="button" className="ch-view-all" onClick={() => openDialog("files")}>View all</button></div>
               {SHARED_FILES.map(file => <button type="button" className="ch-file" key={file.name}><span className={`ch-file-icon ${file.type}`}><FileText size={18} /></span><span><b>{file.name}</b><small>{file.meta}</small></span></button>)}
             </section>
-            <section className="ch-pinned"><div className="ch-details-section-heading"><h3>Pinned message</h3><button type="button" className="ch-view-all">View all</button></div><p>“Let's keep all of our important updates in one place. Great work, team!”</p><small>Sarah Wilson · Oct 15</small></section>
+            <section className="ch-pinned"><div className="ch-details-section-heading"><h3>Pinned message</h3><button type="button" className="ch-view-all" onClick={() => openDialog("pinned")}>View all</button></div><p>“Let's keep all of our important updates in one place. Great work, team!”</p><small>Sarah Wilson · Oct 15</small></section>
             <div className="ch-details-bottom"><MessageCircle size={15} /> Team conversations, all in one place.</div>
           </aside>
         )}
       </div>
+      {dialog && (
+        <div className="ch-dialog-backdrop" onMouseDown={event => {
+          if (event.target === event.currentTarget) closeDialog();
+        }}>
+          <section className="ch-dialog" role="dialog" aria-modal="true" aria-labelledby="ch-dialog-title">
+            <header className="ch-dialog-header">
+              <div>
+                <span className="ch-kicker">TEAM WORKSPACE</span>
+                <h2 id="ch-dialog-title">
+                  {dialog === "channel" && "Create a channel"}
+                  {dialog === "members" && "Add people"}
+                  {dialog === "files" && "Shared files"}
+                  {dialog === "pinned" && "Pinned messages"}
+                </h2>
+              </div>
+              <button type="button" aria-label="Close dialog" onClick={closeDialog}><X size={18} /></button>
+            </header>
+            {dialog === "channel" && (
+              <form className="ch-dialog-form" onSubmit={createChannel}>
+                <label htmlFor="ch-channel-name">Channel name</label>
+                <div className="ch-channel-input"><Hash size={16} /><input id="ch-channel-name" autoFocus maxLength={50} value={channelName} onChange={event => { setChannelName(event.target.value); setDialogError(""); }} placeholder="e.g. product-updates" /></div>
+                <p className="ch-dialog-hint">Create a space for a team, project, or topic.</p>
+                {dialogError && <p className="ch-dialog-error" role="alert">{dialogError}</p>}
+                <footer><button type="button" onClick={closeDialog}>Cancel</button><button type="submit" className="primary"><Plus size={15} /> Create channel</button></footer>
+              </form>
+            )}
+            {dialog === "members" && (
+              <form className="ch-dialog-form" onSubmit={addMembers}>
+                <p className="ch-dialog-hint">Choose teammates to add to {activeThread.type === "channel" ? `#${activeThread.name}` : activeThread.name}.</p>
+                <div className="ch-dialog-member-list">
+                  {availableMembers.length > 0 ? availableMembers.map(member => (
+                    <label className="ch-dialog-member" key={member.name}>
+                      <input type="checkbox" checked={selectedMembers.includes(member.name)} onChange={event => {
+                        setSelectedMembers(previous => event.target.checked
+                          ? [...previous, member.name]
+                          : previous.filter(name => name !== member.name));
+                        setDialogError("");
+                      }} />
+                      <Avatar initials={member.initials} color={member.color} online={member.online} small />
+                      <span><b>{member.name}</b><small>{member.role}</small></span>
+                    </label>
+                  )) : <p className="ch-dialog-hint">All available teammates are already in this conversation.</p>}
+                </div>
+                {dialogError && <p className="ch-dialog-error" role="alert">{dialogError}</p>}
+                <footer><button type="button" onClick={closeDialog}>Cancel</button><button type="submit" className="primary"><UserPlus size={15} /> Add selected</button></footer>
+              </form>
+            )}
+            {dialog === "files" && (
+              <div className="ch-dialog-content">
+                {SHARED_FILES.map(file => <div className="ch-file" key={file.name}><span className={`ch-file-icon ${file.type}`}><FileText size={18} /></span><span><b>{file.name}</b><small>{file.meta}</small></span></div>)}
+              </div>
+            )}
+            {dialog === "pinned" && (
+              <div className="ch-dialog-content">
+                {PINNED_MESSAGES.map(message => <article className="ch-dialog-pinned" key={`${message.author}-${message.date}`}>
+                  <p>“{message.text}”</p><small>{message.author} · {message.date}</small>
+                </article>)}
+              </div>
+            )}
+          </section>
+        </div>
+      )}
     </section>
   );
 }

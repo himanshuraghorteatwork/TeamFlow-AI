@@ -63,7 +63,7 @@ function formatDate(date) {
   });
 }
 
-function ProjectCard({ project }) {
+function ProjectCard({ project, number }) {
   const Icon = PROJECT_ICONS[project.icon] || Monitor;
   const progress = getProgress(project);
   const members = Array.isArray(project.members) ? project.members : [];
@@ -83,6 +83,7 @@ function ProjectCard({ project }) {
 
       <div className="tl-project-title-row">
         <div>
+          <span className="tl-project-number">#{number}</span>
           <h2>{project.name}</h2>
           <p>{project.description || "No project description provided."}</p>
         </div>
@@ -218,8 +219,8 @@ export default function Project() {
 
         {filteredProjects.length > 0 ? (
           <div className="tl-project-grid">
-            {filteredProjects.map(project => (
-              <ProjectCard key={project.id} project={project} />
+            {filteredProjects.map((project, index) => (
+              <ProjectCard key={project.id} project={project} number={index + 1} />
             ))}
           </div>
         ) : (
