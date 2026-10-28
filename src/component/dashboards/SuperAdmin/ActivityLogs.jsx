@@ -29,7 +29,6 @@ import {
   Search,
   Shield,
   ShieldAlert,
-  ShieldCheck,
   SlidersHorizontal,
   Terminal,
   UserCheck,
@@ -583,10 +582,6 @@ function ActivityLogs() {
       {/* 1. Header Bar */}
       <section className="sap-header-panel">
         <div className="sap-header-left">
-          <div className="activity-logs-eyebrow">
-            <ShieldCheck size={13} />
-            <span>ENTERPRISE GOVERNANCE & AUDIT TRAIL</span>
-          </div>
           <h1>Audit &amp; Security Activity Logs</h1>
           <p className="sap-header-subtitle">
             Immutable platform event ledger, authentication trails, security overrides, and tenant administration telemetry.

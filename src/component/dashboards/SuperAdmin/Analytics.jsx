@@ -713,10 +713,6 @@ function Analytics() {
     <div className="analytics-page">
       <header className="analytics-page-header sap-header-panel">
         <div className="sa-page-header-left">
-          <div className="analytics-eyebrow">
-            <TrendingUp size={13} />
-            <span>EXECUTIVE PLATFORM TELEMETRY</span>
-          </div>
           <h1>Platform Analytics & Insights</h1>
           <p>
             Monitor real-time system performance, multi-tenant adoption benchmarks, and

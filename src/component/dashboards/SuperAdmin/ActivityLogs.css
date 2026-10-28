@@ -33,46 +33,31 @@
 }
 
 /* ==========================================================================
-   1. PAGE HEADER & EYEBROW
+   1. PAGE HEADER
    ========================================================================== */
-
-.activity-logs-eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  margin-bottom: 9px;
-  padding: 5px 10px;
-  border: 1px solid #e0e7ff;
-  border-radius: 6px;
-  background: #eef2ff;
-  color: #4f46e5;
-  font-size: 11px;
-  font-weight: 750;
-  letter-spacing: 0.8px;
-}
 
 .activity-logs-page .sap-header-panel {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: 24px;
-  margin-bottom: 24px;
+  margin-bottom: 28px;
 }
 
 .activity-logs-page .sap-header-left h1 {
   margin: 0;
-  color: #182230;
+  color: #0f172a;
   font-size: clamp(24px, 2.2vw, 30px);
-  font-weight: 750;
-  letter-spacing: -0.8px;
+  font-weight: 800;
+  letter-spacing: -0.7px;
   line-height: 1.25;
 }
 
 .activity-logs-page .sap-header-subtitle {
-  max-width: 660px;
+  max-width: 680px;
   margin: 8px 0 0;
   color: #64748b;
-  font-size: 13.5px;
+  font-size: 14px;
   line-height: 1.6;
 }
 
@@ -81,6 +66,7 @@
   align-items: center;
   gap: 12px;
   flex-shrink: 0;
+  padding-top: 2px;
 }
 
 .act-spin {
@@ -1122,13 +1108,6 @@
 body.sa-dark-mode .activity-logs-page {
   background: #090e1a !important;
   color: #f8fafc !important;
-}
-
-.sa-dark-mode .activity-logs-eyebrow,
-body.sa-dark-mode .activity-logs-eyebrow {
-  background: #1e1b4b !important;
-  border-color: #3730a3 !important;
-  color: #a5b4fc !important;
 }
 
 .sa-dark-mode .activity-logs-page .sap-header-left h1,

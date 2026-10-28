@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 .analytics-page {
   width: 100%;
   min-width: 0;
@@ -23,23 +22,13 @@
   margin-bottom: 26px;
 }
 
-.analytics-eyebrow {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  margin-bottom: 9px;
-  color: #6366f1;
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 1.1px;
-}
-
 .analytics-page-header h1 {
   margin: 0;
   color: #182230;
-  font-size: clamp(25px, 2.2vw, 32px);
-  font-weight: 750;
-  letter-spacing: -0.9px;
+  font-size: clamp(24px, 2.2vw, 30px);
+  font-weight: 800;
+  letter-spacing: -0.7px;
+  line-height: 1.25;
 }
 
 .analytics-page-header > div:first-child > p {
@@ -768,14 +757,6 @@
 }
 
 /* Header polish */
-.analytics-eyebrow {
-  width: fit-content;
-  padding: 7px 10px;
-  border: 1px solid #e7e7ff;
-  border-radius: 8px;
-  background: linear-gradient(135deg, #f3f2ff, #fafaff);
-}
-
 .analytics-page-header h1 {
   line-height: 1.25;
 }
@@ -1242,22 +1223,7 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 24px;
-  margin-bottom: 26px;
-}
-
-.analytics-eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  margin-bottom: 9px;
-  padding: 5px 10px;
-  border: 1px solid #e0e7ff;
-  border-radius: 6px;
-  background: #eef2ff;
-  color: #4f46e5;
-  font-size: 11px;
-  font-weight: 750;
-  letter-spacing: 0.8px;
+  margin-bottom: 28px;
 }
 
 .analytics-page-header h1 {
@@ -2581,24 +2547,28 @@
   color: #f8fafc;
 }
 
-.sa-dark-mode .analytics-eyebrow {
-  background: #1e1b4b;
-  border-color: #312e81;
-  color: #a5b4fc;
-}
-
 .sa-dark-mode .analytics-page-header h1 {
-  color: #f8fafc;
+  color: #f8fafc !important;
 }
 
 .sa-dark-mode .analytics-page-header p {
-  color: #94a3b8;
+  color: #94a3b8 !important;
 }
 
 .sa-dark-mode .analytics-period-control {
-  background: #172442 !important;
+  background: #151f38 !important;
   border-color: #273860 !important;
   color: #f8fafc !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25) !important;
+}
+
+.sa-dark-mode .analytics-period-control:hover {
+  border-color: #3b5080 !important;
+}
+
+.sa-dark-mode .analytics-period-control select option {
+  background: #151f38;
+  color: #f8fafc;
 }
 
 .sa-dark-mode .analytics-metric-card,
