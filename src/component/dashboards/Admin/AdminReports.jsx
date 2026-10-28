@@ -9,20 +9,16 @@ import {
   Eye,
   CheckCircle2,
   Clock,
-  ChevronRight,
   FileSpreadsheet,
   Users,
   Building2,
-  FolderKanban,
   CircleDollarSign,
   Zap,
   Sparkles,
   X,
-  FileCode,
   HardDrive,
-  Calendar,
-  Layers,
-  ArrowUpRight,
+  AlertTriangle,
+  AlertCircle,
   ArrowUpDown,
   ArrowUp,
   ArrowDown,
@@ -32,7 +28,6 @@ import AdminTopbar from "./AdminTopbar.jsx";
 import {
   initialReports,
   reportTypes,
-  reportSummary,
   reportTemplates
 } from "./adminReportsData.js";
 import "./AdminReports.css";
@@ -68,6 +63,20 @@ export default function AdminReports() {
   const [showGenerator, setShowGenerator] = useState(false);
   const [selectedReport, setSelectedReport] = useState(null);
   const [downloadSuccess, setDownloadSuccess] = useState(null);
+  const [reportToDelete, setReportToDelete] = useState(null);
+  const [actionNotice, setActionNotice] = useState(null);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        if (reportToDelete) setReportToDelete(null);
+        else if (selectedReport) setSelectedReport(null);
+        else if (showGenerator) setShowGenerator(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [reportToDelete, selectedReport, showGenerator]);
 
   const [reportForm, setReportForm] = useState({
     name: "",
@@ -84,6 +93,7 @@ export default function AdminReports() {
   }, [reports]);
 
   const handleSort = (key) => {
+    setCurrentPage(1);
     if (sortKey === key) {
       setSortOrder(sortOrder === "asc" ? "desc" : "asc");
     } else {
@@ -143,15 +153,25 @@ export default function AdminReports() {
       });
   }, [reports, search, typeFilter, statusFilter, formatFilter, sortKey, sortOrder]);
 
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [search, typeFilter, statusFilter, formatFilter, sortKey, sortOrder]);
-
   const totalPages = Math.max(1, Math.ceil(filteredReports.length / perPage));
+  const safeCurrentPage = Math.min(currentPage, totalPages);
   const paginatedReports = useMemo(() => {
-    const start = (currentPage - 1) * perPage;
+    const start = (safeCurrentPage - 1) * perPage;
     return filteredReports.slice(start, start + perPage);
-  }, [filteredReports, currentPage, perPage]);
+  }, [filteredReports, safeCurrentPage, perPage]);
+
+  const getPageNumbers = () => {
+    if (totalPages <= 7) {
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
+    }
+    if (safeCurrentPage <= 4) {
+      return [1, 2, 3, 4, 5, "...", totalPages];
+    }
+    if (safeCurrentPage >= totalPages - 3) {
+      return [1, "...", totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+    }
+    return [1, "...", safeCurrentPage - 1, safeCurrentPage, safeCurrentPage + 1, "...", totalPages];
+  };
 
   const totalRecords = useMemo(() => {
     return reports.reduce((acc, r) => acc + (Number(r.records) || 0), 0);
@@ -198,32 +218,35 @@ export default function AdminReports() {
     setShowGenerator(false);
   };
 
-  const handleDeleteReport = (id) => {
-    if (window.confirm("Are you sure you want to remove this generated report from the archive?")) {
-      setReports(reports.filter(r => r.id !== id));
-      if (selectedReport?.id === id) setSelectedReport(null);
+  const confirmDeleteReport = () => {
+    if (!reportToDelete) return;
+    const deletedId = reportToDelete.id;
+    const deletedName = reportToDelete.name;
+    setReports((prev) => prev.filter((r) => r.id !== deletedId));
+    if (selectedReport?.id === deletedId) {
+      setSelectedReport(null);
     }
+    setReportToDelete(null);
+    setActionNotice(`Report "${deletedName}" (${deletedId}) removed from archive.`);
+    setTimeout(() => setActionNotice(null), 3500);
   };
 
   const handleDownloadReport = (rep) => {
-    let content = "";
-    if (rep.format === "JSON") {
-      content = JSON.stringify({
-        reportId: rep.id,
-        name: rep.name,
-        type: rep.type,
-        period: rep.period,
-        generatedBy: rep.createdBy,
-        totalRecords: rep.records,
-        organization: "ABC Technologies (TeamFlow AI)",
-        data: [
-          { id: 1, item: "Sample Record A", status: "Active", timestamp: "2026-10-26T10:00:00Z" },
-          { id: 2, item: "Sample Record B", status: "Active", timestamp: "2026-10-26T11:00:00Z" }
-        ]
-      }, null, 2);
-    } else {
-      content = `ID,ReportName,Type,Period,CreatedBy,Records,Status\n"${rep.id}","${rep.name}","${rep.type}","${rep.period}","${rep.createdBy}",${rep.records},"${rep.status}"\n1,Record Item Alpha,Primary,Active,2026-10-26\n2,Record Item Beta,Secondary,Active,2026-10-26\n`;
-    }
+    const content = rep.format === "JSON"
+      ? JSON.stringify({
+          reportId: rep.id,
+          name: rep.name,
+          type: rep.type,
+          period: rep.period,
+          generatedBy: rep.createdBy,
+          totalRecords: rep.records,
+          organization: "ABC Technologies (TeamFlow AI)",
+          data: [
+            { id: 1, item: "Sample Record A", status: "Active", timestamp: "2026-10-26T10:00:00Z" },
+            { id: 2, item: "Sample Record B", status: "Active", timestamp: "2026-10-26T11:00:00Z" }
+          ]
+        }, null, 2)
+      : `ID,ReportName,Type,Period,CreatedBy,Records,Status\n"${rep.id}","${rep.name}","${rep.type}","${rep.period}","${rep.createdBy}",${rep.records},"${rep.status}"\n1,Record Item Alpha,Primary,Active,2026-10-26\n2,Record Item Beta,Secondary,Active,2026-10-26\n`;
 
     const blob = new Blob([content], {
       type: rep.format === "JSON" ? "application/json" : "text/csv;charset=utf-8;"
@@ -296,6 +319,13 @@ export default function AdminReports() {
             <div className="admin-reports-alert-success">
               <CheckCircle2 size={18} />
               <span>Report <strong>{downloadSuccess}</strong> was downloaded successfully!</span>
+            </div>
+          )}
+
+          {actionNotice && (
+            <div className="admin-reports-alert-notice">
+              <CheckCircle2 size={18} />
+              <span>{actionNotice}</span>
             </div>
           )}
 
@@ -400,10 +430,19 @@ export default function AdminReports() {
                   type="text"
                   placeholder="Search reports by name, ID or keyword..."
                   value={search}
-                  onChange={(e) => setSearch(e.target.value)}
+                  onChange={(e) => {
+                    setSearch(e.target.value);
+                    setCurrentPage(1);
+                  }}
                 />
                 {search && (
-                  <button className="clear-btn" onClick={() => setSearch("")}>
+                  <button
+                    className="clear-btn"
+                    onClick={() => {
+                      setSearch("");
+                      setCurrentPage(1);
+                    }}
+                  >
                     <X size={14} />
                   </button>
                 )}
@@ -414,7 +453,10 @@ export default function AdminReports() {
                   <Filter size={14} />
                   <select
                     value={typeFilter}
-                    onChange={(e) => setTypeFilter(e.target.value)}
+                    onChange={(e) => {
+                      setTypeFilter(e.target.value);
+                      setCurrentPage(1);
+                    }}
                   >
                     <option value="All">All Categories</option>
                     {reportTypes.map((t) => (
@@ -426,7 +468,10 @@ export default function AdminReports() {
                 <div className="filter-select">
                   <select
                     value={statusFilter}
-                    onChange={(e) => setStatusFilter(e.target.value)}
+                    onChange={(e) => {
+                      setStatusFilter(e.target.value);
+                      setCurrentPage(1);
+                    }}
                   >
                     <option value="All">All Statuses</option>
                     <option value="ready">Ready</option>
@@ -437,7 +482,10 @@ export default function AdminReports() {
                 <div className="filter-select">
                   <select
                     value={formatFilter}
-                    onChange={(e) => setFormatFilter(e.target.value)}
+                    onChange={(e) => {
+                      setFormatFilter(e.target.value);
+                      setCurrentPage(1);
+                    }}
                   >
                     <option value="All">All Formats</option>
                     <option value="csv">CSV</option>
@@ -453,6 +501,7 @@ export default function AdminReports() {
                       const [k, ord] = e.target.value.split("-");
                       setSortKey(k);
                       setSortOrder(ord);
+                      setCurrentPage(1);
                     }}
                     aria-label="Sort reports"
                   >
@@ -474,6 +523,7 @@ export default function AdminReports() {
                       setTypeFilter("All");
                       setStatusFilter("All");
                       setFormatFilter("All");
+                      setCurrentPage(1);
                     }}
                   >
                     <X size={13} />
@@ -521,7 +571,7 @@ export default function AdminReports() {
                         {renderSortIcon("status")}
                       </div>
                     </th>
-                    <th style={{ textAlign: "right" }}>ACTIONS</th>
+                    <th style={{ textAlign: "right", minWidth: 160 }}>ACTIONS</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -536,7 +586,7 @@ export default function AdminReports() {
                     paginatedReports.map((report, idx) => (
                       <tr key={report.id}>
                         <td style={{ textAlign: "center" }}>
-                          <span className="admin-row-num">{(currentPage - 1) * perPage + idx + 1}</span>
+                          <span className="admin-row-num">{(safeCurrentPage - 1) * perPage + idx + 1}</span>
                         </td>
                         <td>
                           <div className="report-name-cell">
@@ -584,27 +634,32 @@ export default function AdminReports() {
                           </span>
                         </td>
                         <td style={{ textAlign: "right" }}>
-                          <div className="actions-cell">
+                          <div className="admin-reports-actions-cell actions-cell">
                             <button
-                              className="action-btn preview"
+                              type="button"
+                              className="rep-action-pill rep-view-btn"
                               title="Preview Dataset"
+                              aria-label="Preview Dataset"
                               onClick={() => setSelectedReport(report)}
                             >
-                              <Eye size={14} />
+                              <Eye size={13} />
                               <span>View</span>
                             </button>
                             <button
-                              className="action-btn download"
-                              title="Download File"
+                              type="button"
+                              className="rep-action-icon rep-download-btn"
+                              title={`Download ${report.name} (${report.format})`}
+                              aria-label={`Download ${report.name} (${report.format})`}
                               onClick={() => handleDownloadReport(report)}
                             >
                               <Download size={14} />
-                              <span>Download</span>
                             </button>
                             <button
-                              className="action-btn delete"
-                              title="Delete from Archive"
-                              onClick={() => handleDeleteReport(report.id)}
+                              type="button"
+                              className="rep-action-icon rep-delete-btn"
+                              title="Delete Report from Archive"
+                              aria-label="Delete Report from Archive"
+                              onClick={() => setReportToDelete(report)}
                             >
                               <Trash2 size={14} />
                             </button>
@@ -617,25 +672,23 @@ export default function AdminReports() {
               </table>
             </div>
 
-            {/* =========================================================
-               PAGINATION BAR (Matching Workspaces & Projects layout)
-            ========================================================= */}
+            {/* PAGINATION BAR (Activity Logs Style, zero-space flush layout) */}
             {filteredReports.length > 0 && (
-              <div className="ws-pagination-bar reports-pagination-bar">
-                <div className="ws-pagination-info">
+              <div className="admin-logs-pagination-bar reports-pagination-bar">
+                <div className="admin-logs-pagination-info">
                   <span>
-                    Showing {filteredReports.length === 0 ? 0 : (currentPage - 1) * perPage + 1} to{" "}
-                    {Math.min(currentPage * perPage, filteredReports.length)} of {filteredReports.length} reports
+                    Showing {filteredReports.length === 0 ? 0 : (safeCurrentPage - 1) * perPage + 1} to{" "}
+                    {Math.min(safeCurrentPage * perPage, filteredReports.length)} of {filteredReports.length} reports
                   </span>
-                  <div className="ws-page-size-wrap">
-                    <span>Reports per page:</span>
+                  <div className="admin-logs-page-size-wrap">
+                    <span>Records per page:</span>
                     <select
                       value={perPage}
                       onChange={(e) => {
                         setPerPage(Number(e.target.value));
                         setCurrentPage(1);
                       }}
-                      aria-label="Select reports per page"
+                      aria-label="Records per page"
                     >
                       <option value={6}>6</option>
                       <option value={10}>10</option>
@@ -645,32 +698,38 @@ export default function AdminReports() {
                   </div>
                 </div>
 
-                <div className="ws-pagination-controls">
+                <div className="admin-logs-pagination-controls">
                   <button
                     type="button"
-                    className="ws-page-nav-btn"
+                    className="admin-logs-page-nav-btn"
                     onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                    disabled={currentPage <= 1}
+                    disabled={safeCurrentPage <= 1}
                   >
                     Previous
                   </button>
-                  <div className="ws-page-pills">
-                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((num) => (
-                      <button
-                        key={num}
-                        type="button"
-                        className={`ws-page-num-pill ${currentPage === num ? "active" : ""}`}
-                        onClick={() => setCurrentPage(num)}
-                      >
-                        {num}
-                      </button>
-                    ))}
+                  <div className="admin-logs-page-pills">
+                    {getPageNumbers().map((item, idx) =>
+                      item === "..." ? (
+                        <span key={`ellipsis-${idx}`} className="admin-logs-page-ellipsis">
+                          ...
+                        </span>
+                      ) : (
+                        <button
+                          key={item}
+                          type="button"
+                          className={`admin-logs-page-num-pill ${safeCurrentPage === item ? "active" : ""}`}
+                          onClick={() => setCurrentPage(item)}
+                        >
+                          {item}
+                        </button>
+                      )
+                    )}
                   </div>
                   <button
                     type="button"
-                    className="ws-page-nav-btn"
+                    className="admin-logs-page-nav-btn"
                     onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                    disabled={currentPage >= totalPages}
+                    disabled={safeCurrentPage >= totalPages}
                   >
                     Next
                   </button>
@@ -772,10 +831,24 @@ export default function AdminReports() {
             </div>
 
             <div className="modal-footer">
-              <button className="admin-reports-btn-secondary" onClick={() => setSelectedReport(null)}>
+              <button
+                type="button"
+                className="btn-danger-outline"
+                style={{ marginRight: "auto" }}
+                onClick={() => setReportToDelete(selectedReport)}
+              >
+                <Trash2 size={14} />
+                <span>Delete Report</span>
+              </button>
+              <button
+                type="button"
+                className="admin-reports-btn-secondary"
+                onClick={() => setSelectedReport(null)}
+              >
                 Close Preview
               </button>
               <button
+                type="button"
                 className="admin-reports-btn-primary"
                 onClick={() => {
                   handleDownloadReport(selectedReport);
@@ -897,6 +970,84 @@ export default function AdminReports() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* CUSTOM CSS DELETE CONFIRMATION MODAL */}
+      {reportToDelete && (
+        <div className="admin-reports-modal-overlay" onClick={() => setReportToDelete(null)}>
+          <div
+            className="admin-reports-modal delete-confirm-modal"
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="delete-report-title"
+          >
+            <div className="modal-header delete-modal-header">
+              <div className="delete-modal-icon-badge">
+                <AlertTriangle size={20} />
+              </div>
+              <div className="delete-modal-header-text">
+                <h3 id="delete-report-title">Delete Report from Archive</h3>
+                <span className="delete-modal-subtitle">Report ID: {reportToDelete.id}</span>
+              </div>
+              <button
+                type="button"
+                className="close-btn"
+                onClick={() => setReportToDelete(null)}
+                aria-label="Close"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="modal-body delete-modal-body">
+              <p className="delete-modal-lead">
+                Are you sure you want to permanently delete this report from the archive? This dataset and cached telemetry records will no longer be available.
+              </p>
+
+              <div className="delete-report-preview-box">
+                <div className="preview-top">
+                  <span className="preview-id">{reportToDelete.id}</span>
+                  <span className={`format-pill ${reportToDelete.format.toLowerCase()}`}>
+                    {reportToDelete.format}
+                  </span>
+                  <span className="preview-size">{reportToDelete.records?.toLocaleString() || reportToDelete.records} rows ({reportToDelete.size})</span>
+                </div>
+                <h4 className="preview-desc">{reportToDelete.name}</h4>
+                <div className="preview-meta">
+                  <span>Category: {reportToDelete.type}</span>
+                  <span>•</span>
+                  <span>Period: {reportToDelete.period}</span>
+                  <span>•</span>
+                  <span>By: {reportToDelete.createdBy}</span>
+                </div>
+              </div>
+
+              <div className="delete-modal-alert">
+                <AlertCircle size={16} />
+                <span>This action cannot be undone. Historical compliance data for this export cycle will be purged.</span>
+              </div>
+            </div>
+
+            <div className="modal-footer delete-modal-footer">
+              <button
+                type="button"
+                className="admin-reports-btn-secondary"
+                onClick={() => setReportToDelete(null)}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="admin-reports-btn-danger"
+                onClick={confirmDeleteReport}
+              >
+                <Trash2 size={15} />
+                <span>Delete Report</span>
+              </button>
+            </div>
           </div>
         </div>
       )}

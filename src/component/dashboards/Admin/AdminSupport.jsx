@@ -1,6 +1,5 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import {
-  HelpCircle,
   Plus,
   Search,
   Filter,
@@ -11,21 +10,16 @@ import {
   Send,
   LifeBuoy,
   ChevronDown,
-  ChevronRight,
-  ExternalLink,
   BookOpen,
-  FileText,
   Activity,
   ShieldCheck,
   Check,
   X,
-  User,
-  Paperclip,
-  Sparkles,
   ArrowUpDown,
   ArrowUp,
   ArrowDown,
   Trash2,
+  RotateCcw,
 } from "lucide-react";
 import AdminSidebar from "./AdminSidebar.jsx";
 import AdminTopbar from "./AdminTopbar.jsx";
@@ -127,6 +121,94 @@ const INITIAL_TICKETS = [
         text: "Your token throughput has been increased to 300 RPM for your organization tier."
       }
     ]
+  },
+  {
+    id: "TCK-9285",
+    subject: "SAML SSO single sign-on redirect loop with Okta",
+    category: "Technical Issue",
+    priority: "High",
+    status: "Open",
+    createdAt: "2026-10-16 11:30",
+    updatedAt: "2026-10-16 11:30",
+    agent: "Marcus Vance",
+    agentAvatar: "MV",
+    messages: [
+      {
+        sender: "Amit Sharma",
+        role: "Organization Admin",
+        time: "Oct 16, 11:30 AM",
+        text: "Users logging in through our Okta SAML assertion endpoint get looped back to the login screen without session token initialization."
+      }
+    ]
+  },
+  {
+    id: "TCK-9240",
+    subject: "Custom export schema missing subtask completion timestamps",
+    category: "Feature Request",
+    priority: "Medium",
+    status: "In Progress",
+    createdAt: "2026-10-14 09:15",
+    updatedAt: "2026-10-15 14:00",
+    agent: "Elena Rostova",
+    agentAvatar: "ER",
+    messages: [
+      {
+        sender: "Amit Sharma",
+        role: "Organization Admin",
+        time: "Oct 14, 9:15 AM",
+        text: "When exporting project manifest CSVs, parent task timestamps exist but subtasks lack completedAt values."
+      },
+      {
+        sender: "Elena Rostova",
+        role: "Billing Specialist",
+        time: "Oct 15, 2:00 PM",
+        text: "Our product engineering team has added subtask granular timestamps to the export engine. Currently deploying to staging."
+      }
+    ]
+  },
+  {
+    id: "TCK-9195",
+    subject: "Automated scheduled report failing to send to external recipients",
+    category: "Technical Issue",
+    priority: "Medium",
+    status: "Resolved",
+    createdAt: "2026-10-11 16:45",
+    updatedAt: "2026-10-12 10:20",
+    agent: "Tech Support Team",
+    agentAvatar: "TS",
+    messages: [
+      {
+        sender: "Amit Sharma",
+        role: "Organization Admin",
+        time: "Oct 11, 4:45 PM",
+        text: "Weekly sprint summary PDF is dispatched to internal users but external stakeholder email domains bounce with SPF record errors."
+      },
+      {
+        sender: "Tech Support Team",
+        role: "Tier 2 Support",
+        time: "Oct 12, 10:20 AM",
+        text: "We updated your organization outbound DKIM/SPF sender signature. Test digest sent and confirmed delivered."
+      }
+    ]
+  },
+  {
+    id: "TCK-9150",
+    subject: "Audit log streaming endpoint 504 Gateway Timeout",
+    category: "API & Integrations",
+    priority: "Urgent",
+    status: "Open",
+    createdAt: "2026-10-09 13:00",
+    updatedAt: "2026-10-09 13:00",
+    agent: "Alex Rivera",
+    agentAvatar: "AR",
+    messages: [
+      {
+        sender: "Amit Sharma",
+        role: "Organization Admin",
+        time: "Oct 9, 1:00 PM",
+        text: "Our SIEM pipeline querying /api/v2/audit-logs receives 504 Gateway Timeout when query window exceeds 14 days."
+      }
+    ]
   }
 ];
 
@@ -158,7 +240,13 @@ export default function AdminSupport() {
   const [tickets, setTickets] = useState(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
-      return saved ? JSON.parse(saved) : INITIAL_TICKETS;
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length >= 6) {
+          return parsed;
+        }
+      }
+      return INITIAL_TICKETS;
     } catch {
       return INITIAL_TICKETS;
     }
@@ -171,11 +259,17 @@ export default function AdminSupport() {
   const [sortKey, setSortKey] = useState("updatedAt");
   const [sortOrder, setSortOrder] = useState("desc");
 
+  // Pagination states matching AdminReports
+  const [currentPage, setCurrentPage] = useState(1);
+  const [perPage, setPerPage] = useState(5);
+
   const [showNewTicketModal, setShowNewTicketModal] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState(null);
+  const [ticketToDelete, setTicketToDelete] = useState(null);
   const [replyText, setReplyText] = useState("");
   const [expandedFaq, setExpandedFaq] = useState(null);
   const [toast, setToast] = useState(null);
+  const messagesEndRef = useRef(null);
 
   const [ticketForm, setTicketForm] = useState({
     subject: "",
@@ -188,7 +282,14 @@ export default function AdminSupport() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(tickets));
   }, [tickets]);
 
+  useEffect(() => {
+    if (selectedTicket && messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [selectedTicket, selectedTicket?.messages?.length]);
+
   const handleSort = (key) => {
+    setCurrentPage(1);
     if (sortKey === key) {
       setSortOrder(sortOrder === "asc" ? "desc" : "asc");
     } else {
@@ -208,13 +309,16 @@ export default function AdminSupport() {
     );
   };
 
-  const handleDeleteTicket = (id) => {
-    if (window.confirm(`Delete support ticket #${id}?`)) {
-      setTickets((prev) => prev.filter((t) => t.id !== id));
-      if (selectedTicket?.id === id) setSelectedTicket(null);
-      setToast(`Ticket ${id} removed.`);
-      setTimeout(() => setToast(null), 3000);
+  const confirmDeleteTicket = () => {
+    if (!ticketToDelete) return;
+    const id = ticketToDelete.id;
+    setTickets((prev) => prev.filter((t) => t.id !== id));
+    if (selectedTicket?.id === id) {
+      setSelectedTicket(null);
     }
+    setToast(`Support ticket #${id} deleted.`);
+    setTicketToDelete(null);
+    setTimeout(() => setToast(null), 3000);
   };
 
   const filteredTickets = useMemo(() => {
@@ -246,6 +350,14 @@ export default function AdminSupport() {
         return 0;
       });
   }, [tickets, search, statusFilter, priorityFilter, sortKey, sortOrder]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredTickets.length / perPage));
+  const safeCurrentPage = Math.min(currentPage, totalPages);
+
+  const paginatedTickets = useMemo(() => {
+    const start = (safeCurrentPage - 1) * perPage;
+    return filteredTickets.slice(start, start + perPage);
+  }, [filteredTickets, safeCurrentPage, perPage]);
 
   const stats = useMemo(() => {
     return {
@@ -293,55 +405,103 @@ export default function AdminSupport() {
   };
 
   const handleSendReply = (e) => {
-    e.preventDefault();
+    e?.preventDefault?.();
     if (!replyText.trim() || !selectedTicket) return;
+
+    const textToSend = replyText.trim();
+    const nowTime = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    const nowIso = new Date().toISOString().replace("T", " ").slice(0, 16);
 
     const newReply = {
       sender: "Amit Sharma",
       role: "Organization Admin",
-      time: "Just now",
-      text: replyText.trim()
+      time: `Today, ${nowTime}`,
+      text: textToSend,
     };
 
-    const updated = tickets.map((t) => {
-      if (t.id === selectedTicket.id) {
-        return {
-          ...t,
-          updatedAt: new Date().toISOString().replace("T", " ").slice(0, 16),
-          messages: [...t.messages, newReply]
-        };
-      }
-      return t;
-    });
+    const targetId = selectedTicket.id;
+    const isResolved = selectedTicket.status === "Resolved";
+    const nextStatus = isResolved ? "In Progress" : (selectedTicket.status === "Open" ? "In Progress" : selectedTicket.status);
 
-    setTickets(updated);
-    setSelectedTicket({
+    const updatedTicket = {
       ...selectedTicket,
-      messages: [...selectedTicket.messages, newReply]
-    });
+      status: nextStatus,
+      updatedAt: nowIso,
+      messages: [...selectedTicket.messages, newReply],
+    };
+
+    setTickets((prev) => prev.map((t) => (t.id === targetId ? updatedTicket : t)));
+    setSelectedTicket(updatedTicket);
     setReplyText("");
+    setToast(isResolved ? "Ticket re-opened and reply sent." : "Reply sent to support specialist.");
+    setTimeout(() => setToast(null), 3000);
+
+    setTimeout(() => {
+      if (messagesEndRef.current) {
+        messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+      }
+    }, 100);
+
+    // Interactive simulated specialist response after 1.2s
+    const agentName = selectedTicket.agent || "Tech Support Team";
+    const agentRole = "Support Specialist";
+
+    setTimeout(() => {
+      setTickets((prevTickets) => {
+        const current = prevTickets.find((t) => t.id === targetId);
+        if (!current || current.status === "Resolved") return prevTickets;
+
+        const agentReply = {
+          sender: agentName,
+          role: agentRole,
+          time: `Today, ${new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`,
+          text: `Thank you for the update Amit! Our engineering team has logged this and is currently investigating. We will notify you once resolved.`,
+        };
+
+        const withAgent = {
+          ...current,
+          updatedAt: new Date().toISOString().replace("T", " ").slice(0, 16),
+          messages: [...current.messages, agentReply],
+        };
+
+        setSelectedTicket((curr) => {
+          if (curr?.id === targetId) return withAgent;
+          return curr;
+        });
+
+        return prevTickets.map((t) => (t.id === targetId ? withAgent : t));
+      });
+
+      setTimeout(() => {
+        if (messagesEndRef.current) {
+          messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+        }
+      }, 100);
+    }, 1200);
   };
 
   const handleToggleStatus = (id) => {
     const ticket = tickets.find((t) => t.id === id);
     if (!ticket) return;
     const newStatus = ticket.status === "Resolved" ? "In Progress" : "Resolved";
-    const updated = tickets.map((t) => (t.id === id ? { ...t, status: newStatus } : t));
+    const nowIso = new Date().toISOString().replace("T", " ").slice(0, 16);
+    const updated = tickets.map((t) => (t.id === id ? { ...t, status: newStatus, updatedAt: nowIso } : t));
     setTickets(updated);
     if (selectedTicket?.id === id) {
-      setSelectedTicket({ ...selectedTicket, status: newStatus });
+      setSelectedTicket((prev) => (prev ? { ...prev, status: newStatus, updatedAt: nowIso } : null));
     }
-    setToast(`Ticket #${id} status set to ${newStatus}.`);
+    setToast(newStatus === "Resolved" ? `Ticket #${id} marked as resolved.` : `Ticket #${id} re-opened.`);
     setTimeout(() => setToast(null), 3000);
   };
 
   const handleMarkResolved = (id) => {
-    const updated = tickets.map((t) => (t.id === id ? { ...t, status: "Resolved" } : t));
+    const nowIso = new Date().toISOString().replace("T", " ").slice(0, 16);
+    const updated = tickets.map((t) => (t.id === id ? { ...t, status: "Resolved", updatedAt: nowIso } : t));
     setTickets(updated);
     if (selectedTicket?.id === id) {
-      setSelectedTicket({ ...selectedTicket, status: "Resolved" });
+      setSelectedTicket((prev) => (prev ? { ...prev, status: "Resolved", updatedAt: nowIso } : null));
     }
-    setToast("Ticket marked as resolved.");
+    setToast(`Ticket #${id} marked as resolved.`);
     setTimeout(() => setToast(null), 3000);
   };
 
@@ -475,10 +635,19 @@ export default function AdminSupport() {
                     type="text"
                     placeholder="Search tickets by ID, subject, or category..."
                     value={search}
-                    onChange={(e) => setSearch(e.target.value)}
+                    onChange={(e) => {
+                      setSearch(e.target.value);
+                      setCurrentPage(1);
+                    }}
                   />
                   {search && (
-                    <button className="clear-btn" onClick={() => setSearch("")}>
+                    <button
+                      className="clear-btn"
+                      onClick={() => {
+                        setSearch("");
+                        setCurrentPage(1);
+                      }}
+                    >
                       <X size={14} />
                     </button>
                   )}
@@ -489,7 +658,10 @@ export default function AdminSupport() {
                     <Filter size={14} />
                     <select
                       value={statusFilter}
-                      onChange={(e) => setStatusFilter(e.target.value)}
+                      onChange={(e) => {
+                        setStatusFilter(e.target.value);
+                        setCurrentPage(1);
+                      }}
                     >
                       <option value="All">All Statuses</option>
                       <option value="Open">Open</option>
@@ -501,7 +673,10 @@ export default function AdminSupport() {
                   <div className="filter-select">
                     <select
                       value={priorityFilter}
-                      onChange={(e) => setPriorityFilter(e.target.value)}
+                      onChange={(e) => {
+                        setPriorityFilter(e.target.value);
+                        setCurrentPage(1);
+                      }}
                     >
                       <option value="All">All Priorities</option>
                       <option value="Urgent">Urgent</option>
@@ -518,6 +693,7 @@ export default function AdminSupport() {
                         const [k, ord] = e.target.value.split("-");
                         setSortKey(k);
                         setSortOrder(ord);
+                        setCurrentPage(1);
                       }}
                       aria-label="Sort tickets"
                     >
@@ -538,6 +714,7 @@ export default function AdminSupport() {
                         setSearch("");
                         setStatusFilter("All");
                         setPriorityFilter("All");
+                        setCurrentPage(1);
                       }}
                     >
                       <X size={13} />
@@ -601,10 +778,10 @@ export default function AdminSupport() {
                         </td>
                       </tr>
                     ) : (
-                      filteredTickets.map((t, idx) => (
+                      paginatedTickets.map((t, idx) => (
                         <tr key={t.id}>
                           <td style={{ textAlign: "center" }}>
-                            <span className="admin-row-num">{idx + 1}</span>
+                            <span className="admin-row-num">{(safeCurrentPage - 1) * perPage + idx + 1}</span>
                           </td>
                           <td>
                             <span className="ticket-id-badge">{t.id}</span>
@@ -661,7 +838,7 @@ export default function AdminSupport() {
                                 title={t.status === "Resolved" ? "Resolved. Click to Re-open" : "Click to mark Resolved"}
                               >
                                 {t.status === "Resolved" ? (
-                                  <>
+                                   <>
                                     <Check size={13} />
                                     <span>Resolved</span>
                                   </>
@@ -677,7 +854,7 @@ export default function AdminSupport() {
                               <button
                                 type="button"
                                 className="action-btn-pill action-delete"
-                                onClick={() => handleDeleteTicket(t.id)}
+                                onClick={() => setTicketToDelete(t)}
                                 title="Delete Ticket"
                               >
                                 <Trash2 size={13} />
@@ -690,6 +867,64 @@ export default function AdminSupport() {
                   </tbody>
                 </table>
               </div>
+
+              {/* PAGINATION BAR (Matching Reports & Projects format) */}
+              {filteredTickets.length > 0 && (
+                <div className="ws-pagination-bar reports-pagination-bar">
+                  <div className="ws-pagination-info">
+                    <span>
+                      Showing {filteredTickets.length === 0 ? 0 : (safeCurrentPage - 1) * perPage + 1} to{" "}
+                      {Math.min(safeCurrentPage * perPage, filteredTickets.length)} of {filteredTickets.length} tickets
+                    </span>
+                    <div className="ws-page-size-wrap">
+                      <span>Tickets per page:</span>
+                      <select
+                        value={perPage}
+                        onChange={(e) => {
+                          setPerPage(Number(e.target.value));
+                          setCurrentPage(1);
+                        }}
+                        aria-label="Select tickets per page"
+                      >
+                        <option value={5}>5</option>
+                        <option value={10}>10</option>
+                        <option value={20}>20</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="ws-pagination-controls">
+                    <button
+                      type="button"
+                      className="ws-page-nav-btn"
+                      onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                      disabled={safeCurrentPage <= 1}
+                    >
+                      Previous
+                    </button>
+                    <div className="ws-page-pills">
+                      {Array.from({ length: totalPages }, (_, i) => i + 1).map((num) => (
+                        <button
+                          key={num}
+                          type="button"
+                          className={`ws-page-num-pill ${safeCurrentPage === num ? "active" : ""}`}
+                          onClick={() => setCurrentPage(num)}
+                        >
+                          {num}
+                        </button>
+                      ))}
+                    </div>
+                    <button
+                      type="button"
+                      className="ws-page-nav-btn"
+                      onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                      disabled={safeCurrentPage >= totalPages}
+                    >
+                      Next
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
@@ -865,13 +1100,28 @@ export default function AdminSupport() {
         <div className="admin-support-modal-overlay" onClick={() => setSelectedTicket(null)}>
           <div className="admin-support-modal thread-modal" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <div>
+              <div className="modal-header-info">
                 <span className="modal-badge">{selectedTicket.id}</span>
                 <h3>{selectedTicket.subject}</h3>
               </div>
-              <button className="close-btn" onClick={() => setSelectedTicket(null)}>
-                <X size={18} />
-              </button>
+              <div className="modal-header-actions">
+                <button
+                  type="button"
+                  className="modal-header-delete-btn"
+                  onClick={() => setTicketToDelete(selectedTicket)}
+                  title="Delete ticket"
+                >
+                  <Trash2 size={15} />
+                </button>
+                <button
+                  type="button"
+                  className="close-btn"
+                  onClick={() => setSelectedTicket(null)}
+                  title="Close modal"
+                >
+                  <X size={18} />
+                </button>
+              </div>
             </div>
 
             <div className="modal-body thread-body">
@@ -879,7 +1129,7 @@ export default function AdminSupport() {
               <div className="thread-meta-bar">
                 <span>Category: <strong>{selectedTicket.category}</strong></span>
                 <span>Priority: <strong className={`tag-${selectedTicket.priority.toLowerCase()}`}>{selectedTicket.priority}</strong></span>
-                <span>Status: <strong>{selectedTicket.status}</strong></span>
+                <span>Status: <strong className={`status-tag-${selectedTicket.status.toLowerCase().replace(/\s+/g, "-")}`}>{selectedTicket.status}</strong></span>
                 <span>Assigned: <strong>{selectedTicket.agent}</strong></span>
               </div>
 
@@ -898,13 +1148,14 @@ export default function AdminSupport() {
                     <p className="thread-msg-text">{m.text}</p>
                   </div>
                 ))}
+                <div ref={messagesEndRef} />
               </div>
 
-              {/* Reply form */}
+              {/* Reply / Resolved handling */}
               {selectedTicket.status !== "Resolved" ? (
                 <form onSubmit={handleSendReply} className="thread-reply-form">
                   <textarea
-                    rows={2}
+                    rows={3}
                     placeholder="Type a response to the support specialist..."
                     value={replyText}
                     onChange={(e) => setReplyText(e.target.value)}
@@ -918,26 +1169,51 @@ export default function AdminSupport() {
                       <Check size={14} />
                       <span>Mark as Resolved</span>
                     </button>
-                    <button type="submit" className="admin-support-btn-primary" disabled={!replyText.trim()}>
+                    <button
+                      type="submit"
+                      className="admin-support-btn-primary"
+                      disabled={!replyText.trim()}
+                    >
                       <Send size={14} />
                       <span>Send Reply</span>
                     </button>
                   </div>
                 </form>
               ) : (
-                <div className="ticket-resolved-notice">
-                  <div className="notice-left">
-                    <CheckCircle2 size={18} />
-                    <span>This support ticket has been marked as resolved.</span>
+                <div className="resolved-thread-container">
+                  <div className="ticket-resolved-notice">
+                    <div className="notice-left">
+                      <CheckCircle2 size={18} />
+                      <span>This support ticket has been marked as resolved.</span>
+                    </div>
+                    <button
+                      type="button"
+                      className="admin-support-btn-secondary reopen-btn"
+                      onClick={() => handleToggleStatus(selectedTicket.id)}
+                    >
+                      <RotateCcw size={13} />
+                      <span>Re-open Ticket</span>
+                    </button>
                   </div>
-                  <button
-                    type="button"
-                    className="admin-support-btn-secondary"
-                    onClick={() => handleToggleStatus(selectedTicket.id)}
-                  >
-                    <RotateCcw size={13} />
-                    <span>Re-open Ticket</span>
-                  </button>
+
+                  <form onSubmit={handleSendReply} className="resolved-followup-box">
+                    <textarea
+                      rows={2}
+                      placeholder="Need more help? Type a follow-up reply (will automatically re-open this ticket)..."
+                      value={replyText}
+                      onChange={(e) => setReplyText(e.target.value)}
+                    />
+                    <div className="reply-actions">
+                      <button
+                        type="submit"
+                        className="admin-support-btn-primary"
+                        disabled={!replyText.trim()}
+                      >
+                        <Send size={14} />
+                        <span>Send &amp; Re-open</span>
+                      </button>
+                    </div>
+                  </form>
                 </div>
               )}
             </div>
@@ -945,6 +1221,84 @@ export default function AdminSupport() {
             <div className="modal-footer">
               <button className="admin-support-btn-secondary" onClick={() => setSelectedTicket(null)}>
                 Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* CUSTOM CSS DELETE CONFIRMATION MODAL (NO JS WINDOW.CONFIRM) */}
+      {ticketToDelete && (
+        <div className="admin-support-modal-overlay" onClick={() => setTicketToDelete(null)}>
+          <div
+            className="admin-support-modal delete-confirm-modal"
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="delete-ticket-title"
+          >
+            <div className="delete-modal-header">
+              <div className="delete-modal-icon-badge">
+                <Trash2 size={22} />
+              </div>
+              <div className="delete-modal-header-text">
+                <h3 id="delete-ticket-title">Delete Support Ticket</h3>
+                <span className="delete-modal-subtitle">Ticket #{ticketToDelete.id}</span>
+              </div>
+              <button
+                type="button"
+                className="close-btn"
+                onClick={() => setTicketToDelete(null)}
+                aria-label="Close"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="delete-modal-body">
+              <p className="delete-modal-question">
+                Are you sure you want to permanently delete this support ticket?
+              </p>
+
+              <div className="delete-ticket-preview-box">
+                <div className="preview-top">
+                  <span className="preview-id">{ticketToDelete.id}</span>
+                  <span className={`priority-pill ${ticketToDelete.priority.toLowerCase()}`}>
+                    {ticketToDelete.priority}
+                  </span>
+                  <span className={`status-pill ${ticketToDelete.status.toLowerCase().replace(/\s+/g, "-")}`}>
+                    {ticketToDelete.status}
+                  </span>
+                </div>
+                <h4 className="preview-subject">{ticketToDelete.subject}</h4>
+                <div className="preview-meta">
+                  <span>Category: {ticketToDelete.category}</span>
+                  <span>•</span>
+                  <span>Messages: {ticketToDelete.messages?.length || 0}</span>
+                </div>
+              </div>
+
+              <div className="delete-modal-alert">
+                <AlertTriangle size={16} />
+                <span>This action is irreversible. The ticket discussion and audit record will be permanently deleted.</span>
+              </div>
+            </div>
+
+            <div className="modal-footer delete-modal-footer">
+              <button
+                type="button"
+                className="admin-support-btn-secondary"
+                onClick={() => setTicketToDelete(null)}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="admin-support-btn-danger"
+                onClick={confirmDeleteTicket}
+              >
+                <Trash2 size={15} />
+                <span>Delete Ticket</span>
               </button>
             </div>
           </div>

@@ -164,8 +164,11 @@ function App() {
       {/* ADMIN PROFILE DROPDOWN ROUTES */}
       <Route path="/admin/profile" element={<AdminProfile />} />
       <Route path="/admin/account-settings" element={<AdminAccountSettings />} />
+      <Route path="/admin/account" element={<Navigate to="/admin/account-settings" replace />} />
       <Route path="/admin/appearance" element={<AdminAppearance />} />
+      <Route path="/admin/theme" element={<Navigate to="/admin/appearance" replace />} />
       <Route path="/admin/notifications" element={<AdminNotifications />} />
+      <Route path="/admin/notification" element={<Navigate to="/admin/notifications" replace />} />
       <Route path="/admin/security" element={<AdminSecurity />} />
 
       {/* EMPLOYEE ROUTES */}

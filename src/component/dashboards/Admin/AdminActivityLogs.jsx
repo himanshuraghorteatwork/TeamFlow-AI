@@ -2,28 +2,20 @@ import React, { useEffect, useMemo, useState } from "react";
 import {
   Activity,
   Search,
-  Filter,
   Download,
   RotateCcw,
   Shield,
   CheckCircle2,
   AlertTriangle,
-  Info,
+  AlertCircle,
   Clock,
-  User,
   Trash2,
-  ChevronDown,
   ArrowUpDown,
   ArrowUp,
   ArrowDown,
   X,
   Eye,
   Plus,
-  Globe,
-  Server,
-  Calendar,
-  FileText,
-  Lock,
 } from "lucide-react";
 
 import AdminSidebar from "./AdminSidebar.jsx";
@@ -73,7 +65,9 @@ export default function AdminActivityLogs() {
           return parsed;
         }
       }
-    } catch (e) {}
+    } catch {
+      // ignore
+    }
     return defaultActivities;
   });
 
@@ -91,6 +85,8 @@ export default function AdminActivityLogs() {
   // Modals
   const [viewingLog, setViewingLog] = useState(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showPurgeModal, setShowPurgeModal] = useState(false);
+  const [logToDelete, setLogToDelete] = useState(null);
   const [newLogData, setNewLogData] = useState({
     user: "Amit Sharma",
     role: "Org Admin",
@@ -99,6 +95,20 @@ export default function AdminActivityLogs() {
     ip: "192.168.1.10",
     severity: "info",
   });
+
+  // Close modals on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        if (showPurgeModal) setShowPurgeModal(false);
+        else if (logToDelete) setLogToDelete(null);
+        else if (viewingLog) setViewingLog(null);
+        else if (showCreateModal) setShowCreateModal(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [showPurgeModal, logToDelete, viewingLog, showCreateModal]);
 
   useEffect(() => {
     if (toast) {
@@ -113,7 +123,9 @@ export default function AdminActivityLogs() {
     setLogs(newLogs);
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(newLogs));
-    } catch (e) {}
+    } catch {
+      // ignore
+    }
   };
 
   const handleSort = (key) => {
@@ -123,6 +135,7 @@ export default function AdminActivityLogs() {
       setSortKey(key);
       setSortOrder("asc");
     }
+    setCurrentPage(1);
   };
 
   const renderSortIcon = (key) => {
@@ -167,36 +180,26 @@ export default function AdminActivityLogs() {
       });
   }, [logs, search, severityFilter, sortKey, sortOrder]);
 
-  // Auto-reset page when filters or search change
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [search, severityFilter, sortKey, sortOrder, perPage]);
-
   // Pagination calculations
   const totalPages = Math.max(1, Math.ceil(filteredLogs.length / perPage));
-
-  useEffect(() => {
-    if (currentPage > totalPages) {
-      setCurrentPage(totalPages);
-    }
-  }, [currentPage, totalPages]);
+  const safeCurrentPage = Math.min(Math.max(1, currentPage), totalPages);
 
   const paginatedLogs = useMemo(() => {
-    const start = (currentPage - 1) * perPage;
+    const start = (safeCurrentPage - 1) * perPage;
     return filteredLogs.slice(start, start + perPage);
-  }, [filteredLogs, currentPage, perPage]);
+  }, [filteredLogs, safeCurrentPage, perPage]);
 
   const getPageNumbers = () => {
     if (totalPages <= 7) {
       return Array.from({ length: totalPages }, (_, i) => i + 1);
     }
-    if (currentPage <= 4) {
+    if (safeCurrentPage <= 4) {
       return [1, 2, 3, 4, 5, "...", totalPages];
     }
-    if (currentPage >= totalPages - 3) {
+    if (safeCurrentPage >= totalPages - 3) {
       return [1, "...", totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
     }
-    return [1, "...", currentPage - 1, currentPage, currentPage + 1, "...", totalPages];
+    return [1, "...", safeCurrentPage - 1, safeCurrentPage, safeCurrentPage + 1, "...", totalPages];
   };
 
 
@@ -244,11 +247,14 @@ export default function AdminActivityLogs() {
   };
 
   const clearLogs = () => {
-    const confirmed = window.confirm("Purge historical audit log records?");
-    if (!confirmed) return;
+    setShowPurgeModal(true);
+  };
+
+  const confirmPurgeLogs = () => {
     saveLogs([]);
     setCurrentPage(1);
-    showToast("Audit logs purged.");
+    setShowPurgeModal(false);
+    showToast("Historical audit logs have been purged.");
   };
 
   const resetDemoLogs = () => {
@@ -257,10 +263,16 @@ export default function AdminActivityLogs() {
     showToast("Reset to default sample audit records.");
   };
 
-  const handleDeleteLog = (id) => {
-    const next = logs.filter((l) => l.id !== id);
+  const confirmDeleteSingleLog = () => {
+    if (!logToDelete) return;
+    const deletedId = logToDelete.id;
+    const next = logs.filter((l) => l.id !== deletedId);
     saveLogs(next);
-    showToast("Audit log record removed.");
+    showToast(`Audit log event #${deletedId} removed.`);
+    setLogToDelete(null);
+    if (viewingLog && viewingLog.id === deletedId) {
+      setViewingLog(null);
+    }
   };
 
   const handleCreateLog = (e) => {
@@ -372,14 +384,20 @@ export default function AdminActivityLogs() {
                 type="text"
                 placeholder="Search audit trail by user, action, IP, or resource..."
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setCurrentPage(1);
+                }}
               />
             </div>
 
             <div className="admin-logs-controls">
               <select
                 value={severityFilter}
-                onChange={(e) => setSeverityFilter(e.target.value)}
+                onChange={(e) => {
+                  setSeverityFilter(e.target.value);
+                  setCurrentPage(1);
+                }}
                 aria-label="Filter by severity"
               >
                 <option value="All">All Severities</option>
@@ -395,6 +413,7 @@ export default function AdminActivityLogs() {
                   const [k, ord] = e.target.value.split("-");
                   setSortKey(k);
                   setSortOrder(ord);
+                  setCurrentPage(1);
                 }}
                 aria-label="Sort activity logs"
               >
@@ -413,6 +432,7 @@ export default function AdminActivityLogs() {
                   onClick={() => {
                     setSearch("");
                     setSeverityFilter("All");
+                    setCurrentPage(1);
                   }}
                 >
                   <X size={13} />
@@ -435,8 +455,8 @@ export default function AdminActivityLogs() {
           {/* TABLE COUNT & RESET BAR */}
           <div className="admin-logs-meta-bar">
             <span>
-              Showing {filteredLogs.length > 0 ? (currentPage - 1) * perPage + 1 : 0} to{" "}
-              {Math.min(currentPage * perPage, filteredLogs.length)} of {filteredLogs.length} filtered ({logs.length} total) audit records
+              Showing {filteredLogs.length > 0 ? (safeCurrentPage - 1) * perPage + 1 : 0} to{" "}
+              {Math.min(safeCurrentPage * perPage, filteredLogs.length)} of {filteredLogs.length} filtered ({logs.length} total) audit records
             </span>
             <button
               type="button"
@@ -559,7 +579,8 @@ export default function AdminActivityLogs() {
                             type="button"
                             className="action-btn action-btn--delete"
                             title="Delete Event Record"
-                            onClick={() => handleDeleteLog(l.id)}
+                            aria-label="Delete Event Record"
+                            onClick={() => setLogToDelete(l)}
                           >
                             <Trash2 size={15} />
                           </button>
@@ -578,8 +599,8 @@ export default function AdminActivityLogs() {
             <div className="admin-logs-pagination-bar">
               <div className="admin-logs-pagination-info">
                 <span>
-                  Showing {(currentPage - 1) * perPage + 1} to{" "}
-                  {Math.min(currentPage * perPage, filteredLogs.length)} of {filteredLogs.length} records
+                  Showing {(safeCurrentPage - 1) * perPage + 1} to{" "}
+                  {Math.min(safeCurrentPage * perPage, filteredLogs.length)} of {filteredLogs.length} records
                 </span>
                 <div className="admin-logs-page-size-wrap">
                   <span>Records per page:</span>
@@ -604,7 +625,7 @@ export default function AdminActivityLogs() {
                   type="button"
                   className="admin-logs-page-nav-btn"
                   onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                  disabled={currentPage <= 1}
+                  disabled={safeCurrentPage <= 1}
                 >
                   Previous
                 </button>
@@ -618,7 +639,7 @@ export default function AdminActivityLogs() {
                       <button
                         key={item}
                         type="button"
-                        className={`admin-logs-page-num-pill ${currentPage === item ? "active" : ""}`}
+                        className={`admin-logs-page-num-pill ${safeCurrentPage === item ? "active" : ""}`}
                         onClick={() => setCurrentPage(item)}
                       >
                         {item}
@@ -630,7 +651,7 @@ export default function AdminActivityLogs() {
                   type="button"
                   className="admin-logs-page-nav-btn"
                   onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                  disabled={currentPage >= totalPages}
+                  disabled={safeCurrentPage >= totalPages}
                 >
                   Next
                 </button>
@@ -705,7 +726,7 @@ export default function AdminActivityLogs() {
                 type="button"
                 className="btn-danger-outline"
                 onClick={() => {
-                  handleDeleteLog(viewingLog.id);
+                  setLogToDelete(viewingLog);
                   setViewingLog(null);
                 }}
               >
@@ -834,6 +855,160 @@ export default function AdminActivityLogs() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+      {/* PURGE ALL AUDIT RECORDS CONFIRMATION MODAL */}
+      {showPurgeModal && (
+        <div className="admin-logs-modal-backdrop" onClick={() => setShowPurgeModal(false)}>
+          <div
+            className="admin-logs-modal-box admin-logs-delete-modal"
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="purge-logs-title"
+          >
+            <div className="admin-logs-modal-header delete-modal-header">
+              <div className="delete-modal-icon-badge">
+                <AlertTriangle size={20} />
+              </div>
+              <div className="delete-modal-header-text">
+                <h3 id="purge-logs-title">Purge Historical Audit Logs</h3>
+                <span className="delete-modal-subtitle">Permanent Ledger Purge</span>
+              </div>
+              <button
+                type="button"
+                className="modal-close-btn"
+                onClick={() => setShowPurgeModal(false)}
+                aria-label="Close dialog"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="admin-logs-modal-body delete-modal-body">
+              <p className="delete-modal-lead">
+                Are you sure you want to purge all historical audit log records? All recorded user sessions, system mutations, and access telemetry will be cleared immediately.
+              </p>
+
+              <div className="delete-log-preview-box">
+                <div className="preview-top">
+                  <span className="preview-id">ALL AUDIT TRAILS</span>
+                  <span className="log-severity-pill danger">Critical Scope</span>
+                  <span className="preview-stat-count">{logs.length} Total Events</span>
+                </div>
+                <h4 className="preview-desc">Complete Activity Ledger Reset</h4>
+                <div className="preview-meta">
+                  <span>Warnings / High Severity: <strong>{stats.warnings}</strong></span>
+                  <span>•</span>
+                  <span>Normal Operations: <strong>{stats.success}</strong></span>
+                </div>
+              </div>
+
+              <div className="delete-modal-alert">
+                <AlertCircle size={16} />
+                <span>SOC-2, ISO-27001, and HIPAA compliance policies require retaining 90+ days of audit telemetry for security verification.</span>
+              </div>
+            </div>
+
+            <div className="admin-logs-modal-footer delete-modal-footer">
+              <button
+                type="button"
+                className="admin-logs-btn-secondary"
+                onClick={() => setShowPurgeModal(false)}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="admin-logs-btn-danger"
+                onClick={confirmPurgeLogs}
+              >
+                <Trash2 size={15} />
+                <span>Purge All Records</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* SINGLE AUDIT LOG EVENT DELETE CONFIRMATION MODAL */}
+      {logToDelete && (
+        <div className="admin-logs-modal-backdrop" onClick={() => setLogToDelete(null)}>
+          <div
+            className="admin-logs-modal-box admin-logs-delete-modal"
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="delete-log-title"
+          >
+            <div className="admin-logs-modal-header delete-modal-header">
+              <div className="delete-modal-icon-badge">
+                <AlertTriangle size={20} />
+              </div>
+              <div className="delete-modal-header-text">
+                <h3 id="delete-log-title">Delete Audit Log Event</h3>
+                <span className="delete-modal-subtitle">Event Record #{logToDelete.id}</span>
+              </div>
+              <button
+                type="button"
+                className="modal-close-btn"
+                onClick={() => setLogToDelete(null)}
+                aria-label="Close dialog"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="admin-logs-modal-body delete-modal-body">
+              <p className="delete-modal-lead">
+                Are you sure you want to permanently delete this audit record? This event will be removed from your activity logs table.
+              </p>
+
+              <div className="delete-log-preview-box">
+                <div className="preview-top">
+                  <span className="preview-id">#LOG-{logToDelete.id}</span>
+                  <span className={`log-severity-pill ${logToDelete.severity}`}>
+                    {logToDelete.severity}
+                  </span>
+                  <span className="preview-time">{logToDelete.time}</span>
+                </div>
+                <h4 className="preview-desc">{logToDelete.action}</h4>
+                <div className="preview-meta">
+                  <span>Actor: <strong>{logToDelete.user}</strong> ({logToDelete.role})</span>
+                  <span>•</span>
+                  <span>Target: <strong>{logToDelete.entity}</strong></span>
+                </div>
+                <div className="preview-meta" style={{ marginTop: 6 }}>
+                  <span>Origin IP: <code>{logToDelete.ip}</code></span>
+                  <span>•</span>
+                  <span>Timestamp: {logToDelete.fullDate || logToDelete.time}</span>
+                </div>
+              </div>
+
+              <div className="delete-modal-alert">
+                <AlertCircle size={16} />
+                <span>Manual event deletion modifies audit ledger continuity and cannot be undone.</span>
+              </div>
+            </div>
+
+            <div className="admin-logs-modal-footer delete-modal-footer">
+              <button
+                type="button"
+                className="admin-logs-btn-secondary"
+                onClick={() => setLogToDelete(null)}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="admin-logs-btn-danger"
+                onClick={confirmDeleteSingleLog}
+              >
+                <Trash2 size={15} />
+                <span>Delete Event</span>
+              </button>
+            </div>
           </div>
         </div>
       )}

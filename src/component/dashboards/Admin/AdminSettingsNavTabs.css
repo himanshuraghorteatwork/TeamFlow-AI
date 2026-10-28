@@ -1,0 +1,142 @@
+/* =========================================================
+   UNIVERSAL STICKY TOP SETTINGS NAVIGATION TABS
+   Shared across Profile, Account, Appearance, Notifications,
+   Security, and Organization Settings
+========================================================= */
+
+.tfAdminSettings__moduleTabs {
+  position: sticky !important;
+  top: 64px !important;
+  z-index: 850 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  overflow-x: auto !important;
+  margin-top: 0 !important;
+  margin-left: -28px !important;
+  margin-right: -28px !important;
+  margin-bottom: 24px !important;
+  padding: 12px 28px !important;
+  width: calc(100% + 56px) !important;
+  background: rgba(247, 249, 252, 0.98) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+  box-sizing: border-box !important;
+  scrollbar-width: thin !important;
+  -webkit-overflow-scrolling: touch !important;
+  box-shadow: 0 4px 14px -3px rgba(16, 24, 40, 0.05) !important;
+  transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.tfAdminSettings__moduleTabs::-webkit-scrollbar {
+  height: 4px;
+}
+
+.tfAdminSettings__moduleTabs::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.tfAdminSettings__moduleTab {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding: 8px 16px !important;
+  border-radius: 9px !important;
+  border: 1px solid transparent !important;
+  background: transparent !important;
+  color: #64748b !important;
+  font-size: 0.8125rem !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  white-space: nowrap !important;
+  text-decoration: none !important;
+  user-select: none !important;
+  outline: none !important;
+  flex-shrink: 0 !important;
+}
+
+.tfAdminSettings__moduleTab svg {
+  flex-shrink: 0;
+  transition: color 0.18s ease;
+}
+
+.tfAdminSettings__moduleTab:hover {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+}
+
+.tfAdminSettings__moduleTab--active {
+  background: #ffffff !important;
+  color: #2563eb !important;
+  border-color: #cbd5e1 !important;
+  font-weight: 600 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06) !important;
+}
+
+/* =========================================================
+   DARK MODE OVERRIDES (MATCHING DESIGN REFERENCE)
+========================================================= */
+
+:root.dark .tfAdminSettings__moduleTabs,
+.dark .tfAdminSettings__moduleTabs,
+body.dark-theme .tfAdminSettings__moduleTabs,
+[data-theme="dark"] .tfAdminSettings__moduleTabs {
+  background: rgba(15, 23, 42, 0.98) !important;
+  border-bottom-color: #1e293b !important;
+  box-shadow: 0 4px 16px -3px rgba(0, 0, 0, 0.4) !important;
+}
+
+:root.dark .tfAdminSettings__moduleTabs::-webkit-scrollbar-thumb,
+.dark .tfAdminSettings__moduleTabs::-webkit-scrollbar-thumb,
+body.dark-theme .tfAdminSettings__moduleTabs::-webkit-scrollbar-thumb,
+[data-theme="dark"] .tfAdminSettings__moduleTabs::-webkit-scrollbar-thumb {
+  background: #334155 !important;
+}
+
+:root.dark .tfAdminSettings__moduleTab,
+.dark .tfAdminSettings__moduleTab,
+body.dark-theme .tfAdminSettings__moduleTab,
+[data-theme="dark"] .tfAdminSettings__moduleTab {
+  color: #94a3b8 !important;
+}
+
+:root.dark .tfAdminSettings__moduleTab:hover,
+.dark .tfAdminSettings__moduleTab:hover,
+body.dark-theme .tfAdminSettings__moduleTab:hover,
+[data-theme="dark"] .tfAdminSettings__moduleTab:hover {
+  background: rgba(255, 255, 255, 0.06) !important;
+  color: #f8fafc !important;
+}
+
+:root.dark .tfAdminSettings__moduleTab--active,
+.dark .tfAdminSettings__moduleTab--active,
+body.dark-theme .tfAdminSettings__moduleTab--active,
+[data-theme="dark"] .tfAdminSettings__moduleTab--active {
+  background: rgba(30, 58, 138, 0.28) !important;
+  color: #60a5fa !important;
+  border-color: rgba(59, 130, 246, 0.42) !important;
+  font-weight: 600 !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 991px) {
+  .tfAdminSettings__moduleTabs {
+    margin-left: -16px !important;
+    margin-right: -16px !important;
+    padding: 10px 16px !important;
+    width: calc(100% + 32px) !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .tfAdminSettings__moduleTabs {
+    top: 60px !important;
+  }
+}

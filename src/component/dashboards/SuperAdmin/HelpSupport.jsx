@@ -4,20 +4,14 @@ import {
   LifeBuoy,
   Plus,
   Search,
-  Filter,
   CheckCircle2,
   Clock,
-  AlertTriangle,
   MessageSquare,
   ArrowUpRight,
-  ChevronDown,
   X,
   Send,
   Eye,
   Building2,
-  CalendarDays,
-  User,
-  ShieldAlert,
   SlidersHorizontal,
   RefreshCw,
   ChevronsLeft,
@@ -25,14 +19,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Download,
-  Trash2,
-  Sparkles,
-  CornerDownRight,
-  Tag,
-  Check,
-  RotateCcw,
-  ShieldCheck,
-  HelpCircle,
 } from "lucide-react";
 import "./SuperAdminCommon.css";
 import "./HelpSupport.css";
@@ -246,6 +232,7 @@ function HelpSupport() {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [selectedTicket, setSelectedTicket] = useState(null);
+  const [ticketToDelete, setTicketToDelete] = useState(null);
   const [replyText, setReplyText] = useState("");
   const [replyStatusChoice, setReplyStatusChoice] = useState("In Progress");
   const [toast, setToast] = useState("");
@@ -265,6 +252,17 @@ function HelpSupport() {
   const notify = (msg) => {
     setToast(msg);
     setTimeout(() => setToast(""), 3000);
+  };
+
+  const confirmDeleteTicket = () => {
+    if (!ticketToDelete) return;
+    const id = ticketToDelete.id;
+    setTickets((prev) => prev.filter((t) => t.id !== id));
+    if (selectedTicket?.id === id) {
+      setSelectedTicket(null);
+    }
+    notify(`Ticket ${id} permanently deleted.`);
+    setTicketToDelete(null);
   };
 
   const filteredTickets = useMemo(() => {
@@ -909,14 +907,6 @@ function HelpSupport() {
                             <RotateCcw size={14} />
                           </button>
                         )}
-                        <button
-                          type="button"
-                          className="spt-action-btn btn-delete"
-                          onClick={() => setDeleteConfirmTicket(t)}
-                          title="Delete Ticket"
-                        >
-                          <Trash2 size={14} />
-                        </button>
                       </div>
                     </td>
                   </tr>
@@ -1039,56 +1029,23 @@ function HelpSupport() {
               className="spt-ticket-dialog"
               onClick={(e) => e.stopPropagation()}
             >
-              {/* Modal Topbar */}
-              <div className="spt-modal-header">
-                <div className="spt-modal-header-left">
-                  <span className="spt-ticket-id-badge">{selectedTicket.id}</span>
-                  <div style={{ minWidth: 0 }}>
-                    <h3 className="spt-modal-title" title={selectedTicket.subject}>
-                      {selectedTicket.subject}
-                    </h3>
-                    <div className="spt-modal-subtitle">
-                      <span><strong>{selectedTicket.org}</strong></span>
-                      <span>·</span>
-                      <span>Requester: {selectedTicket.requester} ({selectedTicket.email})</span>
-                    </div>
-                  </div>
+              <div className="sa-modal-header">
+                <div>
+                  <h3 style={{ margin: "0 0 4px" }}>
+                    {selectedTicket.id}: {selectedTicket.subject}
+                  </h3>
+                  <span style={{ fontSize: 11.5, color: "var(--sa-text-muted)" }}>
+                    {selectedTicket.org} · Requester: {selectedTicket.requester} (
+                    {selectedTicket.email})
+                  </span>
                 </div>
-
-                <div className="spt-modal-header-controls">
-                  <select
-                    className="spt-header-select"
-                    value={selectedTicket.status}
-                    onChange={(e) => handleUpdateStatus(selectedTicket.id, e.target.value)}
-                    title="Change Ticket Status"
-                  >
-                    <option value="Open">Open</option>
-                    <option value="In Progress">In Progress</option>
-                    <option value="Resolved">Resolved</option>
-                    <option value="Closed">Closed</option>
-                  </select>
-
-                  <select
-                    className="spt-header-select"
-                    value={selectedTicket.priority}
-                    onChange={(e) => handleUpdatePriority(selectedTicket.id, e.target.value)}
-                    title="Change Priority Tier"
-                  >
-                    <option value="Low">Low</option>
-                    <option value="Medium">Medium</option>
-                    <option value="High">High</option>
-                    <option value="Urgent">Urgent</option>
-                  </select>
-
-                  <button
-                    type="button"
-                    className="sa-modal-close"
-                    onClick={() => setSelectedTicket(null)}
-                    title="Close Dialog"
-                  >
-                    <X size={17} />
-                  </button>
-                </div>
+                <button
+                  type="button"
+                  className="sa-modal-close"
+                  onClick={() => setSelectedTicket(null)}
+                >
+                  <X size={18} />
+                </button>
               </div>
 
               {/* Modal Body */}
@@ -1499,6 +1456,124 @@ function HelpSupport() {
                   onClick={() => handleDeleteTicket(deleteConfirmTicket)}
                 >
                   Yes, Delete Ticket
+                </button>
+              </div>
+            </div>
+          </div>,
+          document.body
+        )}
+
+      {/* 7. Custom CSS Delete Confirmation Modal (No window.confirm) */}
+      {ticketToDelete &&
+        typeof document !== "undefined" &&
+        createPortal(
+          <div className="sa-modal-backdrop" onClick={() => setTicketToDelete(null)}>
+            <div
+              className="sa-modal-content"
+              style={{ maxWidth: 480 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="sa-modal-header" style={{ borderBottomColor: "#fee2e2" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                  <div
+                    style={{
+                      width: 40,
+                      height: 40,
+                      borderRadius: 10,
+                      background: "#fee2e2",
+                      color: "#dc2626",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      flexShrink: 0,
+                    }}
+                  >
+                    <Trash2 size={20} />
+                  </div>
+                  <div>
+                    <h3 style={{ margin: "0 0 2px", fontSize: 16 }}>Delete Support Ticket</h3>
+                    <span style={{ fontSize: 12, color: "#dc2626", fontWeight: 700 }}>
+                      #{ticketToDelete.id}
+                    </span>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  className="sa-modal-close"
+                  onClick={() => setTicketToDelete(null)}
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              <div className="sa-modal-body" style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                <p style={{ margin: 0, fontSize: 13.5, color: "var(--sa-text-main)", lineHeight: 1.5 }}>
+                  Are you sure you want to permanently delete ticket <strong>#{ticketToDelete.id}</strong>?
+                </p>
+
+                <div
+                  style={{
+                    background: "var(--sa-bg-surface-subtle, #f8fafc)",
+                    border: "1px solid var(--sa-border-subtle, #e2e8f0)",
+                    borderRadius: 8,
+                    padding: "10px 12px",
+                  }}
+                >
+                  <strong style={{ fontSize: 13, display: "block", marginBottom: 4 }}>
+                    {ticketToDelete.subject}
+                  </strong>
+                  <span style={{ fontSize: 11.5, color: "var(--sa-text-muted)" }}>
+                    {ticketToDelete.org} · Requester: {ticketToDelete.requester}
+                  </span>
+                </div>
+
+                <div
+                  style={{
+                    background: "#fff1f2",
+                    border: "1px solid #ffe4e6",
+                    borderLeft: "3px solid #f43f5e",
+                    padding: "8px 12px",
+                    borderRadius: 6,
+                    color: "#9f1239",
+                    fontSize: 12,
+                  }}
+                >
+                  This action is irreversible. The ticket discussion will be permanently removed.
+                </div>
+              </div>
+
+              <div
+                style={{
+                  padding: "12px 20px",
+                  borderTop: "1px solid var(--sa-border-subtle, #e2e8f0)",
+                  display: "flex",
+                  justifyContent: "flex-end",
+                  gap: 10,
+                  background: "var(--sa-bg-surface-subtle, #f8fafc)",
+                }}
+              >
+                <button
+                  type="button"
+                  className="sa-btn sa-btn-secondary sa-btn-sm"
+                  onClick={() => setTicketToDelete(null)}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  className="sa-btn sa-btn-sm"
+                  style={{
+                    background: "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)",
+                    color: "#ffffff",
+                    border: "1px solid #dc2626",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 6,
+                    fontWeight: 600,
+                  }}
+                  onClick={confirmDeleteTicket}
+                >
+                  <Trash2 size={13} /> Delete Ticket
                 </button>
               </div>
             </div>

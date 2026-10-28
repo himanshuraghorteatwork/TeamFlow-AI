@@ -9,22 +9,17 @@ import {
   Pencil,
   Trash2,
   Power,
-  RotateCcw,
   CheckCircle2,
   X,
-  MessageSquareText,
-  Sliders,
-  Play,
   Send,
-  Layers,
   Eye,
   Grid2X2,
   List,
   ArrowUpDown,
   ArrowUp,
   ArrowDown,
-  ChevronLeft,
-  ChevronRight,
+  AlertTriangle,
+  AlertCircle,
 } from "lucide-react";
 
 import AdminSidebar from "./AdminSidebar.jsx";
@@ -48,7 +43,9 @@ export default function AdminAITools() {
           return parsed;
         }
       }
-    } catch (e) {}
+    } catch {
+      // ignore
+    }
     return initialAITools;
   });
 
@@ -70,7 +67,21 @@ export default function AdminAITools() {
   const [showModal, setShowModal] = useState(false);
   const [editingTool, setEditingTool] = useState(null);
   const [viewingTool, setViewingTool] = useState(null);
+  const [toolToDelete, setToolToDelete] = useState(null);
   const [toast, setToast] = useState(null);
+
+  // Close modals on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        if (toolToDelete) setToolToDelete(null);
+        else if (viewingTool) setViewingTool(null);
+        else if (showModal) setShowModal(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [toolToDelete, viewingTool, showModal]);
 
   // Column sort toggle handler
   const handleSort = (key) => {
@@ -80,6 +91,7 @@ export default function AdminAITools() {
       setSortKey(key);
       setSortOrder("asc");
     }
+    setCurrentPage(1);
   };
 
   const renderSortIcon = (key) => {
@@ -115,7 +127,9 @@ export default function AdminAITools() {
     setTools(newTools);
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(newTools));
-    } catch (e) {}
+    } catch {
+      // ignore
+    }
   };
 
   const filteredTools = useMemo(() => {
@@ -152,36 +166,27 @@ export default function AdminAITools() {
     return sortedList;
   }, [tools, search, categoryFilter, sortKey, sortOrder]);
 
-  // Auto-reset page when filters change
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [search, categoryFilter, sortKey, sortOrder, perPage]);
-
+  // Pagination calculations
   const totalPages = Math.max(1, Math.ceil(filteredTools.length / perPage));
-
-  useEffect(() => {
-    if (currentPage > totalPages) {
-      setCurrentPage(totalPages);
-    }
-  }, [currentPage, totalPages]);
+  const safeCurrentPage = Math.min(Math.max(1, currentPage), totalPages);
 
   const paginatedTools = useMemo(() => {
-    const start = (currentPage - 1) * perPage;
+    const start = (safeCurrentPage - 1) * perPage;
     return filteredTools.slice(start, start + perPage);
-  }, [filteredTools, currentPage, perPage]);
+  }, [filteredTools, safeCurrentPage, perPage]);
 
-  // Page numbers generator matching Projects & Bugs
+  // Page numbers generator matching Activity Logs
   const getPageNumbers = () => {
     if (totalPages <= 7) {
       return Array.from({ length: totalPages }, (_, i) => i + 1);
     }
-    if (currentPage <= 4) {
+    if (safeCurrentPage <= 4) {
       return [1, 2, 3, 4, 5, "...", totalPages];
     }
-    if (currentPage >= totalPages - 3) {
+    if (safeCurrentPage >= totalPages - 3) {
       return [1, "...", totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
     }
-    return [1, "...", currentPage - 1, currentPage, currentPage + 1, "...", totalPages];
+    return [1, "...", safeCurrentPage - 1, safeCurrentPage, safeCurrentPage + 1, "...", totalPages];
   };
 
   const stats = useMemo(() => {
@@ -232,9 +237,21 @@ export default function AdminAITools() {
     setShowModal(false);
   };
 
-  const deleteTool = (id) => {
-    saveTools(tools.filter((t) => t.id !== id));
-    showToast("AI tool removed.");
+  const confirmDeleteTool = () => {
+    if (!toolToDelete) return;
+    const deletedId = toolToDelete.id;
+    const deletedName = toolToDelete.name;
+    const updated = tools.filter((t) => t.id !== deletedId);
+    saveTools(updated);
+    if (viewingTool?.id === deletedId) {
+      setViewingTool(null);
+    }
+    if (editingTool?.id === deletedId) {
+      setShowModal(false);
+      setEditingTool(null);
+    }
+    setToolToDelete(null);
+    showToast(`AI feature "${deletedName}" permanently removed.`);
   };
 
   // Run AI Test Prompt
@@ -333,13 +350,33 @@ export default function AdminAITools() {
                 type="text"
                 placeholder="Search AI features and models..."
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setCurrentPage(1);
+                }}
               />
-              {search && <button type="button" className="clear-btn" onClick={() => setSearch("")}><X size={14} /></button>}
+              {search && (
+                <button
+                  type="button"
+                  className="clear-btn"
+                  onClick={() => {
+                    setSearch("");
+                    setCurrentPage(1);
+                  }}
+                >
+                  <X size={14} />
+                </button>
+              )}
             </div>
 
             <div className="admin-ai-controls">
-              <select value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)}>
+              <select
+                value={categoryFilter}
+                onChange={(e) => {
+                  setCategoryFilter(e.target.value);
+                  setCurrentPage(1);
+                }}
+              >
                 <option value="All">All Categories</option>
                 <option value="Assistant">Assistant</option>
                 <option value="Generation">Generation</option>
@@ -353,6 +390,7 @@ export default function AdminAITools() {
                   const [k, ord] = e.target.value.split("-");
                   setSortKey(k);
                   setSortOrder(ord);
+                  setCurrentPage(1);
                 }}
                 aria-label="Sort AI features"
               >
@@ -372,6 +410,7 @@ export default function AdminAITools() {
                   onClick={() => {
                     setSearch("");
                     setCategoryFilter("All");
+                    setCurrentPage(1);
                   }}
                 >
                   <X size={13} />
@@ -437,14 +476,14 @@ export default function AdminAITools() {
                         {renderSortIcon("requests")}
                       </div>
                     </th>
-                    <th style={{ textAlign: "right" }}>Actions</th>
+                    <th style={{ textAlign: "right", minWidth: 175 }}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {paginatedTools.map((t, idx) => (
                     <tr key={t.id} className={t.enabled ? "" : "row-disabled"}>
                       <td style={{ textAlign: "center" }}>
-                        <span className="admin-row-num">{(currentPage - 1) * perPage + idx + 1}</span>
+                        <span className="admin-row-num">{(safeCurrentPage - 1) * perPage + idx + 1}</span>
                       </td>
                       <td>
                         <div className="tool-title-cell">
@@ -470,38 +509,43 @@ export default function AdminAITools() {
                         <strong>{(t.requests || 120).toLocaleString()}</strong> calls
                       </td>
                       <td style={{ textAlign: "right" }}>
-                        <div className="table-actions">
+                        <div className="admin-ai-actions-cell table-actions">
                           <button
                             type="button"
-                            className={`power-btn-inline ${t.enabled ? "on" : "off"}`}
+                            className="ai-action-pill ai-view-btn"
+                            title="View details & Prompt"
+                            aria-label="View details & Prompt"
+                            onClick={() => setViewingTool(t)}
+                          >
+                            <Eye size={13} />
+                            <span>View</span>
+                          </button>
+                          <button
+                            type="button"
+                            className={`ai-action-icon ai-power-btn ${t.enabled ? "on" : "off"}`}
                             title={t.enabled ? "Disable Feature" : "Enable Feature"}
+                            aria-label={t.enabled ? "Disable Feature" : "Enable Feature"}
                             onClick={() => toggleToolEnabled(t.id)}
                           >
                             <Power size={13} />
                           </button>
                           <button
                             type="button"
-                            className="action-btn"
-                            title="View details & Prompt"
-                            onClick={() => setViewingTool(t)}
-                          >
-                            <Eye size={15} />
-                          </button>
-                          <button
-                            type="button"
-                            className="action-btn"
+                            className="ai-action-icon ai-edit-btn"
                             title="Edit AI Feature"
+                            aria-label="Edit AI Feature"
                             onClick={() => openEditModal(t)}
                           >
-                            <Pencil size={15} />
+                            <Pencil size={13} />
                           </button>
                           <button
                             type="button"
-                            className="action-btn delete"
+                            className="ai-action-icon ai-delete-btn"
                             title="Delete AI Feature"
-                            onClick={() => deleteTool(t.id)}
+                            aria-label="Delete AI Feature"
+                            onClick={() => setToolToDelete(t)}
                           >
-                            <Trash2 size={15} />
+                            <Trash2 size={13} />
                           </button>
                         </div>
                       </td>
@@ -525,7 +569,7 @@ export default function AdminAITools() {
                 <div key={t.id} className={`ai-tool-card ${t.enabled ? "" : "disabled"}`}>
                   <div className="tool-card-top">
                     <div className="tool-card-info">
-                      <span className="admin-row-num sm">{(currentPage - 1) * perPage + idx + 1}</span>
+                      <span className="admin-row-num sm">{(safeCurrentPage - 1) * perPage + idx + 1}</span>
                       <div className="tool-avatar"><Bot size={20} /></div>
                       <div>
                         <h3 className="clickable-title" onClick={() => setViewingTool(t)}>{t.name}</h3>
@@ -547,10 +591,35 @@ export default function AdminAITools() {
 
                   <div className="tool-card-footer">
                     <span className="tool-cat">{t.category}</span>
-                    <div className="tool-actions">
-                      <button type="button" className="action-btn" onClick={() => setViewingTool(t)}><Eye size={14} /></button>
-                      <button type="button" className="action-btn" onClick={() => openEditModal(t)}><Pencil size={14} /></button>
-                      <button type="button" className="action-btn delete" onClick={() => deleteTool(t.id)}><Trash2 size={14} /></button>
+                    <div className="admin-ai-actions-cell tool-actions">
+                      <button
+                        type="button"
+                        className="ai-action-pill ai-view-btn"
+                        title="View details & Prompt"
+                        aria-label="View details & Prompt"
+                        onClick={() => setViewingTool(t)}
+                      >
+                        <Eye size={12} />
+                        <span>View</span>
+                      </button>
+                      <button
+                        type="button"
+                        className="ai-action-icon ai-edit-btn"
+                        title="Edit AI Feature"
+                        aria-label="Edit AI Feature"
+                        onClick={() => openEditModal(t)}
+                      >
+                        <Pencil size={13} />
+                      </button>
+                      <button
+                        type="button"
+                        className="ai-action-icon ai-delete-btn"
+                        title="Delete AI Feature"
+                        aria-label="Delete AI Feature"
+                        onClick={() => setToolToDelete(t)}
+                      >
+                        <Trash2 size={13} />
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -558,15 +627,15 @@ export default function AdminAITools() {
             </div>
           )}
 
-          {/* PAGINATION BAR (Matching Reports & Activity Logs) */}
+          {/* PAGINATION BAR (Exact Activity Logs Style) */}
           {filteredTools.length > 0 && (
-            <div className={`admin-ai-pagination-bar ${viewMode === "grid" ? "is-grid" : ""}`}>
-              <div className="admin-ai-pagination-info">
+            <div className={`admin-logs-pagination-bar admin-ai-pagination-bar ${viewMode === "grid" ? "is-grid" : ""}`}>
+              <div className="admin-logs-pagination-info admin-ai-pagination-info">
                 <span>
-                  Showing {(currentPage - 1) * perPage + 1} to{" "}
-                  {Math.min(currentPage * perPage, filteredTools.length)} of {filteredTools.length} AI features
+                  Showing {(safeCurrentPage - 1) * perPage + 1} to{" "}
+                  {Math.min(safeCurrentPage * perPage, filteredTools.length)} of {filteredTools.length} AI features
                 </span>
-                <div className="admin-ai-page-size-wrap">
+                <div className="admin-logs-page-size-wrap admin-ai-page-size-wrap">
                   <span>AI features per page:</span>
                   <select
                     value={perPage}
@@ -584,26 +653,26 @@ export default function AdminAITools() {
                 </div>
               </div>
 
-              <div className="admin-ai-pagination-controls">
+              <div className="admin-logs-pagination-controls admin-ai-pagination-controls">
                 <button
                   type="button"
-                  className="admin-ai-page-nav-btn"
+                  className="admin-logs-page-nav-btn admin-ai-page-nav-btn"
                   onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                  disabled={currentPage <= 1}
+                  disabled={safeCurrentPage <= 1}
                 >
                   Previous
                 </button>
-                <div className="admin-ai-page-pills">
+                <div className="admin-logs-page-pills admin-ai-page-pills">
                   {getPageNumbers().map((item, idx) =>
                     item === "..." ? (
-                      <span key={`ellipsis-${idx}`} className="admin-ai-page-ellipsis">
+                      <span key={`ellipsis-${idx}`} className="admin-logs-page-ellipsis admin-ai-page-ellipsis">
                         ...
                       </span>
                     ) : (
                       <button
                         key={item}
                         type="button"
-                        className={`admin-ai-page-num-pill ${currentPage === item ? "active" : ""}`}
+                        className={`admin-logs-page-num-pill admin-ai-page-num-pill ${safeCurrentPage === item ? "active" : ""}`}
                         onClick={() => setCurrentPage(item)}
                       >
                         {item}
@@ -613,9 +682,9 @@ export default function AdminAITools() {
                 </div>
                 <button
                   type="button"
-                  className="admin-ai-page-nav-btn"
+                  className="admin-logs-page-nav-btn admin-ai-page-nav-btn"
                   onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                  disabled={currentPage >= totalPages}
+                  disabled={safeCurrentPage >= totalPages}
                 >
                   Next
                 </button>
@@ -705,7 +774,16 @@ export default function AdminAITools() {
               </div>
             </div>
 
-            <div className="modal-actions">
+            <div className="modal-actions ai-view-modal-actions">
+              <button
+                type="button"
+                className="btn-danger-outline"
+                style={{ marginRight: "auto" }}
+                onClick={() => setToolToDelete(viewingTool)}
+              >
+                <Trash2 size={14} />
+                <span>Delete Feature</span>
+              </button>
               <button
                 type="button"
                 className="btn-cancel"
@@ -728,6 +806,94 @@ export default function AdminAITools() {
               >
                 <Pencil size={14} />
                 Edit AI Feature
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* CUSTOM CSS DELETE CONFIRMATION MODAL */}
+      {toolToDelete && (
+        <div
+          className="modal-overlay"
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget) setToolToDelete(null);
+          }}
+        >
+          <div
+            className="modal-box delete-confirm-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="delete-tool-title"
+          >
+            <div className="modal-header delete-modal-header">
+              <div className="delete-modal-icon-badge">
+                <AlertTriangle size={20} />
+              </div>
+              <div className="delete-modal-header-text">
+                <h2 id="delete-tool-title">Delete AI Feature</h2>
+                <span className="delete-modal-subtitle">Feature ID: #{toolToDelete.id}</span>
+              </div>
+              <button
+                type="button"
+                className="modal-close"
+                onClick={() => setToolToDelete(null)}
+                aria-label="Close"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="modal-body delete-modal-body">
+              <p className="delete-modal-lead">
+                Are you sure you want to permanently remove this AI feature? Workspace members and automated workflows will no longer have access to this engine.
+              </p>
+
+              <div className="delete-tool-preview-box">
+                <div className="preview-top">
+                  <span className="preview-id">#{toolToDelete.id}</span>
+                  <span className="tool-model-chip">{toolToDelete.model || "GPT-4o"}</span>
+                  <span className={`status-pill status-${toolToDelete.enabled ? "active" : "inactive"}`}>
+                    <span className="dot" />
+                    {toolToDelete.enabled ? "Active" : "Disabled"}
+                  </span>
+                </div>
+                <h4 className="preview-title">{toolToDelete.name}</h4>
+                <p className="preview-desc-snippet">{toolToDelete.description}</p>
+                <div className="preview-meta">
+                  <span>Category: {toolToDelete.category}</span>
+                  <span>•</span>
+                  <span>Usage: {(toolToDelete.requests || 0).toLocaleString()} calls</span>
+                  {toolToDelete.successRate && (
+                    <>
+                      <span>•</span>
+                      <span>Success Rate: {toolToDelete.successRate}%</span>
+                    </>
+                  )}
+                </div>
+              </div>
+
+              <div className="delete-modal-alert">
+                <AlertCircle size={16} />
+                <span>Active microservices and connected prompt triggers relying on this feature will immediately cease execution.</span>
+              </div>
+            </div>
+
+            <div className="modal-actions delete-modal-footer">
+              <button
+                type="button"
+                className="btn-cancel"
+                onClick={() => setToolToDelete(null)}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="admin-ai-btn-danger"
+                onClick={confirmDeleteTool}
+              >
+                <Trash2 size={15} />
+                <span>Delete AI Feature</span>
               </button>
             </div>
           </div>

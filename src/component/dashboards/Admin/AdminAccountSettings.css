@@ -111,7 +111,10 @@
 /* CONTENT */
 .tfAdminAccountSettings__content {
   width: 100%;
-  padding: 24px 28px 40px;
+  max-width: none;
+  margin: 0;
+  padding: 24px 28px 36px;
+  box-sizing: border-box;
 }
 
 /* TOAST */
@@ -122,12 +125,32 @@
   padding: 12px 18px;
   margin-bottom: 20px;
   border-radius: 10px;
-  background: #ecfdf3;
-  border: 1px solid #a6f4c5;
-  color: #027a48;
   font-size: 13px;
   font-weight: 600;
   animation: tfToastIn 200ms ease;
+}
+
+.tfAdminAccountSettings__toast--success {
+  background: #ecfdf3;
+  border: 1px solid #a6f4c5;
+  color: #027a48;
+}
+
+.tfAdminAccountSettings__toast--error {
+  background: #fef3f2;
+  border: 1px solid #fecdca;
+  color: #d92d20;
+}
+
+@keyframes tfToastIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* HEADER */
@@ -515,95 +538,316 @@
 
 
 /* =========================================================
-   DARK MODE COMPATIBILITY (.dark)
+   DARK MODE COMPATIBILITY (.dark, body.dark-theme, [data-theme="dark"])
 ========================================================= */
 
-html.dark .tfAdminAccountSettings,
-.dark .tfAdminAccountSettings {
-  background: #0f172a;
-  color: #f8fafc;
-}
+:root.dark .tfAdminAccountSettings,
+.dark .tfAdminAccountSettings,
+body.dark-theme .tfAdminAccountSettings,
+[data-theme="dark"] .tfAdminAccountSettings {
+  --text: #f8fafc;
+  --text-dark: #f8fafc;
+  --secondary: #94a3b8;
+  --muted: #64748b;
+  --border: #334155;
+  --border-light: #1e293b;
+  --surface: #1e293b;
+  --bg: #0f172a;
+  --primary-soft: rgba(99, 102, 241, 0.15);
+  --shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
 
-html.dark .tfAdminAccountSettings__main,
-.dark .tfAdminAccountSettings__main {
-  background: #0f172a;
-  color: #f8fafc;
-}
-
-html.dark .tfAdminAccountSettings__card,
-.dark .tfAdminAccountSettings__card {
-  background: #1e293b;
-  border-color: #334155;
-  color: #f8fafc;
-}
-
-html.dark .tfAdminAccountSettings__header h1,
-.dark .tfAdminAccountSettings__header h1 {
-  color: #f8fafc;
-}
-
-html.dark .tfAdminAccountSettings__header p,
-.dark .tfAdminAccountSettings__header p {
-  color: #94a3b8;
-}
-
-html.dark .tfAdminAccountSettings input,
-html.dark .tfAdminAccountSettings select,
-html.dark .tfAdminAccountSettings textarea,
-.dark .tfAdminAccountSettings input,
-.dark .tfAdminAccountSettings select,
-.dark .tfAdminAccountSettings textarea {
   background: #0f172a !important;
-  border-color: #334155 !important;
   color: #f8fafc !important;
 }
 
-html.dark .tfAdminAccountSettings label,
-.dark .tfAdminAccountSettings label {
-  color: #cbd5e1;
+:root.dark .tfAdminAccountSettings__main,
+.dark .tfAdminAccountSettings__main,
+body.dark-theme .tfAdminAccountSettings__main,
+[data-theme="dark"] .tfAdminAccountSettings__main {
+  background: #0f172a !important;
+  color: #f8fafc !important;
 }
 
-html.dark .tfAdminAccountSettings__cardHeader,
-.dark .tfAdminAccountSettings__cardHeader {
-  border-bottom-color: #334155;
+/* TOPBAR */
+:root.dark .tfAdminAccountSettings__topbar,
+.dark .tfAdminAccountSettings__topbar,
+body.dark-theme .tfAdminAccountSettings__topbar,
+[data-theme="dark"] .tfAdminAccountSettings__topbar {
+  background: #0f172a !important;
+  border-bottom: 1px solid #1e293b !important;
 }
 
-html.dark .tfAdminAccountSettings__cardHeader h2,
-.dark .tfAdminAccountSettings__cardHeader h2 {
-  color: #f8fafc;
+:root.dark .tfAdminAccountSettings__mobileMenu,
+.dark .tfAdminAccountSettings__mobileMenu,
+body.dark-theme .tfAdminAccountSettings__mobileMenu,
+[data-theme="dark"] .tfAdminAccountSettings__mobileMenu {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #cbd5e1 !important;
 }
 
-html.dark .tfAdminAccountSettings__cardHeader p,
-.dark .tfAdminAccountSettings__cardHeader p {
-  color: #94a3b8;
+:root.dark .tfAdminAccountSettings__backBtn,
+.dark .tfAdminAccountSettings__backBtn,
+body.dark-theme .tfAdminAccountSettings__backBtn,
+[data-theme="dark"] .tfAdminAccountSettings__backBtn {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #cbd5e1 !important;
 }
 
-html.dark .tfAdminAccountSettings__btnSecondary,
-.dark .tfAdminAccountSettings__btnSecondary {
-  background: #1e293b;
-  border-color: #334155;
-  color: #cbd5e1;
+:root.dark .tfAdminAccountSettings__backBtn:hover,
+.dark .tfAdminAccountSettings__backBtn:hover,
+body.dark-theme .tfAdminAccountSettings__backBtn:hover,
+[data-theme="dark"] .tfAdminAccountSettings__backBtn:hover {
+  background: #334155 !important;
+  border-color: #475569 !important;
+  color: #f8fafc !important;
 }
 
-html.dark .tfAdminAccountSettings__btnSecondary:hover,
-.dark .tfAdminAccountSettings__btnSecondary:hover {
-  background: #334155;
-  color: #f8fafc;
+:root.dark .tfAdminAccountSettings__breadcrumb,
+.dark .tfAdminAccountSettings__breadcrumb,
+body.dark-theme .tfAdminAccountSettings__breadcrumb,
+[data-theme="dark"] .tfAdminAccountSettings__breadcrumb {
+  color: #64748b !important;
 }
 
-html.dark .tfAdminAccountSettings__themeCard,
-.dark .tfAdminAccountSettings__themeCard {
-  background: #1e293b;
-  border-color: #334155;
+:root.dark .tfAdminAccountSettings__breadcrumb strong,
+.dark .tfAdminAccountSettings__breadcrumb strong,
+body.dark-theme .tfAdminAccountSettings__breadcrumb strong,
+[data-theme="dark"] .tfAdminAccountSettings__breadcrumb strong {
+  color: #f8fafc !important;
 }
 
-html.dark .tfAdminAccountSettings__sessionItem,
-.dark .tfAdminAccountSettings__sessionItem {
-  border-bottom-color: #334155;
+/* HEADER */
+:root.dark .tfAdminAccountSettings__header h1,
+.dark .tfAdminAccountSettings__header h1,
+body.dark-theme .tfAdminAccountSettings__header h1,
+[data-theme="dark"] .tfAdminAccountSettings__header h1 {
+  color: #f8fafc !important;
 }
 
-html.dark .tfAdminAccountSettings__noticeBox,
-.dark .tfAdminAccountSettings__noticeBox {
-  background: #0f172a;
-  border-color: #334155;
+:root.dark .tfAdminAccountSettings__header p,
+.dark .tfAdminAccountSettings__header p,
+body.dark-theme .tfAdminAccountSettings__header p,
+[data-theme="dark"] .tfAdminAccountSettings__header p {
+  color: #94a3b8 !important;
+}
+
+/* CARDS */
+:root.dark .tfAdminAccountSettings__card,
+.dark .tfAdminAccountSettings__card,
+body.dark-theme .tfAdminAccountSettings__card,
+[data-theme="dark"] .tfAdminAccountSettings__card {
+  background: #1e293b !important;
+  border: 1px solid #334155 !important;
+  color: #f8fafc !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.28) !important;
+}
+
+:root.dark .tfAdminAccountSettings__cardHeader,
+.dark .tfAdminAccountSettings__cardHeader,
+body.dark-theme .tfAdminAccountSettings__cardHeader,
+[data-theme="dark"] .tfAdminAccountSettings__cardHeader {
+  border-bottom-color: #334155 !important;
+}
+
+:root.dark .tfAdminAccountSettings__cardHeader h2,
+.dark .tfAdminAccountSettings__cardHeader h2,
+body.dark-theme .tfAdminAccountSettings__cardHeader h2,
+[data-theme="dark"] .tfAdminAccountSettings__cardHeader h2 {
+  color: #f8fafc !important;
+}
+
+:root.dark .tfAdminAccountSettings__cardHeader p,
+.dark .tfAdminAccountSettings__cardHeader p,
+body.dark-theme .tfAdminAccountSettings__cardHeader p,
+[data-theme="dark"] .tfAdminAccountSettings__cardHeader p {
+  color: #94a3b8 !important;
+}
+
+:root.dark .tfAdminAccountSettings__headerIcon,
+.dark .tfAdminAccountSettings__headerIcon,
+body.dark-theme .tfAdminAccountSettings__headerIcon,
+[data-theme="dark"] .tfAdminAccountSettings__headerIcon {
+  color: #818cf8 !important;
+}
+
+/* FORM FIELDS & INPUTS */
+:root.dark .tfAdminAccountSettings label,
+.dark .tfAdminAccountSettings label,
+body.dark-theme .tfAdminAccountSettings label,
+[data-theme="dark"] .tfAdminAccountSettings label {
+  color: #cbd5e1 !important;
+}
+
+:root.dark .tfAdminAccountSettings select,
+:root.dark .tfAdminAccountSettings input,
+.dark .tfAdminAccountSettings select,
+.dark .tfAdminAccountSettings input,
+body.dark-theme .tfAdminAccountSettings select,
+body.dark-theme .tfAdminAccountSettings input,
+[data-theme="dark"] .tfAdminAccountSettings select,
+[data-theme="dark"] .tfAdminAccountSettings input {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+  color-scheme: dark !important;
+}
+
+:root.dark .tfAdminAccountSettings select option,
+.dark .tfAdminAccountSettings select option,
+body.dark-theme .tfAdminAccountSettings select option,
+[data-theme="dark"] .tfAdminAccountSettings select option {
+  background: #0f172a !important;
+  color: #f8fafc !important;
+}
+
+:root.dark .tfAdminAccountSettings select:focus,
+:root.dark .tfAdminAccountSettings input:focus,
+.dark .tfAdminAccountSettings select:focus,
+.dark .tfAdminAccountSettings input:focus,
+body.dark-theme .tfAdminAccountSettings select:focus,
+body.dark-theme .tfAdminAccountSettings input:focus,
+[data-theme="dark"] .tfAdminAccountSettings select:focus,
+[data-theme="dark"] .tfAdminAccountSettings input:focus {
+  border-color: #6366f1 !important;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25) !important;
+}
+
+/* DAY PILLS */
+:root.dark .tfAdminAccountSettings__dayPill,
+.dark .tfAdminAccountSettings__dayPill,
+body.dark-theme .tfAdminAccountSettings__dayPill,
+[data-theme="dark"] .tfAdminAccountSettings__dayPill {
+  background: #0f172a !important;
+  border: 1px solid #334155 !important;
+  color: #94a3b8 !important;
+}
+
+:root.dark .tfAdminAccountSettings__dayPill:hover,
+.dark .tfAdminAccountSettings__dayPill:hover,
+body.dark-theme .tfAdminAccountSettings__dayPill:hover,
+[data-theme="dark"] .tfAdminAccountSettings__dayPill:hover {
+  background: #1e293b !important;
+  border-color: #6366f1 !important;
+  color: #f8fafc !important;
+}
+
+:root.dark .tfAdminAccountSettings__dayPill--active,
+.dark .tfAdminAccountSettings__dayPill--active,
+body.dark-theme .tfAdminAccountSettings__dayPill--active,
+[data-theme="dark"] .tfAdminAccountSettings__dayPill--active {
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%) !important;
+  border-color: #6366f1 !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.35) !important;
+}
+
+/* TOGGLES / WORKSPACE DEFAULTS */
+:root.dark .tfAdminAccountSettings__toggleList,
+.dark .tfAdminAccountSettings__toggleList,
+body.dark-theme .tfAdminAccountSettings__toggleList,
+[data-theme="dark"] .tfAdminAccountSettings__toggleList {
+  border-top-color: #334155 !important;
+}
+
+:root.dark .tfAdminAccountSettings__toggleRow strong,
+.dark .tfAdminAccountSettings__toggleRow strong,
+body.dark-theme .tfAdminAccountSettings__toggleRow strong,
+[data-theme="dark"] .tfAdminAccountSettings__toggleRow strong {
+  color: #f8fafc !important;
+}
+
+:root.dark .tfAdminAccountSettings__toggleRow p,
+.dark .tfAdminAccountSettings__toggleRow p,
+body.dark-theme .tfAdminAccountSettings__toggleRow p,
+[data-theme="dark"] .tfAdminAccountSettings__toggleRow p {
+  color: #94a3b8 !important;
+}
+
+:root.dark .tfAdminAccountSettings__toggleRow:hover strong,
+.dark .tfAdminAccountSettings__toggleRow:hover strong,
+body.dark-theme .tfAdminAccountSettings__toggleRow:hover strong,
+[data-theme="dark"] .tfAdminAccountSettings__toggleRow:hover strong {
+  color: #a5b4fc !important;
+}
+
+/* DATA EXPORT & AUDIT BOX */
+:root.dark .tfAdminAccountSettings__exportBox,
+.dark .tfAdminAccountSettings__exportBox,
+body.dark-theme .tfAdminAccountSettings__exportBox,
+[data-theme="dark"] .tfAdminAccountSettings__exportBox {
+  background: #0f172a !important;
+  border: 1px solid #334155 !important;
+}
+
+:root.dark .tfAdminAccountSettings__exportBox strong,
+.dark .tfAdminAccountSettings__exportBox strong,
+body.dark-theme .tfAdminAccountSettings__exportBox strong,
+[data-theme="dark"] .tfAdminAccountSettings__exportBox strong {
+  color: #f8fafc !important;
+}
+
+:root.dark .tfAdminAccountSettings__exportBox p,
+.dark .tfAdminAccountSettings__exportBox p,
+body.dark-theme .tfAdminAccountSettings__exportBox p,
+[data-theme="dark"] .tfAdminAccountSettings__exportBox p {
+  color: #94a3b8 !important;
+}
+
+:root.dark .tfAdminAccountSettings__btnOutline,
+.dark .tfAdminAccountSettings__btnOutline,
+body.dark-theme .tfAdminAccountSettings__btnOutline,
+[data-theme="dark"] .tfAdminAccountSettings__btnOutline {
+  background: #1e293b !important;
+  border: 1px solid #334155 !important;
+  color: #cbd5e1 !important;
+}
+
+:root.dark .tfAdminAccountSettings__btnOutline:hover,
+.dark .tfAdminAccountSettings__btnOutline:hover,
+body.dark-theme .tfAdminAccountSettings__btnOutline:hover,
+[data-theme="dark"] .tfAdminAccountSettings__btnOutline:hover {
+  background: rgba(99, 102, 241, 0.16) !important;
+  border-color: #6366f1 !important;
+  color: #a5b4fc !important;
+  box-shadow: 0 0 12px rgba(99, 102, 241, 0.15) !important;
+}
+
+/* SECONDARY BUTTONS (RESET & CANCEL) */
+:root.dark .tfAdminAccountSettings__btnSecondary,
+.dark .tfAdminAccountSettings__btnSecondary,
+body.dark-theme .tfAdminAccountSettings__btnSecondary,
+[data-theme="dark"] .tfAdminAccountSettings__btnSecondary {
+  background: #0f172a !important;
+  border: 1px solid #334155 !important;
+  color: #cbd5e1 !important;
+}
+
+:root.dark .tfAdminAccountSettings__btnSecondary:hover,
+.dark .tfAdminAccountSettings__btnSecondary:hover,
+body.dark-theme .tfAdminAccountSettings__btnSecondary:hover,
+[data-theme="dark"] .tfAdminAccountSettings__btnSecondary:hover {
+  background: #1e293b !important;
+  border-color: #475569 !important;
+  color: #f8fafc !important;
+}
+
+/* TOASTS */
+:root.dark .tfAdminAccountSettings__toast--success,
+.dark .tfAdminAccountSettings__toast--success,
+body.dark-theme .tfAdminAccountSettings__toast--success,
+[data-theme="dark"] .tfAdminAccountSettings__toast--success {
+  background: rgba(16, 185, 129, 0.16) !important;
+  border: 1px solid rgba(16, 185, 129, 0.35) !important;
+  color: #34d399 !important;
+}
+
+:root.dark .tfAdminAccountSettings__toast--error,
+.dark .tfAdminAccountSettings__toast--error,
+body.dark-theme .tfAdminAccountSettings__toast--error,
+[data-theme="dark"] .tfAdminAccountSettings__toast--error {
+  background: rgba(239, 68, 68, 0.16) !important;
+  border: 1px solid rgba(239, 68, 68, 0.35) !important;
+  color: #f87171 !important;
 }

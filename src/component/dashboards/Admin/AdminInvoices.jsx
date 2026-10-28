@@ -8,41 +8,78 @@ import {
   CheckCircle2,
   Clock,
   AlertCircle,
+  AlertTriangle,
   CreditCard,
   Building,
-  Mail,
   Calendar,
-  DollarSign,
-  ChevronRight,
+  IndianRupee,
   Printer,
-  ExternalLink,
   ShieldCheck,
   Check,
   X,
   FileSpreadsheet,
   Plus,
-  Pencil,
   Trash2,
   ArrowUpDown,
   ArrowUp,
   ArrowDown,
+  QrCode,
 } from "lucide-react";
 import AdminSidebar from "./AdminSidebar.jsx";
 import AdminTopbar from "./AdminTopbar.jsx";
+import { downloadInvoicePDF, previewInvoicePDF } from "./invoicePdfGenerator.js";
 import "./AdminInvoices.css";
 
+const formatINR = (amt) => {
+  const num = Number(amt) || 0;
+  return `₹${num.toLocaleString("en-IN", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
+};
+
 const INITIAL_INVOICES = [
+  {
+    id: "INV-2026-012",
+    date: "2026-10-25",
+    dueDate: "2026-11-05",
+    description: "Enterprise Security Audit & SOC2 Attestation Pack",
+    amount: 49900.00,
+    status: "Paid",
+    method: "Visa •••• 4242",
+    items: [
+      { name: "Continuous Compliance & SOC2 Type II Monitoring", qty: 1, rate: 37500.00, total: 37500.00 },
+      { name: "Dedicated Audit Log Streaming S3 Sink", qty: 1, rate: 12400.00, total: 12400.00 }
+    ],
+    tax: 0.00,
+    pdfUrl: "#"
+  },
+  {
+    id: "INV-2026-011",
+    date: "2026-10-15",
+    dueDate: "2026-10-30",
+    description: "Dedicated Multi-Region AI Inference Cluster",
+    amount: 69999.00,
+    status: "Pending",
+    method: "NEFT / Bank Transfer",
+    items: [
+      { name: "High-Throughput GPU Inference Pod (Asia-South1)", qty: 1, rate: 54999.00, total: 54999.00 },
+      { name: "Low-Latency Edge Model Caching", qty: 1, rate: 15000.00, total: 15000.00 }
+    ],
+    tax: 0.00,
+    pdfUrl: "#"
+  },
   {
     id: "INV-2026-010",
     date: "2026-10-01",
     dueDate: "2026-10-15",
     description: "Enterprise Plan - Monthly Subscription (25 Seats + AI Pro)",
-    amount: 499.00,
+    amount: 39999.00,
     status: "Paid",
     method: "Visa •••• 4242",
     items: [
-      { name: "TeamFlow Enterprise (25 Seats)", qty: 1, rate: 399.00, total: 399.00 },
-      { name: "AI Power Pack (1M Tokens/mo)", qty: 1, rate: 100.00, total: 100.00 }
+      { name: "TeamFlow Enterprise (25 Seats)", qty: 1, rate: 31999.00, total: 31999.00 },
+      { name: "AI Power Pack (1M Tokens/mo)", qty: 1, rate: 8000.00, total: 8000.00 }
     ],
     tax: 0.00,
     pdfUrl: "#"
@@ -52,12 +89,12 @@ const INITIAL_INVOICES = [
     date: "2026-09-01",
     dueDate: "2026-09-15",
     description: "Enterprise Plan - Monthly Subscription (25 Seats + AI Pro)",
-    amount: 499.00,
+    amount: 39999.00,
     status: "Paid",
-    method: "Visa •••• 4242",
+    method: "UPI (Google Pay)",
     items: [
-      { name: "TeamFlow Enterprise (25 Seats)", qty: 1, rate: 399.00, total: 399.00 },
-      { name: "AI Power Pack (1M Tokens/mo)", qty: 1, rate: 100.00, total: 100.00 }
+      { name: "TeamFlow Enterprise (25 Seats)", qty: 1, rate: 31999.00, total: 31999.00 },
+      { name: "AI Power Pack (1M Tokens/mo)", qty: 1, rate: 8000.00, total: 8000.00 }
     ],
     tax: 0.00,
     pdfUrl: "#"
@@ -67,11 +104,11 @@ const INITIAL_INVOICES = [
     date: "2026-08-01",
     dueDate: "2026-08-15",
     description: "Enterprise Plan - Monthly Subscription (20 Seats)",
-    amount: 399.00,
+    amount: 31999.00,
     status: "Paid",
     method: "Visa •••• 4242",
     items: [
-      { name: "TeamFlow Enterprise (20 Seats)", qty: 1, rate: 399.00, total: 399.00 }
+      { name: "TeamFlow Enterprise (20 Seats)", qty: 1, rate: 31999.00, total: 31999.00 }
     ],
     tax: 0.00,
     pdfUrl: "#"
@@ -81,11 +118,11 @@ const INITIAL_INVOICES = [
     date: "2026-07-01",
     dueDate: "2026-07-15",
     description: "Enterprise Plan - Monthly Subscription (20 Seats)",
-    amount: 399.00,
+    amount: 31999.00,
     status: "Paid",
     method: "Mastercard •••• 8821",
     items: [
-      { name: "TeamFlow Enterprise (20 Seats)", qty: 1, rate: 399.00, total: 399.00 }
+      { name: "TeamFlow Enterprise (20 Seats)", qty: 1, rate: 31999.00, total: 31999.00 }
     ],
     tax: 0.00,
     pdfUrl: "#"
@@ -95,11 +132,11 @@ const INITIAL_INVOICES = [
     date: "2026-06-01",
     dueDate: "2026-06-15",
     description: "Enterprise Plan - Monthly Subscription (15 Seats)",
-    amount: 299.00,
+    amount: 24999.00,
     status: "Paid",
     method: "Mastercard •••• 8821",
     items: [
-      { name: "TeamFlow Enterprise (15 Seats)", qty: 1, rate: 299.00, total: 299.00 }
+      { name: "TeamFlow Enterprise (15 Seats)", qty: 1, rate: 24999.00, total: 24999.00 }
     ],
     tax: 0.00,
     pdfUrl: "#"
@@ -108,24 +145,213 @@ const INITIAL_INVOICES = [
     id: "INV-2026-005",
     date: "2026-05-01",
     dueDate: "2026-05-15",
-    description: "Pro Plan - Monthly Subscription",
-    amount: 149.00,
+    description: "Pro Plan - Monthly Subscription (10 Seats)",
+    amount: 12499.00,
+    status: "Refunded",
+    method: "Mastercard •••• 8821",
+    items: [
+      { name: "TeamFlow Pro (10 Seats)", qty: 1, rate: 12499.00, total: 12499.00 }
+    ],
+    tax: 0.00,
+    pdfUrl: "#"
+  },
+  {
+    id: "INV-2026-004",
+    date: "2026-04-01",
+    dueDate: "2026-04-15",
+    description: "Pro Plan - Monthly Subscription (10 Seats)",
+    amount: 12499.00,
+    status: "Paid",
+    method: "Net Banking (HDFC)",
+    items: [
+      { name: "TeamFlow Pro (10 Seats)", qty: 1, rate: 12499.00, total: 12499.00 }
+    ],
+    tax: 0.00,
+    pdfUrl: "#"
+  },
+  {
+    id: "INV-2026-003",
+    date: "2026-03-01",
+    dueDate: "2026-03-15",
+    description: "Startup Pro Tier - Team Launch",
+    amount: 12499.00,
+    status: "Paid",
+    method: "UPI (PhonePe)",
+    items: [
+      { name: "Startup Team License (10 Seats)", qty: 1, rate: 12499.00, total: 12499.00 }
+    ],
+    tax: 0.00,
+    pdfUrl: "#"
+  },
+  {
+    id: "INV-2026-002",
+    date: "2026-02-01",
+    dueDate: "2026-02-15",
+    description: "AI Token Burst Pack (500K Tokens)",
+    amount: 3999.00,
+    status: "Paid",
+    method: "Visa •••• 4242",
+    items: [
+      { name: "Prepaid Claude & GPT Token Pack", qty: 1, rate: 3999.00, total: 3999.00 }
+    ],
+    tax: 0.00,
+    pdfUrl: "#"
+  },
+  {
+    id: "INV-2026-001",
+    date: "2026-01-01",
+    dueDate: "2026-01-15",
+    description: "Platform Setup & Domain Verification",
+    amount: 7999.00,
     status: "Paid",
     method: "Mastercard •••• 8821",
     items: [
-      { name: "TeamFlow Pro (10 Seats)", qty: 1, rate: 149.00, total: 149.00 }
+      { name: "Dedicated SSO Domain Integration & Setup", qty: 1, rate: 7999.00, total: 7999.00 }
     ],
     tax: 0.00,
     pdfUrl: "#"
   }
 ];
 
+function InvoiceQRCode({ id = "", size = 72 }) {
+  const modules = useMemo(() => {
+    const grid = Array(21).fill(null).map(() => Array(21).fill(false));
+
+    // Top-left finder
+    for (let r = 0; r < 7; r++) {
+      for (let c = 0; c < 7; c++) {
+        if (r === 0 || r === 6 || c === 0 || c === 6 || (r >= 2 && r <= 4 && c >= 2 && c <= 4)) {
+          grid[r][c] = true;
+        }
+      }
+    }
+    // Top-right finder
+    for (let r = 0; r < 7; r++) {
+      for (let c = 14; c < 21; c++) {
+        if (r === 0 || r === 6 || c === 14 || c === 20 || (r >= 2 && r <= 4 && c >= 16 && c <= 18)) {
+          grid[r][c] = true;
+        }
+      }
+    }
+    // Bottom-left finder
+    for (let r = 14; r < 21; r++) {
+      for (let c = 0; c < 7; c++) {
+        if (r === 14 || r === 20 || c === 0 || c === 6 || (r >= 16 && r <= 18 && c >= 2 && c <= 4)) {
+          grid[r][c] = true;
+        }
+      }
+    }
+    // Timing patterns
+    for (let i = 8; i < 13; i += 2) {
+      grid[6][i] = true;
+      grid[i][6] = true;
+    }
+    // Deterministic hash based on id
+    let hash = 0;
+    for (let i = 0; i < id.length; i++) {
+      hash = (hash << 5) - hash + id.charCodeAt(i);
+      hash |= 0;
+    }
+    for (let r = 0; r < 21; r++) {
+      for (let c = 0; c < 21; c++) {
+        if ((r < 8 && c < 8) || (r < 8 && c >= 13) || (r >= 13 && c < 8)) continue;
+        if (r === 6 || c === 6) continue;
+        const bit = ((hash ^ (r * 31 + c * 17)) & (1 << ((r + c) % 15))) !== 0;
+        grid[r][c] = bit;
+      }
+    }
+    // Alignment pattern near bottom-right
+    for (let r = 14; r <= 18; r++) {
+      for (let c = 14; c <= 18; c++) {
+        if (r === 14 || r === 18 || c === 14 || c === 18 || (r === 16 && c === 16)) {
+          grid[r][c] = true;
+        } else {
+          grid[r][c] = false;
+        }
+      }
+    }
+    return grid;
+  }, [id]);
+
+  return (
+    <svg
+      viewBox="0 0 25 25"
+      width={size}
+      height={size}
+      className="invoice-qr-svg"
+      shapeRendering="crispEdges"
+      aria-label={`QR verification code for ${id}`}
+    >
+      <rect width="25" height="25" fill="#ffffff" rx="2" />
+      {modules.map((row, r) =>
+        row.map((val, c) =>
+          val ? (
+            <rect
+              key={`${r}-${c}`}
+              x={c + 2}
+              y={r + 2}
+              width="1"
+              height="1"
+              fill="#0f172a"
+            />
+          ) : null
+        )
+      )}
+    </svg>
+  );
+}
+
+function InvoiceStamp({ status = "Paid", date = "" }) {
+  const normStatus = (status || "").toLowerCase();
+
+  if (normStatus === "paid") {
+    return (
+      <div className="invoice-rubber-stamp stamp-paid" aria-label="Official Paid Stamp">
+        <div className="stamp-inner">
+          <span className="stamp-top-text">OFFICIAL RECEIPT</span>
+          <span className="stamp-main-text">PAID</span>
+          <span className="stamp-bottom-text">{date || "SETTLED"}</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (normStatus === "pending") {
+    return (
+      <div className="invoice-rubber-stamp stamp-pending" aria-label="Official Pending Stamp">
+        <div className="stamp-inner">
+          <span className="stamp-top-text">PAYMENT DUE</span>
+          <span className="stamp-main-text">PENDING</span>
+          <span className="stamp-bottom-text">{date || "AWAITING"}</span>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="invoice-rubber-stamp stamp-refunded" aria-label="Official Refunded Stamp">
+      <div className="stamp-inner">
+        <span className="stamp-top-text">CREDITED BACK</span>
+        <span className="stamp-main-text">REFUNDED</span>
+        <span className="stamp-bottom-text">{date || "SETTLED"}</span>
+      </div>
+    </div>
+  );
+}
+
 export default function AdminInvoices() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [invoices, setInvoices] = useState(() => {
     try {
       const saved = localStorage.getItem("teamflow_admin_invoices");
-      return saved ? JSON.parse(saved) : INITIAL_INVOICES;
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        // Ensure data is upgraded to Indian Rupee (INR) amounts
+        if (Array.isArray(parsed) && parsed.length >= 8 && parsed[0]?.amount >= 2000) {
+          return parsed;
+        }
+      }
+      return INITIAL_INVOICES;
     } catch {
       return INITIAL_INVOICES;
     }
@@ -136,28 +362,53 @@ export default function AdminInvoices() {
   const [methodFilter, setMethodFilter] = useState("all");
   const [sortKey, setSortKey] = useState("date");
   const [sortOrder, setSortOrder] = useState("desc");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [perPage, setPerPage] = useState(6);
   const [selectedInvoice, setSelectedInvoice] = useState(null);
+  const [invoiceToPrint, setInvoiceToPrint] = useState(null);
+  const [invoiceToDelete, setInvoiceToDelete] = useState(null);
   const [showBillingModal, setShowBillingModal] = useState(false);
   const [showCreateInvoiceModal, setShowCreateInvoiceModal] = useState(false);
   const [downloadSuccess, setDownloadSuccess] = useState(null);
 
-  const [newInvoiceForm, setNewInvoiceForm] = useState({
+  const [newInvoiceForm, setNewInvoiceForm] = useState(() => ({
     id: `INV-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 900) + 100).padStart(3, "0")}`,
     date: new Date().toISOString().slice(0, 10),
     dueDate: new Date(Date.now() + 14 * 86400000).toISOString().slice(0, 10),
-    description: "Enterprise Monthly Subscription",
-    amount: 399.00,
+    description: "Enterprise Monthly Subscription (25 Seats)",
+    amount: 39999.00,
     status: "Paid",
     method: "Visa •••• 4242",
-  });
+  }));
 
   const handleSort = (key) => {
+    setCurrentPage(1);
     if (sortKey === key) {
       setSortOrder(prev => prev === "asc" ? "desc" : "asc");
     } else {
       setSortKey(key);
       setSortOrder("asc");
     }
+  };
+
+  const handlePrint = (inv) => {
+    setInvoiceToPrint(inv);
+    setTimeout(() => {
+      window.print();
+    }, 180);
+  };
+
+  const handleModalPrint = (inv) => {
+    setInvoiceToPrint(inv || selectedInvoice);
+    setTimeout(() => {
+      window.print();
+    }, 180);
+  };
+
+  const handlePreviewPDF = (inv) => {
+    const target = inv || selectedInvoice;
+    if (!target) return;
+    previewInvoicePDF(target, billingInfo);
   };
 
   const renderSortIcon = (key) => {
@@ -188,9 +439,16 @@ export default function AdminInvoices() {
     setTimeout(() => setDownloadSuccess(null), 3000);
   };
 
-  const deleteInvoice = (id) => {
-    if (!window.confirm(`Delete statement "${id}"?`)) return;
-    setInvoices(invoices.filter(i => i.id !== id));
+  const confirmDeleteInvoice = () => {
+    if (!invoiceToDelete) return;
+    const deletedId = invoiceToDelete.id;
+    setInvoices((prev) => prev.filter((i) => i.id !== deletedId));
+    if (selectedInvoice?.id === deletedId) {
+      setSelectedInvoice(null);
+    }
+    setDownloadSuccess(`Invoice statement ${deletedId} deleted.`);
+    setInvoiceToDelete(null);
+    setTimeout(() => setDownloadSuccess(null), 3000);
   };
 
   const toggleInvoiceStatus = (id) => {
@@ -264,6 +522,14 @@ export default function AdminInvoices() {
     });
   }, [invoices, search, statusFilter, methodFilter, sortKey, sortOrder]);
 
+  const totalPages = Math.max(1, Math.ceil(filteredInvoices.length / perPage));
+  const safeCurrentPage = Math.min(currentPage, totalPages);
+
+  const paginatedInvoices = useMemo(() => {
+    const start = (safeCurrentPage - 1) * perPage;
+    return filteredInvoices.slice(start, start + perPage);
+  }, [filteredInvoices, safeCurrentPage, perPage]);
+
   const totalSpent = useMemo(() => {
     return invoices
       .filter(i => i.status === "Paid")
@@ -271,49 +537,16 @@ export default function AdminInvoices() {
   }, [invoices]);
 
   const handleDownloadPDF = (inv) => {
-    // Generate a downloadable text/receipt blob simulating PDF
-    const content = `
-===================================================
-              TEAMFLOW AI - OFFICIAL RECEIPT
-===================================================
-Invoice Number: ${inv.id}
-Date Issued:    ${inv.date}
-Payment Due:    ${inv.dueDate}
-Status:         ${inv.status}
-Payment Method: ${inv.method}
-
-BILLED TO:
-${billingInfo.company}
-Tax ID: ${billingInfo.taxId}
-Email: ${billingInfo.email}
-Address: ${billingInfo.address}, ${billingInfo.city}, ${billingInfo.state} ${billingInfo.zip}, ${billingInfo.country}
-
----------------------------------------------------
-LINE ITEMS:
-${inv.items.map(it => `- ${it.name} x${it.qty} = $${it.total.toFixed(2)}`).join("\n")}
-
-Subtotal: $${inv.amount.toFixed(2)}
-Tax (0%): $0.00
----------------------------------------------------
-TOTAL PAID: $${inv.amount.toFixed(2)} USD
-===================================================
-Thank you for building with TeamFlow AI!
-Support: billing@teamflow.ai | https://teamflow.ai
-`;
-    const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `${inv.id}-receipt.txt`;
-    link.click();
-    URL.revokeObjectURL(url);
-
-    setDownloadSuccess(inv.id);
-    setTimeout(() => setDownloadSuccess(null), 3000);
+    if (!inv) return;
+    const ok = downloadInvoicePDF(inv, billingInfo);
+    if (ok) {
+      setDownloadSuccess(inv.id);
+      setTimeout(() => setDownloadSuccess(null), 3500);
+    }
   };
 
   const exportCSV = () => {
-    const headers = ["Invoice ID", "Date", "Due Date", "Description", "Amount", "Status", "Payment Method"];
+    const headers = ["Invoice ID", "Date", "Due Date", "Description", "Amount (INR)", "Status", "Payment Method"];
     const rows = filteredInvoices.map(i => [
       i.id,
       i.date,
@@ -339,9 +572,12 @@ Support: billing@teamflow.ai | https://teamflow.ai
     setShowBillingModal(false);
   };
 
+  const currentPrintTarget = invoiceToPrint || selectedInvoice || invoices[0];
+
   return (
-    <div className="admin-invoices-app">
-      <AdminSidebar mobileOpen={mobileOpen} onClose={() => setMobileOpen(false)} />
+    <>
+      <div className="admin-invoices-app no-print">
+        <AdminSidebar mobileOpen={mobileOpen} onClose={() => setMobileOpen(false)} />
 
       <main className="admin-invoices-main">
         <AdminTopbar onMobileMenuToggle={() => setMobileOpen(true)} />
@@ -382,11 +618,11 @@ Support: billing@teamflow.ai | https://teamflow.ai
           <div className="admin-invoices-stats-grid">
             <div className="admin-invoices-stat-card">
               <div className="admin-invoices-stat-icon purple">
-                <DollarSign size={22} />
+                <IndianRupee size={22} />
               </div>
               <div className="admin-invoices-stat-info">
                 <span className="label">Total Invoiced</span>
-                <span className="value">${totalSpent.toLocaleString("en-US", { minimumFractionDigits: 2 })}</span>
+                <span className="value">₹{totalSpent.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                 <span className="subtext">{invoices.length} billing statements</span>
               </div>
             </div>
@@ -398,7 +634,7 @@ Support: billing@teamflow.ai | https://teamflow.ai
               <div className="admin-invoices-stat-info">
                 <span className="label">Next Billing Date</span>
                 <span className="value">Nov 1, 2026</span>
-                <span className="subtext">$499.00 renewal charge</span>
+                <span className="subtext">₹39,999.00 renewal charge</span>
               </div>
             </div>
 
@@ -435,10 +671,20 @@ Support: billing@teamflow.ai | https://teamflow.ai
                   type="text"
                   placeholder="Search by invoice #, plan, payment method..."
                   value={search}
-                  onChange={(e) => setSearch(e.target.value)}
+                  onChange={(e) => {
+                    setSearch(e.target.value);
+                    setCurrentPage(1);
+                  }}
                 />
                 {search && (
-                  <button onClick={() => setSearch("")} className="clear-btn">
+                  <button
+                    onClick={() => {
+                      setSearch("");
+                      setCurrentPage(1);
+                    }}
+                    className="clear-btn"
+                    title="Clear search"
+                  >
                     <X size={14} />
                   </button>
                 )}
@@ -449,7 +695,11 @@ Support: billing@teamflow.ai | https://teamflow.ai
                   <Filter size={14} />
                   <select
                     value={statusFilter}
-                    onChange={(e) => setStatusFilter(e.target.value)}
+                    onChange={(e) => {
+                      setStatusFilter(e.target.value);
+                      setCurrentPage(1);
+                    }}
+                    aria-label="Filter invoice status"
                   >
                     <option value="all">All Statuses</option>
                     <option value="paid">Paid</option>
@@ -461,7 +711,10 @@ Support: billing@teamflow.ai | https://teamflow.ai
                 <div className="filter-select-wrapper">
                   <select
                     value={methodFilter}
-                    onChange={(e) => setMethodFilter(e.target.value)}
+                    onChange={(e) => {
+                      setMethodFilter(e.target.value);
+                      setCurrentPage(1);
+                    }}
                     aria-label="Filter payment method"
                   >
                     <option value="all">All Payment Methods</option>
@@ -479,6 +732,7 @@ Support: billing@teamflow.ai | https://teamflow.ai
                       const [k, ord] = e.target.value.split("-");
                       setSortKey(k);
                       setSortOrder(ord);
+                      setCurrentPage(1);
                     }}
                     aria-label="Sort statements"
                   >
@@ -498,6 +752,7 @@ Support: billing@teamflow.ai | https://teamflow.ai
                       setSearch("");
                       setStatusFilter("all");
                       setMethodFilter("all");
+                      setCurrentPage(1);
                     }}
                   >
                     <X size={13} />
@@ -539,7 +794,7 @@ Support: billing@teamflow.ai | https://teamflow.ai
                     </th>
                     <th className="sortable-th" onClick={() => handleSort("amount")}>
                       <div className="th-content">
-                        <span>AMOUNT</span>
+                        <span>AMOUNT (INR)</span>
                         {renderSortIcon("amount")}
                       </div>
                     </th>
@@ -561,13 +816,19 @@ Support: billing@teamflow.ai | https://teamflow.ai
                       </td>
                     </tr>
                   ) : (
-                    filteredInvoices.map((inv, idx) => (
+                    paginatedInvoices.map((inv, idx) => (
                       <tr key={inv.id}>
                         <td style={{ textAlign: "center" }}>
-                          <span className="admin-row-num">{idx + 1}</span>
+                          <span className="admin-row-num">
+                            {(safeCurrentPage - 1) * perPage + idx + 1}
+                          </span>
                         </td>
                         <td>
-                          <span className="invoice-id-badge clickable-badge" onClick={() => setSelectedInvoice(inv)}>
+                          <span
+                            className="invoice-id-badge clickable-badge"
+                            onClick={() => setSelectedInvoice(inv)}
+                            title="Click to preview statement"
+                          >
                             {inv.id}
                           </span>
                         </td>
@@ -582,7 +843,7 @@ Support: billing@teamflow.ai | https://teamflow.ai
                           </span>
                         </td>
                         <td>
-                          <span className="amount-text">${inv.amount.toFixed(2)}</span>
+                          <span className="amount-text">{formatINR(inv.amount)}</span>
                         </td>
                         <td>
                           <span className={`status-badge ${inv.status.toLowerCase()}`}>
@@ -596,16 +857,33 @@ Support: billing@teamflow.ai | https://teamflow.ai
                             <button
                               type="button"
                               className="inv-action-pill inv-view-btn"
-                              title="View Receipt Statement"
+                              title="Preview Statement Receipt"
                               onClick={() => setSelectedInvoice(inv)}
                             >
                               <Eye size={13} />
-                              <span>View Receipt</span>
+                              <span>Preview</span>
+                            </button>
+                            <button
+                              type="button"
+                              className="inv-action-icon inv-print-btn"
+                              title="Print Statement Receipt"
+                              onClick={() => handlePrint(inv)}
+                            >
+                              <Printer size={13} />
+                            </button>
+                            <button
+                              type="button"
+                              className={`inv-action-icon inv-download-btn ${downloadSuccess === inv.id ? "downloaded" : ""}`}
+                              title={downloadSuccess === inv.id ? "PDF Downloaded!" : "Download in PDF format"}
+                              aria-label="Download in PDF format"
+                              onClick={() => handleDownloadPDF(inv)}
+                            >
+                              {downloadSuccess === inv.id ? <Check size={13} /> : <Download size={13} />}
                             </button>
                             <button
                               type="button"
                               className="inv-action-icon inv-status-btn"
-                              title="Toggle Status (Paid / Pending)"
+                              title="Cycle Status (Paid / Pending / Refunded)"
                               onClick={() => toggleInvoiceStatus(inv.id)}
                             >
                               <Clock size={13} />
@@ -613,8 +891,8 @@ Support: billing@teamflow.ai | https://teamflow.ai
                             <button
                               type="button"
                               className="inv-action-icon inv-delete-btn"
-                              title="Delete Invoice"
-                              onClick={() => deleteInvoice(inv.id)}
+                              title="Delete Statement"
+                              onClick={() => setInvoiceToDelete(inv)}
                             >
                               <Trash2 size={13} />
                             </button>
@@ -626,6 +904,65 @@ Support: billing@teamflow.ai | https://teamflow.ai
                 </tbody>
               </table>
             </div>
+
+            {/* PAGINATION BAR (Matching Reports & Help/Support) */}
+            {filteredInvoices.length > 0 && (
+              <div className="ws-pagination-bar reports-pagination-bar">
+                <div className="ws-pagination-info">
+                  <span>
+                    Showing {filteredInvoices.length === 0 ? 0 : (safeCurrentPage - 1) * perPage + 1} to{" "}
+                    {Math.min(safeCurrentPage * perPage, filteredInvoices.length)} of {filteredInvoices.length} invoices
+                  </span>
+                  <div className="ws-page-size-wrap">
+                    <span>Invoices per page:</span>
+                    <select
+                      value={perPage}
+                      onChange={(e) => {
+                        setPerPage(Number(e.target.value));
+                        setCurrentPage(1);
+                      }}
+                      aria-label="Select invoices per page"
+                    >
+                      <option value={5}>5</option>
+                      <option value={6}>6</option>
+                      <option value={10}>10</option>
+                      <option value={20}>20</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="ws-pagination-controls">
+                  <button
+                    type="button"
+                    className="ws-page-nav-btn"
+                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                    disabled={safeCurrentPage <= 1}
+                  >
+                    Previous
+                  </button>
+                  <div className="ws-page-pills">
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((num) => (
+                      <button
+                        key={num}
+                        type="button"
+                        className={`ws-page-num-pill ${safeCurrentPage === num ? "active" : ""}`}
+                        onClick={() => setCurrentPage(num)}
+                      >
+                        {num}
+                      </button>
+                    ))}
+                  </div>
+                  <button
+                    type="button"
+                    className="ws-page-nav-btn"
+                    onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                    disabled={safeCurrentPage >= totalPages}
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </main>
@@ -633,94 +970,268 @@ Support: billing@teamflow.ai | https://teamflow.ai
       {/* Invoice Detail Modal */}
       {selectedInvoice && (
         <div className="admin-invoices-modal-overlay" onClick={() => setSelectedInvoice(null)}>
-          <div className="admin-invoices-modal receipt-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
+          <div
+            id="invoice-printable-area"
+            className="admin-invoices-modal receipt-modal real-invoice-modal"
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+          >
+            {/* Modal Header (Screen Only) */}
+            <div className="modal-header no-print">
               <div className="receipt-brand">
                 <span className="brand-badge">TeamFlow AI</span>
-                <h3>Receipt #{selectedInvoice.id}</h3>
+                <h3>Official Invoice #{selectedInvoice.id}</h3>
               </div>
-              <button className="close-btn" onClick={() => setSelectedInvoice(null)}>
-                <X size={18} />
-              </button>
+              <div className="modal-header-actions">
+                <button
+                  type="button"
+                  className="receipt-header-print-btn"
+                  onClick={() => handlePreviewPDF(selectedInvoice)}
+                  title="Preview PDF document in new browser tab"
+                  aria-label="Preview PDF"
+                >
+                  <FileText size={15} />
+                </button>
+                <button
+                  type="button"
+                  className="receipt-header-print-btn"
+                  onClick={() => handleDownloadPDF(selectedInvoice)}
+                  title="Download statement in PDF format"
+                  aria-label="Download PDF"
+                >
+                  <Download size={15} />
+                </button>
+                <button
+                  type="button"
+                  className="receipt-header-print-btn"
+                  onClick={() => handleModalPrint(selectedInvoice)}
+                  title="Print 1-Page Statement Receipt"
+                  aria-label="Print Statement Receipt"
+                >
+                  <Printer size={15} />
+                </button>
+                <button
+                  type="button"
+                  className="close-btn"
+                  onClick={() => setSelectedInvoice(null)}
+                  aria-label="Close"
+                >
+                  <X size={18} />
+                </button>
+              </div>
             </div>
 
-            <div className="modal-body receipt-body">
-              <div className="receipt-top-info">
-                <div>
-                  <label>Issued Date</label>
-                  <p>{selectedInvoice.date}</p>
+            {/* REAL OFFICIAL INVOICE SHEET (Screen & Print) */}
+            <div className="modal-body receipt-body real-invoice-sheet">
+              {/* REALISTIC RUBBER STAMP */}
+              <div className="invoice-stamp-container">
+                <InvoiceStamp status={selectedInvoice.status} date={selectedInvoice.date} />
+              </div>
+
+              {/* CORPORATE LETTERHEAD */}
+              <div className="invoice-sheet-header">
+                <div className="invoice-company-brand">
+                  <div className="brand-logo-lockup">
+                    <div className="invoice-brand-logo-wrap" title="TeamFlow AI">
+                      <svg
+                        width="36"
+                        height="36"
+                        viewBox="0 0 28 28"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="invoice-teamflow-logo"
+                      >
+                        <rect width="28" height="28" rx="8" fill="#4361ee" />
+                        <path
+                          d="M8 9H20M14 9V19M11 19H17"
+                          stroke="#ffffff"
+                          strokeWidth="2.4"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                        <circle cx="21" cy="7" r="2.5" fill="#38bdf8" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h2 className="company-name">TeamFlow AI Inc.</h2>
+                      <span className="company-tagline">Enterprise AI Workflows & Cloud Infrastructure</span>
+                    </div>
+                  </div>
+                  <div className="company-address-block">
+                    <p>500 Howard Street, Suite 400 • San Francisco, CA 94105</p>
+                    <p>Corporate Tax ID: US-EIN-948201948 • billing@teamflow.ai</p>
+                  </div>
                 </div>
-                <div>
-                  <label>Payment Method</label>
-                  <p>{selectedInvoice.method}</p>
-                </div>
-                <div>
-                  <label>Status</label>
-                  <span className={`status-badge ${selectedInvoice.status.toLowerCase()}`}>
-                    <Check size={12} /> {selectedInvoice.status}
-                  </span>
+
+                <div className="invoice-title-meta">
+                  <span className="invoice-kicker">TAX INVOICE / RECEIPT</span>
+                  <h1 className="invoice-number">#{selectedInvoice.id}</h1>
+                  <div className="invoice-quick-chips">
+                    <span className="quick-chip">Issued: {selectedInvoice.date}</span>
+                    <span className="quick-chip">Due: {selectedInvoice.dueDate}</span>
+                  </div>
                 </div>
               </div>
 
-              <div className="receipt-client-box">
-                <h4>Billed To</h4>
-                <p className="client-name">{billingInfo.company}</p>
-                <p>Tax ID: {billingInfo.taxId}</p>
-                <p>{billingInfo.address}, {billingInfo.city}, {billingInfo.state} {billingInfo.zip}</p>
-                <p>{billingInfo.email}</p>
+              {/* TWO COLUMN BILLING & METADATA GRID */}
+              <div className="invoice-entity-grid">
+                <div className="entity-card billed-to">
+                  <span className="entity-label">BILLED TO</span>
+                  <h3 className="client-company-name">{billingInfo.company}</h3>
+                  <p className="client-tax">{billingInfo.taxId ? `Tax ID: ${billingInfo.taxId}` : "Corporate Account"}</p>
+                  <p className="client-address">{billingInfo.address}, {billingInfo.city}, {billingInfo.state} {billingInfo.zip}</p>
+                  <p className="client-email">{billingInfo.email}</p>
+                </div>
+
+                <div className="entity-card payment-details">
+                  <span className="entity-label">PAYMENT METADATA</span>
+                  <div className="meta-row">
+                    <span className="meta-label">Payment Method:</span>
+                    <span className="meta-value method-tag">
+                      <CreditCard size={13} /> {selectedInvoice.method}
+                    </span>
+                  </div>
+                  <div className="meta-row">
+                    <span className="meta-label">Settlement Status:</span>
+                    <span className={`meta-value status-badge ${selectedInvoice.status.toLowerCase()}`}>
+                      <Check size={12} /> {selectedInvoice.status}
+                    </span>
+                  </div>
+                  <div className="meta-row">
+                    <span className="meta-label">Currency:</span>
+                    <span className="meta-value">INR (₹)</span>
+                  </div>
+                  <div className="meta-row">
+                    <span className="meta-label">Transaction Auth:</span>
+                    <span className="meta-value auth-code">TF-AUTH-{selectedInvoice.id.slice(-4)}-99</span>
+                  </div>
+                </div>
               </div>
 
-              <div className="receipt-breakdown">
-                <h4>Line Items</h4>
+              {/* ITEMIZED TABLE */}
+              <div className="receipt-breakdown real-table-breakdown">
+                <h4>Itemized Statement of Charges</h4>
                 <table className="breakdown-table">
                   <thead>
                     <tr>
+                      <th style={{ width: 36, textAlign: "center" }}>#</th>
                       <th>Item Description</th>
-                      <th>Qty</th>
-                      <th style={{ textAlign: "right" }}>Rate</th>
+                      <th style={{ textAlign: "center" }}>Qty</th>
+                      <th style={{ textAlign: "right" }}>Unit Rate</th>
                       <th style={{ textAlign: "right" }}>Amount</th>
                     </tr>
                   </thead>
                   <tbody>
                     {selectedInvoice.items.map((item, idx) => (
                       <tr key={idx}>
-                        <td>{item.name}</td>
-                        <td>{item.qty}</td>
-                        <td style={{ textAlign: "right" }}>${item.rate.toFixed(2)}</td>
-                        <td style={{ textAlign: "right" }}>${item.total.toFixed(2)}</td>
+                        <td style={{ textAlign: "center", color: "#64748b" }}>{idx + 1}</td>
+                        <td className="item-name-cell">
+                          <strong>{item.name}</strong>
+                          <span className="item-sub">Cloud usage billed per active subscription cycle</span>
+                        </td>
+                        <td style={{ textAlign: "center" }}>{item.qty}</td>
+                        <td style={{ textAlign: "right" }}>{formatINR(item.rate)}</td>
+                        <td style={{ textAlign: "right", fontWeight: "600" }}>{formatINR(item.total)}</td>
                       </tr>
                     ))}
                   </tbody>
                   <tfoot>
                     <tr>
-                      <td colSpan="3" style={{ textAlign: "right", fontWeight: "600" }}>Subtotal:</td>
-                      <td style={{ textAlign: "right", fontWeight: "600" }}>${selectedInvoice.amount.toFixed(2)}</td>
+                      <td colSpan="4" className="invoice-calc-label">Subtotal:</td>
+                      <td className="invoice-calc-value">{formatINR(selectedInvoice.amount)}</td>
                     </tr>
                     <tr>
-                      <td colSpan="3" style={{ textAlign: "right", color: "#64748b" }}>Tax (0.00%):</td>
-                      <td style={{ textAlign: "right", color: "#64748b" }}>$0.00</td>
+                      <td colSpan="4" className="invoice-tax-label">Sales Tax / GST (0.00% Reverse Charge):</td>
+                      <td className="invoice-tax-value">₹0.00</td>
                     </tr>
                     <tr className="total-row">
-                      <td colSpan="3" style={{ textAlign: "right", fontWeight: "700" }}>Total Paid:</td>
-                      <td style={{ textAlign: "right", fontWeight: "700", color: "#6366f1" }}>${selectedInvoice.amount.toFixed(2)} USD</td>
+                      <td colSpan="4" className="invoice-total-label">Total Amount:</td>
+                      <td className="invoice-total-value">
+                        {formatINR(selectedInvoice.amount)} INR
+                      </td>
                     </tr>
                   </tfoot>
                 </table>
               </div>
+
+              {/* BOTTOM VERIFICATION & SIGNATURE DOCK */}
+              <div className="invoice-bottom-dock">
+                {/* QR CODE VERIFICATION BOX */}
+                <div className="invoice-qr-verification-box">
+                  <div className="qr-svg-holder">
+                    <InvoiceQRCode id={selectedInvoice.id} size={58} />
+                  </div>
+                  <div className="qr-info-content">
+                    <div className="qr-badge">
+                      <QrCode size={13} />
+                      <span>E-INVOICE VERIFIED</span>
+                    </div>
+                    <span className="qr-headline">Official Cryptographic Hash</span>
+                    <span className="qr-sub">Scan to verify invoice ledger authenticity online</span>
+                    <span className="qr-sig-hash">SHA256: 4e82b7...910a{selectedInvoice.id.slice(-3)}</span>
+                  </div>
+                </div>
+
+                {/* DIGITAL SIGNATURE BLOCK */}
+                <div className="invoice-signatory-box">
+                  <span className="sig-label">AUTHORIZED SIGNATURE</span>
+                  <div className="sig-cursive-font">
+                    Elena Rostova
+                  </div>
+                  <div className="sig-meta">
+                    <strong>Elena Rostova</strong>
+                    <span>Corporate Treasury & Controller</span>
+                    <span className="sig-corp">TeamFlow AI Corporation</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* LEGAL & AUDIT FOOTER */}
+              <div className="invoice-sheet-legal-note">
+                <p>
+                  This official statement was electronically issued by TeamFlow AI Inc. All payments processed via PCI-DSS Level 1 compliant gateway. Under US E-SIGN and UETA legislation, this document represents an immutable settlement record.
+                </p>
+              </div>
             </div>
 
-            <div className="modal-footer">
-              <button className="admin-invoices-btn-secondary" onClick={() => setSelectedInvoice(null)}>
+            {/* MODAL FOOTER (Screen Only) */}
+            <div className="modal-footer no-print">
+              <button
+                type="button"
+                className="admin-invoices-btn-secondary"
+                onClick={() => setSelectedInvoice(null)}
+              >
                 Close
               </button>
               <button
-                className="admin-invoices-btn-primary"
+                type="button"
+                className="admin-invoices-btn-secondary"
+                onClick={() => handlePreviewPDF(selectedInvoice)}
+                title="Preview PDF document in new browser tab"
+              >
+                <FileText size={15} />
+                <span>Preview PDF</span>
+              </button>
+              <button
+                type="button"
+                className="admin-invoices-btn-secondary print-modal-btn"
+                onClick={() => handleModalPrint(selectedInvoice)}
+                title="Print 1-page official receipt or Save as PDF"
+              >
+                <Printer size={15} />
+                <span>Print 1-Page Receipt</span>
+              </button>
+              <button
+                type="button"
+                className="admin-invoices-btn-primary download-pdf-btn"
                 onClick={() => {
                   handleDownloadPDF(selectedInvoice);
                 }}
+                title="Download official statement in PDF format"
               >
-                <Download size={15} />
-                Download Receipt
+                {downloadSuccess === selectedInvoice.id ? <Check size={15} /> : <Download size={15} />}
+                <span>{downloadSuccess === selectedInvoice.id ? "PDF Downloaded" : "Download in PDF"}</span>
               </button>
             </div>
           </div>
@@ -868,10 +1379,10 @@ Support: billing@teamflow.ai | https://teamflow.ai
 
                 <div className="form-row-two" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
                   <div className="form-group">
-                    <label>Amount ($ USD)</label>
+                    <label>Amount (₹ INR)</label>
                     <input
                       type="number"
-                      step="0.01"
+                      step="1"
                       value={newInvoiceForm.amount}
                       onChange={(e) => setNewInvoiceForm({ ...newInvoiceForm, amount: e.target.value })}
                       required
@@ -926,7 +1437,239 @@ Support: billing@teamflow.ai | https://teamflow.ai
           </div>
         </div>
       )}
+
+      {/* CUSTOM CSS DELETE CONFIRMATION MODAL */}
+      {invoiceToDelete && (
+        <div className="admin-invoices-modal-overlay" onClick={() => setInvoiceToDelete(null)}>
+          <div
+            className="admin-invoices-modal delete-confirm-modal"
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="delete-invoice-title"
+          >
+            <div className="modal-header delete-modal-header">
+              <div className="delete-modal-icon-badge">
+                <AlertTriangle size={20} />
+              </div>
+              <div className="delete-modal-header-text">
+                <h3 id="delete-invoice-title">Delete Invoice Statement</h3>
+                <span className="delete-modal-subtitle">Statement #{invoiceToDelete.id}</span>
+              </div>
+              <button
+                type="button"
+                className="close-btn"
+                onClick={() => setInvoiceToDelete(null)}
+                aria-label="Close"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="modal-body delete-modal-body">
+              <p className="delete-modal-lead">
+                Are you sure you want to permanently delete this billing statement? This record will be removed from your dashboard history.
+              </p>
+
+              <div className="delete-invoice-preview-box">
+                <div className="preview-top">
+                  <span className="preview-id">{invoiceToDelete.id}</span>
+                  <span className={`status-badge ${invoiceToDelete.status.toLowerCase()}`}>
+                    {invoiceToDelete.status}
+                  </span>
+                  <span className="preview-amount">{formatINR(invoiceToDelete.amount)}</span>
+                </div>
+                <h4 className="preview-desc">{invoiceToDelete.description}</h4>
+                <div className="preview-meta">
+                  <span>Billing Date: {invoiceToDelete.date}</span>
+                  <span>•</span>
+                  <span>Method: {invoiceToDelete.method}</span>
+                </div>
+              </div>
+
+              <div className="delete-modal-alert">
+                <AlertCircle size={16} />
+                <span>Historical tax ledgers may require statement preservation for annual financial compliance.</span>
+              </div>
+            </div>
+
+            <div className="modal-footer delete-modal-footer">
+              <button
+                type="button"
+                className="admin-invoices-btn-secondary"
+                onClick={() => setInvoiceToDelete(null)}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="admin-invoices-btn-danger"
+                onClick={confirmDeleteInvoice}
+              >
+                <Trash2 size={15} />
+                <span>Delete Statement</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
+
+    {/* =========================================================
+        DEDICATED PRINT-ONLY CONTAINER (Zero Screen Footprint)
+        Renders ONLY when printing, guaranteeing 100% reliable 1-page fit
+    ========================================================= */}
+    <div id="invoice-printable-sheet" className="invoice-print-container print-only">
+        {currentPrintTarget && (
+          <div className="printable-sheet-paper">
+            {/* Top Corporate Accent Line */}
+            <div className="print-top-accent-line" />
+
+            {/* Letterhead Header */}
+            <div className="print-sheet-header">
+              <div className="print-brand-left">
+                <div className="print-brand-title-wrap">
+                  <div className="print-logo-box">
+                    <ShieldCheck size={20} color="#ffffff" />
+                  </div>
+                  <div>
+                    <h2 className="print-company-name">TeamFlow AI Inc.</h2>
+                    <span className="print-company-sub">Enterprise AI Workflows & Cloud Infrastructure</span>
+                  </div>
+                </div>
+                <p className="print-company-address">
+                  500 Howard Street, Suite 400 • San Francisco, CA 94105 • Corporate Tax ID: US-EIN-948201948 • billing@teamflow.ai
+                </p>
+              </div>
+
+              <div className="print-brand-right">
+                <span className="print-tax-label">TAX INVOICE / OFFICIAL RECEIPT</span>
+                <h3 className="print-inv-id">#{currentPrintTarget.id}</h3>
+                <div className="print-dates-line">
+                  <span>Issued: {currentPrintTarget.date}</span>
+                  <span>•</span>
+                  <span>Due: {currentPrintTarget.dueDate || currentPrintTarget.date}</span>
+                </div>
+                <div className={`print-status-tag ${currentPrintTarget.status.toLowerCase()}`}>
+                  {currentPrintTarget.status.toUpperCase()}
+                </div>
+              </div>
+            </div>
+
+            {/* Entity Boxes */}
+            <div className="print-entity-grid">
+              <div className="print-entity-card">
+                <span className="print-entity-label">BILLED TO</span>
+                <h4 className="print-client-name">{billingInfo.company}</h4>
+                <span className="print-client-tax">Tax ID: {billingInfo.taxId || "US-EIN-948201948"}</span>
+                <p className="print-client-p">{billingInfo.address}, {billingInfo.city}</p>
+                <p className="print-client-p">{billingInfo.state} {billingInfo.zip}, {billingInfo.country}</p>
+                <p className="print-client-email">{billingInfo.email}</p>
+              </div>
+
+              <div className="print-entity-card">
+                <span className="print-entity-label">PAYMENT METADATA</span>
+                <div className="print-meta-row">
+                  <span>Payment Method:</span>
+                  <strong>{currentPrintTarget.method}</strong>
+                </div>
+                <div className="print-meta-row">
+                  <span>Settlement Status:</span>
+                  <strong>{currentPrintTarget.status}</strong>
+                </div>
+                <div className="print-meta-row">
+                  <span>Currency:</span>
+                  <strong>INR (Indian Rupee - ₹)</strong>
+                </div>
+                <div className="print-meta-row">
+                  <span>Transaction Auth:</span>
+                  <code>TF-AUTH-{currentPrintTarget.id.slice(-4)}-99</code>
+                </div>
+              </div>
+            </div>
+
+            {/* Itemized Table */}
+            <div className="print-table-section">
+              <h4 className="print-table-heading">Itemized Statement of Charges</h4>
+              <table className="print-items-table">
+                <thead>
+                  <tr>
+                    <th style={{ width: 28, textAlign: "center" }}>#</th>
+                    <th>Item Description</th>
+                    <th style={{ width: 50, textAlign: "center" }}>Qty</th>
+                    <th style={{ width: 120, textAlign: "right" }}>Unit Rate (INR)</th>
+                    <th style={{ width: 130, textAlign: "right" }}>Amount (INR)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(currentPrintTarget.items && currentPrintTarget.items.length > 0
+                    ? currentPrintTarget.items
+                    : [{ name: currentPrintTarget.description, qty: 1, rate: currentPrintTarget.amount, total: currentPrintTarget.amount }]
+                  ).map((item, idx) => (
+                    <tr key={idx}>
+                      <td style={{ textAlign: "center", color: "#64748b" }}>{idx + 1}</td>
+                      <td>
+                        <strong>{item.name}</strong>
+                        <span className="print-item-sub">Cloud usage billed per active subscription cycle</span>
+                      </td>
+                      <td style={{ textAlign: "center" }}>{item.qty}</td>
+                      <td style={{ textAlign: "right" }}>{formatINR(item.rate)}</td>
+                      <td style={{ textAlign: "right", fontWeight: 700 }}>{formatINR(item.total)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+                <tfoot>
+                  <tr>
+                    <td colSpan="4" className="print-calc-label">Subtotal:</td>
+                    <td className="print-calc-value">{formatINR(currentPrintTarget.amount)}</td>
+                  </tr>
+                  <tr>
+                    <td colSpan="4" className="print-calc-label">Sales Tax / GST (0.00% Reverse Charge):</td>
+                    <td className="print-calc-value">₹0.00</td>
+                  </tr>
+                  <tr className="print-total-row">
+                    <td colSpan="4" className="print-total-label">Total Amount:</td>
+                    <td className="print-total-value">
+                      {formatINR(currentPrintTarget.amount)} INR
+                    </td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+
+            {/* Bottom Dock: Verification & Authorized Signature */}
+            <div className="print-bottom-dock">
+              <div className="print-dock-box print-qr-box">
+                <div className="print-qr-code">
+                  <InvoiceQRCode id={currentPrintTarget.id} size={46} />
+                </div>
+                <div className="print-qr-details">
+                  <span className="print-verified-badge">E-INVOICE VERIFIED</span>
+                  <strong>Official Cryptographic Ledger</strong>
+                  <span>Scan to verify invoice ledger authenticity online</span>
+                  <code>SHA256: 4e82b7...910a{currentPrintTarget.id.slice(-3)}</code>
+                </div>
+              </div>
+
+              <div className="print-dock-box print-sig-box">
+                <span className="print-sig-label">AUTHORIZED SIGNATURE</span>
+                <div className="print-sig-signature">Elena Rostova</div>
+                <strong>Elena Rostova</strong>
+                <span>Corporate Treasury & Controller</span>
+                <span className="print-sig-corp">TeamFlow AI Corporation</span>
+              </div>
+            </div>
+
+            {/* Legal & Compliance note */}
+            <div className="print-legal-footer">
+              <p>
+                This official statement was electronically issued by TeamFlow AI Inc. All payments processed via PCI-DSS Level 1 compliant gateway. Under US E-SIGN and UETA legislation, this document represents an immutable settlement record.
+              </p>
+            </div>
+          </div>
+        )}
+      </div>
+    </>
   );
 }
 

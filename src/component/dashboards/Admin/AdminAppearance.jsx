@@ -1,25 +1,15 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect, useRef } from "react";
 import {
-  Palette,
   Sun,
   Moon,
   Laptop,
   Check,
   RotateCcw,
-  Menu,
-  ArrowLeft,
-  UserRound,
-  ShieldCheck,
-  Bell,
-  Settings,
-  Sparkles,
-  Sliders,
   Eye,
-  Type,
 } from "lucide-react";
 import AdminSidebar from "./AdminSidebar";
 import AdminTopbar from "./AdminTopbar.jsx";
+import AdminSettingsNavTabs from "./AdminSettingsNavTabs.jsx";
 import "./AdminAppearance.css";
 
 const STORAGE_KEY = "teamflow_theme_preference";
@@ -44,7 +34,7 @@ const accentColors = [
 ];
 
 export default function AdminAppearance() {
-  const navigate = useNavigate();
+  const themeTimerRef = useRef(null);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [savedSuccess, setSavedSuccess] = useState(false);
 
@@ -93,8 +83,8 @@ export default function AdminAppearance() {
     localStorage.setItem("teamflow_theme_mode", mode);
     window.dispatchEvent(new Event("teamflow_theme_update"));
 
-    window.clearTimeout(window.__tfThemeTimerApp);
-    window.__tfThemeTimerApp = window.setTimeout(() => {
+    window.clearTimeout(themeTimerRef.current);
+    themeTimerRef.current = window.setTimeout(() => {
       document.documentElement.classList.remove("theme-transitioning");
     }, 380);
   };
@@ -178,7 +168,7 @@ export default function AdminAppearance() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultAppearance));
       setSavedSuccess(true);
       setTimeout(() => setSavedSuccess(false), 3000);
-    } catch (e) {
+    } catch {
       setAppearance(defaultAppearance);
     }
   };
@@ -202,6 +192,9 @@ export default function AdminAppearance() {
               <span>Theme and appearance preferences saved successfully!</span>
             </div>
           )}
+
+          {/* STATIC TOP MODULE TABS */}
+          <AdminSettingsNavTabs activeTab="appearance" />
 
           {/* PAGE HEADER */}
           <div className="tfAdminAppearance__header">
@@ -228,58 +221,6 @@ export default function AdminAppearance() {
                 <span>Save Theme</span>
               </button>
             </div>
-          </div>
-
-          {/* NAV TABS */}
-          <div className="tfAdminSettings__moduleTabs">
-            <button
-              type="button"
-              className="tfAdminSettings__moduleTab "
-              onClick={() => navigate("/admin/profile")}
-            >
-              <UserRound size={14} />
-              <span>Profile</span>
-            </button>
-            <button
-              type="button"
-              className="tfAdminSettings__moduleTab "
-              onClick={() => navigate("/admin/account-settings")}
-            >
-              <Settings size={14} />
-              <span>Account</span>
-            </button>
-            <button
-              type="button"
-              className="tfAdminSettings__moduleTab tfAdminSettings__moduleTab--active"
-              onClick={() => navigate("/admin/appearance")}
-            >
-              <Palette size={14} />
-              <span>Appearance</span>
-            </button>
-            <button
-              type="button"
-              className="tfAdminSettings__moduleTab "
-              onClick={() => navigate("/admin/notifications")}
-            >
-              <Bell size={14} />
-              <span>Notifications</span>
-            </button>
-            <button
-              type="button"
-              className="tfAdminSettings__moduleTab "
-              onClick={() => navigate("/admin/security")}
-            >
-              <ShieldCheck size={14} />
-              <span>Security</span>
-            </button>
-            <button
-              type="button"
-              className="tfAdminSettings__moduleTab "
-              onClick={() => navigate("/admin/settings")}
-            >
-              <Building2 size={14} />
-              <span>Organization Settings</span>
-            </button>
           </div>
 
           <form onSubmit={handleSubmit} className="tfAdminAppearance__grid">

@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import {
   Bell,
   Mail,
@@ -10,17 +9,9 @@ import {
   Sparkles,
   AlertTriangle,
   Send,
-  Clock,
-  Moon,
-  Volume2,
-  VolumeX,
   Radio,
   Sliders,
   ShieldAlert,
-  UserRound,
-  Settings,
-  Palette,
-  ShieldCheck,
   Building2,
   CheckCircle2,
   Zap,
@@ -28,6 +19,7 @@ import {
 
 import AdminSidebar from "./AdminSidebar.jsx";
 import AdminTopbar from "./AdminTopbar.jsx";
+import AdminSettingsNavTabs from "./AdminSettingsNavTabs.jsx";
 import "./AdminNotifications.css";
 
 const STORAGE_KEY = "teamflow_admin_notifications_v2";
@@ -116,7 +108,6 @@ const CATEGORIES = [
 ];
 
 export default function AdminNotifications() {
-  const navigate = useNavigate();
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   const [preferences, setPreferences] = useState(() => {
@@ -166,7 +157,7 @@ export default function AdminNotifications() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(preferences));
       setSavedPreferences(JSON.parse(JSON.stringify(preferences)));
       showToast("Notification preferences saved successfully!");
-    } catch (err) {
+    } catch {
       showToast("Failed to save notification preferences.", "error");
     }
   };
@@ -211,57 +202,8 @@ export default function AdminNotifications() {
             </div>
           )}
 
-          {/* TOP MODULE TABS */}
-          <div className="tfAdminSettings__moduleTabs">
-            <button
-              type="button"
-              className="tfAdminSettings__moduleTab "
-              onClick={() => navigate("/admin/profile")}
-            >
-              <UserRound size={14} />
-              <span>Profile</span>
-            </button>
-            <button
-              type="button"
-              className="tfAdminSettings__moduleTab "
-              onClick={() => navigate("/admin/account-settings")}
-            >
-              <Settings size={14} />
-              <span>Account</span>
-            </button>
-            <button
-              type="button"
-              className="tfAdminSettings__moduleTab "
-              onClick={() => navigate("/admin/appearance")}
-            >
-              <Palette size={14} />
-              <span>Appearance</span>
-            </button>
-            <button
-              type="button"
-              className="tfAdminSettings__moduleTab tfAdminSettings__moduleTab--active"
-              onClick={() => navigate("/admin/notifications")}
-            >
-              <Bell size={14} />
-              <span>Notifications</span>
-            </button>
-            <button
-              type="button"
-              className="tfAdminSettings__moduleTab "
-              onClick={() => navigate("/admin/security")}
-            >
-              <ShieldCheck size={14} />
-              <span>Security</span>
-            </button>
-            <button
-              type="button"
-              className="tfAdminSettings__moduleTab "
-              onClick={() => navigate("/admin/settings")}
-            >
-              <Building2 size={14} />
-              <span>Organization Settings</span>
-            </button>
-          </div>
+          {/* STATIC TOP MODULE TABS */}
+          <AdminSettingsNavTabs activeTab="notifications" />
 
           {/* PAGE HEADER */}
           <section className="tfAdminNotifications__header">

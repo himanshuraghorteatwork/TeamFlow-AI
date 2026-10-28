@@ -1,7 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import {
-  ShieldCheck,
   KeyRound,
   Smartphone,
   Laptop,
@@ -9,22 +7,15 @@ import {
   Eye,
   EyeOff,
   Check,
-  RotateCcw,
-  Menu,
-  ArrowLeft,
-  UserRound,
-  Bell,
-  Palette,
-  Settings,
   AlertTriangle,
   QrCode,
   Copy,
   LogOut,
   History,
-  ShieldAlert,
 } from "lucide-react";
 import AdminSidebar from "./AdminSidebar";
 import AdminTopbar from "./AdminTopbar.jsx";
+import AdminSettingsNavTabs from "./AdminSettingsNavTabs.jsx";
 import "./AdminSecurity.css";
 
 const STORAGE_KEY = "teamflow_admin_security";
@@ -102,7 +93,6 @@ const recoveryCodes = [
 ];
 
 export default function AdminSecurity() {
-  const navigate = useNavigate();
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [savedSuccess, setSavedSuccess] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
@@ -206,7 +196,14 @@ export default function AdminSecurity() {
 
   const handleCopySecret = () => {
     navigator.clipboard?.writeText("TF-AI-8492-X9Q1-77");
-    alert("Secret key copied to clipboard!");
+    setSavedSuccess("Secret setup key copied to clipboard!");
+    setTimeout(() => setSavedSuccess(""), 3000);
+  };
+
+  const handleCopyRecoveryCode = (code) => {
+    navigator.clipboard?.writeText(code);
+    setSavedSuccess(`Recovery code ${code} copied to clipboard!`);
+    setTimeout(() => setSavedSuccess(""), 3000);
   };
 
   return (
@@ -236,64 +233,15 @@ export default function AdminSecurity() {
             </div>
           )}
 
+          {/* STATIC TOP MODULE TABS */}
+          <AdminSettingsNavTabs activeTab="security" />
+
           {/* PAGE HEADER */}
           <div className="tfAdminSecurity__header">
             <div>
               <h1>Security & Authentication</h1>
               <p>Manage your password credentials, two-factor authorization, and active sessions.</p>
             </div>
-          </div>
-
-          {/* NAV TABS */}
-          <div className="tfAdminSettings__moduleTabs">
-            <button
-              type="button"
-              className="tfAdminSettings__moduleTab "
-              onClick={() => navigate("/admin/profile")}
-            >
-              <UserRound size={14} />
-              <span>Profile</span>
-            </button>
-            <button
-              type="button"
-              className="tfAdminSettings__moduleTab "
-              onClick={() => navigate("/admin/account-settings")}
-            >
-              <Settings size={14} />
-              <span>Account</span>
-            </button>
-            <button
-              type="button"
-              className="tfAdminSettings__moduleTab "
-              onClick={() => navigate("/admin/appearance")}
-            >
-              <Palette size={14} />
-              <span>Appearance</span>
-            </button>
-            <button
-              type="button"
-              className="tfAdminSettings__moduleTab "
-              onClick={() => navigate("/admin/notifications")}
-            >
-              <Bell size={14} />
-              <span>Notifications</span>
-            </button>
-            <button
-              type="button"
-              className="tfAdminSettings__moduleTab tfAdminSettings__moduleTab--active"
-              onClick={() => navigate("/admin/security")}
-            >
-              <ShieldCheck size={14} />
-              <span>Security</span>
-            </button>
-            <button
-              type="button"
-              className="tfAdminSettings__moduleTab "
-              onClick={() => navigate("/admin/settings")}
-            >
-              <Building2 size={14} />
-              <span>Organization Settings</span>
-            </button>
           </div>
 
           <div className="tfAdminSecurity__grid">
@@ -440,7 +388,7 @@ export default function AdminSecurity() {
                   <div className="tfAdminSecurity__twoFactorDetails">
                     <div className="tfAdminSecurity__secretRow">
                       <div className="tfAdminSecurity__qrPlaceholder">
-                        <QrCode size={36} color="#5b5cf0" />
+                        <QrCode size={36} className="tfAdminSecurity__qrIcon" />
                         <small>Scan in App</small>
                       </div>
 
@@ -465,10 +413,19 @@ export default function AdminSecurity() {
                     </div>
 
                     <div className="tfAdminSecurity__recoveryCodesSection">
-                      <label>Emergency Backup Recovery Codes</label>
+                      <div className="tfAdminSecurity__recoveryHeader">
+                        <label>Emergency Backup Recovery Codes</label>
+                        <span className="tfAdminSecurity__recoveryHint">Click to copy</span>
+                      </div>
                       <div className="tfAdminSecurity__recoveryGrid">
                         {recoveryCodes.map((code, idx) => (
-                          <code key={idx}>{code}</code>
+                          <code
+                            key={idx}
+                            onClick={() => handleCopyRecoveryCode(code)}
+                            title="Click to copy recovery code"
+                          >
+                            {code}
+                          </code>
                         ))}
                       </div>
                     </div>

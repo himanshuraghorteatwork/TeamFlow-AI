@@ -1,26 +1,16 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import {
-  Settings,
   Globe,
-  Calendar,
   Clock,
   Download,
-  AlertTriangle,
   Check,
   RotateCcw,
-  Menu,
-  ArrowLeft,
-  UserRound,
-  ShieldCheck,
-  Bell,
-  Palette,
-  Briefcase,
-  FileText,
   Sliders,
+  AlertTriangle,
 } from "lucide-react";
 import AdminSidebar from "./AdminSidebar";
 import AdminTopbar from "./AdminTopbar.jsx";
+import AdminSettingsNavTabs from "./AdminSettingsNavTabs.jsx";
 import "./AdminAccountSettings.css";
 
 const STORAGE_KEY = "teamflow_admin_account_settings";
@@ -42,9 +32,9 @@ const defaultSettings = {
 };
 
 export default function AdminAccountSettings() {
-  const navigate = useNavigate();
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
-  const [savedSuccess, setSavedSuccess] = useState(false);
+  const [savedSuccess, setSavedSuccess] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
   const [settings, setSettings] = useState(() => {
     try {
@@ -73,10 +63,12 @@ export default function AdminAccountSettings() {
     e.preventDefault();
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
-      setSavedSuccess(true);
-      setTimeout(() => setSavedSuccess(false), 3000);
+      setSavedSuccess("Account preferences saved successfully!");
+      setTimeout(() => setSavedSuccess(""), 3000);
     } catch (err) {
       console.error("Failed to save settings:", err);
+      setErrorMessage("Failed to save settings: " + err.message);
+      setTimeout(() => setErrorMessage(""), 4000);
     }
   };
 
@@ -84,6 +76,8 @@ export default function AdminAccountSettings() {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       setSettings(saved ? { ...defaultSettings, ...JSON.parse(saved) } : defaultSettings);
+      setSavedSuccess("Preferences reset successfully.");
+      setTimeout(() => setSavedSuccess(""), 3000);
     } catch {
       setSettings(defaultSettings);
     }
@@ -108,8 +102,12 @@ export default function AdminAccountSettings() {
       document.body.appendChild(downloadAnchor);
       downloadAnchor.click();
       downloadAnchor.remove();
+
+      setSavedSuccess("Organization data archive exported successfully!");
+      setTimeout(() => setSavedSuccess(""), 3500);
     } catch (err) {
-      alert("Failed to export data: " + err.message);
+      setErrorMessage("Failed to export data: " + err.message);
+      setTimeout(() => setErrorMessage(""), 4000);
     }
   };
 
@@ -127,11 +125,21 @@ export default function AdminAccountSettings() {
         {/* CONTENT */}
         <div className="tfAdminAccountSettings__content">
           {savedSuccess && (
-            <div className="tfAdminAccountSettings__toast">
+            <div className="tfAdminAccountSettings__toast tfAdminAccountSettings__toast--success">
               <Check size={18} />
-              <span>Account preferences saved successfully!</span>
+              <span>{savedSuccess}</span>
             </div>
           )}
+
+          {errorMessage && (
+            <div className="tfAdminAccountSettings__toast tfAdminAccountSettings__toast--error">
+              <AlertTriangle size={18} />
+              <span>{errorMessage}</span>
+            </div>
+          )}
+
+          {/* STATIC TOP MODULE TABS */}
+          <AdminSettingsNavTabs activeTab="account" />
 
           {/* PAGE HEADER */}
           <div className="tfAdminAccountSettings__header">
@@ -158,58 +166,6 @@ export default function AdminAccountSettings() {
                 <span>Save Preferences</span>
               </button>
             </div>
-          </div>
-
-          {/* NAV TABS */}
-          <div className="tfAdminSettings__moduleTabs">
-            <button
-              type="button"
-              className="tfAdminSettings__moduleTab "
-              onClick={() => navigate("/admin/profile")}
-            >
-              <UserRound size={14} />
-              <span>Profile</span>
-            </button>
-            <button
-              type="button"
-              className="tfAdminSettings__moduleTab tfAdminSettings__moduleTab--active"
-              onClick={() => navigate("/admin/account-settings")}
-            >
-              <Settings size={14} />
-              <span>Account</span>
-            </button>
-            <button
-              type="button"
-              className="tfAdminSettings__moduleTab "
-              onClick={() => navigate("/admin/appearance")}
-            >
-              <Palette size={14} />
-              <span>Appearance</span>
-            </button>
-            <button
-              type="button"
-              className="tfAdminSettings__moduleTab "
-              onClick={() => navigate("/admin/notifications")}
-            >
-              <Bell size={14} />
-              <span>Notifications</span>
-            </button>
-            <button
-              type="button"
-              className="tfAdminSettings__moduleTab "
-              onClick={() => navigate("/admin/security")}
-            >
-              <ShieldCheck size={14} />
-              <span>Security</span>
-            </button>
-            <button
-              type="button"
-              className="tfAdminSettings__moduleTab "
-              onClick={() => navigate("/admin/settings")}
-            >
-              <Building2 size={14} />
-              <span>Organization Settings</span>
-            </button>
           </div>
 
           <form onSubmit={handleSubmit} className="tfAdminAccountSettings__sections">

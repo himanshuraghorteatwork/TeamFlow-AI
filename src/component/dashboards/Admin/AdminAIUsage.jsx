@@ -1,21 +1,13 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   Sparkles,
   Cpu,
   DollarSign,
   TrendingUp,
-  Download,
   Search,
-  Filter,
   Sliders,
   CheckCircle2,
-  AlertCircle,
   X,
-  HardDrive,
-  Clock,
-  Layers,
-  ChevronLeft,
-  ChevronRight,
 } from "lucide-react";
 
 import AdminSidebar from "./AdminSidebar.jsx";
@@ -30,30 +22,37 @@ const defaultLogs = [
   { id: 3, user: "David Lee", feature: "Code Review Assistant", model: "Gemini 1.5 Pro", tokens: 1950, latency: "380ms", cost: "$0.005", time: "1 hour ago" },
   { id: 4, user: "Emily Parker", feature: "UX Microcopy Generator", model: "GPT-4o", tokens: 860, latency: "210ms", cost: "$0.002", time: "2 hours ago" },
   { id: 5, user: "Rahul Sharma", feature: "Bug Triage Assistant", model: "TeamFlow Core", tokens: 1420, latency: "190ms", cost: "$0.001", time: "3 hours ago" },
+  { id: 6, user: "Michael Brown", feature: "SQL Query Optimizer", model: "Claude 3.5 Sonnet", tokens: 3200, latency: "510ms", cost: "$0.009", time: "4 hours ago" },
+  { id: 7, user: "Elena Rostova", feature: "Roadmap Generator", model: "GPT-4o", tokens: 5400, latency: "780ms", cost: "$0.016", time: "5 hours ago" },
+  { id: 8, user: "Alex Morgan", feature: "Documentation Synthesizer", model: "Gemini 1.5 Pro", tokens: 2150, latency: "340ms", cost: "$0.006", time: "6 hours ago" },
+  { id: 9, user: "Priya Patel", feature: "Automated Release Notes", model: "TeamFlow Core", tokens: 1680, latency: "230ms", cost: "$0.002", time: "7 hours ago" },
+  { id: 10, user: "John Doe", feature: "Incident Root Cause Analysis", model: "Claude 3.5 Sonnet", tokens: 4890, latency: "690ms", cost: "$0.014", time: "8 hours ago" },
+  { id: 11, user: "Sofia Martinez", feature: "API Schema Validator", model: "GPT-4o", tokens: 1940, latency: "290ms", cost: "$0.005", time: "9 hours ago" },
+  { id: 12, user: "Vikram Malhotra", feature: "Test Suite Synthesizer", model: "Gemini 1.5 Pro", tokens: 3670, latency: "580ms", cost: "$0.011", time: "10 hours ago" },
 ];
 
 export default function AdminAIUsage() {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [budgetCap, setBudgetCap] = useState(250);
+  const [budgetCap, setBudgetCap] = useState(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const val = JSON.parse(saved);
+        if (val && typeof val.budgetCap === "number") {
+          return val.budgetCap;
+        }
+      }
+    } catch {
+      // fallback to default
+    }
+    return 250;
+  });
   const [capModal, setCapModal] = useState(false);
-  const [tempCap, setTempCap] = useState(250);
+  const [tempCap, setTempCap] = useState(budgetCap);
   const [search, setSearch] = useState("");
   const [toast, setToast] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [perPage, setPerPage] = useState(5);
-
-  useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      try {
-        const val = JSON.parse(saved);
-        if (val.budgetCap) {
-          setBudgetCap(val.budgetCap);
-          setTempCap(val.budgetCap);
-        }
-      } catch (e) {}
-    }
-  }, []);
 
   const showToast = (message) => {
     setToast(message);
@@ -76,10 +75,24 @@ export default function AdminAIUsage() {
   }, [search]);
 
   const totalPages = Math.max(1, Math.ceil(filteredLogs.length / perPage));
+  const safeCurrentPage = Math.min(currentPage, totalPages);
   const paginatedLogs = useMemo(() => {
-    const start = (currentPage - 1) * perPage;
+    const start = (safeCurrentPage - 1) * perPage;
     return filteredLogs.slice(start, start + perPage);
-  }, [filteredLogs, currentPage, perPage]);
+  }, [filteredLogs, safeCurrentPage, perPage]);
+
+  const getPageNumbers = () => {
+    if (totalPages <= 7) {
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
+    }
+    if (safeCurrentPage <= 4) {
+      return [1, 2, 3, 4, 5, "...", totalPages];
+    }
+    if (safeCurrentPage >= totalPages - 3) {
+      return [1, "...", totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+    }
+    return [1, "...", safeCurrentPage - 1, safeCurrentPage, safeCurrentPage + 1, "...", totalPages];
+  };
 
   return (
     <div className="admin-usage-app">
@@ -102,7 +115,14 @@ export default function AdminAIUsage() {
               <p>Monitor organizational token consumption, breakdown model spend, and configure budget limits.</p>
             </div>
 
-            <button type="button" className="btn-secondary" onClick={() => setCapModal(true)}>
+            <button
+              type="button"
+              className="btn-secondary"
+              onClick={() => {
+                setTempCap(budgetCap);
+                setCapModal(true);
+              }}
+            >
               <Sliders size={16} />
               <span>Configure Spend Cap</span>
             </button>
@@ -191,7 +211,10 @@ export default function AdminAIUsage() {
                   type="text"
                   placeholder="Filter by user, feature or model..."
                   value={search}
-                  onChange={(e) => setSearch(e.target.value)}
+                  onChange={(e) => {
+                    setSearch(e.target.value);
+                    setCurrentPage(1);
+                  }}
                 />
               </div>
             </div>
@@ -213,7 +236,7 @@ export default function AdminAIUsage() {
                 {paginatedLogs.map((l, idx) => (
                   <tr key={l.id}>
                     <td style={{ textAlign: "center" }}>
-                      <span className="admin-row-num">{(currentPage - 1) * perPage + idx + 1}</span>
+                      <span className="admin-row-num">{(safeCurrentPage - 1) * perPage + idx + 1}</span>
                     </td>
                     <td><strong>{l.user}</strong></td>
                     <td><span className="feature-chip">{l.feature}</span></td>
@@ -227,51 +250,69 @@ export default function AdminAIUsage() {
               </tbody>
             </table>
 
-            {/* PAGINATION BAR */}
-            <div className="admin-usage-pagination-bar">
-              <div className="admin-usage-per-page">
-                <label>Rows per page:</label>
-                <select
-                  value={perPage}
-                  onChange={(e) => {
-                    setPerPage(Number(e.target.value));
-                    setCurrentPage(1);
-                  }}
-                  className="per-page-select"
-                >
-                  <option value={5}>5</option>
-                  <option value={10}>10</option>
-                  <option value={20}>20</option>
-                </select>
-              </div>
+            {/* PAGINATION BAR (Activity Logs Style, zero-space flush layout) */}
+            {filteredLogs.length > 0 && (
+              <div className="admin-logs-pagination-bar usage-pagination-bar">
+                <div className="admin-logs-pagination-info">
+                  <span>
+                    Showing {filteredLogs.length === 0 ? 0 : (safeCurrentPage - 1) * perPage + 1} to{" "}
+                    {Math.min(safeCurrentPage * perPage, filteredLogs.length)} of {filteredLogs.length} invocations
+                  </span>
+                  <div className="admin-logs-page-size-wrap">
+                    <span>Invocations per page:</span>
+                    <select
+                      value={perPage}
+                      onChange={(e) => {
+                        setPerPage(Number(e.target.value));
+                        setCurrentPage(1);
+                      }}
+                      aria-label="Select invocations per page"
+                    >
+                      <option value={5}>5</option>
+                      <option value={10}>10</option>
+                      <option value={20}>20</option>
+                    </select>
+                  </div>
+                </div>
 
-              <div className="admin-usage-page-info">
-                Showing {filteredLogs.length === 0 ? 0 : (currentPage - 1) * perPage + 1} -{" "}
-                {Math.min(currentPage * perPage, filteredLogs.length)} of {filteredLogs.length} invocations
+                <div className="admin-logs-pagination-controls">
+                  <button
+                    type="button"
+                    className="admin-logs-page-nav-btn"
+                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                    disabled={safeCurrentPage <= 1}
+                  >
+                    Previous
+                  </button>
+                  <div className="admin-logs-page-pills">
+                    {getPageNumbers().map((item, idx) =>
+                      item === "..." ? (
+                        <span key={`ellipsis-${idx}`} className="admin-logs-page-ellipsis">
+                          ...
+                        </span>
+                      ) : (
+                        <button
+                          key={item}
+                          type="button"
+                          className={`admin-logs-page-num-pill ${safeCurrentPage === item ? "active" : ""}`}
+                          onClick={() => setCurrentPage(item)}
+                        >
+                          {item}
+                        </button>
+                      )
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    className="admin-logs-page-nav-btn"
+                    onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                    disabled={safeCurrentPage >= totalPages}
+                  >
+                    Next
+                  </button>
+                </div>
               </div>
-
-              <div className="admin-usage-pagination-nav">
-                <button
-                  type="button"
-                  className="page-nav-btn"
-                  disabled={currentPage <= 1}
-                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                >
-                  <ChevronLeft size={14} /> Prev
-                </button>
-                <span className="current-page-tag">
-                  {currentPage} / {totalPages}
-                </span>
-                <button
-                  type="button"
-                  className="page-nav-btn"
-                  disabled={currentPage >= totalPages}
-                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                >
-                  Next <ChevronRight size={14} />
-                </button>
-              </div>
-            </div>
+            )}
           </div>
         </main>
       </div>

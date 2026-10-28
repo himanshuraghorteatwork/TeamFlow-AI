@@ -1,7 +1,5 @@
-import React, { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useRef } from "react";
 import {
-  UserRound,
   Mail,
   Phone,
   Building2,
@@ -12,17 +10,11 @@ import {
   Trash2,
   Check,
   RotateCcw,
-  Menu,
-  ArrowLeft,
-  ShieldCheck,
-  Bell,
-  Palette,
-  Settings,
-  Sparkles,
-  ExternalLink,
+  AlertTriangle,
 } from "lucide-react";
 import AdminSidebar from "./AdminSidebar";
 import AdminTopbar from "./AdminTopbar.jsx";
+import AdminSettingsNavTabs from "./AdminSettingsNavTabs.jsx";
 import "./AdminProfile.css";
 
 const STORAGE_KEY = "teamflow_admin_profile";
@@ -42,7 +34,6 @@ const defaultProfile = {
 };
 
 export default function AdminProfile() {
-  const navigate = useNavigate();
   const fileInputRef = useRef(null);
 
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
@@ -55,7 +46,8 @@ export default function AdminProfile() {
     }
   });
 
-  const [savedSuccess, setSavedSuccess] = useState(false);
+  const [savedSuccess, setSavedSuccess] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
   const initials = `${profile.firstName?.charAt(0) || "A"}${profile.lastName?.charAt(0) || "S"}`.toUpperCase();
 
@@ -67,12 +59,15 @@ export default function AdminProfile() {
     const file = event.target.files?.[0];
     if (file) {
       if (file.size > 2 * 1024 * 1024) {
-        alert("Image must be smaller than 2MB");
+        setErrorMessage("Image must be smaller than 2MB.");
+        setTimeout(() => setErrorMessage(""), 4000);
         return;
       }
       const reader = new FileReader();
       reader.onload = (e) => {
         handleChange("avatar", e.target?.result);
+        setSavedSuccess("Profile photo updated!");
+        setTimeout(() => setSavedSuccess(""), 3000);
       };
       reader.readAsDataURL(file);
     }
@@ -83,16 +78,20 @@ export default function AdminProfile() {
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
+    setSavedSuccess("Profile photo removed.");
+    setTimeout(() => setSavedSuccess(""), 3000);
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
-      setSavedSuccess(true);
-      setTimeout(() => setSavedSuccess(false), 3000);
+      setSavedSuccess("Profile information updated successfully!");
+      setTimeout(() => setSavedSuccess(""), 3000);
     } catch (err) {
       console.error("Failed to save profile:", err);
+      setErrorMessage("Failed to save profile: " + err.message);
+      setTimeout(() => setErrorMessage(""), 4000);
     }
   };
 
@@ -100,6 +99,8 @@ export default function AdminProfile() {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       setProfile(saved ? { ...defaultProfile, ...JSON.parse(saved) } : defaultProfile);
+      setSavedSuccess("Profile reset successfully.");
+      setTimeout(() => setSavedSuccess(""), 3000);
     } catch {
       setProfile(defaultProfile);
     }
@@ -119,11 +120,21 @@ export default function AdminProfile() {
         {/* CONTENT */}
         <div className="tfAdminProfile__content">
           {savedSuccess && (
-            <div className="tfAdminProfile__toast">
+            <div className="tfAdminProfile__toast tfAdminProfile__toast--success">
               <Check size={18} />
-              <span>Profile information updated successfully!</span>
+              <span>{savedSuccess}</span>
             </div>
           )}
+
+          {errorMessage && (
+            <div className="tfAdminProfile__toast tfAdminProfile__toast--error">
+              <AlertTriangle size={18} />
+              <span>{errorMessage}</span>
+            </div>
+          )}
+
+          {/* STATIC TOP MODULE TABS */}
+          <AdminSettingsNavTabs activeTab="profile" />
 
           {/* PAGE HEADER */}
           <div className="tfAdminProfile__header">
@@ -150,58 +161,6 @@ export default function AdminProfile() {
                 <span>Save Changes</span>
               </button>
             </div>
-          </div>
-
-          {/* QUICK NAV TABS */}
-          <div className="tfAdminSettings__moduleTabs">
-            <button
-              type="button"
-              className="tfAdminSettings__moduleTab tfAdminSettings__moduleTab--active"
-              onClick={() => navigate("/admin/profile")}
-            >
-              <UserRound size={14} />
-              <span>Profile</span>
-            </button>
-            <button
-              type="button"
-              className="tfAdminSettings__moduleTab "
-              onClick={() => navigate("/admin/account-settings")}
-            >
-              <Settings size={14} />
-              <span>Account</span>
-            </button>
-            <button
-              type="button"
-              className="tfAdminSettings__moduleTab "
-              onClick={() => navigate("/admin/appearance")}
-            >
-              <Palette size={14} />
-              <span>Appearance</span>
-            </button>
-            <button
-              type="button"
-              className="tfAdminSettings__moduleTab "
-              onClick={() => navigate("/admin/notifications")}
-            >
-              <Bell size={14} />
-              <span>Notifications</span>
-            </button>
-            <button
-              type="button"
-              className="tfAdminSettings__moduleTab "
-              onClick={() => navigate("/admin/security")}
-            >
-              <ShieldCheck size={14} />
-              <span>Security</span>
-            </button>
-            <button
-              type="button"
-              className="tfAdminSettings__moduleTab "
-              onClick={() => navigate("/admin/settings")}
-            >
-              <Building2 size={14} />
-              <span>Organization Settings</span>
-            </button>
           </div>
 
           <form onSubmit={handleSubmit} className="tfAdminProfile__grid">

@@ -1,9 +1,5 @@
 import React, { useMemo, useState, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import {
-  Settings,
-  UserRound,
-  Palette,
   Building2,
   ShieldCheck,
   Bell,
@@ -32,8 +28,6 @@ import {
   Upload,
   Copy,
   Check,
-  ExternalLink,
-  Sliders,
   ShieldAlert,
   Sun,
   Moon,
@@ -46,6 +40,7 @@ import {
 
 import AdminSidebar from "./AdminSidebar.jsx";
 import AdminTopbar from "./AdminTopbar.jsx";
+import AdminSettingsNavTabs from "./AdminSettingsNavTabs.jsx";
 import {
   defaultAdminSettings,
   timezoneOptions,
@@ -129,7 +124,6 @@ const sections = [
 ];
 
 export default function AdminSettings() {
-  const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("general");
   const [search, setSearch] = useState("");
@@ -364,57 +358,8 @@ export default function AdminSettings() {
             </div>
           )}
 
-          {/* TOP SETTINGS MODULE NAVIGATION TABS */}
-          <div className="tfAdminSettings__moduleTabs">
-            <button
-              type="button"
-              className="tfAdminSettings__moduleTab "
-              onClick={() => navigate("/admin/profile")}
-            >
-              <UserRound size={14} />
-              <span>Profile</span>
-            </button>
-            <button
-              type="button"
-              className="tfAdminSettings__moduleTab "
-              onClick={() => navigate("/admin/account-settings")}
-            >
-              <Settings size={14} />
-              <span>Account</span>
-            </button>
-            <button
-              type="button"
-              className="tfAdminSettings__moduleTab "
-              onClick={() => navigate("/admin/appearance")}
-            >
-              <Palette size={14} />
-              <span>Appearance</span>
-            </button>
-            <button
-              type="button"
-              className="tfAdminSettings__moduleTab "
-              onClick={() => navigate("/admin/notifications")}
-            >
-              <Bell size={14} />
-              <span>Notifications</span>
-            </button>
-            <button
-              type="button"
-              className="tfAdminSettings__moduleTab "
-              onClick={() => navigate("/admin/security")}
-            >
-              <ShieldCheck size={14} />
-              <span>Security</span>
-            </button>
-            <button
-              type="button"
-              className="tfAdminSettings__moduleTab tfAdminSettings__moduleTab--active"
-              onClick={() => navigate("/admin/settings")}
-            >
-              <Building2 size={14} />
-              <span>Organization Settings</span>
-            </button>
-          </div>
+          {/* STATIC TOP MODULE TABS */}
+          <AdminSettingsNavTabs activeTab="organization" />
 
           {/* PAGE HEADER */}
           <section className="admin-settings-header org-settings-header">
