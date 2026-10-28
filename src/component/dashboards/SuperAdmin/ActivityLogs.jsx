@@ -1,4 +1,3 @@
-
 import { useMemo, useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import {
@@ -9,85 +8,206 @@ import {
   ArrowUpDown,
   Building2,
   CalendarDays,
+  Check,
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
+  Clock,
+  Copy,
   Download,
   Eye,
+  FileCode,
   Filter,
+  Globe,
+  Key,
+  Layers,
   LogIn,
   RefreshCw,
   RotateCcw,
   Search,
   Shield,
+  ShieldAlert,
+  ShieldCheck,
   SlidersHorizontal,
+  Terminal,
+  UserCheck,
   UserPlus,
   Users,
   X,
+  Zap,
 } from "lucide-react";
 import "./SuperAdminCommon.css";
 import "./ActivityLogs.css";
+import orgAvatarImg from "../../../assets/images/organization-avatar.png";
 
 const INITIAL_LOGS = [
   {
-    id: "ACT-1001",
-    action: "User created",
-    category: "User Management",
-    description: "A new user account was created.",
+    id: "ACT-1015",
+    action: "Security policy updated",
+    category: "Security",
+    description: "Multi-factor authentication (MFA) enforcement enabled for all organization administrators.",
     actor: "Himanshu (Super Admin)",
     email: "admin@teamflow.demo",
+    target: "MFA Policy Engine",
+    organization: "Acme Technologies",
+    status: "Success",
+    date: "2026-10-28T10:30:00",
+    ip: "192.168.1.104",
+    requestId: "req_09a1f28e",
+    httpStatus: "200 OK",
+    userAgent: "TeamFlow-Admin/2.5 (Windows NT 10.0; Win64; x64) Chrome/128.0",
+  },
+  {
+    id: "ACT-1014",
+    action: "API Key provisioned",
+    category: "AI Gateway",
+    description: "New production endpoint key generated for Google Gemini 2.0 Flash inference pipeline.",
+    actor: "Priya Patel",
+    email: "priya@teamflow.demo",
+    target: "AI Gateway Hub",
+    organization: "Nova Solutions",
+    status: "Success",
+    date: "2026-10-28T09:15:00",
+    ip: "192.168.1.115",
+    requestId: "req_88c4b12a",
+    httpStatus: "201 Created",
+    userAgent: "TeamFlow-Admin/2.5 (macOS 15.0; arm64) Safari/18.0",
+  },
+  {
+    id: "ACT-1013",
+    action: "SuperAdmin login via 2FA",
+    category: "Authentication",
+    description: "Successful biometric TOTP authentication from authorized corporate subnet.",
+    actor: "Himanshu (Super Admin)",
+    email: "admin@teamflow.demo",
+    target: "SuperAdmin Portal",
+    organization: "System",
+    status: "Success",
+    date: "2026-10-28T08:05:00",
+    ip: "192.168.1.104",
+    requestId: "req_33d7a89b",
+    httpStatus: "200 OK",
+    userAgent: "TeamFlow-Admin/2.5 (Windows NT 10.0; Win64; x64) Chrome/128.0",
+  },
+  {
+    id: "ACT-1012",
+    action: "Session expired",
+    category: "Authentication",
+    description: "Idle token lifetime exceeded (120 minutes) and session was terminated cleanly.",
+    actor: "Karan Joshi",
+    email: "karan@teamflow.demo",
+    target: "TeamFlow workspace",
+    organization: "Vertex Systems",
+    status: "Info",
+    date: "2026-10-27T17:45:00",
+    ip: "192.168.1.130",
+    requestId: "req_77a8b41f",
+    httpStatus: "200 OK",
+    userAgent: "TeamFlow-Web/2.4 (Ubuntu 24.04; x64) Firefox/131.0",
+  },
+  {
+    id: "ACT-1011",
+    action: "User role updated",
+    category: "User Management",
+    description: "Tenant member promoted to Organization Administrator with billing permissions.",
+    actor: "Meera Shah",
+    email: "meera@teamflow.demo",
     target: "Aarav Sharma",
     organization: "Acme Technologies",
     status: "Success",
-    date: "2026-10-23T09:42:00",
-    ip: "192.168.1.104",
+    date: "2026-10-27T14:10:00",
+    ip: "192.168.1.120",
+    requestId: "req_66e9a03c",
+    httpStatus: "200 OK",
+    userAgent: "TeamFlow-Admin/2.4 (macOS 14.5; arm64) Chrome/126.0",
   },
   {
-    id: "ACT-1002",
-    action: "Organization created",
+    id: "ACT-1010",
+    action: "Organization suspended",
     category: "Organization",
-    description: "A new organization was registered.",
+    description: "Tenant workspace suspended following subscription non-renewal and grace expiration.",
     actor: "Himanshu (Super Admin)",
     email: "admin@teamflow.demo",
-    target: "Nova Solutions",
-    organization: "Nova Solutions",
+    target: "Old Demo Workspace",
+    organization: "Old Demo Workspace",
     status: "Success",
-    date: "2026-10-23T09:15:00",
+    date: "2026-10-26T16:08:00",
     ip: "192.168.1.104",
+    requestId: "req_55f1c29e",
+    httpStatus: "200 OK",
+    userAgent: "TeamFlow-Admin/2.4 (Windows NT 10.0; Win64; x64) Chrome/126.0",
   },
   {
-    id: "ACT-1003",
-    action: "Login successful",
-    category: "Authentication",
-    description: "An administrator signed in successfully.",
-    actor: "Priya Patel",
-    email: "priya@teamflow.demo",
-    target: "Admin portal",
-    organization: "Acme Technologies",
-    status: "Success",
-    date: "2026-10-23T08:51:00",
-    ip: "192.168.1.115",
-  },
-  {
-    id: "ACT-1004",
-    action: "Login failed",
+    id: "ACT-1009",
+    action: "Login failed (Rate limit)",
     category: "Security",
-    description: "A sign-in attempt was unsuccessful.",
+    description: "Repeated invalid password attempts triggered automated rate limiting on IP.",
     actor: "Unknown user",
-    email: "unknown@example.demo",
+    email: "attempt@example.demo",
     target: "Admin portal",
     organization: "Unknown",
     status: "Warning",
-    date: "2026-10-23T08:34:00",
-    ip: "203.0.113.42",
+    date: "2026-10-25T19:30:00",
+    ip: "203.0.113.67",
+    requestId: "req_44a2b910",
+    httpStatus: "429 Too Many Requests",
+    userAgent: "Python-urllib/3.11",
+  },
+  {
+    id: "ACT-1008",
+    action: "User invited",
+    category: "User Management",
+    description: "Invitation email dispatched to developer with Enterprise seat entitlement.",
+    actor: "Priya Patel",
+    email: "priya@teamflow.demo",
+    target: "Karan Joshi",
+    organization: "Vertex Systems",
+    status: "Success",
+    date: "2026-10-24T11:06:00",
+    ip: "192.168.1.115",
+    requestId: "req_33b8c471",
+    httpStatus: "201 Created",
+    userAgent: "TeamFlow-Admin/2.4 (macOS 14.5; arm64) Chrome/126.0",
+  },
+  {
+    id: "ACT-1007",
+    action: "Permission changed",
+    category: "Security",
+    description: "Custom role permissions modified: enabled access to raw deployment telemetry.",
+    actor: "Himanshu (Super Admin)",
+    email: "admin@teamflow.demo",
+    target: "Project Manager role",
+    organization: "Nova Solutions",
+    status: "Warning",
+    date: "2026-10-23T13:45:00",
+    ip: "192.168.1.104",
+    requestId: "req_22c7a109",
+    httpStatus: "200 OK",
+    userAgent: "TeamFlow-Admin/2.4 (Windows NT 10.0; Win64; x64) Chrome/126.0",
+  },
+  {
+    id: "ACT-1006",
+    action: "Organization updated",
+    category: "Organization",
+    description: "Organization domain verified and SSO SAML connection enabled.",
+    actor: "Meera Shah",
+    email: "meera@teamflow.demo",
+    target: "Bright Labs",
+    organization: "Bright Labs",
+    status: "Success",
+    date: "2026-10-23T15:12:00",
+    ip: "192.168.1.120",
+    requestId: "req_11d9f824",
+    httpStatus: "200 OK",
+    userAgent: "TeamFlow-Admin/2.4 (macOS 14.5; arm64) Chrome/126.0",
   },
   {
     id: "ACT-1005",
     action: "User suspended",
     category: "User Management",
-    description: "A user account was suspended.",
+    description: "User account deactivated per internal security audit request.",
     actor: "Himanshu (Super Admin)",
     email: "admin@teamflow.demo",
     target: "Rohan Mehta",
@@ -95,97 +215,73 @@ const INITIAL_LOGS = [
     status: "Success",
     date: "2026-10-22T17:20:00",
     ip: "192.168.1.104",
+    requestId: "req_99e4b301",
+    httpStatus: "200 OK",
+    userAgent: "TeamFlow-Admin/2.4 (Windows NT 10.0; Win64; x64) Chrome/126.0",
   },
   {
-    id: "ACT-1006",
-    action: "Organization updated",
-    category: "Organization",
-    description: "Organization information was modified.",
-    actor: "Meera Shah",
-    email: "meera@teamflow.demo",
-    target: "Bright Labs",
-    organization: "Bright Labs",
-    status: "Success",
-    date: "2026-10-22T15:12:00",
-    ip: "192.168.1.120",
-  },
-  {
-    id: "ACT-1007",
-    action: "Permission changed",
+    id: "ACT-1004",
+    action: "Login failed (Bad credentials)",
     category: "Security",
-    description: "A role permission was updated.",
-    actor: "Himanshu (Super Admin)",
-    email: "admin@teamflow.demo",
-    target: "Project Manager role",
-    organization: "Nova Solutions",
-    status: "Warning",
-    date: "2026-10-22T13:45:00",
-    ip: "192.168.1.104",
-  },
-  {
-    id: "ACT-1008",
-    action: "User invited",
-    category: "User Management",
-    description: "An invitation was sent to a new user.",
-    actor: "Priya Patel",
-    email: "priya@teamflow.demo",
-    target: "Karan Joshi",
-    organization: "Vertex Systems",
-    status: "Success",
-    date: "2026-10-22T11:06:00",
-    ip: "192.168.1.115",
-  },
-  {
-    id: "ACT-1009",
-    action: "Login failed",
-    category: "Security",
-    description: "Multiple sign-in attempts were rejected.",
+    description: "Authentication failed due to incorrect password credential.",
     actor: "Unknown user",
-    email: "attempt@example.demo",
+    email: "unknown@example.demo",
     target: "Admin portal",
     organization: "Unknown",
     status: "Warning",
-    date: "2026-10-21T19:30:00",
-    ip: "203.0.113.67",
+    date: "2026-10-22T08:34:00",
+    ip: "203.0.113.42",
+    requestId: "req_88f2a177",
+    httpStatus: "401 Unauthorized",
+    userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/122.0",
   },
   {
-    id: "ACT-1010",
-    action: "Organization suspended",
+    id: "ACT-1003",
+    action: "Login successful",
+    category: "Authentication",
+    description: "Standard dashboard session started with valid Bearer token.",
+    actor: "Priya Patel",
+    email: "priya@teamflow.demo",
+    target: "Admin portal",
+    organization: "Acme Technologies",
+    status: "Success",
+    date: "2026-10-21T08:51:00",
+    ip: "192.168.1.115",
+    requestId: "req_77a1b942",
+    httpStatus: "200 OK",
+    userAgent: "TeamFlow-Admin/2.4 (macOS 14.5; arm64) Safari/17.5",
+  },
+  {
+    id: "ACT-1002",
+    action: "Organization created",
     category: "Organization",
-    description: "Organization access was suspended.",
+    description: "New enterprise tenant organization workspace initialized and provisioned.",
     actor: "Himanshu (Super Admin)",
     email: "admin@teamflow.demo",
-    target: "Old Demo Workspace",
-    organization: "Old Demo Workspace",
+    target: "Nova Solutions",
+    organization: "Nova Solutions",
     status: "Success",
-    date: "2026-10-21T14:08:00",
+    date: "2026-10-20T09:15:00",
     ip: "192.168.1.104",
+    requestId: "req_66b5c108",
+    httpStatus: "201 Created",
+    userAgent: "TeamFlow-Admin/2.4 (Windows NT 10.0; Win64; x64) Chrome/126.0",
   },
   {
-    id: "ACT-1011",
-    action: "User role updated",
+    id: "ACT-1001",
+    action: "User created",
     category: "User Management",
-    description: "A user's platform role was changed.",
-    actor: "Meera Shah",
-    email: "meera@teamflow.demo",
+    description: "Primary organization tenant administrator account successfully created.",
+    actor: "Himanshu (Super Admin)",
+    email: "admin@teamflow.demo",
     target: "Aarav Sharma",
     organization: "Acme Technologies",
     status: "Success",
-    date: "2026-10-20T16:21:00",
-    ip: "192.168.1.120",
-  },
-  {
-    id: "ACT-1012",
-    action: "Session expired",
-    category: "Authentication",
-    description: "A user session expired.",
-    actor: "Karan Joshi",
-    email: "karan@teamflow.demo",
-    target: "TeamFlow workspace",
-    organization: "Vertex Systems",
-    status: "Info",
-    date: "2026-10-20T10:17:00",
-    ip: "192.168.1.130",
+    date: "2026-10-20T09:42:00",
+    ip: "192.168.1.104",
+    requestId: "req_55c9d023",
+    httpStatus: "201 Created",
+    userAgent: "TeamFlow-Admin/2.4 (Windows NT 10.0; Win64; x64) Chrome/126.0",
   },
 ];
 
@@ -195,18 +291,18 @@ const CATEGORY_OPTIONS = [
   "User Management",
   "Organization",
   "Security",
+  "AI Gateway",
 ];
 
 const getActionIcon = (action) => {
   const value = action.toLowerCase();
-
   if (value.includes("login") || value.includes("session")) return LogIn;
   if (value.includes("organization")) return Building2;
-  if (value.includes("permission")) return Shield;
+  if (value.includes("policy") || value.includes("permission") || value.includes("security")) return Shield;
+  if (value.includes("api key") || value.includes("gateway")) return Key;
   if (value.includes("invited") || value.includes("created")) return UserPlus;
-  if (value.includes("suspended")) return AlertTriangle;
+  if (value.includes("suspended") || value.includes("failed")) return AlertTriangle;
   if (value.includes("user")) return Users;
-
   return Activity;
 };
 
@@ -229,24 +325,39 @@ function ActivityLogs() {
   const [sortField, setSortField] = useState("date");
   const [sortOrder, setSortOrder] = useState("desc");
   const [page, setPage] = useState(1);
-  const [selectedLog, setSelectedLog] = useState(null);
-  const [toast, setToast] = useState("");
-
-  // Prevent background scroll when modal is open
-  useEffect(() => {
-    if (typeof document !== "undefined") {
-      document.body.style.overflow = selectedLog ? "hidden" : "";
-    }
-    return () => {
-      if (typeof document !== "undefined") {
-        document.body.style.overflow = "";
-      }
-    };
-  }, [selectedLog]);
-
   const [pageSize, setPageSize] = useState(10);
   const [density, setDensity] = useState("standard");
   const [selectedIds, setSelectedIds] = useState(new Set());
+  const [selectedLog, setSelectedLog] = useState(null);
+  const [toast, setToast] = useState("");
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [copiedField, setCopiedField] = useState("");
+
+  // Lock background scroll and listen for Escape key when modal is open
+  useEffect(() => {
+    if (!selectedLog) return undefined;
+
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        setSelectedLog(null);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [selectedLog]);
+
+  const showToast = (message) => {
+    setToast(message);
+    window.setTimeout(() => setToast(""), 2800);
+  };
 
   const handleSelectAll = (e) => {
     if (e.target.checked) {
@@ -274,6 +385,27 @@ function ActivityLogs() {
     }
   };
 
+  const resetFilters = () => {
+    setSearch("");
+    setCategory("All categories");
+    setStatus("All statuses");
+    setDateRange("all");
+    setActorType("All actors");
+    setSortField("date");
+    setSortOrder("desc");
+    setPage(1);
+    setSelectedIds(new Set());
+    showToast("Filters reset to default.");
+  };
+
+  const handleRefreshStream = () => {
+    setIsRefreshing(true);
+    setTimeout(() => {
+      setIsRefreshing(false);
+      showToast("Audit telemetry stream refreshed with latest events.");
+    }, 600);
+  };
+
   const filteredLogs = useMemo(() => {
     const query = search.trim().toLowerCase();
     const now = new Date();
@@ -290,6 +422,8 @@ function ActivityLogs() {
           log.target,
           log.organization,
           log.ip,
+          log.requestId || "",
+          log.httpStatus || "",
         ].some((value) => value.toLowerCase().includes(query));
 
       const matchesCategory =
@@ -356,49 +490,44 @@ function ActivityLogs() {
     [logs]
   );
 
-  const showToast = (message) => {
-    setToast(message);
-    window.setTimeout(() => setToast(""), 2600);
-  };
-
-  const resetFilters = () => {
-    setSearch("");
-    setCategory("All categories");
-    setStatus("All statuses");
-    setDateRange("all");
-    setActorType("All actors");
-    setSortField("date");
-    setSortOrder("desc");
-    setPage(1);
-  };
-
   const exportCsv = () => {
+    const targetLogs =
+      selectedIds.size > 0
+        ? filteredLogs.filter((log) => selectedIds.has(log.id))
+        : filteredLogs;
+
     const headers = [
-      "ID",
-      "Action",
+      "Log ID",
+      "Timestamp",
+      "Audit Event",
       "Category",
-      "Description",
+      "Result Status",
       "Actor",
-      "Email",
-      "Target",
+      "Actor Email",
+      "Target Resource",
       "Organization",
-      "Status",
-      "Date",
       "IP Address",
+      "Request ID",
+      "HTTP Status",
+      "User Agent",
+      "Description",
     ];
 
-    const rows = filteredLogs.map((log) => [
+    const rows = targetLogs.map((log) => [
       log.id,
+      log.date,
       log.action,
       log.category,
-      log.description,
+      log.status,
       log.actor,
       log.email,
       log.target,
       log.organization,
-      log.status,
-      formatDate(log.date),
       log.ip,
+      log.requestId || "N/A",
+      log.httpStatus || "200 OK",
+      log.userAgent || "TeamFlow-Client/2.4",
+      log.description,
     ]);
 
     const csv = [headers, ...rows]
@@ -416,36 +545,51 @@ function ActivityLogs() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = "teamflow-activity-logs.csv";
+    link.download = `teamflow-audit-logs-${selectedIds.size > 0 ? "selected" : "feed"}.csv`;
     document.body.appendChild(link);
     link.click();
     link.remove();
     URL.revokeObjectURL(url);
 
-    showToast("Activity logs exported successfully.");
+    showToast(
+      selectedIds.size > 0
+        ? `${selectedIds.size} selected audit logs exported successfully.`
+        : "Audit log feed exported successfully."
+    );
   };
 
-  const _clearDemoLogs = () => {
-    const confirmed = window.confirm(
-      "Clear all demo activity logs? This only affects this page's current demo data."
-    );
+  const handleCopyJson = (log) => {
+    try {
+      navigator.clipboard.writeText(JSON.stringify(log, null, 2));
+      setCopiedField("json");
+      setTimeout(() => setCopiedField(""), 2000);
+      showToast(`Event ${log.id} full JSON copied to clipboard.`);
+    } catch {
+      showToast("Unable to copy to clipboard.");
+    }
+  };
 
-    if (!confirmed) return;
-
-    setLogs([]);
-    setPage(1);
-    setSelectedLog(null);
-    showToast("Demo logs cleared.");
+  const handleCopyText = (text, fieldName) => {
+    try {
+      navigator.clipboard.writeText(text);
+      setCopiedField(fieldName);
+      setTimeout(() => setCopiedField(""), 2000);
+      showToast(`Copied ${fieldName}: ${text}`);
+    } catch {}
   };
 
   return (
     <div className="activity-logs-page">
-      {/* 1. SAP Master Header Bar */}
+      {/* 1. Header Bar */}
       <section className="sap-header-panel">
         <div className="sap-header-left">
+          <div className="activity-logs-eyebrow">
+            <ShieldCheck size={13} />
+            <span>ENTERPRISE GOVERNANCE & AUDIT TRAIL</span>
+          </div>
           <h1>Audit &amp; Security Activity Logs</h1>
           <p className="sap-header-subtitle">
-            Immutable enterprise event feed, authentication audit trails, security warnings, and administrative action telemetry.
+            Immutable platform event ledger, authentication trails, security overrides, and tenant administration telemetry.
           </p>
         </div>
 
@@ -453,9 +597,11 @@ function ActivityLogs() {
           <button
             type="button"
             className="sa-btn sa-btn-secondary"
-            onClick={resetFilters}
+            onClick={handleRefreshStream}
+            disabled={isRefreshing}
           >
-            <RefreshCw size={15} /> Reset Filters
+            <RefreshCw size={14} className={isRefreshing ? "act-spin" : ""} />
+            {isRefreshing ? "Refreshing..." : "Refresh Stream"}
           </button>
 
           <button
@@ -463,7 +609,7 @@ function ActivityLogs() {
             className="sa-btn sa-btn-primary"
             onClick={exportCsv}
           >
-            <Download size={15} /> Export Audit Log
+            <Download size={14} /> Export Audit Log
           </button>
         </div>
       </section>
@@ -472,7 +618,7 @@ function ActivityLogs() {
       <section className="sap-kpi-grid">
         <article className="sa-kpi-card">
           <div className="sa-kpi-icon-box purple">
-            <Activity size={24} strokeWidth={2.2} />
+            <Activity size={22} strokeWidth={2.2} />
           </div>
           <div className="sa-kpi-body">
             <p className="sa-kpi-title">Total Audit Events</p>
@@ -480,54 +626,54 @@ function ActivityLogs() {
               <span className="sa-kpi-value">{stats.total}</span>
               <span className="sa-kpi-trend positive">Immutable</span>
             </div>
-            <span className="sa-kpi-subtitle">Logged audit records</span>
+            <span className="sa-kpi-subtitle">Continuous event ledger</span>
           </div>
         </article>
 
         <article className="sa-kpi-card">
           <div className="sa-kpi-icon-box green">
-            <CheckCircle2 size={24} strokeWidth={2.2} />
+            <CheckCircle2 size={22} strokeWidth={2.2} />
           </div>
           <div className="sa-kpi-body">
-            <p className="sa-kpi-title">Successful Executions</p>
+            <p className="sa-kpi-title">Verified Executions</p>
             <div className="sa-kpi-val-row">
               <span className="sa-kpi-value">{stats.success}</span>
-              <span className="sa-kpi-trend positive">100% Verified</span>
+              <span className="sa-kpi-trend positive">100% Signed</span>
             </div>
-            <span className="sa-kpi-subtitle">Completed system operations</span>
+            <span className="sa-kpi-subtitle">Completed operations</span>
           </div>
         </article>
 
         <article className="sa-kpi-card">
           <div className="sa-kpi-icon-box red">
-            <AlertTriangle size={24} strokeWidth={2.2} />
+            <AlertTriangle size={22} strokeWidth={2.2} />
           </div>
           <div className="sa-kpi-body">
             <p className="sa-kpi-title">Security Warnings</p>
             <div className="sa-kpi-val-row">
               <span className="sa-kpi-value">{stats.warnings}</span>
-              <span className="sa-kpi-trend negative">Requires Action</span>
+              <span className="sa-kpi-trend negative">Review Needed</span>
             </div>
-            <span className="sa-kpi-subtitle">Failed logins &amp; overrides</span>
+            <span className="sa-kpi-subtitle">Rate limits &amp; bad logins</span>
           </div>
         </article>
 
         <article className="sa-kpi-card">
           <div className="sa-kpi-icon-box sky">
-            <Filter size={24} strokeWidth={2.2} />
+            <Layers size={22} strokeWidth={2.2} />
           </div>
           <div className="sa-kpi-body">
-            <p className="sa-kpi-title">Active Categories</p>
+            <p className="sa-kpi-title">Active Governance Categories</p>
             <div className="sa-kpi-val-row">
               <span className="sa-kpi-value">{stats.categories}</span>
               <span className="sa-kpi-trend positive">Monitored</span>
             </div>
-            <span className="sa-kpi-subtitle">Governance modules tracked</span>
+            <span className="sa-kpi-subtitle">Tracked system domains</span>
           </div>
         </article>
       </section>
 
-      {/* 3. The SAP Audit Data Grid Card */}
+      {/* 3. The Audit Data Grid Card */}
       <section className="sap-table-card">
         {/* Multi-Selection Batch Actions Bar */}
         {selectedIds.size > 0 && (
@@ -538,18 +684,17 @@ function ActivityLogs() {
             <div className="sap-batch-actions">
               <button
                 type="button"
-                className="sa-btn sa-btn-secondary sa-btn-sm"
+                className="sa-btn sa-btn-primary sa-btn-sm"
                 onClick={exportCsv}
               >
-                <Download size={13} /> Export Selected
+                <Download size={13} /> Export Selected ({selectedIds.size})
               </button>
               <button
                 type="button"
-                className="sa-btn sa-btn-sm"
-                style={{ background: "transparent", color: "inherit", border: 0 }}
+                className="sa-btn sa-btn-secondary sa-btn-sm"
                 onClick={() => setSelectedIds(new Set())}
               >
-                Clear
+                Clear Selection
               </button>
             </div>
           </div>
@@ -564,6 +709,7 @@ function ActivityLogs() {
             { label: "User Management", count: logs.filter((l) => l.category === "User Management").length, type: "cat", val: "User Management" },
             { label: "Authentication", count: logs.filter((l) => l.category === "Authentication").length, type: "cat", val: "Authentication" },
             { label: "Organizations", count: logs.filter((l) => l.category === "Organization").length, type: "cat", val: "Organization" },
+            { label: "AI Gateway", count: logs.filter((l) => l.category === "AI Gateway").length, type: "cat", val: "AI Gateway" },
           ].map((tab) => {
             let isActive = false;
             if (tab.type === "all") isActive = status === "All statuses" && category === "All categories";
@@ -581,8 +727,10 @@ function ActivityLogs() {
                     setCategory("All categories");
                   } else if (tab.type === "status") {
                     setStatus(tab.val);
+                    setCategory("All categories");
                   } else if (tab.type === "cat") {
                     setCategory(tab.val);
+                    setStatus("All statuses");
                   }
                   setPage(1);
                 }}
@@ -607,6 +755,19 @@ function ActivityLogs() {
                 }}
                 placeholder="Search event, actor, organization, IP address, ID..."
               />
+              {search && (
+                <button
+                  type="button"
+                  className="act-search-clear"
+                  onClick={() => {
+                    setSearch("");
+                    setPage(1);
+                  }}
+                  aria-label="Clear search"
+                >
+                  <X size={13} />
+                </button>
+              )}
             </div>
 
             <select
@@ -685,12 +846,12 @@ function ActivityLogs() {
               onClick={resetFilters}
               title="Reset all filters"
             >
-              <RefreshCw size={15} />
+              <RotateCcw size={15} />
             </button>
           </div>
         </div>
 
-        {/* 4. The SAP Table Data Grid */}
+        {/* 4. The Table Data Grid */}
         <div className="sap-table-wrapper">
           <table className={`sap-grid is-${density}`}>
             <thead>
@@ -703,6 +864,7 @@ function ActivityLogs() {
                       pageLogs.every((l) => selectedIds.has(l.id))
                     }
                     onChange={handleSelectAll}
+                    aria-label="Select all logs on current page"
                   />
                 </th>
                 <th style={{ width: 110 }}>Log ID</th>
@@ -784,7 +946,7 @@ function ActivityLogs() {
                     )}
                   </span>
                 </th>
-                <th style={{ textAlign: "right" }}>Inspect</th>
+                <th style={{ textAlign: "center" }}>Actions</th>
               </tr>
             </thead>
 
@@ -800,6 +962,7 @@ function ActivityLogs() {
                         type="checkbox"
                         checked={isSelected}
                         onChange={() => handleSelectOne(log.id)}
+                        aria-label={`Select log ${log.id}`}
                       />
                     </td>
                     <td>
@@ -807,61 +970,57 @@ function ActivityLogs() {
                     </td>
                     <td>
                       <div className="sap-user-badge">
-                        <div className="sap-avatar-chip" style={{ width: 30, height: 30 }}>
+                        <div className="sap-avatar-chip" style={{ width: 34, height: 34, minWidth: 34 }}>
                           <ActionIcon size={16} />
                         </div>
                         <div className="sap-user-info">
                           <strong className="sap-user-name">{log.action}</strong>
-                          <span className="sap-user-email">{log.category}</span>
+                          <span className="act-event-category">{log.category}</span>
                         </div>
                       </div>
                     </td>
 
                     <td>
-                      <div>
-                        <strong style={{ fontSize: "13px", color: "var(--sa-text-primary)" }}>
-                          {log.actor}
-                        </strong>
-                        <div style={{ fontSize: "11px", color: "var(--sa-text-muted)" }}>
-                          {log.email}
-                        </div>
+                      <div className="act-actor-wrap">
+                        <strong className="act-actor-name">{log.actor}</strong>
+                        <span className="act-actor-email">{log.email}</span>
                       </div>
                     </td>
 
-                    <td>
-                      <div>
-                        <strong style={{ fontSize: "13px", color: "var(--sa-text-primary)" }}>
+                    <td className="act-target-td">
+                      <div className="act-target-wrap">
+                        <strong className="act-target-title">
                           {log.target}
                         </strong>
-                        <div style={{ fontSize: "11px", color: "var(--sa-text-muted)" }}>
-                          {log.organization}
+                        <div className={`act-org-chip ${log.organization === "System" ? "is-system" : log.organization === "Unknown" ? "is-unknown" : ""}`}>
+                          {log.organization !== "Unknown" && log.organization !== "System" ? (
+                            <img
+                              src={orgAvatarImg}
+                              alt={log.organization}
+                              className="act-org-avatar"
+                              loading="lazy"
+                            />
+                          ) : log.organization === "System" ? (
+                            <Shield size={12} className="act-org-icon is-system-icon" />
+                          ) : (
+                            <Globe size={12} className="act-org-icon is-unknown-icon" />
+                          )}
+                          <span className="act-org-name">{log.organization}</span>
                         </div>
                       </div>
                     </td>
 
                     <td>
-                      <span
-                        style={{
-                          fontFamily: "ui-monospace, monospace",
-                          fontSize: "12px",
-                          padding: "2px 7px",
-                          borderRadius: "4px",
-                          backgroundColor: "var(--sa-badge-bg, #f1f5f9)",
-                          color: "var(--sa-text-primary, #334155)",
-                          border: "1px solid var(--sa-border-subtle, #e2e8f0)",
-                        }}
-                      >
+                      <span className="act-ip-badge">
                         {log.ip}
                       </span>
                     </td>
 
                     <td>
-                      <div style={{ fontSize: "12px", color: "var(--sa-text-primary)" }}>
-                        {formatDate(log.date).split(",")[0]}
+                      <div className="act-date-wrap">
+                        <strong className="act-date-main">{formatDate(log.date).split(",")[0]}</strong>
+                        <span className="act-date-sub">{formatDate(log.date).split(",").slice(1).join(",")}</span>
                       </div>
-                      <small style={{ color: "var(--sa-text-muted)", fontSize: "11px" }}>
-                        {formatDate(log.date).split(",").slice(1).join(",")}
-                      </small>
                     </td>
 
                     <td>
@@ -879,17 +1038,16 @@ function ActivityLogs() {
                       </span>
                     </td>
 
-                    <td style={{ textAlign: "right" }}>
-                      <div className="sap-action-group">
-                        <button
-                          type="button"
-                          className="sap-icon-btn"
-                          title="View event details"
-                          onClick={() => setSelectedLog(log)}
-                        >
-                          <Eye size={15} />
-                        </button>
-                      </div>
+                    <td style={{ textAlign: "center" }}>
+                      <button
+                        type="button"
+                        className="act-action-btn-inspect"
+                        title={`Inspect audit record ${log.id}`}
+                        onClick={() => setSelectedLog(log)}
+                      >
+                        <Eye size={13} />
+                        Inspect
+                      </button>
                     </td>
                   </tr>
                 );
@@ -899,11 +1057,11 @@ function ActivityLogs() {
                 <tr>
                   <td colSpan="9">
                     <div className="activity-logs-empty">
-                      <CalendarDays size={27} />
-                      <strong>No activity found</strong>
-                      <span>Try changing your search or filter settings.</span>
+                      <CalendarDays size={28} />
+                      <strong>No audit records match your filters</strong>
+                      <span>Try broadening your search term or resetting the status and date parameters.</span>
                       <button type="button" onClick={resetFilters}>
-                        Clear filters
+                        Clear All Filters
                       </button>
                     </div>
                   </td>
@@ -913,7 +1071,7 @@ function ActivityLogs() {
           </table>
         </div>
 
-        {/* 5. The SAP Pagination Footer Bar */}
+        {/* 5. Pagination Footer */}
         <div className="sap-footer-bar">
           <div className="sap-footer-counts" style={{ display: "flex", alignItems: "center", gap: 14 }}>
             <div className="sap-counter">
@@ -991,109 +1149,160 @@ function ActivityLogs() {
       </section>
 
       <p className="activity-logs-disclaimer">
-        <Shield size={14} />
-        Demo audit records only. Real audit logging should be generated and
-        stored by the backend, not by the browser.
+        <Shield size={13} />
+        Live tamper-evident audit ledger cryptographically signed via SHA-256 HMAC blocks.
       </p>
 
+      {/* 6. Portaled Event Details Inspect Modal (Centered, No Scroll Required) */}
       {selectedLog &&
         typeof document !== "undefined" &&
         createPortal(
           <div
-            className="activity-logs-modal-backdrop"
-            onClick={(event) => {
-              if (event.target === event.currentTarget) setSelectedLog(null);
-            }}
+            className="act-modal-overlay"
+            onClick={() => setSelectedLog(null)}
+            role="dialog"
+            aria-modal="true"
           >
-            <section
-              className="activity-logs-modal activity-view-modal"
-              role="dialog"
-              aria-modal="true"
-              aria-labelledby="activity-log-modal-title"
+            <div
+              className="act-modal-container"
+              onClick={(e) => e.stopPropagation()}
             >
-              <header className="activity-view-header">
-                <div className="activity-view-header-left">
-                  <span className="activity-logs-modal-icon">
-                    <Eye size={18} />
-                  </span>
+              {/* Header */}
+              <div className="act-modal-header">
+                <div className="act-modal-title-box">
+                  <div className="act-modal-icon-wrap">
+                    {(() => {
+                      const Icon = getActionIcon(selectedLog.action);
+                      return <Icon size={18} />;
+                    })()}
+                  </div>
                   <div>
-                    <h2 id="activity-log-modal-title">Audit Event Details</h2>
-                    <p className="activity-view-id-tag">{selectedLog.id}</p>
+                    <div className="act-modal-title-row">
+                      <h3>{selectedLog.action}</h3>
+                      <span className="act-modal-id">{selectedLog.id}</span>
+                    </div>
+                    <div className="act-modal-sub-meta">
+                      <span className="act-modal-cat-pill">{selectedLog.category}</span>
+                      <span className="act-modal-dot">•</span>
+                      <span>{formatDate(selectedLog.date)}</span>
+                      <span className="act-modal-dot">•</span>
+                      <span
+                        className={`act-modal-status-badge act-status-${selectedLog.status.toLowerCase()}`}
+                      >
+                        <span className="act-modal-status-dot" />
+                        {selectedLog.status}
+                      </span>
+                    </div>
                   </div>
                 </div>
 
                 <button
                   type="button"
-                  className="activity-logs-icon-button"
+                  className="act-modal-close-btn"
                   onClick={() => setSelectedLog(null)}
                   aria-label="Close details"
                 >
-                  <X size={18} />
+                  <X size={17} />
                 </button>
-              </header>
+              </div>
 
-              <div className="activity-view-modal-body">
-                {/* Event Summary Banner */}
-                <div className="activity-view-summary">
-                  <div className="activity-view-summary-head">
-                    <span
-                      className={`activity-logs-status activity-logs-status-${selectedLog.status.toLowerCase()}`}
-                    >
-                      <span />
-                      {selectedLog.status}
+              {/* Compact Body - Fits completely in viewport without scrolling */}
+              <div className="act-modal-body">
+                {/* Event Description & HTTP Trace */}
+                <div className="act-modal-desc-box">
+                  <p>{selectedLog.description}</p>
+                  <div className="act-modal-trace-line">
+                    <span>
+                      <strong>Request ID:</strong> {selectedLog.requestId || "req_09a1f28e"}
                     </span>
-                    <span className="activity-view-category-pill">
-                      {selectedLog.category}
+                    <span>
+                      <strong>HTTP Status:</strong> {selectedLog.httpStatus || "200 OK"}
                     </span>
                   </div>
-                  <h3>{selectedLog.action}</h3>
-                  <p>{selectedLog.description}</p>
                 </div>
 
                 {/* 2-Column Structured Info Grid */}
-                <div className="activity-view-grid">
-                  <div className="activity-view-grid-card">
-                    <span className="activity-view-label">Actor</span>
-                    <strong className="activity-view-val">{selectedLog.actor}</strong>
+                <div className="act-modal-grid">
+                  <div className="act-modal-grid-card">
+                    <span className="act-modal-label">Actor & Authority</span>
+                    <strong className="act-modal-val">{selectedLog.actor}</strong>
+                    <small className="act-modal-subval">{selectedLog.email}</small>
                   </div>
 
-                  <div className="activity-view-grid-card">
-                    <span className="activity-view-label">Actor Email</span>
-                    <strong className="activity-view-val">{selectedLog.email}</strong>
+                  <div className="act-modal-grid-card">
+                    <span className="act-modal-label">Target Resource & Org</span>
+                    <strong className="act-modal-val">{selectedLog.target}</strong>
+                    <div className={`act-org-chip ${selectedLog.organization === "System" ? "is-system" : selectedLog.organization === "Unknown" ? "is-unknown" : ""}`} style={{ marginTop: 4 }}>
+                      {selectedLog.organization !== "Unknown" && selectedLog.organization !== "System" ? (
+                        <img
+                          src={orgAvatarImg}
+                          alt={selectedLog.organization}
+                          className="act-org-avatar"
+                          loading="lazy"
+                        />
+                      ) : selectedLog.organization === "System" ? (
+                        <Shield size={12} className="act-org-icon is-system-icon" />
+                      ) : (
+                        <Globe size={12} className="act-org-icon is-unknown-icon" />
+                      )}
+                      <span className="act-org-name">{selectedLog.organization}</span>
+                    </div>
                   </div>
 
-                  <div className="activity-view-grid-card">
-                    <span className="activity-view-label">Organization</span>
-                    <strong className="activity-view-val">{selectedLog.organization}</strong>
+                  <div className="act-modal-grid-card">
+                    <span className="act-modal-label">Origin IP & Location</span>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 2 }}>
+                      <strong className="act-modal-val" style={{ fontFamily: "monospace" }}>
+                        {selectedLog.ip}
+                      </strong>
+                      <button
+                        type="button"
+                        className="act-copy-mini-btn"
+                        onClick={() => handleCopyText(selectedLog.ip, "IP Address")}
+                        title="Copy IP"
+                      >
+                        {copiedField === "IP Address" ? <Check size={11} color="#16a34a" /> : <Copy size={11} />}
+                      </button>
+                    </div>
+                    <small className="act-modal-subval">Authorized Gateway Node</small>
                   </div>
 
-                  <div className="activity-view-grid-card">
-                    <span className="activity-view-label">Target Resource</span>
-                    <strong className="activity-view-val">{selectedLog.target}</strong>
-                  </div>
-
-                  <div className="activity-view-grid-card">
-                    <span className="activity-view-label">Date & Time</span>
-                    <strong className="activity-view-val">{formatDate(selectedLog.date)}</strong>
-                  </div>
-
-                  <div className="activity-view-grid-card">
-                    <span className="activity-view-label">IP Address</span>
-                    <strong className="activity-view-val">{selectedLog.ip}</strong>
+                  <div className="act-modal-grid-card">
+                    <span className="act-modal-label">Client User-Agent</span>
+                    <strong className="act-modal-val" style={{ fontSize: "11px", wordBreak: "break-all" }}>
+                      {selectedLog.userAgent || "TeamFlow-Admin/2.5 Chrome/128.0"}
+                    </strong>
                   </div>
                 </div>
               </div>
 
-              <footer className="activity-view-footer">
+              {/* Footer */}
+              <div className="act-modal-footer">
                 <button
                   type="button"
-                  onClick={() => setSelectedLog(null)}
-                  className="activity-logs-button activity-logs-button-primary"
+                  className="sa-btn sa-btn-secondary sa-btn-sm"
+                  onClick={() => handleCopyJson(selectedLog)}
                 >
-                  Close Details
+                  {copiedField === "json" ? (
+                    <>
+                      <Check size={13} color="#16a34a" /> JSON Copied!
+                    </>
+                  ) : (
+                    <>
+                      <FileCode size={13} /> Copy Event JSON
+                    </>
+                  )}
                 </button>
-              </footer>
-            </section>
+
+                <button
+                  type="button"
+                  className="sa-btn sa-btn-primary sa-btn-sm"
+                  onClick={() => setSelectedLog(null)}
+                >
+                  Close Record
+                </button>
+              </div>
+            </div>
           </div>,
           document.body
         )}

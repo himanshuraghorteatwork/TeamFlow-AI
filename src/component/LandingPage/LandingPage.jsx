@@ -37,6 +37,11 @@ import "./LandingPage.css";
    ========================================================================= */
 function HeroBackgroundCanvas({ theme }) {
   const canvasRef = useRef(null);
+  const themeRef = useRef(theme);
+
+  useEffect(() => {
+    themeRef.current = theme;
+  }, [theme]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -51,20 +56,19 @@ function HeroBackgroundCanvas({ theme }) {
     // Particle nodes count scaled by screen size
     const count = Math.min(Math.floor(width / 36), 46);
     const particles = [];
-    const colors =
-      theme === "dark"
-        ? [
-            "rgba(99, 102, 241, ",
-            "rgba(236, 72, 153, ",
-            "rgba(56, 189, 248, ",
-            "rgba(16, 185, 129, ",
-          ]
-        : [
-            "rgba(79, 70, 229, ",
-            "rgba(219, 39, 119, ",
-            "rgba(2, 132, 199, ",
-            "rgba(5, 150, 105, ",
-          ];
+
+    const darkColors = [
+      "rgba(99, 102, 241, ",
+      "rgba(236, 72, 153, ",
+      "rgba(56, 189, 248, ",
+      "rgba(16, 185, 129, ",
+    ];
+    const lightColors = [
+      "rgba(79, 70, 229, ",
+      "rgba(219, 39, 119, ",
+      "rgba(2, 132, 199, ",
+      "rgba(5, 150, 105, ",
+    ];
 
     for (let i = 0; i < count; i++) {
       particles.push({
@@ -73,7 +77,7 @@ function HeroBackgroundCanvas({ theme }) {
         vx: (Math.random() - 0.5) * 0.65,
         vy: (Math.random() - 0.5) * 0.65,
         radius: Math.random() * 2.2 + 1.2,
-        colorBase: colors[Math.floor(Math.random() * colors.length)],
+        colorIndex: Math.floor(Math.random() * darkColors.length),
         baseAlpha: Math.random() * 0.35 + 0.25,
       });
     }
@@ -99,8 +103,15 @@ function HeroBackgroundCanvas({ theme }) {
     window.addEventListener("mouseleave", handleMouseLeave);
     window.addEventListener("resize", handleResize);
 
+    // Smooth real-time transition progress (0.0 = full light, 1.0 = full dark)
+    let themeProgress = themeRef.current === "dark" ? 1 : 0;
+
     const render = () => {
       ctx.clearRect(0, 0, width, height);
+
+      // Smooth real-time easing towards the target theme over ~0.8s
+      const targetProgress = themeRef.current === "dark" ? 1 : 0;
+      themeProgress += (targetProgress - themeProgress) * 0.04;
 
       // Draw connecting constellation lines
       for (let i = 0; i < particles.length; i++) {
@@ -110,7 +121,8 @@ function HeroBackgroundCanvas({ theme }) {
           const dist = Math.sqrt(dx * dx + dy * dy);
 
           if (dist < 145) {
-            const alpha = (1 - dist / 145) * (theme === "dark" ? 0.18 : 0.13);
+            const baseAlpha = 0.12 + 0.06 * themeProgress;
+            const alpha = (1 - dist / 145) * baseAlpha;
             ctx.beginPath();
             ctx.moveTo(particles[i].x, particles[i].y);
             ctx.lineTo(particles[j].x, particles[j].y);
@@ -148,7 +160,8 @@ function HeroBackgroundCanvas({ theme }) {
 
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-        ctx.fillStyle = `${p.colorBase}${p.baseAlpha})`;
+        const palette = themeProgress > 0.5 ? darkColors : lightColors;
+        ctx.fillStyle = `${palette[p.colorIndex]}${p.baseAlpha})`;
         ctx.fill();
       }
 
@@ -163,7 +176,7 @@ function HeroBackgroundCanvas({ theme }) {
       window.removeEventListener("resize", handleResize);
       cancelAnimationFrame(animId);
     };
-  }, [theme]);
+  }, []);
 
   return (
     <canvas
@@ -182,8 +195,8 @@ function Logo() {
     <div className="logo-container">
       <div className="logo-icon-brand">
         <svg
-          width="26"
-          height="26"
+          width="28"
+          height="28"
           viewBox="0 0 28 28"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
@@ -206,9 +219,9 @@ function Logo() {
               y2="28"
               gradientUnits="userSpaceOnUse"
             >
-              <stop stopColor="#4361ee" />
-              <stop offset="0.5" stopColor="#3a0ca3" />
-              <stop offset="1" stopColor="#f72585" />
+              <stop stopColor="#6366f1" />
+              <stop offset="0.5" stopColor="#8b5cf6" />
+              <stop offset="1" stopColor="#ec4899" />
             </linearGradient>
           </defs>
         </svg>
@@ -262,25 +275,28 @@ function Navbar({ theme, toggleTheme, isScrolled }) {
 
       {/* Desktop Action Buttons */}
       <div className="nav-buttons">
-        {/* Light / Dark Mode Toggle Button */}
+        {/* Light / Dark Mode Animated Toggle Switch */}
         <button
           type="button"
-          className="theme-toggle-btn"
+          className={`theme-toggle-btn ${theme === "dark" ? "is-dark" : "is-light"}`}
           onClick={toggleTheme}
-          aria-label={theme === "light" ? "Switch to dark mode" : "Switch to light mode"}
-          title={theme === "light" ? "Switch to dark mode" : "Switch to light mode"}
+          role="switch"
+          aria-checked={theme === "dark"}
+          aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+          title={theme === "dark" ? "Dark mode active. Click for Light mode." : "Light mode active. Click for Dark mode."}
         >
-          {theme === "light" ? (
-            <>
-              <Moon size={15} className="theme-icon" />
-              <span className="theme-toggle-label">Dark</span>
-            </>
-          ) : (
-            <>
-              <Sun size={15} className="theme-icon" />
-              <span className="theme-toggle-label">Light</span>
-            </>
-          )}
+          <span className="theme-switch-track" aria-hidden="true">
+            <span className={`switch-icon-holder sun-holder ${theme === "light" ? "active" : ""}`}>
+              <Sun size={12} className="switch-icon sun-icon" />
+            </span>
+            <span className={`switch-icon-holder moon-holder ${theme === "dark" ? "active" : ""}`}>
+              <Moon size={12} className="switch-icon moon-icon" />
+            </span>
+            <span className="switch-thumb" />
+          </span>
+          <span className="theme-toggle-label">
+            {theme === "dark" ? "Dark" : "Light"}
+          </span>
         </button>
 
         <button
@@ -324,13 +340,23 @@ function Navbar({ theme, toggleTheme, isScrolled }) {
               <div className="mobile-header-actions">
                 <button
                   type="button"
-                  className="theme-toggle-btn mobile-theme-btn"
+                  className={`theme-toggle-btn mobile-theme-btn ${theme === "dark" ? "is-dark" : "is-light"}`}
                   onClick={toggleTheme}
-                  aria-label={theme === "light" ? "Switch to dark mode" : "Switch to light mode"}
-                  title={theme === "light" ? "Switch to dark mode" : "Switch to light mode"}
+                  role="switch"
+                  aria-checked={theme === "dark"}
+                  aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+                  title={theme === "dark" ? "Dark mode active. Click for Light mode." : "Light mode active. Click for Dark mode."}
                 >
-                  {theme === "light" ? <Moon size={15} /> : <Sun size={15} />}
-                  <span className="theme-toggle-label">{theme === "light" ? "Dark" : "Light"}</span>
+                  <span className="theme-switch-track" aria-hidden="true">
+                    <span className={`switch-icon-holder sun-holder ${theme === "light" ? "active" : ""}`}>
+                      <Sun size={12} className="switch-icon sun-icon" />
+                    </span>
+                    <span className={`switch-icon-holder moon-holder ${theme === "dark" ? "active" : ""}`}>
+                      <Moon size={12} className="switch-icon moon-icon" />
+                    </span>
+                    <span className="switch-thumb" />
+                  </span>
+                  <span className="theme-toggle-label">{theme === "dark" ? "Dark" : "Light"}</span>
                 </button>
                 <button
                   type="button"
@@ -1516,6 +1542,14 @@ function LandingPage() {
 
   useEffect(() => {
     localStorage.setItem("teamflow_landing_theme", theme);
+    document.documentElement.setAttribute("data-theme", theme);
+    if (theme === "dark") {
+      document.documentElement.classList.add("theme-dark");
+      document.documentElement.classList.remove("theme-light");
+    } else {
+      document.documentElement.classList.add("theme-light");
+      document.documentElement.classList.remove("theme-dark");
+    }
   }, [theme]);
 
   const toggleTheme = () => {

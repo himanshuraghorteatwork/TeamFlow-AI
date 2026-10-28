@@ -514,7 +514,158 @@ function Invoices() {
     notify(`Direct invoice link for ${inv.id} copied to clipboard.`);
   };
 
-  const handleDownloadInvoice = (inv) => {
+  function escapePDFText(str) {
+    return String(str || "")
+      .replace(/\\/g, "\\\\")
+      .replace(/\(/g, "\\(")
+      .replace(/\)/g, "\\)");
+  }
+
+  function numberToWords(num) {
+    const a = [
+      "", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine",
+      "Ten", "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen",
+      "Seventeen", "Eighteen", "Nineteen"
+    ];
+    const b = ["", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"];
+
+    const n = Math.floor(Number(num) || 0);
+    if (n === 0) return "Indian Rupees Zero Only";
+
+    function convert(val) {
+      if (val < 20) return a[val];
+      if (val < 100) return b[Math.floor(val / 10)] + (val % 10 !== 0 ? " " + a[val % 10] : "");
+      if (val < 1000) return a[Math.floor(val / 100)] + " Hundred" + (val % 100 !== 0 ? " and " + convert(val % 100) : "");
+      if (val < 100000) return convert(Math.floor(val / 1000)) + " Thousand" + (val % 1000 !== 0 ? " " + convert(val % 1000) : "");
+      if (val < 10000000) return convert(Math.floor(val / 100000)) + " Lakh" + (val % 100000 !== 0 ? " " + convert(val % 100000) : "");
+      return convert(Math.floor(val / 10000000)) + " Crore" + (val % 10000000 !== 0 ? " " + convert(val % 10000000) : "");
+    }
+
+    return `Indian Rupees ${convert(n)} Only`;
+  }
+
+  function buildInvoicePDF(inv) {
+    const sanitize = (val) => escapePDFText(val);
+    const words = numberToWords(inv.total);
+
+    const streamLines = [
+      "q 0.96 0.97 0.99 rg 20 20 555 802 re f Q",
+      "q 1 1 1 rg 25 25 545 792 re f Q",
+      "q 0.85 0.88 0.92 RG 1 w 25 25 545 792 re s Q",
+      "q 0.23 0.40 1.00 rg 25 813 545 4 re f Q",
+      "BT /F2 20 Tf 0.06 0.09 0.16 rg 45 780 Td (" + sanitize("TeamFlow AI") + ") Tj ET",
+      "BT /F1 8 Tf 0.39 0.45 0.55 rg 45 768 Td (" + sanitize("TECHNOLOGIES PRIVATE LIMITED") + ") Tj ET",
+      "BT /F1 8 Tf 0.28 0.33 0.41 rg 45 754 Td (" + sanitize("GSTIN: 07AAACT0000A1Z5  |  State: Haryana (07)  |  CIN: U72900HR2023PTC104521") + ") Tj ET",
+      "BT /F1 8 Tf 0.39 0.45 0.55 rg 45 742 Td (" + sanitize("Level 8, DLF Cyber City, Sector 24, Gurugram, Haryana - 122002  |  SAC: 998313") + ") Tj ET",
+      "BT /F2 10 Tf 0.23 0.40 1.00 rg 450 782 Td (" + sanitize("TAX INVOICE") + ") Tj ET",
+      "BT /F2 14 Tf 0.06 0.09 0.16 rg 430 765 Td (" + sanitize(inv.id) + ") Tj ET",
+      "BT /F2 9 Tf " + (inv.status === "Paid" ? "0.02 0.47 0.34" : inv.status === "Pending" ? "0.71 0.32 0.04" : "0.72 0.11 0.11") + " rg 430 750 Td (" + sanitize("[ " + inv.status.toUpperCase() + " & SETTLED ]") + ") Tj ET",
+      "BT /F1 8 Tf 0.39 0.45 0.55 rg 410 736 Td (" + sanitize("Issue Date: " + inv.issueDate + "   Due: " + inv.dueDate) + ") Tj ET",
+      "q 0.82 0.85 0.90 RG 1 w 45 722 505 0 re s Q",
+      "q 0.97 0.98 0.99 rg 45 640 245 72 re f Q",
+      "q 0.88 0.91 0.94 RG 1 w 45 640 245 72 re s Q",
+      "BT /F2 8.5 Tf 0.23 0.40 1.00 rg 55 698 Td (" + sanitize("BILLED TO (BUYER / TENANT)") + ") Tj ET",
+      "BT /F2 11 Tf 0.06 0.09 0.16 rg 55 683 Td (" + sanitize(inv.org) + ") Tj ET",
+      "BT /F1 8 Tf 0.28 0.33 0.41 rg 55 670 Td (" + sanitize("Attn: " + inv.contact + " (" + inv.email + ")") + ") Tj ET",
+      "BT /F2 8 Tf 0.12 0.16 0.23 rg 55 656 Td (" + sanitize("GSTIN: " + inv.gstin + "  |  " + (inv.state || "Maharashtra (27)")) + ") Tj ET",
+      "q 0.97 0.98 0.99 rg 305 640 245 72 re f Q",
+      "q 0.88 0.91 0.94 RG 1 w 305 640 245 72 re s Q",
+      "BT /F2 8.5 Tf 0.09 0.64 0.29 rg 315 698 Td (" + sanitize("PAYMENT & SETTLEMENT DETAILS") + ") Tj ET",
+      "BT /F1 8 Tf 0.39 0.45 0.55 rg 315 683 Td (" + sanitize("Payment Method: " + inv.method) + ") Tj ET",
+      "BT /F1 8 Tf 0.39 0.45 0.55 rg 315 670 Td (" + sanitize("Gateway Auth Ref: " + inv.gatewayRef) + ") Tj ET",
+      "BT /F1 8 Tf 0.39 0.45 0.55 rg 315 656 Td (" + sanitize("Escrow: HDFC Escrow Clearing (18% IGST Inter-State)") + ") Tj ET",
+      "q 0.95 0.96 0.98 rg 45 605 505 20 re f Q",
+      "q 0.85 0.88 0.92 RG 1 w 45 605 505 20 re s Q",
+      "BT /F2 8 Tf 0.28 0.33 0.41 rg 55 611 Td (#) Tj ET",
+      "BT /F2 8 Tf 0.28 0.33 0.41 rg 80 611 Td (SERVICE DESCRIPTION & SAC CODE) Tj ET",
+      "BT /F2 8 Tf 0.28 0.33 0.41 rg 310 611 Td (QTY) Tj ET",
+      "BT /F2 8 Tf 0.28 0.33 0.41 rg 355 611 Td (RATE (INR)) Tj ET",
+      "BT /F2 8 Tf 0.28 0.33 0.41 rg 425 611 Td (IGST 18%) Tj ET",
+      "BT /F2 8 Tf 0.28 0.33 0.41 rg 485 611 Td (AMOUNT (INR)) Tj ET",
+      "q 1 1 1 rg 45 550 505 55 re f Q",
+      "q 0.88 0.91 0.94 RG 1 w 45 550 505 55 re s Q",
+      "BT /F1 9 Tf 0.39 0.45 0.55 rg 55 585 Td (1) Tj ET",
+      "BT /F2 10 Tf 0.06 0.09 0.16 rg 80 585 Td (" + sanitize(inv.plan) + ") Tj ET",
+      "BT /F1 7.5 Tf 0.39 0.45 0.55 rg 80 572 Td (" + sanitize(inv.planDescription || "Full platform SaaS multi-tenant licensing & high-speed token quota") + ") Tj ET",
+      "BT /F1 7 Tf 0.23 0.40 1.00 rg 80 560 Td (" + sanitize("SAC: 998313 (IT & Cloud Software Services)") + ") Tj ET",
+      "BT /F1 9 Tf 0.06 0.09 0.16 rg 315 575 Td (1) Tj ET",
+      "BT /F1 9 Tf 0.06 0.09 0.16 rg 355 575 Td (" + sanitize("INR " + inv.subtotal.toFixed(2)) + ") Tj ET",
+      "BT /F1 9 Tf 0.28 0.33 0.41 rg 425 575 Td (" + sanitize("INR " + inv.gst.toFixed(2)) + ") Tj ET",
+      "BT /F2 9.5 Tf 0.06 0.09 0.16 rg 485 575 Td (" + sanitize("INR " + inv.subtotal.toFixed(2)) + ") Tj ET",
+      "q 0.97 0.98 0.99 rg 45 440 245 95 re f Q",
+      "q 0.88 0.91 0.94 RG 1 w 45 440 245 95 re s Q",
+      "BT /F2 7.5 Tf 0.39 0.45 0.55 rg 55 520 Td (TOTAL AMOUNT IN WORDS:) Tj ET",
+      "BT /F1 8.5 Tf 0.12 0.16 0.23 rg 55 506 Td (" + sanitize(words) + ") Tj ET",
+      "BT /F2 7.5 Tf 0.09 0.64 0.29 rg 55 476 Td (ESCROW SETTLEMENT ROUTE:) Tj ET",
+      "BT /F1 7.5 Tf 0.28 0.33 0.41 rg 55 464 Td (HDFC Corporate Virtual Acc: TF-ESCROW-27891102) Tj ET",
+      "BT /F1 7.5 Tf 0.28 0.33 0.41 rg 55 452 Td (IFSC: HDFC0000240  |  Settlement SLA: T+1 Immediate) Tj ET",
+      "q 0.97 0.98 0.99 rg 305 440 245 95 re f Q",
+      "q 0.88 0.91 0.94 RG 1 w 305 440 245 95 re s Q",
+      "BT /F1 8.5 Tf 0.28 0.33 0.41 rg 315 520 Td (Taxable Base Subtotal:) Tj ET",
+      "BT /F2 8.5 Tf 0.06 0.09 0.16 rg 465 520 Td (" + sanitize("INR " + inv.subtotal.toFixed(2)) + ") Tj ET",
+      "BT /F1 8.5 Tf 0.28 0.33 0.41 rg 315 504 Td (Integrated GST (18.00% IGST):) Tj ET",
+      "BT /F2 8.5 Tf 0.23 0.40 1.00 rg 465 504 Td (" + sanitize("+ INR " + inv.gst.toFixed(2)) + ") Tj ET",
+      "BT /F1 8 Tf 0.55 0.60 0.68 rg 315 488 Td (CGST (0%) / SGST (0%):) Tj ET",
+      "BT /F1 8 Tf 0.55 0.60 0.68 rg 480 488 Td (INR 0.00) Tj ET",
+      "q 0.92 0.99 0.96 rg 312 447 231 32 re f Q",
+      "q 0.65 0.95 0.82 RG 1 w 312 447 231 32 re s Q",
+      "BT /F2 9.5 Tf 0.02 0.47 0.34 rg 320 464 Td (GRAND TOTAL (INCL. GST):) Tj ET",
+      "BT /F2 13 Tf 0.02 0.47 0.34 rg 440 461 Td (" + sanitize("INR " + inv.total.toFixed(2)) + ") Tj ET",
+      "q 0.85 0.88 0.92 RG 1 w 45 425 505 0 re s Q",
+      "BT /F2 7.5 Tf 0.28 0.33 0.41 rg 45 410 Td (" + sanitize("Authentic computer-generated tax invoice issued under Section 31 of CGST Act, 2017 & Rule 48.") + ") Tj ET",
+      "BT /F1 7.5 Tf 0.39 0.45 0.55 rg 45 398 Td (" + sanitize("Digitally authenticated and sealed by TeamFlow AI Automated Billing Subsystem. Physical signature not required.") + ") Tj ET",
+      "BT /F1 7 Tf 0.50 0.55 0.65 rg 45 386 Td (" + sanitize("Billing Support: billing@teamflow.ai  |  Customer Desk: +91 (0124) 490-2800  |  CIN: U72900HR2023PTC104521") + ") Tj ET"
+    ];
+
+    const streamContent = streamLines.join("\n");
+    const encoder = new TextEncoder();
+    const streamLength = encoder.encode(streamContent).length;
+
+    let pdf = "%PDF-1.4\n";
+    const offsets = [];
+
+    const addObj = (str) => {
+      offsets.push(encoder.encode(pdf).length);
+      pdf += str + "\n";
+    };
+
+    addObj("1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj");
+    addObj("2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj");
+    addObj("3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 4 0 R /F2 5 0 R >> >> /Contents 6 0 R >>\nendobj");
+    addObj("4 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>\nendobj");
+    addObj("5 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>\nendobj");
+    addObj("6 0 obj\n<< /Length " + streamLength + " >>\nstream\n" + streamContent + "\nendstream\nendobj");
+
+    const startXref = encoder.encode(pdf).length;
+    pdf += "xref\n0 7\n0000000000 65535 f \n";
+    for (let i = 0; i < offsets.length; i++) {
+      pdf += String(offsets[i]).padStart(10, "0") + " 00000 n \n";
+    }
+    pdf += "trailer\n<< /Size 7 /Root 1 0 R >>\nstartxref\n" + startXref + "\n%%EOF";
+    return pdf;
+  }
+
+  const handleDownloadPDF = (inv) => {
+    try {
+      const pdfData = buildInvoicePDF(inv);
+      const blob = new Blob([pdfData], { type: "application/pdf" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `official_tax_invoice_${inv.id}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      notify(`Downloaded official tax invoice ${inv.id}.pdf`);
+    } catch (err) {
+      console.error("PDF download error:", err);
+      notify("Error generating PDF invoice. Falling back to print.");
+      handlePrint();
+    }
+  };
+
+  const handleDownloadTXT = (inv) => {
     const textData = `================================================================================
 TEAMFLOW AI — OFFICIAL TAX INVOICE & SETTLEMENT RECEIPT
 Issued under Section 31 of CGST Act, 2017 & Rule 48 (Tax Invoice)
@@ -556,7 +707,7 @@ PAYMENT & ESCROW CLEARING:
 Payment Method : ${inv.method}
 Gateway Ref ID : ${inv.gatewayRef}
 Escrow Account : HDFC Corporate Virtual Clearing (IFSC: HDFC0000240)
-================================================================================
+===============================================================================
 This is a computer-generated tax invoice and requires no physical signature.
 TeamFlow AI Platform Super Admin Billing Subsystem
 ================================================================================`;
@@ -922,8 +1073,8 @@ TeamFlow AI Platform Super Admin Billing Subsystem
                         <button
                           type="button"
                           className="inv-action-btn btn-download"
-                          onClick={() => handleDownloadInvoice(inv)}
-                          title="Download Official Tax Invoice (TXT)"
+                          onClick={() => handleDownloadPDF(inv)}
+                          title="Download Official Tax Invoice (PDF)"
                         >
                           <Download size={14} />
                         </button>
@@ -1259,9 +1410,7 @@ TeamFlow AI Platform Super Admin Billing Subsystem
                     <div className="sa-breakdown-left">
                       <div className="sa-words-block">
                         <small>Amount in Words:</small>
-                        <p>
-                          Indian Rupees Seven Thousand Nine Hundred Ninety-Nine Only
-                        </p>
+                        <p>{numberToWords(selectedInvoice.total)}</p>
                       </div>
 
                       <div className="sa-escrow-block">
@@ -1346,14 +1495,22 @@ TeamFlow AI Platform Super Admin Billing Subsystem
                   <button
                     type="button"
                     className="sa-btn sa-btn-secondary"
-                    onClick={() => handleDownloadInvoice(selectedInvoice)}
+                    onClick={() => handleDownloadTXT(selectedInvoice)}
                   >
-                    <Download size={14} /> Download TXT
+                    <FileText size={14} /> Download TXT
                   </button>
 
                   <button
                     type="button"
                     className="sa-btn sa-btn-primary"
+                    onClick={() => handleDownloadPDF(selectedInvoice)}
+                  >
+                    <Download size={14} /> Download PDF
+                  </button>
+
+                  <button
+                    type="button"
+                    className="sa-btn sa-btn-secondary"
                     onClick={handlePrint}
                   >
                     <Printer size={14} /> Print Tax Invoice

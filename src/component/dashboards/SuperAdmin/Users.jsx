@@ -34,8 +34,17 @@ import {
 } from "lucide-react";
 import "./SuperAdminCommon.css";
 import "./Users.css";
+import orgAvatarImg from "../../../assets/images/organization-avatar.png";
 
 const STORAGE_KEY = "teamflow_superadmin_users";
+
+const getInitials = (name = "") =>
+  name
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() || "")
+    .join("");
 
 const AVATAR_COLORS = ["blue", "purple", "emerald", "amber", "indigo", "pink"];
 
@@ -977,7 +986,7 @@ export default function Users() {
                         }}
                       >
                         <div className={`sap-avatar-circle ${u.color || "blue"}`}>
-                          {u.name.split(" ").map((n) => n[0]).join("").slice(0, 2)}
+                          {getInitials(u.name)}
                         </div>
                         <div className="sap-user-info">
                           <strong>{u.name}</strong>
@@ -988,8 +997,15 @@ export default function Users() {
 
                     {/* Company Code & Organization */}
                     <td>
-                      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                        <Building2 size={14} style={{ color: "var(--sa-primary)", flexShrink: 0 }} />
+                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                        <div className="usr-org-avatar-wrap" title={u.organization}>
+                          <img
+                            src={orgAvatarImg}
+                            alt={u.organization}
+                            className="usr-org-avatar-img"
+                            loading="lazy"
+                          />
+                        </div>
                         <div>
                           <strong>{u.organization}</strong>
                           <div style={{ fontSize: 10.5, color: "var(--sa-text-muted)" }}>
@@ -1044,22 +1060,22 @@ export default function Users() {
                     </td>
 
                     {/* Quick Row Actions */}
-                    <td>
-                      <div className="sap-action-group" style={{ justifyContent: "flex-end" }}>
+                    <td style={{ textAlign: "right" }}>
+                      <div className="usr-action-group" style={{ justifyContent: "flex-end" }}>
                         <button
                           type="button"
-                          className="sap-table-btn"
+                          className="usr-action-btn btn-view"
                           title="View Master Record"
                           onClick={() => {
                             setSelectedUser(u);
                             setModal("details");
                           }}
                         >
-                          <Eye size={15} />
+                          <Eye size={14} />
                         </button>
                         <button
                           type="button"
-                          className="sap-table-btn"
+                          className="usr-action-btn btn-edit"
                           title="Edit Permissions & Attributes"
                           onClick={() => openEditModal(u)}
                         >
@@ -1067,7 +1083,7 @@ export default function Users() {
                         </button>
                         <button
                           type="button"
-                          className="sap-table-btn"
+                          className={`usr-action-btn btn-toggle ${u.status === "Active" ? "is-lock" : "is-unlock"}`}
                           title={u.status === "Active" ? "Lock Account" : "Unlock Account"}
                           onClick={() => toggleUserStatus(u)}
                         >
@@ -1075,7 +1091,7 @@ export default function Users() {
                         </button>
                         <button
                           type="button"
-                          className="sap-table-btn danger"
+                          className="usr-action-btn btn-delete"
                           title="Delete Master User"
                           onClick={() => setDeleteTarget(u)}
                         >
@@ -1220,7 +1236,7 @@ export default function Users() {
               {/* User Hero Banner */}
               <div className="user-details-hero">
                 <div className={`sap-avatar-circle large ${selectedUser.color || "blue"}`}>
-                  {selectedUser.name.split(" ").map((n) => n[0]).join("").slice(0, 2)}
+                  {getInitials(selectedUser.name)}
                 </div>
                 <div>
                   <h4 style={{ margin: 0, fontSize: 16, fontWeight: 700 }}>{selectedUser.name}</h4>
@@ -1246,7 +1262,12 @@ export default function Users() {
                 </div>
                 <div className="user-detail-card">
                   <small>Organization</small>
-                  <p>{selectedUser.organization}</p>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 4 }}>
+                    <div className="usr-org-avatar-wrap" style={{ width: 26, height: 26, minWidth: 26, padding: 2 }}>
+                      <img src={orgAvatarImg} alt={selectedUser.organization} className="usr-org-avatar-img" />
+                    </div>
+                    <p style={{ margin: 0, fontWeight: 600 }}>{selectedUser.organization}</p>
+                  </div>
                 </div>
                 <div className="user-detail-card">
                   <small>Cost Center &amp; Dept</small>

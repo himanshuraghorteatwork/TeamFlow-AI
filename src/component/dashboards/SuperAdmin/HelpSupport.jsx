@@ -1,7 +1,8 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import {
   LifeBuoy,
+  Plus,
   Search,
   Filter,
   CheckCircle2,
@@ -24,9 +25,56 @@ import {
   ChevronLeft,
   ChevronRight,
   Download,
+  Trash2,
+  Sparkles,
+  CornerDownRight,
+  Tag,
+  Check,
+  RotateCcw,
+  ShieldCheck,
+  HelpCircle,
 } from "lucide-react";
 import "./SuperAdminCommon.css";
 import "./HelpSupport.css";
+import orgAvatarImg from "../../../assets/images/organization-avatar.png";
+
+const STORAGE_KEY = "teamflow_superadmin_tickets";
+
+const KNOWN_ORGANIZATIONS = [
+  { name: "ABC Technologies", contact: "Himanshu Rao", email: "himanshu@abc.com" },
+  { name: "XYZ Software", contact: "Amit Verma", email: "amit@xyz.com" },
+  { name: "Startup Labs", contact: "Kunal Shah", email: "kunal@startuplabs.io" },
+  { name: "NovaTech Solutions", contact: "Priya Nair", email: "priya@novatech.io" },
+  { name: "DesignHub", contact: "Rohan Kapoor", email: "rohan@designhub.in" },
+  { name: "NextGen Solutions", contact: "Sana Sheikh", email: "sana@nextgen.com" },
+  { name: "Acme Corporation", contact: "Sarah Jenkins", email: "admin@acmecorp.com" },
+  { name: "BrightLabs", contact: "Alex Rivera", email: "hello@brightlabs.io" },
+  { name: "Vertex Digital", contact: "Vikram Malhotra", email: "hello@vertexdigital.io" },
+  { name: "CloudNine Technologies", contact: "Elena Rostova", email: "admin@cloudnine.dev" },
+];
+
+const CANNED_REPLIES = [
+  {
+    label: "Under Investigation",
+    text: "Our core engineering team has initiated root-cause analysis on this issue and is actively reproducing the telemetry in our staging environment.",
+    actionStatus: "In Progress",
+  },
+  {
+    label: "Patch Deployed",
+    text: "A service update and configuration patch have been deployed to your organization's compute shard. Please hard-refresh your browser session (Ctrl + F5).",
+    actionStatus: "Resolved",
+  },
+  {
+    label: "Request Error Trace",
+    text: "Could you please provide the browser console error stack trace and the exact API endpoint URL that returned this error code?",
+    actionStatus: "In Progress",
+  },
+  {
+    label: "Billing Reconciled",
+    text: "Our enterprise billing team has reconciled your account and reissued your invoice with the updated GSTIN credentials.",
+    actionStatus: "Resolved",
+  },
+];
 
 const INITIAL_TICKETS = [
   {
@@ -163,8 +211,32 @@ const INITIAL_TICKETS = [
   },
 ];
 
+const emptyNewTicket = {
+  org: "ABC Technologies",
+  requester: "Himanshu Rao",
+  email: "himanshu@abc.com",
+  subject: "",
+  category: "Technical / DNS",
+  priority: "Medium",
+  message: "",
+  error: "",
+};
+
+function readTickets() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    }
+  } catch (err) {
+    console.error("Failed to read support tickets from storage:", err);
+  }
+  return INITIAL_TICKETS;
+}
+
 function HelpSupport() {
-  const [tickets, setTickets] = useState(INITIAL_TICKETS);
+  const [tickets, setTickets] = useState(readTickets);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
   const [priorityFilter, setPriorityFilter] = useState("All");
@@ -172,15 +244,27 @@ function HelpSupport() {
   const [density, setDensity] = useState("standard");
   const [selectedIds, setSelectedIds] = useState(new Set());
   const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [replyText, setReplyText] = useState("");
+  const [replyStatusChoice, setReplyStatusChoice] = useState("In Progress");
   const [toast, setToast] = useState("");
+  const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [newTicketForm, setNewTicketForm] = useState(emptyNewTicket);
+  const [deleteConfirmTicket, setDeleteConfirmTicket] = useState(null);
 
-  const [pageSize, setPageSize] = useState(10);
+  // Sync to local storage
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(tickets));
+    } catch (err) {
+      console.error("Failed to persist support tickets:", err);
+    }
+  }, [tickets]);
 
   const notify = (msg) => {
     setToast(msg);
-    setTimeout(() => setToast(""), 2800);
+    setTimeout(() => setToast(""), 3000);
   };
 
   const filteredTickets = useMemo(() => {
@@ -225,7 +309,7 @@ function HelpSupport() {
       open,
       inProg,
       resolved,
-      resolutionRate: Math.round((resolved / tickets.length) * 100),
+      resolutionRate: tickets.length > 0 ? Math.round((resolved / tickets.length) * 100) : 0,
     };
   }, [tickets]);
 
@@ -246,8 +330,27 @@ function HelpSupport() {
     });
   };
 
+  // Batch status update
+  const handleBatchStatus = (newStatus) => {
+    if (selectedIds.size === 0) return;
+    setTickets((prev) =>
+      prev.map((t) => (selectedIds.has(t.id) ? { ...t, status: newStatus } : t))
+    );
+    notify(`Updated ${selectedIds.size} tickets to ${newStatus}.`);
+    setSelectedIds(new Set());
+  };
+
+  // Batch delete
+  const handleBatchDelete = () => {
+    if (selectedIds.size === 0) return;
+    setTickets((prev) => prev.filter((t) => !selectedIds.has(t.id)));
+    notify(`Deleted ${selectedIds.size} tickets.`);
+    setSelectedIds(new Set());
+  };
+
+  // Dispatch reply
   const handleSendReply = (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
     if (!replyText.trim() || !selectedTicket) return;
 
     const newMsg = {
@@ -257,12 +360,14 @@ function HelpSupport() {
       text: replyText.trim(),
     };
 
+    const targetStatus = replyStatusChoice || "In Progress";
+
     setTickets((prev) =>
       prev.map((t) =>
         t.id === selectedTicket.id
           ? {
               ...t,
-              status: "In Progress",
+              status: targetStatus,
               messages: [...t.messages, newMsg],
             }
           : t
@@ -271,14 +376,15 @@ function HelpSupport() {
 
     setSelectedTicket((prev) => ({
       ...prev,
-      status: "In Progress",
+      status: targetStatus,
       messages: [...prev.messages, newMsg],
     }));
 
     setReplyText("");
-    notify(`Reply dispatched on ticket ${selectedTicket.id}. Status set to In Progress.`);
+    notify(`Official reply dispatched on ${selectedTicket.id} (${targetStatus}).`);
   };
 
+  // Update Status directly
   const handleUpdateStatus = (id, newStatus) => {
     setTickets((prev) =>
       prev.map((t) => (t.id === id ? { ...t, status: newStatus } : t))
@@ -286,7 +392,91 @@ function HelpSupport() {
     if (selectedTicket && selectedTicket.id === id) {
       setSelectedTicket((prev) => ({ ...prev, status: newStatus }));
     }
-    notify(`Ticket ${id} status updated to ${newStatus}.`);
+    notify(`Ticket ${id} status set to ${newStatus}.`);
+  };
+
+  // Update Priority directly
+  const handleUpdatePriority = (id, newPriority) => {
+    setTickets((prev) =>
+      prev.map((t) => (t.id === id ? { ...t, priority: newPriority } : t))
+    );
+    if (selectedTicket && selectedTicket.id === id) {
+      setSelectedTicket((prev) => ({ ...prev, priority: newPriority }));
+    }
+    notify(`Ticket ${id} priority set to ${newPriority}.`);
+  };
+
+  // Delete single ticket
+  const handleDeleteTicket = (ticket) => {
+    setTickets((prev) => prev.filter((t) => t.id !== ticket.id));
+    if (selectedTicket && selectedTicket.id === ticket.id) {
+      setSelectedTicket(null);
+    }
+    setDeleteConfirmTicket(null);
+    notify(`Deleted ticket ${ticket.id}.`);
+  };
+
+  // Create New Ticket
+  const handleCreateTicket = (e) => {
+    e.preventDefault();
+    if (!newTicketForm.subject.trim() || !newTicketForm.message.trim()) {
+      setNewTicketForm((prev) => ({
+        ...prev,
+        error: "Please complete the ticket subject and description.",
+      }));
+      return;
+    }
+
+    // Generate new Ticket ID
+    const maxNum = tickets.reduce((max, t) => {
+      const m = t.id.match(/\d+/);
+      return m ? Math.max(max, parseInt(m[0], 10)) : max;
+    }, 1092);
+    const newId = `TKT-${maxNum + 1}`;
+
+    const newTicket = {
+      id: newId,
+      org: newTicketForm.org,
+      requester: newTicketForm.requester || "Tenant Administrator",
+      email: newTicketForm.email || "support@tenant.io",
+      subject: newTicketForm.subject.trim(),
+      category: newTicketForm.category,
+      priority: newTicketForm.priority,
+      status: "Open",
+      createdAt: "Just now",
+      messages: [
+        {
+          sender: newTicketForm.requester || "Tenant Administrator",
+          role: "Requester",
+          time: "Just now",
+          text: newTicketForm.message.trim(),
+        },
+      ],
+    };
+
+    setTickets((prev) => [newTicket, ...prev]);
+    setCreateModalOpen(false);
+    setNewTicketForm(emptyNewTicket);
+    notify(`Created new support ticket ${newId} for ${newTicket.org}.`);
+  };
+
+  const handleOrgChangeInForm = (orgName) => {
+    const matched = KNOWN_ORGANIZATIONS.find((o) => o.name === orgName);
+    if (matched) {
+      setNewTicketForm((prev) => ({
+        ...prev,
+        org: matched.name,
+        requester: matched.contact,
+        email: matched.email,
+        error: "",
+      }));
+    } else {
+      setNewTicketForm((prev) => ({
+        ...prev,
+        org: orgName,
+        error: "",
+      }));
+    }
   };
 
   const handleExportCSV = () => {
@@ -346,6 +536,16 @@ function HelpSupport() {
           >
             <Download size={15} /> Export Spreadsheet
           </button>
+          <button
+            type="button"
+            className="sa-btn sa-btn-primary"
+            onClick={() => {
+              setNewTicketForm(emptyNewTicket);
+              setCreateModalOpen(true);
+            }}
+          >
+            <Plus size={15} /> Create Support Ticket
+          </button>
         </div>
       </section>
 
@@ -363,7 +563,7 @@ function HelpSupport() {
                 <ArrowUpRight size={14} /> All Tiers
               </span>
             </div>
-            <span className="sa-kpi-subtitle">Across 186 organizations</span>
+            <span className="sa-kpi-subtitle">Across active tenant organizations</span>
           </div>
         </article>
 
@@ -429,10 +629,26 @@ function HelpSupport() {
             <div className="sap-batch-actions">
               <button
                 type="button"
+                className="sa-btn sa-btn-sm"
+                style={{ background: "#ecfdf5", color: "#059669", border: "1px solid #a7f3d0" }}
+                onClick={() => handleBatchStatus("Resolved")}
+              >
+                <CheckCircle2 size={13} /> Mark Resolved
+              </button>
+              <button
+                type="button"
                 className="sa-btn sa-btn-secondary sa-btn-sm"
                 onClick={handleExportCSV}
               >
                 <Download size={13} /> Export Selected
+              </button>
+              <button
+                type="button"
+                className="sa-btn sa-btn-sm"
+                style={{ background: "#fef2f2", color: "#dc2626", border: "1px solid #fecaca" }}
+                onClick={handleBatchDelete}
+              >
+                <Trash2 size={13} /> Delete Selected
               </button>
               <button
                 type="button"
@@ -486,10 +702,10 @@ function HelpSupport() {
               }}
             >
               <option value="All">Priority: All Priorities</option>
-              <option value="Urgent">Urgent Tier</option>
-              <option value="High">High Tier</option>
-              <option value="Medium">Medium Tier</option>
-              <option value="Low">Low Tier</option>
+              <option value="Urgent">Urgent Priority</option>
+              <option value="High">High Priority</option>
+              <option value="Medium">Medium Priority</option>
+              <option value="Low">Low Priority</option>
             </select>
 
             <select
@@ -506,6 +722,7 @@ function HelpSupport() {
               <option value="AI">AI Integration</option>
               <option value="Security">Security &amp; SSO</option>
               <option value="Storage">File Storage</option>
+              <option value="Audit">Audit Logs</option>
             </select>
           </div>
 
@@ -560,7 +777,7 @@ function HelpSupport() {
                 <th>Priority</th>
                 <th>Created At</th>
                 <th>Status</th>
-                <th style={{ textAlign: "right" }}>Actions</th>
+                <th style={{ textAlign: "right", width: 140 }}>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -580,8 +797,13 @@ function HelpSupport() {
                     </td>
                     <td>
                       <div className="sap-user-badge">
-                        <div className="sap-avatar-chip">
-                          <Building2 size={15} />
+                        <div className="spt-org-avatar-wrap" title={t.org}>
+                          <img
+                            src={orgAvatarImg}
+                            alt={t.org}
+                            className="spt-org-avatar-img"
+                            loading="lazy"
+                          />
                         </div>
                         <div className="sap-user-info">
                           <strong className="sap-user-name">{t.org}</strong>
@@ -591,38 +813,51 @@ function HelpSupport() {
                         </div>
                       </div>
                     </td>
-                    <td style={{ maxWidth: 320 }}>
-                      <strong style={{ fontSize: "13px", color: "var(--sa-text-primary)", display: "block" }}>
+                    <td style={{ maxWidth: 300 }}>
+                      <strong
+                        style={{
+                          fontSize: "13px",
+                          color: "var(--sa-text-main, #0f172a)",
+                          display: "block",
+                          marginBottom: 2,
+                          cursor: "pointer",
+                        }}
+                        onClick={() => setSelectedTicket(t)}
+                        title="Click to view conversation"
+                      >
                         {t.subject}
                       </strong>
                       <span
                         style={{
                           fontSize: "11.5px",
-                          color: "var(--sa-text-muted)",
+                          color: "var(--sa-text-muted, #64748b)",
                           display: "block",
                           whiteSpace: "nowrap",
                           overflow: "hidden",
                           textOverflow: "ellipsis",
                         }}
                       >
-                        {t.messages[0]?.text}
+                        {t.messages[t.messages.length - 1]?.text || t.messages[0]?.text}
                       </span>
                     </td>
                     <td>
-                      <span className="sap-role-badge role-member">
-                        {t.category}
+                      <span className="spt-category-chip">
+                        <Tag size={10} /> {t.category}
                       </span>
                     </td>
                     <td>
                       <span
-                        className={`sap-role-badge ${
-                          t.priority === "Urgent"
-                            ? "role-admin"
-                            : t.priority === "High"
-                            ? "role-manager"
-                            : "role-member"
+                        className={`spt-priority-badge ${
+                          t.priority.toLowerCase() === "urgent"
+                            ? "urgent"
+                            : t.priority.toLowerCase() === "high"
+                            ? "high"
+                            : t.priority.toLowerCase() === "medium"
+                            ? "medium"
+                            : "low"
                         }`}
                       >
+                        {t.priority === "Urgent" && <AlertTriangle size={10} />}
                         {t.priority}
                       </span>
                     </td>
@@ -631,38 +866,57 @@ function HelpSupport() {
                     </td>
                     <td>
                       <span
-                        className={`sap-status-pill ${
-                          t.status === "Open"
-                            ? "is-suspended"
-                            : t.status === "In Progress"
-                            ? "is-pending"
-                            : "is-active"
+                        className={`spt-status-pill ${
+                          t.status.toLowerCase() === "open"
+                            ? "open"
+                            : t.status.toLowerCase() === "in progress"
+                            ? "in-progress"
+                            : t.status.toLowerCase() === "resolved"
+                            ? "resolved"
+                            : "closed"
                         }`}
                       >
-                        <span className="sap-status-dot" />
+                        <span className="spt-status-dot" />
                         {t.status}
                       </span>
                     </td>
                     <td style={{ textAlign: "right" }}>
-                      <div className="sap-action-group">
+                      <div className="spt-action-group">
                         <button
                           type="button"
-                          className="sap-icon-btn"
+                          className="spt-action-btn btn-view"
                           onClick={() => setSelectedTicket(t)}
-                          title="View Conversation Thread"
+                          title="View Conversation Thread & Reply"
                         >
-                          <Eye size={15} />
+                          <Eye size={14} />
                         </button>
-                        {t.status !== "Resolved" && (
+                        {t.status !== "Resolved" && t.status !== "Closed" ? (
                           <button
                             type="button"
-                            className="sap-icon-btn is-success"
+                            className="spt-action-btn btn-resolve"
                             onClick={() => handleUpdateStatus(t.id, "Resolved")}
                             title="Mark as Resolved"
                           >
-                            <CheckCircle2 size={15} />
+                            <CheckCircle2 size={14} />
+                          </button>
+                        ) : (
+                          <button
+                            type="button"
+                            className="spt-action-btn btn-reopen"
+                            onClick={() => handleUpdateStatus(t.id, "In Progress")}
+                            title="Re-open Ticket"
+                          >
+                            <RotateCcw size={14} />
                           </button>
                         )}
+                        <button
+                          type="button"
+                          className="spt-action-btn btn-delete"
+                          onClick={() => setDeleteConfirmTicket(t)}
+                          title="Delete Ticket"
+                        >
+                          <Trash2 size={14} />
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -671,7 +925,24 @@ function HelpSupport() {
               {paginatedTickets.length === 0 && (
                 <tr>
                   <td colSpan="9" style={{ textAlign: "center", padding: "40px" }}>
-                    No support tickets match your search query or filters.
+                    <div style={{ color: "var(--sa-text-muted)", fontSize: 13 }}>
+                      <strong>No support tickets found matching your query.</strong>
+                      <p style={{ margin: "6px 0 12px", fontSize: 12 }}>
+                        Try clearing or adjusting your active filter options.
+                      </p>
+                      <button
+                        type="button"
+                        className="sa-btn sa-btn-secondary sa-btn-sm"
+                        onClick={() => {
+                          setSearch("");
+                          setStatusFilter("All");
+                          setPriorityFilter("All");
+                          setCategoryFilter("All");
+                        }}
+                      >
+                        Reset All Filters
+                      </button>
+                    </div>
                   </td>
                 </tr>
               )}
@@ -760,117 +1031,475 @@ function HelpSupport() {
       {selectedTicket &&
         typeof document !== "undefined" &&
         createPortal(
-          <div className="sa-modal-backdrop" onClick={() => setSelectedTicket(null)}>
+          <div
+            className="sa-modal-backdrop"
+            onClick={() => setSelectedTicket(null)}
+          >
             <div
-              className="sa-modal-content"
-              style={{ maxWidth: 650 }}
+              className="spt-ticket-dialog"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="sa-modal-header">
-                <div>
-                  <h3 style={{ margin: "0 0 4px" }}>
-                    {selectedTicket.id}: {selectedTicket.subject}
-                  </h3>
-                  <span style={{ fontSize: 11.5, color: "var(--sa-text-muted)" }}>
-                    {selectedTicket.org} · Requester: {selectedTicket.requester} (
-                    {selectedTicket.email})
-                  </span>
+              {/* Modal Topbar */}
+              <div className="spt-modal-header">
+                <div className="spt-modal-header-left">
+                  <span className="spt-ticket-id-badge">{selectedTicket.id}</span>
+                  <div style={{ minWidth: 0 }}>
+                    <h3 className="spt-modal-title" title={selectedTicket.subject}>
+                      {selectedTicket.subject}
+                    </h3>
+                    <div className="spt-modal-subtitle">
+                      <span><strong>{selectedTicket.org}</strong></span>
+                      <span>·</span>
+                      <span>Requester: {selectedTicket.requester} ({selectedTicket.email})</span>
+                    </div>
+                  </div>
                 </div>
-                <button
-                  type="button"
-                  className="sa-modal-close"
-                  onClick={() => setSelectedTicket(null)}
-                >
-                  <X size={18} />
-                </button>
+
+                <div className="spt-modal-header-controls">
+                  <select
+                    className="spt-header-select"
+                    value={selectedTicket.status}
+                    onChange={(e) => handleUpdateStatus(selectedTicket.id, e.target.value)}
+                    title="Change Ticket Status"
+                  >
+                    <option value="Open">Open</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Resolved">Resolved</option>
+                    <option value="Closed">Closed</option>
+                  </select>
+
+                  <select
+                    className="spt-header-select"
+                    value={selectedTicket.priority}
+                    onChange={(e) => handleUpdatePriority(selectedTicket.id, e.target.value)}
+                    title="Change Priority Tier"
+                  >
+                    <option value="Low">Low</option>
+                    <option value="Medium">Medium</option>
+                    <option value="High">High</option>
+                    <option value="Urgent">Urgent</option>
+                  </select>
+
+                  <button
+                    type="button"
+                    className="sa-modal-close"
+                    onClick={() => setSelectedTicket(null)}
+                    title="Close Dialog"
+                  >
+                    <X size={17} />
+                  </button>
+                </div>
               </div>
 
-              <div className="sa-modal-body sa-ticket-modal-body">
-                <div className="sa-ticket-tags-row">
-                  <span className="sa-pill sa-pill-neutral">
-                    Category: {selectedTicket.category}
-                  </span>
-                  <span
-                    className={`sa-pill ${
-                      selectedTicket.priority === "Urgent"
-                        ? "sa-pill-danger"
-                        : "sa-pill-info"
-                    }`}
-                  >
-                    Priority: {selectedTicket.priority}
-                  </span>
-                  <span
-                    className={`sa-pill ${
-                      selectedTicket.status === "Open"
-                        ? "sa-pill-warning"
-                        : selectedTicket.status === "In Progress"
-                        ? "sa-pill-info"
-                        : "sa-pill-success"
-                    }`}
-                  >
-                    Status: {selectedTicket.status}
-                  </span>
-                </div>
-
-                {/* Message Thread */}
-                <div className="sa-ticket-thread">
-                  {selectedTicket.messages.map((m, i) => (
-                    <div
-                      key={i}
-                      className={`sa-thread-bubble ${
-                        m.role.includes("Super Admin") || m.role.includes("Support")
-                          ? "admin-bubble"
-                          : "user-bubble"
+              {/* Modal Body */}
+              <div className="spt-modal-body">
+                {/* Telemetry Ribbon */}
+                <div className="spt-meta-ribbon">
+                  <div className="spt-ribbon-left">
+                    <span className="spt-category-chip">
+                      <Tag size={11} /> {selectedTicket.category}
+                    </span>
+                    <span
+                      className={`spt-priority-badge ${
+                        selectedTicket.priority.toLowerCase() === "urgent"
+                          ? "urgent"
+                          : selectedTicket.priority.toLowerCase() === "high"
+                          ? "high"
+                          : selectedTicket.priority.toLowerCase() === "medium"
+                          ? "medium"
+                          : "low"
                       }`}
                     >
-                      <div className="sa-bubble-header">
-                        <strong>{m.sender}</strong>
-                        <span className="sa-bubble-time">{m.time}</span>
-                      </div>
-                      <p className="sa-bubble-text">{m.text}</p>
-                    </div>
-                  ))}
+                      {selectedTicket.priority === "Urgent" && <AlertTriangle size={11} />}
+                      Priority: {selectedTicket.priority}
+                    </span>
+                    <span
+                      className={`spt-status-pill ${
+                        selectedTicket.status.toLowerCase() === "open"
+                          ? "open"
+                          : selectedTicket.status.toLowerCase() === "in progress"
+                          ? "in-progress"
+                          : selectedTicket.status.toLowerCase() === "resolved"
+                          ? "resolved"
+                          : "closed"
+                      }`}
+                    >
+                      <span className="spt-status-dot" />
+                      Status: {selectedTicket.status}
+                    </span>
+                  </div>
+
+                  <div className="spt-ribbon-right">
+                    <ShieldCheck size={14} color="#10b981" />
+                    <span>SLA Response Target: Under 25m · Active</span>
+                  </div>
                 </div>
 
-                {/* Reply Box */}
-                <form onSubmit={handleSendReply} className="sa-ticket-reply-form">
+                {/* Conversation Thread Stream */}
+                <div className="spt-thread-stream">
+                  {selectedTicket.messages.map((m, i) => {
+                    const isAdmin =
+                      m.role.includes("Super Admin") ||
+                      m.role.includes("Support") ||
+                      m.role.includes("Security");
+                    return (
+                      <div
+                        key={i}
+                        className={`spt-message-card ${isAdmin ? "is-admin" : "is-client"}`}
+                      >
+                        <div className={`spt-msg-avatar ${isAdmin ? "admin" : "client"}`}>
+                          {isAdmin ? <ShieldCheck size={16} /> : <User size={16} />}
+                        </div>
+
+                        <div className="spt-msg-bubble-wrap">
+                          <div className="spt-msg-header">
+                            <span className="spt-msg-author">
+                              {m.sender}
+                              <span className="spt-msg-role">{m.role}</span>
+                            </span>
+                            <span className="spt-msg-time">{m.time}</span>
+                          </div>
+                          <p className="spt-msg-body">{m.text}</p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Quick Canned Responses */}
+                <div className="spt-canned-section">
+                  <span className="spt-canned-label">
+                    <Sparkles size={12} color="#3b66ff" /> Quick Canned Response Templates
+                  </span>
+                  <div className="spt-canned-chips-row">
+                    {CANNED_REPLIES.map((c, i) => (
+                      <button
+                        key={i}
+                        type="button"
+                        className="spt-canned-btn"
+                        onClick={() => {
+                          setReplyText(c.text);
+                          setReplyStatusChoice(c.actionStatus);
+                        }}
+                        title={`Click to insert template & set status to ${c.actionStatus}`}
+                      >
+                        <CornerDownRight size={11} /> {c.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Interactive Reply Workspace Form */}
+                <form onSubmit={handleSendReply} className="spt-reply-workspace">
                   <textarea
                     rows={3}
-                    className="sa-form-textarea"
-                    placeholder="Type official enterprise response to organization..."
+                    className="spt-reply-textarea"
+                    placeholder="Type official enterprise response to organization... (Press Ctrl + Enter to dispatch)"
                     value={replyText}
                     onChange={(e) => setReplyText(e.target.value)}
+                    onKeyDown={(e) => {
+                      if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+                        handleSendReply(e);
+                      }
+                    }}
                     required
                   />
 
-                  <div className="sa-reply-actions-row">
-                    <div style={{ display: "flex", gap: "8px" }}>
+                  <div className="spt-reply-bottom-bar">
+                    <div className="spt-reply-options">
+                      <span>Status on reply:</span>
+                      <select
+                        value={replyStatusChoice}
+                        onChange={(e) => setReplyStatusChoice(e.target.value)}
+                      >
+                        <option value="In Progress">Keep In Progress</option>
+                        <option value="Resolved">Mark as Resolved</option>
+                        <option value="Closed">Mark as Closed</option>
+                      </select>
+                      <span className="spt-shortcut-hint">Ctrl + Enter to send</span>
+                    </div>
+
+                    <div className="spt-reply-submit-group">
                       {selectedTicket.status !== "Resolved" && (
                         <button
                           type="button"
                           className="sa-btn sa-btn-secondary sa-btn-sm"
-                          style={{ color: "#10b981" }}
+                          style={{ color: "#059669" }}
                           onClick={() => handleUpdateStatus(selectedTicket.id, "Resolved")}
                         >
-                          <CheckCircle2 size={13} /> Mark Resolved
+                          <CheckCircle2 size={13} /> Quick Resolve
                         </button>
                       )}
-                      {selectedTicket.status === "Resolved" && (
-                        <button
-                          type="button"
-                          className="sa-btn sa-btn-secondary sa-btn-sm"
-                          onClick={() => handleUpdateStatus(selectedTicket.id, "In Progress")}
-                        >
-                          Re-open Ticket
-                        </button>
-                      )}
+                      <button type="submit" className="sa-btn sa-btn-primary sa-btn-sm">
+                        <Send size={13} /> Send Official Reply
+                      </button>
                     </div>
-
-                    <button type="submit" className="sa-btn sa-btn-primary sa-btn-sm">
-                      <Send size={13} /> Send Official Reply
-                    </button>
                   </div>
                 </form>
+              </div>
+            </div>
+          </div>,
+          document.body
+        )}
+
+      {/* 7. Create Support Ticket Modal */}
+      {createModalOpen &&
+        typeof document !== "undefined" &&
+        createPortal(
+          <div
+            className="sa-modal-backdrop"
+            onClick={() => setCreateModalOpen(false)}
+          >
+            <div
+              className="spt-create-dialog"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="spt-modal-header">
+                <div className="spt-modal-header-left">
+                  <div
+                    style={{
+                      width: 32,
+                      height: 32,
+                      borderRadius: 8,
+                      background: "#eff6ff",
+                      border: "1px solid #bfdbfe",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      color: "#2563eb",
+                    }}
+                  >
+                    <Plus size={18} />
+                  </div>
+                  <div>
+                    <h3 className="spt-modal-title">Create New Support Case</h3>
+                    <div className="spt-modal-subtitle">
+                      Log an enterprise customer inquiry, SLA incident, or service triage.
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  className="sa-modal-close"
+                  onClick={() => setCreateModalOpen(false)}
+                >
+                  <X size={17} />
+                </button>
+              </div>
+
+              <form onSubmit={handleCreateTicket}>
+                <div className="spt-create-body">
+                  {newTicketForm.error && (
+                    <div className="spt-form-error">
+                      <AlertTriangle size={15} />
+                      <span>{newTicketForm.error}</span>
+                    </div>
+                  )}
+
+                  <div className="spt-field-group">
+                    <label className="spt-field-label">Tenant Organization *</label>
+                    <select
+                      className="spt-field-select"
+                      value={newTicketForm.org}
+                      onChange={(e) => handleOrgChangeInForm(e.target.value)}
+                      required
+                    >
+                      {KNOWN_ORGANIZATIONS.map((o) => (
+                        <option key={o.name} value={o.name}>
+                          {o.name} ({o.contact})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="spt-form-grid-2">
+                    <div className="spt-field-group">
+                      <label className="spt-field-label">Requester Full Name *</label>
+                      <input
+                        type="text"
+                        className="spt-field-input"
+                        placeholder="e.g. Himanshu Rao"
+                        value={newTicketForm.requester}
+                        onChange={(e) =>
+                          setNewTicketForm((p) => ({ ...p, requester: e.target.value, error: "" }))
+                        }
+                        required
+                      />
+                    </div>
+
+                    <div className="spt-field-group">
+                      <label className="spt-field-label">Requester Email Address *</label>
+                      <input
+                        type="email"
+                        className="spt-field-input"
+                        placeholder="e.g. himanshu@abc.com"
+                        value={newTicketForm.email}
+                        onChange={(e) =>
+                          setNewTicketForm((p) => ({ ...p, email: e.target.value, error: "" }))
+                        }
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div className="spt-form-grid-2">
+                    <div className="spt-field-group">
+                      <label className="spt-field-label">Category *</label>
+                      <select
+                        className="spt-field-select"
+                        value={newTicketForm.category}
+                        onChange={(e) =>
+                          setNewTicketForm((p) => ({ ...p, category: e.target.value }))
+                        }
+                      >
+                        <option value="Technical / DNS">Technical / DNS</option>
+                        <option value="Billing & Invoices">Billing &amp; Invoices</option>
+                        <option value="AI Integration">AI Integration</option>
+                        <option value="Security & SSO">Security &amp; SSO</option>
+                        <option value="File Storage">File Storage</option>
+                        <option value="Audit Logs">Audit Logs</option>
+                        <option value="Performance & Latency">Performance &amp; Latency</option>
+                        <option value="General Inquiry">General Inquiry</option>
+                      </select>
+                    </div>
+
+                    <div className="spt-field-group">
+                      <label className="spt-field-label">Priority Tier *</label>
+                      <div className="spt-priority-picker">
+                        {["Low", "Medium", "High", "Urgent"].map((p) => (
+                          <button
+                            key={p}
+                            type="button"
+                            className={`spt-priority-option ${
+                              newTicketForm.priority === p ? `is-selected ${p.toLowerCase()}` : ""
+                            }`}
+                            onClick={() => setNewTicketForm((prev) => ({ ...prev, priority: p }))}
+                          >
+                            {p}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="spt-field-group">
+                    <label className="spt-field-label">
+                      <span>Subject / Incident Headline *</span>
+                      <span style={{ fontSize: 11, color: "#64748b" }}>
+                        {newTicketForm.subject.length}/100
+                      </span>
+                    </label>
+                    <input
+                      type="text"
+                      maxLength={100}
+                      className="spt-field-input"
+                      placeholder="e.g. SSL verification pending after DNS CNAME configuration"
+                      value={newTicketForm.subject}
+                      onChange={(e) =>
+                        setNewTicketForm((p) => ({ ...p, subject: e.target.value, error: "" }))
+                      }
+                      required
+                    />
+                  </div>
+
+                  <div className="spt-field-group">
+                    <label className="spt-field-label">Initial Problem Description *</label>
+                    <textarea
+                      rows={4}
+                      className="spt-field-textarea"
+                      placeholder="Describe the technical error, customer impact, or details required for resolution..."
+                      value={newTicketForm.message}
+                      onChange={(e) =>
+                        setNewTicketForm((p) => ({ ...p, message: e.target.value, error: "" }))
+                      }
+                      required
+                    />
+                    <span className="spt-form-hint">
+                      The initial message will be recorded as the opening message of this ticket thread.
+                    </span>
+                  </div>
+                </div>
+
+                <div
+                  style={{
+                    padding: "14px 24px",
+                    background: "#f8fafc",
+                    borderTop: "1px solid #e2e8f0",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "flex-end",
+                    gap: 10,
+                  }}
+                >
+                  <button
+                    type="button"
+                    className="sa-btn sa-btn-secondary"
+                    onClick={() => setCreateModalOpen(false)}
+                  >
+                    Cancel
+                  </button>
+                  <button type="submit" className="sa-btn sa-btn-primary">
+                    <CheckCircle2 size={15} /> Create &amp; Open Ticket
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>,
+          document.body
+        )}
+
+      {/* 8. Delete Confirmation Dialog */}
+      {deleteConfirmTicket &&
+        typeof document !== "undefined" &&
+        createPortal(
+          <div
+            className="sa-modal-backdrop"
+            onClick={() => setDeleteConfirmTicket(null)}
+          >
+            <div
+              className="sa-modal-content"
+              style={{ maxWidth: 440, padding: 24, textAlign: "center" }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div
+                style={{
+                  width: 48,
+                  height: 48,
+                  borderRadius: "50%",
+                  background: "#fef2f2",
+                  color: "#dc2626",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  margin: "0 auto 14px",
+                }}
+              >
+                <Trash2 size={24} />
+              </div>
+              <h3 style={{ margin: "0 0 6px", fontSize: 17, fontWeight: 700 }}>
+                Delete Ticket {deleteConfirmTicket.id}?
+              </h3>
+              <p style={{ margin: "0 0 18px", fontSize: 13, color: "var(--sa-text-muted)" }}>
+                Are you sure you want to delete the support ticket for{" "}
+                <strong>{deleteConfirmTicket.org}</strong>? This action will permanently remove the conversation thread.
+              </p>
+              <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
+                <button
+                  type="button"
+                  className="sa-btn sa-btn-secondary"
+                  onClick={() => setDeleteConfirmTicket(null)}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  className="sa-btn sa-btn-danger"
+                  style={{ background: "#dc2626", color: "#ffffff", border: "1px solid #dc2626" }}
+                  onClick={() => handleDeleteTicket(deleteConfirmTicket)}
+                >
+                  Yes, Delete Ticket
+                </button>
               </div>
             </div>
           </div>,
@@ -881,3 +1510,4 @@ function HelpSupport() {
 }
 
 export default HelpSupport;
+

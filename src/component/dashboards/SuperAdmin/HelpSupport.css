@@ -1,90 +1,933 @@
 /* ==========================================================================
-   TEAMFLOW AI — SUPER ADMIN HELP & SUPPORT CSS
+   TEAMFLOW AI — SUPER ADMIN HELP & SUPPORT TICKETS CSS
+   Comprehensive Enterprise Service Desk & Interactive Case Management
    ========================================================================== */
 
-.sa-support-page {
+.help-support-page {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
+  box-sizing: border-box;
 }
 
-.sa-tickets-table-card {
-  padding: 18px 20px 14px;
+/* ==========================================================================
+   1. TABLE BADGES & AVATARS
+   ========================================================================== */
+
+.spt-org-avatar-wrap {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  border-radius: 8px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+  flex-shrink: 0;
+  overflow: hidden;
+  transition: transform 0.18s ease;
 }
 
-.sa-ticket-modal-body {
+.sap-user-badge:hover .spt-org-avatar-wrap {
+  transform: scale(1.08);
+}
+
+.spt-org-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+/* Priority Badges */
+.spt-priority-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+.spt-priority-badge.urgent {
+  background: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+  box-shadow: 0 1px 3px rgba(220, 38, 38, 0.12);
+}
+
+.spt-priority-badge.high {
+  background: #fffbeb;
+  color: #d97706;
+  border: 1px solid #fde68a;
+}
+
+.spt-priority-badge.medium {
+  background: #f5f3ff;
+  color: #7c3aed;
+  border: 1px solid #ddd6fe;
+}
+
+.spt-priority-badge.low {
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+}
+
+/* Category Badges */
+.spt-category-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  background: #eff6ff;
+  color: #2563eb;
+  border: 1px solid #dbeafe;
+}
+
+/* Status Pills */
+.spt-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 9px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.spt-status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.spt-status-pill.open {
+  background: #fffbeb;
+  color: #b45309;
+  border: 1px solid #fde68a;
+}
+.spt-status-pill.open .spt-status-dot {
+  background: #f59e0b;
+  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.25);
+  animation: sptPulse 1.8s infinite;
+}
+
+.spt-status-pill.in-progress {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+}
+.spt-status-pill.in-progress .spt-status-dot {
+  background: #3b66ff;
+  box-shadow: 0 0 0 2px rgba(59, 102, 255, 0.25);
+}
+
+.spt-status-pill.resolved {
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+}
+.spt-status-pill.resolved .spt-status-dot {
+  background: #10b981;
+}
+
+.spt-status-pill.closed {
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+}
+.spt-status-pill.closed .spt-status-dot {
+  background: #94a3b8;
+}
+
+@keyframes sptPulse {
+  0% { transform: scale(0.95); opacity: 0.8; }
+  50% { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(0.95); opacity: 0.8; }
+}
+
+/* ==========================================================================
+   2. COLORED TABLE ACTION BUTTONS (VIEW, RESOLVE, REOPEN, DELETE)
+   ========================================================================== */
+
+.spt-action-group {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.spt-action-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background: transparent;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  flex-shrink: 0;
+  padding: 0;
+}
+
+/* 1. View / Chat Button (Blue) */
+.spt-action-btn.btn-view {
+  background: #eff6ff;
+  color: #2563eb;
+  border-color: #bfdbfe;
+}
+
+.spt-action-btn.btn-view:hover {
+  background: #2563eb;
+  color: #ffffff;
+  border-color: #2563eb;
+  box-shadow: 0 3px 8px rgba(37, 99, 235, 0.3);
+  transform: translateY(-1px);
+}
+
+/* 2. Resolve Button (Green) */
+.spt-action-btn.btn-resolve {
+  background: #ecfdf5;
+  color: #059669;
+  border-color: #a7f3d0;
+}
+
+.spt-action-btn.btn-resolve:hover {
+  background: #059669;
+  color: #ffffff;
+  border-color: #059669;
+  box-shadow: 0 3px 8px rgba(5, 150, 105, 0.3);
+  transform: translateY(-1px);
+}
+
+/* 3. Re-Open Button (Amber) */
+.spt-action-btn.btn-reopen {
+  background: #fffbeb;
+  color: #d97706;
+  border-color: #fde68a;
+}
+
+.spt-action-btn.btn-reopen:hover {
+  background: #d97706;
+  color: #ffffff;
+  border-color: #d97706;
+  box-shadow: 0 3px 8px rgba(217, 119, 6, 0.3);
+  transform: translateY(-1px);
+}
+
+/* 4. Delete Button (Red) */
+.spt-action-btn.btn-delete {
+  background: #fef2f2;
+  color: #dc2626;
+  border-color: #fecaca;
+}
+
+.spt-action-btn.btn-delete:hover {
+  background: #dc2626;
+  color: #ffffff;
+  border-color: #dc2626;
+  box-shadow: 0 3px 8px rgba(220, 38, 38, 0.3);
+  transform: translateY(-1px);
+}
+
+/* ==========================================================================
+   3. TICKET CONVERSATION & REPLY MODAL WORKSPACE
+   ========================================================================== */
+
+.spt-ticket-dialog {
+  width: min(94vw, 760px);
+  max-height: 94vh;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 25px 65px rgba(15, 23, 42, 0.3);
+  border: 1px solid #cbd5e1;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  overflow: hidden;
+  animation: saModalSlide 0.2s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
-.sa-ticket-tags-row {
+.spt-modal-header {
+  padding: 14px 20px;
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.spt-modal-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.spt-ticket-id-badge {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 12px;
+  font-weight: 800;
+  color: #2563eb;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  padding: 3px 8px;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.spt-modal-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 750;
+  color: #0f172a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.spt-modal-subtitle {
+  margin: 2px 0 0;
+  font-size: 11.5px;
+  color: #64748b;
   display: flex;
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
-  padding-bottom: 12px;
-  border-bottom: 1px solid var(--sa-border-subtle);
 }
 
-.sa-ticket-thread {
+.spt-modal-header-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.spt-header-select {
+  padding: 5px 9px;
+  font-size: 11.5px;
+  font-weight: 600;
+  border-radius: 7px;
+  border: 1px solid #cbd5e1;
+  background: #f8fafc;
+  color: #0f172a;
+  cursor: pointer;
+}
+
+.spt-modal-body {
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  overflow-y: auto;
+  max-height: calc(94vh - 120px);
+  background: #f8fafc;
+}
+
+/* Telemetry Ribbon in Modal */
+.spt-meta-ribbon {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+  flex-wrap: wrap;
+}
+
+.spt-ribbon-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.spt-ribbon-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: #64748b;
+}
+
+/* Conversation Thread Stream */
+.spt-thread-stream {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  max-height: 280px;
+  min-height: 180px;
+  max-height: 320px;
   overflow-y: auto;
-  padding-right: 4px;
+  padding: 4px;
 }
 
-.sa-thread-bubble {
+.spt-message-card {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  animation: saFadeIn 0.2s ease both;
+}
+
+.spt-msg-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 750;
+  color: #ffffff;
+  flex-shrink: 0;
+  box-shadow: 0 2px 5px rgba(15, 23, 42, 0.1);
+}
+
+.spt-msg-avatar.client {
+  background: linear-gradient(135deg, #64748b 0%, #475569 100%);
+}
+
+.spt-msg-avatar.admin {
+  background: linear-gradient(135deg, #3b66ff 0%, #1d4ed8 100%);
+}
+
+.spt-msg-bubble-wrap {
+  flex: 1;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
   padding: 12px 14px;
-  border-radius: var(--sa-radius-md);
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.04);
+}
+
+.spt-message-card.is-admin .spt-msg-bubble-wrap {
+  background: #f0f7ff;
+  border-color: #bfdbfe;
+  border-left: 3.5px solid #2563eb;
+}
+
+.spt-msg-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.spt-msg-author {
+  font-size: 12.5px;
+  font-weight: 750;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.spt-msg-role {
+  font-size: 10.5px;
+  font-weight: 600;
+  padding: 1.5px 6px;
+  border-radius: 4px;
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.spt-message-card.is-admin .spt-msg-role {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.spt-msg-time {
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+.spt-msg-body {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: #334155;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Quick Canned Responses */
+.spt-canned-section {
   display: flex;
   flex-direction: column;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.spt-canned-label {
+  font-size: 10.5px;
+  font-weight: 750;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.spt-canned-chips-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.spt-canned-btn {
+  padding: 4px 9px;
+  border-radius: 6px;
+  border: 1px dashed #cbd5e1;
+  background: #ffffff;
+  font-size: 11px;
+  font-weight: 600;
+  color: #334155;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
   gap: 4px;
 }
 
-.sa-thread-bubble.user-bubble {
-  background: #f8fafc;
-  border: 1px solid var(--sa-border);
-  border-left: 3px solid #3b66ff;
+.spt-canned-btn:hover {
+  background: #eff6ff;
+  color: #2563eb;
+  border-color: #93c5fd;
+  border-style: solid;
+  transform: translateY(-1px);
 }
 
-.sa-thread-bubble.admin-bubble {
-  background: #eff3fe;
-  border: 1px solid #dbeafe;
-  border-left: 3px solid #10b981;
-}
-
-.sa-bubble-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 11.5px;
-}
-
-.sa-bubble-time {
-  color: var(--sa-text-muted);
-}
-
-.sa-bubble-text {
-  margin: 0;
-  font-size: 12.5px;
-  color: var(--sa-text-main);
-  line-height: 1.45;
-}
-
-.sa-ticket-reply-form {
+/* Interactive Reply Workspace Form */
+.spt-reply-workspace {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  padding: 12px;
   display: flex;
   flex-direction: column;
   gap: 10px;
-  margin-top: 4px;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.05);
 }
 
-.sa-reply-actions-row {
+.spt-reply-textarea {
+  width: 100%;
+  border: none;
+  outline: none;
+  resize: vertical;
+  min-height: 68px;
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 1.45;
+  color: #0f172a;
+  background: transparent;
+  box-sizing: border-box;
+}
+
+.spt-reply-textarea::placeholder {
+  color: #94a3b8;
+}
+
+.spt-reply-bottom-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+  border-top: 1px solid #f1f5f9;
+  padding-top: 8px;
+  flex-wrap: wrap;
+}
+
+.spt-reply-options {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11.5px;
+  color: #64748b;
+}
+
+.spt-reply-options select {
+  padding: 3px 7px;
+  font-size: 11.5px;
+  border-radius: 5px;
+  border: 1px solid #cbd5e1;
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+.spt-reply-submit-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.spt-shortcut-hint {
+  font-size: 10.5px;
+  color: #94a3b8;
+}
+
+/* ==========================================================================
+   4. CREATE SUPPORT TICKET MODAL FORM
+   ========================================================================== */
+
+.spt-create-dialog {
+  width: min(94vw, 680px);
+  max-height: 94vh;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 25px 65px rgba(15, 23, 42, 0.35);
+  border: 1px solid #cbd5e1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: saModalSlide 0.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.spt-create-body {
+  padding: 20px 24px;
+  overflow-y: auto;
+  max-height: calc(94vh - 130px);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.spt-form-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.spt-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.spt-field-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #1e293b;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.spt-field-input,
+.spt-field-select,
+.spt-field-textarea {
+  width: 100%;
+  padding: 9px 12px;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #0f172a;
+  font-size: 13px;
+  font-family: inherit;
+  box-sizing: border-box;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.spt-field-input:focus,
+.spt-field-select:focus,
+.spt-field-textarea:focus {
+  border-color: #3b66ff;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 102, 255, 0.15);
+}
+
+.spt-field-textarea {
+  min-height: 90px;
+  resize: vertical;
+  line-height: 1.45;
+}
+
+/* Priority Selector Segmented Buttons */
+.spt-priority-picker {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+
+.spt-priority-option {
+  padding: 7px 4px;
+  border-radius: 7px;
+  border: 1px solid #cbd5e1;
+  background: #f8fafc;
+  font-size: 11.5px;
+  font-weight: 700;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  color: #475569;
+}
+
+.spt-priority-option.is-selected.urgent {
+  background: #fef2f2;
+  color: #dc2626;
+  border-color: #dc2626;
+  box-shadow: 0 2px 6px rgba(220, 38, 38, 0.2);
+}
+
+.spt-priority-option.is-selected.high {
+  background: #fffbeb;
+  color: #d97706;
+  border-color: #d97706;
+  box-shadow: 0 2px 6px rgba(217, 119, 6, 0.2);
+}
+
+.spt-priority-option.is-selected.medium {
+  background: #f5f3ff;
+  color: #7c3aed;
+  border-color: #7c3aed;
+  box-shadow: 0 2px 6px rgba(124, 58, 237, 0.2);
+}
+
+.spt-priority-option.is-selected.low {
+  background: #eff6ff;
+  color: #2563eb;
+  border-color: #2563eb;
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.2);
+}
+
+.spt-form-hint {
+  font-size: 11px;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+/* Error Banner in Form */
+.spt-form-error {
+  padding: 8px 12px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  color: #dc2626;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ==========================================================================
+   5. DARK MODE OVERRIDES (.sa-dark-mode)
+   ========================================================================== */
+
+.sa-dark-mode .spt-org-avatar-wrap {
+  background: #172442 !important;
+  border-color: #273860 !important;
+}
+
+.sa-dark-mode .spt-priority-badge.urgent {
+  background: rgba(220, 38, 38, 0.2) !important;
+  color: #f87171 !important;
+  border-color: rgba(220, 38, 38, 0.4) !important;
+}
+
+.sa-dark-mode .spt-priority-badge.high {
+  background: rgba(217, 119, 6, 0.2) !important;
+  color: #fbbf24 !important;
+  border-color: rgba(217, 119, 6, 0.4) !important;
+}
+
+.sa-dark-mode .spt-priority-badge.medium {
+  background: rgba(124, 58, 237, 0.2) !important;
+  color: #c084fc !important;
+  border-color: rgba(124, 58, 237, 0.4) !important;
+}
+
+.sa-dark-mode .spt-priority-badge.low {
+  background: rgba(148, 163, 184, 0.2) !important;
+  color: #cbd5e1 !important;
+  border-color: rgba(148, 163, 184, 0.35) !important;
+}
+
+.sa-dark-mode .spt-category-chip {
+  background: rgba(59, 130, 246, 0.18) !important;
+  color: #93b4ff !important;
+  border-color: rgba(59, 130, 246, 0.35) !important;
+}
+
+.sa-dark-mode .spt-status-pill.open {
+  background: rgba(245, 158, 11, 0.2) !important;
+  color: #fbbf24 !important;
+  border-color: rgba(245, 158, 11, 0.4) !important;
+}
+
+.sa-dark-mode .spt-status-pill.in-progress {
+  background: rgba(59, 130, 246, 0.2) !important;
+  color: #93b4ff !important;
+  border-color: rgba(59, 130, 246, 0.4) !important;
+}
+
+.sa-dark-mode .spt-status-pill.resolved {
+  background: rgba(16, 185, 129, 0.2) !important;
+  color: #6ee7b7 !important;
+  border-color: rgba(16, 185, 129, 0.4) !important;
+}
+
+.sa-dark-mode .spt-status-pill.closed {
+  background: rgba(148, 163, 184, 0.2) !important;
+  color: #94a3b8 !important;
+  border-color: rgba(148, 163, 184, 0.35) !important;
+}
+
+/* Action Buttons in Dark Mode */
+.sa-dark-mode .spt-action-btn.btn-view {
+  background: rgba(59, 130, 246, 0.15) !important;
+  border-color: rgba(59, 130, 246, 0.35) !important;
+  color: #60a5fa !important;
+}
+
+.sa-dark-mode .spt-action-btn.btn-view:hover {
+  background: #2563eb !important;
+  color: #ffffff !important;
+  border-color: #2563eb !important;
+}
+
+.sa-dark-mode .spt-action-btn.btn-resolve {
+  background: rgba(16, 185, 129, 0.15) !important;
+  border-color: rgba(16, 185, 129, 0.35) !important;
+  color: #4ade80 !important;
+}
+
+.sa-dark-mode .spt-action-btn.btn-resolve:hover {
+  background: #059669 !important;
+  color: #ffffff !important;
+  border-color: #059669 !important;
+}
+
+.sa-dark-mode .spt-action-btn.btn-reopen {
+  background: rgba(245, 158, 11, 0.15) !important;
+  border-color: rgba(245, 158, 11, 0.35) !important;
+  color: #facc15 !important;
+}
+
+.sa-dark-mode .spt-action-btn.btn-reopen:hover {
+  background: #d97706 !important;
+  color: #ffffff !important;
+  border-color: #d97706 !important;
+}
+
+.sa-dark-mode .spt-action-btn.btn-delete {
+  background: rgba(239, 68, 68, 0.15) !important;
+  border-color: rgba(239, 68, 68, 0.35) !important;
+  color: #f87171 !important;
+}
+
+.sa-dark-mode .spt-action-btn.btn-delete:hover {
+  background: #dc2626 !important;
+  color: #ffffff !important;
+  border-color: #dc2626 !important;
+}
+
+/* Modal Dark Mode */
+.sa-dark-mode .spt-ticket-dialog,
+.sa-dark-mode .spt-create-dialog {
+  background: #111c35 !important;
+  border-color: #1f2d4d !important;
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .spt-modal-header {
+  background: #111c35 !important;
+  border-color: #1f2d4d !important;
+}
+
+.sa-dark-mode .spt-modal-title,
+.sa-dark-mode .spt-field-label {
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .spt-modal-body,
+.sa-dark-mode .spt-create-body {
+  background: #0b1120 !important;
+}
+
+.sa-dark-mode .spt-meta-ribbon,
+.sa-dark-mode .spt-msg-bubble-wrap,
+.sa-dark-mode .spt-reply-workspace {
+  background: #172442 !important;
+  border-color: #273860 !important;
+}
+
+.sa-dark-mode .spt-message-card.is-admin .spt-msg-bubble-wrap {
+  background: #1a2b50 !important;
+  border-color: #3b82f6 !important;
+}
+
+.sa-dark-mode .spt-msg-author {
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .spt-msg-body {
+  color: #cbd5e1 !important;
+}
+
+.sa-dark-mode .spt-canned-btn {
+  background: #172442 !important;
+  border-color: #273860 !important;
+  color: #cbd5e1 !important;
+}
+
+.sa-dark-mode .spt-canned-btn:hover {
+  background: #1d3368 !important;
+  color: #93b4ff !important;
+  border-color: #3b82f6 !important;
+}
+
+.sa-dark-mode .spt-reply-textarea {
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .spt-field-input,
+.sa-dark-mode .spt-field-select,
+.sa-dark-mode .spt-field-textarea,
+.sa-dark-mode .spt-header-select {
+  background: #172442 !important;
+  border-color: #273860 !important;
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .spt-priority-option {
+  background: #172442 !important;
+  border-color: #273860 !important;
+  color: #94a3b8 !important;
+}
+
+/* ==========================================================================
+   6. RESPONSIVE DESIGN
+   ========================================================================== */
+
+@media (max-width: 768px) {
+  .spt-form-grid-2 {
+    grid-template-columns: 1fr;
+  }
+  .spt-priority-picker {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .spt-modal-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }
 

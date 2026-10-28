@@ -1,29 +1,38 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import {
   Activity,
+  AlertTriangle,
   ArrowDown,
   ArrowDownRight,
   ArrowUp,
   ArrowUpDown,
   ArrowUpRight,
+  BarChart3,
   Building2,
   CalendarDays,
+  CheckCircle,
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
   Clock3,
+  Cpu,
+  Database,
   Download,
+  Eye,
+  FileSpreadsheet,
   Filter,
   Layers,
   RotateCcw,
   Search,
   Server,
+  ShieldCheck,
+  SlidersHorizontal,
   Sparkles,
   TrendingUp,
   Users,
   X,
   Zap,
-  SlidersHorizontal,
 } from "lucide-react";
 import {
   Area,
@@ -41,7 +50,9 @@ import {
 } from "recharts";
 import "./SuperAdminCommon.css";
 import "./Analytics.css";
+import orgAvatarImg from "../../../assets/images/organization-avatar.png";
 
+// Growth Data by Period
 const growthData = {
   "7 days": [
     { label: "Mon", organizations: 8, users: 120 },
@@ -63,6 +74,36 @@ const growthData = {
     { label: "Month 2", organizations: 58, users: 1050 },
     { label: "Month 3", organizations: 82, users: 1480 },
   ],
+};
+
+// Activity Data by Period
+const activityDataByPeriod = {
+  "7 days": [
+    { label: "Mon", active: 420 },
+    { label: "Tue", active: 510 },
+    { label: "Wed", active: 465 },
+    { label: "Thu", active: 620 },
+    { label: "Fri", active: 570 },
+    { label: "Sat", active: 350 },
+    { label: "Sun", active: 290 },
+  ],
+  "30 days": [
+    { label: "Week 1", active: 1850 },
+    { label: "Week 2", active: 2420 },
+    { label: "Week 3", active: 2980 },
+    { label: "Week 4", active: 3225 },
+  ],
+  "90 days": [
+    { label: "Month 1", active: 6800 },
+    { label: "Month 2", active: 9400 },
+    { label: "Month 3", active: 12450 },
+  ],
+};
+
+const sessionsByPeriod = {
+  "7 days": "3,225 active sessions",
+  "30 days": "31,400 active sessions",
+  "90 days": "112,000 active sessions",
 };
 
 const METRICS_BY_PERIOD = {
@@ -88,6 +129,7 @@ const METRICS_BY_PERIOD = {
 
 const ORGANIZATIONS_DATA = [
   {
+    id: "ORG-2001",
     name: "Acme Technologies",
     domain: "Cloud & DevSecOps",
     plan: "Enterprise",
@@ -95,12 +137,19 @@ const ORGANIZATIONS_DATA = [
     activeUsers: 226,
     tasks: 1240,
     storage: "42.5 GB",
+    storageLimit: "100 GB",
+    storagePct: 42.5,
+    tokensUsed: "1.42M tokens",
     activity: 92,
     status: "Optimal",
     trend: "+14.2%",
     lastActive: "Just now",
+    createdDate: "2025-08-14",
+    sla: "99.99%",
+    modules: ["AI Workflow Copilot", "Kanban Boards", "Team Chat", "REST Webhooks", "Enterprise SSO"],
   },
   {
+    id: "ORG-2002",
     name: "Nova Solutions",
     domain: "FinTech & Payments",
     plan: "Business",
@@ -108,12 +157,19 @@ const ORGANIZATIONS_DATA = [
     activeUsers: 153,
     tasks: 980,
     storage: "28.1 GB",
+    storageLimit: "50 GB",
+    storagePct: 56.2,
+    tokensUsed: "890k tokens",
     activity: 84,
     status: "Optimal",
     trend: "+9.8%",
     lastActive: "5m ago",
+    createdDate: "2025-09-20",
+    sla: "99.95%",
+    modules: ["AI Workflow Copilot", "Kanban Boards", "Team Chat", "Bug Tracking"],
   },
   {
+    id: "ORG-2003",
     name: "Pixel Studios",
     domain: "UI/UX & Creative Agency",
     plan: "Starter",
@@ -121,12 +177,19 @@ const ORGANIZATIONS_DATA = [
     activeUsers: 111,
     tasks: 765,
     storage: "19.4 GB",
+    storageLimit: "25 GB",
+    storagePct: 77.6,
+    tokensUsed: "420k tokens",
     activity: 76,
     status: "Healthy",
     trend: "+5.1%",
     lastActive: "18m ago",
+    createdDate: "2025-10-05",
+    sla: "99.90%",
+    modules: ["Kanban Boards", "Cloud File Storage", "Team Chat"],
   },
   {
+    id: "ORG-2004",
     name: "Vertex Systems",
     domain: "Enterprise Supply Chain",
     plan: "Business",
@@ -134,12 +197,19 @@ const ORGANIZATIONS_DATA = [
     activeUsers: 62,
     tasks: 520,
     storage: "14.2 GB",
+    storageLimit: "50 GB",
+    storagePct: 28.4,
+    tokensUsed: "610k tokens",
     activity: 63,
     status: "Healthy",
     trend: "+2.4%",
     lastActive: "1h ago",
+    createdDate: "2025-11-12",
+    sla: "99.92%",
+    modules: ["AI Workflow Copilot", "Kanban Boards", "REST Webhooks"],
   },
   {
+    id: "ORG-2005",
     name: "Bright Labs",
     domain: "EdTech & Learning Labs",
     plan: "Starter",
@@ -147,12 +217,19 @@ const ORGANIZATIONS_DATA = [
     activeUsers: 38,
     tasks: 310,
     storage: "8.6 GB",
+    storageLimit: "25 GB",
+    storagePct: 34.4,
+    tokensUsed: "250k tokens",
     activity: 51,
     status: "Healthy",
     trend: "-1.8%",
     lastActive: "3h ago",
+    createdDate: "2025-11-28",
+    sla: "99.88%",
+    modules: ["Kanban Boards", "Meeting Scheduler", "Team Chat"],
   },
   {
+    id: "ORG-2006",
     name: "Orbit Digital",
     domain: "Global Media Group",
     plan: "Enterprise",
@@ -160,12 +237,19 @@ const ORGANIZATIONS_DATA = [
     activeUsers: 288,
     tasks: 2150,
     storage: "68.0 GB",
+    storageLimit: "150 GB",
+    storagePct: 45.3,
+    tokensUsed: "2.18M tokens",
     activity: 95,
     status: "Optimal",
     trend: "+18.6%",
     lastActive: "Just now",
+    createdDate: "2025-07-02",
+    sla: "99.99%",
+    modules: ["AI Workflow Copilot", "Kanban Boards", "Team Chat", "Cloud File Storage", "Enterprise SSO"],
   },
   {
+    id: "ORG-2007",
     name: "CloudPeak",
     domain: "Distributed Infrastructure",
     plan: "Business",
@@ -173,12 +257,19 @@ const ORGANIZATIONS_DATA = [
     activeUsers: 94,
     tasks: 640,
     storage: "22.3 GB",
+    storageLimit: "50 GB",
+    storagePct: 44.6,
+    tokensUsed: "740k tokens",
     activity: 75,
     status: "Healthy",
     trend: "+4.2%",
     lastActive: "45m ago",
+    createdDate: "2025-12-01",
+    sla: "99.96%",
+    modules: ["AI Workflow Copilot", "Kanban Boards", "REST Webhooks"],
   },
   {
+    id: "ORG-2008",
     name: "NextGen Works",
     domain: "AI Workflow Solutions",
     plan: "Starter",
@@ -186,12 +277,19 @@ const ORGANIZATIONS_DATA = [
     activeUsers: 31,
     tasks: 290,
     storage: "6.8 GB",
+    storageLimit: "25 GB",
+    storagePct: 27.2,
+    tokensUsed: "310k tokens",
     activity: 48,
     status: "Warning",
     trend: "-5.0%",
     lastActive: "1d ago",
+    createdDate: "2026-01-15",
+    sla: "99.75%",
+    modules: ["AI Workflow Copilot", "Kanban Boards"],
   },
   {
+    id: "ORG-2009",
     name: "Summit Consulting",
     domain: "Strategic Advisory",
     plan: "Business",
@@ -199,12 +297,19 @@ const ORGANIZATIONS_DATA = [
     activeUsers: 139,
     tasks: 890,
     storage: "25.7 GB",
+    storageLimit: "50 GB",
+    storagePct: 51.4,
+    tokensUsed: "930k tokens",
     activity: 87,
     status: "Optimal",
     trend: "+11.3%",
     lastActive: "12m ago",
+    createdDate: "2025-09-08",
+    sla: "99.97%",
+    modules: ["AI Workflow Copilot", "Team Chat", "Meeting Scheduler", "Kanban Boards"],
   },
   {
+    id: "ORG-2010",
     name: "Greenline Tech",
     domain: "Renewables & Climate",
     plan: "Starter",
@@ -212,12 +317,19 @@ const ORGANIZATIONS_DATA = [
     activeUsers: 23,
     tasks: 210,
     storage: "5.1 GB",
+    storageLimit: "25 GB",
+    storagePct: 20.4,
+    tokensUsed: "180k tokens",
     activity: 42,
     status: "Warning",
     trend: "-3.2%",
     lastActive: "2d ago",
+    createdDate: "2026-02-10",
+    sla: "99.70%",
+    modules: ["Kanban Boards", "Meeting Scheduler"],
   },
   {
+    id: "ORG-2011",
     name: "CyberGuard Inc",
     domain: "Cybersecurity & Compliance",
     plan: "Enterprise",
@@ -225,12 +337,19 @@ const ORGANIZATIONS_DATA = [
     activeUsers: 275,
     tasks: 1890,
     storage: "54.2 GB",
+    storageLimit: "100 GB",
+    storagePct: 54.2,
+    tokensUsed: "1.95M tokens",
     activity: 94,
     status: "Optimal",
     trend: "+16.5%",
     lastActive: "Just now",
+    createdDate: "2025-08-01",
+    sla: "99.99%",
+    modules: ["AI Workflow Copilot", "REST Webhooks", "Enterprise SSO", "Bug Tracking", "Team Chat"],
   },
   {
+    id: "ORG-2012",
     name: "Nexus Dynamics",
     domain: "Precision Engineering",
     plan: "Business",
@@ -238,10 +357,16 @@ const ORGANIZATIONS_DATA = [
     activeUsers: 82,
     tasks: 580,
     storage: "17.9 GB",
+    storageLimit: "50 GB",
+    storagePct: 35.8,
+    tokensUsed: "590k tokens",
     activity: 71,
     status: "Healthy",
     trend: "+6.7%",
     lastActive: "2h ago",
+    createdDate: "2025-10-18",
+    sla: "99.94%",
+    modules: ["Kanban Boards", "Bug Tracking", "Cloud File Storage"],
   },
 ];
 
@@ -285,21 +410,30 @@ const taskData = [
   { name: "Pending", value: 12, color: "#f59e0b" },
 ];
 
-const activityData = [
-  { label: "Mon", active: 420 },
-  { label: "Tue", active: 510 },
-  { label: "Wed", active: 465 },
-  { label: "Thu", active: 620 },
-  { label: "Fri", active: 570 },
-  { label: "Sat", active: 350 },
-  { label: "Sun", active: 290 },
-];
-
-const tooltipStyle = {
-  borderRadius: "10px",
-  border: "1px solid #e5e7eb",
-  boxShadow: "0 8px 24px rgba(15, 23, 42, 0.08)",
-  fontSize: "12px",
+// Custom Recharts Tooltip Component
+const CustomAnalyticsTooltip = ({ active, payload, label }) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="anl-custom-tooltip">
+        <div className="anl-tooltip-header">{label}</div>
+        <div className="anl-tooltip-body">
+          {payload.map((entry, index) => (
+            <div key={`item-${index}`} className="anl-tooltip-item">
+              <span
+                className="anl-tooltip-dot"
+                style={{ backgroundColor: entry.color || entry.fill || entry.stroke }}
+              />
+              <span className="anl-tooltip-label">{entry.name}:</span>
+              <strong className="anl-tooltip-val">
+                {typeof entry.value === "number" ? entry.value.toLocaleString() : entry.value}
+              </strong>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+  return null;
 };
 
 function MetricCard({
@@ -352,6 +486,28 @@ function Analytics() {
   const [page, setPage] = useState(1);
   const [density, setDensity] = useState("standard");
   const [pageSize, setPageSize] = useState(10);
+  const [selectedOrgModal, setSelectedOrgModal] = useState(null);
+
+  // Lock background scroll and listen for Escape key when modal is open
+  useEffect(() => {
+    if (!selectedOrgModal) return undefined;
+
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        setSelectedOrgModal(null);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [selectedOrgModal]);
 
   const handleSort = (field) => {
     if (sortField === field) {
@@ -439,6 +595,8 @@ function Analytics() {
   );
 
   const selectedGrowth = growthData[period];
+  const selectedActivity = activityDataByPeriod[period] || activityDataByPeriod["30 days"];
+  const selectedSessions = sessionsByPeriod[period] || sessionsByPeriod["30 days"];
   const periodMetrics = METRICS_BY_PERIOD[period] || METRICS_BY_PERIOD["30 days"];
 
   const handleExport = () => {
@@ -447,8 +605,9 @@ function Analytics() {
 
     if (analyticsTab === "organizations") {
       rows = [
-        ["Organization", "Domain", "Plan Tier", "Total Users", "Active Users", "Tasks Created", "Storage Used", "Activity Score %", "Status", "Trend"],
+        ["Organization ID", "Organization", "Domain", "Plan Tier", "Total Users", "Active Users", "Tasks Created", "Storage Used", "Tokens Consumed", "Activity Score %", "Status", "Trend"],
         ...filteredOrganizations.map((o) => [
+          o.id,
           o.name,
           o.domain,
           o.plan,
@@ -456,6 +615,7 @@ function Analytics() {
           o.activeUsers,
           o.tasks,
           o.storage,
+          o.tokensUsed,
           `${o.activity}%`,
           o.status,
           o.trend,
@@ -516,20 +676,57 @@ function Analytics() {
     URL.revokeObjectURL(url);
   };
 
+  const handleExportSingleOrg = (org) => {
+    const rows = [
+      ["Organization Metric", "Value"],
+      ["Organization ID", org.id],
+      ["Organization Name", org.name],
+      ["Industry Domain", org.domain],
+      ["Subscription Plan", org.plan],
+      ["Licensed Seats", org.users],
+      ["Active Seats", org.activeUsers],
+      ["Seat Utilization", `${Math.round((org.activeUsers / org.users) * 100)}%`],
+      ["Tasks Completed", org.tasks],
+      ["Storage Quota Used", `${org.storage} of ${org.storageLimit}`],
+      ["AI Tokens Consumed", org.tokensUsed],
+      ["Activity Score", `${org.activity}%`],
+      ["Health Status", org.status],
+      ["Growth Trend", org.trend],
+      ["Platform SLA Uptime", org.sla],
+      ["Created Date", org.createdDate],
+      ["Enabled Modules", org.modules.join("; ")],
+    ];
+
+    const csv = rows.map((r) => `"${r[0]}","${r[1]}"`).join("\n");
+    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${org.name.toLowerCase().replace(/\s+/g, "_")}_scorecard.csv`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="analytics-page">
       <header className="analytics-page-header sap-header-panel">
         <div className="sa-page-header-left">
-          <h1>Platform Analytics</h1>
+          <div className="analytics-eyebrow">
+            <TrendingUp size={13} />
+            <span>EXECUTIVE PLATFORM TELEMETRY</span>
+          </div>
+          <h1>Platform Analytics & Insights</h1>
           <p>
-            Monitor platform growth, user engagement, and organization
-            performance from one place.
+            Monitor real-time system performance, multi-tenant adoption benchmarks, and
+            operational health metrics across all organizations.
           </p>
         </div>
 
         <div className="analytics-header-actions">
           <label className="analytics-period-control">
-            <CalendarDays size={17} />
+            <CalendarDays size={16} />
             <select
               value={period}
               onChange={(event) => setPeriod(event.target.value)}
@@ -542,12 +739,13 @@ function Analytics() {
           </label>
 
           <button className="analytics-export-button" onClick={handleExport} type="button">
-            <Download size={16} />
+            <Download size={15} />
             Export CSV
           </button>
         </div>
       </header>
 
+      {/* Primary KPI Metrics */}
       <section className="analytics-metrics-grid">
         <MetricCard
           title="Total Organizations"
@@ -582,12 +780,13 @@ function Analytics() {
         />
       </section>
 
+      {/* Main Charts Grid: Growth & Task Breakdown */}
       <section className="analytics-main-grid">
         <article className="analytics-panel analytics-growth-panel">
           <div className="analytics-panel-header">
             <div>
-              <h2>Platform Growth</h2>
-              <p>Organization and user growth over time</p>
+              <h2>Platform Growth Trend</h2>
+              <p>Tenant organization registrations and active users over time</p>
             </div>
 
             <span className="analytics-live-label">
@@ -611,7 +810,7 @@ function Analytics() {
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart
                 data={selectedGrowth}
-                margin={{ top: 12, right: 8, left: -18, bottom: 0 }}
+                margin={{ top: 12, right: 12, left: -16, bottom: 0 }}
               >
                 <defs>
                   <linearGradient
@@ -624,7 +823,7 @@ function Analytics() {
                     <stop
                       offset="0%"
                       stopColor="#6366f1"
-                      stopOpacity={0.2}
+                      stopOpacity={0.28}
                     />
                     <stop
                       offset="100%"
@@ -643,7 +842,7 @@ function Analytics() {
                     <stop
                       offset="0%"
                       stopColor="#0ea5e9"
-                      stopOpacity={0.18}
+                      stopOpacity={0.24}
                     />
                     <stop
                       offset="100%"
@@ -654,7 +853,7 @@ function Analytics() {
                 </defs>
 
                 <CartesianGrid
-                  stroke="#edf0f5"
+                  stroke="var(--sa-border-subtle, #edf0f5)"
                   strokeDasharray="4 4"
                   vertical={false}
                 />
@@ -674,7 +873,7 @@ function Analytics() {
                   tickMargin={8}
                 />
 
-                <Tooltip contentStyle={tooltipStyle} />
+                <Tooltip content={<CustomAnalyticsTooltip />} />
 
                 <Area
                   type="monotone"
@@ -703,6 +902,7 @@ function Analytics() {
         <article className="analytics-panel analytics-task-panel">
           <div className="analytics-panel-header">
             <div>
+
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <h2>Task Overview</h2>
                 <span className="chart-live-badge">
@@ -720,8 +920,10 @@ function Analytics() {
                   data={taskData}
                   dataKey="value"
                   nameKey="name"
+
                   innerRadius={67}
                   outerRadius={activePieIndex !== null ? 97 : 94}
+
                   paddingAngle={4}
                   stroke="none"
                   onMouseEnter={(_, index) => setActivePieIndex(index)}
@@ -737,10 +939,7 @@ function Analytics() {
                   ))}
                 </Pie>
 
-                <Tooltip
-                  formatter={(value) => [`${value}%`, "Tasks"]}
-                  contentStyle={tooltipStyle}
-                />
+                <Tooltip content={<CustomAnalyticsTooltip />} />
               </PieChart>
             </ResponsiveContainer>
 
@@ -785,28 +984,29 @@ function Analytics() {
         </article>
       </section>
 
+      {/* Secondary Grid: Activity Bar Chart & Platform Health */}
       <section className="analytics-bottom-grid">
         <article className="analytics-panel analytics-activity-panel">
           <div className="analytics-panel-header">
             <div>
-              <h2>User Activity</h2>
-              <p>Active users throughout the week</p>
+              <h2>User Activity Breakdown</h2>
+              <p>Active user volume and concurrent session traffic</p>
             </div>
 
             <span className="analytics-activity-total">
-              <Zap size={15} />
-              3,225 active sessions
+              <Zap size={14} />
+              {selectedSessions}
             </span>
           </div>
 
           <div className="analytics-activity-chart">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart
-                data={activityData}
-                margin={{ top: 10, right: 4, left: -18, bottom: 0 }}
+                data={selectedActivity}
+                margin={{ top: 10, right: 8, left: -16, bottom: 0 }}
               >
                 <CartesianGrid
-                  stroke="#edf0f5"
+                  stroke="var(--sa-border-subtle, #edf0f5)"
                   strokeDasharray="4 4"
                   vertical={false}
                 />
@@ -825,14 +1025,14 @@ function Analytics() {
                   tickLine={false}
                 />
 
-                <Tooltip contentStyle={tooltipStyle} />
+                <Tooltip content={<CustomAnalyticsTooltip />} />
 
                 <Bar
                   dataKey="active"
                   name="Active users"
                   fill="#6366f1"
                   radius={[6, 6, 0, 0]}
-                  maxBarSize={36}
+                  maxBarSize={38}
                 />
               </BarChart>
             </ResponsiveContainer>
@@ -842,10 +1042,10 @@ function Analytics() {
         <article className="analytics-panel analytics-performance-panel">
           <div className="analytics-panel-header">
             <div>
-              <h2>Platform Health</h2>
-              <p>Key operational indicators</p>
+              <h2>Platform Health & SLAs</h2>
+              <p>Key operational and availability indicators</p>
             </div>
-            <span className="analytics-health-status">Healthy</span>
+            <span className="analytics-health-status">Optimal</span>
           </div>
 
           <div className="analytics-health-list">
@@ -855,10 +1055,10 @@ function Analytics() {
               </span>
               <div className="analytics-health-copy">
                 <strong>Platform uptime</strong>
-                <span>Service availability</span>
+                <span>Service availability across regions</span>
               </div>
               <div className="analytics-health-value">
-                <strong>99.9%</strong>
+                <strong>99.98%</strong>
                 <span>+0.2%</span>
               </div>
             </div>
@@ -869,10 +1069,10 @@ function Analytics() {
               </span>
               <div className="analytics-health-copy">
                 <strong>Average response</strong>
-                <span>API response time</span>
+                <span>API Gateway edge response time</span>
               </div>
               <div className="analytics-health-value">
-                <strong>142 ms</strong>
+                <strong>138 ms</strong>
                 <span>−8.4%</span>
               </div>
             </div>
@@ -882,11 +1082,11 @@ function Analytics() {
                 <CheckCircle2 size={18} />
               </span>
               <div className="analytics-health-copy">
-                <strong>Task success rate</strong>
-                <span>Successfully completed</span>
+                <strong>Task execution rate</strong>
+                <span>Successfully processed automation</span>
               </div>
               <div className="analytics-health-value">
-                <strong>96.8%</strong>
+                <strong>97.4%</strong>
                 <span>+2.1%</span>
               </div>
             </div>
@@ -894,7 +1094,7 @@ function Analytics() {
 
           <div className="analytics-health-note">
             <span />
-            All indicators are within expected operational thresholds.
+            All infrastructure nodes operational. Auto-failover clusters in standby.
           </div>
         </article>
       </section>
@@ -904,7 +1104,7 @@ function Analytics() {
         <div className="analytics-panel-header analytics-organizations-header">
           <div>
             <h2>Platform Analytics Data Explorer</h2>
-            <p>Detailed breakdown of organizations, engagement time-series, and module adoption</p>
+            <p>Drill down into tenant organization activity, historical telemetry records, and feature adoption</p>
           </div>
 
           {/* Table View Switcher Tabs */}
@@ -918,7 +1118,7 @@ function Analytics() {
               }}
             >
               <Building2 size={14} />
-              Tenant Organizations
+              Tenant Organizations ({filteredOrganizations.length})
             </button>
             <button
               type="button"
@@ -929,7 +1129,7 @@ function Analytics() {
               }}
             >
               <Server size={14} />
-              Daily Metric Records
+              Historical Records ({currentDailyRecords.length})
             </button>
             <button
               type="button"
@@ -940,7 +1140,7 @@ function Analytics() {
               }}
             >
               <Sparkles size={14} />
-              Feature Adoption
+              Feature Adoption ({filteredFeatures.length})
             </button>
           </div>
         </div>
@@ -958,10 +1158,10 @@ function Analytics() {
               }}
               placeholder={
                 analyticsTab === "organizations"
-                  ? "Search organization or industry..."
+                  ? "Search organization, industry or plan..."
                   : analyticsTab === "daily"
-                  ? "Search date or day..."
-                  : "Search platform feature..."
+                  ? "Search date or time period..."
+                  : "Search platform feature or category..."
               }
             />
             {searchQuery && (
@@ -1108,21 +1308,23 @@ function Analytics() {
                     </th>
                     <th>Health</th>
                     <th>Last Active</th>
+                    <th style={{ textAlign: "center" }}>Actions</th>
                   </tr>
                 </thead>
 
                 <tbody>
                   {visibleOrganizations.map((organization) => (
-                    <tr key={organization.name}>
+                    <tr key={organization.id || organization.name}>
                       <td>
                         <div className="analytics-organization-name">
-                          <span>
-                            {organization.name
-                              .split(" ")
-                              .map((word) => word[0])
-                              .join("")
-                              .slice(0, 2)}
-                          </span>
+                          <div className="analytics-org-avatar-wrap">
+                            <img
+                              src={orgAvatarImg}
+                              alt={organization.name}
+                              className="analytics-org-avatar-img"
+                              loading="lazy"
+                            />
+                          </div>
                           <div>
                             <strong>{organization.name}</strong>
                             <div style={{ fontSize: 11, color: "var(--sa-text-muted, #94a3b8)" }}>
@@ -1211,12 +1413,24 @@ function Analytics() {
                           {organization.lastActive}
                         </span>
                       </td>
+
+                      <td style={{ textAlign: "center" }}>
+                        <button
+                          type="button"
+                          className="anl-action-btn anl-action-btn-inspect"
+                          onClick={() => setSelectedOrgModal(organization)}
+                          title={`Inspect ${organization.name} analytics scorecard`}
+                        >
+                          <Eye size={14} />
+                          Inspect
+                        </button>
+                      </td>
                     </tr>
                   ))}
 
                   {visibleOrganizations.length === 0 && (
                     <tr>
-                      <td colSpan="9" className="analytics-empty-state">
+                      <td colSpan="10" className="analytics-empty-state">
                         No organizations match your current search and filter criteria.
                       </td>
                     </tr>
@@ -1235,6 +1449,8 @@ function Analytics() {
                 padding: "8px 4px",
                 fontSize: 13,
                 color: "var(--sa-text-secondary, #64748b)",
+                flexWrap: "wrap",
+                gap: 12,
               }}
             >
               <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
@@ -1250,13 +1466,12 @@ function Analytics() {
                     value={pageSize}
                     onChange={(e) => {
                       setPageSize(Number(e.target.value));
-                      setCurrentOrgPage(1);
+                      setPage(1);
                     }}
                   >
                     <option value={5}>5</option>
                     <option value={10}>10</option>
                     <option value={20}>20</option>
-                    <option value={50}>50</option>
                   </select>
                 </div>
               </div>
@@ -1265,7 +1480,7 @@ function Analytics() {
                 <button
                   type="button"
                   className="subscriptions-button subscriptions-button-light"
-                  style={{ padding: "5px 10px" }}
+                  style={{ padding: "5px 10px", width: "auto", minWidth: "max-content", whiteSpace: "nowrap" }}
                   disabled={currentOrgPage <= 1}
                   onClick={() => setPage((p) => p - 1)}
                 >
@@ -1277,7 +1492,7 @@ function Analytics() {
                 <button
                   type="button"
                   className="subscriptions-button subscriptions-button-light"
-                  style={{ padding: "5px 10px" }}
+                  style={{ padding: "5px 10px", width: "auto", minWidth: "max-content", whiteSpace: "nowrap" }}
                   disabled={currentOrgPage >= totalOrgPages}
                   onClick={() => setPage((p) => p + 1)}
                 >
@@ -1351,6 +1566,14 @@ function Analytics() {
                     </td>
                   </tr>
                 ))}
+
+                {currentDailyRecords.length === 0 && (
+                  <tr>
+                    <td colSpan="9" className="analytics-empty-state">
+                      No historical records match your search criteria.
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
@@ -1430,6 +1653,14 @@ function Analytics() {
                     </td>
                   </tr>
                 ))}
+
+                {filteredFeatures.length === 0 && (
+                  <tr>
+                    <td colSpan="7" className="analytics-empty-state">
+                      No features match your search criteria.
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
@@ -1438,8 +1669,213 @@ function Analytics() {
 
       <p className="analytics-disclaimer">
         <Activity size={13} />
-        Live analytics data synchronized with platform telemetry and tenant organizations.
+        Live analytics data synchronized with platform telemetry and tenant organizations across AWS us-east-1 and eu-central-1.
       </p>
+
+      {/* Organization Scorecard Inspect Modal - Rendered via Portal directly in front of the viewport */}
+      {selectedOrgModal &&
+        typeof document !== "undefined" &&
+        createPortal(
+          <div
+            className="anl-modal-overlay"
+            onClick={() => setSelectedOrgModal(null)}
+            role="dialog"
+            aria-modal="true"
+          >
+            <div
+              className="anl-modal-container"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Compact Header */}
+              <div className="anl-modal-header">
+                <div className="anl-modal-title-box">
+                  <div className="anl-modal-avatar-wrap">
+                    <img
+                      src={orgAvatarImg}
+                      alt={selectedOrgModal.name}
+                      className="anl-modal-avatar-img"
+                    />
+                  </div>
+                  <div>
+                    <div className="anl-modal-title-row">
+                      <h3>{selectedOrgModal.name}</h3>
+                      <span className="anl-modal-id">{selectedOrgModal.id}</span>
+                    </div>
+                    <div className="anl-modal-sub-meta">
+                      <span>{selectedOrgModal.domain}</span>
+                      <span className="anl-modal-dot">•</span>
+                      <span className={`subscriptions-plan-badge subscriptions-plan-${selectedOrgModal.plan.toLowerCase()}`}>
+                        {selectedOrgModal.plan}
+                      </span>
+                      <span className="anl-modal-dot">•</span>
+                      <span
+                        className="anl-modal-status-badge"
+                        style={{
+                          color: selectedOrgModal.status === "Optimal" ? "#059669" : "#2563eb",
+                          backgroundColor: selectedOrgModal.status === "Optimal" ? "#ecfdf5" : "#eff6ff",
+                        }}
+                      >
+                        <span className="anl-modal-status-dot" style={{ backgroundColor: "currentColor" }} />
+                        {selectedOrgModal.status}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  className="anl-modal-close-btn"
+                  onClick={() => setSelectedOrgModal(null)}
+                  aria-label="Close scorecard"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              {/* Compact Body - Completely fits on screen without any scrolling */}
+              <div className="anl-modal-body">
+                {/* 4 KPI Cards in a single row */}
+                <div className="anl-modal-kpi-row">
+                  <div className="anl-modal-kpi-card">
+                    <div className="anl-modal-kpi-label">
+                      <Users size={13} />
+                      <span>Seats Active</span>
+                    </div>
+                    <div className="anl-modal-kpi-val">
+                      {selectedOrgModal.activeUsers} <small>/ {selectedOrgModal.users}</small>
+                    </div>
+                    <div className="anl-modal-kpi-bar">
+                      <div
+                        className="anl-modal-kpi-bar-fill"
+                        style={{
+                          width: `${Math.round((selectedOrgModal.activeUsers / selectedOrgModal.users) * 100)}%`,
+                        }}
+                      />
+                    </div>
+                    <div className="anl-modal-kpi-sub">
+                      {Math.round((selectedOrgModal.activeUsers / selectedOrgModal.users) * 100)}% utilized
+                    </div>
+                  </div>
+
+                  <div className="anl-modal-kpi-card">
+                    <div className="anl-modal-kpi-label">
+                      <CheckCircle2 size={13} />
+                      <span>Tasks Done</span>
+                    </div>
+                    <div className="anl-modal-kpi-val">
+                      {selectedOrgModal.tasks.toLocaleString()}
+                    </div>
+                    <div className="anl-modal-kpi-badge positive">
+                      {selectedOrgModal.trend}
+                    </div>
+                    <div className="anl-modal-kpi-sub">
+                      High sprint velocity
+                    </div>
+                  </div>
+
+                  <div className="anl-modal-kpi-card">
+                    <div className="anl-modal-kpi-label">
+                      <Database size={13} />
+                      <span>Storage Quota</span>
+                    </div>
+                    <div className="anl-modal-kpi-val">
+                      {selectedOrgModal.storage}
+                    </div>
+                    <div className="anl-modal-kpi-bar">
+                      <div
+                        className="anl-modal-kpi-bar-fill storage"
+                        style={{ width: `${selectedOrgModal.storagePct}%` }}
+                      />
+                    </div>
+                    <div className="anl-modal-kpi-sub">
+                      of {selectedOrgModal.storageLimit} limit
+                    </div>
+                  </div>
+
+                  <div className="anl-modal-kpi-card">
+                    <div className="anl-modal-kpi-label">
+                      <Cpu size={13} />
+                      <span>AI Invocations</span>
+                    </div>
+                    <div className="anl-modal-kpi-val">
+                      {selectedOrgModal.tokensUsed}
+                    </div>
+                    <div className="anl-modal-kpi-badge optimal">
+                      Optimal SLA
+                    </div>
+                    <div className="anl-modal-kpi-sub">
+                      Copilot Gateway
+                    </div>
+                  </div>
+                </div>
+
+                {/* 2-Column Middle Row: Modules + Telemetry */}
+                <div className="anl-modal-split-row">
+                  {/* Left Column: Modules */}
+                  <div className="anl-modal-split-box">
+                    <div className="anl-modal-box-header">
+                      <Sparkles size={14} color="#6366f1" />
+                      <h4>Enabled Platform Entitlements</h4>
+                    </div>
+                    <div className="anl-modal-module-chips">
+                      {selectedOrgModal.modules.map((mod) => (
+                        <span key={mod} className="anl-modal-module-chip">
+                          <CheckCircle size={12} color="#16a34a" />
+                          {mod}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Right Column: Telemetry */}
+                  <div className="anl-modal-split-box">
+                    <div className="anl-modal-box-header">
+                      <Activity size={14} color="#0ea5e9" />
+                      <h4>Telemetry & Compliance</h4>
+                    </div>
+                    <div className="anl-modal-telemetry-grid">
+                      <div className="anl-modal-telemetry-item">
+                        <span>Platform SLA</span>
+                        <strong>{selectedOrgModal.sla}</strong>
+                      </div>
+                      <div className="anl-modal-telemetry-item">
+                        <span>Activity Score</span>
+                        <strong style={{ color: "#6366f1" }}>{selectedOrgModal.activity}%</strong>
+                      </div>
+                      <div className="anl-modal-telemetry-item">
+                        <span>Last Heartbeat</span>
+                        <strong>{selectedOrgModal.lastActive}</strong>
+                      </div>
+                      <div className="anl-modal-telemetry-item">
+                        <span>Onboarded</span>
+                        <strong>{selectedOrgModal.createdDate}</strong>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Compact Footer */}
+              <div className="anl-modal-footer">
+                <button
+                  type="button"
+                  className="anl-modal-btn anl-modal-btn-download"
+                  onClick={() => handleExportSingleOrg(selectedOrgModal)}
+                >
+                  <Download size={14} />
+                  Download Scorecard CSV
+                </button>
+                <button
+                  type="button"
+                  className="anl-modal-btn anl-modal-btn-close"
+                  onClick={() => setSelectedOrgModal(null)}
+                >
+                  Close Scorecard
+                </button>
+              </div>
+            </div>
+          </div>,
+          document.body
+        )}
     </div>
   );
 }

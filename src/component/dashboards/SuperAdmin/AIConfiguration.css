@@ -1,109 +1,1275 @@
 /* ==========================================================================
-   TEAMFLOW AI — SUPER ADMIN AI CONFIGURATION CSS
+   TEAMFLOW AI — SUPER ADMIN AI CONFIGURATION & LLM GATEWAY CSS
+   High-End Enterprise SaaS LLM Gateway, Routing & Multi-Engine Management
    ========================================================================== */
 
 .sa-aiconfig-page {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
+  box-sizing: border-box;
 }
 
-.sa-toast-banner {
-  background: #dcfce7;
-  color: #15803d;
-  padding: 10px 16px;
-  border-radius: var(--sa-radius-md);
-  font-size: 13px;
-  font-weight: 600;
+/* ==========================================================================
+   1. HEADER & TELEMETRY BADGES
+   ========================================================================== */
+
+.aic-header-title-row {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.aic-engine-count-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+}
+
+.aic-live-pulse-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.3);
+  animation: aicPulse 1.8s infinite;
+}
+
+.aic-mini-logos-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.aic-mini-logo-pill {
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  transition: transform 0.15s ease;
+}
+
+.aic-mini-logo-pill:hover {
+  transform: translateY(-2px) scale(1.1);
+}
+
+/* ==========================================================================
+   2. PROVIDER BRAND LOGOS & IDENTITY
+   ========================================================================== */
+
+.aic-logo-wrap {
+  min-width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.08);
+  flex-shrink: 0;
+  overflow: hidden;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.aic-logo-wrap.placeholder {
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+.aic-provider-cell:hover .aic-logo-wrap,
+.aic-card-header:hover .aic-logo-wrap {
+  transform: scale(1.08);
+  box-shadow: 0 4px 12px rgba(59, 102, 255, 0.15);
+  border-color: #bfdbfe;
+}
+
+.aic-logo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.aic-provider-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.aic-provider-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.aic-provider-name-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.aic-provider-name {
+  font-size: 13.5px;
+  font-weight: 750;
+  color: var(--sa-text-main, #0f172a);
+}
+
+.aic-provider-sub {
+  font-size: 11px;
+  color: var(--sa-text-muted, #64748b);
+}
+
+.aic-provider-sub code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 10.5px;
+  background: #f1f5f9;
+  padding: 1px 4px;
+  border-radius: 4px;
+  color: #475569;
+}
+
+/* Default Engine Glowing Tag */
+.aic-default-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 7px;
+  border-radius: 5px;
+  font-size: 10px;
+  font-weight: 750;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  background: #eff6ff;
+  color: #2563eb;
+  border: 1px solid #bfdbfe;
+  box-shadow: 0 1px 3px rgba(37, 99, 235, 0.12);
+  white-space: nowrap;
+}
+
+.aic-default-active-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #2563eb;
+  padding: 5px 10px;
+  border-radius: 7px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  white-space: nowrap !important;
+  width: auto !important;
+  min-width: max-content;
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+/* Default Row Highlight */
+.sap-grid tbody tr.aic-row-default {
+  background: #f8fbff;
+}
+
+.sap-grid tbody tr.aic-row-default:hover {
+  background: #f0f7ff;
+}
+
+/* ==========================================================================
+   3. INFRASTRUCTURE & STATUS BADGES
+   ========================================================================== */
+
+.aic-infra-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.aic-infra-badge.cloud {
+  background: #f0fdf4;
+  color: #15803d;
   border: 1px solid #bbf7d0;
 }
 
-.sa-providers-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
+.aic-infra-badge.local {
+  background: #faf5ff;
+  color: #7e22ce;
+  border: 1px solid #e9d5ff;
 }
 
-.sa-provider-card {
-  padding: 20px;
+/* Model Select dropdown in table */
+.aic-model-select {
+  padding: 5px 8px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 7px;
+  border: 1px solid #cbd5e1;
+  background: #f8fafc;
+  color: #0f172a;
+  cursor: pointer;
+  width: 100%;
+  max-width: 190px;
+  outline: none;
+  box-sizing: border-box;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: border-color 0.15s ease;
+}
+
+.aic-model-select:focus {
+  border-color: #3b66ff;
+  box-shadow: 0 0 0 2px rgba(59, 102, 255, 0.15);
+}
+
+/* Supported Model Chips */
+.aic-model-chips-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  max-width: 260px;
+}
+
+.aic-model-chip {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 10.5px;
+  font-weight: 500;
+  padding: 2px 6px;
+  border-radius: 5px;
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+.aic-model-chip.is-active {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border-color: #bfdbfe;
+  font-weight: 700;
+  box-shadow: 0 1px 2px rgba(37, 99, 235, 0.08);
+}
+
+/* API Key & Security Controls */
+.aic-key-control-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 7px;
+  padding: 4px 7px;
+  max-width: 220px;
+  box-sizing: border-box;
+}
+
+.aic-key-code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 11px;
+  color: #334155;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+}
+
+.aic-key-buttons {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  flex-shrink: 0;
+}
+
+.aic-key-action-btn {
+  width: 22px;
+  height: 22px;
+  border-radius: 5px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #64748b;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.15s ease;
+}
+
+.aic-key-action-btn:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.aic-key-action-btn.copied {
+  background: #ecfdf5;
+  border-color: #a7f3d0;
+}
+
+/* Latency Pill */
+.aic-latency-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  white-space: nowrap;
+}
+
+.aic-latency-pill code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #059669;
+}
+
+.aic-latency-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #10b981;
+}
+
+/* Context tag */
+.aic-context-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11.5px;
+  color: #64748b;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* Status Pill */
+.aic-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 9px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.aic-status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.aic-status-pill.operational {
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+}
+
+.aic-status-pill.operational .aic-status-dot {
+  background: #10b981;
+}
+
+.aic-status-pill.standby {
+  background: #fffbeb;
+  color: #b45309;
+  border: 1px solid #fde68a;
+}
+
+.aic-status-pill.standby .aic-status-dot {
+  background: #f59e0b;
+}
+
+/* ==========================================================================
+   4. TABLE OPERATION ACTION BUTTONS (NO OVERLAPPING, AUTO-WIDTH)
+   ========================================================================== */
+
+.aic-actions-group {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+/* Pill buttons with icon + text (Set Default, Ping) */
+.aic-btn-pill {
+  height: 30px;
+  padding: 0 10px;
+  border-radius: 7px;
+  border: 1px solid;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11.5px;
+  font-weight: 650;
+  cursor: pointer;
+  background: transparent;
+  white-space: nowrap !important;
+  width: auto !important;
+  min-width: max-content;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  transition: all 0.16s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.aic-btn-pill span {
+  white-space: nowrap !important;
+  display: inline;
+}
+
+/* Square icon buttons (Configure, Delete) */
+.aic-btn-icon {
+  width: 30px !important;
+  min-width: 30px !important;
+  height: 30px !important;
+  padding: 0 !important;
+  border-radius: 7px;
+  border: 1px solid;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background: transparent;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  transition: all 0.16s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* 1. Make Default Button */
+.aic-btn-default {
+  background: #eff6ff;
+  color: #2563eb;
+  border-color: #bfdbfe;
+}
+
+.aic-btn-default:hover {
+  background: #2563eb;
+  color: #ffffff;
+  border-color: #2563eb;
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25);
+  transform: translateY(-1px);
+}
+
+/* 2. Test Ping Button */
+.aic-btn-ping {
+  background: #ecfdf5;
+  color: #059669;
+  border-color: #a7f3d0;
+}
+
+.aic-btn-ping:hover:not(:disabled) {
+  background: #059669;
+  color: #ffffff;
+  border-color: #059669;
+  box-shadow: 0 2px 6px rgba(5, 150, 105, 0.25);
+  transform: translateY(-1px);
+}
+
+.aic-btn-ping:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+/* 3. Configure Button */
+.aic-btn-config {
+  background: #f8fafc;
+  color: #475569;
+  border-color: #cbd5e1;
+}
+
+.aic-btn-config:hover {
+  background: #0f172a;
+  color: #ffffff;
+  border-color: #0f172a;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.2);
+  transform: translateY(-1px);
+}
+
+/* 4. Delete Button */
+.aic-btn-delete {
+  background: #fef2f2;
+  color: #dc2626;
+  border-color: #fecaca;
+}
+
+.aic-btn-delete:hover {
+  background: #dc2626;
+  color: #ffffff;
+  border-color: #dc2626;
+  box-shadow: 0 2px 6px rgba(220, 38, 38, 0.2);
+  transform: translateY(-1px);
+}
+
+/* View Switcher */
+.aic-view-switcher {
+  display: flex;
+  background: #f1f5f9;
+  border-radius: 8px;
+  padding: 2px;
+  gap: 2px;
+}
+
+.aic-view-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+.aic-view-btn.active {
+  background: #ffffff;
+  color: #0f172a;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+}
+
+/* ==========================================================================
+   5. CARDS GRID VIEW (CLEAN, NO OVERLAPPING BUTTONS)
+   ========================================================================== */
+
+.aic-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 16px;
+  padding: 16px;
+}
+
+.aic-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.04);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-sizing: border-box;
+}
+
+.aic-card:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
+  transform: translateY(-2px);
+}
+
+.aic-card.is-default {
+  border-color: #bfdbfe;
+  background: linear-gradient(180deg, #f8fbff 0%, #ffffff 100%);
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.08);
+}
+
+.aic-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.aic-card-title-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.aic-card-name-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.aic-card-name {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 750;
+  color: #0f172a;
+}
+
+.aic-card-status {
+  font-size: 11.5px;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 2px;
+}
+
+.aic-card-description {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.45;
+  color: #64748b;
+}
+
+.aic-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.aic-card-two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  align-items: start;
+}
+
+.aic-card-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.aic-card-field label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  color: #475569;
+}
+
+.aic-temp-badge {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 11px;
+  font-weight: 700;
+  color: #2563eb;
+  background: #eff6ff;
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+
+/* Card Footer: Proper flex alignment and spacing */
+.aic-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: auto;
+  padding-top: 14px;
+  border-top: 1px solid #f1f5f9;
+  flex-wrap: wrap;
+}
+
+.aic-card-footer-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.aic-card-btn {
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 8px;
+  border: 1px solid;
+  font-size: 12px;
+  font-weight: 650;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  white-space: nowrap !important;
+  width: auto !important;
+  min-width: max-content;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  transition: all 0.16s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.aic-card-btn span {
+  white-space: nowrap !important;
+  display: inline;
+}
+
+/* Range Slider */
+.aic-range-slider {
+  width: 100%;
+  accent-color: #2563eb;
+  cursor: pointer;
+  height: 6px;
+  border-radius: 4px;
+}
+
+/* ==========================================================================
+   6. SUBSCRIPTION PLAN TIER TABLE STYLES & BUTTONS
+   ========================================================================== */
+
+.aic-tier-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 9px;
+  border-radius: 6px;
+  font-size: 11.5px;
+  font-weight: 750;
+  white-space: nowrap;
+}
+
+.aic-tier-badge.gray {
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+}
+
+.aic-tier-badge.blue {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+}
+
+.aic-tier-badge.amber {
+  background: #fffbeb;
+  color: #b45309;
+  border: 1px solid #fde68a;
+}
+
+.aic-tier-badge.purple {
+  background: #faf5ff;
+  color: #7e22ce;
+  border: 1px solid #e9d5ff;
+}
+
+.aic-tier-models-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  max-width: 320px;
+}
+
+.aic-tier-model-tag {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 2px 7px;
+  border-radius: 5px;
+  background: #f8fafc;
+  color: #334155;
+  border: 1px solid #e2e8f0;
+  white-space: nowrap;
+}
+
+.aic-streaming-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: #475569;
+  white-space: nowrap;
+}
+
+.aic-tier-edit-btn {
+  height: 30px;
+  padding: 0 12px;
+  border-radius: 7px;
+  border: 1px solid #cbd5e1;
+  background: #f8fafc;
+  color: #334155;
+  font-size: 12px;
+  font-weight: 650;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  white-space: nowrap !important;
+  width: auto !important;
+  min-width: max-content;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  transition: all 0.16s ease;
+}
+
+.aic-tier-edit-btn span {
+  white-space: nowrap !important;
+  display: inline;
+}
+
+.aic-tier-edit-btn:hover {
+  background: #0f172a;
+  color: #ffffff;
+  border-color: #0f172a;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.2);
+  transform: translateY(-1px);
+}
+
+/* ==========================================================================
+   7. MODALS (CONFIGURE, ADD PROVIDER, EDIT TIER, DELETE)
+   ========================================================================== */
+
+.aic-modal-dialog {
+  width: min(94vw, 680px);
+  max-height: 94vh;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 25px 65px rgba(15, 23, 42, 0.35);
+  border: 1px solid #cbd5e1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: saModalSlide 0.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.aic-modal-header {
+  padding: 16px 22px;
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.aic-modal-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.aic-create-icon-box {
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #2563eb;
+  flex-shrink: 0;
+}
+
+.aic-tier-icon-box {
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  background: #faf5ff;
+  border: 1px solid #e9d5ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #7e22ce;
+  flex-shrink: 0;
+}
+
+.aic-modal-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 750;
+  color: #0f172a;
+}
+
+.aic-modal-subtitle {
+  margin: 2px 0 0;
+  font-size: 11.5px;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.aic-modal-body {
+  padding: 20px 24px;
+  overflow-y: auto;
+  max-height: calc(94vh - 130px);
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
 
-.sa-provider-header {
+.aic-form-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.aic-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.aic-field-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #1e293b;
   display: flex;
   align-items: center;
   justify-content: space-between;
+}
+
+.aic-field-input,
+.aic-field-select,
+.aic-field-textarea {
+  width: 100%;
+  padding: 9px 12px;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #0f172a;
+  font-size: 13px;
+  font-family: inherit;
+  box-sizing: border-box;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.aic-field-input:focus,
+.aic-field-select:focus,
+.aic-field-textarea:focus {
+  border-color: #3b66ff;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 102, 255, 0.15);
+}
+
+.aic-input-with-button {
+  display: flex;
+  gap: 8px;
+}
+
+.aic-input-with-button input {
+  flex: 1;
+}
+
+.aic-field-hint {
+  font-size: 11px;
+  color: #64748b;
+  line-height: 1.4;
+}
+
+/* Hyperparameters Box */
+.aic-params-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
   gap: 12px;
 }
 
-.sa-provider-title-group {
+.aic-params-title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 750;
+  color: #0f172a;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 6px;
 }
 
-.sa-provider-icon-badge {
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
+.aic-slider-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.aic-slider-val {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 12px;
+  font-weight: 750;
+  color: #2563eb;
+  background: #eff6ff;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.aic-slider-caption {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: #94a3b8;
+  margin-top: 3px;
+}
+
+.aic-modal-footer {
+  padding: 14px 24px;
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+/* Delete Provider Dialog */
+.aic-delete-dialog {
+  width: min(92vw, 440px);
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1px solid #cbd5e1;
+  padding: 26px 24px;
+  text-align: center;
+  box-shadow: 0 25px 65px rgba(15, 23, 42, 0.35);
+  animation: saModalSlide 0.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.aic-delete-icon-box {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
   display: flex;
   align-items: center;
   justify-content: center;
+  margin: 0 auto 16px;
 }
 
-.sa-provider-name {
-  margin: 0;
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--sa-text-main);
+.aic-delete-title {
+  margin: 0 0 8px;
+  font-size: 17px;
+  font-weight: 750;
+  color: #0f172a;
 }
 
-.sa-provider-status {
-  font-size: 11.5px;
-  color: var(--sa-text-muted);
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
+.aic-delete-desc {
+  margin: 0 0 20px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #64748b;
 }
 
-.sa-api-input-wrap {
-  position: relative;
+.aic-delete-actions {
   display: flex;
-  align-items: center;
+  gap: 10px;
+  justify-content: center;
 }
 
-.sa-key-icon {
-  position: absolute;
-  left: 10px;
-  color: var(--sa-text-light);
+/* ==========================================================================
+   8. ANIMATIONS & UTILITIES
+   ========================================================================== */
+
+@keyframes aicPulse {
+  0% { transform: scale(0.95); opacity: 0.8; }
+  50% { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(0.95); opacity: 0.8; }
 }
 
-.sa-key-input {
-  padding-left: 32px !important;
-  font-family: monospace;
+.aic-spin {
+  animation: aicSpin 1s linear infinite;
 }
 
-.sa-provider-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: auto;
-  padding-top: 14px;
-  border-top: 1px solid var(--sa-border-subtle);
+@keyframes aicSpin {
+  100% { transform: rotate(360deg); }
 }
 
-.sa-tier-quotas-card {
-  padding: 20px;
+/* ==========================================================================
+   9. DARK MODE OVERRIDES (.sa-dark-mode)
+   ========================================================================== */
+
+.sa-dark-mode .aic-logo-wrap {
+  background: #172442 !important;
+  border-color: #273860 !important;
 }
+
+.sa-dark-mode .aic-mini-logo-pill {
+  background: #172442 !important;
+  border-color: #273860 !important;
+}
+
+.sa-dark-mode .aic-provider-name {
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .aic-provider-sub code {
+  background: #172442 !important;
+  color: #cbd5e1 !important;
+}
+
+.sa-dark-mode .sap-grid tbody tr.aic-row-default {
+  background: rgba(37, 99, 235, 0.08) !important;
+}
+
+.sa-dark-mode .sap-grid tbody tr.aic-row-default:hover {
+  background: rgba(37, 99, 235, 0.14) !important;
+}
+
+.sa-dark-mode .aic-model-select {
+  background: #172442 !important;
+  border-color: #273860 !important;
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .aic-model-chip {
+  background: #172442 !important;
+  color: #94a3b8 !important;
+  border-color: #273860 !important;
+}
+
+.sa-dark-mode .aic-model-chip.is-active {
+  background: rgba(37, 99, 235, 0.25) !important;
+  color: #93b4ff !important;
+  border-color: rgba(37, 99, 235, 0.5) !important;
+}
+
+.sa-dark-mode .aic-key-control-wrap {
+  background: #111c35 !important;
+  border-color: #273860 !important;
+}
+
+.sa-dark-mode .aic-key-code {
+  color: #cbd5e1 !important;
+}
+
+.sa-dark-mode .aic-latency-pill {
+  background: #172442 !important;
+  border-color: #273860 !important;
+}
+
+.sa-dark-mode .aic-latency-pill code {
+  color: #34d399 !important;
+}
+
+.sa-dark-mode .aic-tier-model-tag {
+  background: #172442 !important;
+  border-color: #273860 !important;
+  color: #cbd5e1 !important;
+}
+
+.sa-dark-mode .aic-view-switcher {
+  background: #172442 !important;
+}
+
+.sa-dark-mode .aic-view-btn.active {
+  background: #2563eb !important;
+  color: #ffffff !important;
+}
+
+.sa-dark-mode .aic-card {
+  background: #111c35 !important;
+  border-color: #1f2d4d !important;
+}
+
+.sa-dark-mode .aic-card.is-default {
+  background: linear-gradient(180deg, #172442 0%, #111c35 100%) !important;
+  border-color: #3b82f6 !important;
+}
+
+.sa-dark-mode .aic-card-name,
+.sa-dark-mode .aic-delete-title,
+.sa-dark-mode .aic-params-title {
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .aic-card-footer {
+  border-color: #1f2d4d !important;
+}
+
+.sa-dark-mode .aic-modal-dialog,
+.sa-dark-mode .aic-delete-dialog {
+  background: #111c35 !important;
+  border-color: #1f2d4d !important;
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .aic-modal-header,
+.sa-dark-mode .aic-modal-footer {
+  background: #111c35 !important;
+  border-color: #1f2d4d !important;
+}
+
+.sa-dark-mode .aic-modal-title,
+.sa-dark-mode .aic-field-label {
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .aic-modal-body {
+  background: #0b1120 !important;
+}
+
+.sa-dark-mode .aic-params-box {
+  background: #172442 !important;
+  border-color: #273860 !important;
+}
+
+.sa-dark-mode .aic-field-input,
+.sa-dark-mode .aic-field-select,
+.sa-dark-mode .aic-field-textarea {
+  background: #172442 !important;
+  border-color: #273860 !important;
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .aic-btn-config {
+  background: #172442 !important;
+  border-color: #273860 !important;
+  color: #cbd5e1 !important;
+}
+
+.sa-dark-mode .aic-btn-config:hover {
+  background: #2563eb !important;
+  color: #ffffff !important;
+  border-color: #2563eb !important;
+}
+
+.sa-dark-mode .aic-tier-edit-btn {
+  background: #172442 !important;
+  border-color: #273860 !important;
+  color: #cbd5e1 !important;
+}
+
+.sa-dark-mode .aic-tier-edit-btn:hover {
+  background: #2563eb !important;
+  color: #ffffff !important;
+  border-color: #2563eb !important;
+}
+
+/* ==========================================================================
+   10. RESPONSIVE DESIGN
+   ========================================================================== */
 
 @media (max-width: 900px) {
-  .sa-providers-grid {
+  .aic-cards-grid {
     grid-template-columns: 1fr;
   }
 }
 
+@media (max-width: 680px) {
+  .aic-form-grid-2,
+  .aic-card-two-col {
+    grid-template-columns: 1fr;
+  }
+  .aic-card-footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .aic-card-footer-left {
+    justify-content: flex-start;
+  }
+}

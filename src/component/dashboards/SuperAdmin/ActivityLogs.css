@@ -1,3 +1,7 @@
+/* ==========================================================================
+   ACTIVITY & AUDIT LOGS - ENTERPRISE TELEMETRY DASHBOARD
+   Prefixes: .activity-logs-*, .act-*, .sap-*
+   ========================================================================== */
 
 .activity-logs-page {
   width: 100%;
@@ -8,6 +12,18 @@
   color: #182230;
   font-family: inherit;
   box-sizing: border-box;
+  animation: actPageEnter 0.4s ease both;
+}
+
+@keyframes actPageEnter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .activity-logs-page *,
@@ -16,1118 +32,1078 @@
   box-sizing: border-box;
 }
 
-.activity-logs-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 22px;
-  margin-bottom: 25px;
-}
+/* ==========================================================================
+   1. PAGE HEADER & EYEBROW
+   ========================================================================== */
 
 .activity-logs-eyebrow {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 7px;
   margin-bottom: 9px;
-  color: #6366f1;
+  padding: 5px 10px;
+  border: 1px solid #e0e7ff;
+  border-radius: 6px;
+  background: #eef2ff;
+  color: #4f46e5;
   font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 1px;
+  font-weight: 750;
+  letter-spacing: 0.8px;
 }
 
-.activity-logs-header h1 {
+.activity-logs-page .sap-header-panel {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.activity-logs-page .sap-header-left h1 {
   margin: 0;
   color: #182230;
-  font-size: clamp(25px, 2.2vw, 32px);
-  font-weight: 760;
+  font-size: clamp(24px, 2.2vw, 30px);
+  font-weight: 750;
   letter-spacing: -0.8px;
+  line-height: 1.25;
 }
 
-.activity-logs-header > div:first-child > p {
-  max-width: 650px;
-  margin: 9px 0 0;
-  color: #7b8496;
-  font-size: 13px;
-  line-height: 1.7;
+.activity-logs-page .sap-header-subtitle {
+  max-width: 660px;
+  margin: 8px 0 0;
+  color: #64748b;
+  font-size: 13.5px;
+  line-height: 1.6;
 }
 
-.activity-logs-header-actions {
+.activity-logs-page .sap-header-actions {
   display: flex;
-  flex-shrink: 0;
-  gap: 10px;
-}
-
-.activity-logs-button {
-  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  gap: 8px;
-  min-height: 41px;
-  padding: 0 13px;
-  border: 1px solid transparent;
-  border-radius: 9px;
-  font-size: 11px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: 0.2s ease;
+  gap: 12px;
+  flex-shrink: 0;
 }
 
-.activity-logs-button-light {
-  border-color: #e3e7ef;
-  background: #fff;
-  color: #556075;
+.act-spin {
+  animation: actSpinAnim 0.7s linear infinite;
 }
 
-.activity-logs-button-light:hover {
-  background: #f8f9fc;
-  border-color: #cfd5e2;
+@keyframes actSpinAnim {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
-.activity-logs-button-primary {
-  background: #6366f1;
-  color: #fff;
-}
+/* ==========================================================================
+   2. TELEMETRY KPI STAT CARDS
+   ========================================================================== */
 
-.activity-logs-button-primary:hover {
-  background: #4f46e5;
-}
-
-.activity-logs-stats {
+.activity-logs-page .sap-kpi-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 16px;
-  margin-bottom: 21px;
+  gap: 18px;
+  margin-bottom: 22px;
 }
 
-.activity-logs-stat-card {
+.activity-logs-page .sa-kpi-card {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 13px;
+  gap: 15px;
   min-width: 0;
-  padding: 19px;
+  padding: 18px 20px;
   border: 1px solid #eaedf4;
-  border-radius: 13px;
-  background: #fff;
+  border-radius: 14px;
+  background: #ffffff;
   box-shadow: 0 3px 12px rgba(20, 31, 56, 0.025);
+  overflow: hidden;
+  transition: transform 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
 }
 
-.activity-logs-stat-icon {
+.activity-logs-page .sa-kpi-card::before {
+  position: absolute;
+  top: 0;
+  left: 16px;
+  right: 16px;
+  height: 3px;
+  border-radius: 0 0 5px 5px;
+  background: linear-gradient(90deg, #818cf8, #6366f1);
+  content: "";
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.activity-logs-page .sa-kpi-card:nth-child(2)::before {
+  background: linear-gradient(90deg, #34d399, #10b981);
+}
+
+.activity-logs-page .sa-kpi-card:nth-child(3)::before {
+  background: linear-gradient(90deg, #f87171, #ef4444);
+}
+
+.activity-logs-page .sa-kpi-card:nth-child(4)::before {
+  background: linear-gradient(90deg, #38bdf8, #0ea5e9);
+}
+
+.activity-logs-page .sa-kpi-card:hover {
+  transform: translateY(-3px);
+  border-color: #dbe4ff;
+  box-shadow: 0 10px 24px rgba(35, 45, 75, 0.08);
+}
+
+.activity-logs-page .sa-kpi-card:hover::before {
+  opacity: 1;
+}
+
+.activity-logs-page .sa-kpi-icon-box {
   display: grid;
-  width: 43px;
-  height: 43px;
+  width: 44px;
+  height: 44px;
   flex-shrink: 0;
   place-items: center;
   border-radius: 12px;
+  transition: transform 0.2s ease;
 }
 
-.activity-logs-stat-icon.purple {
+.activity-logs-page .sa-kpi-card:hover .sa-kpi-icon-box {
+  transform: scale(1.08);
+}
+
+.activity-logs-page .sa-kpi-icon-box.purple {
   background: #f0efff;
   color: #6366f1;
 }
 
-.activity-logs-stat-icon.green {
+.activity-logs-page .sa-kpi-icon-box.green {
   background: #eafaf1;
   color: #16a34a;
 }
 
-.activity-logs-stat-icon.amber {
-  background: #fff5e8;
-  color: #d97706;
+.activity-logs-page .sa-kpi-icon-box.red {
+  background: #fef2f2;
+  color: #dc2626;
 }
 
-.activity-logs-stat-icon.blue {
+.activity-logs-page .sa-kpi-icon-box.sky {
   background: #eaf6ff;
   color: #0284c7;
 }
 
-.activity-logs-stat-card > div {
+.activity-logs-page .sa-kpi-body {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 3px;
   min-width: 0;
 }
 
-.activity-logs-stat-card > div > span {
-  color: #7b8496;
-  font-size: 11px;
+.activity-logs-page .sa-kpi-title {
+  margin: 0;
+  color: #64748b;
+  font-size: 12px;
   font-weight: 600;
 }
 
-.activity-logs-stat-card strong {
-  color: #202a3a;
-  font-size: 26px;
-  font-weight: 780;
-  line-height: 1.15;
-}
-
-.activity-logs-stat-card small {
-  color: #9aa2b1;
-  font-size: 10px;
-}
-
-.activity-logs-panel {
-  min-width: 0;
-  overflow: hidden;
-  border: 1px solid #eaedf4;
-  border-radius: 15px;
-  background: #fff;
-  box-shadow: 0 3px 12px rgba(20, 31, 56, 0.025);
-}
-
-.activity-logs-panel-heading {
+.activity-logs-page .sa-kpi-val-row {
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 15px;
-  padding: 23px 23px 19px;
+  align-items: baseline;
+  gap: 8px;
 }
 
-.activity-logs-panel-heading h2 {
-  margin: 0;
-  color: #202a3a;
-  font-size: 15px;
-  font-weight: 750;
+.activity-logs-page .sa-kpi-value {
+  color: #182230;
+  font-size: 25px;
+  font-weight: 800;
+  letter-spacing: -0.6px;
+  font-variant-numeric: tabular-nums;
 }
 
-.activity-logs-panel-heading p {
-  margin: 7px 0 0;
-  color: #8a93a4;
+.activity-logs-page .sa-kpi-trend {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 1px 7px;
+  border-radius: 6px;
+}
+
+.activity-logs-page .sa-kpi-trend.positive {
+  background: #ecfdf5;
+  color: #059669;
+}
+
+.activity-logs-page .sa-kpi-trend.negative {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+.activity-logs-page .sa-kpi-subtitle {
+  color: #94a3b8;
   font-size: 11px;
 }
 
-.activity-logs-demo-badge {
-  display: inline-flex;
+/* ==========================================================================
+   3. TABLE CARD, TOOLBAR & QUICK TABS
+   ========================================================================== */
+
+.activity-logs-page .sap-table-card {
+  min-width: 0;
+  border: 1px solid #eaedf4;
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: 0 3px 12px rgba(20, 31, 56, 0.025);
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+/* Multi-selection banner */
+.activity-logs-page .sap-batch-banner {
+  display: flex;
   align-items: center;
-  gap: 7px;
-  padding: 7px 10px;
-  border-radius: 7px;
-  background: #f0fdf4;
-  color: #15803d;
-  font-size: 10px;
-  font-weight: 700;
-  white-space: nowrap;
+  justify-content: space-between;
+  padding: 11px 18px;
+  background: #eef2ff;
+  border-bottom: 1px solid #e0e7ff;
+  color: #4338ca;
+  font-size: 12.5px;
+  animation: actFadeIn 0.2s ease-out;
 }
 
-.activity-logs-demo-badge > span {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #22c55e;
+@keyframes actFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
-.activity-logs-filters {
-  display: grid;
-  grid-template-columns: minmax(200px, 1.8fr) repeat(3, minmax(125px, 1fr));
-  gap: 10px;
-  padding: 0 23px 19px;
-}
-
-.activity-logs-search,
-.activity-logs-filters select {
+.activity-logs-page .sap-batch-actions {
   display: flex;
   align-items: center;
   gap: 8px;
-  width: 100%;
-  min-width: 0;
-  min-height: 39px;
-  padding: 0 11px;
-  border: 1px solid #e5e8f0;
-  border-radius: 8px;
-  outline: none;
-  background: #fff;
-  color: #7d8798;
+}
+
+/* Quick Category / Status Tabs */
+.activity-logs-page .sub-quick-tabs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 14px 18px 10px;
+  border-bottom: 1px solid #f1f5f9;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.activity-logs-page .sub-quick-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.activity-logs-page .sub-quick-tab {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 7px !important;
+  padding: 6px 13px !important;
+  border-radius: 8px !important;
+  border: 1px solid #e2e8f0 !important;
+  background: #ffffff !important;
+  color: #64748b !important;
+  font-size: 12.5px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  white-space: nowrap !important;
+  width: auto !important;
+  min-width: max-content;
+  transition: all 0.2s ease !important;
+}
+
+.activity-logs-page .sub-quick-tab:hover {
+  background: #f8fafc !important;
+  color: #1e293b !important;
+  border-color: #cbd5e1 !important;
+}
+
+.activity-logs-page .sub-quick-tab.active {
+  background: #6366f1 !important;
+  color: #ffffff !important;
+  border-color: #6366f1 !important;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.25) !important;
+}
+
+.activity-logs-page .sub-quick-tab-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1px 6px;
+  border-radius: 10px;
   font-size: 11px;
+  font-weight: 750;
+  background: #f1f5f9;
+  color: #475569;
 }
 
-.activity-logs-search:focus-within,
-.activity-logs-filters select:focus {
-  border-color: #a5b4fc;
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.07);
+.activity-logs-page .sub-quick-tab.active .sub-quick-tab-badge {
+  background: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
 }
 
-.activity-logs-search input {
+/* Toolbar filters */
+.activity-logs-page .sap-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 18px;
+  flex-wrap: wrap;
+}
+
+.activity-logs-page .sap-toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  flex: 1;
+}
+
+.activity-logs-page .sap-search-input {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 260px;
+  flex: 1;
+  max-width: 360px;
+  height: 38px;
+  padding: 0 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 9px;
+  background: #ffffff;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.activity-logs-page .sap-search-input:focus-within {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+}
+
+.activity-logs-page .sap-search-input input {
   width: 100%;
-  min-width: 0;
   border: 0;
-  outline: none;
+  outline: 0;
   background: transparent;
-  color: #364154;
-  font: inherit;
+  color: #1e293b;
+  font-size: 12.5px;
 }
 
-.activity-logs-search input::placeholder {
-  color: #a0a7b5;
-}
-
-.activity-logs-search button {
-  display: grid;
-  flex-shrink: 0;
-  place-items: center;
-  padding: 3px;
+.act-search-clear {
+  background: transparent;
   border: 0;
-  background: transparent;
-  color: #8a93a4;
+  color: #94a3b8;
   cursor: pointer;
+  padding: 2px;
+  display: flex;
+  align-items: center;
 }
 
-.activity-logs-filters select {
-  cursor: pointer;
+.act-search-clear:hover {
+  color: #475569;
 }
 
-.activity-logs-table-wrap {
+.activity-logs-page .sap-filter-select {
+  height: 38px;
+  padding: 0 28px 0 10px;
+  border: 1px solid #e2e8f0;
+  border-radius: 9px;
+  background-color: #ffffff;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  color: #475569;
+  font-size: 12px;
+  font-weight: 500;
+  outline: 0;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+.activity-logs-page .sap-filter-select:focus {
+  border-color: #6366f1;
+}
+
+.activity-logs-page .sap-toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ==========================================================================
+   4. DATA TABLE & CELLS (CLEAN VERTICAL SPACING)
+   ========================================================================== */
+
+.activity-logs-page .sap-table-wrapper {
   width: 100%;
   overflow-x: auto;
+  border-top: 1px solid #edf0f5;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
 }
 
-.activity-logs-table {
+.activity-logs-page .sap-table-wrapper::-webkit-scrollbar {
+  height: 6px;
+}
+
+.activity-logs-page .sap-table-wrapper::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  background: #cbd5e1;
+}
+
+.activity-logs-page .sap-grid {
   width: 100%;
   border-collapse: collapse;
   text-align: left;
   white-space: nowrap;
 }
 
-.activity-logs-table thead {
-  background: #fafbfe;
+.activity-logs-page .sap-grid.is-standard th {
+  padding: 13px 16px;
 }
 
-.activity-logs-table th {
-  padding: 13px 17px;
-  border-top: 1px solid #f0f2f6;
-  border-bottom: 1px solid #edf0f5;
-  color: #8a93a4;
-  font-size: 9px;
-  font-weight: 800;
+.activity-logs-page .sap-grid.is-standard td {
+  padding: 14px 16px;
+}
+
+.activity-logs-page .sap-grid.is-compact th {
+  padding: 9px 12px;
+}
+
+.activity-logs-page .sap-grid.is-compact td {
+  padding: 9px 12px;
+}
+
+.activity-logs-page .sap-grid th {
+  border-bottom: 1px solid #e2e8f0;
+  background: #f8fafc;
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 750;
   text-transform: uppercase;
   letter-spacing: 0.4px;
 }
 
-.activity-logs-table td {
-  padding: 15px 17px;
-  border-bottom: 1px solid #f0f2f6;
-  color: #596579;
-  font-size: 11px;
+.activity-logs-page .sap-grid td {
+  border-bottom: 1px solid #f1f5f9;
+  color: #475569;
+  font-size: 12.5px;
+  transition: background 0.15s ease;
   vertical-align: middle;
 }
 
-.activity-logs-table tbody tr:last-child td {
-  border-bottom: 0;
+.activity-logs-page .sap-grid tbody tr:hover td {
+  background: #f8faff;
+  color: #1e293b;
 }
 
-.activity-logs-table tbody tr:hover {
-  background: #fcfcff;
+.activity-logs-page .sap-grid tbody tr.is-selected td {
+  background: #f5f3ff;
 }
 
-.activity-logs-event-cell {
+/* Cell 1: Action Event */
+.activity-logs-page .sap-user-badge {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
 }
 
-.activity-logs-event-icon {
+.activity-logs-page .sap-avatar-chip {
   display: grid;
-  width: 36px;
-  height: 36px;
-  flex-shrink: 0;
   place-items: center;
-  border-radius: 10px;
-  background: #f0efff;
-  color: #6366f1;
+  border-radius: 9px;
+  background: #eef2ff;
+  color: #4f46e5;
+  border: 1px solid #e0e7ff;
+  flex-shrink: 0;
 }
 
-.activity-logs-event-cell > div,
-.activity-logs-actor,
-.activity-logs-target,
-.activity-logs-date {
+.activity-logs-page .sap-user-info {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 2px;
 }
 
-.activity-logs-event-cell strong,
-.activity-logs-actor strong,
-.activity-logs-target strong,
-.activity-logs-date strong {
-  color: #364154;
-  font-size: 11px;
+.activity-logs-page .sap-user-name {
+  color: #1e293b;
+  font-size: 13px;
   font-weight: 700;
 }
 
-.activity-logs-event-cell span:not(.activity-logs-event-icon),
-.activity-logs-actor span,
-.activity-logs-target span,
-.activity-logs-date span {
-  color: #959eae;
-  font-size: 10px;
+.act-event-category {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  color: #6366f1;
 }
 
-.activity-logs-status {
+/* Cell 2: Actor & Email */
+.act-actor-wrap {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 3px !important;
+}
+
+.act-actor-name {
+  color: #1e293b !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+}
+
+.act-actor-email {
+  color: #64748b !important;
+  font-size: 11.5px !important;
+}
+
+/* Cell 3: Target Resource & Organization (FIXED SPACING) */
+.act-target-td {
+  vertical-align: middle;
+}
+
+.act-target-wrap {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  justify-content: center !important;
+  gap: 5px !important;
+}
+
+.act-target-title {
+  color: #1e293b !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  line-height: 1.3 !important;
+  display: block !important;
+}
+
+.act-org-chip {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  padding: 2px 8px !important;
+  border-radius: 6px !important;
+  background: #f1f5f9 !important;
+  border: 1px solid #e2e8f0 !important;
+  font-size: 11px !important;
+  color: #475569 !important;
+  font-weight: 600 !important;
+  line-height: 1 !important;
+  transition: all 0.15s ease !important;
+  max-width: fit-content !important;
+}
+
+.act-org-chip:hover {
+  background: #e2e8f0 !important;
+  border-color: #cbd5e1 !important;
+}
+
+.act-org-chip.is-system {
+  background: #f5f3ff !important;
+  border-color: #ede9fe !important;
+  color: #6366f1 !important;
+}
+
+.act-org-chip.is-unknown {
+  background: #fffbeb !important;
+  border-color: #fef3c7 !important;
+  color: #d97706 !important;
+}
+
+.act-org-avatar {
+  width: 15px !important;
+  height: 15px !important;
+  min-width: 15px !important;
+  border-radius: 3px !important;
+  object-fit: contain !important;
+  display: block !important;
+}
+
+.act-org-name {
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  white-space: nowrap !important;
+}
+
+.act-org-icon {
+  flex-shrink: 0 !important;
+}
+
+/* Cell 4: IP Address */
+.act-ip-badge {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 11.5px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: #f1f5f9;
+  color: #334155;
+  border: 1px solid #e2e8f0;
+  font-weight: 600;
+}
+
+/* Cell 5: Timestamp */
+.act-date-wrap {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 2px !important;
+}
+
+.act-date-main {
+  color: #1e293b !important;
+  font-size: 12.5px !important;
+  font-weight: 700 !important;
+}
+
+.act-date-sub {
+  color: #64748b !important;
+  font-size: 11px !important;
+}
+
+/* Cell 6: Status Pill */
+.activity-logs-page .sap-status-pill {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 9px;
-  border-radius: 7px;
-  font-size: 10px;
-  font-weight: 750;
+  gap: 5px;
+  padding: 4px 9px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
 }
 
-.activity-logs-status > span {
+.activity-logs-page .sap-status-dot {
   width: 6px;
   height: 6px;
-  flex-shrink: 0;
   border-radius: 50%;
   background: currentColor;
 }
 
-.activity-logs-status-success {
-  background: #ecfdf3;
-  color: #15803d;
+.activity-logs-page .sap-status-pill.is-active {
+  background: #ecfdf5;
+  color: #059669;
+  border: 1px solid #d1fae5;
 }
 
-.activity-logs-status-warning {
-  background: #fff7e8;
-  color: #b7791f;
+.activity-logs-page .sap-status-pill.is-suspended {
+  background: #fffbeb;
+  color: #d97706;
+  border: 1px solid #fde68a;
 }
 
-.activity-logs-status-info {
-  background: #eff6ff;
-  color: #2563eb;
+/* Cell 7: Inspect Action Button */
+.act-action-btn-inspect {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 5px !important;
+  height: 31px !important;
+  padding: 0 12px !important;
+  border-radius: 8px !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  background: #eff6ff !important;
+  color: #2563eb !important;
+  border: 1px solid #dbeafe !important;
+  cursor: pointer !important;
+  white-space: nowrap !important;
+  width: auto !important;
+  min-width: max-content;
+  transition: all 0.2s ease !important;
 }
 
-.activity-logs-view-button {
-  display: grid;
-  width: 32px;
-  height: 32px;
-  place-items: center;
-  border: 1px solid #e9ecf3;
-  border-radius: 8px;
-  background: #fff;
-  color: #687386;
-  cursor: pointer;
-  transition: 0.2s ease;
+.act-action-btn-inspect:hover {
+  background: #2563eb !important;
+  color: #ffffff !important;
+  border-color: #2563eb !important;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25) !important;
+  transform: translateY(-1px);
 }
 
-.activity-logs-view-button:hover {
-  border-color: #c7d2fe;
-  background: #f5f5ff;
-  color: #6366f1;
-}
-
-.activity-logs-empty {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  padding: 48px 15px;
-  color: #9aa2b1;
-  white-space: normal;
-  text-align: center;
-}
-
-.activity-logs-empty strong {
-  color: #364154;
-  font-size: 13px;
-}
-
-.activity-logs-empty span {
-  font-size: 11px;
-}
-
-.activity-logs-empty button {
-  margin-top: 4px;
-  padding: 8px 12px;
-  border: 0;
-  border-radius: 7px;
-  background: #f0efff;
-  color: #5b55d6;
-  font-size: 11px;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.activity-logs-pagination {
+/* Pagination Footer */
+.activity-logs-page .sap-footer-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 15px;
-  padding: 17px 22px;
-  border-top: 1px solid #f0f2f6;
-  color: #8a93a4;
-  font-size: 10px;
+  padding: 12px 18px;
+  border-top: 1px solid #edf0f5;
+  background: #ffffff;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
-.activity-logs-pagination > div {
+.activity-logs-page .sap-pagination {
   display: flex;
   align-items: center;
-  gap: 11px;
+  gap: 6px;
 }
 
-.activity-logs-pagination button {
-  display: grid;
-  width: 30px;
-  height: 30px;
-  place-items: center;
-  border: 1px solid #e5e8f0;
-  border-radius: 7px;
-  background: #fff;
-  color: #556075;
-  cursor: pointer;
+.activity-logs-page .sap-page-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 7px !important;
+  border: 1px solid #e2e8f0 !important;
+  background: #ffffff !important;
+  color: #475569 !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
 }
 
-.activity-logs-pagination button:disabled {
-  color: #c4cad4;
-  background: #fafbfc;
-  cursor: not-allowed;
+.activity-logs-page .sap-page-btn:hover:not(:disabled) {
+  background: #f1f5f9 !important;
+  color: #1e293b !important;
+}
+
+.activity-logs-page .sap-page-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed !important;
+}
+
+.activity-logs-page .sap-page-indicator {
+  font-size: 12px;
+  color: #64748b;
+  padding: 0 6px;
 }
 
 .activity-logs-disclaimer {
   display: flex;
   align-items: center;
   gap: 7px;
-  margin: 15px 0 0;
-  color: #8a93a4;
-  font-size: 10px;
-  line-height: 1.6;
-}
-
-.activity-logs-modal-backdrop {
-  position: fixed;
-  z-index: 1500;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow-y: auto;
-  padding: 22px;
-  background: rgba(15, 23, 42, 0.48);
-  backdrop-filter: blur(3px);
-}
-
-.activity-logs-modal {
-  width: min(100%, 540px);
-  max-height: calc(100vh - 44px);
-  overflow-y: auto;
-  border: 1px solid #e8ebf2;
-  border-radius: 16px;
-  background: #fff;
-  box-shadow: 0 24px 80px rgba(15, 23, 42, 0.2);
-}
-
-.activity-logs-modal > header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 15px;
-  padding: 20px 22px;
-  border-bottom: 1px solid #eef0f5;
-}
-
-.activity-logs-modal > header > div {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.activity-logs-modal-icon {
-  display: grid;
-  width: 40px;
-  height: 40px;
-  place-items: center;
-  border-radius: 11px;
-  background: #f0efff;
-  color: #6366f1;
-}
-
-.activity-logs-modal h2 {
-  margin: 0;
-  color: #202a3a;
-  font-size: 15px;
-}
-
-.activity-logs-modal header p {
-  margin: 5px 0 0;
-  color: #8a93a4;
-  font-size: 10px;
-}
-
-.activity-logs-modal > header > button {
-  display: grid;
-  width: 33px;
-  height: 33px;
-  place-items: center;
-  border: 1px solid #e9ecf3;
-  border-radius: 8px;
-  background: #fff;
-  color: #687386;
-  cursor: pointer;
-}
-
-.activity-logs-modal-body {
-  padding: 21px 22px;
-}
-
-.activity-logs-detail-summary {
-  padding: 16px;
-  margin-bottom: 12px;
-  border-radius: 11px;
-  background: #f8f9fd;
-}
-
-.activity-logs-detail-summary h3 {
-  margin: 12px 0 5px;
-  color: #263246;
-  font-size: 15px;
-}
-
-.activity-logs-detail-summary p {
-  margin: 0;
-  color: #7b8496;
-  font-size: 11px;
-  line-height: 1.6;
-}
-
-.activity-logs-detail-row {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 20px;
-  padding: 13px 0;
-  border-bottom: 1px solid #f0f2f6;
-}
-
-.activity-logs-detail-row:last-child {
-  border-bottom: 0;
-}
-
-.activity-logs-detail-row > span {
-  color: #8a93a4;
-  font-size: 11px;
-}
-
-.activity-logs-detail-row > strong {
-  max-width: 65%;
-  color: #364154;
-  font-size: 11px;
-  font-weight: 650;
-  text-align: right;
-  overflow-wrap: anywhere;
-}
-
-.activity-logs-modal > footer {
-  display: flex;
-  justify-content: flex-end;
-  padding: 15px 22px;
-  border-top: 1px solid #eef0f5;
-}
-
-.activity-logs-toast {
-  position: fixed;
-  z-index: 2000;
-  right: 24px;
-  bottom: 24px;
-  max-width: calc(100vw - 32px);
-  padding: 13px 17px;
-  border-radius: 10px;
-  background: #202a3a;
-  color: #fff;
-  font-size: 12px;
-  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.18);
-}
-
-/* Responsive */
-
-@media (max-width: 1200px) {
-  .activity-logs-page {
-    padding: 23px;
-  }
-
-  .activity-logs-stats {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .activity-logs-filters {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .activity-logs-search {
-    grid-column: 1 / -1;
-  }
-}
-
-@media (max-width: 760px) {
-  .activity-logs-header {
-    flex-direction: column;
-  }
-
-  .activity-logs-header-actions {
-    width: 100%;
-    flex-wrap: wrap;
-  }
-
-  .activity-logs-header-actions .activity-logs-button {
-    flex: 1;
-  }
-
-  .activity-logs-panel-heading {
-    flex-wrap: wrap;
-    padding: 19px 16px;
-  }
-
-  .activity-logs-filters {
-    padding: 0 16px 16px;
-  }
-
-  .activity-logs-table {
-    min-width: 900px;
-  }
-
-  .activity-logs-pagination {
-    padding: 15px;
-  }
-}
-
-@media (max-width: 480px) {
-  .activity-logs-page {
-    padding: 15px;
-  }
-
-  .activity-logs-stats {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 11px;
-  }
-
-  .activity-logs-stat-card {
-    padding: 15px;
-  }
-
-  .activity-logs-filters {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .activity-logs-search {
-    grid-column: auto;
-  }
-
-  .activity-logs-pagination {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-
-  .activity-logs-modal-backdrop {
-    padding: 12px;
-  }
-
-  .activity-logs-modal-body {
-    padding: 16px;
-  }
-
-  .activity-logs-detail-row {
-    gap: 12px;
-  }
-}
-
-
-
-
-
-/* =========================================
-   ACTIVITY LOGS — FINAL UI POLISH
-   Append this block at the bottom of ActivityLogs.css
-   ========================================= */
-
-.activity-logs-page {
-  animation: activityLogsEnter 0.4s ease both;
-}
-
-@keyframes activityLogsEnter {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Header */
-.activity-logs-header {
-  align-items: center;
-}
-
-.activity-logs-eyebrow {
-  width: fit-content;
-  padding: 6px 9px;
-  border: 1px solid #e6e7ff;
-  border-radius: 7px;
-  background: #f2f1ff;
-}
-
-.activity-logs-header h1 {
-  letter-spacing: -1px;
-}
-
-.activity-logs-header > div:first-child > p {
-  max-width: 580px;
-}
-
-/* Buttons */
-.activity-logs-button {
-  min-height: 42px;
-  border-radius: 10px;
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease,
-    background 0.2s ease,
-    border-color 0.2s ease;
-}
-
-.activity-logs-button:hover {
-  transform: translateY(-1px);
-}
-
-.activity-logs-button-primary {
-  box-shadow: 0 4px 10px rgba(99, 102, 241, 0.15);
-}
-
-.activity-logs-button-primary:hover {
-  box-shadow: 0 7px 16px rgba(99, 102, 241, 0.23);
-}
-
-.activity-logs-button:active {
-  transform: translateY(0);
-}
-
-/* Summary cards */
-.activity-logs-stats {
-  gap: 17px;
-}
-
-.activity-logs-stat-card {
-  position: relative;
-  overflow: hidden;
-  border-color: #e9ecf4;
-  border-radius: 15px;
-  box-shadow: 0 4px 14px rgba(20, 31, 56, 0.025);
-  transition:
-    transform 0.22s ease,
-    border-color 0.22s ease,
-    box-shadow 0.22s ease;
-}
-
-.activity-logs-stat-card::before {
-  position: absolute;
-  top: 0;
-  left: 18px;
-  right: 18px;
-  height: 3px;
-  border-radius: 0 0 4px 4px;
-  background: linear-gradient(90deg, #6366f1, #a5b4fc);
-  content: "";
-  opacity: 0;
-  transition: opacity 0.2s ease;
-}
-
-.activity-logs-stat-card:hover {
-  transform: translateY(-3px);
-  border-color: #dcdfff;
-  box-shadow: 0 12px 26px rgba(31, 41, 72, 0.07);
-}
-
-.activity-logs-stat-card:hover::before {
-  opacity: 1;
-}
-
-.activity-logs-stat-icon {
-  transition: transform 0.22s ease;
-}
-
-.activity-logs-stat-card:hover .activity-logs-stat-icon {
-  transform: scale(1.06);
-}
-
-.activity-logs-stat-card strong {
-  font-variant-numeric: tabular-nums;
-  letter-spacing: -0.6px;
-}
-
-/* Main event history panel */
-.activity-logs-panel {
-  border-color: #e7eaf2;
-  border-radius: 16px;
-  box-shadow: 0 5px 18px rgba(20, 31, 56, 0.035);
-}
-
-.activity-logs-panel-heading {
-  align-items: center;
-}
-
-.activity-logs-panel-heading h2 {
-  font-size: 16px;
-  letter-spacing: -0.3px;
-}
-
-.activity-logs-demo-badge {
-  border: 1px solid #d9f5e4;
-  border-radius: 20px;
-  padding: 7px 11px;
-}
-
-.activity-logs-demo-badge > span {
-  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.12);
-}
-
-/* Filters */
-.activity-logs-filters {
-  align-items: center;
-}
-
-.activity-logs-search,
-.activity-logs-filters select {
-  min-height: 42px;
-  border-color: #e2e6ef;
-  border-radius: 10px;
-  background-color: #fff;
-  transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease,
-    background 0.2s ease;
-}
-
-.activity-logs-search:focus-within,
-.activity-logs-filters select:focus {
-  border-color: #818cf8;
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.11);
-}
-
-.activity-logs-filters select {
-  color: #4b5568;
-}
-
-.activity-logs-search input {
-  font-size: 12px;
-}
-
-.activity-logs-search button {
-  width: 25px;
-  height: 25px;
-  border-radius: 6px;
-  transition: background 0.2s ease, color 0.2s ease;
-}
-
-.activity-logs-search button:hover {
-  background: #f0efff;
-  color: #4f46e5;
-}
-
-/* Table header and rows */
-.activity-logs-table thead {
-  background: #f8f9fd;
-}
-
-.activity-logs-table th {
-  padding-top: 15px;
-  padding-bottom: 15px;
-  background: #f8f9fd;
-  font-size: 10px;
-  letter-spacing: 0.55px;
-}
-
-.activity-logs-table td {
-  padding-top: 16px;
-  padding-bottom: 16px;
-}
-
-.activity-logs-table tbody tr {
-  transition: background 0.18s ease;
-}
-
-.activity-logs-table tbody tr:hover {
-  background: #f9f9ff;
-}
-
-.activity-logs-event-cell {
-  gap: 12px;
-}
-
-.activity-logs-event-icon {
-  border: 1px solid #e7e5ff;
-  border-radius: 11px;
-  transition: transform 0.2s ease, background 0.2s ease;
-}
-
-.activity-logs-table tbody tr:hover .activity-logs-event-icon {
-  transform: scale(1.05);
-  background: #e9e7ff;
-}
-
-.activity-logs-event-cell strong,
-.activity-logs-actor strong,
-.activity-logs-target strong,
-.activity-logs-date strong {
-  color: #283348;
-  font-size: 12px;
-}
-
-.activity-logs-event-cell span:not(.activity-logs-event-icon),
-.activity-logs-actor span,
-.activity-logs-target span,
-.activity-logs-date span {
-  line-height: 1.5;
-}
-
-/* Status labels */
-.activity-logs-status {
-  min-height: 27px;
-  border: 1px solid transparent;
-  border-radius: 20px;
-  padding: 5px 10px;
-  font-size: 10px;
-  white-space: nowrap;
-}
-
-.activity-logs-status-success {
-  border-color: #d4f4e0;
-}
-
-.activity-logs-status-warning {
-  border-color: #ffebc6;
-}
-
-.activity-logs-status-info {
-  border-color: #dbeafe;
-}
-
-/* View event action */
-.activity-logs-view-button {
-  width: 35px;
-  height: 35px;
-  border-radius: 10px;
-  transition:
-    transform 0.2s ease,
-    border-color 0.2s ease,
-    background 0.2s ease,
-    color 0.2s ease;
-}
-
-.activity-logs-view-button:hover {
-  transform: translateY(-1px);
-  border-color: #c7d2fe;
-  background: #efefff;
-  color: #4f46e5;
+  margin: 14px 0 0;
+  color: #94a3b8;
+  font-size: 11.5px;
 }
 
 /* Empty state */
 .activity-logs-empty {
-  min-height: 240px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 42px 16px;
+  color: #94a3b8;
+  text-align: center;
 }
 
-.activity-logs-empty > svg {
-  box-sizing: content-box;
-  padding: 15px;
-  border-radius: 16px;
-  background: #f1f0ff;
-  color: #6366f1;
+.activity-logs-empty strong {
+  color: #1e293b;
+  font-size: 14px;
+}
+
+.activity-logs-empty span {
+  font-size: 12px;
+  max-width: 420px;
 }
 
 .activity-logs-empty button {
-  border: 1px solid #e1dfff;
-  transition: background 0.2s ease, transform 0.2s ease;
-}
-
-.activity-logs-empty button:hover {
-  transform: translateY(-1px);
-  background: #e7e5ff;
-}
-
-/* Pagination */
-.activity-logs-pagination {
-  min-height: 64px;
-  background: #fff;
-}
-
-.activity-logs-pagination > div {
-  gap: 9px;
-}
-
-.activity-logs-pagination button {
-  border-radius: 9px;
-  transition:
-    background 0.2s ease,
-    border-color 0.2s ease,
-    color 0.2s ease;
-}
-
-.activity-logs-pagination button:not(:disabled):hover {
-  border-color: #c7d2fe;
-  background: #f2f1ff;
+  margin-top: 8px;
+  padding: 7px 14px;
+  border-radius: 7px;
+  background: #eef2ff;
   color: #4f46e5;
+  border: 1px solid #e0e7ff;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
 }
 
-/* Disclaimer */
-.activity-logs-disclaimer {
-  padding: 10px 12px;
-  border: 1px solid #e8ebf3;
-  border-radius: 9px;
-  background: rgba(255, 255, 255, 0.75);
+/* ==========================================================================
+   5. AUDIT EVENT INSPECT MODAL (DIRECT VIEWPORT PORTAL)
+   ========================================================================== */
+
+.act-modal-overlay {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  background: rgba(11, 17, 32, 0.72) !important;
+  backdrop-filter: blur(5px) !important;
+  -webkit-backdrop-filter: blur(5px) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 16px !important;
+  z-index: 999999 !important;
+  box-sizing: border-box !important;
+  animation: actFadeIn 0.18s ease-out !important;
 }
 
-/* Details modal */
-.activity-logs-modal-backdrop {
-  animation: activityLogsBackdrop 0.2s ease both;
+.act-modal-container {
+  position: relative !important;
+  width: min(100%, 640px) !important;
+  max-height: calc(100vh - 32px) !important;
+  background: #ffffff !important;
+  border-radius: 14px !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 25px 60px rgba(15, 23, 42, 0.35) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+  animation: actPopIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
-@keyframes activityLogsBackdrop {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-.activity-logs-modal {
-  border-color: #e3e7f0;
-  border-radius: 18px;
-  animation: activityLogsModalIn 0.25s ease both;
-}
-
-@keyframes activityLogsModalIn {
+@keyframes actPopIn {
   from {
     opacity: 0;
-    transform: translateY(10px) scale(0.99);
+    transform: scale(0.96);
   }
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: scale(1);
   }
 }
 
-.activity-logs-modal > header {
-  background: #fcfcff;
+.act-modal-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 13px 18px !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+  background: #f8fafc !important;
 }
 
-.activity-logs-modal > header > button {
-  transition: background 0.2s ease, color 0.2s ease;
+.act-modal-title-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
-.activity-logs-modal > header > button:hover {
-  background: #f1f0ff;
+.act-modal-icon-wrap {
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
+  border-radius: 10px;
+  background: #eef2ff;
+  border: 1px solid #e0e7ff;
+  color: #4f46e5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.act-modal-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.act-modal-title-box h3 {
+  margin: 0;
+  font-size: 15.5px;
+  font-weight: 750;
+  color: #1e293b;
+}
+
+.act-modal-id {
+  font-size: 11px;
+  font-weight: 700;
+  color: #4f46e5;
+  background: #eef2ff;
+  border: 1px solid #e0e7ff;
+  padding: 1px 6px;
+  border-radius: 5px;
+  font-family: monospace;
+}
+
+.act-modal-sub-meta {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11.5px;
+  color: #64748b;
+  margin-top: 2px;
+  flex-wrap: wrap;
+}
+
+.act-modal-cat-pill {
+  font-weight: 650;
   color: #4f46e5;
 }
 
-.activity-logs-detail-summary {
-  border: 1px solid #ececfb;
-  background: linear-gradient(135deg, #fafaff, #f7f8ff);
+.act-modal-dot {
+  color: #cbd5e1;
 }
 
-.activity-logs-detail-row {
-  gap: 18px;
+.act-modal-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 1px 7px;
+  border-radius: 10px;
 }
 
+.act-modal-status-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.act-status-success {
+  background: #ecfdf5;
+  color: #059669;
+}
+
+.act-status-warning {
+  background: #fffbeb;
+  color: #d97706;
+}
+
+.act-status-info {
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.act-modal-close-btn {
+  background: transparent;
+  border: 0;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.act-modal-close-btn:hover {
+  background: #e2e8f0;
+  color: #1e293b;
+}
+
+/* Modal Body */
+.act-modal-body {
+  padding: 14px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+.act-modal-desc-box {
+  padding: 11px 14px;
+  border-radius: 10px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.act-modal-desc-box p {
+  margin: 0;
+  font-size: 12.5px;
+  color: #334155;
+  line-height: 1.5;
+}
+
+.act-modal-trace-line {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding-top: 6px;
+  border-top: 1px dashed #e2e8f0;
+  font-size: 11px;
+  color: #64748b;
+  flex-wrap: wrap;
+}
+
+.act-modal-trace-line strong {
+  color: #475569;
+}
+
+/* 2-Column Grid inside Modal */
+.act-modal-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.act-modal-grid-card {
+  padding: 10px 12px;
+  border-radius: 9px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.act-modal-label {
+  color: #94a3b8;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.act-modal-val {
+  color: #1e293b;
+  font-size: 12.5px;
+  font-weight: 700;
+}
+
+.act-modal-subval {
+  color: #64748b;
+  font-size: 11px;
+}
+
+.act-copy-mini-btn {
+  background: transparent;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  padding: 2px 5px;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  color: #64748b;
+}
+
+.act-copy-mini-btn:hover {
+  background: #e2e8f0;
+  color: #1e293b;
+}
+
+/* Modal Footer */
+.act-modal-footer {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 10px !important;
+  padding: 11px 18px !important;
+  border-top: 1px solid #e2e8f0 !important;
+  background: #f8fafc !important;
+}
+
+/* Toast */
 .activity-logs-toast {
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 12px;
-  box-shadow: 0 14px 35px rgba(15, 23, 42, 0.2);
-  animation: activityLogsToastIn 0.25s ease both;
+  position: fixed;
+  z-index: 2000000;
+  right: 24px;
+  bottom: 24px;
+  padding: 11px 16px;
+  border-radius: 9px;
+  background: #1e293b;
+  color: #ffffff;
+  font-size: 12.5px;
+  font-weight: 600;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  animation: actToastIn 0.2s ease-out;
 }
 
-@keyframes activityLogsToastIn {
+@keyframes actToastIn {
   from {
     opacity: 0;
     transform: translateY(8px);
@@ -1138,294 +1114,477 @@
   }
 }
 
-/* Keyboard accessibility */
-.activity-logs-page button:focus-visible,
-.activity-logs-page input:focus-visible,
-.activity-logs-page select:focus-visible {
-  outline: 3px solid rgba(99, 102, 241, 0.28);
-  outline-offset: 2px;
-}
-
-/* Tablet refinements */
-@media (max-width: 1200px) {
-  .activity-logs-stat-card {
-    padding: 18px;
-  }
-
-  .activity-logs-panel-heading {
-    padding: 21px;
-  }
-}
-
-/* Mobile refinements */
-@media (max-width: 760px) {
-  .activity-logs-header {
-    align-items: stretch;
-    gap: 18px;
-  }
-
-  .activity-logs-header-actions {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .activity-logs-header-actions .activity-logs-button {
-    width: 100%;
-    padding-inline: 10px;
-  }
-
-  .activity-logs-stat-card:hover {
-    transform: none;
-  }
-
-  .activity-logs-table-wrap {
-    scrollbar-width: thin;
-    scrollbar-color: #c7cbe0 #f5f6fb;
-  }
-
-  .activity-logs-pagination {
-    flex-wrap: wrap;
-  }
-}
-
-@media (max-width: 480px) {
-  .activity-logs-header h1 {
-    font-size: 26px;
-  }
-
-  .activity-logs-header-actions {
-    grid-template-columns: 1fr;
-  }
-
-  .activity-logs-panel-heading {
-    gap: 12px;
-  }
-
-  .activity-logs-stat-card {
-    min-height: 96px;
-  }
-
-  .activity-logs-pagination > div {
-    width: 100%;
-    justify-content: space-between;
-  }
-
-  .activity-logs-detail-row {
-    flex-direction: column;
-    gap: 5px;
-  }
-
-  .activity-logs-detail-row > strong {
-    max-width: 100%;
-    text-align: left;
-  }
-
-  .activity-logs-toast {
-    right: 12px;
-    bottom: 12px;
-  }
-}
-
-/* Respect reduced-motion preferences */
-@media (prefers-reduced-motion: reduce) {
-  .activity-logs-page,
-  .activity-logs-page *,
-  .activity-logs-page *::before,
-  .activity-logs-page *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
-}
-
-
 /* ==========================================================================
-   AUDIT LOGS VIEW MODAL — COMPACT & VIEWPORT-CENTERED (NO SCROLLING)
+   6. COOL DARK MODE OVERHAUL (.sa-dark-mode)
    ========================================================================== */
-.activity-view-modal {
-  width: min(100%, 540px) !important;
-  max-width: 540px !important;
-  max-height: 92vh !important;
-  background: #ffffff !important;
-  border-radius: 14px !important;
-  border: 1px solid #e2e8f0 !important;
-  box-shadow: 0 24px 65px rgba(15, 23, 42, 0.28) !important;
-  display: flex !important;
-  flex-direction: column !important;
-  overflow: hidden !important;
-  animation: activityModalPop 0.2s cubic-bezier(0.16, 1, 0.3, 1) both !important;
-}
 
-@keyframes activityModalPop {
-  from {
-    opacity: 0;
-    transform: scale(0.97) translateY(4px);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
-}
-
-.activity-view-header {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: space-between !important;
-  padding: 13px 18px !important;
-  border-bottom: 1px solid #edf2f7 !important;
-  background: #ffffff !important;
-}
-
-.activity-view-header-left {
-  display: flex !important;
-  align-items: center !important;
-  gap: 10px !important;
-}
-
-.activity-view-header-left h2 {
-  margin: 0 !important;
-  font-size: 14.5px !important;
-  font-weight: 700 !important;
-  color: #0f172a !important;
-}
-
-.activity-view-id-tag {
-  display: inline-block !important;
-  font-size: 10.5px !important;
-  font-weight: 600 !important;
-  color: #64748b !important;
-  font-family: ui-monospace, SFMono-Regular, monospace !important;
-}
-
-.activity-view-modal-body {
-  padding: 14px 18px !important;
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 11px !important;
-}
-
-.activity-view-summary {
-  background: #f8fafc !important;
-  border: 1px solid #e2e8f0 !important;
-  border-radius: 10px !important;
-  padding: 11px 14px !important;
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 4px !important;
-}
-
-.activity-view-summary-head {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: space-between !important;
-  margin-bottom: 2px !important;
-}
-
-.activity-view-category-pill {
-  font-size: 10.5px !important;
-  font-weight: 650 !important;
-  color: #4f46e5 !important;
-  background: rgba(79, 70, 229, 0.08) !important;
-  padding: 2px 7px !important;
-  border-radius: 5px !important;
-}
-
-.activity-view-summary h3 {
-  margin: 0 !important;
-  font-size: 13px !important;
-  font-weight: 700 !important;
-  color: #0f172a !important;
-}
-
-.activity-view-summary p {
-  margin: 0 !important;
-  font-size: 11px !important;
-  color: #64748b !important;
-  line-height: 1.4 !important;
-}
-
-.activity-view-grid {
-  display: grid !important;
-  grid-template-columns: 1fr 1fr !important;
-  gap: 8px !important;
-}
-
-.activity-view-grid-card {
-  background: #f8fafc !important;
-  border: 1px solid #edf2f7 !important;
-  border-radius: 8px !important;
-  padding: 8px 12px !important;
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 3px !important;
-}
-
-.activity-view-label {
-  font-size: 9.5px !important;
-  font-weight: 650 !important;
-  color: #64748b !important;
-  text-transform: uppercase !important;
-  letter-spacing: 0.3px !important;
-}
-
-.activity-view-val {
-  font-size: 11.5px !important;
-  font-weight: 650 !important;
-  color: #1e293b !important;
-  word-break: break-all !important;
-}
-
-.activity-view-footer {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: flex-end !important;
-  padding: 11px 18px !important;
-  border-top: 1px solid #edf2f7 !important;
-  background: #fcfdfe !important;
-}
-
-/* Dark Mode Overrides for Activity Logs Modal */
-.sa-dark-mode .activity-logs-modal,
-.sa-dark-mode .activity-view-modal {
-  background: #151f38 !important;
-  border-color: #233355 !important;
-  box-shadow: 0 24px 65px rgba(0, 0, 0, 0.65) !important;
-}
-
-.sa-dark-mode .activity-view-header,
-.sa-dark-mode .activity-logs-modal > header {
-  background: #151f38 !important;
-  border-bottom-color: #233355 !important;
-}
-
-.sa-dark-mode .activity-view-header-left h2,
-.sa-dark-mode .activity-logs-modal h2 {
+.sa-dark-mode .activity-logs-page,
+body.sa-dark-mode .activity-logs-page {
+  background: #090e1a !important;
   color: #f8fafc !important;
 }
 
-.sa-dark-mode .activity-view-summary,
-.sa-dark-mode .activity-view-grid-card,
-.sa-dark-mode .activity-logs-detail-summary {
-  background: #1b2746 !important;
-  border-color: #28395f !important;
+.sa-dark-mode .activity-logs-eyebrow,
+body.sa-dark-mode .activity-logs-eyebrow {
+  background: #1e1b4b !important;
+  border-color: #3730a3 !important;
+  color: #a5b4fc !important;
 }
 
-.sa-dark-mode .activity-view-summary h3,
-.sa-dark-mode .activity-view-val,
-.sa-dark-mode .activity-logs-detail-summary h3,
-.sa-dark-mode .activity-logs-detail-row > strong {
+.sa-dark-mode .activity-logs-page .sap-header-left h1,
+body.sa-dark-mode .activity-logs-page .sap-header-left h1 {
   color: #f8fafc !important;
 }
 
-.sa-dark-mode .activity-view-summary p,
-.sa-dark-mode .activity-view-label,
-.sa-dark-mode .activity-logs-detail-row > span {
+.sa-dark-mode .activity-logs-page .sap-header-subtitle,
+body.sa-dark-mode .activity-logs-page .sap-header-subtitle {
   color: #94a3b8 !important;
 }
 
-.sa-dark-mode .activity-view-footer,
-.sa-dark-mode .activity-logs-modal > footer {
-  background: #111a30 !important;
-  border-top-color: #233355 !important;
+/* KPI Stat Cards in Dark Mode */
+.sa-dark-mode .activity-logs-page .sa-kpi-card,
+body.sa-dark-mode .activity-logs-page .sa-kpi-card {
+  background: #0f172a !important;
+  border-color: #1e293b !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4) !important;
+}
+
+.sa-dark-mode .activity-logs-page .sa-kpi-card:hover,
+body.sa-dark-mode .activity-logs-page .sa-kpi-card:hover {
+  border-color: #334155 !important;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.55) !important;
+}
+
+.sa-dark-mode .activity-logs-page .sa-kpi-icon-box.purple,
+body.sa-dark-mode .activity-logs-page .sa-kpi-icon-box.purple {
+  background: rgba(99, 102, 241, 0.18) !important;
+  color: #818cf8 !important;
+}
+
+.sa-dark-mode .activity-logs-page .sa-kpi-icon-box.green,
+body.sa-dark-mode .activity-logs-page .sa-kpi-icon-box.green {
+  background: rgba(16, 185, 129, 0.18) !important;
+  color: #34d399 !important;
+}
+
+.sa-dark-mode .activity-logs-page .sa-kpi-icon-box.red,
+body.sa-dark-mode .activity-logs-page .sa-kpi-icon-box.red {
+  background: rgba(239, 68, 68, 0.18) !important;
+  color: #f87171 !important;
+}
+
+.sa-dark-mode .activity-logs-page .sa-kpi-icon-box.sky,
+body.sa-dark-mode .activity-logs-page .sa-kpi-icon-box.sky {
+  background: rgba(14, 165, 233, 0.18) !important;
+  color: #38bdf8 !important;
+}
+
+.sa-dark-mode .activity-logs-page .sa-kpi-title,
+body.sa-dark-mode .activity-logs-page .sa-kpi-title {
+  color: #94a3b8 !important;
+}
+
+.sa-dark-mode .activity-logs-page .sa-kpi-value,
+body.sa-dark-mode .activity-logs-page .sa-kpi-value {
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .activity-logs-page .sa-kpi-subtitle,
+body.sa-dark-mode .activity-logs-page .sa-kpi-subtitle {
+  color: #64748b !important;
+}
+
+/* Table Card in Dark Mode */
+.sa-dark-mode .activity-logs-page .sap-table-card,
+body.sa-dark-mode .activity-logs-page .sap-table-card {
+  background: #0f172a !important;
+  border-color: #1e293b !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4) !important;
+}
+
+.sa-dark-mode .activity-logs-page .sap-batch-banner,
+body.sa-dark-mode .activity-logs-page .sap-batch-banner {
+  background: #172442 !important;
+  border-bottom-color: #273860 !important;
+  color: #a5b4fc !important;
+}
+
+/* Quick Tabs in Dark Mode */
+.sa-dark-mode .activity-logs-page .sub-quick-tabs,
+body.sa-dark-mode .activity-logs-page .sub-quick-tabs {
+  border-bottom-color: #1e293b !important;
+}
+
+.sa-dark-mode .activity-logs-page .sub-quick-tab,
+body.sa-dark-mode .activity-logs-page .sub-quick-tab {
+  background: #131d35 !important;
+  border-color: #243354 !important;
+  color: #94a3b8 !important;
+}
+
+.sa-dark-mode .activity-logs-page .sub-quick-tab:hover,
+body.sa-dark-mode .activity-logs-page .sub-quick-tab:hover {
+  background: #1c2a4d !important;
+  color: #f8fafc !important;
+  border-color: #38bdf8 !important;
+}
+
+.sa-dark-mode .activity-logs-page .sub-quick-tab.active,
+body.sa-dark-mode .activity-logs-page .sub-quick-tab.active {
+  background: #4f46e5 !important;
+  border-color: #4f46e5 !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 10px rgba(79, 70, 229, 0.45) !important;
+}
+
+.sa-dark-mode .activity-logs-page .sub-quick-tab-badge,
+body.sa-dark-mode .activity-logs-page .sub-quick-tab-badge {
+  background: #0b1120 !important;
+  color: #cbd5e1 !important;
+}
+
+.sa-dark-mode .activity-logs-page .sub-quick-tab.active .sub-quick-tab-badge,
+body.sa-dark-mode .activity-logs-page .sub-quick-tab.active .sub-quick-tab-badge {
+  background: rgba(255, 255, 255, 0.22) !important;
+  color: #ffffff !important;
+}
+
+/* Toolbar in Dark Mode */
+.sa-dark-mode .activity-logs-page .sap-search-input,
+body.sa-dark-mode .activity-logs-page .sap-search-input {
+  background: #131d35 !important;
+  border-color: #243354 !important;
+}
+
+.sa-dark-mode .activity-logs-page .sap-search-input input,
+body.sa-dark-mode .activity-logs-page .sap-search-input input {
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .activity-logs-page .sap-search-input input::placeholder,
+body.sa-dark-mode .activity-logs-page .sap-search-input input::placeholder {
+  color: #64748b !important;
+}
+
+.sa-dark-mode .activity-logs-page .sap-filter-select,
+body.sa-dark-mode .activity-logs-page .sap-filter-select {
+  background-color: #131d35 !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 10px center !important;
+  border-color: #243354 !important;
+  color: #cbd5e1 !important;
+}
+
+.sa-dark-mode .activity-logs-page .sap-filter-select:focus,
+body.sa-dark-mode .activity-logs-page .sap-filter-select:focus {
+  border-color: #6366f1 !important;
+}
+
+/* Table in Dark Mode */
+.sa-dark-mode .activity-logs-page .sap-table-wrapper,
+body.sa-dark-mode .activity-logs-page .sap-table-wrapper {
+  border-top-color: #1e293b !important;
+}
+
+.sa-dark-mode .activity-logs-page .sap-grid th,
+body.sa-dark-mode .activity-logs-page .sap-grid th {
+  background: #131d35 !important;
+  border-bottom-color: #1e293b !important;
+  color: #94a3b8 !important;
+}
+
+.sa-dark-mode .activity-logs-page .sap-grid td,
+body.sa-dark-mode .activity-logs-page .sap-grid td {
+  border-bottom-color: #18223d !important;
+  color: #cbd5e1 !important;
+}
+
+.sa-dark-mode .activity-logs-page .sap-grid tbody tr:hover td,
+body.sa-dark-mode .activity-logs-page .sap-grid tbody tr:hover td {
+  background: #162244 !important;
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .activity-logs-page .sap-grid tbody tr.is-selected td,
+body.sa-dark-mode .activity-logs-page .sap-grid tbody tr.is-selected td {
+  background: #1a254a !important;
+}
+
+.sa-dark-mode .activity-logs-page .sap-user-name,
+body.sa-dark-mode .activity-logs-page .sap-user-name {
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .act-event-category,
+body.sa-dark-mode .act-event-category {
+  color: #818cf8 !important;
+}
+
+.sa-dark-mode .activity-logs-page .sap-avatar-chip,
+body.sa-dark-mode .activity-logs-page .sap-avatar-chip {
+  background: #1a203f !important;
+  border-color: #2e3b70 !important;
+  color: #a5b4fc !important;
+}
+
+/* Actor Cell */
+.sa-dark-mode .act-actor-name,
+body.sa-dark-mode .act-actor-name {
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .act-actor-email,
+body.sa-dark-mode .act-actor-email {
+  color: #94a3b8 !important;
+}
+
+/* Target & Org Cell (COOL DARK MODE) */
+.sa-dark-mode .act-target-title,
+body.sa-dark-mode .act-target-title {
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .act-org-chip,
+body.sa-dark-mode .act-org-chip {
+  background: #172340 !important;
+  border-color: #23355b !important;
+  color: #cbd5e1 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
+}
+
+.sa-dark-mode .act-org-chip:hover,
+body.sa-dark-mode .act-org-chip:hover {
+  background: #1e3057 !important;
+  border-color: #38bdf8 !important;
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .act-org-chip.is-system,
+body.sa-dark-mode .act-org-chip.is-system {
+  background: #1f1c4d !important;
+  border-color: #3730a3 !important;
+  color: #a5b4fc !important;
+}
+
+.sa-dark-mode .act-org-chip.is-unknown,
+body.sa-dark-mode .act-org-chip.is-unknown {
+  background: #362208 !important;
+  border-color: #78350f !important;
+  color: #fcd34d !important;
+}
+
+.sa-dark-mode .act-org-avatar,
+body.sa-dark-mode .act-org-avatar {
+  background: #0f172a !important;
+  border-color: #243354 !important;
+}
+
+/* IP Badge */
+.sa-dark-mode .act-ip-badge,
+body.sa-dark-mode .act-ip-badge {
+  background: #131d35 !important;
+  border-color: #243354 !important;
+  color: #cbd5e1 !important;
+}
+
+/* Date */
+.sa-dark-mode .act-date-main,
+body.sa-dark-mode .act-date-main {
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .act-date-sub,
+body.sa-dark-mode .act-date-sub {
+  color: #94a3b8 !important;
+}
+
+/* Status Pills */
+.sa-dark-mode .activity-logs-page .sap-status-pill.is-active,
+body.sa-dark-mode .activity-logs-page .sap-status-pill.is-active {
+  background: rgba(16, 185, 129, 0.16) !important;
+  color: #34d399 !important;
+  border-color: rgba(16, 185, 129, 0.35) !important;
+}
+
+.sa-dark-mode .activity-logs-page .sap-status-pill.is-suspended,
+body.sa-dark-mode .activity-logs-page .sap-status-pill.is-suspended {
+  background: rgba(245, 158, 11, 0.16) !important;
+  color: #fbbf24 !important;
+  border-color: rgba(245, 158, 11, 0.35) !important;
+}
+
+/* Action Button */
+.sa-dark-mode .act-action-btn-inspect,
+body.sa-dark-mode .act-action-btn-inspect {
+  background: #122347 !important;
+  color: #60a5fa !important;
+  border-color: #1e3a8a !important;
+}
+
+.sa-dark-mode .act-action-btn-inspect:hover,
+body.sa-dark-mode .act-action-btn-inspect:hover {
+  background: #2563eb !important;
+  color: #ffffff !important;
+  border-color: #2563eb !important;
+  box-shadow: 0 2px 10px rgba(37, 99, 235, 0.4) !important;
+}
+
+/* Pagination Footer */
+.sa-dark-mode .activity-logs-page .sap-footer-bar,
+body.sa-dark-mode .activity-logs-page .sap-footer-bar {
+  background: #0f172a !important;
+  border-top-color: #1e293b !important;
+  color: #94a3b8 !important;
+}
+
+.sa-dark-mode .activity-logs-page .sap-counter strong,
+body.sa-dark-mode .activity-logs-page .sap-counter strong {
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .activity-logs-page .sap-page-btn,
+body.sa-dark-mode .activity-logs-page .sap-page-btn {
+  background: #131d35 !important;
+  border-color: #243354 !important;
+  color: #cbd5e1 !important;
+}
+
+.sa-dark-mode .activity-logs-page .sap-page-btn:hover:not(:disabled),
+body.sa-dark-mode .activity-logs-page .sap-page-btn:hover:not(:disabled) {
+  background: #1e2f57 !important;
+  color: #ffffff !important;
+}
+
+/* Dark Mode Modal Overhaul */
+.sa-dark-mode .act-modal-container,
+body.sa-dark-mode .act-modal-container {
+  background: #0f172a !important;
+  border-color: #1e293b !important;
+  color: #f8fafc !important;
+  box-shadow: 0 25px 65px rgba(0, 0, 0, 0.75) !important;
+}
+
+.sa-dark-mode .act-modal-header,
+body.sa-dark-mode .act-modal-header,
+.sa-dark-mode .act-modal-footer,
+body.sa-dark-mode .act-modal-footer {
+  background: #131d35 !important;
+  border-color: #1e293b !important;
+}
+
+.sa-dark-mode .act-modal-title-box h3,
+body.sa-dark-mode .act-modal-title-box h3 {
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .act-modal-icon-wrap,
+body.sa-dark-mode .act-modal-icon-wrap {
+  background: #1e1b4b !important;
+  border-color: #312e81 !important;
+  color: #a5b4fc !important;
+}
+
+.sa-dark-mode .act-modal-id,
+body.sa-dark-mode .act-modal-id {
+  background: #1e1b4b !important;
+  border-color: #312e81 !important;
+  color: #a5b4fc !important;
+}
+
+.sa-dark-mode .act-modal-desc-box,
+body.sa-dark-mode .act-modal-desc-box,
+.sa-dark-mode .act-modal-grid-card,
+body.sa-dark-mode .act-modal-grid-card {
+  background: #131d35 !important;
+  border-color: #1e293b !important;
+}
+
+.sa-dark-mode .act-modal-desc-box p,
+body.sa-dark-mode .act-modal-desc-box p {
+  color: #e2e8f0 !important;
+}
+
+.sa-dark-mode .act-modal-val,
+body.sa-dark-mode .act-modal-val {
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .act-modal-trace-line,
+body.sa-dark-mode .act-modal-trace-line {
+  border-top-color: #243354 !important;
+  color: #94a3b8 !important;
+}
+
+.sa-dark-mode .act-modal-trace-line strong,
+body.sa-dark-mode .act-modal-trace-line strong {
+  color: #cbd5e1 !important;
+}
+
+.sa-dark-mode .act-copy-mini-btn,
+body.sa-dark-mode .act-copy-mini-btn {
+  border-color: #243354 !important;
+  color: #94a3b8 !important;
+}
+
+.sa-dark-mode .act-copy-mini-btn:hover,
+body.sa-dark-mode .act-copy-mini-btn:hover {
+  background: #243354 !important;
+  color: #ffffff !important;
+}
+
+/* ==========================================================================
+   7. RESPONSIVE BREAKPOINTS
+   ========================================================================== */
+
+@media (max-width: 1200px) {
+  .activity-logs-page .sap-kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .activity-logs-page .sap-header-panel {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .activity-logs-page .sap-header-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .act-modal-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .activity-logs-page {
+    padding: 16px;
+  }
+
+  .activity-logs-page .sap-kpi-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  .activity-logs-page .sap-toolbar-left {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .activity-logs-page .sap-search-input {
+    max-width: none;
+    min-width: 0;
+    width: 100%;
+  }
+
+  .act-modal-footer {
+    flex-direction: column;
+  }
+
+  .act-modal-footer .sa-btn {
+    width: 100% !important;
+  }
 }

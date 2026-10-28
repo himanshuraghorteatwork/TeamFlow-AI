@@ -1,116 +1,1142 @@
 /* ==========================================================================
-   TEAMFLOW AI — SUPER ADMIN AI USAGE CSS
+   TEAMFLOW AI — SUPER ADMIN AI USAGE & TELEMETRY CSS
+   High-End Enterprise SaaS AI Token Analytics, Model Audits & Tenant Quotas
    ========================================================================== */
 
-.sa-aiusage-page {
+.aiu-page {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
+  box-sizing: border-box;
 }
 
-.sa-ai-charts-grid {
+/* ==========================================================================
+   1. MASTER HEADER & TIME-PERIOD CONTROLS
+   ========================================================================== */
+
+.aiu-header-title-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.aiu-live-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+}
+
+.aiu-live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.3);
+  animation: aiuPulse 1.8s infinite;
+}
+
+.aiu-select-filter {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.aiu-select-filter select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding: 8px 32px 8px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #0f172a;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.15s ease;
+}
+
+.aiu-select-filter select:focus {
+  border-color: #3b66ff;
+  box-shadow: 0 0 0 3px rgba(59, 102, 255, 0.15);
+}
+
+.aiu-chevron {
+  position: absolute;
+  right: 11px;
+  pointer-events: none;
+  color: #64748b;
+}
+
+/* ==========================================================================
+   2. CHARTS GRID (VOLUME LOAD & MODEL BREAKDOWN)
+   ========================================================================== */
+
+.aiu-charts-grid {
   display: grid;
   grid-template-columns: 1.25fr 1fr;
   gap: 16px;
 }
 
-.sa-ai-chart-card,
-.sa-ai-models-card {
-  padding: 18px 20px;
+.aiu-chart-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 20px 22px;
   display: flex;
   flex-direction: column;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.04);
 }
 
-.sa-ai-bar-chart {
+.aiu-chart-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.aiu-chart-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 750;
+  color: #0f172a;
+}
+
+.aiu-chart-subtitle {
+  font-size: 12px;
+  color: #64748b;
+  margin-top: 3px;
+  display: block;
+}
+
+.aiu-total-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: #eff6ff;
+  color: #2563eb;
+  border: 1px solid #bfdbfe;
+  white-space: nowrap;
+}
+
+/* Metric Switcher (Tokens vs Invocations) */
+.aiu-metric-toggle {
+  display: flex;
+  background: #f1f5f9;
+  border-radius: 7px;
+  padding: 2px;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.aiu-metric-btn {
+  padding: 4px 10px;
+  font-size: 11.5px;
+  font-weight: 650;
+  border-radius: 5px;
+  border: none;
+  background: transparent;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.aiu-metric-btn.active {
+  background: #ffffff;
+  color: #0f172a;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+}
+
+/* Bar Chart Stage */
+.aiu-bar-chart-stage {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
   gap: 12px;
-  height: 140px;
-  padding-top: 12px;
+  height: 165px;
+  padding: 10px 4px 4px;
+  position: relative;
 }
 
-.sa-ai-bar-col {
+.aiu-bar-col {
   flex: 1;
+  height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
-  height: 100%;
+  position: relative;
   cursor: pointer;
 }
 
-.sa-ai-track {
+.aiu-bar-track {
+  width: 100%;
+  max-width: 36px;
   flex: 1;
-  width: 28px;
   background: #f1f5f9;
   border-radius: 6px;
   display: flex;
-  align-items: flex-end;
+  flex-direction: column;
+  justify-content: flex-end;
   overflow: hidden;
+  transition: background 0.15s ease;
 }
 
-.sa-ai-fill {
+.aiu-bar-col:hover .aiu-bar-track {
+  background: #e2e8f0;
+}
+
+.aiu-bar-fill {
   width: 100%;
-  background: #8b5cf6;
-  border-radius: 6px;
-  transition: height 0.3s ease;
+  background: linear-gradient(180deg, #4f7fff 0%, #2563eb 100%);
+  border-radius: 6px 6px 0 0;
+  transition: height 0.35s cubic-bezier(0.16, 1, 0.3, 1), background 0.15s ease;
 }
 
-.sa-ai-bar-col:hover .sa-ai-fill {
-  background: #7c3aed;
+.aiu-bar-col:hover .aiu-bar-fill {
+  background: linear-gradient(180deg, #60a5fa 0%, #1d4ed8 100%);
 }
 
-.sa-ai-day {
+.aiu-bar-label {
   font-size: 11px;
-  font-weight: 550;
-  color: var(--sa-text-main);
+  font-weight: 600;
+  color: #64748b;
+  margin-top: 8px;
+  white-space: nowrap;
 }
 
-.sa-ai-count {
-  font-size: 10.5px;
-  color: var(--sa-text-muted);
-}
-
-.sa-hover-info-badge {
-  margin-top: 10px;
-  padding: 6px 12px;
-  background: #f8fafc;
-  border-radius: 6px;
+/* Floating Tooltip */
+.aiu-floating-tooltip {
+  position: absolute;
+  bottom: calc(100% - 10px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #0f172a;
+  color: #ffffff;
+  border-radius: 9px;
+  padding: 9px 12px;
   font-size: 11.5px;
-  color: #334155;
-  text-align: center;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.35);
+  z-index: 50;
+  min-width: 150px;
+  pointer-events: none;
+  animation: aiuTooltipPop 0.15s ease both;
 }
 
-.sa-model-bars-list {
+.aiu-floating-tooltip::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 5px;
+  border-style: solid;
+  border-color: #0f172a transparent transparent transparent;
+}
+
+.aiu-tooltip-title {
+  font-weight: 750;
+  margin-bottom: 5px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  padding-bottom: 3px;
+  color: #93b4ff;
+}
+
+.aiu-tooltip-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 11px;
+  margin: 2px 0;
+  color: #cbd5e1;
+}
+
+.aiu-tooltip-row strong {
+  color: #ffffff;
+}
+
+/* Model Consumption List */
+.aiu-models-list {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  margin-top: 8px;
+  gap: 13px;
   flex: 1;
   justify-content: center;
 }
 
-.sa-model-row {
+.aiu-model-row {
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
 
-.sa-model-info-row {
+.aiu-model-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.aiu-model-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.aiu-model-logo-box {
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px;
+  flex-shrink: 0;
+}
+
+.aiu-model-logo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.aiu-model-name {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #0f172a;
+  white-space: nowrap;
+}
+
+.aiu-model-latency {
+  font-size: 10.5px;
+  color: #64748b;
+  display: block;
+}
+
+.aiu-model-val-wrap {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  flex-shrink: 0;
+}
+
+.aiu-model-tokens {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 13px;
+  font-weight: 750;
+  color: #0f172a;
+}
+
+.aiu-model-pct {
+  font-size: 11.5px;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.aiu-progress-track {
+  width: 100%;
+  height: 7px;
+  background: #f1f5f9;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.aiu-progress-fill {
+  height: 100%;
+  border-radius: 10px;
+  transition: width 0.4s ease;
+}
+
+.aiu-chart-footer {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 11.5px;
+  color: #64748b;
+  flex-wrap: wrap;
+}
+
+/* ==========================================================================
+   3. TABLE DATA GRID (TENANT ORGANIZATIONS)
+   ========================================================================== */
+
+.aiu-org-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.aiu-org-avatar-wrap {
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
+  border-radius: 8px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+  flex-shrink: 0;
+  overflow: hidden;
+  transition: transform 0.16s ease;
+}
+
+.aiu-org-cell:hover .aiu-org-avatar-wrap {
+  transform: scale(1.08);
+}
+
+.aiu-org-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.aiu-org-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.aiu-org-name {
+  font-size: 13.5px;
+  font-weight: 750;
+  color: var(--sa-text-main, #0f172a);
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.aiu-org-name:hover {
+  color: #2563eb;
+}
+
+.aiu-org-sub {
+  font-size: 11px;
+  color: var(--sa-text-muted, #64748b);
+  white-space: nowrap;
+}
+
+/* Plan Badge */
+.aiu-plan-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.aiu-plan-pill.enterprise {
+  background: #faf5ff;
+  color: #7e22ce;
+  border: 1px solid #e9d5ff;
+}
+
+.aiu-plan-pill.business {
+  background: #fffbeb;
+  color: #b45309;
+  border: 1px solid #fde68a;
+}
+
+.aiu-plan-pill.pro {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+}
+
+.aiu-share-tag {
+  font-size: 12px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+/* Quota Utilization Cell */
+.aiu-quota-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.aiu-quota-bar-track {
+  flex: 1;
+  height: 7px;
+  background: #f1f5f9;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.aiu-quota-bar-fill {
+  height: 100%;
+  border-radius: 6px;
+  transition: width 0.3s ease;
+}
+
+.aiu-quota-bar-fill.normal {
+  background: #3b66ff;
+}
+
+.aiu-quota-bar-fill.high {
+  background: #f59e0b;
+}
+
+.aiu-quota-bar-fill.critical {
+  background: #ef4444;
+}
+
+.aiu-quota-val {
+  font-size: 12px;
+  font-weight: 750;
+  color: #0f172a;
+  min-width: 32px;
+  text-align: right;
+}
+
+.aiu-quota-val.high {
+  color: #d97706;
+}
+
+.aiu-quota-val.critical {
+  color: #dc2626;
+}
+
+.aiu-quota-limit-sub {
+  display: block;
+  font-size: 10.5px;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+.aiu-latency-badge {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #059669;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  padding: 2px 7px;
+  border-radius: 5px;
+  display: inline-block;
+  white-space: nowrap;
+}
+
+/* ==========================================================================
+   4. ACTIONS GROUP & BUTTONS (NO SQUISHING / NO OVERLAPPING)
+   ========================================================================== */
+
+.aiu-actions-group {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.aiu-action-btn {
+  height: 29px;
+  border-radius: 7px;
+  border: 1px solid;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11.5px;
+  font-weight: 650;
+  cursor: pointer;
+  background: transparent;
+  white-space: nowrap !important;
+  width: auto !important;
+  min-width: max-content;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  transition: all 0.16s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.aiu-action-btn span {
+  white-space: nowrap !important;
+  display: inline;
+}
+
+/* 1. Details Button */
+.aiu-action-btn.btn-view {
+  background: #eff6ff;
+  color: #2563eb;
+  border-color: #bfdbfe;
+  padding: 0 9px;
+}
+
+.aiu-action-btn.btn-view:hover {
+  background: #2563eb;
+  color: #ffffff;
+  border-color: #2563eb;
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25);
+  transform: translateY(-1px);
+}
+
+/* 2. Quota Adjust Button */
+.aiu-action-btn.btn-quota {
+  background: #fffbeb;
+  color: #d97706;
+  border-color: #fde68a;
+  padding: 0 9px;
+}
+
+.aiu-action-btn.btn-quota:hover {
+  background: #d97706;
+  color: #ffffff;
+  border-color: #d97706;
+  box-shadow: 0 2px 6px rgba(217, 119, 6, 0.25);
+  transform: translateY(-1px);
+}
+
+/* 3. Reset Button (Square icon) */
+.aiu-action-btn.btn-reset {
+  width: 29px !important;
+  min-width: 29px !important;
+  height: 29px !important;
+  padding: 0 !important;
+  justify-content: center;
+  background: #f8fafc;
+  color: #64748b;
+  border-color: #cbd5e1;
+}
+
+.aiu-action-btn.btn-reset:hover {
+  background: #0f172a;
+  color: #ffffff;
+  border-color: #0f172a;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.2);
+  transform: translateY(-1px);
+}
+
+/* ==========================================================================
+   5. MODALS (DETAILS, ADJUST QUOTA, RESET DIALOG)
+   ========================================================================== */
+
+.aiu-modal-dialog {
+  width: min(94vw, 640px);
+  max-height: 94vh;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 25px 65px rgba(15, 23, 42, 0.35);
+  border: 1px solid #cbd5e1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: saModalSlide 0.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.aiu-modal-header {
+  padding: 16px 22px;
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.aiu-modal-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.aiu-modal-icon-box {
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #2563eb;
+  flex-shrink: 0;
+}
+
+.aiu-modal-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 750;
+  color: #0f172a;
+}
+
+.aiu-modal-subtitle {
+  margin: 2px 0 0;
+  font-size: 11.5px;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.aiu-modal-body {
+  padding: 20px 24px;
+  overflow-y: auto;
+  max-height: calc(94vh - 130px);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Modal KPI Tiles */
+.aiu-modal-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.aiu-kpi-stat {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.aiu-kpi-stat-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #64748b;
+  letter-spacing: 0.3px;
+}
+
+.aiu-kpi-stat-val {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 17px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.aiu-kpi-stat-val.critical {
+  color: #dc2626;
+}
+
+.aiu-kpi-stat-sub {
+  font-size: 10.5px;
+  color: #94a3b8;
+}
+
+/* Modal Sections */
+.aiu-modal-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.aiu-modal-section-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   font-size: 12px;
+  color: #475569;
 }
 
-.sa-top-orgs-card {
-  padding: 18px 20px 14px;
+.aiu-modal-section-title {
+  font-size: 12px;
+  font-weight: 750;
+  color: #1e293b;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
-@media (max-width: 1050px) {
-  .sa-ai-charts-grid {
+.aiu-model-pill-card {
+  padding: 12px 14px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.aiu-speed-pill {
+  font-family: ui-monospace, monospace;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #059669;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  padding: 3px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+.aiu-features-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.aiu-feature-chip {
+  padding: 5px 10px;
+  border-radius: 7px;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #334155;
+}
+
+/* Form inputs & presets inside Quota modal */
+.aiu-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.aiu-field-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #1e293b;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.aiu-input-with-suffix {
+  display: flex;
+  align-items: center;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #ffffff;
+  overflow: hidden;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.aiu-input-with-suffix:focus-within {
+  border-color: #3b66ff;
+  box-shadow: 0 0 0 3px rgba(59, 102, 255, 0.15);
+}
+
+.aiu-field-input {
+  flex: 1;
+  padding: 9px 12px;
+  border: none;
+  outline: none;
+  font-size: 13.5px;
+  color: #0f172a;
+  background: transparent;
+}
+
+.aiu-input-suffix {
+  padding: 0 12px;
+  font-size: 12px;
+  font-weight: 650;
+  color: #64748b;
+  background: #f8fafc;
+  border-left: 1px solid #e2e8f0;
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.aiu-field-hint {
+  font-size: 11px;
+  color: #64748b;
+  line-height: 1.4;
+}
+
+.aiu-presets-group {
+  margin-top: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.aiu-presets-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.aiu-presets-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.aiu-preset-chip {
+  padding: 5px 10px;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  background: #f8fafc;
+  color: #334155;
+  font-size: 11.5px;
+  font-weight: 650;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.aiu-preset-chip:hover {
+  background: #eff6ff;
+  color: #2563eb;
+  border-color: #bfdbfe;
+  transform: translateY(-1px);
+}
+
+.aiu-modal-footer {
+  padding: 14px 24px;
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+/* Reset Confirmation Dialog */
+.aiu-delete-dialog {
+  width: min(92vw, 440px);
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1px solid #cbd5e1;
+  padding: 26px 24px;
+  text-align: center;
+  box-shadow: 0 25px 65px rgba(15, 23, 42, 0.35);
+  animation: saModalSlide 0.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.aiu-delete-icon-box {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: #eff6ff;
+  color: #2563eb;
+  border: 1px solid #bfdbfe;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+}
+
+.aiu-delete-title {
+  margin: 0 0 8px;
+  font-size: 17px;
+  font-weight: 750;
+  color: #0f172a;
+}
+
+.aiu-delete-desc {
+  margin: 0 0 20px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #64748b;
+}
+
+.aiu-delete-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+/* ==========================================================================
+   6. ANIMATIONS & UTILITIES
+   ========================================================================== */
+
+@keyframes aiuPulse {
+  0% { transform: scale(0.95); opacity: 0.8; }
+  50% { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(0.95); opacity: 0.8; }
+}
+
+@keyframes aiuTooltipPop {
+  0% { opacity: 0; transform: translate(-50%, 6px); }
+  100% { opacity: 1; transform: translate(-50%, 0); }
+}
+
+.aiu-spin {
+  animation: aiuSpin 1s linear infinite;
+}
+
+@keyframes aiuSpin {
+  100% { transform: rotate(360deg); }
+}
+
+/* ==========================================================================
+   7. DARK MODE OVERRIDES (.sa-dark-mode)
+   ========================================================================== */
+
+.sa-dark-mode .aiu-select-filter select {
+  background: #172442 !important;
+  border-color: #273860 !important;
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .aiu-chevron {
+  color: #94a3b8 !important;
+}
+
+.sa-dark-mode .aiu-chart-card {
+  background: #111c35 !important;
+  border-color: #1f2d4d !important;
+}
+
+.sa-dark-mode .aiu-chart-title {
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .aiu-metric-toggle {
+  background: #172442 !important;
+}
+
+.sa-dark-mode .aiu-metric-btn.active {
+  background: #2563eb !important;
+  color: #ffffff !important;
+}
+
+.sa-dark-mode .aiu-bar-track {
+  background: #172442 !important;
+}
+
+.sa-dark-mode .aiu-bar-col:hover .aiu-bar-track {
+  background: #1f2d4d !important;
+}
+
+.sa-dark-mode .aiu-model-logo-box {
+  background: #172442 !important;
+  border-color: #273860 !important;
+}
+
+.sa-dark-mode .aiu-model-name,
+.sa-dark-mode .aiu-model-tokens,
+.sa-dark-mode .aiu-share-tag,
+.aiu-quota-val {
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .aiu-progress-track,
+.sa-dark-mode .aiu-quota-bar-track {
+  background: #172442 !important;
+}
+
+.sa-dark-mode .aiu-chart-footer {
+  border-color: #1f2d4d !important;
+}
+
+.sa-dark-mode .aiu-org-avatar-wrap {
+  background: #172442 !important;
+  border-color: #273860 !important;
+}
+
+.sa-dark-mode .aiu-org-name {
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .aiu-org-name:hover {
+  color: #60a5fa !important;
+}
+
+.sa-dark-mode .aiu-action-btn.btn-reset {
+  background: #172442 !important;
+  border-color: #273860 !important;
+  color: #cbd5e1 !important;
+}
+
+.sa-dark-mode .aiu-action-btn.btn-reset:hover {
+  background: #2563eb !important;
+  color: #ffffff !important;
+  border-color: #2563eb !important;
+}
+
+.sa-dark-mode .aiu-modal-dialog,
+.sa-dark-mode .aiu-delete-dialog {
+  background: #111c35 !important;
+  border-color: #1f2d4d !important;
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .aiu-modal-header,
+.sa-dark-mode .aiu-modal-footer {
+  background: #111c35 !important;
+  border-color: #1f2d4d !important;
+}
+
+.sa-dark-mode .aiu-modal-title,
+.sa-dark-mode .aiu-delete-title,
+.sa-dark-mode .aiu-field-label,
+.sa-dark-mode .aiu-modal-section-title {
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .aiu-modal-body {
+  background: #0b1120 !important;
+}
+
+.sa-dark-mode .aiu-kpi-stat,
+.sa-dark-mode .aiu-model-pill-card,
+.sa-dark-mode .aiu-feature-chip,
+.sa-dark-mode .aiu-preset-chip {
+  background: #172442 !important;
+  border-color: #273860 !important;
+  color: #cbd5e1 !important;
+}
+
+.sa-dark-mode .aiu-kpi-stat-val {
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .aiu-input-with-suffix {
+  background: #172442 !important;
+  border-color: #273860 !important;
+}
+
+.sa-dark-mode .aiu-field-input {
+  color: #f8fafc !important;
+}
+
+.sa-dark-mode .aiu-input-suffix {
+  background: #131e38 !important;
+  border-color: #273860 !important;
+  color: #94a3b8 !important;
+}
+
+/* ==========================================================================
+   8. RESPONSIVE DESIGN
+   ========================================================================== */
+
+@media (max-width: 992px) {
+  .aiu-charts-grid {
     grid-template-columns: 1fr;
   }
 }
 
+@media (max-width: 600px) {
+  .aiu-modal-kpi-grid {
+    grid-template-columns: 1fr;
+  }
+}

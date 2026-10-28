@@ -307,17 +307,26 @@
 }
 
 .sap-avatar-circle {
-  width: 32px;
-  height: 32px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 12px;
   font-weight: 700;
+  letter-spacing: 0.5px;
   flex-shrink: 0;
   color: #ffffff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.12);
+  border: 1.5px solid rgba(255, 255, 255, 0.35);
   background: linear-gradient(135deg, #3b66ff, #1d4ed8);
+  transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.18s ease;
+}
+
+.sap-user-badge:hover .sap-avatar-circle {
+  transform: scale(1.08);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
 .sap-avatar-circle.blue { background: linear-gradient(135deg, #3b66ff, #1d4ed8); }
@@ -747,4 +756,284 @@ body.sa-dark-mode .sa-modal-close:hover {
 .sa-dark-mode .sa-modal-footer,
 body.sa-dark-mode .sa-modal-footer {
   border-top-color: #1f2d4d !important;
+}
+
+/* ==========================================================================
+   COLORED TABLE ACTION BUTTONS (VIEW, EDIT, LOCK/UNLOCK, DELETE)
+   ========================================================================== */
+
+.usr-action-group {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.usr-action-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background: transparent;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  flex-shrink: 0;
+  padding: 0;
+}
+
+/* 1. View Button (Blue / Cyan) */
+.usr-action-btn.btn-view {
+  background: #eff6ff;
+  color: #2563eb;
+  border-color: #bfdbfe;
+}
+
+.usr-action-btn.btn-view:hover {
+  background: #2563eb;
+  color: #ffffff;
+  border-color: #2563eb;
+  box-shadow: 0 3px 8px rgba(37, 99, 235, 0.3);
+  transform: translateY(-1px);
+}
+
+/* 2. Edit Button (Indigo / Violet) */
+.usr-action-btn.btn-edit {
+  background: #f5f3ff;
+  color: #7c3aed;
+  border-color: #ddd6fe;
+}
+
+.usr-action-btn.btn-edit:hover {
+  background: #7c3aed;
+  color: #ffffff;
+  border-color: #7c3aed;
+  box-shadow: 0 3px 8px rgba(124, 58, 237, 0.3);
+  transform: translateY(-1px);
+}
+
+/* 3. Status Toggle Button - Lock (Amber / Orange) */
+.usr-action-btn.btn-toggle.is-lock {
+  background: #fffbeb;
+  color: #d97706;
+  border-color: #fde68a;
+}
+
+.usr-action-btn.btn-toggle.is-lock:hover {
+  background: #d97706;
+  color: #ffffff;
+  border-color: #d97706;
+  box-shadow: 0 3px 8px rgba(217, 119, 6, 0.3);
+  transform: translateY(-1px);
+}
+
+/* Status Toggle Button - Unlock (Emerald / Green) */
+.usr-action-btn.btn-toggle.is-unlock {
+  background: #ecfdf5;
+  color: #059669;
+  border-color: #a7f3d0;
+}
+
+.usr-action-btn.btn-toggle.is-unlock:hover {
+  background: #059669;
+  color: #ffffff;
+  border-color: #059669;
+  box-shadow: 0 3px 8px rgba(5, 150, 105, 0.3);
+  transform: translateY(-1px);
+}
+
+/* 4. Delete Button (Crimson / Red) */
+.usr-action-btn.btn-delete {
+  background: #fef2f2;
+  color: #dc2626;
+  border-color: #fecaca;
+}
+
+.usr-action-btn.btn-delete:hover {
+  background: #dc2626;
+  color: #ffffff;
+  border-color: #dc2626;
+  box-shadow: 0 3px 8px rgba(220, 38, 38, 0.3);
+  transform: translateY(-1px);
+}
+
+/* Dark Mode Action Buttons */
+.sa-dark-mode .usr-action-btn.btn-view,
+body.sa-dark-mode .usr-action-btn.btn-view {
+  background: rgba(59, 130, 246, 0.15) !important;
+  border-color: rgba(59, 130, 246, 0.35) !important;
+  color: #60a5fa !important;
+}
+
+.sa-dark-mode .usr-action-btn.btn-view:hover,
+body.sa-dark-mode .usr-action-btn.btn-view:hover {
+  background: #2563eb !important;
+  color: #ffffff !important;
+  border-color: #2563eb !important;
+  box-shadow: 0 3px 8px rgba(37, 99, 235, 0.4) !important;
+}
+
+.sa-dark-mode .usr-action-btn.btn-edit,
+body.sa-dark-mode .usr-action-btn.btn-edit {
+  background: rgba(139, 92, 246, 0.15) !important;
+  border-color: rgba(139, 92, 246, 0.35) !important;
+  color: #a78bfa !important;
+}
+
+.sa-dark-mode .usr-action-btn.btn-edit:hover,
+body.sa-dark-mode .usr-action-btn.btn-edit:hover {
+  background: #7c3aed !important;
+  color: #ffffff !important;
+  border-color: #7c3aed !important;
+  box-shadow: 0 3px 8px rgba(124, 58, 237, 0.4) !important;
+}
+
+.sa-dark-mode .usr-action-btn.btn-toggle.is-lock,
+body.sa-dark-mode .usr-action-btn.btn-toggle.is-lock {
+  background: rgba(245, 158, 11, 0.15) !important;
+  border-color: rgba(245, 158, 11, 0.35) !important;
+  color: #facc15 !important;
+}
+
+.sa-dark-mode .usr-action-btn.btn-toggle.is-lock:hover,
+body.sa-dark-mode .usr-action-btn.btn-toggle.is-lock:hover {
+  background: #d97706 !important;
+  color: #ffffff !important;
+  border-color: #d97706 !important;
+  box-shadow: 0 3px 8px rgba(217, 119, 6, 0.4) !important;
+}
+
+.sa-dark-mode .usr-action-btn.btn-toggle.is-unlock,
+body.sa-dark-mode .usr-action-btn.btn-toggle.is-unlock {
+  background: rgba(16, 185, 129, 0.15) !important;
+  border-color: rgba(16, 185, 129, 0.35) !important;
+  color: #4ade80 !important;
+}
+
+.sa-dark-mode .usr-action-btn.btn-toggle.is-unlock:hover,
+body.sa-dark-mode .usr-action-btn.btn-toggle.is-unlock:hover {
+  background: #059669 !important;
+  color: #ffffff !important;
+  border-color: #059669 !important;
+  box-shadow: 0 3px 8px rgba(5, 150, 105, 0.4) !important;
+}
+
+.sa-dark-mode .usr-action-btn.btn-delete,
+body.sa-dark-mode .usr-action-btn.btn-delete {
+  background: rgba(239, 68, 68, 0.15) !important;
+  border-color: rgba(239, 68, 68, 0.35) !important;
+  color: #f87171 !important;
+}
+
+.sa-dark-mode .usr-action-btn.btn-delete:hover,
+body.sa-dark-mode .usr-action-btn.btn-delete:hover {
+  background: #dc2626 !important;
+  color: #ffffff !important;
+  border-color: #dc2626 !important;
+  box-shadow: 0 3px 8px rgba(220, 38, 38, 0.4) !important;
+}
+
+/* ==========================================================================
+   USER & ORGANIZATION AVATAR BADGES
+   ========================================================================== */
+
+.usr-table-avatar-wrap {
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
+  border-radius: 9px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+  flex-shrink: 0;
+  transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.18s ease, border-color 0.18s ease;
+  overflow: hidden;
+}
+
+.sap-user-badge:hover .usr-table-avatar-wrap {
+  transform: scale(1.08);
+  border-color: #cbd5e1;
+  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.1);
+}
+
+.usr-table-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.usr-org-avatar-wrap {
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  border-radius: 7px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5px;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.usr-org-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.usr-avatar-modal-wrap {
+  width: 58px;
+  height: 58px;
+  min-width: 58px;
+  border-radius: 14px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.usr-modal-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+/* Dark Mode Overrides for Avatar Badges */
+.sa-dark-mode .usr-table-avatar-wrap,
+body.sa-dark-mode .usr-table-avatar-wrap,
+.sa-dark-mode .usr-org-avatar-wrap,
+body.sa-dark-mode .usr-org-avatar-wrap {
+  background: #172442 !important;
+  border-color: #273860 !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35) !important;
+}
+
+.sa-dark-mode .sap-user-badge:hover .usr-table-avatar-wrap,
+body.sa-dark-mode .sap-user-badge:hover .usr-table-avatar-wrap {
+  border-color: #3b82f6 !important;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25) !important;
+}
+
+.sa-dark-mode .usr-avatar-modal-wrap,
+body.sa-dark-mode .usr-avatar-modal-wrap {
+  background: #172442 !important;
+  border-color: #273860 !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4) !important;
 }

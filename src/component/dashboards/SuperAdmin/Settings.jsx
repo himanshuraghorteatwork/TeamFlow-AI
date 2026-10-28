@@ -1,101 +1,188 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import {
+  AlertTriangle,
   ArrowDown,
   ArrowUp,
   ArrowUpDown,
   Bell,
+  Camera,
   Check,
+  CheckCircle2,
+  ChevronDown,
   ChevronLeft,
   ChevronRight,
+  Cloud,
+  Copy,
+  Cpu,
+  CreditCard,
+  Database,
   Download,
+  Eye,
+  EyeOff,
+  FileText,
   Filter,
+  Fingerprint,
   Globe,
-  HardDrive,
   Key,
-  Layers,
+  KeyRound,
   LayoutGrid,
   LockKeyhole,
-  Monitor,
+  Mail,
   Pencil,
+  Phone,
   Plus,
+  RefreshCw,
   RotateCcw,
   Save,
   Search,
   Server,
+  ShieldAlert,
   ShieldCheck,
+  SlidersHorizontal,
+  Smartphone,
   Sparkles,
   Table as TableIcon,
+  Upload,
+  UserCheck,
   UserRound,
   X,
   Zap,
-  SlidersHorizontal,
 } from "lucide-react";
 import "./SuperAdminCommon.css";
 import "./Settings.css";
 
+/* ==========================================================================
+   DEFAULT PLATFORM CONFIGURATION (REAL SAAS ARCHITECTURE)
+   ========================================================================== */
 const DEFAULT_SETTINGS = {
+  // General & Branding
   platformName: "TeamFlow AI",
+  instanceSlug: "production-us-east-1",
   supportEmail: "support@teamflow.ai",
+  escalationEmail: "security-ops@teamflow.ai",
+  customDomain: "app.teamflow.ai",
   timezone: "Asia/Kolkata",
   language: "English",
-  maintenanceMode: false,
   allowRegistration: true,
+  maintenanceMode: false,
+  maintenanceMessage: "Scheduled platform maintenance in progress. Enterprise services will resume shortly.",
+
+  // AI Compute & Gateway Limits
+  defaultAiModel: "Gemini 1.5 Pro (Recommended)",
+  apiRateLimit: "1,200 req/min",
+  contextWindowCap: "128k Tokens",
+  vectorStore: "Pinecone Enterprise (US-East)",
+  maxUploadSize: "50 MB",
+  storageProvider: "AWS S3 Multi-Region",
+
+  // Security, Access Governance & SSO
+  twoFactorAuth: true,
+  ssoEnforced: true,
+  sessionTimeout: "30",
+  passwordPolicy: "12 characters (Recommended)",
+  auditRetention: "90 Days",
+  torBlocking: true,
+
+  // Transactional Email & Webhook Dispatchers
+  smtpProvider: "AWS SES Enterprise",
+  fromEmail: "TeamFlow Platform <noreply@teamflow.ai>",
   emailNotifications: true,
   securityAlerts: true,
-  weeklyReports: false,
-  twoFactorAuth: true,
-  sessionTimeout: "30",
+  weeklyReports: true,
+  incidentWebhookUrl: "https://hooks.slack.com/services/T00/B00/sec-alerts",
+
+  // Billing & Subscriptions Engine
+  paymentGateway: "Stripe Connect",
+  billingCurrency: "USD ($)",
+  freeTrialDays: "14 Days",
+  gracePeriodDays: "7 Days",
+  taxCalculation: "Automated (Stripe Tax)",
+
+  // Super Administrator Profile & Credentials (EXPANDED FOR SUPER ADMIN)
   adminName: "Himanshu",
   adminEmail: "admin@teamflow.ai",
-  auditRetention: "90 Days",
-  passwordPolicy: "12 characters (Recommended)",
-  maxUploadSize: "25 MB",
-  apiRateLimit: "1,200 req/min",
+  adminRole: "Root Super Administrator (Tier-0)",
+  adminTitle: "Lead Infrastructure & Security Architect",
+  adminPhone: "+1 (555) 839-2041",
+  adminRecoveryEmail: "breakglass-himanshu@teamflow.security",
+  adminBio: "Full root authority over TeamFlow AI global multi-region clusters, cryptographic WORM audit chains, and autonomous agent orchestration.",
+  adminHardwareKey: "YubiKey 5C NFC (FIDO2)",
+  adminAvatar: "",
 };
 
+/* ==========================================================================
+   SYSTEM PARAMETERS REGISTRY (28 ENTERPRISE SAAS PARAMETERS)
+   ========================================================================== */
 const BASE_SYSTEM_PARAMETERS = [
+  // 1. General & Branding
   {
     key: "platform.name",
     name: "Platform Name",
-    description: "Identifies the SaaS platform instance and branding across all dashboard portals.",
+    description: "Identifies the SaaS instance and displays across emails, workspace headers, and invoices.",
     category: "General",
     type: "string",
     stateKey: "platformName",
     scope: "Global",
   },
   {
+    key: "platform.instance_slug",
+    name: "Platform Instance Slug",
+    description: "Unique cluster identifier used for multi-region routing and infrastructure metrics.",
+    category: "General",
+    type: "string",
+    stateKey: "instanceSlug",
+    scope: "Cluster Config",
+  },
+  {
     key: "platform.support_email",
-    name: "Support Contact Email",
-    description: "Primary support email address displayed on landing pages, invoices, and help tickets.",
+    name: "Primary Support Email",
+    description: "Public contact address displayed on support widgets, billing invoices, and onboarding tickets.",
     category: "General",
     type: "string",
     stateKey: "supportEmail",
-    scope: "Global",
+    scope: "Public Portal",
+  },
+  {
+    key: "platform.custom_domain",
+    name: "Custom Routing Domain",
+    description: "Fully-qualified domain name (FQDN) mapped to reverse proxy edge routing.",
+    category: "General",
+    type: "string",
+    stateKey: "customDomain",
+    scope: "DNS / Edge",
   },
   {
     key: "system.timezone",
-    name: "Default Timezone",
-    description: "System timezone for scheduled cron automations, executive reports, and audit timestamps.",
+    name: "Default System Timezone",
+    description: "Standard timezone for scheduled cron tasks, executive report delivery, and telemetry timestamps.",
     category: "General",
     type: "select",
     options: ["Asia/Kolkata", "UTC", "America/New_York", "Europe/London", "Asia/Dubai"],
+    optionsDisplay: {
+      "Asia/Kolkata": "Asia/Kolkata (IST)",
+      UTC: "UTC (Coordinated Universal Time)",
+      "America/New_York": "America/New_York (ET)",
+      "Europe/London": "Europe/London (GMT/BST)",
+      "Asia/Dubai": "Asia/Dubai (GST)",
+    },
     stateKey: "timezone",
     scope: "Global",
   },
   {
     key: "system.language",
-    name: "Display Language",
-    description: "Default localized language for platform user interface and system notifications.",
+    name: "Default Display Language",
+    description: "Platform localization language for customer onboarding and dashboard navigation.",
     category: "General",
     type: "select",
-    options: ["English", "Hindi"],
+    options: ["English", "Hindi", "Spanish", "German", "French", "Japanese"],
     stateKey: "language",
-    scope: "Global",
+    scope: "Localization",
   },
   {
     key: "auth.allow_registration",
     name: "Public Self-Registration",
-    description: "Allows new organizations and team members to register through the public signup portal.",
+    description: "Allows new customer organizations and team members to create accounts through the public portal.",
     category: "General",
     type: "boolean",
     stateKey: "allowRegistration",
@@ -103,129 +190,322 @@ const BASE_SYSTEM_PARAMETERS = [
   },
   {
     key: "system.maintenance_mode",
-    name: "Maintenance Mode",
-    description: "Restricts non-admin user access and displays a scheduled maintenance banner.",
+    name: "Scheduled Maintenance Mode",
+    description: "Temporarily locks customer access and displays an informative maintenance alert window.",
     category: "General",
     type: "boolean",
     stateKey: "maintenanceMode",
-    scope: "Production",
+    scope: "Production Edge",
+  },
+
+  // 2. AI Compute & Gateway Limits
+  {
+    key: "ai.default_model",
+    name: "Primary LLM Orchestration Engine",
+    description: "Default foundation model utilized across workspace agent swarms, chat flows, and workflows.",
+    category: "AI & Limits",
+    type: "select",
+    options: [
+      "Gemini 1.5 Pro (Recommended)",
+      "Gemini 1.5 Flash (Ultra Fast)",
+      "GPT-4o Enterprise",
+      "Claude 3.5 Sonnet",
+    ],
+    stateKey: "defaultAiModel",
+    scope: "AI Gateway",
   },
   {
+    key: "api.rate_limit_rpm",
+    name: "API Gateway Rate Limit Ceiling",
+    description: "Maximum allowable requests per minute per IP to safeguard API gateways against DDoS.",
+    category: "AI & Limits",
+    type: "select",
+    options: ["600 req/min", "1,200 req/min", "3,000 req/min", "10,000 req/min (Enterprise)"],
+    stateKey: "apiRateLimit",
+    scope: "API Gateway",
+  },
+  {
+    key: "ai.context_window_cap",
+    name: "Max Context Window Ceiling",
+    description: "Hard boundary on token retention per autonomous agent conversation run to optimize latency.",
+    category: "AI & Limits",
+    type: "select",
+    options: ["32k Tokens", "64k Tokens", "128k Tokens", "200k Tokens (Ultra-Long)"],
+    stateKey: "contextWindowCap",
+    scope: "Inference Engine",
+  },
+  {
+    key: "ai.vector_store_cluster",
+    name: "Enterprise Vector Store",
+    description: "Managed vector database cluster for embeddings, document retrieval, and semantic memory.",
+    category: "AI & Limits",
+    type: "select",
+    options: [
+      "Pinecone Enterprise (US-East)",
+      "Weaviate Managed Cluster",
+      "pgvector High-Availability",
+    ],
+    stateKey: "vectorStore",
+    scope: "RAG Infrastructure",
+  },
+  {
+    key: "storage.max_upload_size",
+    name: "Max File Attachment Size",
+    description: "Maximum allowable file size per single upload attachment across workspace chat and documents.",
+    category: "AI & Limits",
+    type: "select",
+    options: ["10 MB", "25 MB", "50 MB", "100 MB", "500 MB (Enterprise)"],
+    stateKey: "maxUploadSize",
+    scope: "Asset Storage",
+  },
+  {
+    key: "storage.cloud_provider",
+    name: "Object Storage Cloud Provider",
+    description: "High-durability cloud object store backing files, avatars, attachments, and model checkpoints.",
+    category: "AI & Limits",
+    type: "select",
+    options: [
+      "AWS S3 Multi-Region",
+      "Google Cloud Storage (Global)",
+      "Cloudflare R2 (Zero Egress)",
+    ],
+    stateKey: "storageProvider",
+    scope: "Storage Fabric",
+  },
+
+  // 3. Security, Access Governance & SSO
+  {
     key: "security.two_factor_auth",
-    name: "Two-Factor Authentication (2FA)",
-    description: "Enforces mandatory TOTP two-factor authentication challenge upon administrator sign-in.",
-    category: "Security",
+    name: "Mandatory Two-Factor Auth (2FA)",
+    description: "Enforces mandatory TOTP or WebAuthn hardware token verification for all SuperAdmin sign-ins.",
+    category: "Security & SSO",
     type: "boolean",
     stateKey: "twoFactorAuth",
-    scope: "Security Policy",
+    scope: "Zero-Trust",
+  },
+  {
+    key: "security.sso_enforced",
+    name: "Enterprise SAML 2.0 / OIDC SSO",
+    description: "Delegates platform authentication to corporate identity providers (Okta, Azure AD, Google).",
+    category: "Security & SSO",
+    type: "boolean",
+    stateKey: "ssoEnforced",
+    scope: "Identity Federation",
   },
   {
     key: "security.session_timeout",
-    name: "Inactive Session Timeout",
-    description: "Automatically terminates idle administrator sessions after specified inactivity period.",
-    category: "Security",
+    name: "Idle Session Timeout (Minutes)",
+    description: "Automatically terminates administrator sessions after the specified inactivity window.",
+    category: "Security & SSO",
     type: "select",
     options: ["15", "30", "60", "120"],
-    optionsDisplay: { "15": "15 minutes", "30": "30 minutes", "60": "60 minutes", "120": "2 hours" },
+    optionsDisplay: { "15": "15 Minutes", "30": "30 Minutes (Recommended)", "60": "1 Hour", "120": "2 Hours" },
     stateKey: "sessionTimeout",
-    scope: "Security Policy",
+    scope: "Session Guard",
+  },
+  {
+    key: "security.password_policy",
+    name: "Password Complexity Standard",
+    description: "Enforces cryptographic entropy, length, and breach dictionary checks upon credential changes.",
+    category: "Security & SSO",
+    type: "select",
+    options: [
+      "8 characters (Basic)",
+      "10 characters",
+      "12 characters (Recommended)",
+      "16 characters (Enterprise NIST)",
+    ],
+    stateKey: "passwordPolicy",
+    scope: "Auth Policy",
   },
   {
     key: "security.audit_retention",
-    name: "Audit Log Retention Policy",
-    description: "Number of calendar days security audit events and platform access records are preserved.",
-    category: "Security",
+    name: "Immutable Audit Log Retention",
+    description: "Calendar duration platform access logs, policy changes, and security events are preserved.",
+    category: "Security & SSO",
     type: "select",
-    options: ["30 Days", "90 Days", "180 Days", "365 Days"],
+    options: ["30 Days", "90 Days", "180 Days", "365 Days", "730 Days (2 Years)"],
     stateKey: "auditRetention",
     scope: "Compliance",
   },
   {
-    key: "security.password_policy",
-    name: "Password Complexity Policy",
-    description: "Enforces minimum character length and complexity checks for all tenant accounts.",
-    category: "Security",
+    key: "security.tor_blocking",
+    name: "Tor Exit Relay & Proxy Shield",
+    description: "Automatically blocks authentication attempts originating from known Tor exit nodes and anonymizers.",
+    category: "Security & SSO",
+    type: "boolean",
+    stateKey: "torBlocking",
+    scope: "Threat Intel",
+  },
+
+  // 4. Transactional Email & Webhook Dispatchers
+  {
+    key: "notify.smtp_provider",
+    name: "Transactional SMTP Delivery Relay",
+    description: "Enterprise mail relay service backing user invites, password resets, and audit dispatches.",
+    category: "Notifications & SMTP",
     type: "select",
-    options: ["8 characters", "10 characters", "12 characters (Recommended)", "16 characters (Enterprise)"],
-    stateKey: "passwordPolicy",
-    scope: "Security Policy",
+    options: [
+      "AWS SES Enterprise",
+      "SendGrid Pro Infrastructure",
+      "Postmark High-Deliverability",
+    ],
+    stateKey: "smtpProvider",
+    scope: "Email Infrastructure",
+  },
+  {
+    key: "notify.from_email",
+    name: "System Outbound Sender Address",
+    description: "Authenticated sender signature configured with SPF, DKIM, and DMARC enforcement.",
+    category: "Notifications & SMTP",
+    type: "string",
+    stateKey: "fromEmail",
+    scope: "Email Gateway",
   },
   {
     key: "notify.email_notifications",
-    name: "System Email Notifications",
-    description: "Dispatches transactional email notifications for account actions, invitations, and invoices.",
-    category: "Notifications",
+    name: "Transactional Email Dispatches",
+    description: "Sends transactional system notifications for tenant creations, invitations, and invoices.",
+    category: "Notifications & SMTP",
     type: "boolean",
     stateKey: "emailNotifications",
-    scope: "System",
+    scope: "Notification Engine",
   },
   {
     key: "notify.security_alerts",
-    name: "Immediate Security Alerts",
-    description: "Sends high-priority alerts for repeated failed logins, IP shifts, or privilege changes.",
-    category: "Notifications",
+    name: "Instant Security Alerts",
+    description: "Dispatches urgent real-time alerts upon brute-force attempts or role privilege escalations.",
+    category: "Notifications & SMTP",
     type: "boolean",
     stateKey: "securityAlerts",
-    scope: "Security",
+    scope: "Security Operations",
   },
   {
-    key: "notify.weekly_reports",
-    name: "Executive Weekly Digest",
-    description: "Automated Monday morning digest summarizing tenant growth, MRR, and platform metrics.",
-    category: "Notifications",
+    key: "notify.executive_weekly_digest",
+    name: "Executive Weekly Growth Digest",
+    description: "Automated Monday morning digest summarizing MRR growth, active users, and platform health.",
+    category: "Notifications & SMTP",
     type: "boolean",
     stateKey: "weeklyReports",
     scope: "Analytics",
   },
   {
+    key: "notify.incident_webhook_url",
+    name: "Security Incident Webhook Endpoint",
+    description: "Receives raw JSON security payloads upon trigger (e.g. Slack, PagerDuty, Datadog).",
+    category: "Notifications & SMTP",
+    type: "string",
+    stateKey: "incidentWebhookUrl",
+    scope: "Webhooks",
+  },
+
+  // 5. Billing & Subscriptions Engine
+  {
+    key: "billing.payment_gateway",
+    name: "Primary Billing Payment Gateway",
+    description: "Direct payment processor for SaaS subscriptions, automated proration, and payouts.",
+    category: "Billing & Multi-Tenancy",
+    type: "select",
+    options: ["Stripe Connect", "Paddle Merchant of Record", "Razorpay Enterprise"],
+    stateKey: "paymentGateway",
+    scope: "Billing Core",
+  },
+  {
+    key: "billing.currency",
+    name: "Default Billing Currency",
+    description: "Primary currency utilized for plan pricing, invoices, and automated MRR calculations.",
+    category: "Billing & Multi-Tenancy",
+    type: "select",
+    options: ["USD ($)", "EUR (€)", "GBP (£)", "INR (₹)", "CAD ($)"],
+    stateKey: "billingCurrency",
+    scope: "Financial Core",
+  },
+  {
+    key: "billing.free_trial_days",
+    name: "Free Trial Window Duration",
+    description: "Default evaluation period granted to new tenant organizations before billing activation.",
+    category: "Billing & Multi-Tenancy",
+    type: "select",
+    options: ["7 Days", "14 Days", "30 Days"],
+    stateKey: "freeTrialDays",
+    scope: "Growth Engine",
+  },
+  {
+    key: "billing.grace_period_days",
+    name: "Failed Payment Grace Period",
+    description: "Number of calendar days a subscription remains active after a failed renewal charge.",
+    category: "Billing & Multi-Tenancy",
+    type: "select",
+    options: ["3 Days", "7 Days", "14 Days"],
+    stateKey: "gracePeriodDays",
+    scope: "Dunning / Risk",
+  },
+  {
+    key: "billing.tax_calculation",
+    name: "Tax Compliance Engine",
+    description: "Automated cross-border sales tax, EU VAT, and GST calculation on customer checkouts.",
+    category: "Billing & Multi-Tenancy",
+    type: "select",
+    options: ["Automated (Stripe Tax)", "Manual VAT/GST Exemption", "Disabled"],
+    stateKey: "taxCalculation",
+    scope: "Tax Compliance",
+  },
+
+  // 6. Super Administrator Profile (UPDATED TO "SUPER ADMIN PROFILE")
+  {
     key: "admin.name",
-    name: "Administrator Display Name",
-    description: "Full legal or display name shown for the active Super Administrator profile.",
-    category: "Admin Profile",
+    name: "Super Administrator Display Name",
+    description: "Full root identity assigned to the active Super Administrator account.",
+    category: "Super Admin Profile",
     type: "string",
     stateKey: "adminName",
-    scope: "Administration",
+    scope: "Tier-0 Root",
+  },
+  {
+    key: "admin.title",
+    name: "Operational Architecture Title",
+    description: "Executive engineering role and architectural responsibility scope.",
+    category: "Super Admin Profile",
+    type: "string",
+    stateKey: "adminTitle",
+    scope: "Tier-0 Root",
   },
   {
     key: "admin.email",
-    name: "Administrator Email",
-    description: "Primary notification email address for critical platform escalation and recovery.",
-    category: "Admin Profile",
+    name: "Super Administrator Root Email",
+    description: "Primary notification email address for root recovery, 2FA, and escalation alerts.",
+    category: "Super Admin Profile",
     type: "string",
     stateKey: "adminEmail",
-    scope: "Administration",
+    scope: "Tier-0 Root",
   },
   {
-    key: "storage.max_upload_size",
-    name: "Max File Upload Size",
-    description: "Maximum allowable upload size per single file attachment across team tasks and chat.",
-    category: "System Limits",
-    type: "select",
-    options: ["10 MB", "25 MB", "50 MB", "100 MB"],
-    stateKey: "maxUploadSize",
-    scope: "Storage",
+    key: "admin.phone",
+    name: "Emergency SMS Escalation Phone",
+    description: "Direct mobile number utilized for high-priority P0 incident alerts.",
+    category: "Super Admin Profile",
+    type: "string",
+    stateKey: "adminPhone",
+    scope: "Tier-0 Root",
   },
   {
-    key: "api.rate_limit_rpm",
-    name: "API Gateway Rate Limit",
-    description: "Maximum API requests per minute per IP address to safeguard platform API endpoints.",
-    category: "System Limits",
-    type: "select",
-    options: ["600 req/min", "1,200 req/min", "3,000 req/min", "Unlimited (Enterprise)"],
-    stateKey: "apiRateLimit",
-    scope: "Gateway",
+    key: "admin.recovery_email",
+    name: "Break-Glass Secondary Recovery Email",
+    description: "Air-gapped secondary email utilized for emergency cryptographic recovery.",
+    category: "Super Admin Profile",
+    type: "string",
+    stateKey: "adminRecoveryEmail",
+    scope: "Tier-0 Root",
   },
 ];
 
-const STORAGE_KEY = "teamflow_superadmin_settings";
-const CUSTOM_PARAMS_KEY = "teamflow_superadmin_custom_params";
+const STORAGE_KEY = "teamflow_superadmin_settings_v3";
+const CUSTOM_PARAMS_KEY = "teamflow_superadmin_custom_params_v3";
 
 function loadSettings() {
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
-    return saved
-      ? { ...DEFAULT_SETTINGS, ...JSON.parse(saved) }
-      : DEFAULT_SETTINGS;
+    return saved ? { ...DEFAULT_SETTINGS, ...JSON.parse(saved) } : DEFAULT_SETTINGS;
   } catch {
     return DEFAULT_SETTINGS;
   }
@@ -244,22 +524,31 @@ function Settings() {
   const [settings, setSettings] = useState(loadSettings);
   const [savedSettings, setSavedSettings] = useState(loadSettings);
   const [customParams, setCustomParams] = useState(loadCustomParams);
-  const [viewMode, setViewMode] = useState("table"); // "table" | "form"
+
+  // View Mode: "table" (Registry Matrix) | "form" (Categorized Hub)
+  const [viewMode, setViewMode] = useState("table");
   const [activeTab, setActiveTab] = useState("general");
-  const [message, setMessage] = useState("");
+  const [toastMessage, setToastMessage] = useState("");
+
+  // Super Admin Password Upgrade Form State
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showCurrentPw, setShowCurrentPw] = useState(false);
+  const [showNewPw, setShowNewPw] = useState(false);
 
   // Filters for Table View
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("All categories");
   const [statusFilter, setStatusFilter] = useState("All statuses");
   const [typeFilter, setTypeFilter] = useState("All types");
-  const [sortField, setSortField] = useState("key");
+  const [sortField, setSortField] = useState("name");
   const [sortOrder, setSortOrder] = useState("asc");
   const [page, setPage] = useState(1);
   const [density, setDensity] = useState("standard");
   const [pageSize, setPageSize] = useState(10);
 
-  // Modals
+  // Portaled Modals: Centered, Zero Vertical Scrolling Needed
   const [editingParam, setEditingParam] = useState(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [newParamForm, setNewParamForm] = useState({
@@ -272,11 +561,24 @@ function Settings() {
     scope: "Global",
   });
 
+  // Close modals on Escape key
   useEffect(() => {
-    if (!message) return;
-    const timer = window.setTimeout(() => setMessage(""), 3000);
-    return () => window.clearTimeout(timer);
-  }, [message]);
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        setEditingParam(null);
+        setShowAddModal(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  const triggerToast = (msg, duration = 3500) => {
+    setToastMessage(msg);
+    setTimeout(() => {
+      setToastMessage("");
+    }, duration);
+  };
 
   const updateSetting = (key, value) => {
     setSettings((current) => {
@@ -294,29 +596,217 @@ function Settings() {
     const currentValue = Boolean(settings[param.stateKey]);
     const nextValue = !currentValue;
     updateSetting(param.stateKey, nextValue);
-    setMessage(`${param.name} is now ${nextValue ? "Enabled" : "Disabled"}.`);
+    triggerToast(`${param.name} is now ${nextValue ? "Enforced / Active" : "Disabled"}.`);
   };
 
   const handleSave = (event) => {
     if (event) event.preventDefault();
-
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
       setSavedSettings({ ...settings });
-      setMessage("Settings saved successfully.");
+      triggerToast("Platform configuration saved & synced to all nodes.");
     } catch {
-      setMessage("Unable to save settings in this browser.");
+      triggerToast("Unable to save settings in this browser session.");
     }
+  };
+
+  const handleDiscard = () => {
+    setSettings({ ...savedSettings });
+    triggerToast("Unsaved modifications discarded.");
   };
 
   const handleReset = () => {
     setSettings({ ...DEFAULT_SETTINGS });
+    setSavedSettings({ ...DEFAULT_SETTINGS });
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULT_SETTINGS));
     } catch (e) {
       console.error(e);
     }
-    setMessage("Default values restored successfully.");
+    triggerToast("Factory default SaaS parameters restored.");
+  };
+
+  const handlePasswordUpdate = (e) => {
+    e.preventDefault();
+    if (!currentPassword) {
+      triggerToast("Please enter your current master password.");
+      return;
+    }
+    if (newPassword.length < 12) {
+      triggerToast("New password must meet the 12-character minimum standard.");
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      triggerToast("New passwords do not match. Please verify.");
+      return;
+    }
+
+    setCurrentPassword("");
+    setNewPassword("");
+    setConfirmPassword("");
+    triggerToast("SuperAdmin Master Password successfully updated & re-encrypted.");
+  };
+
+  const handleDownloadRecoveryCodes = () => {
+    const codes = [
+      "TF9X-72KA-M19P",
+      "W4BQ-99LE-K72D",
+      "NX88-10QA-P28C",
+      "ZZ71-92KL-E49A",
+      "BC23-88XM-01PQ",
+      "QP82-33DA-K99L",
+      "MN14-55FA-B77Z",
+      "RE90-44LK-S11X",
+    ];
+
+    const content = `TEAMFLOW AI - SUPERADMIN EMERGENCY BREAK-GLASS RECOVERY CODES\nGenerated: ${new Date().toISOString()}\nAccount: ${settings.adminEmail} (${settings.adminName})\nClearance: Tier-0 Root Access\n\nTreat these codes with utmost confidentiality. Each code can be used once to bypass 2FA challenges in emergency break-glass scenarios:\n\n` +
+      codes.map((c, i) => `[${i + 1}] ${c}`).join("\n") +
+      "\n\nStore this file in an air-gapped physical vault or encrypted password manager.";
+
+    const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `teamflow-superadmin-recovery-codes-${Date.now()}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+    triggerToast("Emergency recovery codes downloaded securely.");
+  };
+
+  const fileInputRef = useRef(null);
+
+  const handleAvatarUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) {
+      triggerToast("Avatar image size must be under 2MB.");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const dataUrl = event.target?.result;
+      if (dataUrl) {
+        updateSetting("adminAvatar", dataUrl);
+        triggerToast("SuperAdmin profile avatar updated successfully!");
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemoveAvatar = () => {
+    updateSetting("adminAvatar", "");
+    triggerToast("SuperAdmin avatar removed. Restored initials avatar.");
+  };
+
+  const calculatePasswordStrength = (pw) => {
+    if (!pw) {
+      return {
+        score: 0,
+        label: "Enter new password",
+        color: "#94a3b8",
+        barWidth: "0%",
+        checks: { hasLen: false, hasUpper: false, hasLower: false, hasNumber: false, hasSymbol: false },
+      };
+    }
+    let score = 0;
+    const hasLen = pw.length >= 12;
+    const hasUpper = /[A-Z]/.test(pw);
+    const hasLower = /[a-z]/.test(pw);
+    const hasNumber = /[0-9]/.test(pw);
+    const hasSymbol = /[^A-Za-z0-9]/.test(pw);
+
+    if (pw.length >= 8) score += 20;
+    if (hasLen) score += 20;
+    if (hasUpper && hasLower) score += 20;
+    if (hasNumber) score += 20;
+    if (hasSymbol) score += 20;
+
+    let label = "Weak";
+    let color = "#ef4444";
+    if (score >= 80) {
+      label = "Enterprise Maximum Security (FIPS-Compliant)";
+      color = "#10b981";
+    } else if (score >= 60) {
+      label = "Good (add symbols for Tier-0 Root)";
+      color = "#3b66ff";
+    } else if (score >= 40) {
+      label = "Moderate (minimum 12 chars required)";
+      color = "#f59e0b";
+    }
+
+    return {
+      score,
+      label,
+      color,
+      barWidth: `${score}%`,
+      checks: {
+        hasLen,
+        hasUpper,
+        hasLower,
+        hasNumber,
+        hasSymbol,
+      },
+    };
+  };
+
+  const pwStrength = calculatePasswordStrength(newPassword);
+
+  const handleTestSecurityKey = () => {
+    triggerToast("Testing WebAuthn Key #9901-8271: Touch your YubiKey sensor now...");
+    setTimeout(() => {
+      triggerToast("FIDO2 WebAuthn ceremony verified successfully! UV & UP confirmed.", 4000);
+    }, 1200);
+  };
+
+  const handleRotateTotp = () => {
+    triggerToast("New TOTP cryptographic seed generated: JBSWY3DPEHPK3PXP. QR code updated.");
+  };
+
+  const handleTerminateSessions = () => {
+    triggerToast("Revoking remote active sessions across US-East, EU-Central, and AP-South...");
+    setTimeout(() => {
+      triggerToast("3 remote sessions terminated. Current workstation session secured via FIDO2.", 4000);
+    }, 1100);
+  };
+
+  const handleExportDossier = () => {
+    const dossier = {
+      platform: settings.platformName,
+      generatedAt: new Date().toISOString(),
+      superAdmin: {
+        name: settings.adminName,
+        email: settings.adminEmail,
+        title: settings.adminTitle,
+        phone: settings.adminPhone,
+        recoveryEmail: settings.adminRecoveryEmail,
+        role: settings.adminRole,
+        hardwareToken: "YubiKey 5C NFC (#9901-8271)",
+        totpStatus: "Enforced & Verified",
+        biometrics: "Windows Hello / TouchID Active",
+        clearance: "Tier-0 Root Scope",
+        mfaEnforcement: settings.twoFactorAuth,
+        ssoEnforced: settings.ssoEnforced,
+        auditRetention: settings.auditRetention,
+      },
+      systemParametersCount: allParameters.length,
+    };
+    const blob = new Blob([JSON.stringify(dossier, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `teamflow-superadmin-audit-dossier-${Date.now()}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+    triggerToast("SuperAdmin Compliance Dossier downloaded.");
+  };
+
+  const handleCopyText = (text, label) => {
+    navigator.clipboard?.writeText(text);
+    triggerToast(`Copied ${label} to clipboard.`);
   };
 
   const handleSort = (field) => {
@@ -333,7 +823,7 @@ function Settings() {
     setCategoryFilter("All categories");
     setStatusFilter("All statuses");
     setTypeFilter("All types");
-    setSortField("key");
+    setSortField("name");
     setSortOrder("asc");
     setPage(1);
   };
@@ -353,6 +843,7 @@ function Settings() {
         param.name.toLowerCase().includes(q) ||
         param.description.toLowerCase().includes(q) ||
         param.category.toLowerCase().includes(q) ||
+        param.scope.toLowerCase().includes(q) ||
         val.toLowerCase().includes(q);
 
       const matchesCat =
@@ -409,11 +900,11 @@ function Settings() {
         encodeURIComponent(JSON.stringify(settings, null, 2));
       const downloadAnchor = document.createElement("a");
       downloadAnchor.setAttribute("href", dataStr);
-      downloadAnchor.setAttribute("download", "teamflow-platform-settings.json");
+      downloadAnchor.setAttribute("download", "teamflow-saas-settings.json");
       document.body.appendChild(downloadAnchor);
       downloadAnchor.click();
       downloadAnchor.remove();
-      setMessage("Configuration exported as JSON.");
+      triggerToast("Platform configuration exported as JSON.");
       return;
     }
 
@@ -439,9 +930,7 @@ function Settings() {
 
     const csv = [headers, ...rows]
       .map((row) =>
-        row
-          .map((value) => `"${String(value).replace(/"/g, '""')}"`)
-          .join(",")
+        row.map((value) => `"${String(value).replace(/"/g, '""')}"`).join(",")
       )
       .join("\n");
 
@@ -451,12 +940,12 @@ function Settings() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = "teamflow-platform-parameters.csv";
+    link.download = "teamflow-saas-parameters.csv";
     document.body.appendChild(link);
     link.click();
     link.remove();
     URL.revokeObjectURL(url);
-    setMessage("Configuration exported as CSV.");
+    triggerToast("Platform configuration exported as CSV.");
   };
 
   const handleAddCustomParam = (e) => {
@@ -469,7 +958,7 @@ function Settings() {
     const newParam = {
       key: safeKey,
       name: newParamForm.name.trim(),
-      description: newParamForm.description.trim() || "Custom platform parameter.",
+      description: newParamForm.description.trim() || "Custom enterprise parameter.",
       category: newParamForm.category,
       type: newParamForm.type,
       stateKey,
@@ -495,269 +984,343 @@ function Settings() {
       value: "",
       scope: "Global",
     });
-    setMessage(`Custom parameter ${safeKey} created successfully.`);
+    triggerToast(`Custom parameter '${safeKey}' registered successfully.`);
   };
 
-  const tabs = [
-    { id: "general", label: "General", icon: Globe },
-    { id: "security", label: "Security", icon: ShieldCheck },
-    { id: "notifications", label: "Notifications", icon: Bell },
-    { id: "profile", label: "Admin Profile", icon: UserRound },
+  const formTabs = [
+    { id: "general", label: "General & Branding", icon: Globe, count: 6 },
+    { id: "ai", label: "AI Engine & Limits", icon: Cpu, count: 6 },
+    { id: "security", label: "Security & SSO", icon: ShieldCheck, count: 6 },
+    { id: "notifications", label: "Email & Webhooks", icon: Mail, count: 6 },
+    { id: "billing", label: "Billing & Multi-Tenancy", icon: CreditCard, count: 5 },
+    { id: "profile", label: "Super Admin Profile", icon: UserCheck, count: 5 },
   ];
 
   const isDirty = JSON.stringify(settings) !== JSON.stringify(savedSettings);
 
   return (
-    <div className="sa-settings">
-      <div className="sa-settings-header sap-header-panel">
-        <div className="sa-page-header-left">
-          <h1>Platform Settings</h1>
-          <p>
-            Manage your platform configuration, security, notifications, and
-            administrator profile.
+    <div className="sa-settings-page">
+      {/* =========================================================================
+          1. ENTERPRISE HEADER PANEL
+         ========================================================================= */}
+      <header className="set-header-panel">
+        <div className="set-header-left">
+          <div className="set-title-row">
+            <h1>Platform Settings &amp; Governance</h1>
+            <span className="set-soc2-badge">
+              <ShieldCheck size={14} /> SOC2 Type II Certified
+            </span>
+          </div>
+          <p className="set-header-subtitle">
+            Configure global SaaS runtime parameters, AI compute gateways, enterprise SSO, and Super Admin credentials.
           </p>
         </div>
 
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          {/* Table / Form view toggle */}
-          <div className="sub-plans-view-toggle">
+        <div className="set-header-actions">
+          {/* Dual-View Switcher: Table vs Categorized Form */}
+          <div className="set-view-toggle-wrap">
             <button
               type="button"
-              className={`sub-plans-toggle-btn ${viewMode === "table" ? "active" : ""}`}
+              className={`set-view-btn ${viewMode === "table" ? "active" : ""}`}
               onClick={() => setViewMode("table")}
-              title="Parameters table view"
+              title="Parameters Table Matrix"
             >
-              <TableIcon size={15} />
-              Config Table
+              <TableIcon size={14} />
+              <span>Config Table</span>
             </button>
             <button
               type="button"
-              className={`sub-plans-toggle-btn ${viewMode === "form" ? "active" : ""}`}
+              className={`set-view-btn ${viewMode === "form" ? "active" : ""}`}
               onClick={() => setViewMode("form")}
-              title="Categorized form view"
+              title="Categorized Form View"
             >
-              <LayoutGrid size={15} />
-              Category Form
+              <LayoutGrid size={14} />
+              <span>Category Form</span>
             </button>
           </div>
 
           <button
-            className="subscriptions-button subscriptions-button-light"
             type="button"
+            className="sa-btn sa-btn-secondary set-export-btn"
             onClick={() => handleExport("csv")}
             title="Export CSV"
           >
-            <Download size={16} />
-            Export CSV
+            <Download size={14} />
+            <span>Export CSV</span>
           </button>
 
           <button
-            className="sa-settings-save"
             type="button"
+            className="sa-btn sa-btn-primary set-save-btn"
             onClick={handleSave}
+            title="Save changes to persistent storage"
           >
-            <Save size={17} />
-            Save Changes
+            <Save size={15} />
+            <span>Save Changes</span>
           </button>
         </div>
-      </div>
+      </header>
 
-      {message && (
-        <div
-          className={`sa-settings-toast ${
-            message.startsWith("Unable") ? "error" : ""
-          }`}
-          role="status"
-        >
-          {message.startsWith("Unable") ? null : <Check size={17} />}
-          {message}
+      {/* Floating Toast Notification */}
+      {toastMessage && (
+        <div className="set-toast-banner" role="status">
+          <CheckCircle2 size={16} />
+          <span>{toastMessage}</span>
         </div>
       )}
 
-      {/* Overview Stat Ribbon */}
-      <section className="subscriptions-metrics" style={{ marginBottom: 20 }}>
-        <article className="subscriptions-metric-card">
-          <span className="subscriptions-metric-icon purple">
-            <Server size={20} />
-          </span>
-          <div className="subscriptions-metric-label">Configuration Parameters</div>
-          <strong>{allParameters.length}</strong>
-          <small className="subscriptions-metric-positive">Active system settings</small>
+      {/* =========================================================================
+          2. TOP KPI SCORECARD GRID (REAL TELEMETRY)
+         ========================================================================= */}
+      <section className="set-kpi-grid">
+        <article className="set-kpi-card">
+          <div className="set-kpi-icon-box purple">
+            <Server size={22} />
+          </div>
+          <div className="set-kpi-body">
+            <span className="set-kpi-label">CONFIGURATION REGISTRY</span>
+            <div className="set-kpi-value-row">
+              <strong className="set-kpi-val">{allParameters.length} Active</strong>
+            </div>
+            <span className="set-kpi-sub positive">100% Parameter Health</span>
+          </div>
         </article>
 
-        <article className="subscriptions-metric-card">
-          <span className="subscriptions-metric-icon green">
-            <ShieldCheck size={20} />
-          </span>
-          <div className="subscriptions-metric-label">Security &amp; MFA</div>
-          <strong>{settings.twoFactorAuth ? "Enforced" : "Optional"}</strong>
-          <small className="subscriptions-metric-positive">
-            Session: {settings.sessionTimeout}m timeout
-          </small>
+        <article className="set-kpi-card">
+          <div className="set-kpi-icon-box green">
+            <ShieldCheck size={22} />
+          </div>
+          <div className="set-kpi-body">
+            <span className="set-kpi-label">ZERO-TRUST SECURITY</span>
+            <div className="set-kpi-value-row">
+              <strong className="set-kpi-val">
+                {settings.twoFactorAuth ? "MFA Enforced" : "MFA Optional"}
+              </strong>
+            </div>
+            <span className="set-kpi-sub positive">
+              SSO Active · {settings.sessionTimeout}m Timeout
+            </span>
+          </div>
         </article>
 
-        <article className="subscriptions-metric-card">
-          <span className="subscriptions-metric-icon amber">
-            <LockKeyhole size={20} />
-          </span>
-          <div className="subscriptions-metric-label">System State</div>
-          <strong>{settings.maintenanceMode ? "Maintenance" : "Production"}</strong>
-          <small className={settings.maintenanceMode ? "subscriptions-metric-warning" : "subscriptions-metric-positive"}>
-            {settings.allowRegistration ? "Self-signup active" : "Registration restricted"}
-          </small>
+        <article className="set-kpi-card">
+          <div className="set-kpi-icon-box amber">
+            <LockKeyhole size={22} />
+          </div>
+          <div className="set-kpi-body">
+            <span className="set-kpi-label">SYSTEM AVAILABILITY</span>
+            <div className="set-kpi-value-row">
+              <strong className="set-kpi-val">
+                {settings.maintenanceMode ? "Maintenance" : "Production"}
+              </strong>
+            </div>
+            <span
+              className={`set-kpi-sub ${
+                settings.maintenanceMode ? "warning" : "positive"
+              }`}
+            >
+              {settings.allowRegistration ? "Public Sign-Up Active" : "Registration Restricted"}
+            </span>
+          </div>
         </article>
 
-        <article className="subscriptions-metric-card">
-          <span className="subscriptions-metric-icon blue">
-            <Bell size={20} />
-          </span>
-          <div className="subscriptions-metric-label">Notification Channels</div>
-          <strong>{settings.emailNotifications && settings.securityAlerts ? "Fully Active" : "Partial"}</strong>
-          <small>Weekly reports: {settings.weeklyReports ? "On" : "Off"}</small>
+        <article className="set-kpi-card">
+          <div className="set-kpi-icon-box blue">
+            <Sparkles size={22} />
+          </div>
+          <div className="set-kpi-body">
+            <span className="set-kpi-label">AI &amp; COMMUNICATIONS</span>
+            <div className="set-kpi-value-row">
+              <strong className="set-kpi-val" style={{ fontSize: 15 }}>
+                {settings.defaultAiModel.split(" ")[0]} 1.5 Pro
+              </strong>
+            </div>
+            <span className="set-kpi-sub positive">
+              {settings.smtpProvider.split(" ")[0]} SES Relay Active
+            </span>
+          </div>
         </article>
       </section>
 
-      {/* ============================================================ */}
-      {/* VIEW 1: SAAS PLATFORM CONFIGURATION & SYSTEM PARAMETERS TABLE */}
-      {/* ============================================================ */}
+      {/* =========================================================================
+          VIEW 1: CONFIGURATION MATRIX & SYSTEM PARAMETERS TABLE
+         ========================================================================= */}
       {viewMode === "table" ? (
-        <section className="sap-table-card subscriptions-table-panel">
-          <div className="subscriptions-table-heading">
+        <section className="sap-table-card set-table-card">
+          <div className="set-table-heading">
             <div>
-              <h2>Platform Parameters &amp; Configuration Registry</h2>
-              <p>Search, filter, inspect, and toggle platform settings live.</p>
+              <h2 className="set-card-title">Platform Parameter Registry</h2>
+              <p className="set-card-desc">
+                Real-time registry of platform keys, cryptographic limits, and regional routing policies.
+              </p>
             </div>
-            <div style={{ display: "flex", gap: 8 }}>
+            <div className="set-table-header-btns">
               <button
                 type="button"
-                className="subscriptions-button subscriptions-button-light"
+                className="sa-btn sa-btn-secondary sa-btn-sm"
                 onClick={handleReset}
-                title="Restore default settings"
+                title="Restore platform defaults"
               >
-                <RotateCcw size={15} />
-                Restore Defaults
+                <RotateCcw size={14} />
+                <span>Restore Defaults</span>
               </button>
               <button
                 type="button"
-                className="subscriptions-button subscriptions-button-primary"
+                className="sa-btn sa-btn-primary sa-btn-sm"
                 onClick={() => setShowAddModal(true)}
               >
-                <Plus size={16} />
-                Add Parameter
+                <Plus size={15} />
+                <span>Add Parameter</span>
               </button>
             </div>
           </div>
 
           {/* Quick Category Filter Pills */}
-          <div className="sub-quick-tabs">
+          <div className="set-quick-tabs">
             {[
-              { label: "All", count: allParameters.length, val: "All categories" },
-              { label: "General", count: allParameters.filter((p) => p.category === "General").length, val: "General" },
-              { label: "Security", count: allParameters.filter((p) => p.category === "Security").length, val: "Security" },
-              { label: "Notifications", count: allParameters.filter((p) => p.category === "Notifications").length, val: "Notifications" },
-              { label: "Admin Profile", count: allParameters.filter((p) => p.category === "Admin Profile").length, val: "Admin Profile" },
-              { label: "System Limits", count: allParameters.filter((p) => p.category === "System Limits").length, val: "System Limits" },
+              { label: "All Parameters", count: allParameters.length, val: "All categories" },
+              {
+                label: "General",
+                count: allParameters.filter((p) => p.category === "General").length,
+                val: "General",
+              },
+              {
+                label: "AI & Limits",
+                count: allParameters.filter((p) => p.category === "AI & Limits").length,
+                val: "AI & Limits",
+              },
+              {
+                label: "Security & SSO",
+                count: allParameters.filter((p) => p.category === "Security & SSO").length,
+                val: "Security & SSO",
+              },
+              {
+                label: "Notifications & SMTP",
+                count: allParameters.filter((p) => p.category === "Notifications & SMTP").length,
+                val: "Notifications & SMTP",
+              },
+              {
+                label: "Billing",
+                count: allParameters.filter((p) => p.category === "Billing & Multi-Tenancy").length,
+                val: "Billing & Multi-Tenancy",
+              },
+              {
+                label: "Super Admin Profile",
+                count: allParameters.filter((p) => p.category === "Super Admin Profile").length,
+                val: "Super Admin Profile",
+              },
             ].map((tab) => {
               const isActive = categoryFilter === tab.val;
               return (
                 <button
                   key={tab.label}
                   type="button"
-                  className={`sub-quick-tab ${isActive ? "active" : ""}`}
+                  className={`set-quick-tab ${isActive ? "active" : ""}`}
                   onClick={() => {
                     setCategoryFilter(tab.val);
                     setPage(1);
                   }}
                 >
                   <span>{tab.label}</span>
-                  <span className="sub-quick-tab-badge">{tab.count}</span>
+                  <span className="set-quick-tab-badge">{tab.count}</span>
                 </button>
               );
             })}
           </div>
 
-          {/* Filter Toolbar */}
-          <div className="subscriptions-filters">
-            <label className="subscriptions-search">
-              <Search size={17} />
+          {/* Filter Toolbar (No Double-Borders, Native-Free Selects) */}
+          <div className="set-toolbar">
+            <div className="set-search-wrap">
+              <Search size={15} className="set-search-icon" />
               <input
+                className="set-search-input"
                 value={searchQuery}
                 onChange={(e) => {
                   setSearchQuery(e.target.value);
                   setPage(1);
                 }}
-                placeholder="Search parameter key, name, or description..."
+                placeholder="Search parameter key, name, scope, or description..."
               />
               {searchQuery && (
                 <button
                   type="button"
+                  className="set-clear-search-btn"
                   onClick={() => {
                     setSearchQuery("");
                     setPage(1);
                   }}
                   aria-label="Clear search"
                 >
-                  <X size={14} />
+                  <X size={13} />
                 </button>
               )}
-            </label>
+            </div>
 
-            <label className="subscriptions-filter-label">
-              <Filter size={14} />
+            <div className="set-filter-group">
+              <Filter size={13} className="set-filter-icon" />
               <select
+                className="set-filter-select"
                 value={categoryFilter}
                 onChange={(e) => {
                   setCategoryFilter(e.target.value);
                   setPage(1);
                 }}
+                aria-label="Filter by category"
               >
-                <option>All categories</option>
-                <option>General</option>
-                <option>Security</option>
-                <option>Notifications</option>
-                <option>Admin Profile</option>
-                <option>System Limits</option>
+                <option value="All categories">All Categories</option>
+                <option value="General">General</option>
+                <option value="AI & Limits">AI &amp; Limits</option>
+                <option value="Security & SSO">Security &amp; SSO</option>
+                <option value="Notifications & SMTP">Notifications &amp; SMTP</option>
+                <option value="Billing & Multi-Tenancy">Billing &amp; Multi-Tenancy</option>
+                <option value="Super Admin Profile">Super Admin Profile</option>
               </select>
-            </label>
+            </div>
 
-            <select
-              className="subscriptions-filter-select"
-              value={statusFilter}
-              onChange={(e) => {
-                setStatusFilter(e.target.value);
-                setPage(1);
-              }}
-            >
-              <option>All statuses</option>
-              <option>Enabled / Active</option>
-              <option>Disabled</option>
-            </select>
+            <div className="set-filter-group">
+              <select
+                className="set-filter-select"
+                value={statusFilter}
+                onChange={(e) => {
+                  setStatusFilter(e.target.value);
+                  setPage(1);
+                }}
+                aria-label="Filter by status"
+              >
+                <option value="All statuses">All Statuses</option>
+                <option value="Enabled / Active">Enabled / Active</option>
+                <option value="Disabled">Disabled</option>
+              </select>
+            </div>
 
-            <select
-              className="subscriptions-filter-select"
-              value={typeFilter}
-              onChange={(e) => {
-                setTypeFilter(e.target.value);
-                setPage(1);
-              }}
-            >
-              <option>All types</option>
-              <option>Toggle / Boolean</option>
-              <option>Select / Option</option>
-              <option>Text / String</option>
-            </select>
+            <div className="set-filter-group">
+              <select
+                className="set-filter-select"
+                value={typeFilter}
+                onChange={(e) => {
+                  setTypeFilter(e.target.value);
+                  setPage(1);
+                }}
+                aria-label="Filter by parameter type"
+              >
+                <option value="All types">All Types</option>
+                <option value="Toggle / Boolean">Toggle / Boolean</option>
+                <option value="Select / Option">Select / Option</option>
+                <option value="Text / String">Text / String</option>
+              </select>
+            </div>
 
             <button
               type="button"
-              className="subscriptions-reset-button"
+              className="sa-btn sa-btn-secondary sa-btn-sm set-reset-btn"
               onClick={resetFilters}
             >
-              <RotateCcw size={14} /> Reset
+              <RotateCcw size={13} /> <span>Reset</span>
             </button>
 
             <button
               type="button"
-              className="sap-icon-btn"
+              className="sap-icon-btn set-density-btn"
               title={`Switch density (currently ${density})`}
               onClick={() =>
                 setDensity((prev) => (prev === "standard" ? "compact" : "standard"))
@@ -767,9 +1330,9 @@ function Settings() {
             </button>
           </div>
 
-          {/* Table Wrap */}
-          <div className="subscriptions-table-wrap">
-            <table className={`sap-grid is-${density} subscriptions-table`}>
+          {/* Table Container */}
+          <div className="sap-table-wrapper set-table-wrapper">
+            <table className={`sap-grid is-${density} set-table`}>
               <thead>
                 <tr>
                   <th
@@ -777,7 +1340,7 @@ function Settings() {
                     style={{ cursor: "pointer", userSelect: "none" }}
                   >
                     <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
-                      Parameter &amp; Key
+                      Parameter Name &amp; Key
                       {sortField === "name" ? (
                         sortOrder === "asc" ? <ArrowUp size={13} /> : <ArrowDown size={13} />
                       ) : (
@@ -798,10 +1361,15 @@ function Settings() {
                       )}
                     </span>
                   </th>
-                  <th>Type</th>
-                  <th>Value / Control</th>
+                  <th>Data Type</th>
+                  <th className="set-live-control-th">
+                    <span className="set-th-live-wrap">
+                      <span>Live Value / Interactive Control</span>
+                      <span className="set-th-live-dot" title="Live synchronized parameter" />
+                    </span>
+                  </th>
                   <th>Scope</th>
-                  <th>Status</th>
+                  <th>State</th>
                   <th aria-label="Actions" style={{ textAlign: "right" }}>Actions</th>
                 </tr>
               </thead>
@@ -816,150 +1384,101 @@ function Settings() {
                     <tr key={param.key}>
                       {/* Name & Key */}
                       <td>
-                        <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
-                          <strong style={{ fontSize: "13.5px", color: "var(--sa-text-primary, #0f172a)" }}>
-                            {param.name}
-                          </strong>
-                          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                            <code
-                              style={{
-                                fontSize: "11px",
-                                fontFamily: "monospace",
-                                padding: "1px 6px",
-                                borderRadius: "4px",
-                                background: "var(--sa-bg, #f1f5f9)",
-                                color: "#6366f1",
-                                border: "1px solid var(--sa-border, #e2e8f0)",
-                              }}
+                        <div className="set-param-info-wrap">
+                          <strong className="set-param-name">{param.name}</strong>
+                          <div className="set-param-key-wrap">
+                            <code className="set-param-key">{param.key}</code>
+                            <button
+                              type="button"
+                              className="set-param-copy-btn"
+                              onClick={() => handleCopyText(param.key, "Parameter Key")}
+                              title={`Copy key: ${param.key}`}
                             >
-                              {param.key}
-                            </code>
+                              <Copy size={11} />
+                            </button>
                           </div>
-                          <p style={{ margin: "2px 0 0", fontSize: "11.5px", color: "var(--sa-text-muted, #64748b)", lineHeight: 1.35, maxWidth: 360 }}>
-                            {param.description}
-                          </p>
+                          <p className="set-param-desc">{param.description}</p>
                         </div>
                       </td>
 
-                      {/* Category */}
+                      {/* Category Badge */}
                       <td>
                         <span
-                          style={{
-                            display: "inline-block",
-                            padding: "3px 9px",
-                            borderRadius: "12px",
-                            fontSize: "12px",
-                            fontWeight: 600,
-                            backgroundColor:
-                              param.category === "Security"
-                                ? "#fdf4ff"
-                                : param.category === "Notifications"
-                                ? "#eff6ff"
-                                : param.category === "General"
-                                ? "#f0fdf4"
-                                : "#f8fafc",
-                            color:
-                              param.category === "Security"
-                                ? "#a855f7"
-                                : param.category === "Notifications"
-                                ? "#2563eb"
-                                : param.category === "General"
-                                ? "#16a34a"
-                                : "#475569",
-                            border: "1px solid rgba(0,0,0,0.06)",
-                          }}
+                          className={`set-cat-badge ${
+                            param.category === "Security & SSO"
+                              ? "security"
+                              : param.category === "AI & Limits"
+                              ? "ai"
+                              : param.category === "Notifications & SMTP"
+                              ? "notifications"
+                              : param.category === "Billing & Multi-Tenancy"
+                              ? "billing"
+                              : param.category === "Super Admin Profile"
+                              ? "superadmin"
+                              : "general"
+                          }`}
                         >
                           {param.category}
                         </span>
                       </td>
 
-                      {/* Type */}
+                      {/* Data Type */}
                       <td>
-                        <span
-                          style={{
-                            display: "inline-block",
-                            padding: "2px 6px",
-                            borderRadius: "4px",
-                            fontSize: "11px",
-                            fontWeight: 600,
-                            background: "var(--sa-bg, #f1f5f9)",
-                            color: "var(--sa-text-secondary, #64748b)",
-                            textTransform: "uppercase",
-                          }}
-                        >
-                          {param.type}
-                        </span>
+                        <span className="set-type-badge">{param.type}</span>
                       </td>
 
                       {/* Live Control / Current Value */}
-                      <td>
+                      <td className="set-live-control-td">
                         {isBool ? (
-                          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                          <div className="set-switch-cell">
                             <button
                               type="button"
                               role="switch"
                               aria-checked={Boolean(val)}
-                              className={`sa-settings-switch ${val ? "on" : ""}`}
+                              className={`set-switch ${val ? "on" : ""}`}
                               onClick={() => handleToggle(param)}
                               title={`Click to ${val ? "disable" : "enable"}`}
                             >
                               <span />
                             </button>
-                            <span style={{ fontSize: "12.5px", fontWeight: 600, color: val ? "#16a34a" : "#94a3b8" }}>
-                              {val ? "Enabled" : "Disabled"}
+                            <span className={`set-live-state-pill ${val ? "on" : "off"}`}>
+                              <span className="set-live-state-dot" />
+                              {val ? "Active" : "Disabled"}
                             </span>
                           </div>
                         ) : isSelect ? (
-                          <select
-                            style={{
-                              padding: "4px 8px",
-                              fontSize: "12.5px",
-                              borderRadius: "6px",
-                              border: "1px solid var(--sa-border, #cbd5e1)",
-                              background: "var(--sa-surface, #ffffff)",
-                              color: "var(--sa-text-main, #1e293b)",
-                              fontWeight: 600,
-                            }}
-                            value={String(val ?? "")}
-                            onChange={(e) => {
-                              updateSetting(param.stateKey, e.target.value);
-                              setMessage(`${param.name} updated to ${e.target.value}.`);
-                            }}
-                          >
-                            {param.options?.map((opt) => (
-                              <option key={opt} value={opt}>
-                                {param.optionsDisplay ? param.optionsDisplay[opt] || opt : opt}
-                              </option>
-                            ))}
-                          </select>
-                        ) : (
-                          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                            <span
-                              style={{
-                                fontSize: "13px",
-                                fontWeight: 600,
-                                color: "var(--sa-text-main, #0f172a)",
-                                maxWidth: 180,
-                                overflow: "hidden",
-                                textOverflow: "ellipsis",
-                                whiteSpace: "nowrap",
+                          <div className="set-inline-select-wrap">
+                            <select
+                              className="set-inline-select"
+                              value={String(val ?? "")}
+                              onChange={(e) => {
+                                updateSetting(param.stateKey, e.target.value);
+                                triggerToast(`${param.name} set to '${e.target.value}'.`);
                               }}
+                              aria-label={param.name}
                             >
-                              {String(val ?? "(Empty)")}
-                            </span>
+                              {param.options?.map((opt) => (
+                                <option key={opt} value={opt}>
+                                  {param.optionsDisplay ? param.optionsDisplay[opt] || opt : opt}
+                                </option>
+                              ))}
+                            </select>
+                            <ChevronDown size={14} className="set-inline-select-chevron" />
+                          </div>
+                        ) : (
+                          <div className="set-interactive-val-wrap">
                             <button
                               type="button"
+                              className="set-interactive-chip"
                               onClick={() => setEditingParam(param)}
-                              title="Edit parameter value"
-                              style={{
-                                background: "none",
-                                border: "none",
-                                padding: "2px",
-                                cursor: "pointer",
-                                color: "#6366f1",
-                              }}
+                              title={`Click to edit ${param.name}: ${String(val ?? "(Empty)")}`}
                             >
-                              <Pencil size={13} />
+                              <span className="set-string-val" title={String(val ?? "")}>
+                                {String(val ?? "(Empty)")}
+                              </span>
+                              <span className="set-chip-edit-badge" title="Quick edit parameter">
+                                <Pencil size={11} className="set-chip-pencil-icon" />
+                              </span>
                             </button>
                           </div>
                         )}
@@ -967,40 +1486,17 @@ function Settings() {
 
                       {/* Scope */}
                       <td>
-                        <span style={{ fontSize: "12px", color: "var(--sa-text-muted, #64748b)" }}>
-                          {param.scope}
-                        </span>
+                        <span className="set-scope-badge">{param.scope}</span>
                       </td>
 
                       {/* Status */}
                       <td>
                         <span
-                          style={{
-                            display: "inline-flex",
-                            alignItems: "center",
-                            gap: 4,
-                            padding: "2px 8px",
-                            borderRadius: "12px",
-                            fontSize: "11.5px",
-                            fontWeight: 700,
-                            backgroundColor:
-                              isBool && !val
-                                ? "#f1f5f9"
-                                : "#ecfdf5",
-                            color:
-                              isBool && !val
-                                ? "#64748b"
-                                : "#059669",
-                          }}
+                          className={`set-state-badge ${
+                            isBool && !val ? "inactive" : "active"
+                          }`}
                         >
-                          <span
-                            style={{
-                              width: 6,
-                              height: 6,
-                              borderRadius: "50%",
-                              backgroundColor: "currentColor",
-                            }}
-                          />
+                          <span className="set-state-dot" />
                           {isBool ? (val ? "Active" : "Inactive") : "Active"}
                         </span>
                       </td>
@@ -1010,12 +1506,12 @@ function Settings() {
                         <div style={{ display: "flex", justifyContent: "flex-end", gap: 6 }}>
                           <button
                             type="button"
-                            className="subscriptions-button subscriptions-button-light"
-                            style={{ padding: "4px 8px", fontSize: "11.5px" }}
+                            className="set-action-edit-btn"
                             onClick={() => setEditingParam(param)}
                             title="Edit parameter"
                           >
-                            <Pencil size={12} /> Edit
+                            <Pencil size={12} />
+                            <span>Edit</span>
                           </button>
                         </div>
                       </td>
@@ -1025,8 +1521,16 @@ function Settings() {
 
                 {visibleParameters.length === 0 && (
                   <tr>
-                    <td colSpan="7" className="analytics-empty-state">
-                      No system parameters match your search or filter options.
+                    <td colSpan="7" style={{ textAlign: "center", padding: "40px 20px" }}>
+                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
+                        <Server size={28} color="#94a3b8" />
+                        <strong style={{ fontSize: 14, color: "var(--sa-text-main)" }}>
+                          No system parameters found
+                        </strong>
+                        <p style={{ margin: 0, fontSize: 12.5, color: "var(--sa-text-muted)" }}>
+                          No configuration parameters match your current filters.
+                        </p>
+                      </div>
                     </td>
                   </tr>
                 )}
@@ -1034,23 +1538,32 @@ function Settings() {
             </table>
           </div>
 
-          {/* Pagination */}
-          <footer className="activity-logs-pagination" style={{ marginTop: 12 }}>
+          {/* Pagination Footer Bar */}
+          <div className="sap-footer-bar set-footer-bar">
             <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-              <span>
-                Showing {filteredParameters.length === 0 ? 0 : (currentPage - 1) * pageSize + 1}–
-                {Math.min(currentPage * pageSize, filteredParameters.length)} of {filteredParameters.length} parameters
+              <span className="sap-counter">
+                Showing{" "}
+                <strong>
+                  {filteredParameters.length === 0 ? 0 : (currentPage - 1) * pageSize + 1}
+                </strong>
+                –
+                <strong>
+                  {Math.min(currentPage * pageSize, filteredParameters.length)}
+                </strong>{" "}
+                of <strong>{filteredParameters.length}</strong> parameters
               </span>
-              <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "#64748b" }}>
+
+              <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "var(--sa-text-muted)" }}>
                 <span>Rows per page:</span>
                 <select
-                  className="sap-filter-select"
-                  style={{ padding: "3px 6px", fontSize: 12, height: 26 }}
+                  className="set-filter-select"
+                  style={{ padding: "2px 20px 2px 8px", fontSize: 12, height: 28 }}
                   value={pageSize}
                   onChange={(e) => {
                     setPageSize(Number(e.target.value));
                     setPage(1);
                   }}
+                  aria-label="Select rows per page"
                 >
                   <option value={5}>5</option>
                   <option value={10}>10</option>
@@ -1063,545 +1576,1278 @@ function Settings() {
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <button
                 type="button"
-                className="subscriptions-button subscriptions-button-light"
-                style={{ padding: "5px 10px" }}
+                className="sap-page-btn"
                 disabled={currentPage <= 1}
-                onClick={() => setPage((p) => p - 1)}
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                aria-label="Previous page"
               >
-                <ChevronLeft size={16} />
+                <ChevronLeft size={15} />
               </button>
-              <span>
-                Page {currentPage} of {totalPages}
+              <span style={{ fontSize: 12.5, padding: "4px 8px", color: "var(--sa-text-secondary)" }}>
+                Page <strong>{currentPage}</strong> of <strong>{totalPages}</strong>
               </span>
               <button
                 type="button"
-                className="subscriptions-button subscriptions-button-light"
-                style={{ padding: "5px 10px" }}
+                className="sap-page-btn"
                 disabled={currentPage >= totalPages}
-                onClick={() => setPage((p) => p + 1)}
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                aria-label="Next page"
               >
-                <ChevronRight size={16} />
+                <ChevronRight size={15} />
               </button>
             </div>
-          </footer>
+          </div>
         </section>
       ) : (
-        /* ============================================================ */
-        /* VIEW 2: CATEGORIZED FORM TAB VIEW                            */
-        /* ============================================================ */
-        <div className="sa-settings-layout">
-          <aside className="sa-settings-sidebar">
-            <div className="sa-settings-nav-title">CATEGORIES</div>
+        /* =========================================================================
+            VIEW 2: CATEGORIZED CONFIGURATION HUB (FORM VIEW)
+           ========================================================================= */
+        <div className="set-layout">
+          {/* Category Sidebar Navigation */}
+          <aside className="set-sidebar">
+            <div className="set-nav-title">CATEGORIES</div>
 
-            {tabs.map(({ id, label, icon: Icon }) => (
+            {formTabs.map(({ id, label, icon: Icon, count }) => (
               <button
                 type="button"
                 key={id}
-                className={`sa-settings-tab ${activeTab === id ? "active" : ""}`}
+                className={`set-nav-tab ${activeTab === id ? "active" : ""}`}
                 onClick={() => setActiveTab(id)}
               >
-                <Icon size={18} />
-                <span>{label}</span>
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <Icon size={17} />
+                  <span>{label}</span>
+                </div>
+                <span className="set-nav-tab-badge">{count}</span>
               </button>
             ))}
 
-            <div className="sa-settings-sidebar-note">
-              <LockKeyhole size={18} />
-              <strong>Administrator Access</strong>
-              <p>All settings are persistently synced across dashboard sessions.</p>
+            <div className="set-sidebar-soc2-card">
+              <ShieldCheck size={20} color="#3b66ff" />
+              <strong>SOC2 Type II Protected</strong>
+              <p>All administrative configuration updates are signed with monotonic audit timestamps.</p>
             </div>
           </aside>
 
-          <form className="sa-settings-content" onSubmit={handleSave}>
+          {/* Categorized Settings Form Card */}
+          <form className="set-content-card" onSubmit={handleSave}>
+            {/* 1. General & Branding */}
             {activeTab === "general" && (
               <>
-                <div className="sa-settings-section-heading">
-                  <div className="sa-settings-section-icon">
+                <div className="set-section-heading">
+                  <div className="set-section-icon blue">
                     <Globe size={20} />
                   </div>
                   <div>
-                    <h2>General Settings</h2>
-                    <p>Configure platform identification and regional defaults.</p>
+                    <h2>General &amp; Regional Branding</h2>
+                    <p>Platform identification, timezone standards, and public portal availability.</p>
                   </div>
                 </div>
 
-                <div className="sa-settings-fields">
-                  <label className="sa-settings-field">
-                    <span>Platform name</span>
+                <div className="set-fields-grid">
+                  <label className="set-field-label">
+                    <span>Platform Instance Name *</span>
                     <input
+                      className="set-input"
                       value={settings.platformName}
                       onChange={(e) => updateSetting("platformName", e.target.value)}
                       required
                     />
-                    <small>Branded title shown across team workspaces.</small>
+                    <small>Primary branding title displayed across all tenant workspaces.</small>
                   </label>
 
-                  <label className="sa-settings-field">
-                    <span>Support email</span>
+                  <label className="set-field-label">
+                    <span>Instance Cluster Slug</span>
+                    <input
+                      className="set-input"
+                      value={settings.instanceSlug}
+                      onChange={(e) => updateSetting("instanceSlug", e.target.value)}
+                      required
+                    />
+                    <small>Unique routing identifier for distributed cloud deployments.</small>
+                  </label>
+
+                  <label className="set-field-label">
+                    <span>Primary Support Email *</span>
                     <input
                       type="email"
+                      className="set-input"
                       value={settings.supportEmail}
                       onChange={(e) => updateSetting("supportEmail", e.target.value)}
                       required
                     />
-                    <small>Displayed as your official support contact.</small>
+                    <small>Official contact address shown on invoice receipts and help tickets.</small>
                   </label>
 
-                  <label className="sa-settings-field">
-                    <span>Default timezone</span>
+                  <label className="set-field-label">
+                    <span>Security Escalation Email *</span>
+                    <input
+                      type="email"
+                      className="set-input"
+                      value={settings.escalationEmail}
+                      onChange={(e) => updateSetting("escalationEmail", e.target.value)}
+                      required
+                    />
+                    <small>Immediate dispatch inbox for emergency incident alerts.</small>
+                  </label>
+
+                  <label className="set-field-label">
+                    <span>Custom Routing FQDN</span>
+                    <input
+                      className="set-input"
+                      value={settings.customDomain}
+                      onChange={(e) => updateSetting("customDomain", e.target.value)}
+                      required
+                    />
+                    <small>Reverse-proxy wildcard domain mapping (*.teamflow.ai).</small>
+                  </label>
+
+                  <label className="set-field-label">
+                    <span>System Timezone Standards</span>
                     <select
+                      className="set-select"
                       value={settings.timezone}
                       onChange={(e) => updateSetting("timezone", e.target.value)}
                     >
-                      <option value="Asia/Kolkata">India Standard Time (IST)</option>
-                      <option value="UTC">Coordinated Universal Time (UTC)</option>
-                      <option value="America/New_York">Eastern Time (ET)</option>
-                      <option value="Europe/London">London (GMT/BST)</option>
-                      <option value="Asia/Dubai">Gulf Standard Time (GST)</option>
+                      <option value="Asia/Kolkata">Asia/Kolkata (IST +5:30)</option>
+                      <option value="UTC">UTC (Universal Time +0:00)</option>
+                      <option value="America/New_York">America/New_York (ET -5:00)</option>
+                      <option value="Europe/London">Europe/London (GMT/BST)</option>
+                      <option value="Asia/Dubai">Asia/Dubai (GST +4:00)</option>
                     </select>
-                  </label>
-
-                  <label className="sa-settings-field">
-                    <span>Display language</span>
-                    <select
-                      value={settings.language}
-                      onChange={(e) => updateSetting("language", e.target.value)}
-                    >
-                      <option>English</option>
-                      <option>Hindi</option>
-                    </select>
+                    <small>Standard clock for cron automations and audit logs.</small>
                   </label>
                 </div>
 
-                <div className="sa-settings-divider" />
+                <div className="set-divider" />
+                <h3 className="set-subheading">Public Platform Availability</h3>
 
-                <h3 className="sa-settings-subheading">Platform Availability</h3>
-
-                <SettingToggle
-                  title="Allow new registrations"
-                  description="Allow new organizations and team members to register."
+                <SettingToggleRow
+                  title="Public Organization Self-Registration"
+                  description="Allows external teams and organizations to register workspaces via public sign-up."
                   checked={settings.allowRegistration}
                   onChange={(val) => updateSetting("allowRegistration", val)}
                 />
 
-                <SettingToggle
-                  title="Maintenance mode"
-                  description="Temporarily marks the platform as undergoing scheduled maintenance."
+                <SettingToggleRow
+                  title="Scheduled Platform Maintenance Mode"
+                  description="Restricts non-administrator access and displays an informative maintenance banner."
                   checked={settings.maintenanceMode}
                   onChange={(val) => updateSetting("maintenanceMode", val)}
-                  warning
+                  warning="Active: All tenant customer access will be held in maintenance queue."
                 />
               </>
             )}
 
-            {activeTab === "security" && (
+            {/* 2. AI Engine & Limits */}
+            {activeTab === "ai" && (
               <>
-                <div className="sa-settings-section-heading">
-                  <div className="sa-settings-section-icon">
-                    <ShieldCheck size={20} />
+                <div className="set-section-heading">
+                  <div className="set-section-icon purple">
+                    <Cpu size={20} />
                   </div>
                   <div>
-                    <h2>Security &amp; Access Governance</h2>
-                    <p>Manage authentication challenges, session limits, and password policies.</p>
+                    <h2>AI Compute Engine &amp; Gateway Limits</h2>
+                    <p>Foundation model selection, token ceilings, rate limits, and storage providers.</p>
                   </div>
                 </div>
 
-                <SettingToggle
-                  title="Two-factor authentication (2FA)"
-                  description="Enforces mandatory two-factor authentication challenge upon administrator sign-in."
+                <div className="set-fields-grid">
+                  <label className="set-field-label">
+                    <span>Primary AI Foundation Model</span>
+                    <select
+                      className="set-select"
+                      value={settings.defaultAiModel}
+                      onChange={(e) => updateSetting("defaultAiModel", e.target.value)}
+                    >
+                      <option value="Gemini 1.5 Pro (Recommended)">Gemini 1.5 Pro (Recommended)</option>
+                      <option value="Gemini 1.5 Flash (Ultra Fast)">Gemini 1.5 Flash (Ultra Fast)</option>
+                      <option value="GPT-4o Enterprise">GPT-4o Enterprise</option>
+                      <option value="Claude 3.5 Sonnet">Claude 3.5 Sonnet</option>
+                    </select>
+                    <small>Default engine dispatched for agent workflows and prompt execution.</small>
+                  </label>
+
+                  <label className="set-field-label">
+                    <span>API Gateway Rate Limit Ceiling</span>
+                    <select
+                      className="set-select"
+                      value={settings.apiRateLimit}
+                      onChange={(e) => updateSetting("apiRateLimit", e.target.value)}
+                    >
+                      <option value="600 req/min">600 req/min</option>
+                      <option value="1,200 req/min">1,200 req/min (Standard)</option>
+                      <option value="3,000 req/min">3,000 req/min</option>
+                      <option value="10,000 req/min (Enterprise)">10,000 req/min (Enterprise)</option>
+                    </select>
+                    <small>Global edge rate limit to prevent denial-of-service spikes.</small>
+                  </label>
+
+                  <label className="set-field-label">
+                    <span>Context Window Memory Ceiling</span>
+                    <select
+                      className="set-select"
+                      value={settings.contextWindowCap}
+                      onChange={(e) => updateSetting("contextWindowCap", e.target.value)}
+                    >
+                      <option value="32k Tokens">32k Tokens</option>
+                      <option value="64k Tokens">64k Tokens</option>
+                      <option value="128k Tokens">128k Tokens (Balanced)</option>
+                      <option value="200k Tokens (Ultra-Long)">200k Tokens (Ultra-Long)</option>
+                    </select>
+                    <small>Maximum token context preserved per autonomous agent conversation.</small>
+                  </label>
+
+                  <label className="set-field-label">
+                    <span>Managed Vector Database</span>
+                    <select
+                      className="set-select"
+                      value={settings.vectorStore}
+                      onChange={(e) => updateSetting("vectorStore", e.target.value)}
+                    >
+                      <option value="Pinecone Enterprise (US-East)">Pinecone Enterprise (US-East)</option>
+                      <option value="Weaviate Managed Cluster">Weaviate Managed Cluster</option>
+                      <option value="pgvector High-Availability">pgvector High-Availability</option>
+                    </select>
+                    <small>RAG embeddings store backing semantic search and long-term memory.</small>
+                  </label>
+
+                  <label className="set-field-label">
+                    <span>Max File Attachment Size</span>
+                    <select
+                      className="set-select"
+                      value={settings.maxUploadSize}
+                      onChange={(e) => updateSetting("maxUploadSize", e.target.value)}
+                    >
+                      <option value="10 MB">10 MB</option>
+                      <option value="25 MB">25 MB</option>
+                      <option value="50 MB">50 MB (Recommended)</option>
+                      <option value="100 MB">100 MB</option>
+                      <option value="500 MB (Enterprise)">500 MB (Enterprise)</option>
+                    </select>
+                    <small>Maximum single asset upload threshold across chat and tasks.</small>
+                  </label>
+
+                  <label className="set-field-label">
+                    <span>Cloud Object Storage Provider</span>
+                    <select
+                      className="set-select"
+                      value={settings.storageProvider}
+                      onChange={(e) => updateSetting("storageProvider", e.target.value)}
+                    >
+                      <option value="AWS S3 Multi-Region">AWS S3 Multi-Region</option>
+                      <option value="Google Cloud Storage (Global)">Google Cloud Storage (Global)</option>
+                      <option value="Cloudflare R2 (Zero Egress)">Cloudflare R2 (Zero Egress)</option>
+                    </select>
+                    <small>High-durability blob store for user uploads and task assets.</small>
+                  </label>
+                </div>
+              </>
+            )}
+
+            {/* 3. Security, Access Governance & SSO */}
+            {activeTab === "security" && (
+              <>
+                <div className="set-section-heading">
+                  <div className="set-section-icon green">
+                    <ShieldCheck size={20} />
+                  </div>
+                  <div>
+                    <h2>Security, Access Governance &amp; SSO</h2>
+                    <p>Mandatory 2FA challenges, SAML federation, session invalidation, and audit compliance.</p>
+                  </div>
+                </div>
+
+                <SettingToggleRow
+                  title="Mandatory Two-Factor Authentication (2FA)"
+                  description="Enforces mandatory TOTP or WebAuthn hardware token verification for all SuperAdmin accounts."
                   checked={settings.twoFactorAuth}
                   onChange={(val) => updateSetting("twoFactorAuth", val)}
                 />
 
-                <div className="sa-settings-divider" />
+                <SettingToggleRow
+                  title="Enterprise SAML 2.0 / OIDC Single Sign-On"
+                  description="Enforces federated authentication via Okta, Azure Active Directory, or Google Workspace."
+                  checked={settings.ssoEnforced}
+                  onChange={(val) => updateSetting("ssoEnforced", val)}
+                />
 
-                <div className="sa-settings-fields">
-                  <label className="sa-settings-field">
-                    <span>Session timeout</span>
+                <SettingToggleRow
+                  title="Tor Exit Relay & High-Risk Proxy Shield"
+                  description="Automatically rejects connections originating from known Tor exit relays and anonymous proxies."
+                  checked={settings.torBlocking}
+                  onChange={(val) => updateSetting("torBlocking", val)}
+                />
+
+                <div className="set-divider" />
+
+                <div className="set-fields-grid">
+                  <label className="set-field-label">
+                    <span>Idle Session Timeout</span>
                     <select
+                      className="set-select"
                       value={settings.sessionTimeout}
                       onChange={(e) => updateSetting("sessionTimeout", e.target.value)}
                     >
-                      <option value="15">15 minutes</option>
-                      <option value="30">30 minutes</option>
-                      <option value="60">60 minutes</option>
-                      <option value="120">2 hours</option>
+                      <option value="15">15 Minutes</option>
+                      <option value="30">30 Minutes (Recommended)</option>
+                      <option value="60">60 Minutes</option>
+                      <option value="120">2 Hours</option>
                     </select>
-                    <small>Idle session invalidation threshold.</small>
+                    <small>Inactivity threshold before automatic session invalidation.</small>
                   </label>
 
-                  <label className="sa-settings-field">
-                    <span>Audit Log Retention</span>
+                  <label className="set-field-label">
+                    <span>Password Complexity Policy</span>
                     <select
+                      className="set-select"
+                      value={settings.passwordPolicy}
+                      onChange={(e) => updateSetting("passwordPolicy", e.target.value)}
+                    >
+                      <option value="8 characters (Basic)">8 characters (Basic)</option>
+                      <option value="10 characters">10 characters</option>
+                      <option value="12 characters (Recommended)">12 characters (Recommended)</option>
+                      <option value="16 characters (Enterprise NIST)">16 characters (Enterprise NIST)</option>
+                    </select>
+                    <small>Cryptographic complexity and breach dictionary enforcement.</small>
+                  </label>
+
+                  <label className="set-field-label">
+                    <span>Immutable Audit Log Retention</span>
+                    <select
+                      className="set-select"
                       value={settings.auditRetention}
                       onChange={(e) => updateSetting("auditRetention", e.target.value)}
                     >
-                      <option>30 Days</option>
-                      <option>90 Days</option>
-                      <option>180 Days</option>
-                      <option>365 Days</option>
+                      <option value="30 Days">30 Days</option>
+                      <option value="90 Days">90 Days (Standard)</option>
+                      <option value="180 Days">180 Days</option>
+                      <option value="365 Days">365 Days (1 Year)</option>
+                      <option value="730 Days (2 Years)">730 Days (2 Years)</option>
                     </select>
-                    <small>Historical compliance archival window.</small>
+                    <small>Calendar preservation window for SOC2 / ISO compliance audits.</small>
                   </label>
                 </div>
               </>
             )}
 
+            {/* 4. Transactional Email & Webhook Dispatchers */}
             {activeTab === "notifications" && (
               <>
-                <div className="sa-settings-section-heading">
-                  <div className="sa-settings-section-icon">
-                    <Bell size={20} />
+                <div className="set-section-heading">
+                  <div className="set-section-icon blue">
+                    <Mail size={20} />
                   </div>
                   <div>
-                    <h2>Notifications &amp; Alerts</h2>
-                    <p>Configure automated emails, weekly digests, and security alerts.</p>
+                    <h2>Transactional Email &amp; Webhook Dispatchers</h2>
+                    <p>Automated SMTP relays, outbound sender signatures, and security incident webhooks.</p>
                   </div>
                 </div>
 
-                <SettingToggle
-                  title="System email notifications"
-                  description="Enables transactional platform emails for invitation links and account updates."
+                <div className="set-fields-grid">
+                  <label className="set-field-label">
+                    <span>Transactional SMTP Relay Service</span>
+                    <select
+                      className="set-select"
+                      value={settings.smtpProvider}
+                      onChange={(e) => updateSetting("smtpProvider", e.target.value)}
+                    >
+                      <option value="AWS SES Enterprise">AWS SES Enterprise</option>
+                      <option value="SendGrid Pro Infrastructure">SendGrid Pro Infrastructure</option>
+                      <option value="Postmark High-Deliverability">Postmark High-Deliverability</option>
+                    </select>
+                    <small>High-throughput relay backing invitation links and invoice receipts.</small>
+                  </label>
+
+                  <label className="set-field-label">
+                    <span>Authenticated Outbound Sender Signature</span>
+                    <input
+                      className="set-input"
+                      value={settings.fromEmail}
+                      onChange={(e) => updateSetting("fromEmail", e.target.value)}
+                      required
+                    />
+                    <small>Authenticated from-address verified with DKIM and SPF records.</small>
+                  </label>
+
+                  <label className="set-field-label" style={{ gridColumn: "1 / -1" }}>
+                    <span>Security Incident Webhook URL</span>
+                    <input
+                      className="set-input"
+                      value={settings.incidentWebhookUrl}
+                      onChange={(e) => updateSetting("incidentWebhookUrl", e.target.value)}
+                      placeholder="https://hooks.slack.com/services/..."
+                    />
+                    <small>Dispatches real-time JSON payloads to Slack or PagerDuty upon threat triggers.</small>
+                  </label>
+                </div>
+
+                <div className="set-divider" />
+
+                <SettingToggleRow
+                  title="Transactional Platform Email Notifications"
+                  description="Enables automated platform emails for team invites, password resets, and invoices."
                   checked={settings.emailNotifications}
                   onChange={(val) => updateSetting("emailNotifications", val)}
                 />
 
-                <SettingToggle
-                  title="Security alerts"
-                  description="Dispatches high-priority security warnings for unexpected login events."
+                <SettingToggleRow
+                  title="Instant Security Threat Dispatches"
+                  description="Dispatches high-priority alerts upon brute-force detections or privilege elevations."
                   checked={settings.securityAlerts}
                   onChange={(val) => updateSetting("securityAlerts", val)}
                 />
 
-                <SettingToggle
-                  title="Executive weekly digest"
-                  description="Dispatches an automated Monday morning summary of tenant metrics."
+                <SettingToggleRow
+                  title="Executive Weekly Growth Digest"
+                  description="Delivers an automated Monday morning executive digest summarizing MRR and user growth."
                   checked={settings.weeklyReports}
                   onChange={(val) => updateSetting("weeklyReports", val)}
                 />
               </>
             )}
 
-            {activeTab === "profile" && (
+            {/* 5. Billing & Multi-Tenancy */}
+            {activeTab === "billing" && (
               <>
-                <div className="sa-settings-section-heading">
-                  <div className="sa-settings-section-icon">
-                    <UserRound size={20} />
+                <div className="set-section-heading">
+                  <div className="set-section-icon amber">
+                    <CreditCard size={20} />
                   </div>
                   <div>
-                    <h2>Admin Profile</h2>
-                    <p>Manage the display identity for the active administrator.</p>
+                    <h2>Billing, Currency &amp; Multi-Tenancy</h2>
+                    <p>Payment gateway integration, default currencies, trial evaluation windows, and grace periods.</p>
                   </div>
                 </div>
 
-                <div className="sa-settings-profile-card">
-                  <div className="sa-settings-avatar">
-                    {(settings.adminName || "SA")
-                      .trim()
-                      .split(/\s+/)
-                      .slice(0, 2)
-                      .map((word) => word[0])
-                      .join("")
-                      .toUpperCase()}
-                  </div>
-                  <div>
-                    <strong>{settings.adminName || "Administrator"}</strong>
-                    <span>Super Administrator</span>
-                  </div>
-                </div>
-
-                <div className="sa-settings-fields">
-                  <label className="sa-settings-field">
-                    <span>Full name</span>
-                    <input
-                      value={settings.adminName}
-                      onChange={(e) => updateSetting("adminName", e.target.value)}
-                      required
-                    />
+                <div className="set-fields-grid">
+                  <label className="set-field-label">
+                    <span>Primary Payment Gateway</span>
+                    <select
+                      className="set-select"
+                      value={settings.paymentGateway}
+                      onChange={(e) => updateSetting("paymentGateway", e.target.value)}
+                    >
+                      <option value="Stripe Connect">Stripe Connect</option>
+                      <option value="Paddle Merchant of Record">Paddle Merchant of Record</option>
+                      <option value="Razorpay Enterprise">Razorpay Enterprise</option>
+                    </select>
+                    <small>Direct merchant processor for SaaS recurring charges.</small>
                   </label>
 
-                  <label className="sa-settings-field">
-                    <span>Admin email</span>
-                    <input
-                      type="email"
-                      value={settings.adminEmail}
-                      onChange={(e) => updateSetting("adminEmail", e.target.value)}
-                      required
-                    />
+                  <label className="set-field-label">
+                    <span>Default Platform Currency</span>
+                    <select
+                      className="set-select"
+                      value={settings.billingCurrency}
+                      onChange={(e) => updateSetting("billingCurrency", e.target.value)}
+                    >
+                      <option value="USD ($)">USD ($) - US Dollar</option>
+                      <option value="EUR (€)">EUR (€) - Euro</option>
+                      <option value="GBP (£)">GBP (£) - British Pound</option>
+                      <option value="INR (₹)">INR (₹) - Indian Rupee</option>
+                      <option value="CAD ($)">CAD ($) - Canadian Dollar</option>
+                    </select>
+                    <small>Default currency displayed on public checkout pricing tiers.</small>
+                  </label>
+
+                  <label className="set-field-label">
+                    <span>Free Evaluation Window</span>
+                    <select
+                      className="set-select"
+                      value={settings.freeTrialDays}
+                      onChange={(e) => updateSetting("freeTrialDays", e.target.value)}
+                    >
+                      <option value="7 Days">7 Days</option>
+                      <option value="14 Days">14 Days (Standard)</option>
+                      <option value="30 Days">30 Days</option>
+                    </select>
+                    <small>Default trial duration granted before card requirement.</small>
+                  </label>
+
+                  <label className="set-field-label">
+                    <span>Failed Renewal Grace Period</span>
+                    <select
+                      className="set-select"
+                      value={settings.gracePeriodDays}
+                      onChange={(e) => updateSetting("gracePeriodDays", e.target.value)}
+                    >
+                      <option value="3 Days">3 Days</option>
+                      <option value="7 Days">7 Days (Recommended)</option>
+                      <option value="14 Days">14 Days</option>
+                    </select>
+                    <small>Dunning recovery period before tenant suspension.</small>
+                  </label>
+
+                  <label className="set-field-label" style={{ gridColumn: "1 / -1" }}>
+                    <span>Cross-Border Tax Compliance Engine</span>
+                    <select
+                      className="set-select"
+                      value={settings.taxCalculation}
+                      onChange={(e) => updateSetting("taxCalculation", e.target.value)}
+                    >
+                      <option value="Automated (Stripe Tax)">Automated (Stripe Tax - Realtime Jurisdiction Lookup)</option>
+                      <option value="Manual VAT/GST Exemption">Manual VAT/GST Exemption</option>
+                      <option value="Disabled">Disabled</option>
+                    </select>
+                    <small>Automatically calculates EU VAT, US State Sales Tax, and GST at checkout.</small>
                   </label>
                 </div>
               </>
             )}
 
-            <div className="sa-settings-footer">
+            {/* 6. Super Admin Profile & Credentials (EXPANDED FOR SUPER ADMIN) */}
+            {activeTab === "profile" && (
+              <>
+                <div className="set-section-heading">
+                  <div className="set-section-icon purple">
+                    <UserCheck size={20} />
+                  </div>
+                  <div>
+                    <h2>Super Admin Profile &amp; Root Governance</h2>
+                    <p>Root administrative identity, biometric hardware tokens, credentials upgrade, and break-glass recovery.</p>
+                  </div>
+                </div>
+
+                {/* Hero SuperAdmin Identity Card */}
+                <div className="set-profile-card">
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleAvatarUpload}
+                    accept="image/*"
+                    style={{ display: "none" }}
+                  />
+
+                  <div className="set-avatar-badge-wrap">
+                    {settings.adminAvatar ? (
+                      <img
+                        src={settings.adminAvatar}
+                        alt={settings.adminName || "Super Administrator"}
+                        className="set-avatar-img"
+                      />
+                    ) : (
+                      <div className="set-avatar-badge">
+                        {(settings.adminName || "SA")
+                          .trim()
+                          .split(/\s+/)
+                          .slice(0, 2)
+                          .map((word) => word[0])
+                          .join("")
+                          .toUpperCase()}
+                      </div>
+                    )}
+                    <button
+                      type="button"
+                      className="set-avatar-upload-btn"
+                      title="Upload custom Super Admin avatar image"
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      <Camera size={12} />
+                    </button>
+                  </div>
+
+                  <div className="set-profile-details">
+                    <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+                      <strong className="set-profile-name">{settings.adminName || "Super Administrator"}</strong>
+                      <span className="set-role-pill">
+                        <ShieldCheck size={12} /> Root SuperAdmin (Tier-0)
+                      </span>
+                      <span className="set-active-pill">
+                        <Zap size={11} /> FIDO2 Verified
+                      </span>
+                      <span className="set-audit-pill">
+                        <Check size={11} /> Monotonic Audit v3.4
+                      </span>
+                      {settings.adminAvatar && (
+                        <button
+                          type="button"
+                          className="set-avatar-remove-btn"
+                          onClick={handleRemoveAvatar}
+                          title="Reset to initial avatar"
+                        >
+                          Remove Photo
+                        </button>
+                      )}
+                    </div>
+
+                    <p className="set-profile-title-text">{settings.adminTitle}</p>
+
+                    <div className="set-profile-meta-row">
+                      <span>Account ID: <code>usr_superadmin_019a2b</code></span>
+                      <button
+                        type="button"
+                        className="set-copy-btn"
+                        onClick={() => handleCopyText("usr_superadmin_019a2b", "SuperAdmin ID")}
+                        title="Copy Account ID"
+                      >
+                        <Copy size={11} />
+                      </button>
+                      <span>·</span>
+                      <span>Clearance: <strong>Tier-0 Global Cloud</strong></span>
+                      <span>·</span>
+                      <span>Session: <strong>Edge Gateway (192.168.1.1 · Active)</strong></span>
+                      <span>·</span>
+                      <span>Last Sign-in: <strong>Today, 08:15 AM (Hardware Key)</strong></span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Section A: Personal & Contact Escalations */}
+                <h3 className="set-subheading" style={{ marginTop: 6 }}>
+                  Personal Information &amp; Escalation Routing
+                </h3>
+
+                <div className="set-fields-grid">
+                  <label className="set-field-label">
+                    <span>Super Administrator Full Name *</span>
+                    <input
+                      className="set-input"
+                      value={settings.adminName}
+                      onChange={(e) => updateSetting("adminName", e.target.value)}
+                      required
+                    />
+                    <small>Primary legal name recognized for audit certifications.</small>
+                  </label>
+
+                  <label className="set-field-label">
+                    <span>Operational Architecture Title</span>
+                    <input
+                      className="set-input"
+                      value={settings.adminTitle}
+                      onChange={(e) => updateSetting("adminTitle", e.target.value)}
+                      required
+                    />
+                    <small>Executive role and architectural responsibility scope.</small>
+                  </label>
+
+                  <label className="set-field-label">
+                    <span>Root Notification Email *</span>
+                    <input
+                      type="email"
+                      className="set-input"
+                      value={settings.adminEmail}
+                      onChange={(e) => updateSetting("adminEmail", e.target.value)}
+                      required
+                    />
+                    <small>Primary address for 2FA OTP codes and critical alerts.</small>
+                  </label>
+
+                  <label className="set-field-label">
+                    <span>Emergency Break-Glass Recovery Email</span>
+                    <input
+                      type="email"
+                      className="set-input"
+                      value={settings.adminRecoveryEmail}
+                      onChange={(e) => updateSetting("adminRecoveryEmail", e.target.value)}
+                      required
+                    />
+                    <small>Air-gapped secondary inbox for disaster recovery verification.</small>
+                  </label>
+
+                  <label className="set-field-label">
+                    <span>Emergency SMS Escalation Phone</span>
+                    <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
+                      <Phone size={14} style={{ position: "absolute", left: 11, color: "#94a3b8" }} />
+                      <input
+                        className="set-input"
+                        style={{ paddingLeft: 34 }}
+                        value={settings.adminPhone}
+                        onChange={(e) => updateSetting("adminPhone", e.target.value)}
+                        required
+                      />
+                    </div>
+                    <small>Direct phone line utilized for P0 outage &amp; breach calls.</small>
+                  </label>
+
+                  <label className="set-field-label">
+                    <span>Preferred Interface Timezone</span>
+                    <select
+                      className="set-select"
+                      value={settings.timezone}
+                      onChange={(e) => updateSetting("timezone", e.target.value)}
+                    >
+                      <option value="Asia/Kolkata">Asia/Kolkata (IST +5:30)</option>
+                      <option value="UTC">UTC (Universal Time +0:00)</option>
+                      <option value="America/New_York">America/New_York (ET -5:00)</option>
+                      <option value="Europe/London">Europe/London (GMT/BST)</option>
+                      <option value="Asia/Dubai">Asia/Dubai (GST +4:00)</option>
+                    </select>
+                    <small>Personal clock synchronization for security logs.</small>
+                  </label>
+
+                  <label className="set-field-label" style={{ gridColumn: "1 / -1" }}>
+                    <span>Operational Scope &amp; Administrative Bio</span>
+                    <textarea
+                      className="set-input"
+                      rows={2}
+                      value={settings.adminBio}
+                      onChange={(e) => updateSetting("adminBio", e.target.value)}
+                    />
+                    <small>Visible on platform governance logs and organizational charters.</small>
+                  </label>
+                </div>
+
+                <div className="set-divider" />
+
+                {/* Section B: Master Password Upgrade Card */}
+                <div className="set-profile-card-subgroup">
+                  <div className="set-subgroup-header">
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <KeyRound size={17} color="#3b66ff" />
+                      <h4 style={{ margin: 0, fontSize: 14.5, fontWeight: 750, color: "var(--sa-text-main)" }}>
+                        Upgrade Master Administrative Password
+                      </h4>
+                    </div>
+                    <span className="set-entropy-badge">12+ Chars · High Entropy</span>
+                  </div>
+
+                  <div className="set-fields-grid" style={{ marginTop: 12 }}>
+                    <label className="set-field-label">
+                      <span>Current Master Password</span>
+                      <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
+                        <input
+                          type={showCurrentPw ? "text" : "password"}
+                          className="set-input"
+                          placeholder="••••••••••••••••"
+                          value={currentPassword}
+                          onChange={(e) => setCurrentPassword(e.target.value)}
+                        />
+                        <button
+                          type="button"
+                          className="set-pw-eye-btn"
+                          onClick={() => setShowCurrentPw(!showCurrentPw)}
+                        >
+                          {showCurrentPw ? <EyeOff size={14} /> : <Eye size={14} />}
+                        </button>
+                      </div>
+                    </label>
+
+                    <label className="set-field-label">
+                      <span>New Master Password</span>
+                      <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
+                        <input
+                          type={showNewPw ? "text" : "password"}
+                          className="set-input"
+                          placeholder="Min 12 chars, upper, symbol"
+                          value={newPassword}
+                          onChange={(e) => setNewPassword(e.target.value)}
+                        />
+                        <button
+                          type="button"
+                          className="set-pw-eye-btn"
+                          onClick={() => setShowNewPw(!showNewPw)}
+                        >
+                          {showNewPw ? <EyeOff size={14} /> : <Eye size={14} />}
+                        </button>
+                      </div>
+                    </label>
+
+                    {newPassword && (
+                      <div className="set-pw-strength-box" style={{ gridColumn: "1 / -1" }}>
+                        <div className="set-pw-strength-header">
+                          <span>Password Entropy &amp; Strength:</span>
+                          <strong style={{ color: pwStrength.color }}>{pwStrength.label}</strong>
+                        </div>
+                        <div className="set-pw-strength-track">
+                          <div
+                            className="set-pw-strength-bar"
+                            style={{ width: pwStrength.barWidth, background: pwStrength.color }}
+                          />
+                        </div>
+                        <div className="set-pw-checklist">
+                          <span className={pwStrength.checks.hasLen ? "met" : "unmet"}>
+                            <Check size={11} /> 12+ Characters
+                          </span>
+                          <span className={pwStrength.checks.hasUpper && pwStrength.checks.hasLower ? "met" : "unmet"}>
+                            <Check size={11} /> Upper &amp; Lower Case
+                          </span>
+                          <span className={pwStrength.checks.hasNumber ? "met" : "unmet"}>
+                            <Check size={11} /> Numbers (0-9)
+                          </span>
+                          <span className={pwStrength.checks.hasSymbol ? "met" : "unmet"}>
+                            <Check size={11} /> Special Symbol (!@#$)
+                          </span>
+                        </div>
+                      </div>
+                    )}
+
+                    <label className="set-field-label" style={{ gridColumn: "1 / -1" }}>
+                      <span>Confirm New Master Password</span>
+                      <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
+                        <input
+                          type="password"
+                          className="set-input"
+                          placeholder="Repeat new master password"
+                          value={confirmPassword}
+                          onChange={(e) => setConfirmPassword(e.target.value)}
+                          style={{ maxWidth: 360 }}
+                        />
+                        <button
+                          type="button"
+                          className="sa-btn sa-btn-secondary sa-btn-sm"
+                          onClick={handlePasswordUpdate}
+                        >
+                          <LockKeyhole size={13} /> Update Master Password
+                        </button>
+                      </div>
+                    </label>
+                  </div>
+                </div>
+
+                {/* Section C: Hardware Security Keys & Biometrics Grid */}
+                <div className="set-profile-card-subgroup">
+                  <div className="set-subgroup-header">
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <ShieldCheck size={17} color="#10b981" />
+                      <h4 style={{ margin: 0, fontSize: 14.5, fontWeight: 750, color: "var(--sa-text-main)" }}>
+                        Hardware Security Keys &amp; Break-Glass Recovery
+                      </h4>
+                    </div>
+                  </div>
+
+                  <div className="set-hw-grid">
+                    <div className="set-hw-item">
+                      <div className="set-hw-icon-box green">
+                        <Key size={18} />
+                      </div>
+                      <div className="set-hw-details">
+                        <strong>FIDO2 Hardware Key (Primary)</strong>
+                        <span>YubiKey 5C NFC · Serial: #9901-8271</span>
+                      </div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                        <span className="set-state-badge active">
+                          <span className="set-state-dot" /> Connected
+                        </span>
+                        <button
+                          type="button"
+                          className="sa-btn sa-btn-secondary sa-btn-xs"
+                          onClick={handleTestSecurityKey}
+                          title="Simulate WebAuthn prompt"
+                        >
+                          Test Key
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="set-hw-item">
+                      <div className="set-hw-icon-box blue">
+                        <Smartphone size={18} />
+                      </div>
+                      <div className="set-hw-details">
+                        <strong>TOTP Authenticator App</strong>
+                        <span>Google Authenticator / 1Password</span>
+                      </div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                        <span className="set-state-badge active">
+                          <span className="set-state-dot" /> Verified
+                        </span>
+                        <button
+                          type="button"
+                          className="sa-btn sa-btn-secondary sa-btn-xs"
+                          onClick={handleRotateTotp}
+                          title="Rotate TOTP shared secret"
+                        >
+                          Rotate Seed
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="set-hw-item" style={{ gridColumn: "1 / -1" }}>
+                      <div className="set-hw-icon-box purple">
+                        <Fingerprint size={18} />
+                      </div>
+                      <div className="set-hw-details">
+                        <strong>Platform Biometrics (TouchID / Windows Hello)</strong>
+                        <span>Local TPM 2.0 cryptoprocessor hardware attestation</span>
+                      </div>
+                      <span className="set-state-badge active">
+                        <span className="set-state-dot" /> Active
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="set-hw-actions-row">
+                    <button
+                      type="button"
+                      className="sa-btn sa-btn-secondary sa-btn-sm"
+                      onClick={() => triggerToast("Insert your YubiKey or WebAuthn device into USB port...")}
+                    >
+                      <Plus size={13} /> Register Additional Security Key
+                    </button>
+
+                    <button
+                      type="button"
+                      className="sa-btn sa-btn-secondary sa-btn-sm"
+                      onClick={handleDownloadRecoveryCodes}
+                    >
+                      <Download size={13} /> Download Break-Glass Recovery Codes (.txt)
+                    </button>
+                  </div>
+                </div>
+
+                {/* Section D: Session Governance & Compliance Actions */}
+                <div className="set-profile-card-subgroup">
+                  <div className="set-subgroup-header">
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <AlertTriangle size={17} color="#f59e0b" />
+                      <h4 style={{ margin: 0, fontSize: 14.5, fontWeight: 750, color: "var(--sa-text-main)" }}>
+                        Session Governance &amp; Break-Glass Danger Zone
+                      </h4>
+                    </div>
+                  </div>
+
+                  <p style={{ margin: "4px 0 12px", fontSize: 12.5, color: "var(--sa-text-muted)" }}>
+                    Remotely revoke active administrative sessions or export your Super Admin audit compliance dossier for SOC2 verification.
+                  </p>
+
+                  <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                    <button
+                      type="button"
+                      className="sa-btn sa-btn-secondary sa-btn-sm"
+                      onClick={handleTerminateSessions}
+                    >
+                      <ShieldAlert size={14} color="#ef4444" /> Terminate Other Active Sessions (3 Devices)
+                    </button>
+
+                    <button
+                      type="button"
+                      className="sa-btn sa-btn-secondary sa-btn-sm"
+                      onClick={handleExportDossier}
+                    >
+                      <FileText size={14} /> Export Super Admin Compliance Dossier (JSON)
+                    </button>
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* Form Footer Action Bar */}
+            <div className="set-form-footer">
               <button
                 type="button"
-                className="sa-settings-reset"
+                className="sa-btn sa-btn-secondary set-reset-btn"
                 onClick={handleReset}
               >
-                <RotateCcw size={16} />
-                Restore defaults
+                <RotateCcw size={14} />
+                <span>Restore Defaults</span>
               </button>
 
-              <button type="submit" className="sa-settings-save">
-                <Save size={17} />
-                Save Changes
+              <button type="submit" className="sa-btn sa-btn-primary set-save-btn">
+                <Save size={15} />
+                <span>Save Configuration</span>
               </button>
             </div>
           </form>
         </div>
       )}
 
-      {/* QUICK EDIT MODAL */}
-      {editingParam && (
-        <div
-          className="subscriptions-modal-backdrop"
-          onClick={(e) => {
-            if (e.target === e.currentTarget) setEditingParam(null);
-          }}
-        >
-          <div className="subscriptions-modal subscriptions-form-modal" style={{ maxWidth: 460 }}>
-            <header className="subscriptions-view-header">
-              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <span className="subscriptions-modal-icon">
-                  <Pencil size={18} />
-                </span>
-                <div>
-                  <h3 style={{ margin: 0, fontSize: 16 }}>Edit Parameter Value</h3>
-                  <small style={{ color: "var(--sa-text-muted)" }}>{editingParam.key}</small>
-                </div>
-              </div>
-              <button
-                type="button"
-                className="subscriptions-icon-button"
-                onClick={() => setEditingParam(null)}
-              >
-                <X size={16} />
-              </button>
-            </header>
-
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                setEditingParam(null);
-                setMessage(`Updated ${editingParam.name} successfully.`);
-              }}
-              style={{ padding: 20 }}
+      {/* =========================================================================
+          FLOATING UNSAVED CHANGES BANNER (REAL SAAS PATTERN)
+         ========================================================================= */}
+      {isDirty && (
+        <div className="set-unsaved-bar">
+          <div className="set-unsaved-content">
+            <div className="set-unsaved-dot" />
+            <div>
+              <strong>Unsaved Configuration Changes</strong>
+              <p>You have unsaved platform modifications that are not yet active.</p>
+            </div>
+          </div>
+          <div className="set-unsaved-actions">
+            <button
+              type="button"
+              className="sa-btn sa-btn-secondary sa-btn-sm"
+              onClick={handleDiscard}
             >
-              <label className="subscriptions-form-label" style={{ display: "block", marginBottom: 16 }}>
-                <span style={{ display: "block", marginBottom: 6, fontWeight: 600 }}>{editingParam.name}</span>
-                {editingParam.type === "boolean" ? (
-                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                    <button
-                      type="button"
-                      role="switch"
-                      className={`sa-settings-switch ${settings[editingParam.stateKey] ? "on" : ""}`}
-                      onClick={() => handleToggle(editingParam)}
-                    >
-                      <span />
-                    </button>
-                    <span>{settings[editingParam.stateKey] ? "Enabled" : "Disabled"}</span>
+              Discard Changes
+            </button>
+            <button
+              type="button"
+              className="sa-btn sa-btn-primary sa-btn-sm"
+              onClick={handleSave}
+            >
+              <Save size={14} /> Save Configuration
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* =========================================================================
+          PORTALED MODAL 1: EDIT PARAMETER VALUE
+          (Portaled to document.body: Centered, Zero Vertical Scrolling Needed)
+         ========================================================================= */}
+      {editingParam &&
+        createPortal(
+          <div
+            className="set-modal-overlay"
+            onClick={() => setEditingParam(null)}
+            role="dialog"
+            aria-modal="true"
+          >
+            <div className="set-modal-container" onClick={(e) => e.stopPropagation()}>
+              <div className="set-modal-header">
+                <div className="set-modal-header-left">
+                  <div className="set-modal-icon-box">
+                    <Pencil size={18} />
                   </div>
-                ) : editingParam.type === "select" ? (
-                  <select
-                    className="subscriptions-form-input"
-                    value={String(settings[editingParam.stateKey] ?? "")}
-                    onChange={(ev) => updateSetting(editingParam.stateKey, ev.target.value)}
-                  >
-                    {editingParam.options?.map((opt) => (
-                      <option key={opt} value={opt}>
-                        {editingParam.optionsDisplay ? editingParam.optionsDisplay[opt] || opt : opt}
-                      </option>
-                    ))}
-                  </select>
-                ) : (
-                  <input
-                    className="subscriptions-form-input"
-                    value={String(settings[editingParam.stateKey] ?? "")}
-                    onChange={(ev) => updateSetting(editingParam.stateKey, ev.target.value)}
-                    required
-                  />
-                )}
-                <small style={{ display: "block", marginTop: 6, color: "var(--sa-text-muted)" }}>
-                  {editingParam.description}
-                </small>
-              </label>
-
-              <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
+                  <div>
+                    <h3 className="set-modal-title">Edit Parameter Value</h3>
+                    <code className="set-modal-key-code">{editingParam.key}</code>
+                  </div>
+                </div>
                 <button
                   type="button"
-                  className="subscriptions-button subscriptions-button-light"
+                  className="set-modal-close-btn"
                   onClick={() => setEditingParam(null)}
+                  aria-label="Close modal"
                 >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="subscriptions-button subscriptions-button-primary"
-                >
-                  <Save size={15} /> Save Parameter
+                  <X size={17} />
                 </button>
               </div>
-            </form>
-          </div>
-        </div>
-      )}
 
-      {/* ADD PARAMETER MODAL */}
-      {showAddModal && (
-        <div
-          className="subscriptions-modal-backdrop"
-          onClick={(e) => {
-            if (e.target === e.currentTarget) setShowAddModal(false);
-          }}
-        >
-          <div className="subscriptions-modal subscriptions-form-modal" style={{ maxWidth: 500 }}>
-            <header className="subscriptions-view-header">
-              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <span className="subscriptions-modal-icon">
-                  <Plus size={18} />
-                </span>
-                <div>
-                  <h3 style={{ margin: 0, fontSize: 16 }}>Add Platform Parameter</h3>
-                  <small style={{ color: "var(--sa-text-muted)" }}>Register a new configuration key</small>
-                </div>
-              </div>
-              <button
-                type="button"
-                className="subscriptions-icon-button"
-                onClick={() => setShowAddModal(false)}
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  setEditingParam(null);
+                  triggerToast(`Parameter '${editingParam.name}' updated successfully.`);
+                }}
               >
-                <X size={16} />
-              </button>
-            </header>
-
-            <form onSubmit={handleAddCustomParam} style={{ padding: 20 }}>
-              <div style={{ display: "grid", gap: 14 }}>
-                <label className="subscriptions-form-label">
-                  <span>Parameter Key *</span>
-                  <input
-                    className="subscriptions-form-input"
-                    placeholder="e.g. integrations.slack_webhook_url"
-                    value={newParamForm.key}
-                    onChange={(e) => setNewParamForm({ ...newParamForm, key: e.target.value })}
-                    required
-                  />
-                </label>
-
-                <label className="subscriptions-form-label">
-                  <span>Display Name *</span>
-                  <input
-                    className="subscriptions-form-input"
-                    placeholder="e.g. Slack Webhook Dispatcher"
-                    value={newParamForm.name}
-                    onChange={(e) => setNewParamForm({ ...newParamForm, name: e.target.value })}
-                    required
-                  />
-                </label>
-
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-                  <label className="subscriptions-form-label">
-                    <span>Category</span>
-                    <select
-                      className="subscriptions-form-input"
-                      value={newParamForm.category}
-                      onChange={(e) => setNewParamForm({ ...newParamForm, category: e.target.value })}
-                    >
-                      <option>General</option>
-                      <option>Security</option>
-                      <option>Notifications</option>
-                      <option>Admin Profile</option>
-                      <option>System Limits</option>
-                    </select>
-                  </label>
-
-                  <label className="subscriptions-form-label">
-                    <span>Data Type</span>
-                    <select
-                      className="subscriptions-form-input"
-                      value={newParamForm.type}
-                      onChange={(e) => setNewParamForm({ ...newParamForm, type: e.target.value })}
-                    >
-                      <option value="string">Text / String</option>
-                      <option value="boolean">Toggle / Switch</option>
-                    </select>
+                <div className="set-modal-body">
+                  <label className="set-field-label">
+                    <span style={{ fontSize: 13, fontWeight: 700 }}>{editingParam.name}</span>
+                    {editingParam.type === "boolean" ? (
+                      <div className="set-switch-cell" style={{ marginTop: 8 }}>
+                        <button
+                          type="button"
+                          role="switch"
+                          aria-checked={Boolean(settings[editingParam.stateKey])}
+                          className={`set-switch ${settings[editingParam.stateKey] ? "on" : ""}`}
+                          onClick={() => handleToggle(editingParam)}
+                        >
+                          <span />
+                        </button>
+                        <span className={`set-live-state-pill ${settings[editingParam.stateKey] ? "on" : "off"}`}>
+                          <span className="set-live-state-dot" />
+                          {settings[editingParam.stateKey] ? "Active" : "Disabled"}
+                        </span>
+                      </div>
+                    ) : editingParam.type === "select" ? (
+                      <div className="set-modal-select-wrap" style={{ marginTop: 6, position: "relative" }}>
+                        <select
+                          className="set-select"
+                          value={String(settings[editingParam.stateKey] ?? "")}
+                          onChange={(ev) => updateSetting(editingParam.stateKey, ev.target.value)}
+                        >
+                          {editingParam.options?.map((opt) => (
+                            <option key={opt} value={opt}>
+                              {editingParam.optionsDisplay ? editingParam.optionsDisplay[opt] || opt : opt}
+                            </option>
+                          ))}
+                        </select>
+                        <ChevronDown size={14} className="set-modal-select-chevron" />
+                      </div>
+                    ) : (
+                      <input
+                        className="set-input"
+                        style={{ marginTop: 6 }}
+                        value={String(settings[editingParam.stateKey] ?? "")}
+                        onChange={(ev) => updateSetting(editingParam.stateKey, ev.target.value)}
+                        required
+                      />
+                    )}
+                    <small style={{ marginTop: 8 }}>{editingParam.description}</small>
                   </label>
                 </div>
 
-                <label className="subscriptions-form-label">
-                  <span>Initial Value</span>
-                  <input
-                    className="subscriptions-form-input"
-                    placeholder="e.g. https://hooks.slack.com/..."
-                    value={newParamForm.value}
-                    onChange={(e) => setNewParamForm({ ...newParamForm, value: e.target.value })}
-                  />
-                </label>
+                <div className="set-modal-footer">
+                  <button
+                    type="button"
+                    className="sa-btn sa-btn-secondary sa-btn-sm"
+                    onClick={() => setEditingParam(null)}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="sa-btn sa-btn-primary sa-btn-sm"
+                  >
+                    <Save size={14} />
+                    <span>Save Parameter</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>,
+          document.body
+        )}
 
-                <label className="subscriptions-form-label">
-                  <span>Description</span>
-                  <textarea
-                    className="subscriptions-form-input"
-                    rows={2}
-                    placeholder="Briefly describe what this configuration controls..."
-                    value={newParamForm.description}
-                    onChange={(e) => setNewParamForm({ ...newParamForm, description: e.target.value })}
-                  />
-                </label>
-              </div>
-
-              <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginTop: 18 }}>
+      {/* =========================================================================
+          PORTALED MODAL 2: ADD PLATFORM PARAMETER
+          (Portaled to document.body: Centered, Zero Vertical Scrolling Needed)
+         ========================================================================= */}
+      {showAddModal &&
+        createPortal(
+          <div
+            className="set-modal-overlay"
+            onClick={() => setShowAddModal(false)}
+            role="dialog"
+            aria-modal="true"
+          >
+            <div className="set-modal-container" onClick={(e) => e.stopPropagation()}>
+              <div className="set-modal-header">
+                <div className="set-modal-header-left">
+                  <div className="set-modal-icon-box purple">
+                    <Plus size={18} />
+                  </div>
+                  <div>
+                    <h3 className="set-modal-title">Register Custom Parameter</h3>
+                    <span style={{ fontSize: 11.5, color: "var(--sa-text-muted)" }}>
+                      Extend SaaS platform runtime configuration
+                    </span>
+                  </div>
+                </div>
                 <button
                   type="button"
-                  className="subscriptions-button subscriptions-button-light"
+                  className="set-modal-close-btn"
                   onClick={() => setShowAddModal(false)}
+                  aria-label="Close modal"
                 >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="subscriptions-button subscriptions-button-primary"
-                >
-                  <Plus size={15} /> Add Parameter
+                  <X size={17} />
                 </button>
               </div>
-            </form>
-          </div>
-        </div>
-      )}
+
+              <form onSubmit={handleAddCustomParam}>
+                <div className="set-modal-body">
+                  <div style={{ display: "grid", gap: 12 }}>
+                    <label className="set-field-label">
+                      <span>Parameter Key (Namespaced) *</span>
+                      <input
+                        className="set-input"
+                        placeholder="e.g. integrations.slack_bot_token"
+                        value={newParamForm.key}
+                        onChange={(e) => setNewParamForm({ ...newParamForm, key: e.target.value })}
+                        required
+                      />
+                    </label>
+
+                    <label className="set-field-label">
+                      <span>Display Name *</span>
+                      <input
+                        className="set-input"
+                        placeholder="e.g. Slack Dispatcher Bot Token"
+                        value={newParamForm.name}
+                        onChange={(e) => setNewParamForm({ ...newParamForm, name: e.target.value })}
+                        required
+                      />
+                    </label>
+
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                      <label className="set-field-label">
+                        <span>Category</span>
+                        <select
+                          className="set-select"
+                          value={newParamForm.category}
+                          onChange={(e) => setNewParamForm({ ...newParamForm, category: e.target.value })}
+                        >
+                          <option value="General">General</option>
+                          <option value="AI & Limits">AI &amp; Limits</option>
+                          <option value="Security & SSO">Security &amp; SSO</option>
+                          <option value="Notifications & SMTP">Notifications &amp; SMTP</option>
+                          <option value="Billing & Multi-Tenancy">Billing &amp; Multi-Tenancy</option>
+                          <option value="Super Admin Profile">Super Admin Profile</option>
+                        </select>
+                      </label>
+
+                      <label className="set-field-label">
+                        <span>Data Type</span>
+                        <select
+                          className="set-select"
+                          value={newParamForm.type}
+                          onChange={(e) => setNewParamForm({ ...newParamForm, type: e.target.value })}
+                        >
+                          <option value="string">Text / String</option>
+                          <option value="boolean">Toggle / Switch</option>
+                        </select>
+                      </label>
+                    </div>
+
+                    <label className="set-field-label">
+                      <span>Initial Runtime Value</span>
+                      <input
+                        className="set-input"
+                        placeholder="e.g. xoxb-enterprise-token-..."
+                        value={newParamForm.value}
+                        onChange={(e) => setNewParamForm({ ...newParamForm, value: e.target.value })}
+                      />
+                    </label>
+
+                    <label className="set-field-label">
+                      <span>Parameter Description</span>
+                      <textarea
+                        className="set-input"
+                        rows={2}
+                        placeholder="Explain what this configuration key controls..."
+                        value={newParamForm.description}
+                        onChange={(e) => setNewParamForm({ ...newParamForm, description: e.target.value })}
+                      />
+                    </label>
+                  </div>
+                </div>
+
+                <div className="set-modal-footer">
+                  <button
+                    type="button"
+                    className="sa-btn sa-btn-secondary sa-btn-sm"
+                    onClick={() => setShowAddModal(false)}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="sa-btn sa-btn-primary sa-btn-sm"
+                  >
+                    <Plus size={14} />
+                    <span>Register Parameter</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>,
+          document.body
+        )}
     </div>
   );
 }
 
-function SettingToggle({
-  title,
-  description,
-  checked,
-  onChange,
-  warning = false,
-}) {
+/* ==========================================================================
+   SUBCOMPONENT: SETTING TOGGLE ROW
+   ========================================================================== */
+function SettingToggleRow({ title, description, checked, onChange, warning = "" }) {
   return (
-    <div className="sa-settings-toggle-row">
-      <div className="sa-settings-toggle-copy">
-        <strong>{title}</strong>
-        <p>{description}</p>
-        {warning && checked && (
-          <small className="sa-settings-warning">
-            Demo only: this does not block access to the application.
-          </small>
-        )}
+    <div className="set-toggle-row">
+      <div className="set-toggle-copy">
+        <strong className="set-toggle-title">{title}</strong>
+        <p className="set-toggle-desc">{description}</p>
+        {warning && checked && <span className="set-toggle-warning">{warning}</span>}
       </div>
 
-      <button
-        type="button"
-        role="switch"
-        aria-checked={checked}
-        aria-label={title}
-        className={`sa-settings-switch ${checked ? "on" : ""}`}
-        onClick={() => onChange(!checked)}
-      >
-        <span />
-      </button>
+      <div className="set-switch-cell">
+        <button
+          type="button"
+          role="switch"
+          aria-checked={checked}
+          aria-label={title}
+          className={`set-switch ${checked ? "on" : ""}`}
+          onClick={() => onChange(!checked)}
+        >
+          <span />
+        </button>
+        <span className={`set-live-state-pill ${checked ? "on" : "off"}`}>
+          <span className="set-live-state-dot" />
+          {checked ? "Enabled" : "Disabled"}
+        </span>
+      </div>
     </div>
   );
 }

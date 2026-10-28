@@ -126,7 +126,33 @@ html {
 
 /* -------------------------------------------------------------------------
    ROOT CONTAINER & LIVE ANIMATION OVERLAYS
+   =========================================================================
+   CINEMATIC SLOW REAL-TIME THEME TRANSITIONS (0.8s)
+   Covers entire document, backgrounds, borders, text, shadows & SVGs
    ------------------------------------------------------------------------- */
+html,
+body {
+  transition: background-color 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.landing-page-root,
+.landing-page-root *,
+.landing-page-root *::before,
+.landing-page-root *::after {
+  transition-property: background-color, border-color, color, fill, stroke, box-shadow, text-shadow;
+  transition-duration: 0.8s;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Exclude continuous canvas and marquee animation nodes from CSS transition */
+.landing-page-root canvas,
+.landing-page-root .hero-interactive-canvas,
+.landing-page-root .mouse-interactive-spotlight,
+.landing-page-root .mouse-interactive-grid,
+.landing-page-root .marquee-track {
+  transition: none !important;
+}
+
 .landing-page-root {
   background-color: var(--tf-bg-deep);
   color: var(--tf-text-main);
@@ -137,7 +163,6 @@ html {
   overflow-x: clip;
   position: relative;
   -webkit-font-smoothing: antialiased;
-  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* Canvas Animation Node Stream */
@@ -245,14 +270,15 @@ html {
 .logo-link {
   text-decoration: none;
   color: inherit;
-  display: flex;
+  display: inline-flex;
   align-items: center;
 }
 
 .logo-container {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 11px;
+  user-select: none;
 }
 
 .logo-icon-brand {
@@ -262,80 +288,366 @@ html {
   align-items: center;
   justify-content: center;
   border-radius: 10px;
-  transition: transform 0.25s ease;
+  flex-shrink: 0;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.35s ease;
+}
+
+.landing-page-root.theme-light .logo-icon-brand,
+.theme-light .navbar .logo-icon-brand,
+[data-theme="light"] .navbar .logo-icon-brand {
+  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.22);
+}
+
+.landing-page-root.theme-dark .logo-icon-brand,
+.theme-dark .navbar .logo-icon-brand,
+[data-theme="dark"] .navbar .logo-icon-brand {
+  box-shadow: 0 0 22px rgba(99, 102, 241, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.16);
 }
 
 .logo-link:hover .logo-icon-brand {
-  transform: rotate(-4deg) scale(1.06);
+  transform: rotate(-4deg) scale(1.08);
 }
 
-.logo-text {
-  font-size: 20px;
-  font-weight: 800;
-  letter-spacing: -0.6px;
-  color: var(--tf-logo-text);
+/* Brand Name Text: Crisp & High Contrast in all themes */
+.landing-page-root .logo-text,
+.navbar .logo-text,
+.logo-link .logo-text {
+  font-size: 20px !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.6px !important;
+  line-height: 1 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  transition: color 0.8s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
-.logo-ai {
-  color: var(--tf-primary);
-  font-weight: 800;
+.landing-page-root.theme-light .logo-text,
+.theme-light .navbar .logo-text,
+.theme-light .logo-link .logo-text,
+[data-theme="light"] .navbar .logo-text {
+  color: #0f172a !important;
+}
+
+.landing-page-root.theme-dark .logo-text,
+.theme-dark .navbar .logo-text,
+.theme-dark .logo-link .logo-text,
+[data-theme="dark"] .navbar .logo-text {
+  color: #ffffff !important;
+  text-shadow: 0 0 18px rgba(255, 255, 255, 0.28) !important;
+}
+
+/* AI Badge / Accent */
+.landing-page-root .logo-ai,
+.navbar .logo-ai {
+  font-weight: 800 !important;
+  transition: color 0.8s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.landing-page-root.theme-light .logo-ai,
+.theme-light .navbar .logo-ai,
+[data-theme="light"] .navbar .logo-ai {
+  color: #4f46e5 !important;
+}
+
+.landing-page-root.theme-dark .logo-ai,
+.theme-dark .navbar .logo-ai,
+[data-theme="dark"] .navbar .logo-ai {
+  color: #60a5fa !important;
+  text-shadow: 0 0 14px rgba(96, 165, 250, 0.65) !important;
 }
 
 .nav-links {
   display: flex;
   align-items: center;
-  gap: clamp(16px, 2vw, 32px);
+  gap: clamp(6px, 1.2vw, 14px);
+  position: relative;
 }
 
+/* =========================================================================
+   LIVE ANIMATED NAVLINKS WITH GLASS PILL, LASER UNDERLINE & SHEEN EFFECT
+   ========================================================================= */
 .nav-link {
   color: var(--tf-text-secondary);
   text-decoration: none;
   font-size: 13.5px;
   font-weight: 600;
-  transition: color 0.15s ease;
+  letter-spacing: -0.1px;
   position: relative;
-  padding: 6px 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  border-radius: 9999px;
+  border: 1px solid transparent;
+  background: transparent;
+  overflow: hidden;
+  user-select: none;
+  cursor: pointer;
+  transition: color 0.25s ease,
+              background-color 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+/* Light Mode Live Hover Effect */
+.landing-page-root.theme-light .nav-link:hover,
+.theme-light .navbar .nav-link:hover,
+[data-theme="light"] .navbar .nav-link:hover,
 .nav-link:hover {
-  color: var(--tf-text-main);
+  color: #4338ca;
+  background: rgba(79, 70, 229, 0.08);
+  border-color: rgba(79, 70, 229, 0.22);
+  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  transform: translateY(-2px);
+}
+
+.nav-link:active {
+  transform: translateY(0) scale(0.96);
+  transition-duration: 0.1s;
+}
+
+.nav-link:focus-visible {
+  outline: 2px solid var(--tf-primary);
+  outline-offset: 2px;
+}
+
+/* Radiant Animated Gradient Underline (Expanding Laser Beam) */
+.nav-link::after {
+  content: "";
+  position: absolute;
+  bottom: 3px;
+  left: 14px;
+  right: 14px;
+  height: 2.5px;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, #4f46e5 0%, #7c3aed 50%, #ec4899 100%);
+  transform: scaleX(0);
+  transform-origin: center;
+  opacity: 0;
+  transition: transform 0.32s cubic-bezier(0.34, 1.56, 0.64, 1),
+              opacity 0.25s ease,
+              box-shadow 0.3s ease;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.nav-link:hover::after {
+  transform: scaleX(1);
+  opacity: 1;
+  box-shadow: 0 0 10px rgba(99, 102, 241, 0.8), 0 0 18px rgba(236, 72, 153, 0.5);
+}
+
+/* Live Light Sheen Beam Sweep Effect */
+.nav-link::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -80%;
+  width: 55%;
+  height: 100%;
+  background: linear-gradient(
+    115deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.35) 50%,
+    transparent 100%
+  );
+  transform: skewX(-20deg);
+  pointer-events: none;
+  opacity: 0;
+  z-index: 1;
+}
+
+.nav-link:hover::before {
+  opacity: 1;
+  animation: navLinkSheen 0.65s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+@keyframes navLinkSheen {
+  0% {
+    left: -80%;
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    left: 140%;
+    opacity: 0;
+  }
 }
 
 .nav-buttons {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
 }
 
-/* Light / Dark Mode Toggle Button */
+/* =========================================================================
+   ANIMATED THEME TOGGLE SWITCH BUTTON (LIGHT / DARK)
+   ========================================================================= */
 .theme-toggle-btn {
-  background: var(--tf-bg-card-subtle);
-  border: 1px solid var(--tf-border);
-  color: var(--tf-text-secondary);
-  padding: 7px 12px;
-  border-radius: var(--tf-radius-sm);
-  font-size: 12.5px;
-  font-weight: 600;
-  cursor: pointer;
+  position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  transition: var(--tf-transition);
+  gap: 8px;
+  padding: 4px 12px 4px 5px;
+  border-radius: 9999px;
+  cursor: pointer;
+  user-select: none;
+  outline: none;
+  border: 1px solid transparent;
+  transition: background-color 0.8s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.8s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.8s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.2s ease;
 }
 
-.theme-toggle-btn:hover {
-  background: var(--tf-border);
-  color: var(--tf-text-main);
+.theme-toggle-btn.is-light {
+  background: rgba(241, 245, 249, 0.88);
+  border-color: #cbd5e1;
+  color: #334155;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.theme-toggle-btn.is-light:hover {
+  background: #e2e8f0;
+  border-color: #94a3b8;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+}
+
+.theme-toggle-btn.is-dark {
+  background: rgba(26, 36, 56, 0.88);
+  border-color: rgba(255, 255, 255, 0.16);
+  color: #f1f5f9;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+
+.theme-toggle-btn.is-dark:hover {
+  background: rgba(33, 46, 74, 0.95);
+  border-color: rgba(129, 140, 248, 0.45);
+  box-shadow: 0 0 16px rgba(99, 102, 241, 0.25), 0 2px 8px rgba(0, 0, 0, 0.4);
   transform: translateY(-1px);
 }
 
-.theme-icon {
-  color: var(--tf-primary);
-  transition: transform 0.3s ease;
+.theme-toggle-btn:active {
+  transform: scale(0.96);
 }
 
-.theme-toggle-btn:hover .theme-icon {
-  transform: rotate(20deg);
+/* Animated Switch Track */
+.theme-switch-track {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 5px;
+  box-sizing: border-box;
+  transition: background-color 0.8s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.8s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.theme-toggle-btn.is-light .theme-switch-track {
+  background: #cbd5e1;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+.theme-toggle-btn.is-dark .theme-switch-track {
+  background: #0d1527;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+/* Icon Holders inside Track */
+.switch-icon-holder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+  pointer-events: none;
+  transition: opacity 0.3s ease, transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.sun-holder {
+  color: #f59e0b;
+}
+
+.theme-toggle-btn.is-light .sun-holder.active {
+  opacity: 1;
+  transform: scale(1.1) rotate(15deg);
+}
+
+.theme-toggle-btn.is-dark .sun-holder {
+  opacity: 0.35;
+  color: #64748b;
+  transform: scale(0.85);
+}
+
+.moon-holder {
+  color: #cbd5e1;
+}
+
+.theme-toggle-btn.is-dark .moon-holder.active {
+  opacity: 1;
+  color: #38bdf8;
+  transform: scale(1.1) rotate(-15deg);
+}
+
+.theme-toggle-btn.is-light .moon-holder {
+  opacity: 0.35;
+  color: #94a3b8;
+  transform: scale(0.85);
+}
+
+/* Sliding Switch Thumb */
+.switch-thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  z-index: 2;
+  pointer-events: none;
+  transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1),
+              background 0.8s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.theme-toggle-btn.is-light .switch-thumb {
+  transform: translateX(0);
+  background: #ffffff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(0, 0, 0, 0.04);
+}
+
+.theme-toggle-btn.is-dark .switch-thumb {
+  transform: translateX(20px);
+  background: linear-gradient(135deg, #6366f1, #3b82f6);
+  box-shadow: 0 0 12px rgba(99, 102, 241, 0.65), 0 1px 4px rgba(0, 0, 0, 0.4);
+}
+
+/* Label */
+.theme-toggle-label {
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: -0.1px;
+  min-width: 32px;
+  text-align: left;
+  transition: color 0.3s ease;
+}
+
+.theme-toggle-btn.is-light .theme-toggle-label {
+  color: #334155;
+}
+
+.theme-toggle-btn.is-dark .theme-toggle-label {
+  color: #f8fafc;
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
 }
 
 .login-button {
@@ -442,6 +754,10 @@ html {
   gap: 8px;
 }
 
+.mobile-theme-btn {
+  padding: 3px 10px 3px 4px;
+}
+
 .mobile-close-btn {
   background: transparent;
   border: 0;
@@ -474,14 +790,17 @@ html {
   text-decoration: none;
   font-size: 15px;
   font-weight: 600;
-  padding: 10px 12px;
-  border-radius: var(--tf-radius-sm);
-  transition: all 0.15s ease;
+  padding: 10px 14px;
+  border-radius: var(--tf-radius-md);
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
 }
 
 .mobile-nav-links a:hover {
   background: var(--tf-bg-card-subtle);
   color: var(--tf-primary);
+  transform: translateX(6px);
+  padding-left: 18px;
 }
 
 .mobile-drawer-actions {
@@ -2665,17 +2984,43 @@ html {
     color: #cbd5e1;
   }
 
-  /* Navigation & Top Bar */
+  /* Navigation & Top Bar in Dark Mode */
   .nav-link {
     color: #cbd5e1;
   }
   .nav-link:hover {
     color: #ffffff;
+    text-shadow: 0 0 12px rgba(255, 255, 255, 0.45);
+    background: rgba(99, 102, 241, 0.16);
+    border-color: rgba(129, 140, 248, 0.36);
+    box-shadow: 0 0 20px rgba(99, 102, 241, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    transform: translateY(-2px);
   }
-  .theme-toggle-btn {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(255, 255, 255, 0.15);
-    color: #f1f5f9;
+  .nav-link::after {
+    background: linear-gradient(90deg, #6366f1 0%, #a855f7 50%, #38bdf8 100%);
+  }
+  .nav-link:hover::after {
+    box-shadow: 0 0 12px rgba(99, 102, 241, 0.95), 0 0 22px rgba(56, 189, 248, 0.7);
+  }
+  .nav-link::before {
+    background: linear-gradient(
+      115deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.22) 50%,
+      transparent 100%
+    );
+  }
+  /* Logo & Brand in Dark Mode */
+  .logo-text {
+    color: #ffffff !important;
+    text-shadow: 0 0 18px rgba(255, 255, 255, 0.28) !important;
+  }
+  .logo-ai {
+    color: #60a5fa !important;
+    text-shadow: 0 0 14px rgba(96, 165, 250, 0.65) !important;
+  }
+  .logo-icon-brand {
+    box-shadow: 0 0 22px rgba(99, 102, 241, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.16);
   }
   .login-button {
     border-color: rgba(255, 255, 255, 0.2);

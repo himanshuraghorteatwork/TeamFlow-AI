@@ -33,6 +33,7 @@ import {
 } from "lucide-react";
 import "./SuperAdminCommon.css";
 import "./Organizations.css";
+import orgAvatarImg from "../../../assets/images/organization-avatar.png";
 
 const STORAGE_KEY = "teamflow_superadmin_organizations";
 
@@ -749,8 +750,13 @@ function Organizations() {
                         title="Click to view organization details"
                         onClick={() => setModal({ mode: "view", organization: org })}
                       >
-                        <div className={`sap-avatar-circle ${org.color || "blue"}`}>
-                          {org.initials || makeInitials(org.name)}
+                        <div className="org-table-avatar-wrap">
+                          <img
+                            src={org.logo || orgAvatarImg}
+                            alt={org.name}
+                            className="org-table-avatar-img"
+                            loading="lazy"
+                          />
                         </div>
                         <div className="sap-user-info">
                           <strong>{org.name}</strong>
@@ -818,10 +824,10 @@ function Organizations() {
 
                     {/* Actions */}
                     <td style={{ textAlign: "right" }}>
-                      <div className="sap-action-group" style={{ justifyContent: "flex-end" }}>
+                      <div className="org-action-group" style={{ justifyContent: "flex-end" }}>
                         <button
                           type="button"
-                          className="sap-table-btn"
+                          className="org-action-btn btn-view"
                           title="View Organization"
                           onClick={() => setModal({ mode: "view", organization: org })}
                         >
@@ -829,7 +835,7 @@ function Organizations() {
                         </button>
                         <button
                           type="button"
-                          className="sap-table-btn"
+                          className="org-action-btn btn-edit"
                           title="Edit Organization"
                           onClick={() => openEditModal(org)}
                         >
@@ -837,19 +843,19 @@ function Organizations() {
                         </button>
                         <button
                           type="button"
-                          className="sap-table-btn"
-                          title={org.status === "Suspended" ? "Activate" : "Suspend"}
+                          className={`org-action-btn btn-toggle ${org.status === "Suspended" ? "is-activate" : "is-suspend"}`}
+                          title={org.status === "Suspended" ? "Activate Organization" : "Suspend Organization"}
                           onClick={() => toggleStatus(org)}
                         >
                           {org.status === "Suspended" ? (
-                            <CheckCircle2 size={14} style={{ color: "#16a34a" }} />
+                            <CheckCircle2 size={14} />
                           ) : (
-                            <Ban size={14} style={{ color: "#d97706" }} />
+                            <Ban size={14} />
                           )}
                         </button>
                         <button
                           type="button"
-                          className="sap-table-btn danger"
+                          className="org-action-btn btn-delete"
                           title="Delete Organization"
                           onClick={() => setDeleteConfirmOrg(org)}
                         >
@@ -1014,9 +1020,12 @@ function Organizations() {
             {modal.mode === "view" && modal.organization && (
               <div className="org-details-body">
                 <div className="org-details-hero">
-                  <div className={`org-avatar large ${modal.organization.color}`}>
-                    {modal.organization.initials ||
-                      makeInitials(modal.organization.name)}
+                  <div className="org-avatar-modal-wrap">
+                    <img
+                      src={modal.organization.logo || orgAvatarImg}
+                      alt={modal.organization.name}
+                      className="org-modal-avatar-img"
+                    />
                   </div>
                   <div>
                     <h3>{modal.organization.name}</h3>

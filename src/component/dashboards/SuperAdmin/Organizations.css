@@ -461,3 +461,258 @@ body.sa-dark-mode .org-modal-footer {
 .sa-dark-mode .sap-role-badge.business, body.sa-dark-mode .sap-role-badge.business { background: rgba(139, 92, 246, 0.2); color: #c084fc; border-color: rgba(139, 92, 246, 0.4); }
 .sa-dark-mode .sap-role-badge.professional, body.sa-dark-mode .sap-role-badge.professional { background: rgba(16, 185, 129, 0.2); color: #6ee7b7; border-color: rgba(16, 185, 129, 0.4); }
 .sa-dark-mode .sap-role-badge.starter, body.sa-dark-mode .sap-role-badge.starter { background: rgba(148, 163, 184, 0.2); color: #cbd5e1; border-color: rgba(148, 163, 184, 0.3); }
+
+/* ==========================================================================
+   COLORED TABLE ACTION BUTTONS (VIEW, EDIT, SUSPEND/ACTIVATE, DELETE)
+   ========================================================================== */
+
+.org-action-group {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.org-action-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background: transparent;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  flex-shrink: 0;
+  padding: 0;
+}
+
+/* 1. View Button (Blue / Cyan) */
+.org-action-btn.btn-view {
+  background: #eff6ff;
+  color: #2563eb;
+  border-color: #bfdbfe;
+}
+
+.org-action-btn.btn-view:hover {
+  background: #2563eb;
+  color: #ffffff;
+  border-color: #2563eb;
+  box-shadow: 0 3px 8px rgba(37, 99, 235, 0.3);
+  transform: translateY(-1px);
+}
+
+/* 2. Edit Button (Indigo / Violet) */
+.org-action-btn.btn-edit {
+  background: #f5f3ff;
+  color: #7c3aed;
+  border-color: #ddd6fe;
+}
+
+.org-action-btn.btn-edit:hover {
+  background: #7c3aed;
+  color: #ffffff;
+  border-color: #7c3aed;
+  box-shadow: 0 3px 8px rgba(124, 58, 237, 0.3);
+  transform: translateY(-1px);
+}
+
+/* 3. Status Toggle Button - Suspend (Amber / Orange) */
+.org-action-btn.btn-toggle.is-suspend {
+  background: #fffbeb;
+  color: #d97706;
+  border-color: #fde68a;
+}
+
+.org-action-btn.btn-toggle.is-suspend:hover {
+  background: #d97706;
+  color: #ffffff;
+  border-color: #d97706;
+  box-shadow: 0 3px 8px rgba(217, 119, 6, 0.3);
+  transform: translateY(-1px);
+}
+
+/* Status Toggle Button - Activate (Emerald / Green) */
+.org-action-btn.btn-toggle.is-activate {
+  background: #ecfdf5;
+  color: #059669;
+  border-color: #a7f3d0;
+}
+
+.org-action-btn.btn-toggle.is-activate:hover {
+  background: #059669;
+  color: #ffffff;
+  border-color: #059669;
+  box-shadow: 0 3px 8px rgba(5, 150, 105, 0.3);
+  transform: translateY(-1px);
+}
+
+/* 4. Delete Button (Crimson / Red) */
+.org-action-btn.btn-delete {
+  background: #fef2f2;
+  color: #dc2626;
+  border-color: #fecaca;
+}
+
+.org-action-btn.btn-delete:hover {
+  background: #dc2626;
+  color: #ffffff;
+  border-color: #dc2626;
+  box-shadow: 0 3px 8px rgba(220, 38, 38, 0.3);
+  transform: translateY(-1px);
+}
+
+/* Dark Mode Action Buttons */
+.sa-dark-mode .org-action-btn.btn-view,
+body.sa-dark-mode .org-action-btn.btn-view {
+  background: rgba(59, 130, 246, 0.15) !important;
+  border-color: rgba(59, 130, 246, 0.35) !important;
+  color: #60a5fa !important;
+}
+
+.sa-dark-mode .org-action-btn.btn-view:hover,
+body.sa-dark-mode .org-action-btn.btn-view:hover {
+  background: #2563eb !important;
+  color: #ffffff !important;
+  border-color: #2563eb !important;
+  box-shadow: 0 3px 8px rgba(37, 99, 235, 0.4) !important;
+}
+
+.sa-dark-mode .org-action-btn.btn-edit,
+body.sa-dark-mode .org-action-btn.btn-edit {
+  background: rgba(139, 92, 246, 0.15) !important;
+  border-color: rgba(139, 92, 246, 0.35) !important;
+  color: #a78bfa !important;
+}
+
+.sa-dark-mode .org-action-btn.btn-edit:hover,
+body.sa-dark-mode .org-action-btn.btn-edit:hover {
+  background: #7c3aed !important;
+  color: #ffffff !important;
+  border-color: #7c3aed !important;
+  box-shadow: 0 3px 8px rgba(124, 58, 237, 0.4) !important;
+}
+
+.sa-dark-mode .org-action-btn.btn-toggle.is-suspend,
+body.sa-dark-mode .org-action-btn.btn-toggle.is-suspend {
+  background: rgba(245, 158, 11, 0.15) !important;
+  border-color: rgba(245, 158, 11, 0.35) !important;
+  color: #facc15 !important;
+}
+
+.sa-dark-mode .org-action-btn.btn-toggle.is-suspend:hover,
+body.sa-dark-mode .org-action-btn.btn-toggle.is-suspend:hover {
+  background: #d97706 !important;
+  color: #ffffff !important;
+  border-color: #d97706 !important;
+  box-shadow: 0 3px 8px rgba(217, 119, 6, 0.4) !important;
+}
+
+.sa-dark-mode .org-action-btn.btn-toggle.is-activate,
+body.sa-dark-mode .org-action-btn.btn-toggle.is-activate {
+  background: rgba(16, 185, 129, 0.15) !important;
+  border-color: rgba(16, 185, 129, 0.35) !important;
+  color: #4ade80 !important;
+}
+
+.sa-dark-mode .org-action-btn.btn-toggle.is-activate:hover,
+body.sa-dark-mode .org-action-btn.btn-toggle.is-activate:hover {
+  background: #059669 !important;
+  color: #ffffff !important;
+  border-color: #059669 !important;
+  box-shadow: 0 3px 8px rgba(5, 150, 105, 0.4) !important;
+}
+
+.sa-dark-mode .org-action-btn.btn-delete,
+body.sa-dark-mode .org-action-btn.btn-delete {
+  background: rgba(239, 68, 68, 0.15) !important;
+  border-color: rgba(239, 68, 68, 0.35) !important;
+  color: #f87171 !important;
+}
+
+.sa-dark-mode .org-action-btn.btn-delete:hover,
+body.sa-dark-mode .org-action-btn.btn-delete:hover {
+  background: #dc2626 !important;
+  color: #ffffff !important;
+  border-color: #dc2626 !important;
+  box-shadow: 0 3px 8px rgba(220, 38, 38, 0.4) !important;
+}
+
+/* ==========================================================================
+   ORGANIZATION AVATAR / ICON BADGES
+   ========================================================================== */
+
+.org-table-avatar-wrap {
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
+  border-radius: 9px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+  flex-shrink: 0;
+  transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.18s ease, border-color 0.18s ease;
+  overflow: hidden;
+}
+
+.sap-user-badge:hover .org-table-avatar-wrap {
+  transform: scale(1.08);
+  border-color: #cbd5e1;
+  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.1);
+}
+
+.org-table-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.org-avatar-modal-wrap {
+  width: 58px;
+  height: 58px;
+  min-width: 58px;
+  border-radius: 14px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.org-modal-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+/* Dark Mode Organization Avatar */
+.sa-dark-mode .org-table-avatar-wrap,
+body.sa-dark-mode .org-table-avatar-wrap {
+  background: #172442 !important;
+  border-color: #273860 !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35) !important;
+}
+
+.sa-dark-mode .sap-user-badge:hover .org-table-avatar-wrap,
+body.sa-dark-mode .sap-user-badge:hover .org-table-avatar-wrap {
+  border-color: #3b82f6 !important;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25) !important;
+}
+
+.sa-dark-mode .org-avatar-modal-wrap,
+body.sa-dark-mode .org-avatar-modal-wrap {
+  background: #172442 !important;
+  border-color: #273860 !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4) !important;
+}
