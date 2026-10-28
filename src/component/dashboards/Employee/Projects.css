@@ -1703,3 +1703,468 @@
 [data-theme="dark"] .tf-proj-readonly-hint {
   color: #64748B;
 }
+
+/* ==========================================================================
+   MY PROJECT SUMMARY MENU & BREAKDOWN MODAL
+   ========================================================================== */
+
+.employee-shell .tf-proj-summary-menu-wrap {
+  position: relative;
+}
+
+.employee-shell .tf-proj-card-more-btn.active {
+  background: #EEF2FF;
+  color: #5051F9;
+}
+
+.employee-shell .tf-proj-summary-popover {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  width: 220px;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 10px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+  z-index: 100;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  animation: projDropdownIn 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.employee-shell .tf-proj-summary-popover button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 12px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #334155;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.12s ease;
+}
+
+.employee-shell .tf-proj-summary-popover button:hover {
+  background: #F1F5F9;
+  color: #0F172A;
+}
+
+.employee-shell .tf-proj-menu-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.employee-shell .tf-proj-menu-dot.green {
+  background: #10B981;
+}
+
+.employee-shell .tf-proj-menu-dot.orange {
+  background: #F59E0B;
+}
+
+.employee-shell .tf-proj-menu-dot.purple {
+  background: #8B5CF6;
+}
+
+.employee-shell .tf-popover-icon {
+  flex-shrink: 0;
+}
+
+.employee-shell .tf-popover-icon.blue {
+  color: #3B82F6;
+}
+
+.employee-shell .tf-popover-icon.green {
+  color: #10B981;
+}
+
+.employee-shell .tf-popover-icon.purple {
+  color: #8B5CF6;
+}
+
+.employee-shell .tf-popover-icon.slate {
+  color: #64748B;
+}
+
+.employee-shell .tf-popover-icon.amber {
+  color: #F59E0B;
+}
+
+/* Breakdown Modal */
+.employee-shell .tf-proj-breakdown-modal {
+  width: 100%;
+  max-width: 680px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.employee-shell .tf-proj-breakdown-modal .tf-proj-modal-body {
+  overflow-y: auto;
+  max-height: calc(85vh - 140px);
+  padding: 20px;
+}
+
+.employee-shell .tf-proj-breakdown-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 22px;
+}
+
+.employee-shell .tf-proj-bk-card {
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.employee-shell .tf-proj-bk-card.purple {
+  border-left: 4px solid #8B5CF6;
+  background: #FAF5FF;
+}
+
+.employee-shell .tf-proj-bk-card.green {
+  border-left: 4px solid #10B981;
+  background: #F0FDF4;
+}
+
+.employee-shell .tf-proj-bk-card.orange {
+  border-left: 4px solid #F59E0B;
+  background: #FFFBEB;
+}
+
+.employee-shell .tf-proj-bk-card.blue {
+  border-left: 4px solid #3B82F6;
+  background: #EFF6FF;
+}
+
+.employee-shell .tf-proj-bk-label {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #64748B;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.employee-shell .tf-proj-bk-card strong {
+  font-size: 22px;
+  font-weight: 700;
+  color: #0F172A;
+  line-height: 1.1;
+}
+
+.employee-shell .tf-proj-bk-card small {
+  font-size: 11.5px;
+  color: #64748B;
+}
+
+.employee-shell .tf-proj-breakdown-section {
+  margin-top: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.employee-shell .tf-proj-breakdown-section-title {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #1E293B;
+  margin: 0;
+}
+
+.employee-shell .tf-proj-meter-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 10px;
+}
+
+.employee-shell .tf-proj-meter-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.employee-shell .tf-proj-meter-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12.5px;
+}
+
+.employee-shell .tf-proj-meter-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+  color: #334155;
+}
+
+.employee-shell .tf-proj-meter-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.employee-shell .tf-proj-meter-dot.green {
+  background: #10B981;
+}
+
+.employee-shell .tf-proj-meter-dot.orange {
+  background: #F59E0B;
+}
+
+.employee-shell .tf-proj-meter-dot.purple {
+  background: #8B5CF6;
+}
+
+.employee-shell .tf-proj-meter-val {
+  font-weight: 600;
+  color: #475569;
+}
+
+.employee-shell .tf-proj-meter-track {
+  height: 7px;
+  background: #E2E8F0;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.employee-shell .tf-proj-meter-fill {
+  height: 100%;
+  border-radius: 10px;
+  transition: width 0.3s ease;
+}
+
+.employee-shell .tf-proj-meter-fill.green {
+  background: #10B981;
+}
+
+.employee-shell .tf-proj-meter-fill.orange {
+  background: #F59E0B;
+}
+
+.employee-shell .tf-proj-meter-fill.purple {
+  background: #8B5CF6;
+}
+
+/* Breakdown Table */
+.employee-shell .tf-proj-breakdown-table-wrap {
+  border: 1px solid #E2E8F0;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.employee-shell .tf-proj-breakdown-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+}
+
+.employee-shell .tf-proj-breakdown-table th {
+  background: #F8FAFC;
+  padding: 9px 12px;
+  text-align: left;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #64748B;
+  border-bottom: 1px solid #E2E8F0;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.employee-shell .tf-proj-breakdown-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #F1F5F9;
+  vertical-align: middle;
+}
+
+.employee-shell .tf-proj-breakdown-table tr:last-child td {
+  border-bottom: none;
+}
+
+.employee-shell .tf-proj-bk-name-col {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.employee-shell .tf-proj-bk-name-col strong {
+  font-size: 13px;
+  font-weight: 600;
+  color: #0F172A;
+}
+
+.employee-shell .tf-proj-bk-name-col span {
+  font-size: 11.5px;
+  color: #64748B;
+}
+
+.employee-shell .tf-proj-bk-prog-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 120px;
+}
+
+.employee-shell .tf-proj-progress-track.small {
+  height: 6px;
+  flex: 1;
+}
+
+.employee-shell .tf-proj-bk-prog-pct {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #475569;
+  min-width: 28px;
+  text-align: right;
+}
+
+.employee-shell .tf-proj-bk-team-tag {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 500;
+  background: #F1F5F9;
+  color: #475569;
+}
+
+/* Modal Actions Space Between */
+.employee-shell .tf-modal-actions.space-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+  border-top: 1px solid #E2E8F0;
+}
+
+/* Dark Mode Overrides */
+.employee-shell.tf-dark .tf-proj-summary-popover,
+[data-theme="dark"] .employee-shell .tf-proj-summary-popover {
+  background: #1E293B;
+  border-color: #334155;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+}
+
+.employee-shell.tf-dark .tf-proj-summary-popover button,
+[data-theme="dark"] .employee-shell .tf-proj-summary-popover button {
+  color: #CBD5E1;
+}
+
+.employee-shell.tf-dark .tf-proj-summary-popover button:hover,
+[data-theme="dark"] .employee-shell .tf-proj-summary-popover button:hover {
+  background: #334155;
+  color: #FFFFFF;
+}
+
+.employee-shell.tf-dark .tf-proj-card-more-btn.active,
+[data-theme="dark"] .employee-shell .tf-proj-card-more-btn.active {
+  background: #334155;
+  color: #A5B4FC;
+}
+
+.employee-shell.tf-dark .tf-proj-bk-card,
+[data-theme="dark"] .employee-shell .tf-proj-bk-card {
+  background: #1E293B;
+  border-color: #334155;
+}
+
+.employee-shell.tf-dark .tf-proj-bk-card.purple,
+[data-theme="dark"] .employee-shell .tf-proj-bk-card.purple {
+  background: rgba(139, 92, 246, 0.12);
+  border-color: #8B5CF6;
+}
+
+.employee-shell.tf-dark .tf-proj-bk-card.green,
+[data-theme="dark"] .employee-shell .tf-proj-bk-card.green {
+  background: rgba(16, 185, 129, 0.12);
+  border-color: #10B981;
+}
+
+.employee-shell.tf-dark .tf-proj-bk-card.orange,
+[data-theme="dark"] .employee-shell .tf-proj-bk-card.orange {
+  background: rgba(245, 158, 11, 0.12);
+  border-color: #F59E0B;
+}
+
+.employee-shell.tf-dark .tf-proj-bk-card.blue,
+[data-theme="dark"] .employee-shell .tf-proj-bk-card.blue {
+  background: rgba(59, 130, 246, 0.12);
+  border-color: #3B82F6;
+}
+
+.employee-shell.tf-dark .tf-proj-bk-card strong,
+[data-theme="dark"] .employee-shell .tf-proj-bk-card strong,
+.employee-shell.tf-dark .tf-proj-breakdown-section-title,
+[data-theme="dark"] .employee-shell .tf-proj-breakdown-section-title,
+.employee-shell.tf-dark .tf-proj-bk-name-col strong,
+[data-theme="dark"] .employee-shell .tf-proj-bk-name-col strong {
+  color: #F8FAFC;
+}
+
+.employee-shell.tf-dark .tf-proj-meter-list,
+[data-theme="dark"] .employee-shell .tf-proj-meter-list {
+  background: #162032;
+  border-color: #334155;
+}
+
+.employee-shell.tf-dark .tf-proj-meter-name,
+[data-theme="dark"] .employee-shell .tf-proj-meter-name,
+.employee-shell.tf-dark .tf-proj-meter-val,
+[data-theme="dark"] .employee-shell .tf-proj-meter-val,
+.employee-shell.tf-dark .tf-proj-bk-prog-pct,
+[data-theme="dark"] .employee-shell .tf-proj-bk-prog-pct {
+  color: #CBD5E1;
+}
+
+.employee-shell.tf-dark .tf-proj-meter-track,
+[data-theme="dark"] .employee-shell .tf-proj-meter-track {
+  background: #334155;
+}
+
+.employee-shell.tf-dark .tf-proj-breakdown-table-wrap,
+[data-theme="dark"] .employee-shell .tf-proj-breakdown-table-wrap {
+  border-color: #334155;
+}
+
+.employee-shell.tf-dark .tf-proj-breakdown-table th,
+[data-theme="dark"] .employee-shell .tf-proj-breakdown-table th {
+  background: #162032;
+  border-color: #334155;
+  color: #94A3B8;
+}
+
+.employee-shell.tf-dark .tf-proj-breakdown-table td,
+[data-theme="dark"] .employee-shell .tf-proj-breakdown-table td {
+  border-color: #334155;
+}
+
+.employee-shell.tf-dark .tf-proj-bk-team-tag,
+[data-theme="dark"] .employee-shell .tf-proj-bk-team-tag {
+  background: #334155;
+  color: #94A3B8;
+}
+
+.employee-shell.tf-dark .tf-modal-actions.space-between,
+[data-theme="dark"] .employee-shell .tf-modal-actions.space-between {
+  border-color: #334155;
+}

@@ -33,7 +33,7 @@ import {
 } from "lucide-react";
 
 import EmployeeShell from "./EmployeeShell";
-import { getEmployeeTheme, setEmployeeTheme } from "./EmployeeAuth";
+import { getEmployeeProfile, setEmployeeProfile, getEmployeeTheme, setEmployeeTheme, getEmployeeFontSize, setEmployeeFontSize, applyEmployeeFontSize, getEmployeePrimaryColor, setEmployeePrimaryColor, applyEmployeePrimaryColor, DEFAULT_AVATAR } from "./EmployeeAuth";
 import "./Settings.css";
 
 /* Storage Keys */
@@ -79,39 +79,48 @@ function Settings() {
 
   // 1. Profile State
   const [profile, setProfile] = useState(() => {
+    const emp = getEmployeeProfile();
     try {
       const saved = localStorage.getItem(STORAGE_PROFILE);
-      if (saved) return JSON.parse(saved);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        return {
+          ...parsed,
+          fullName: emp.fullName || parsed.fullName || "John Doe",
+          avatar: emp.photo || parsed.avatar || DEFAULT_AVATAR,
+          email: emp.email || parsed.email || "john.doe@teamflow.com",
+          role: emp.role || parsed.role || "Employee",
+        };
+      }
     } catch (err) {
       void err;
     }
     return {
-      fullName: "John Doe",
-      email: "john.doe@teamflow.com",
+      fullName: emp.fullName || "John Doe",
+      email: emp.email || "john.doe@teamflow.com",
       phoneNumber: "+91 98765 43210",
-      role: "Employee",
-      department: "Development",
-      location: "Pune, India",
-      avatar: defaultAvatar,
+      role: emp.role || "Employee",
+      department: emp.department || "Development",
+      location: emp.location || "Pune, India",
+      avatar: emp.photo || DEFAULT_AVATAR,
       status: "Active",
       memberSince: "Oct 10, 2024",
     };
   });
 
-  // Sync profile to localStorage
+  // Sync profile to centralized EmployeeAuth and all storage keys
   useEffect(() => {
     try {
-      localStorage.setItem(STORAGE_PROFILE, JSON.stringify(profile));
-      // Also sync with general app user profile
-      const generalProfile = {
-        name: profile.fullName,
+      setEmployeeProfile({
+        fullName: profile.fullName,
         email: profile.email,
         role: profile.role,
+        department: profile.department,
+        location: profile.location,
         photo: profile.avatar,
-      };
-      localStorage.setItem("teamflow_current_user", JSON.stringify(generalProfile));
-      window.dispatchEvent(new Event("storage"));
-      window.dispatchEvent(new CustomEvent("tf_profile_updated", { detail: profile }));
+        status: profile.status,
+        memberSince: profile.memberSince,
+      });
     } catch (err) {
       void err;
     }
@@ -119,18 +128,68 @@ function Settings() {
 
   // 2. Appearance & Display State
   const [appearance, setAppearance] = useState(() => {
+    const currentTheme = getEmployeeTheme() || "light";
+    const currentFontSize = getEmployeeFontSize() || "Medium";
+    const currentPrimary = getEmployeePrimaryColor() || "#6366F1";
     try {
       const saved = localStorage.getItem(STORAGE_APPEARANCE);
-      if (saved) return JSON.parse(saved);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        return {
+          ...parsed,
+          theme: currentTheme,
+          fontSize: parsed.fontSize || currentFontSize,
+          primaryColor: parsed.primaryColor || currentPrimary,
+        };
+      }
     } catch (err) {
       void err;
     }
     return {
-      theme: getEmployeeTheme() || "light",
-      primaryColor: "#6366F1",
-      fontSize: "Medium",
+      theme: currentTheme,
+      primaryColor: currentPrimary,
+      fontSize: currentFontSize,
     };
   });
+
+  // Real-time synchronization of theme, font size & primary color
+  useEffect(() => {
+    applyEmployeePrimaryColor(getEmployeePrimaryColor());
+
+    const handleThemeEvent = (e) => {
+      const newTheme = e.detail || getEmployeeTheme();
+      if (newTheme) {
+        setAppearance((prev) => ({ ...prev, theme: newTheme }));
+      }
+    };
+    const handleFontEvent = (e) => {
+      const newFont = e.detail || getEmployeeFontSize();
+      if (newFont) {
+        setAppearance((prev) => ({ ...prev, fontSize: newFont }));
+      }
+    };
+    const handleColorEvent = (e) => {
+      const newColor = e.detail || getEmployeePrimaryColor();
+      if (newColor) {
+        setAppearance((prev) => ({ ...prev, primaryColor: newColor }));
+      }
+    };
+    window.addEventListener("tf_theme_change", handleThemeEvent);
+    window.addEventListener("tf_font_size_change", handleFontEvent);
+    window.addEventListener("tf_primary_color_change", handleColorEvent);
+    const handleStorage = () => {
+      handleThemeEvent({});
+      handleFontEvent({});
+      handleColorEvent({});
+    };
+    window.addEventListener("storage", handleStorage);
+    return () => {
+      window.removeEventListener("tf_theme_change", handleThemeEvent);
+      window.removeEventListener("tf_font_size_change", handleFontEvent);
+      window.removeEventListener("tf_primary_color_change", handleColorEvent);
+      window.removeEventListener("storage", handleStorage);
+    };
+  }, []);
 
   // Sync font size to document root
   useEffect(() => {
@@ -172,22 +231,14 @@ function Settings() {
   const handleColorChange = (hex) => {
     const nextAppearance = { ...appearance, primaryColor: hex };
     setAppearance(nextAppearance);
-    try {
-      localStorage.setItem(STORAGE_APPEARANCE, JSON.stringify(nextAppearance));
-    } catch (err) {
-      void err;
-    }
+    setEmployeePrimaryColor(hex);
     showToast("Primary color accent updated");
   };
 
   const handleFontSizeChange = (size) => {
     const nextAppearance = { ...appearance, fontSize: size };
     setAppearance(nextAppearance);
-    try {
-      localStorage.setItem(STORAGE_APPEARANCE, JSON.stringify(nextAppearance));
-    } catch (err) {
-      void err;
-    }
+    setEmployeeFontSize(size);
     showToast(`Font size set to ${size}`);
   };
 
@@ -858,19 +909,26 @@ function Settings() {
                 <div className="tf-display-section">
                   <label className="tf-section-label">Primary Color</label>
                   <div className="tf-color-swatches-row">
-                    {colorSwatches.map((item) => (
-                      <button
-                        key={item.id}
-                        type="button"
-                        className={`tf-color-circle ${
-                          appearance.primaryColor === item.color ? "active" : ""
-                        }`}
-                        style={{ backgroundColor: item.color }}
-                        onClick={() => handleColorChange(item.color)}
-                        title={item.label}
-                        aria-label={item.label}
-                      />
-                    ))}
+                    {colorSwatches.map((item) => {
+                      const isSelected = (appearance.primaryColor || "#6366F1").toLowerCase() === item.color.toLowerCase();
+                      return (
+                        <button
+                          key={item.id}
+                          type="button"
+                          className={`tf-color-circle ${isSelected ? "active" : ""}`}
+                          style={{
+                            backgroundColor: item.color,
+                            boxShadow: isSelected
+                              ? `0 0 0 2px var(--tf-card-bg, #FFFFFF), 0 0 0 4.5px ${item.color}`
+                              : undefined,
+                            transform: isSelected ? "scale(1.2)" : undefined,
+                          }}
+                          onClick={() => handleColorChange(item.color)}
+                          title={item.label}
+                          aria-label={item.label}
+                        />
+                      );
+                    })}
                   </div>
                 </div>
 

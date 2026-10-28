@@ -31,6 +31,7 @@ import {
 } from "lucide-react";
 
 import EmployeeShell from "./EmployeeShell";
+import { getEmployeeProfile, DEFAULT_AVATAR } from "./EmployeeAuth";
 import "./Bugs.css";
 
 /* Storage Key */
@@ -177,6 +178,17 @@ const defaultRecentActivities = [
 ];
 
 function Bugs() {
+  const [profile, setProfile] = useState(getEmployeeProfile);
+
+  useEffect(() => {
+    const handleSync = () => setProfile(getEmployeeProfile());
+    window.addEventListener("storage", handleSync);
+    window.addEventListener("tf_profile_updated", handleSync);
+    return () => {
+      window.removeEventListener("storage", handleSync);
+      window.removeEventListener("tf_profile_updated", handleSync);
+    };
+  }, []);
   // Load bugs safely from localStorage
   const [bugs, setBugs] = useState(() => {
     try {
@@ -503,7 +515,8 @@ function Bugs() {
     if (!newCommentText.trim() || !commentsModalBug) return;
     const newComment = {
       id: Date.now(),
-      author: "Priya Patel",
+      author: profile.fullName || "John Doe",
+      isCurrentUser: true,
       text: newCommentText.trim(),
       time: "Just now",
     };
@@ -1383,7 +1396,7 @@ function Bugs() {
                   <h2>Recent Bug Activity</h2>
                 </div>
 
-                <Link to="/employee/settings?tab=activity" className="tf-widget-view-all">
+                <Link to="/employee/activity" className="tf-widget-view-all">
                   View all <ChevronRight size={14} />
                 </Link>
               </div>
@@ -1715,7 +1728,7 @@ function Bugs() {
                     (commentsModalBug.comments || []).map((c) => (
                       <div key={c.id} className="tf-comment-bubble">
                         <div className="tf-comment-top">
-                          <strong>{c.author}</strong>
+                          <strong>{c.author === "Priya Patel" || c.isCurrentUser ? (profile.fullName || "John Doe") : c.author}</strong>
                           <span>{c.time}</span>
                         </div>
                         <p>{c.text}</p>

@@ -33,10 +33,21 @@ import {
   Share2,
   AlertCircle,
   HelpCircle,
+  Hand,
+  Smile,
+  Subtitles,
+  Shield,
+  Info,
+  Pin,
+  Sparkles,
+  Send,
+  Volume2,
+  Grid,
 } from "lucide-react";
 
 import EmployeeShell from "./EmployeeShell";
 import "./Meetings.css";
+import { getEmployeeProfile } from "./EmployeeAuth";
 
 /* Storage Key */
 const STORAGE_KEY = "tf_meetings_v2";
@@ -224,6 +235,21 @@ const defaultMeetings = [
 
 
 function Meetings() {
+  // Sync User profile from Navbar & localStorage
+  const [profile, setProfile] = useState(getEmployeeProfile);
+
+  useEffect(() => {
+    const handleStorage = () => {
+      setProfile(getEmployeeProfile());
+    };
+    window.addEventListener("storage", handleStorage);
+    window.addEventListener("tf_profile_updated", handleStorage);
+    return () => {
+      window.removeEventListener("storage", handleStorage);
+      window.removeEventListener("tf_profile_updated", handleStorage);
+    };
+  }, []);
+
   // Load meetings from localStorage
   const [meetings, setMeetings] = useState(() => {
     try {
@@ -338,6 +364,18 @@ function Meetings() {
   const [callVideoOff, setCallVideoOff] = useState(false);
   const [callScreenShare, setCallScreenShare] = useState(false);
   const [callDuration, setCallDuration] = useState(0);
+  const [callStage, setCallStage] = useState("lobby");
+  const [callCaptions, setCallCaptions] = useState(false);
+  const [callHandRaised, setCallHandRaised] = useState(false);
+  const [activeMeetDrawer, setActiveMeetDrawer] = useState(null);
+  const [reactions, setReactions] = useState([]);
+  const [showReactionsMenu, setShowReactionsMenu] = useState(false);
+  const [backgroundBlur, setBackgroundBlur] = useState(false);
+  const [inCallMessages, setInCallMessages] = useState([
+    { id: 1, sender: "Rahul Sharma", time: "10:24 AM", text: "Morning team! Ready to review sprint updates." },
+    { id: 2, sender: "Neha Patil", time: "10:25 AM", text: "Hi everyone! I'll share the UI mockups." },
+  ]);
+  const [inCallText, setInCallText] = useState("");
 
   // Toast notification
   const [toastMessage, setToastMessage] = useState("");
@@ -452,10 +490,64 @@ function Meetings() {
   // Launch Video Call Simulator
   const handleLaunchCall = (meeting) => {
     setActiveCallModal(meeting);
+
+    setCallStage("lobby");
     setCallMuted(false);
     setCallVideoOff(false);
     setCallScreenShare(false);
+    setCallCaptions(false);
+    setCallHandRaised(false);
+    setActiveMeetDrawer(null);
+    setBackgroundBlur(false);
+    setShowReactionsMenu(false);
   };
+
+  const handleJoinFromLobby = () => {
+    setCallStage("connected");
+    showToast("Connected to Google Meet call.");
+  };
+
+  const handlePresentFromLobby = () => {
+    setCallStage("connected");
+    setCallScreenShare(true);
+    showToast("Connected and presenting your screen.");
+  };
+
+  const handleLeaveCall = () => {
+    setActiveCallModal(null);
+    setCallStage("lobby");
+    setCallScreenShare(false);
+    showToast("Left Google Meet call.");
+  };
+
+  const handleTriggerReaction = (emoji) => {
+    const newReaction = {
+      id: Date.now() + Math.random(),
+      emoji,
+      left: 15 + Math.random() * 70,
+    };
+    setReactions((prev) => [...prev, newReaction]);
+    setShowReactionsMenu(false);
+    setTimeout(() => {
+      setReactions((prev) => prev.filter((r) => r.id !== newReaction.id));
+    }, 2800);
+  };
+
+  const handleSendInCallMessage = (e) => {
+    e.preventDefault();
+    if (!inCallText.trim()) return;
+    const newMsg = {
+      id: Date.now(),
+      sender: "You",
+      time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+      text: inCallText.trim(),
+    };
+    setInCallMessages((prev) => [...prev, newMsg]);
+    setInCallText("");
+  };
+
+
+
 
   // Join with link handler
   const handleJoinByLink = (e) => {
@@ -1432,8 +1524,8 @@ function Meetings() {
                       <span>Amit Verma</span>
                     </div>
                     <div className="tf-detail-attendee-chip">
-                      <img src={avatars.priya} alt="Priya" />
-                      <span>Priya Patel (You)</span>
+                      <img src={profile.photo || avatars.priya} alt={profile.fullName || "You"} />
+                      <span>{profile.fullName || "John Doe"} (You)</span>
                     </div>
                   </div>
                 </div>
@@ -1453,167 +1545,616 @@ function Meetings() {
         )}
 
         {/* ====================================================================
-            MODAL 3: FULL VIDEO CALL ROOM SIMULATOR
+            GOOGLE MEET CALL INTERFACE (LOBBY + IN-CALL ROOM)
             ==================================================================== */}
         {activeCallModal && (
-          <div
-            className="tf-meet-modal-backdrop"
-            onClick={(e) => {
-              if (e.target === e.currentTarget) {
-                // don't close inadvertently during call
-              }
-            }}
-          >
-            <div className="tf-video-call-modal" role="dialog" aria-modal="true">
-              {/* Call Top Header */}
-              <div className="tf-call-header">
-                <div className="tf-call-live-pill">
-                  <span className="tf-dot-pulse green" />
-                  <span>CONNECTED</span>
+          <div className="tf-gm-fullscreen-overlay">
+            {callStage === "lobby" ? (
+              /* ================================================================
+                 STAGE 1: GOOGLE MEET LOBBY ("Ready to join?")
+                 ================================================================ */
+              <div className="tf-gm-lobby-wrapper">
+                {/* Google Meet Top Header */}
+                <div className="tf-gm-lobby-header">
+                  <div className="tf-gm-brand-group">
+                    <svg width="32" height="28" viewBox="0 0 32 28" fill="none" className="tf-gm-svg-logo">
+                      <path d="M20 14L27 8.5V19.5L20 14Z" fill="#EA4335" />
+                      <path d="M3.5 6C3.5 4.61929 4.61929 3.5 6 3.5H18C19.3807 3.5 20.5 4.61929 20.5 6V22C20.5 23.3807 19.3807 24.5 18 24.5H6C4.61929 24.5 3.5 23.3807 3.5 22V6Z" fill="#00832D" />
+                      <path d="M3.5 6C3.5 4.61929 4.61929 3.5 6 3.5H20.5V10.5H3.5V6Z" fill="#0066DA" />
+                      <path d="M3.5 17.5H20.5V22C20.5 23.3807 19.3807 24.5 18 24.5H6C4.61929 24.5 3.5 23.3807 3.5 22V17.5Z" fill="#2684FC" />
+                      <path d="M20.5 10.5L27 5V8.5L20.5 13V10.5Z" fill="#FFBA00" />
+                      <path d="M20.5 14.5L27 19.5V23L20.5 17.5V14.5Z" fill="#00AC47" />
+                    </svg>
+                    <span className="tf-gm-brand-title">Google Meet</span>
+                  </div>
+
+                  <div className="tf-gm-lobby-account">
+                    <span className="tf-gm-email-text">{profile.email || "john.doe@teamflow.com"}</span>
+                    <img src={profile.photo || avatars.priya} alt={profile.fullName || "User"} className="tf-gm-header-avatar" />
+                    <button
+                      type="button"
+                      className="tf-gm-lobby-exit-btn"
+                      onClick={() => setActiveCallModal(null)}
+                      title="Exit"
+                    >
+                      <X size={20} />
+                    </button>
+                  </div>
                 </div>
 
-                <div className="tf-call-header-info">
-                  <h3>{activeCallModal.title}</h3>
-                  <span className="tf-call-timer">Duration: {formatCallTime(callDuration)}</span>
-                </div>
+                {/* Google Meet Lobby Body: Two Columns */}
+                <div className="tf-gm-lobby-body">
+                  {/* Left Column: Camera Preview */}
+                  <div className="tf-gm-preview-container">
+                    <div className={`tf-gm-camera-view ${callVideoOff ? "camera-off" : ""} ${backgroundBlur ? "blurred-feed" : ""}`}>
+                      {!callVideoOff ? (
+                        <div className="tf-gm-live-feed">
+                          <img src={profile.photo || avatars.priya} alt={profile.fullName || "Your feed"} className="tf-gm-feed-img" />
+                          <div className="tf-gm-name-tag-pill">{profile.fullName || "You"}</div>
+                        </div>
+                      ) : (
+                        <div className="tf-gm-avatar-view">
+                          <div className="tf-gm-avatar-large">{profile.initials || "JD"}</div>
+                          <span className="tf-gm-cam-status-label">Camera is off</span>
+                        </div>
+                      )}
 
-                <button
-                  type="button"
-                  className="tf-call-close-x"
-                  onClick={() => {
-                    setActiveCallModal(null);
-                    showToast("Left video meeting.");
-                  }}
-                  title="Close window"
-                >
-                  <X size={18} />
-                </button>
-              </div>
+                      {/* Video Bottom Floating Controls */}
+                      <div className="tf-gm-preview-toolbar">
+                        <button
+                          type="button"
+                          className={`tf-gm-round-ctrl ${callMuted ? "muted" : ""}`}
+                          onClick={() => {
+                            setCallMuted(!callMuted);
+                            showToast(callMuted ? "Microphone unmuted" : "Microphone muted");
+                          }}
+                          title={callMuted ? "Turn on microphone" : "Turn off microphone"}
+                        >
+                          {callMuted ? <MicOff size={20} /> : <Mic size={20} />}
+                          {!callMuted && <span className="tf-gm-mic-audio-dot" />}
+                        </button>
 
-              {/* Call Video Tiles Grid */}
-              <div className="tf-call-grid">
-                {/* Tile 1: You (Main User) */}
-                <div className={`tf-call-tile ${callVideoOff ? "cam-off" : ""}`}>
-                  {!callVideoOff ? (
-                    <div className="tf-cam-feed-simulation">
-                      <img
-                        src={avatars.priya}
-                        alt="Your feed"
-                        className="tf-cam-feed-img"
-                      />
-                      <div className="tf-live-stream-overlay">
-                        <span className="tf-name-tag">You (Camera Live)</span>
-                        {callMuted && (
-                          <span className="tf-tile-mute-badge">
-                            <MicOff size={13} color="#EF4444" />
-                          </span>
-                        )}
+                        <button
+                          type="button"
+                          className={`tf-gm-round-ctrl ${callVideoOff ? "cam-off" : ""}`}
+                          onClick={() => {
+                            setCallVideoOff(!callVideoOff);
+                            showToast(callVideoOff ? "Camera turned on" : "Camera turned off");
+                          }}
+                          title={callVideoOff ? "Turn on camera" : "Turn off camera"}
+                        >
+                          {callVideoOff ? <VideoOff size={20} /> : <Video size={20} />}
+                        </button>
+
+                        <button
+                          type="button"
+                          className={`tf-gm-round-ctrl ${backgroundBlur ? "effects-active" : ""}`}
+                          onClick={() => {
+                            setBackgroundBlur(!backgroundBlur);
+                            showToast(backgroundBlur ? "Background effects turned off" : "Background blur active");
+                          }}
+                          title="Apply visual effects"
+                        >
+                          <Sparkles size={18} />
+                        </button>
                       </div>
                     </div>
-                  ) : (
-                    <div className="tf-cam-off-placeholder">
-                      <div className="tf-cam-off-avatar">P</div>
-                      <span className="tf-name-tag">You (Camera Off)</span>
+
+                    <div className="tf-gm-preview-status-row">
+                      <CheckCircle2 size={16} className="tf-gm-check-green" />
+                      <span>Audio & video ready</span>
                     </div>
+                  </div>
+
+                  {/* Right Column: Join Action Panel */}
+                  <div className="tf-gm-join-action-panel">
+                    <h2 className="tf-gm-ready-title">Ready to join?</h2>
+                    <h3 className="tf-gm-meet-name">{activeCallModal.title}</h3>
+
+                    <div className="tf-gm-code-chip">
+                      <span>{activeCallModal.meetingUrl || "https://meet.google.com/tmf-standup-2024"}</span>
+                      <button
+                        type="button"
+                        onClick={() => handleCopyLink(activeCallModal.meetingUrl || "https://meet.google.com/tmf-standup-2024")}
+                        title="Copy meeting link"
+                      >
+                        <Copy size={14} />
+                      </button>
+                    </div>
+
+                    {/* Who is on the call */}
+                    <div className="tf-gm-attendees-presence">
+                      <div className="tf-gm-avatar-stack">
+                        <img src={avatars.rahul} alt="Rahul Sharma" />
+                        <img src={avatars.neha} alt="Neha Patil" />
+                        <img src={avatars.amit} alt="Amit Verma" />
+                      </div>
+                      <div className="tf-gm-presence-copy">
+                        <strong>Rahul Sharma, Neha Patil and 2 others</strong>
+                        <span>are already in this call</span>
+                      </div>
+                    </div>
+
+                    {/* Join Action Buttons */}
+                    <div className="tf-gm-cta-row">
+                      <button
+                        type="button"
+                        className="tf-gm-btn-join"
+                        onClick={handleJoinFromLobby}
+                      >
+                        Join now
+                      </button>
+
+                      <button
+                        type="button"
+                        className="tf-gm-btn-share-screen"
+                        onClick={handlePresentFromLobby}
+                      >
+                        <Monitor size={17} />
+                        <span>Present</span>
+                      </button>
+                    </div>
+
+                    <div className="tf-gm-secondary-actions">
+                      <button
+                        type="button"
+                        className="tf-gm-secondary-link"
+                        onClick={handleJoinFromLobby}
+                      >
+                        Join and use a phone for audio
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              /* ================================================================
+                 STAGE 2: GOOGLE MEET IN-CALL ROOM (Full Interactive Screen)
+                 ================================================================ */
+              <div className="tf-gm-room-wrapper">
+                {/* In-Call Body Stage & Drawer */}
+                <div className="tf-gm-room-body">
+                  <div className="tf-gm-stage-area">
+                    {/* Presentation View if Screen Sharing */}
+                    {callScreenShare ? (
+                      <div className="tf-gm-share-view-container">
+                        <div className="tf-gm-present-banner">
+                          <div className="tf-gm-present-banner-left">
+                            <Monitor size={17} />
+                            <span>You are presenting to everyone</span>
+                          </div>
+                          <button
+                            type="button"
+                            className="tf-gm-btn-stop"
+                            onClick={() => {
+                              setCallScreenShare(false);
+                              showToast("Stopped screen presentation.");
+                            }}
+                          >
+                            Stop presenting
+                          </button>
+                        </div>
+
+                        <div className="tf-gm-screen-mockup">
+                          <div className="tf-gm-mockup-top">
+                            <div className="tf-gm-window-dots">
+                              <span className="dot red" />
+                              <span className="dot yellow" />
+                              <span className="dot green" />
+                            </div>
+                            <span className="tf-gm-window-title">TeamFlow AI — Sprint Review & Dashboard</span>
+                          </div>
+                          <div className="tf-gm-mockup-content">
+                            <div className="tf-gm-chart-card">
+                              <h4>Sprint 4 Velocity & Bug Resolution Metrics</h4>
+                              <div className="tf-gm-mock-bars">
+                                <div className="bar-col"><div className="bar b1" /><span>Sprint 1</span></div>
+                                <div className="bar-col"><div className="bar b2" /><span>Sprint 2</span></div>
+                                <div className="bar-col"><div className="bar b3" /><span>Sprint 3</span></div>
+                                <div className="bar-col active"><div className="bar b4" /><span>Sprint 4 (94%)</span></div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Right vertical strip of participants */}
+                        <div className="tf-gm-filmstrip-col">
+                          <div className="tf-gm-filmstrip-tile speaking">
+                            <img src={avatars.rahul} alt="Rahul Sharma" />
+                            <div className="tf-gm-tile-label">Rahul Sharma</div>
+                          </div>
+                          <div className="tf-gm-filmstrip-tile">
+                            <img src={avatars.neha} alt="Neha Patil" />
+                            <div className="tf-gm-tile-label">Neha Patil</div>
+                          </div>
+                          <div className="tf-gm-filmstrip-tile">
+                            <div className="tf-gm-char-tile">A</div>
+                            <div className="tf-gm-tile-label">Amit Verma</div>
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      /* Standard 2x2 Grid Tiles */
+                      <div className="tf-gm-grid-stage">
+                        {/* Tile 1: Rahul Sharma (Speaking) */}
+                        <div className="tf-gm-tile speaking">
+                          <img src={avatars.rahul} alt="Rahul Sharma" className="tf-gm-tile-photo" />
+                          <div className="tf-gm-tile-pill-tag">
+                            <Mic size={13} color="#FFFFFF" />
+                            <span>Rahul Sharma</span>
+                          </div>
+                          <div className="tf-gm-speaking-waves">
+                            <span className="w1" />
+                            <span className="w2" />
+                            <span className="w3" />
+                          </div>
+                        </div>
+
+                        {/* Tile 2: Neha Patil */}
+                        <div className="tf-gm-tile">
+                          <img src={avatars.neha} alt="Neha Patil" className="tf-gm-tile-photo" />
+                          <div className="tf-gm-tile-pill-tag">
+                            <Mic size={13} color="#FFFFFF" />
+                            <span>Neha Patil</span>
+                          </div>
+                        </div>
+
+                        {/* Tile 3: Amit Verma */}
+                        <div className="tf-gm-tile avatar-only">
+                          <div className="tf-gm-char-tile">A</div>
+                          <div className="tf-gm-tile-pill-tag">
+                            <MicOff size={13} color="#EA4335" />
+                            <span>Amit Verma</span>
+                          </div>
+                        </div>
+
+                        {/* Tile 4: You */}
+                        <div className={`tf-gm-tile ${callVideoOff ? "avatar-only" : ""} ${backgroundBlur ? "blurred-feed" : ""}`}>
+                          {!callVideoOff ? (
+                            <img src={profile.photo || avatars.priya} alt={profile.fullName || "You"} className="tf-gm-tile-photo" />
+                          ) : (
+                            <div className="tf-gm-char-tile">{profile.initials || "JD"}</div>
+                          )}
+                          <div className="tf-gm-tile-pill-tag">
+                            {callMuted ? <MicOff size={13} color="#EA4335" /> : <Mic size={13} color="#FFFFFF" />}
+                            <span>{profile.fullName ? `${profile.fullName} (You)` : "You"}</span>
+                          </div>
+                          {callHandRaised && (
+                            <div className="tf-gm-hand-pill" title="Hand raised">
+                              <Hand size={16} />
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Live Captions Bar */}
+                    {callCaptions && (
+                      <div className="tf-gm-live-captions">
+                        <span className="tf-gm-cap-name">Rahul Sharma:</span>
+                        <span className="tf-gm-cap-text">"Let's walk through the login flow integration before deploying to staging."</span>
+                      </div>
+                    )}
+
+                    {/* Floating Reactions */}
+                    <div className="tf-gm-reactions-layer">
+                      {reactions.map((r) => (
+                        <div key={r.id} className="tf-gm-reaction-bubble" style={{ left: `${r.left}%` }}>
+                          {r.emoji}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Google Meet Right Side Drawer */}
+                  {activeMeetDrawer && (
+                    <aside className="tf-gm-side-drawer">
+                      <div className="tf-gm-drawer-top">
+                        <h4>
+                          {activeMeetDrawer === "people" && "People (4)"}
+                          {activeMeetDrawer === "chat" && "In-call messages"}
+                          {activeMeetDrawer === "info" && "Meeting details"}
+                        </h4>
+                        <button
+                          type="button"
+                          className="tf-gm-drawer-x"
+                          onClick={() => setActiveMeetDrawer(null)}
+                        >
+                          <X size={18} />
+                        </button>
+                      </div>
+
+                      <div className="tf-gm-drawer-scroll">
+                        {activeMeetDrawer === "people" && (
+                          <div className="tf-gm-people-content">
+                            <div className="tf-gm-people-search">
+                              <Search size={15} />
+                              <input type="text" placeholder="Search for people" />
+                            </div>
+                            <span className="tf-gm-sub-heading">In call</span>
+                            <div className="tf-gm-people-list">
+                              <div className="tf-gm-user-item">
+                                <img src={profile.photo || avatars.priya} alt={profile.fullName || "You"} />
+                                <div className="tf-gm-user-info">
+                                  <strong>{profile.fullName || "John Doe"} (You)</strong>
+                                  <span>Meeting host</span>
+                                </div>
+                                <div className="tf-gm-user-icons">
+                                  {callMuted ? <MicOff size={15} color="#EA4335" /> : <Mic size={15} color="#9AA0A6" />}
+                                  <Pin size={15} color="#9AA0A6" />
+                                </div>
+                              </div>
+
+                              <div className="tf-gm-user-item">
+                                <img src={avatars.rahul} alt="Rahul Sharma" />
+                                <div className="tf-gm-user-info">
+                                  <strong>Rahul Sharma</strong>
+                                </div>
+                                <div className="tf-gm-user-icons">
+                                  <Mic size={15} color="#9AA0A6" />
+                                  <Pin size={15} color="#9AA0A6" />
+                                </div>
+                              </div>
+
+                              <div className="tf-gm-user-item">
+                                <img src={avatars.neha} alt="Neha Patil" />
+                                <div className="tf-gm-user-info">
+                                  <strong>Neha Patil</strong>
+                                </div>
+                                <div className="tf-gm-user-icons">
+                                  <Mic size={15} color="#9AA0A6" />
+                                  <Pin size={15} color="#9AA0A6" />
+                                </div>
+                              </div>
+
+                              <div className="tf-gm-user-item">
+                                <div className="tf-gm-char-avatar">A</div>
+                                <div className="tf-gm-user-info">
+                                  <strong>Amit Verma</strong>
+                                </div>
+                                <div className="tf-gm-user-icons">
+                                  <MicOff size={15} color="#EA4335" />
+                                  <Pin size={15} color="#9AA0A6" />
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        {activeMeetDrawer === "chat" && (
+                          <div className="tf-gm-chat-content">
+                            <div className="tf-gm-chat-banner">
+                              Messages can be seen only by people in the call and are deleted when the call ends.
+                            </div>
+                            <div className="tf-gm-chat-messages-box">
+                              {inCallMessages.map((m) => (
+                                <div key={m.id} className="tf-gm-chat-message-row">
+                                  <div className="tf-gm-chat-meta">
+                                    <strong>{m.sender}</strong>
+                                    <span>{m.time}</span>
+                                  </div>
+                                  <p>{m.text}</p>
+                                </div>
+                              ))}
+                            </div>
+                            <form className="tf-gm-chat-input-bar" onSubmit={handleSendInCallMessage}>
+                              <input
+                                type="text"
+                                placeholder="Send a message to everyone"
+                                value={inCallText}
+                                onChange={(e) => setInCallText(e.target.value)}
+                              />
+                              <button type="submit" disabled={!inCallText.trim()}>
+                                <Send size={15} />
+                              </button>
+                            </form>
+                          </div>
+                        )}
+
+                        {activeMeetDrawer === "info" && (
+                          <div className="tf-gm-info-content">
+                            <h4>Joining info</h4>
+                            <p className="tf-gm-link-text">{activeCallModal.meetingUrl || "https://meet.google.com/tmf-standup-2024"}</p>
+                            <button
+                              type="button"
+                              className="tf-gm-btn-copy-info"
+                              onClick={() => handleCopyLink(activeCallModal.meetingUrl || "https://meet.google.com/tmf-standup-2024")}
+                            >
+                              <Copy size={15} />
+                              <span>Copy joining info</span>
+                            </button>
+                            <div className="tf-gm-phone-details">
+                              <span>Dial-in: (US) +1 415-555-0199</span>
+                              <span>PIN: 849 203 118#</span>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </aside>
                   )}
                 </div>
 
-                {/* Tile 2: Rahul Sharma */}
-                <div className="tf-call-tile speaking">
-                  <img
-                    src={avatars.rahul}
-                    alt="Rahul Sharma"
-                    className="tf-cam-feed-img"
-                  />
-                  <div className="tf-live-stream-overlay">
-                    <span className="tf-name-tag">Rahul Sharma (Speaking)</span>
-                    <span className="tf-sound-bars">
-                      <span className="bar b1" />
-                      <span className="bar b2" />
-                      <span className="bar b3" />
+                {/* Google Meet Bottom Controls Bar */}
+                <div className="tf-gm-bottom-bar">
+                  {/* Left: Time & Code */}
+                  <div className="tf-gm-bottom-left">
+                    <span className="tf-gm-time-text">
+                      {new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}
                     </span>
+                    <span className="tf-gm-bar-pipe">|</span>
+                    <span className="tf-gm-code-text">
+                      {activeCallModal.meetingUrl ? activeCallModal.meetingUrl.split("/").pop() : "tmf-standup-2024"}
+                    </span>
+                    <span className="tf-gm-duration-pill">{formatCallTime(callDuration)}</span>
                   </div>
-                </div>
 
-                {/* Tile 3: Neha Patil */}
-                <div className="tf-call-tile">
-                  <img
-                    src={avatars.neha}
-                    alt="Neha Patil"
-                    className="tf-cam-feed-img"
-                  />
-                  <div className="tf-live-stream-overlay">
-                    <span className="tf-name-tag">Neha Patil</span>
+                  {/* Center: Action Buttons */}
+                  <div className="tf-gm-bottom-center">
+                    {/* Mic Button */}
+                    <button
+                      type="button"
+                      className={`tf-gm-btn-circle ${callMuted ? "danger" : ""}`}
+                      onClick={() => {
+                        setCallMuted(!callMuted);
+                        showToast(callMuted ? "Microphone on" : "Microphone off");
+                      }}
+                      title={callMuted ? "Turn on microphone (ctrl + d)" : "Turn off microphone (ctrl + d)"}
+                    >
+                      {callMuted ? <MicOff size={20} /> : <Mic size={20} />}
+                    </button>
+
+                    {/* Camera Button */}
+                    <button
+                      type="button"
+                      className={`tf-gm-btn-circle ${callVideoOff ? "danger" : ""}`}
+                      onClick={() => {
+                        setCallVideoOff(!callVideoOff);
+                        showToast(callVideoOff ? "Camera on" : "Camera off");
+                      }}
+                      title={callVideoOff ? "Turn on camera (ctrl + e)" : "Turn off camera (ctrl + e)"}
+                    >
+                      {callVideoOff ? <VideoOff size={20} /> : <Video size={20} />}
+                    </button>
+
+                    {/* Captions [CC] */}
+                    <button
+                      type="button"
+                      className={`tf-gm-btn-circle ${callCaptions ? "active-blue" : ""}`}
+                      onClick={() => {
+                        setCallCaptions(!callCaptions);
+                        showToast(callCaptions ? "Captions turned off" : "Captions turned on");
+                      }}
+                      title="Turn on captions"
+                    >
+                      <Subtitles size={20} />
+                    </button>
+
+                    {/* Emoji Reactions */}
+                    <div className="tf-gm-reaction-wrapper">
+                      <button
+                        type="button"
+                        className={`tf-gm-btn-circle ${showReactionsMenu ? "active-blue" : ""}`}
+                        onClick={() => setShowReactionsMenu(!showReactionsMenu)}
+                        title="Send a reaction"
+                      >
+                        <Smile size={20} />
+                      </button>
+
+                      {showReactionsMenu && (
+                        <div className="tf-gm-reactions-menu">
+                          {["💖", "👍", "🎉", "👏", "😂", "😮"].map((emoji, idx) => (
+                            <button
+                              key={idx}
+                              type="button"
+                              className="tf-gm-reaction-btn"
+                              onClick={() => handleTriggerReaction(emoji)}
+                            >
+                              {emoji}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Screen Share / Present */}
+                    <button
+                      type="button"
+                      className={`tf-gm-btn-circle ${callScreenShare ? "active-blue" : ""}`}
+                      onClick={() => {
+                        setCallScreenShare(!callScreenShare);
+                        showToast(callScreenShare ? "Stopped presenting" : "Presenting your screen");
+                      }}
+                      title="Present now"
+                    >
+                      <Monitor size={20} />
+                    </button>
+
+                    {/* Raise Hand */}
+                    <button
+                      type="button"
+                      className={`tf-gm-btn-circle ${callHandRaised ? "active-blue" : ""}`}
+                      onClick={() => {
+                        setCallHandRaised(!callHandRaised);
+                        showToast(callHandRaised ? "Lowered hand" : "Raised hand");
+                      }}
+                      title={callHandRaised ? "Lower hand" : "Raise hand"}
+                    >
+                      <Hand size={20} />
+                    </button>
+
+                    {/* More Options */}
+                    <button
+                      type="button"
+                      className="tf-gm-btn-circle"
+                      onClick={() => showToast("More settings & Whiteboard options")}
+                      title="More options"
+                    >
+                      <MoreVertical size={20} />
+                    </button>
+
+                    {/* Red Leave Call Button */}
+                    <button
+                      type="button"
+                      className="tf-gm-btn-hangup"
+                      onClick={handleLeaveCall}
+                      title="Leave call"
+                    >
+                      <PhoneOff size={20} />
+                    </button>
+                  </div>
+
+                  {/* Right: Drawer Toggles */}
+                  <div className="tf-gm-bottom-right">
+                    <button
+                      type="button"
+                      className={`tf-gm-icon-btn ${activeMeetDrawer === "info" ? "active" : ""}`}
+                      onClick={() => setActiveMeetDrawer(activeMeetDrawer === "info" ? null : "info")}
+                      title="Meeting details"
+                    >
+                      <Info size={20} />
+                    </button>
+
+                    <button
+                      type="button"
+                      className={`tf-gm-icon-btn ${activeMeetDrawer === "people" ? "active" : ""}`}
+                      onClick={() => setActiveMeetDrawer(activeMeetDrawer === "people" ? null : "people")}
+                      title="People"
+                    >
+                      <Users size={20} />
+                      <span className="tf-gm-badge-count">4</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      className={`tf-gm-icon-btn ${activeMeetDrawer === "chat" ? "active" : ""}`}
+                      onClick={() => setActiveMeetDrawer(activeMeetDrawer === "chat" ? null : "chat")}
+                      title="Chat"
+                    >
+                      <MessageSquare size={20} />
+                      <span className="tf-gm-unread-dot" />
+                    </button>
+
+                    <button
+                      type="button"
+                      className="tf-gm-icon-btn"
+                      onClick={() => showToast("Activities: Whiteboard and Polls")}
+                      title="Activities"
+                    >
+                      <Grid size={20} />
+                    </button>
+
+                    <button
+                      type="button"
+                      className="tf-gm-icon-btn"
+                      onClick={() => showToast("Host controls")}
+                      title="Host controls"
+                    >
+                      <Shield size={20} />
+                    </button>
                   </div>
                 </div>
               </div>
-
-              {/* Call Control Bar */}
-              <div className="tf-call-controls-bar">
-                {/* Mic */}
-                <button
-                  type="button"
-                  className={`tf-ctrl-btn ${callMuted ? "danger" : ""}`}
-                  onClick={() => {
-                    setCallMuted(!callMuted);
-                    showToast(callMuted ? "Microphone Unmuted" : "Microphone Muted");
-                  }}
-                  title={callMuted ? "Unmute" : "Mute"}
-                >
-                  {callMuted ? <MicOff size={18} /> : <Mic size={18} />}
-                </button>
-
-                {/* Video */}
-                <button
-                  type="button"
-                  className={`tf-ctrl-btn ${callVideoOff ? "danger" : ""}`}
-                  onClick={() => {
-                    setCallVideoOff(!callVideoOff);
-                    showToast(callVideoOff ? "Camera Turned On" : "Camera Turned Off");
-                  }}
-                  title={callVideoOff ? "Turn Video On" : "Turn Video Off"}
-                >
-                  {callVideoOff ? <VideoOff size={18} /> : <Video size={18} />}
-                </button>
-
-                {/* Screen Share */}
-                <button
-                  type="button"
-                  className={`tf-ctrl-btn ${callScreenShare ? "active" : ""}`}
-                  onClick={() => {
-                    setCallScreenShare(!callScreenShare);
-                    showToast(callScreenShare ? "Stopped Screen Share" : "Screen Sharing Active");
-                  }}
-                  title="Share Screen"
-                >
-                  <Monitor size={18} />
-                </button>
-
-                {/* Share Link */}
-                <button
-                  type="button"
-                  className="tf-ctrl-btn"
-                  onClick={() => handleCopyLink(activeCallModal.meetingUrl || "https://meet.google.com/teamflow")}
-                  title="Copy Meeting Link"
-                >
-                  <Share2 size={18} />
-                </button>
-
-                {/* Hang Up (Red) */}
-                <button
-                  type="button"
-                  className="tf-ctrl-hangup-btn"
-                  onClick={() => {
-                    setActiveCallModal(null);
-                    showToast("Call ended. Meeting details saved.");
-                  }}
-                  title="Leave Call"
-                >
-                  <PhoneOff size={18} />
-                  <span>Leave Call</span>
-                </button>
-              </div>
-            </div>
+            )}
           </div>
         )}
       </div>

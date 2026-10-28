@@ -32,9 +32,12 @@ import {
   FileText,
   Download,
   Edit3,
+  BarChart2,
+  RefreshCw,
 } from "lucide-react";
 
 import EmployeeShell from "./EmployeeShell";
+import { getEmployeeProfile, DEFAULT_AVATAR } from "./EmployeeAuth";
 import "./Tasks.css";
 
 /* Storage Key */
@@ -352,6 +355,17 @@ const defaultAiSuggestions = [
 ];
 
 function Tasks() {
+  const [profile, setProfile] = useState(getEmployeeProfile);
+
+  useEffect(() => {
+    const handleSync = () => setProfile(getEmployeeProfile());
+    window.addEventListener("storage", handleSync);
+    window.addEventListener("tf_profile_updated", handleSync);
+    return () => {
+      window.removeEventListener("storage", handleSync);
+      window.removeEventListener("tf_profile_updated", handleSync);
+    };
+  }, []);
   // Load tasks from localStorage safely
   const [tasks, setTasks] = useState(() => {
     try {
@@ -388,6 +402,11 @@ function Tasks() {
 
   // Selection
   const [selectedTaskIds, setSelectedTaskIds] = useState([]);
+
+  // Task Progress Menu & Breakdown Modal State
+  const [progressMenuOpen, setProgressMenuOpen] = useState(false);
+  const [progressBreakdownModalOpen, setProgressBreakdownModalOpen] = useState(false);
+  const progressMenuRef = useRef(null);
 
   // Modals
   const [createModalOpen, setCreateModalOpen] = useState(false);
@@ -483,6 +502,9 @@ function Tasks() {
       if (rowsRef.current && !rowsRef.current.contains(e.target)) {
         setRowsDropdownOpen(false);
       }
+      if (progressMenuRef.current && !progressMenuRef.current.contains(e.target)) {
+        setProgressMenuOpen(false);
+      }
       if (!e.target.closest(".tf-task-status-dropdown-wrap")) {
         setStatusDropdownTaskId(null);
       }
@@ -564,6 +586,27 @@ function Tasks() {
     const start = (currentPage - 1) * rowsPerPage;
     return filteredTasks.slice(start, start + rowsPerPage);
   }, [filteredTasks, currentPage, rowsPerPage]);
+
+  // Export Task Progress CSV
+  const handleExportProgressCSV = () => {
+    const header = "Task ID,Title,Project,Status,Priority,Due Date,Assignee\n";
+    const rows = tasks.map((t) => {
+      const title = `"${(t.title || "").replace(/"/g, '""')}"`;
+      const proj = `"${(t.project || "").replace(/"/g, '""')}"`;
+      return `${t.id},${title},${proj},${t.status},${t.priority},${t.dueDate || "N/A"},You`;
+    });
+    const csvContent = header + rows.join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `Task_Progress_Report_${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast("Downloaded Task Progress Report (CSV)");
+  };
 
   // Toggle completion with circular checkbox
   const handleToggleComplete = (task) => {
@@ -673,7 +716,8 @@ function Tasks() {
     if (!newCommentText.trim() || !commentsModalTask) return;
     const newComment = {
       id: Date.now(),
-      author: "Priya Patel",
+      author: profile.fullName || "John Doe",
+      isCurrentUser: true,
       text: newCommentText.trim(),
       time: "Just now",
     };
@@ -1403,14 +1447,97 @@ function Tasks() {
             <article className="tf-widget-card tf-task-progress-card">
               <div className="tf-widget-header">
                 <h2>Task Progress</h2>
-                <button
-                  type="button"
-                  className="tf-widget-more-btn"
-                  onClick={() => showToast("Exporting progress breakdown...")}
-                  aria-label="Progress options"
-                >
-                  <MoreVertical size={16} />
-                </button>
+                <div className="tf-widget-action-wrap" ref={progressMenuRef}>
+                  <button
+                    type="button"
+                    className={`tf-widget-more-btn ${progressMenuOpen ? "active" : ""}`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setProgressMenuOpen((prev) => !prev);
+                    }}
+                    aria-label="Progress options"
+                    title="Task progress options"
+                  >
+                    <MoreVertical size={16} />
+                  </button>
+
+                  {progressMenuOpen && (
+                    <div className="tf-row-action-popover tf-progress-menu-popover">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setProgressBreakdownModalOpen(true);
+                          setProgressMenuOpen(false);
+                        }}
+                      >
+                        <BarChart2 size={14} className="tf-popover-icon blue" />
+                        <span>Detailed Breakdown</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          handleExportProgressCSV();
+                          setProgressMenuOpen(false);
+                        }}
+                      >
+                        <Download size={14} className="tf-popover-icon green" />
+                        <span>Export Progress (CSV)</span>
+                      </button>
+
+                      <div className="tf-popover-divider" />
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveTab("Completed");
+                          setProgressMenuOpen(false);
+                          showToast("Showing completed tasks");
+                        }}
+                      >
+                        <CheckCircle2 size={14} color="#10B981" />
+                        <span>View Completed ({stats.completed})</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveTab("In Progress");
+                          setProgressMenuOpen(false);
+                          showToast("Showing in-progress tasks");
+                        }}
+                      >
+                        <Clock size={14} color="#3B82F6" />
+                        <span>View In Progress ({stats.inProgress})</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveTab("Overdue");
+                          setProgressMenuOpen(false);
+                          showToast("Showing overdue & urgent tasks");
+                        }}
+                      >
+                        <AlertCircle size={14} color="#EF4444" />
+                        <span>View Overdue ({stats.overdue})</span>
+                      </button>
+
+                      <div className="tf-popover-divider" />
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setProgressMenuOpen(false);
+                          showToast(`Task progress synchronized (${tasks.length} active tasks analyzed)`);
+                        }}
+                      >
+                        <RefreshCw size={14} className="tf-popover-icon slate" />
+                        <span>Recalculate & Sync</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div className="tf-widget-body tf-progress-body">
@@ -1894,7 +2021,7 @@ function Tasks() {
                     (commentsModalTask.comments || []).map((c) => (
                       <div key={c.id} className="tf-comment-bubble">
                         <div className="tf-comment-top">
-                          <strong>{c.author}</strong>
+                          <strong>{c.author === "Priya Patel" || c.isCurrentUser ? (profile.fullName || "John Doe") : c.author}</strong>
                           <span>{c.time}</span>
                         </div>
                         <p>{c.text}</p>
@@ -1997,6 +2124,155 @@ function Tasks() {
           </div>
         )}
       </div>
+        {/* Modal 5: Task Progress Detailed Breakdown Modal */}
+        {progressBreakdownModalOpen && (
+          <div
+            className="tf-modal-backdrop"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) setProgressBreakdownModalOpen(false);
+            }}
+          >
+            <div className="tf-modal-card tf-progress-breakdown-modal" role="dialog" aria-modal="true">
+              <div className="tf-modal-header">
+                <div className="tf-modal-title-group">
+                  <div className="tf-modal-icon-box purple">
+                    <BarChart2 size={18} color="#7C3AED" />
+                  </div>
+                  <div>
+                    <h3>Task Progress Breakdown</h3>
+                    <p>Real-time metrics, completion velocity, and distribution</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  className="tf-modal-close"
+                  onClick={() => setProgressBreakdownModalOpen(false)}
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              <div className="tf-modal-form-body">
+                {/* 4 KPI Summary Cards */}
+                <div className="tf-breakdown-kpi-grid">
+                  <div className="tf-bk-card green">
+                    <span className="tf-bk-label">Completion Rate</span>
+                    <strong>{completedPct}%</strong>
+                    <small>{stats.completed} of {stats.total} tasks completed</small>
+                  </div>
+                  <div className="tf-bk-card blue">
+                    <span className="tf-bk-label">Active Work</span>
+                    <strong>{stats.inProgress}</strong>
+                    <small>{inProgressPct}% in progress</small>
+                  </div>
+                  <div className="tf-bk-card gray">
+                    <span className="tf-bk-label">Remaining To Do</span>
+                    <strong>{stats.toDo}</strong>
+                    <small>{toDoPct}% in backlog</small>
+                  </div>
+                  <div className="tf-bk-card red">
+                    <span className="tf-bk-label">Overdue Alerts</span>
+                    <strong>{stats.overdue}</strong>
+                    <small>{stats.overdue > 0 ? "Requires attention" : "All deadlines on track"}</small>
+                  </div>
+                </div>
+
+                {/* Priority Breakdown Progress Bars */}
+                <div className="tf-bk-section">
+                  <h4>Distribution by Priority</h4>
+                  <div className="tf-priority-bars-list">
+                    <div className="tf-priority-bar-item">
+                      <div className="tf-pbar-header">
+                        <span><Flag size={13} color="#EF4444" /> High Priority</span>
+                        <strong>{tasks.filter((t) => t.priority === "High").length} tasks</strong>
+                      </div>
+                      <div className="tf-pbar-track">
+                        <div
+                          className="tf-pbar-fill red"
+                          style={{ width: `${Math.round((tasks.filter((t) => t.priority === "High").length / totalSummary) * 100)}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="tf-priority-bar-item">
+                      <div className="tf-pbar-header">
+                        <span><Flag size={13} color="#F59E0B" /> Medium Priority</span>
+                        <strong>{tasks.filter((t) => t.priority === "Medium").length} tasks</strong>
+                      </div>
+                      <div className="tf-pbar-track">
+                        <div
+                          className="tf-pbar-fill orange"
+                          style={{ width: `${Math.round((tasks.filter((t) => t.priority === "Medium").length / totalSummary) * 100)}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="tf-priority-bar-item">
+                      <div className="tf-pbar-header">
+                        <span><Flag size={13} color="#3B82F6" /> Low Priority</span>
+                        <strong>{tasks.filter((t) => t.priority === "Low").length} tasks</strong>
+                      </div>
+                      <div className="tf-pbar-track">
+                        <div
+                          className="tf-pbar-fill blue"
+                          style={{ width: `${Math.round((tasks.filter((t) => t.priority === "Low").length / totalSummary) * 100)}%` }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Project Breakdown Distribution */}
+                <div className="tf-bk-section">
+                  <h4>Project Health & Distribution</h4>
+                  <div className="tf-project-dist-list">
+                    {["TeamFlow Website", "Mobile App", "AI Integration", "Marketing Portal"].map((proj) => {
+                      const projTasks = tasks.filter((t) => t.project === proj);
+                      const pCount = projTasks.length;
+                      const pDone = projTasks.filter((t) => t.status === "Completed").length;
+                      const pRate = pCount > 0 ? Math.round((pDone / pCount) * 100) : 0;
+                      return (
+                        <div key={proj} className="tf-proj-dist-row">
+                          <div className="tf-pdist-left">
+                            <strong>{proj}</strong>
+                            <span>{pDone} of {pCount} completed</span>
+                          </div>
+                          <div className="tf-pdist-right">
+                            <div className="tf-pdist-track">
+                              <div className="tf-pdist-fill" style={{ width: `${pRate}%` }} />
+                            </div>
+                            <span className="tf-pdist-pct">{pRate}%</span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+
+              <div className="tf-modal-actions">
+                <button
+                  type="button"
+                  className="tf-btn-secondary"
+                  onClick={() => setProgressBreakdownModalOpen(false)}
+                >
+                  Close
+                </button>
+                <button
+                  type="button"
+                  className="tf-btn-primary"
+                  onClick={() => {
+                    handleExportProgressCSV();
+                    setProgressBreakdownModalOpen(false);
+                  }}
+                >
+                  <Download size={14} />
+                  <span>Export Progress (CSV)</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
     </EmployeeShell>
   );
 }

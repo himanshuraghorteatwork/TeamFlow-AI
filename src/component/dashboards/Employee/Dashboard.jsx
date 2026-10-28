@@ -407,15 +407,21 @@ function Dashboard() {
     return () => window.removeEventListener("tf_tasks_updated", handleTaskUpdated);
   }, []);
 
-  // Sync profile info
+  // Sync profile info in real-time
   useEffect(() => {
-    setProfile(getEmployeeProfile());
+    const handleSync = () => setProfile(getEmployeeProfile());
+    window.addEventListener("storage", handleSync);
+    window.addEventListener("tf_profile_updated", handleSync);
+    return () => {
+      window.removeEventListener("storage", handleSync);
+      window.removeEventListener("tf_profile_updated", handleSync);
+    };
   }, []);
 
-  // Display user name: dynamic with fallback to "Priya"
+  // Display user name: dynamic with fallback to profile firstName
   const displayName =
     profile.firstName ||
-    (profile.fullName ? profile.fullName.split(" ")[0] : "Priya");
+    (profile.fullName ? profile.fullName.split(" ")[0] : "John");
 
   // Toggle task completion
   const handleToggleTask = (taskId) => {
@@ -1067,7 +1073,7 @@ function Dashboard() {
           <div className="tf-emp-card tf-emp-activity-card">
             <div className="tf-emp-card-header">
               <h2 className="tf-emp-card-title">Recent Activity</h2>
-              <Link to="/employee/settings?tab=activity" className="tf-emp-view-all-link">
+              <Link to="/employee/activity" className="tf-emp-view-all-link">
                 View all <ArrowRight size={14} />
               </Link>
             </div>

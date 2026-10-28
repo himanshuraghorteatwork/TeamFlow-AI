@@ -21,6 +21,7 @@ import {
   Copy,
   Edit3,
   Filter,
+  User,
   Users,
   MapPin,
   AlertCircle,
@@ -96,6 +97,7 @@ const generateDefaultEvents = (baseDate) => {
       title: "Daily Standup",
       category: "meeting",
       project: "TeamFlow Website",
+      owner: "team",
       date: addDays(0), // Today
       startTime: "09:30",
       endTime: "10:00",
@@ -110,6 +112,7 @@ const generateDefaultEvents = (baseDate) => {
       title: "UI Design Discussion",
       category: "meeting",
       project: "TeamFlow Website",
+      owner: "my",
       date: addDays(0), // Today
       startTime: "11:00",
       endTime: "12:00",
@@ -124,6 +127,7 @@ const generateDefaultEvents = (baseDate) => {
       title: "Work on Tasks",
       category: "personal",
       project: "Personal",
+      owner: "my",
       date: addDays(0), // Today
       startTime: "14:00",
       endTime: "15:00",
@@ -137,6 +141,7 @@ const generateDefaultEvents = (baseDate) => {
       title: "Team Sync",
       category: "meeting",
       project: "Mobile App",
+      owner: "team",
       date: addDays(0), // Today
       startTime: "16:30",
       endTime: "17:15",
@@ -151,6 +156,7 @@ const generateDefaultEvents = (baseDate) => {
       title: "Bug Discussion",
       category: "meeting",
       project: "AI Integration",
+      owner: "my",
       date: addDays(1), // Tomorrow
       startTime: "11:30",
       endTime: "12:30",
@@ -165,6 +171,7 @@ const generateDefaultEvents = (baseDate) => {
       title: "Sprint Planning",
       category: "meeting",
       project: "AI Integration",
+      owner: "team",
       date: addDays(1), // Tomorrow
       startTime: "15:00",
       endTime: "16:00",
@@ -179,6 +186,7 @@ const generateDefaultEvents = (baseDate) => {
       title: "Client Meeting",
       category: "meeting",
       project: "Marketing Portal",
+      owner: "my",
       date: addDays(2),
       startTime: "09:30",
       endTime: "10:30",
@@ -193,6 +201,7 @@ const generateDefaultEvents = (baseDate) => {
       title: "Design Review",
       category: "meeting",
       project: "Mobile App",
+      owner: "team",
       date: addDays(3),
       startTime: "13:30",
       endTime: "14:30",
@@ -207,6 +216,7 @@ const generateDefaultEvents = (baseDate) => {
       title: "Sprint Review",
       category: "meeting",
       project: "Mobile App",
+      owner: "team",
       date: addDays(4),
       startTime: "10:00",
       endTime: "11:00",
@@ -221,6 +231,7 @@ const generateDefaultEvents = (baseDate) => {
       title: "Architecture Alignment",
       category: "meeting",
       project: "TeamFlow Website",
+      owner: "team",
       date: addDays(-1), // Yesterday
       startTime: "14:00",
       endTime: "15:00",
@@ -280,6 +291,37 @@ const generateDefaultDeadlines = (baseDate) => {
   ];
 };
 
+
+/* Determine if event belongs to 'My Events' or 'Team Events' */
+const isMyEvent = (ev) => {
+  if (!ev) return false;
+  if (ev.owner === "my" || ev.owner === "personal") return true;
+  if (ev.owner === "team") return false;
+  if (ev.category === "personal") return true;
+  const myKeywords = [
+    "ui design",
+    "work on tasks",
+    "bug discussion",
+    "client meeting",
+    "personal",
+    "my",
+    "1:1",
+    "1-on-1",
+    "focus",
+  ];
+  const t = (ev.title || "").toLowerCase();
+  if (myKeywords.some((k) => t.includes(k))) return true;
+  if (typeof ev.id === "number" && ev.id > 100) return true;
+  return false;
+};
+
+const isTeamEvent = (ev) => {
+  if (!ev) return false;
+  if (ev.owner === "team") return true;
+  if (ev.owner === "my" || ev.owner === "personal") return false;
+  return !isMyEvent(ev);
+};
+
 function Calendar() {
   // Real-time current clock (updates every 10s)
   const [currentTime, setCurrentTime] = useState(() => new Date());
@@ -328,7 +370,12 @@ function Calendar() {
           // Verify events aren't old 2024 items
           const currentYear = new Date().getFullYear();
           const hasCurrentDates = parsed.some((e) => e.date && e.date.startsWith(String(currentYear)));
-          if (hasCurrentDates) return parsed;
+          if (hasCurrentDates) {
+            return parsed.map((e) => ({
+              ...e,
+              owner: e.owner || (isMyEvent(e) ? "my" : "team"),
+            }));
+          }
         }
       }
     } catch {}
@@ -352,6 +399,7 @@ function Calendar() {
     title: "",
     category: "meeting",
     project: "TeamFlow Website",
+    owner: "my",
     date: toDateKey(new Date()),
     startTime: "10:00",
     endTime: "11:00",
@@ -528,7 +576,7 @@ function Calendar() {
     showToast(`Navigated to Today (${MONTH_SHORT[now.getMonth()]} ${now.getDate()})`);
   };
 
-  // Filtered Events
+  // Filtered Events (Filtering by Category, Project, and Scope/Owner)
   const filteredEvents = useMemo(() => {
     let result = [...events];
 
@@ -548,7 +596,39 @@ function Calendar() {
       result = result.filter((e) => e.project && (e.project.includes(projectFilter) || projectFilter.includes(e.project)));
     }
 
+    if (ownerFilter === "My Events") {
+      result = result.filter((e) => isMyEvent(e));
+    } else if (ownerFilter === "Team Events") {
+      result = result.filter((e) => isTeamEvent(e));
+    }
+    // "All Workspace" displays all workspace events
+
     return result;
+  }, [events, eventFilter, projectFilter, ownerFilter]);
+
+  // Real-time counts for the 3rd dropdown (My Events, Team Events, All Workspace)
+  const ownerCounts = useMemo(() => {
+    let base = [...events];
+    if (eventFilter !== "All Events") {
+      const map = {
+        Meetings: "meeting",
+        Tasks: "task",
+        Deadlines: "deadline",
+        Milestones: "milestone",
+        Personal: "personal",
+      };
+      const cat = map[eventFilter];
+      if (cat) base = base.filter((e) => e.category === cat);
+    }
+    if (projectFilter !== "All Projects") {
+      base = base.filter((e) => e.project && (e.project.includes(projectFilter) || projectFilter.includes(e.project)));
+    }
+
+    return {
+      "My Events": base.filter(isMyEvent).length,
+      "Team Events": base.filter(isTeamEvent).length,
+      "All Workspace": base.length,
+    };
   }, [events, eventFilter, projectFilter]);
 
   // Position calculation for weekly/daily timetable (0px = 9 AM, 64px = 1 hr)
@@ -596,6 +676,7 @@ function Calendar() {
       title: eventForm.title.trim(),
       category: eventForm.category,
       project: eventForm.project,
+      owner: eventForm.owner || "my",
       dayIndex: dayIdx,
       date: eventForm.date,
       startTime: eventForm.startTime,
@@ -613,6 +694,7 @@ function Calendar() {
       title: "",
       category: "meeting",
       project: "TeamFlow Website",
+      owner: "my",
       date: toDateKey(selectedDate || new Date()),
       startTime: "10:00",
       endTime: "11:00",
@@ -842,12 +924,13 @@ function Calendar() {
 
           {/* Right: Dropdowns */}
           <div className="tf-cal-dropdowns-group">
-            {/* 1. All Events */}
+            {/* 1. All Events / Category */}
             <div className="tf-cal-dropdown-wrap" ref={eventRef}>
               <button
                 type="button"
                 className="tf-cal-dropdown-btn"
                 onClick={() => setEventDropdownOpen(!eventDropdownOpen)}
+                aria-expanded={eventDropdownOpen}
               >
                 <span>{eventFilter}</span>
                 <ChevronDown size={14} className={eventDropdownOpen ? "open" : ""} />
@@ -862,6 +945,7 @@ function Calendar() {
                       onClick={() => {
                         setEventFilter(cat);
                         setEventDropdownOpen(false);
+                        showToast(`Category: ${cat}`);
                       }}
                     >
                       {cat}
@@ -877,6 +961,7 @@ function Calendar() {
                 type="button"
                 className="tf-cal-dropdown-btn"
                 onClick={() => setProjectDropdownOpen(!projectDropdownOpen)}
+                aria-expanded={projectDropdownOpen}
               >
                 <span>{projectFilter}</span>
                 <ChevronDown size={14} className={projectDropdownOpen ? "open" : ""} />
@@ -898,6 +983,7 @@ function Calendar() {
                       onClick={() => {
                         setProjectFilter(proj);
                         setProjectDropdownOpen(false);
+                        showToast(`Project: ${proj}`);
                       }}
                     >
                       {proj}
@@ -907,29 +993,47 @@ function Calendar() {
               )}
             </div>
 
-            {/* 3. My Events */}
+            {/* 3. My Events / Scope Filter */}
             <div className="tf-cal-dropdown-wrap" ref={ownerRef}>
               <button
                 type="button"
-                className="tf-cal-dropdown-btn"
+                className={`tf-cal-dropdown-btn ${ownerFilter !== "All Workspace" ? "tf-btn-filtered" : ""}`}
                 onClick={() => setOwnerDropdownOpen(!ownerDropdownOpen)}
+                aria-expanded={ownerDropdownOpen}
               >
-                <span>{ownerFilter}</span>
+                <span className="tf-cal-btn-with-icon">
+                  {ownerFilter === "My Events" && <User size={13} className="tf-filter-btn-icon" />}
+                  {ownerFilter === "Team Events" && <Users size={13} className="tf-filter-btn-icon" />}
+                  {ownerFilter === "All Workspace" && <Layers size={13} className="tf-filter-btn-icon" />}
+                  <span>{ownerFilter}</span>
+                </span>
                 <ChevronDown size={14} className={ownerDropdownOpen ? "open" : ""} />
               </button>
               {ownerDropdownOpen && (
-                <div className="tf-cal-dropdown-menu">
-                  {["My Events", "Team Events", "All Workspace"].map((own) => (
+                <div className="tf-cal-dropdown-menu tf-owner-dropdown-menu">
+                  {[
+                    { id: "My Events", label: "My Events", icon: User },
+                    { id: "Team Events", label: "Team Events", icon: Users },
+                    { id: "All Workspace", label: "All Workspace", icon: Layers },
+                  ].map(({ id, label, icon: IconComp }) => (
                     <button
-                      key={own}
+                      key={id}
                       type="button"
-                      className={ownerFilter === own ? "active" : ""}
+                      className={`tf-cal-dropdown-item ${ownerFilter === id ? "active" : ""}`}
                       onClick={() => {
-                        setOwnerFilter(own);
+                        setOwnerFilter(id);
                         setOwnerDropdownOpen(false);
+                        const cnt = ownerCounts[id];
+                        showToast(`Showing ${id} (${cnt} ${cnt === 1 ? "event" : "events"})`);
                       }}
                     >
-                      {own}
+                      <span className="tf-cal-dropdown-item-left">
+                        <IconComp size={14} className="tf-dropdown-item-icon" />
+                        <span>{label}</span>
+                      </span>
+                      <span className="tf-cal-dropdown-count">
+                        {ownerCounts[id]}
+                      </span>
                     </button>
                   ))}
                 </div>
@@ -1442,7 +1546,7 @@ function Calendar() {
             <article className="tf-cal-sidebar-card tf-upcoming-events-card">
               <div className="tf-cal-sidebar-header">
                 <h2>Upcoming Schedule</h2>
-                <span className="tf-cal-badge-pill">Real-time</span>
+                {/* <span className="tf-cal-badge-pill">Real-time</span> */}
               </div>
 
               <div className="tf-upcoming-list">
@@ -1587,6 +1691,17 @@ function Calendar() {
                         <option value="General">General / Other</option>
                       </select>
                     </div>
+
+                    <div className="tf-form-field">
+                      <label>Scope / Ownership</label>
+                      <select
+                        value={eventForm.owner || "my"}
+                        onChange={(e) => setEventForm({ ...eventForm, owner: e.target.value })}
+                      >
+                        <option value="my">My Event</option>
+                        <option value="team">Team Event</option>
+                      </select>
+                    </div>
                   </div>
 
                   <div className="tf-form-row three">
@@ -1670,7 +1785,7 @@ function Calendar() {
                   </div>
                   <div>
                     <h3>{selectedEventModal.title}</h3>
-                    <p>{selectedEventModal.project} • {selectedEventModal.timeLabel}</p>
+                    <p>{selectedEventModal.project} • {selectedEventModal.timeLabel} • <span className={`tf-modal-owner-tag ${selectedEventModal.owner || "my"}`}>{selectedEventModal.owner === "team" ? "Team Event" : "My Event"}</span></p>
                   </div>
                 </div>
                 <button

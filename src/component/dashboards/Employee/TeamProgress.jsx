@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 
 import EmployeeShell from "./EmployeeShell";
+import { getEmployeeProfile, DEFAULT_AVATAR } from "./EmployeeAuth";
 import "./TeamProgress.css";
 
 /* Team Member Avatars matching reference image */
@@ -242,6 +243,46 @@ const dateRangeOptions = [
 ];
 
 function TeamProgress() {
+  const [profile, setProfile] = useState(getEmployeeProfile);
+
+  useEffect(() => {
+    const handleSync = () => setProfile(getEmployeeProfile());
+    window.addEventListener("storage", handleSync);
+    window.addEventListener("tf_profile_updated", handleSync);
+    return () => {
+      window.removeEventListener("storage", handleSync);
+      window.removeEventListener("tf_profile_updated", handleSync);
+    };
+  }, []);
+
+  const teamMembers = useMemo(() => {
+    return initialMembers.map((m) => {
+      if (m.id === 1 || m.name.includes("(you)")) {
+        return {
+          ...m,
+          name: `${profile.fullName || "John Doe"} (you)`,
+          shortName: profile.firstName || "John",
+          avatar: profile.photo || DEFAULT_AVATAR,
+          email: profile.email || "john.doe@teamflow.ai",
+          role: profile.role || "Employee",
+        };
+      }
+      return m;
+    });
+  }, [profile]);
+
+  const teamActivities = useMemo(() => {
+    return recentTeamActivities.map((act) => {
+      if (act.actor.includes("(you)")) {
+        return {
+          ...act,
+          actor: `${profile.fullName || "John Doe"} (you)`,
+          avatar: profile.photo || DEFAULT_AVATAR,
+        };
+      }
+      return act;
+    });
+  }, [profile]);
   const navigate = useNavigate();
 
   // State
@@ -302,7 +343,7 @@ function TeamProgress() {
 
   // Sort team members
   const sortedMembers = useMemo(() => {
-    const list = [...initialMembers];
+    const list = [...teamMembers];
     list.sort((a, b) => {
       let valA = a[sortField];
       let valB = b[sortField];
@@ -642,7 +683,7 @@ function TeamProgress() {
 
               {/* Columns Area */}
               <div className="tf-tp-barchart-columns">
-                {initialMembers.map((member) => (
+                {teamMembers.map((member) => (
                   <div
                     key={member.id}
                     className="tf-tp-bar-col-group"
@@ -871,7 +912,7 @@ function TeamProgress() {
                 </div>
 
                 <div className="tf-tp-top-perf-list">
-                  {initialMembers.slice(0, 3).map((m, idx) => (
+                  {teamMembers.slice(0, 3).map((m, idx) => (
                     <div
                       key={m.id}
                       className="tf-tp-perf-item"

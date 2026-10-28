@@ -1789,3 +1789,122 @@
   border-color: #334155;
   color: #CBD5E1;
 }
+
+/* ==========================================================================
+   DROPDOWN & OWNER / SCOPE FILTER ENHANCEMENTS
+   ========================================================================== */
+
+.employee-shell .tf-cal-btn-with-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.employee-shell .tf-filter-btn-icon {
+  color: #5051F9;
+  flex-shrink: 0;
+}
+
+.employee-shell .tf-cal-dropdown-item {
+  width: 100%;
+  display: flex !important;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.employee-shell .tf-cal-dropdown-item-left {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.employee-shell .tf-dropdown-item-icon {
+  color: #64748B;
+  flex-shrink: 0;
+  transition: color 0.12s ease;
+}
+
+.employee-shell .tf-cal-dropdown-menu button.active .tf-dropdown-item-icon {
+  color: #5051F9;
+}
+
+.employee-shell .tf-cal-dropdown-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 18px;
+  padding: 0 6px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 600;
+  background: #F1F5F9;
+  color: #64748B;
+  transition: all 0.12s ease;
+}
+
+.employee-shell .tf-cal-dropdown-menu button.active .tf-cal-dropdown-count {
+  background: #E0E7FF;
+  color: #4338CA;
+}
+
+.employee-shell .tf-owner-dropdown-menu {
+  min-width: 195px;
+}
+
+.employee-shell .tf-modal-owner-tag {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  vertical-align: middle;
+}
+
+.employee-shell .tf-modal-owner-tag.my {
+  background: #EEF2FF;
+  color: #4F46E5;
+}
+
+.employee-shell .tf-modal-owner-tag.team {
+  background: #ECFDF5;
+  color: #059669;
+}
+
+/* Dark mode overrides for owner filter & count pills */
+.employee-shell.tf-dark .tf-cal-dropdown-count,
+[data-theme="dark"] .employee-shell .tf-cal-dropdown-count {
+  background: #334155;
+  color: #94A3B8;
+}
+
+.employee-shell.tf-dark .tf-cal-dropdown-menu button.active .tf-cal-dropdown-count,
+[data-theme="dark"] .employee-shell .tf-cal-dropdown-menu button.active .tf-cal-dropdown-count {
+  background: rgba(99, 102, 241, 0.25);
+  color: #A5B4FC;
+}
+
+.employee-shell.tf-dark .tf-dropdown-item-icon,
+[data-theme="dark"] .employee-shell .tf-dropdown-item-icon {
+  color: #94A3B8;
+}
+
+.employee-shell.tf-dark .tf-cal-dropdown-menu button.active .tf-dropdown-item-icon,
+[data-theme="dark"] .employee-shell .tf-cal-dropdown-menu button.active .tf-dropdown-item-icon {
+  color: #818CF8;
+}
+
+.employee-shell.tf-dark .tf-modal-owner-tag.my,
+[data-theme="dark"] .employee-shell .tf-modal-owner-tag.my {
+  background: rgba(99, 102, 241, 0.2);
+  color: #A5B4FC;
+}
+
+.employee-shell.tf-dark .tf-modal-owner-tag.team,
+[data-theme="dark"] .employee-shell .tf-modal-owner-tag.team {
+  background: rgba(16, 185, 129, 0.2);
+  color: #6EE7B7;
+}

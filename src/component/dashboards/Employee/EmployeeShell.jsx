@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import AppSidebar from "./AppSidebar";
 import EmployeeTopbar from "./EmployeeTopbar";
-import { getEmployeeTheme } from "./EmployeeAuth";
+import { getEmployeeTheme, getEmployeeFontSize, applyEmployeeFontSize, getEmployeePrimaryColor, applyEmployeePrimaryColor } from "./EmployeeAuth";
 import { X, CheckSquare, Bug, Calendar, Plus, Network } from "lucide-react";
 import "./EmployeeTokens.css";
 import "./EmployeeShell.css";
@@ -57,11 +57,36 @@ function EmployeeShell({
       document.documentElement.setAttribute("data-theme", current);
     };
 
-    const initial = getEmployeeTheme();
+        const initial = getEmployeeTheme();
     document.documentElement.setAttribute("data-theme", initial);
 
+    // Apply font size & primary color
+    applyEmployeeFontSize(getEmployeeFontSize());
+    applyEmployeePrimaryColor(getEmployeePrimaryColor());
+
+    const handleFontChange = (e) => {
+      applyEmployeeFontSize(e.detail || getEmployeeFontSize());
+    };
+
+    const handleColorChange = (e) => {
+      applyEmployeePrimaryColor(e.detail || getEmployeePrimaryColor());
+    };
+
     window.addEventListener("tf_theme_change", handleThemeChange);
-    return () => window.removeEventListener("tf_theme_change", handleThemeChange);
+    window.addEventListener("tf_font_size_change", handleFontChange);
+    window.addEventListener("tf_primary_color_change", handleColorChange);
+    const handleStorage = () => {
+      handleThemeChange({});
+      handleFontChange({});
+      handleColorChange({});
+    };
+    window.addEventListener("storage", handleStorage);
+    return () => {
+      window.removeEventListener("tf_theme_change", handleThemeChange);
+      window.removeEventListener("tf_font_size_change", handleFontChange);
+      window.removeEventListener("tf_primary_color_change", handleColorChange);
+      window.removeEventListener("storage", handleStorage);
+    };
   }, []);
 
   // Handle Quick Create Task

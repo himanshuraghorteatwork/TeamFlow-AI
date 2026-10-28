@@ -128,9 +128,9 @@
 .tf-files-empty > span { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 14px; color: #6b63d9; background: #f0edff; }
 .tf-files-empty h3 { margin: 13px 0 3px; color: #2b3751; font-size: 15px; }
 .tf-files-empty p { margin: 0 0 15px; color: #8490a5; font-size: 12px; }
-.tf-files-toast { position: fixed; z-index: 100; right: 24px; bottom: 24px; display: flex; align-items: center; gap: 9px; max-width: min(420px, calc(100vw - 32px)); padding: 13px 14px; border: 1px solid #dcefe4; border-radius: 10px; color: #266f50; background: #fff; box-shadow: 0 8px 30px #17233e1a; font-size: 12px; animation: tfFilesRise 180ms ease both; }
-.tf-files-toast button { display: grid; flex: 0 0 auto; place-items: center; width: 25px; height: 25px; margin-left: auto; border: 0; border-radius: 5px; color: #789183; background: transparent; }
-.tf-files-toast button:hover { background: #eef8f2; }
+.tf-lead-toast { position: fixed; top: auto !important; z-index: 100; right: 24px; bottom: 24px; display: flex; align-items: center; gap: 9px; max-width: min(420px, calc(100vw - 32px)); padding: 13px 14px; border: 1px solid #dcefe4; border-radius: 10px; color: #266f50; background: #fff; box-shadow: 0 8px 30px #17233e1a; font-size: 12px; animation: tfFilesRise 180ms ease both; }
+.tf-lead-toast button { display: grid; flex: 0 0 auto; place-items: center; width: 25px; height: 25px; margin-left: auto; border: 0; border-radius: 5px; color: #789183; background: transparent; }
+.tf-lead-toast button:hover { background: #eef8f2; }
 .tf-files-modal-backdrop { position: fixed; z-index: 90; inset: 0; display: grid; place-items: center; padding: 16px; background: #17233e66; animation: tfFilesFadeIn 150ms ease both; }
 .tf-files-modal { width: min(100%, 420px); padding: 23px; border: 1px solid #e4e8f1; border-radius: 15px; background: #fff; box-shadow: 0 20px 60px #17233e33; animation: tfFilesRise 180ms ease both; }
 .tf-files-modal-heading { display: flex; align-items: center; justify-content: space-between; }
@@ -176,7 +176,7 @@
   .tf-files-grid-view { grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 13px; gap: 9px; }
   .tf-files-grid-file { padding: 12px; }
   .tf-files-list-footer { padding: 12px 14px; }
-  .tf-files-toast { right: 12px; bottom: 12px; }
+  .tf-lead-toast { right: 12px; bottom: 12px; }
 }
 @media (max-width: 420px) {
   .tf-files-folder-grid { grid-template-columns: 1fr; }

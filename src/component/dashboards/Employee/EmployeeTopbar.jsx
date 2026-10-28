@@ -21,6 +21,7 @@ import {
   getEmployeeTheme,
   setEmployeeTheme,
   handleEmployeeLogout,
+  DEFAULT_AVATAR,
 } from "./EmployeeAuth";
 import "./EmployeeTopbar.css";
 
@@ -313,8 +314,12 @@ function EmployeeTopbar({
             <div className="tf-profile-avatar">
               {profile.photo ? (
                 <img
-                  src={profile.photo}
+                  src={profile.photo || DEFAULT_AVATAR}
                   alt={profile.fullName || "John Doe"}
+                  onError={(e) => {
+                    e.currentTarget.onerror = null;
+                    e.currentTarget.src = DEFAULT_AVATAR;
+                  }}
                   style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "9999px" }}
                 />
               ) : (
@@ -337,10 +342,14 @@ function EmployeeTopbar({
                 <div className="tf-dropdown-avatar">
                   {profile.photo ? (
                     <img
-                      src={profile.photo}
-                      alt={profile.fullName || "John Doe"}
-                      style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "9999px" }}
-                    />
+                  src={profile.photo || DEFAULT_AVATAR}
+                  alt={profile.fullName || "John Doe"}
+                  onError={(e) => {
+                    e.currentTarget.onerror = null;
+                    e.currentTarget.src = DEFAULT_AVATAR;
+                  }}
+                  style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "9999px" }}
+                />
                   ) : (
                     profile.initials || "JD"
                   )}
@@ -387,7 +396,7 @@ function EmployeeTopbar({
                 className="tf-menu-item"
                 onClick={() => {
                   setProfileOpen(false);
-                  navigate("/employee/settings?tab=activity");
+                  navigate("/employee/activity");
                 }}
               >
                 <Activity size={16} />

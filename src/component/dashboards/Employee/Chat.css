@@ -564,11 +564,41 @@
 .employee-shell .tf-msg-bubble.outgoing {
   background: #EEF2FF;
   border: 1px solid #E0E7FF;
-  color: #4338CA;
+  color: #312E81;
   border-top-right-radius: 2px;
   display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-width: 480px;
+}
+
+.employee-shell .tf-msg-bubble.outgoing:not(.has-attachment) {
+  flex-direction: row;
   align-items: flex-end;
   gap: 10px;
+}
+
+.employee-shell .tf-msg-bubble.outgoing.has-attachment {
+  min-width: 290px;
+  max-width: 440px;
+  padding: 10px 12px 8px 12px;
+}
+
+.employee-shell .tf-msg-bubble .tf-msg-text {
+  font-size: 13.5px;
+  font-weight: 500;
+  line-height: 1.45;
+  margin: 0;
+  word-break: break-word;
+}
+
+.employee-shell .tf-msg-bubble.outgoing .tf-msg-text {
+  color: #1E1B4B;
+}
+
+.employee-shell .tf-msg-bubble.incoming.has-attachment {
+  min-width: 290px;
+  max-width: 440px;
 }
 
 .employee-shell .tf-msg-time-row {
@@ -1602,4 +1632,737 @@
   background: #0F172A;
   border-color: #334155;
   color: #F8FAFC;
+}
+
+
+/* ==========================================================================
+   PROFESSIONAL ATTACHMENTS & MEDIA CARDS (SLACK/LINEAR FORMAT)
+   ========================================================================== */
+
+/* 1. Base File Attachment Card */
+.employee-shell .tf-chat-attachment-card {
+  width: 100%;
+  box-sizing: border-box;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 10px;
+  padding: 9px 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  margin-top: 4px;
+}
+
+/* Outgoing Card in Light Bubble: Crisp White with Indigo Border */
+.employee-shell .tf-chat-attachment-card.outgoing-card {
+  background: #FFFFFF;
+  border: 1px solid #C7D2FE;
+  box-shadow: 0 2px 6px rgba(99, 102, 241, 0.08);
+}
+
+.employee-shell .tf-chat-attachment-card:hover {
+  background: #F8FAFC;
+  border-color: #6366F1;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.12);
+}
+
+.employee-shell .tf-chat-attachment-card.outgoing-card:hover {
+  background: #FFFFFF;
+  border-color: #4F46E5;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.15);
+}
+
+/* Dark Mode Card */
+.employee-shell.tf-dark .tf-chat-attachment-card,
+[data-theme="dark"] .employee-shell .tf-chat-attachment-card {
+  background: #0F172A;
+  border-color: #334155;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.employee-shell.tf-dark .tf-chat-attachment-card.outgoing-card,
+[data-theme="dark"] .employee-shell .tf-chat-attachment-card.outgoing-card {
+  background: #1E1B4B;
+  border-color: #4338CA;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.employee-shell.tf-dark .tf-chat-attachment-card:hover,
+[data-theme="dark"] .employee-shell .tf-chat-attachment-card:hover,
+.employee-shell.tf-dark .tf-chat-attachment-card.outgoing-card:hover,
+[data-theme="dark"] .employee-shell .tf-chat-attachment-card.outgoing-card:hover {
+  background: #1E293B;
+  border-color: #6366F1;
+}
+
+/* 2. Badge Icon by Type */
+.employee-shell .tf-file-badge-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: #EEF2FF;
+  border: 1px solid #E0E7FF;
+  transition: transform 0.15s ease;
+}
+
+.employee-shell .tf-chat-attachment-card:hover .tf-file-badge-icon {
+  transform: scale(1.05);
+}
+
+.employee-shell .tf-file-badge-icon.image {
+  background: #E0F2FE;
+  border-color: #BAE6FD;
+}
+
+.employee-shell .tf-file-badge-icon.pdf {
+  background: #FEE2E2;
+  border-color: #FECACA;
+}
+
+.employee-shell .tf-file-badge-icon.zip {
+  background: #FEF3C7;
+  border-color: #FDE68A;
+}
+
+.employee-shell .tf-file-badge-icon.figma {
+  background: #F5F3FF;
+  border-color: #DDD6FE;
+}
+
+.employee-shell .tf-file-badge-icon.code {
+  background: #DCFCE7;
+  border-color: #BBF7D0;
+}
+
+/* 3. Card Typography & Details */
+.employee-shell .tf-file-card-details {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  gap: 2px;
+}
+
+.employee-shell .tf-file-card-details strong {
+  font-size: 13px;
+  font-weight: 600;
+  color: #0F172A;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: -0.01em;
+}
+
+.employee-shell.tf-dark .tf-file-card-details strong,
+[data-theme="dark"] .employee-shell .tf-file-card-details strong,
+.employee-shell.tf-dark .tf-chat-attachment-card.outgoing-card .tf-file-card-details strong,
+[data-theme="dark"] .employee-shell .tf-chat-attachment-card.outgoing-card .tf-file-card-details strong {
+  color: #F8FAFC;
+}
+
+.employee-shell .tf-file-card-details span {
+  font-size: 11.5px;
+  font-weight: 500;
+  color: #64748B;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.employee-shell.tf-dark .tf-file-card-details span,
+[data-theme="dark"] .employee-shell .tf-file-card-details span,
+.employee-shell.tf-dark .tf-chat-attachment-card.outgoing-card .tf-file-card-details span,
+[data-theme="dark"] .employee-shell .tf-chat-attachment-card.outgoing-card .tf-file-card-details span {
+  color: #94A3B8;
+}
+
+/* 4. Download Action Button */
+.employee-shell .tf-file-download-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: #F1F5F9;
+  border: 1px solid #E2E8F0;
+  color: #475569;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+
+.employee-shell .tf-chat-attachment-card.outgoing-card .tf-file-download-btn {
+  background: #EEF2FF;
+  border-color: #C7D2FE;
+  color: #4F46E5;
+}
+
+.employee-shell .tf-file-download-btn:hover,
+.employee-shell .tf-chat-attachment-card.outgoing-card .tf-file-download-btn:hover {
+  background: #4F46E5;
+  border-color: #4F46E5;
+  color: #FFFFFF;
+  transform: scale(1.06);
+}
+
+.employee-shell.tf-dark .tf-file-download-btn,
+[data-theme="dark"] .employee-shell .tf-file-download-btn {
+  background: #1E293B;
+  border-color: #334155;
+  color: #CBD5E1;
+}
+
+.employee-shell.tf-dark .tf-chat-attachment-card.outgoing-card .tf-file-download-btn,
+[data-theme="dark"] .employee-shell .tf-chat-attachment-card.outgoing-card .tf-file-download-btn {
+  background: #3730A3;
+  border-color: #4F46E5;
+  color: #E0E7FF;
+}
+
+/* 5. Image Preview Card Format (with rich thumbnail) */
+.employee-shell .tf-chat-attachment-card.image-preview-card {
+  flex-direction: column;
+  padding: 0;
+  overflow: hidden;
+  border-radius: 10px;
+  gap: 0;
+  margin-top: 6px;
+}
+
+.employee-shell .tf-image-thumb-container {
+  width: 100%;
+  max-height: 220px;
+  position: relative;
+  overflow: hidden;
+  background: #0F172A;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.employee-shell .tf-attached-image-thumb {
+  width: 100%;
+  height: 100%;
+  max-height: 220px;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.25s ease;
+}
+
+.employee-shell .tf-chat-attachment-card.image-preview-card:hover .tf-attached-image-thumb {
+  transform: scale(1.02);
+}
+
+.employee-shell .tf-image-hover-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  backdrop-filter: blur(2px);
+}
+
+.employee-shell .tf-chat-attachment-card.image-preview-card:hover .tf-image-hover-overlay {
+  opacity: 1;
+}
+
+.employee-shell .tf-overlay-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.95);
+  color: #0F172A;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.employee-shell .tf-image-meta-bar {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 9px 12px;
+  background: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  border-top: 1px solid #E2E8F0;
+}
+
+.employee-shell .tf-chat-attachment-card.outgoing-card .tf-image-meta-bar {
+  border-top-color: #C7D2FE;
+  background: #FFFFFF;
+}
+
+.employee-shell.tf-dark .tf-image-meta-bar,
+[data-theme="dark"] .employee-shell .tf-image-meta-bar,
+.employee-shell.tf-dark .tf-chat-attachment-card.outgoing-card .tf-image-meta-bar,
+[data-theme="dark"] .employee-shell .tf-chat-attachment-card.outgoing-card .tf-image-meta-bar {
+  background: #0F172A;
+  border-top-color: #334155;
+}
+
+.employee-shell .tf-image-meta-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+  gap: 2px;
+}
+
+.employee-shell .tf-image-meta-info strong {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #0F172A;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.employee-shell.tf-dark .tf-image-meta-info strong,
+[data-theme="dark"] .employee-shell .tf-image-meta-info strong {
+  color: #F8FAFC;
+}
+
+.employee-shell .tf-image-meta-info span {
+  font-size: 11px;
+  color: #64748B;
+}
+
+.employee-shell.tf-dark .tf-image-meta-info span,
+[data-theme="dark"] .employee-shell .tf-image-meta-info span {
+  color: #94A3B8;
+}
+
+/* 6. Composer & Attachment Preview */
+.employee-shell .tf-chat-composer-wrapper {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.employee-shell .tf-composer-attachment-preview {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: #EFF6FF;
+  border: 1px solid #BFDBFE;
+  border-radius: 8px;
+  margin: 0 16px 8px 16px;
+  font-size: 12.5px;
+  color: #1D4ED8;
+  animation: tfFadeIn 0.15s ease;
+}
+
+.employee-shell.tf-dark .tf-composer-attachment-preview,
+[data-theme="dark"] .employee-shell .tf-composer-attachment-preview {
+  background: #1E293B;
+  border-color: #3B82F6;
+  color: #93C5FD;
+}
+
+.employee-shell .tf-remove-attachment-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #64748B;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+  margin-left: auto;
+  border-radius: 4px;
+}
+
+.employee-shell .tf-remove-attachment-btn:hover {
+  color: #EF4444;
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.employee-shell .tf-shared-file-item.clickable {
+  cursor: pointer;
+  border-radius: 6px;
+  padding: 6px 8px;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.employee-shell .tf-shared-file-item.clickable:hover {
+  background: #F1F5F9;
+}
+
+.employee-shell.tf-dark .tf-shared-file-item.clickable:hover,
+[data-theme="dark"] .employee-shell .tf-shared-file-item.clickable:hover {
+  background: #1E293B;
+}
+
+
+/* ==========================================================================
+   Chat Header & More Options Dropdown Styles
+   ========================================================================== */
+.employee-shell .tf-conv-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  overflow: hidden;
+}
+
+.employee-shell .tf-conv-pin-icon {
+  color: #6366F1;
+  flex-shrink: 0;
+}
+
+.employee-shell .tf-conv-mute-icon {
+  color: #94A3B8;
+  flex-shrink: 0;
+}
+
+.employee-shell .tf-active-title-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.employee-shell .tf-header-pin-badge {
+  color: #6366F1;
+}
+
+.employee-shell .tf-header-mute-badge {
+  color: #94A3B8;
+}
+
+/* Header Dropdown Menu */
+.employee-shell .tf-header-menu-wrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.employee-shell .tf-header-menu-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  min-width: 215px;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 10px;
+  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.15), 0 8px 10px -6px rgba(15, 23, 42, 0.05);
+  padding: 6px;
+  z-index: 100;
+  animation: tfMenuSlideDown 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.employee-shell .tf-right-menu-wrap {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  display: inline-block;
+}
+
+.employee-shell .tf-right-menu-wrap .tf-right-menu-btn {
+  position: static;
+}
+
+.employee-shell .tf-header-menu-dropdown.right-pane-dropdown {
+  top: calc(100% + 4px);
+  right: 0;
+}
+
+@keyframes tfMenuSlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.employee-shell .tf-header-menu-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border: none;
+  background: transparent;
+  color: #334155;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.12s ease;
+  white-space: nowrap;
+}
+
+.employee-shell .tf-header-menu-item:hover {
+  background: #F1F5F9;
+  color: #0F172A;
+}
+
+.employee-shell .tf-header-menu-item.danger {
+  color: #EF4444;
+}
+
+.employee-shell .tf-header-menu-item.danger:hover {
+  background: #FEF2F2;
+  color: #DC2626;
+}
+
+.employee-shell .tf-header-menu-divider {
+  height: 1px;
+  background: #E2E8F0;
+  margin: 4px 0;
+}
+
+/* ==========================================================================
+   In-Chat Search Toolbar & Matches Highlighting
+   ========================================================================== */
+.employee-shell .tf-in-chat-search-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  background: #F8FAFC;
+  border-bottom: 1px solid #E2E8F0;
+  gap: 12px;
+  animation: tfSearchSlideDown 0.15s ease-out;
+  position: relative;
+  z-index: 10;
+}
+
+@keyframes tfSearchSlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.employee-shell .tf-in-chat-search-input-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  max-width: 480px;
+  background: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  border-radius: 8px;
+  padding: 6px 10px;
+  transition: all 0.15s ease;
+}
+
+.employee-shell .tf-in-chat-search-input-box:focus-within {
+  border-color: #6366F1;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.18);
+}
+
+.employee-shell .tf-in-chat-search-icon {
+  color: #64748B;
+  flex-shrink: 0;
+}
+
+.employee-shell .tf-in-chat-search-input-box input {
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 13px;
+  color: #0F172A;
+  width: 100%;
+}
+
+.employee-shell .tf-in-chat-clear-btn {
+  border: none;
+  background: transparent;
+  color: #94A3B8;
+  cursor: pointer;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+}
+
+.employee-shell .tf-in-chat-clear-btn:hover {
+  color: #0F172A;
+  background: #E2E8F0;
+}
+
+.employee-shell .tf-in-chat-search-nav {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.employee-shell .tf-in-chat-results-count {
+  font-size: 12px;
+  color: #475569;
+  padding: 0 6px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.employee-shell .tf-in-chat-no-results {
+  font-size: 12px;
+  color: #EF4444;
+  padding: 0 6px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.employee-shell .tf-in-chat-hint {
+  font-size: 11px;
+  color: #94A3B8;
+  padding: 0 6px;
+  white-space: nowrap;
+}
+
+.employee-shell .tf-in-chat-nav-arrow,
+.employee-shell .tf-in-chat-close-btn {
+  width: 28px;
+  height: 28px;
+  border: 1px solid #CBD5E1;
+  background: #FFFFFF;
+  color: #475569;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+
+.employee-shell .tf-in-chat-nav-arrow:hover:not(:disabled) {
+  background: #F1F5F9;
+  color: #0F172A;
+  border-color: #94A3B8;
+}
+
+.employee-shell .tf-in-chat-nav-arrow:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.employee-shell .tf-in-chat-close-btn {
+  border: none;
+  background: transparent;
+  color: #64748B;
+}
+
+.employee-shell .tf-in-chat-close-btn:hover {
+  background: #E2E8F0;
+  color: #0F172A;
+}
+
+/* Search Highlights on Messages */
+.employee-shell .tf-chat-highlight-mark {
+  background-color: #FEF08A;
+  color: #713F12;
+  padding: 1px 3px;
+  border-radius: 3px;
+  font-weight: 600;
+}
+
+.employee-shell .tf-msg-row.is-search-match .tf-msg-bubble {
+  border-left: 3px solid #6366F1;
+}
+
+.employee-shell .tf-msg-row.is-search-active-match .tf-msg-bubble {
+  box-shadow: 0 0 0 2px #6366F1, 0 4px 14px rgba(99, 102, 241, 0.28);
+  border-left: 3px solid #4338CA;
+  animation: tfActiveMatchPulse 1.2s ease-in-out;
+}
+
+@keyframes tfActiveMatchPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.015); }
+  100% { transform: scale(1); }
+}
+
+/* Dark Mode Overrides */
+[data-theme="dark"] .employee-shell .tf-header-menu-dropdown {
+  background: #1E293B;
+  border-color: #334155;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="dark"] .employee-shell .tf-header-menu-item {
+  color: #E2E8F0;
+}
+
+[data-theme="dark"] .employee-shell .tf-header-menu-item:hover {
+  background: #334155;
+  color: #FFFFFF;
+}
+
+[data-theme="dark"] .employee-shell .tf-header-menu-item.danger {
+  color: #F87171;
+}
+
+[data-theme="dark"] .employee-shell .tf-header-menu-item.danger:hover {
+  background: rgba(239, 68, 68, 0.15);
+  color: #FCA5A5;
+}
+
+[data-theme="dark"] .employee-shell .tf-header-menu-divider {
+  background: #334155;
+}
+
+[data-theme="dark"] .employee-shell .tf-in-chat-search-toolbar {
+  background: #0F172A;
+  border-color: #334155;
+}
+
+[data-theme="dark"] .employee-shell .tf-in-chat-search-input-box {
+  background: #1E293B;
+  border-color: #334155;
+}
+
+[data-theme="dark"] .employee-shell .tf-in-chat-search-input-box input {
+  color: #F8FAFC;
+}
+
+[data-theme="dark"] .employee-shell .tf-in-chat-results-count {
+  color: #94A3B8;
+}
+
+[data-theme="dark"] .employee-shell .tf-in-chat-nav-arrow {
+  background: #1E293B;
+  border-color: #334155;
+  color: #CBD5E1;
+}
+
+[data-theme="dark"] .employee-shell .tf-in-chat-nav-arrow:hover:not(:disabled) {
+  background: #334155;
+  color: #FFFFFF;
+}
+
+[data-theme="dark"] .employee-shell .tf-in-chat-close-btn:hover {
+  background: #334155;
+  color: #FFFFFF;
+}
+
+[data-theme="dark"] .employee-shell .tf-chat-highlight-mark {
+  background-color: #854D0E;
+  color: #FEF08A;
 }

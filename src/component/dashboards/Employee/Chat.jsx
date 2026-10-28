@@ -30,10 +30,19 @@ import {
   Mail,
   User,
   Briefcase,
+  ChevronUp,
+  ChevronDown,
+  Bell,
+  BellOff,
+  EyeOff,
+  Copy,
+  Trash2,
 } from "lucide-react";
 
 import EmployeeShell from "./EmployeeShell";
 import "./Chat.css";
+import { downloadFile } from "./downloadHelper";
+import { getEmployeeProfile, DEFAULT_AVATAR } from "./EmployeeAuth";
 
 /* Storage Key */
 const STORAGE_KEY = "tf_team_chats_v3";
@@ -377,6 +386,17 @@ const defaultConversations = [
 const quickEmojis = ["👍", "❤️", "🔥", "🎉", "🚀", "👀", "🙌", "💯"];
 
 function Chat() {
+  const [profile, setProfile] = useState(getEmployeeProfile);
+
+  useEffect(() => {
+    const handleSync = () => setProfile(getEmployeeProfile());
+    window.addEventListener("storage", handleSync);
+    window.addEventListener("tf_profile_updated", handleSync);
+    return () => {
+      window.removeEventListener("storage", handleSync);
+      window.removeEventListener("tf_profile_updated", handleSync);
+    };
+  }, []);
   // Load conversations from localStorage
   const [conversations, setConversations] = useState(() => {
     try {
@@ -403,9 +423,172 @@ function Chat() {
   const [drawerTab, setDrawerTab] = useState("About");
   const [showRightDrawer, setShowRightDrawer] = useState(true);
 
+  // In-chat search states & menu states
+  const [inChatSearchOpen, setInChatSearchOpen] = useState(false);
+  const [inChatSearchQuery, setInChatSearchQuery] = useState("");
+  const [activeMatchIndex, setActiveMatchIndex] = useState(0);
+  const [headerMenuOpen, setHeaderMenuOpen] = useState(false);
+  const [rightMenuOpen, setRightMenuOpen] = useState(false);
+
+  const inChatSearchInputRef = useRef(null);
+  const headerMenuRef = useRef(null);
+  const rightMenuRef = useRef(null);
+
   // Message input state
   const [messageText, setMessageText] = useState("");
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
+  const [attachedFile, setAttachedFile] = useState(null);
+  const fileInputRef = useRef(null);
+
+  // Handle authentic file download
+  const handleDownloadFile = (fileOrName) => {
+    try {
+      const downloadedName = downloadFile(fileOrName);
+      showToast(`Downloaded ${downloadedName}`);
+    } catch (err) {
+      console.error("Download error:", err);
+      showToast("Download failed. Please try again.");
+    }
+  };
+
+  // Handle attaching file from local device
+  const handleAttachFile = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const sizeStr =
+        file.size > 1024 * 1024
+          ? `${(file.size / (1024 * 1024)).toFixed(1)} MB`
+          : `${(file.size / 1024).toFixed(1)} KB`;
+
+      const ext = file.name.split(".").pop().toLowerCase();
+      const isImg = ["png", "jpg", "jpeg", "gif", "webp", "svg"].includes(ext);
+      const isPdf = ext === "pdf";
+      const isZip = ["zip", "rar", "7z", "tar", "gz"].includes(ext);
+      const isFigma = ext === "fig" || ext === "figma";
+      const isCode = ["js", "jsx", "ts", "tsx", "html", "css", "json", "py", "sql", "md"].includes(ext);
+
+      let type = "file";
+      if (isImg) type = "image";
+      else if (isPdf) type = "pdf";
+      else if (isZip) type = "zip";
+      else if (isFigma) type = "figma";
+      else if (isCode) type = "code";
+
+      setAttachedFile({
+        name: file.name,
+        sub: `${ext.toUpperCase()} • ${sizeStr}`,
+        size: sizeStr,
+        type: type,
+        isImage: isImg,
+        dataUrl: reader.result,
+      });
+      showToast(`Attached ${file.name}`);
+    };
+    reader.readAsDataURL(file);
+    e.target.value = "";
+  };
+
+  // Professional Attachment & Image Card Renderer
+  const renderAttachmentCard = (attachment, isOutgoing = false) => {
+    if (!attachment) return null;
+
+    const ext = (attachment.name || "").split(".").pop().toLowerCase();
+    const isImg =
+      attachment.isImage ||
+      attachment.type === "image" ||
+      ["png", "jpg", "jpeg", "gif", "webp", "svg"].includes(ext);
+
+    // Image Preview Card (when Base64/dataUrl is available)
+    if (isImg && attachment.dataUrl) {
+      return (
+        <div
+          className={`tf-chat-attachment-card image-preview-card ${isOutgoing ? "outgoing-card" : "incoming-card"}`}
+          onClick={() => handleDownloadFile(attachment)}
+          role="button"
+          tabIndex={0}
+          title={`Click to download ${attachment.name}`}
+        >
+          <div className="tf-image-thumb-container">
+            <img src={attachment.dataUrl} alt={attachment.name} className="tf-attached-image-thumb" />
+            <div className="tf-image-hover-overlay">
+              <span className="tf-overlay-btn">
+                <Download size={14} /> Download Image
+              </span>
+            </div>
+          </div>
+          <div className="tf-image-meta-bar">
+            <div className="tf-image-meta-info">
+              <strong title={attachment.name}>{attachment.name}</strong>
+              <span>{attachment.sub || attachment.size || "Image File"}</span>
+            </div>
+            <button
+              type="button"
+              className="tf-file-download-btn"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDownloadFile(attachment);
+              }}
+              title="Download image"
+            >
+              <Download size={14} />
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    // Document / Archive / Figma Card
+    return (
+      <div
+        className={`tf-chat-attachment-card ${isOutgoing ? "outgoing-card" : "incoming-card"}`}
+        onClick={() => handleDownloadFile(attachment)}
+        role="button"
+        tabIndex={0}
+        title={`Click to download ${attachment.name}`}
+      >
+        <div className={`tf-file-badge-icon ${attachment.type || (isImg ? "image" : "file")}`}
+        >
+          {attachment.type === "figma" ? (
+            <svg width="18" height="18" viewBox="0 0 38 57" fill="none">
+              <path d="M19 28.5C19 23.2533 23.2533 19 28.5 19C33.7467 19 38 23.2533 38 28.5C38 33.7467 33.7467 38 28.5 38C23.2533 38 19 33.7467 19 28.5Z" fill="#1ABCFE"/>
+              <path d="M0 47.5C0 42.2533 4.25329 38 9.5 38H19V47.5C19 52.7467 14.7467 57 9.5 57C4.25329 57 0 52.7467 0 47.5Z" fill="#0ACF83"/>
+              <path d="M19 0V19H28.5C33.7467 19 38 14.7467 38 9.5C38 4.25329 33.7467 0 28.5 0H19Z" fill="#FF7262"/>
+              <path d="M0 9.5C0 14.7467 4.25329 19 9.5 19H19V0H9.5C4.25329 0 0 4.25329 0 9.5Z" fill="#F24E1E"/>
+              <path d="M0 28.5C0 33.7467 4.25329 38 9.5 38H19V19H9.5C4.25329 19 0 23.2533 0 28.5Z" fill="#A259FF"/>
+            </svg>
+          ) : attachment.type === "pdf" ? (
+            <FileText size={18} color="#EF4444" />
+          ) : isImg || attachment.type === "image" ? (
+            <ImageIcon size={18} color="#0284C7" />
+          ) : attachment.type === "zip" ? (
+            <Folder size={18} color="#D97706" />
+          ) : (
+            <FileText size={18} color="#6366F1" />
+          )}
+        </div>
+
+        <div className="tf-file-card-details">
+          <strong title={attachment.name}>{attachment.name}</strong>
+          <span>{attachment.sub || attachment.size || "File"}</span>
+        </div>
+
+        <button
+          type="button"
+          className="tf-file-download-btn"
+          onClick={(e) => {
+            e.stopPropagation();
+            handleDownloadFile(attachment);
+          }}
+          title="Download file"
+        >
+          <Download size={14} />
+        </button>
+      </div>
+    );
+  };
 
   // Modals
   const [newChatModalOpen, setNewChatModalOpen] = useState(false);
@@ -450,10 +633,245 @@ function Chat() {
     setTimeout(() => setToastMessage(""), 3000);
   };
 
+  // Close menus on outside click
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (headerMenuRef.current && !headerMenuRef.current.contains(e.target)) {
+        setHeaderMenuOpen(false);
+      }
+      if (rightMenuRef.current && !rightMenuRef.current.contains(e.target)) {
+        setRightMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Keyboard shortcut Ctrl+F / Cmd+F to open in-chat search
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "f") {
+        e.preventDefault();
+        setInChatSearchOpen(true);
+        setTimeout(() => inChatSearchInputRef.current?.focus(), 60);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
   // Currently active conversation
   const activeConversation = useMemo(() => {
     return conversations.find((c) => c.id === activeChatId) || conversations[1] || conversations[0];
   }, [conversations, activeChatId]);
+
+  // Search matches computed inside active conversation
+  const searchMatches = useMemo(() => {
+    if (!inChatSearchQuery.trim()) return [];
+    const q = inChatSearchQuery.toLowerCase().trim();
+    const messages = activeConversation?.messages || [];
+    return messages
+      .filter((m) => {
+        if (m.dateDivider) return false;
+        const matchText = (m.text || "").toLowerCase().includes(q);
+        const matchSender = (m.sender || "").toLowerCase().includes(q);
+        const matchFile = (m.attachment?.name || "").toLowerCase().includes(q);
+        return matchText || matchSender || matchFile;
+      })
+      .map((m) => m.id);
+  }, [activeConversation?.messages, inChatSearchQuery]);
+
+  // Scroll active match into view
+  useEffect(() => {
+    if (
+      inChatSearchOpen &&
+      searchMatches.length > 0 &&
+      activeMatchIndex >= 0 &&
+      activeMatchIndex < searchMatches.length
+    ) {
+      const targetId = `chat-msg-${searchMatches[activeMatchIndex]}`;
+      const el = document.getElementById(targetId);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }
+  }, [inChatSearchOpen, searchMatches, activeMatchIndex]);
+
+  const handleNextMatch = () => {
+    if (searchMatches.length === 0) return;
+    setActiveMatchIndex((prev) => (prev + 1) % searchMatches.length);
+  };
+
+  const handlePrevMatch = () => {
+    if (searchMatches.length === 0) return;
+    setActiveMatchIndex((prev) => (prev - 1 + searchMatches.length) % searchMatches.length);
+  };
+
+  const handleInChatSearchKeyDown = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      if (e.shiftKey) {
+        handlePrevMatch();
+      } else {
+        handleNextMatch();
+      }
+    } else if (e.key === "Escape") {
+      handleCloseInChatSearch();
+    }
+  };
+
+  const handleToggleInChatSearch = () => {
+    if (inChatSearchOpen) {
+      handleCloseInChatSearch();
+    } else {
+      setInChatSearchOpen(true);
+      setHeaderMenuOpen(false);
+      setTimeout(() => inChatSearchInputRef.current?.focus(), 60);
+    }
+  };
+
+  const handleCloseInChatSearch = () => {
+    setInChatSearchOpen(false);
+    setInChatSearchQuery("");
+    setActiveMatchIndex(0);
+  };
+
+  // Menu action: Pin/Unpin
+  const handleTogglePin = () => {
+    const willPin = !activeConversation.isPinned;
+    setConversations((prev) =>
+      prev.map((c) =>
+        c.id === activeConversation.id ? { ...c, isPinned: willPin } : c
+      )
+    );
+    setHeaderMenuOpen(false);
+    setRightMenuOpen(false);
+    showToast(willPin ? `Pinned "${activeConversation.title}" to top` : `Unpinned "${activeConversation.title}"`);
+  };
+
+  // Menu action: Mute/Unmute
+  const handleToggleMute = () => {
+    const willMute = !activeConversation.isMuted;
+    setConversations((prev) =>
+      prev.map((c) =>
+        c.id === activeConversation.id ? { ...c, isMuted: willMute } : c
+      )
+    );
+    setHeaderMenuOpen(false);
+    setRightMenuOpen(false);
+    showToast(willMute ? `Muted notifications for "${activeConversation.title}"` : `Unmuted notifications for "${activeConversation.title}"`);
+  };
+
+  // Menu action: Mark Unread
+  const handleMarkUnread = () => {
+    setConversations((prev) =>
+      prev.map((c) =>
+        c.id === activeConversation.id ? { ...c, unread: (c.unread || 0) + 1 } : c
+      )
+    );
+    setHeaderMenuOpen(false);
+    showToast(`Marked "${activeConversation.title}" as unread`);
+  };
+
+  // Menu action: Copy Link
+  const handleCopyChatLink = () => {
+    const link = `${window.location.origin}/employee/chat?id=${encodeURIComponent(activeConversation.id)}`;
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(link);
+    }
+    setHeaderMenuOpen(false);
+    setRightMenuOpen(false);
+    showToast(`Copied chat link for "${activeConversation.title}"!`);
+  };
+
+  // Menu action: Export Chat History
+  const handleExportChat = () => {
+    const messages = activeConversation.messages || [];
+    let content = "========================================================\r\n";
+    content += "TeamFlow AI — Chat History Export\r\n";
+    content += `Conversation: ${activeConversation.title} (${activeConversation.subtitle || ""})\r\n`;
+    content += `Export Date: ${new Date().toLocaleString()}\r\n`;
+    content += `Total Messages: ${messages.filter((m) => !m.dateDivider).length}\r\n`;
+    content += "========================================================\r\n\r\n";
+
+    messages.forEach((m) => {
+      if (m.dateDivider) {
+        content += `\r\n--- ${m.dateDivider} ---\r\n\r\n`;
+      } else {
+        const sender = m.sender || (m.isOutgoing ? (profile.fullName || "You") : "User");
+        const time = m.time || "";
+        const text = m.text || "";
+        const attachment = m.attachment ? ` [Attachment: ${m.attachment.name} (${m.attachment.size || ""})]` : "";
+        content += `[${time}] ${sender}: ${text}${attachment}\r\n`;
+      }
+    });
+
+    const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${activeConversation.title.replace(/[^a-zA-Z0-9_-]/g, "_")}_Chat_Export.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    setHeaderMenuOpen(false);
+    setRightMenuOpen(false);
+    showToast(`Exported chat history for "${activeConversation.title}"`);
+  };
+
+  // Menu action: Clear History
+  const handleClearChatHistory = () => {
+    if (window.confirm(`Are you sure you want to clear message history for "${activeConversation.title}"?`)) {
+      setConversations((prev) =>
+        prev.map((c) =>
+          c.id === activeConversation.id
+            ? {
+                ...c,
+                lastMessage: "Chat history cleared",
+                time: "Just now",
+                messages: [
+                  {
+                    id: `divider-${Date.now()}`,
+                    dateDivider: "Today",
+                  },
+                  {
+                    id: `msg-system-${Date.now()}`,
+                    sender: "System",
+                    time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+                    text: "Chat history cleared by user.",
+                    isOutgoing: false,
+                  },
+                ],
+              }
+            : c
+        )
+      );
+      setHeaderMenuOpen(false);
+      setRightMenuOpen(false);
+      showToast(`Cleared messages for "${activeConversation.title}"`);
+    }
+  };
+
+  // Helper to highlight matching text in messages
+  const renderHighlightedText = (text, query) => {
+    if (!query || !query.trim() || typeof text !== "string") return text;
+    const q = query.trim();
+    const escaped = q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const regex = new RegExp(`(${escaped})`, "gi");
+    const parts = text.split(regex);
+    if (parts.length === 1) return text;
+    return parts.map((part, i) =>
+      part.toLowerCase() === q.toLowerCase() ? (
+        <mark key={i} className="tf-chat-highlight-mark">
+          {part}
+        </mark>
+      ) : (
+        part
+      )
+    );
+  };
 
   // Filter conversations
   const filteredConversations = useMemo(() => {
@@ -483,6 +901,9 @@ function Chat() {
       );
     }
 
+    // Sort pinned conversations to the top
+    result.sort((a, b) => (b.isPinned ? 1 : 0) - (a.isPinned ? 1 : 0));
+
     return result;
   }, [conversations, topToggle, filterTab, searchQuery]);
 
@@ -498,13 +919,14 @@ function Chat() {
   // Handle Send Message
   const handleSendMessage = (e) => {
     if (e) e.preventDefault();
-    if (!messageText.trim()) return;
+    if (!messageText.trim() && !attachedFile) return;
 
     const newMsg = {
       id: `msg-${Date.now()}`,
       sender: "You",
       time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-      text: messageText.trim(),
+      text: messageText.trim() || (attachedFile ? `Shared file: ${attachedFile.name}` : ""),
+      ...(attachedFile ? { attachment: attachedFile } : {}),
       reactions: {},
       isOutgoing: true,
     };
@@ -525,6 +947,7 @@ function Chat() {
     );
 
     setMessageText("");
+    setAttachedFile(null);
     setEmojiPickerOpen(false);
     setTimeout(scrollToBottom, 50);
   };
@@ -796,7 +1219,11 @@ function Chat() {
 
                     <div className="tf-conv-info">
                       <div className="tf-conv-top">
-                        <strong className="tf-conv-title">{c.title}</strong>
+                        <div className="tf-conv-title-wrap">
+                          <strong className="tf-conv-title">{c.title}</strong>
+                          {c.isPinned && <Pin size={11} className="tf-conv-pin-icon" title="Pinned" />}
+                          {c.isMuted && <BellOff size={11} className="tf-conv-mute-icon" title="Muted" />}
+                        </div>
                         <span className="tf-conv-time">{c.time}</span>
                       </div>
                       <div className="tf-conv-bottom">
@@ -821,7 +1248,15 @@ function Chat() {
               <div className="tf-active-header-left">
                 {renderAvatar(activeConversation)}
                 <div className="tf-active-header-text">
-                  <h2>{activeConversation.title}</h2>
+                  <div className="tf-active-title-row">
+                    <h2>{activeConversation.title}</h2>
+                    {activeConversation.isPinned && (
+                      <Pin size={14} className="tf-header-pin-badge" title="Pinned conversation" />
+                    )}
+                    {activeConversation.isMuted && (
+                      <BellOff size={14} className="tf-header-mute-badge" title="Notifications muted" />
+                    )}
+                  </div>
                   <span>{activeConversation.subtitle}</span>
                 </div>
               </div>
@@ -829,20 +1264,97 @@ function Chat() {
               <div className="tf-active-header-actions">
                 <button
                   type="button"
-                  className="tf-header-icon-btn"
-                  onClick={() => showToast("Search messages in this conversation...")}
-                  title="Search conversation"
+                  className={`tf-header-icon-btn ${inChatSearchOpen ? "active" : ""}`}
+                  onClick={handleToggleInChatSearch}
+                  title="Search conversation (Ctrl+F)"
                 >
                   <Search size={16} />
                 </button>
-                <button
-                  type="button"
-                  className="tf-header-icon-btn"
-                  onClick={() => showToast("More conversation options")}
-                  title="More options"
-                >
-                  <MoreVertical size={16} />
-                </button>
+
+                <div className="tf-header-menu-wrap" ref={headerMenuRef}>
+                  <button
+                    type="button"
+                    className={`tf-header-icon-btn ${headerMenuOpen ? "active" : ""}`}
+                    onClick={() => setHeaderMenuOpen((prev) => !prev)}
+                    title="More options"
+                  >
+                    <MoreVertical size={16} />
+                  </button>
+
+                  {headerMenuOpen && (
+                    <div className="tf-header-menu-dropdown">
+                      <button
+                        type="button"
+                        className="tf-header-menu-item"
+                        onClick={handleTogglePin}
+                      >
+                        <Pin size={15} />
+                        <span>{activeConversation.isPinned ? "Unpin Conversation" : "Pin to Top"}</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        className="tf-header-menu-item"
+                        onClick={handleToggleMute}
+                      >
+                        {activeConversation.isMuted ? <Bell size={15} /> : <BellOff size={15} />}
+                        <span>{activeConversation.isMuted ? "Unmute Notifications" : "Mute Notifications"}</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        className="tf-header-menu-item"
+                        onClick={handleMarkUnread}
+                      >
+                        <EyeOff size={15} />
+                        <span>Mark as Unread</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        className="tf-header-menu-item"
+                        onClick={() => {
+                          setHeaderMenuOpen(false);
+                          setInChatSearchOpen(true);
+                          setTimeout(() => inChatSearchInputRef.current?.focus(), 60);
+                        }}
+                      >
+                        <Search size={15} />
+                        <span>Search in Conversation</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        className="tf-header-menu-item"
+                        onClick={handleCopyChatLink}
+                      >
+                        <Copy size={15} />
+                        <span>Copy Channel Link</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        className="tf-header-menu-item"
+                        onClick={handleExportChat}
+                      >
+                        <Download size={15} />
+                        <span>Export Chat History</span>
+                      </button>
+
+                      <div className="tf-header-menu-divider" />
+
+                      <button
+                        type="button"
+                        className="tf-header-menu-item danger"
+                        onClick={handleClearChatHistory}
+                      >
+                        <Trash2 size={15} />
+                        <span>Clear Chat History</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
+
                 <button
                   type="button"
                   className={`tf-header-icon-btn ${showRightDrawer ? "active" : ""}`}
@@ -853,6 +1365,81 @@ function Chat() {
                 </button>
               </div>
             </header>
+
+            {/* In-Chat Search Bar */}
+            {inChatSearchOpen && (
+              <div className="tf-in-chat-search-toolbar">
+                <div className="tf-in-chat-search-input-box">
+                  <Search size={15} className="tf-in-chat-search-icon" />
+                  <input
+                    ref={inChatSearchInputRef}
+                    type="text"
+                    placeholder={`Search messages in ${activeConversation.title}...`}
+                    value={inChatSearchQuery}
+                    onChange={(e) => {
+                      setInChatSearchQuery(e.target.value);
+                      setActiveMatchIndex(0);
+                    }}
+                    onKeyDown={handleInChatSearchKeyDown}
+                  />
+                  {inChatSearchQuery && (
+                    <button
+                      type="button"
+                      className="tf-in-chat-clear-btn"
+                      onClick={() => {
+                        setInChatSearchQuery("");
+                        setActiveMatchIndex(0);
+                        inChatSearchInputRef.current?.focus();
+                      }}
+                      title="Clear search"
+                    >
+                      <X size={14} />
+                    </button>
+                  )}
+                </div>
+
+                <div className="tf-in-chat-search-nav">
+                  {inChatSearchQuery.trim() ? (
+                    searchMatches.length > 0 ? (
+                      <span className="tf-in-chat-results-count">
+                        <strong>{activeMatchIndex + 1}</strong> of {searchMatches.length}
+                      </span>
+                    ) : (
+                      <span className="tf-in-chat-no-results">No matches</span>
+                    )
+                  ) : (
+                    <span className="tf-in-chat-hint">Press Enter for next</span>
+                  )}
+
+                  <button
+                    type="button"
+                    className="tf-in-chat-nav-arrow"
+                    onClick={handlePrevMatch}
+                    disabled={searchMatches.length === 0}
+                    title="Previous match (Shift + Enter)"
+                  >
+                    <ChevronUp size={16} />
+                  </button>
+                  <button
+                    type="button"
+                    className="tf-in-chat-nav-arrow"
+                    onClick={handleNextMatch}
+                    disabled={searchMatches.length === 0}
+                    title="Next match (Enter)"
+                  >
+                    <ChevronDown size={16} />
+                  </button>
+                  <button
+                    type="button"
+                    className="tf-in-chat-close-btn"
+                    onClick={handleCloseInChatSearch}
+                    title="Close search (Esc)"
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
+              </div>
+            )}
 
             {/* Messages Scroll Area */}
             <div className="tf-messages-stream">
@@ -866,12 +1453,20 @@ function Chat() {
                   );
                 }
 
+                const isMatch = searchMatches.includes(msg.id);
+                const isActiveMatch = searchMatches.length > 0 && searchMatches[activeMatchIndex] === msg.id;
+
                 // If outgoing message
                 if (msg.isOutgoing) {
                   return (
-                    <div key={msg.id} className="tf-msg-row outgoing">
-                      <div className="tf-msg-bubble outgoing">
-                        <p>{msg.text}</p>
+                    <div
+                      key={msg.id}
+                      id={`chat-msg-${msg.id}`}
+                      className={`tf-msg-row outgoing ${isMatch ? "is-search-match" : ""} ${isActiveMatch ? "is-search-active-match" : ""}`}
+                    >
+                      <div className={`tf-msg-bubble outgoing ${msg.attachment ? "has-attachment" : ""}`}>
+                        {msg.text && <p className="tf-msg-text">{renderHighlightedText(msg.text, inChatSearchQuery)}</p>}
+                        {msg.attachment && renderAttachmentCard(msg.attachment, true)}
                         <div className="tf-msg-time-row">
                           <span>{msg.time}</span>
                           <CheckCheck size={14} className="tf-check-double" />
@@ -883,7 +1478,11 @@ function Chat() {
 
                 // Incoming message
                 return (
-                  <div key={msg.id} className="tf-msg-row incoming">
+                  <div
+                    key={msg.id}
+                    id={`chat-msg-${msg.id}`}
+                    className={`tf-msg-row incoming ${isMatch ? "is-search-match" : ""} ${isActiveMatch ? "is-search-active-match" : ""}`}
+                  >
                     {/* Avatar */}
                     {msg.senderAvatar ? (
                       <img
@@ -903,41 +1502,9 @@ function Chat() {
                         <span>{msg.time}</span>
                       </div>
 
-                      <div className="tf-msg-bubble incoming">
-                        <p>{msg.text}</p>
-
-                        {/* File Attachment Card */}
-                        {msg.attachment && (
-                          <div className="tf-chat-attachment-card">
-                            <div className={`tf-file-badge-icon ${msg.attachment.type}`}>
-                              {msg.attachment.type === "figma" ? (
-                                <svg width="18" height="18" viewBox="0 0 38 57" fill="none">
-                                  <path d="M19 28.5C19 23.2533 23.2533 19 28.5 19C33.7467 19 38 23.2533 38 28.5C38 33.7467 33.7467 38 28.5 38C23.2533 38 19 33.7467 19 28.5Z" fill="#1ABCFE"/>
-                                  <path d="M0 47.5C0 42.2533 4.25329 38 9.5 38H19V47.5C19 52.7467 14.7467 57 9.5 57C4.25329 57 0 52.7467 0 47.5Z" fill="#0ACF83"/>
-                                  <path d="M19 0V19H28.5C33.7467 19 38 14.7467 38 9.5C38 4.25329 33.7467 0 28.5 0H19Z" fill="#FF7262"/>
-                                  <path d="M0 9.5C0 14.7467 4.25329 19 9.5 19H19V0H9.5C4.25329 0 0 4.25329 0 9.5Z" fill="#F24E1E"/>
-                                  <path d="M0 28.5C0 33.7467 4.25329 38 9.5 38H19V19H9.5C4.25329 19 0 23.2533 0 28.5Z" fill="#A259FF"/>
-                                </svg>
-                              ) : (
-                                <Folder size={18} color="#D97706" />
-                              )}
-                            </div>
-
-                            <div className="tf-file-card-details">
-                              <strong>{msg.attachment.name}</strong>
-                              <span>{msg.attachment.sub}</span>
-                            </div>
-
-                            <button
-                              type="button"
-                              className="tf-file-download-btn"
-                              onClick={() => showToast(`Downloading ${msg.attachment.name}...`)}
-                              title="Download file"
-                            >
-                              <Download size={15} />
-                            </button>
-                          </div>
-                        )}
+                      <div className={`tf-msg-bubble incoming ${msg.attachment ? "has-attachment" : ""}`}>
+                        {msg.text && <p className="tf-msg-text">{renderHighlightedText(msg.text, inChatSearchQuery)}</p>}
+                        {msg.attachment && renderAttachmentCard(msg.attachment, false)}
                       </div>
 
                       {/* Reactions Row */}
@@ -964,15 +1531,40 @@ function Chat() {
             </div>
 
             {/* Message Input Bottom Bar */}
-            <form className="tf-chat-input-bar" onSubmit={handleSendMessage}>
-              <button
-                type="button"
-                className="tf-input-tool-btn"
-                onClick={() => showToast("Select attachment from device...")}
-                title="Attach file"
-              >
-                <Paperclip size={18} />
-              </button>
+            <div className="tf-chat-composer-wrapper">
+              {attachedFile && (
+                <div className="tf-composer-attachment-preview">
+                  <FileText size={15} />
+                  <span className="tf-preview-file-name">
+                    <strong>{attachedFile.name}</strong> ({attachedFile.size})
+                  </span>
+                  <button
+                    type="button"
+                    className="tf-remove-attachment-btn"
+                    onClick={() => setAttachedFile(null)}
+                    title="Remove attachment"
+                  >
+                    <X size={14} />
+                  </button>
+                </div>
+              )}
+
+              <form className="tf-chat-input-bar" onSubmit={handleSendMessage}>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  style={{ display: "none" }}
+                  onChange={handleAttachFile}
+                />
+
+                <button
+                  type="button"
+                  className="tf-input-tool-btn"
+                  onClick={() => fileInputRef.current?.click()}
+                  title="Attach file from device"
+                >
+                  <Paperclip size={18} />
+                </button>
 
               <input
                 type="text"
@@ -1014,12 +1606,13 @@ function Chat() {
               <button
                 type="submit"
                 className="tf-send-message-btn"
-                disabled={!messageText.trim()}
+                disabled={!messageText.trim() && !attachedFile}
                 title="Send message"
               >
                 <Send size={15} />
               </button>
             </form>
+            </div>
           </main>
 
           {/* ------------------------------------------------------------------
@@ -1039,13 +1632,66 @@ function Chat() {
                   {activeConversation.category || "UI/UX Design Project"}
                 </span>
 
-                <button
-                  type="button"
-                  className="tf-right-menu-btn"
-                  onClick={() => showToast("Conversation settings")}
-                >
-                  <MoreVertical size={16} />
-                </button>
+                <div className="tf-right-menu-wrap" ref={rightMenuRef}>
+                  <button
+                    type="button"
+                    className={`tf-right-menu-btn ${rightMenuOpen ? "active" : ""}`}
+                    onClick={() => setRightMenuOpen((prev) => !prev)}
+                    title="Conversation options"
+                  >
+                    <MoreVertical size={16} />
+                  </button>
+                  {rightMenuOpen && (
+                    <div className="tf-header-menu-dropdown right-pane-dropdown">
+                      <button
+                        type="button"
+                        className="tf-header-menu-item"
+                        onClick={handleTogglePin}
+                      >
+                        <Pin size={15} />
+                        <span>{activeConversation.isPinned ? "Unpin Conversation" : "Pin to Top"}</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        className="tf-header-menu-item"
+                        onClick={handleToggleMute}
+                      >
+                        {activeConversation.isMuted ? <Bell size={15} /> : <BellOff size={15} />}
+                        <span>{activeConversation.isMuted ? "Unmute Notifications" : "Mute Notifications"}</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        className="tf-header-menu-item"
+                        onClick={handleCopyChatLink}
+                      >
+                        <Copy size={15} />
+                        <span>Copy Channel Link</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        className="tf-header-menu-item"
+                        onClick={handleExportChat}
+                      >
+                        <Download size={15} />
+                        <span>Export Chat History</span>
+                      </button>
+
+                      <div className="tf-header-menu-divider" />
+
+                      <button
+                        type="button"
+                        className="tf-header-menu-item danger"
+                        onClick={handleClearChatHistory}
+                      >
+                        <Trash2 size={15} />
+                        <span>Clear Chat History</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* Tabs: About | Members | Files | Links */}
@@ -1163,10 +1809,14 @@ function Chat() {
                         <span className="name">Karan</span>
                       </div>
 
-                      {/* Priya */}
+                      {/* You / Current User */}
                       <div className="tf-member-pill-item">
-                        <div className="tf-member-round-avatar purple">P</div>
-                        <span className="name">Priya</span>
+                        {profile.photo ? (
+                          <img src={profile.photo} alt={profile.fullName} className="tf-member-img-avatar" />
+                        ) : (
+                          <div className="tf-member-round-avatar purple">{profile.initials || "JD"}</div>
+                        )}
+                        <span className="name">{profile.firstName || "You"}</span>
                       </div>
                     </div>
                   </div>
@@ -1186,7 +1836,13 @@ function Chat() {
 
                     <div className="tf-shared-files-list">
                       {/* File 1: PDF */}
-                      <div className="tf-shared-file-item">
+                      <div
+                        className="tf-shared-file-item clickable"
+                        onClick={() => handleDownloadFile("Project_Overview.pdf")}
+                        role="button"
+                        tabIndex={0}
+                        title="Click to download Project_Overview.pdf"
+                      >
                         <div className="tf-shared-file-icon red">
                           <FileText size={15} />
                         </div>
@@ -1194,11 +1850,27 @@ function Chat() {
                           <strong>Project_Overview.pdf</strong>
                           <span>2.4 MB</span>
                         </div>
-                        <span className="date">Oct 24</span>
+                        <button
+                          type="button"
+                          className="tf-file-download-btn"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDownloadFile("Project_Overview.pdf");
+                          }}
+                          title="Download Project_Overview.pdf"
+                        >
+                          <Download size={13} />
+                        </button>
                       </div>
 
                       {/* File 2: Figma */}
-                      <div className="tf-shared-file-item">
+                      <div
+                        className="tf-shared-file-item clickable"
+                        onClick={() => handleDownloadFile("Login_Page_Design.fig")}
+                        role="button"
+                        tabIndex={0}
+                        title="Click to download Login_Page_Design.fig"
+                      >
                         <div className="tf-shared-file-icon figma">
                           <svg width="14" height="14" viewBox="0 0 38 57" fill="none">
                             <path d="M19 28.5C19 23.2533 23.2533 19 28.5 19C33.7467 19 38 23.2533 38 28.5C38 33.7467 33.7467 38 28.5 38C23.2533 38 19 33.7467 19 28.5Z" fill="#1ABCFE"/>
@@ -1212,11 +1884,27 @@ function Chat() {
                           <strong>Login_Page_Design.fig</strong>
                           <span>4.2 MB</span>
                         </div>
-                        <span className="date">Oct 23</span>
+                        <button
+                          type="button"
+                          className="tf-file-download-btn"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDownloadFile("Login_Page_Design.fig");
+                          }}
+                          title="Download Login_Page_Design.fig"
+                        >
+                          <Download size={13} />
+                        </button>
                       </div>
 
                       {/* File 3: ZIP */}
-                      <div className="tf-shared-file-item">
+                      <div
+                        className="tf-shared-file-item clickable"
+                        onClick={() => handleDownloadFile("Build_v1.2.3.zip")}
+                        role="button"
+                        tabIndex={0}
+                        title="Click to download Build_v1.2.3.zip"
+                      >
                         <div className="tf-shared-file-icon orange">
                           <Folder size={15} />
                         </div>
@@ -1224,7 +1912,17 @@ function Chat() {
                           <strong>Build_v1.2.3.zip</strong>
                           <span>28.5 MB</span>
                         </div>
-                        <span className="date">Oct 22</span>
+                        <button
+                          type="button"
+                          className="tf-file-download-btn"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDownloadFile("Build_v1.2.3.zip");
+                          }}
+                          title="Download Build_v1.2.3.zip"
+                        >
+                          <Download size={13} />
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -1292,10 +1990,14 @@ function Chat() {
                       </div>
                     </div>
                     <div className="tf-member-full-row">
-                      <div className="tf-member-round-avatar purple">P</div>
+                      {profile.photo ? (
+                        <img src={profile.photo} alt={profile.fullName} className="tf-member-img-avatar" />
+                      ) : (
+                        <div className="tf-member-round-avatar purple">{profile.initials || "JD"}</div>
+                      )}
                       <div className="tf-member-full-info">
-                        <strong>Priya Patel</strong>
-                        <span>Product Designer (You)</span>
+                        <strong>{profile.fullName || "John Doe"}</strong>
+                        <span>{profile.role || "Employee"} (You)</span>
                       </div>
                     </div>
                   </div>
@@ -1306,15 +2008,76 @@ function Chat() {
               {drawerTab === "Files" && (
                 <div className="tf-right-tab-content">
                   <div className="tf-shared-files-list">
-                    <div className="tf-shared-file-item">
+                    <div
+                      className="tf-shared-file-item clickable"
+                      onClick={() => handleDownloadFile("Project_Overview.pdf")}
+                      role="button"
+                      tabIndex={0}
+                      title="Click to download Project_Overview.pdf"
+                    >
                       <div className="tf-shared-file-icon red"><FileText size={15} /></div>
                       <div className="tf-shared-file-text"><strong>Project_Overview.pdf</strong><span>2.4 MB</span></div>
-                      <button type="button" className="tf-file-download-btn" onClick={() => showToast("Downloading...")}><Download size={14} /></button>
+                      <button
+                        type="button"
+                        className="tf-file-download-btn"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDownloadFile("Project_Overview.pdf");
+                        }}
+                        title="Download file"
+                      >
+                        <Download size={14} />
+                      </button>
                     </div>
-                    <div className="tf-shared-file-item">
+                    <div
+                      className="tf-shared-file-item clickable"
+                      onClick={() => handleDownloadFile("Login_Page_Design.fig")}
+                      role="button"
+                      tabIndex={0}
+                      title="Click to download Login_Page_Design.fig"
+                    >
+                      <div className="tf-shared-file-icon figma">
+                        <svg width="14" height="14" viewBox="0 0 38 57" fill="none">
+                          <path d="M19 28.5C19 23.2533 23.2533 19 28.5 19C33.7467 19 38 23.2533 38 28.5C38 33.7467 33.7467 38 28.5 38C23.2533 38 19 33.7467 19 28.5Z" fill="#1ABCFE"/>
+                          <path d="M0 47.5C0 42.2533 4.25329 38 9.5 38H19V47.5C19 52.7467 14.7467 57 9.5 57C4.25329 57 0 52.7467 0 47.5Z" fill="#0ACF83"/>
+                          <path d="M19 0V19H28.5C33.7467 19 38 14.7467 38 9.5C38 4.25329 33.7467 0 28.5 0H19Z" fill="#FF7262"/>
+                          <path d="M0 9.5C0 14.7467 4.25329 19 9.5 19H19V0H9.5C4.25329 0 0 4.25329 0 9.5Z" fill="#F24E1E"/>
+                          <path d="M0 28.5C0 33.7467 4.25329 38 9.5 38H19V19H9.5C4.25329 19 0 23.2533 0 28.5Z" fill="#A259FF"/>
+                        </svg>
+                      </div>
+                      <div className="tf-shared-file-text"><strong>Login_Page_Design.fig</strong><span>4.2 MB</span></div>
+                      <button
+                        type="button"
+                        className="tf-file-download-btn"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDownloadFile("Login_Page_Design.fig");
+                        }}
+                        title="Download file"
+                      >
+                        <Download size={14} />
+                      </button>
+                    </div>
+                    <div
+                      className="tf-shared-file-item clickable"
+                      onClick={() => handleDownloadFile("Build_v1.2.3.zip")}
+                      role="button"
+                      tabIndex={0}
+                      title="Click to download Build_v1.2.3.zip"
+                    >
                       <div className="tf-shared-file-icon orange"><Folder size={15} /></div>
                       <div className="tf-shared-file-text"><strong>Build_v1.2.3.zip</strong><span>28.5 MB</span></div>
-                      <button type="button" className="tf-file-download-btn" onClick={() => showToast("Downloading...")}><Download size={14} /></button>
+                      <button
+                        type="button"
+                        className="tf-file-download-btn"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDownloadFile("Build_v1.2.3.zip");
+                        }}
+                        title="Download file"
+                      >
+                        <Download size={14} />
+                      </button>
                     </div>
                   </div>
                 </div>

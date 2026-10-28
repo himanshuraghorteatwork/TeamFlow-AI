@@ -418,3 +418,80 @@ body.dark-mode .employee-shell .tf-emp-custom-date-input {
   border-color: #334155;
   color: #F8FAFC;
 }
+
+
+/* Font Size scaling across Employee Dashboard */
+html[data-font-size="small"] .employee-content-area {
+  zoom: 0.92;
+}
+
+html[data-font-size="medium"] .employee-content-area {
+  zoom: 1;
+}
+
+html[data-font-size="large"] .employee-content-area {
+  zoom: 1.08;
+}
+
+/* Dynamic Primary Color Accent Theming across Employee Dashboard */
+.employee-shell .tf-btn-primary,
+.employee-shell button.tf-btn-primary,
+.employee-shell .tf-primary-btn {
+  background: var(--tf-primary, #6366F1) !important;
+}
+
+.employee-shell .tf-btn-primary:hover,
+.employee-shell button.tf-btn-primary:hover,
+.employee-shell .tf-primary-btn:hover {
+  background: var(--tf-primary-hover, #4F46E5) !important;
+}
+
+.employee-shell .app-sidebar-link.active {
+  background: var(--tf-primary, #3B66FF) !important;
+  box-shadow: 0 4px 14px var(--tf-primary-glow, rgba(99, 102, 241, 0.35)) !important;
+}
+
+.employee-shell .app-sidebar-link.active:hover {
+  background: var(--tf-primary-hover, #2F59FA) !important;
+}
+
+.employee-shell .tf-type-filter-pill.active,
+.employee-shell .tf-filter-pill.active,
+.employee-shell .tf-switch-btn.active {
+  background: var(--tf-primary, #6366F1) !important;
+  border-color: var(--tf-primary, #6366F1) !important;
+  color: #FFFFFF !important;
+}
+
+.employee-shell .tf-upload-btn-top,
+.employee-shell .tf-new-chat-btn {
+  background: var(--tf-primary, #6366F1) !important;
+}
+
+.employee-shell .tf-upload-btn-top:hover,
+.employee-shell .tf-new-chat-btn:hover {
+  background: var(--tf-primary-hover, #4F46E5) !important;
+}
+
+.employee-shell .tf-send-message-btn {
+  background: var(--tf-primary, #6366F1) !important;
+}
+
+.employee-shell .tf-send-message-btn:hover {
+  background: var(--tf-primary-hover, #4F46E5) !important;
+}
+
+.employee-shell .tf-theme-card-btn.active {
+  border-color: var(--tf-primary, #8B5CF6) !important;
+  box-shadow: 0 0 0 1px var(--tf-primary, #8B5CF6) !important;
+}
+
+.employee-shell .tf-font-size-btn.active {
+  background: var(--tf-primary-light, #F5F3FF) !important;
+  color: var(--tf-primary, #7C3AED) !important;
+  border-color: var(--tf-primary, #8B5CF6) !important;
+}
+
+.employee-shell .tf-color-circle.active {
+  transform: scale(1.2) !important;
+}

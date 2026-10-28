@@ -1,17 +1,28 @@
 /* ==========================================================================
    TEAMFLOW AI — EMPLOYEE APPLICATION SHELL
-   Layout grid: Sidebar (240px) + Topbar (64px) + Scrollable Main Content
+   Layout grid: Fixed Sidebar (240px) + Fixed Topbar (64px) + Scrollable Content
+   Whole viewport is locked (unscrollable); only inner content scrolls.
    ========================================================================== */
+
+html:has(.employee-shell),
+body:has(.employee-shell) {
+  height: 100% !important;
+  max-height: 100vh !important;
+  overflow: hidden !important;
+}
 
 .employee-shell {
   display: flex;
-  width: 100%;
+  width: 100vw;
+  max-width: 100vw;
   height: 100vh;
-  min-height: 100vh;
+  max-height: 100vh;
+  position: fixed;
+  inset: 0;
   background: var(--tf-bg, #F7F9FC);
   color: var(--tf-text-primary, #111827);
   font-family: var(--tf-font, "Inter", sans-serif);
-  overflow: hidden;
+  overflow: hidden !important;
   box-sizing: border-box;
 }
 
@@ -20,13 +31,16 @@
   display: flex;
   flex-direction: column;
   min-width: 0;
-  height: 100vh;
-  overflow: hidden;
+  height: 100%;
+  max-height: 100vh;
+  overflow: hidden !important;
   position: relative;
 }
 
 .employee-content-area {
   flex: 1;
+  height: calc(100vh - var(--tf-topbar-height, 64px));
+  max-height: calc(100vh - var(--tf-topbar-height, 64px));
   overflow-y: auto;
   overflow-x: hidden;
   padding: 20px 24px 40px;
@@ -38,11 +52,12 @@
 }
 
 .employee-content-area.no-scroll {
-  overflow: hidden;
+  overflow: hidden !important;
   padding: 0;
   display: flex;
   flex-direction: column;
   height: calc(100vh - var(--tf-topbar-height, 64px));
+  max-height: calc(100vh - var(--tf-topbar-height, 64px));
 }
 
 .employee-content-area::-webkit-scrollbar {

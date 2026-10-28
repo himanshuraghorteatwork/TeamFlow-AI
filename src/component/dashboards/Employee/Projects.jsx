@@ -23,6 +23,7 @@ import {
   FileText,
   GitBranch,
   Flag,
+  BarChart2,
   PieChart as PieChartIcon,
   Clock3,
   X,
@@ -30,6 +31,7 @@ import {
 } from "lucide-react";
 
 import EmployeeShell from "./EmployeeShell";
+import { getEmployeeProfile, DEFAULT_AVATAR } from "./EmployeeAuth";
 import "./Projects.css";
 
 /* Storage key versioned to avoid legacy incompatible objects in localStorage */
@@ -253,6 +255,17 @@ const recentProjectActivities = [
 ];
 
 function Projects() {
+  const [profile, setProfile] = useState(getEmployeeProfile);
+
+  useEffect(() => {
+    const handleSync = () => setProfile(getEmployeeProfile());
+    window.addEventListener("storage", handleSync);
+    window.addEventListener("tf_profile_updated", handleSync);
+    return () => {
+      window.removeEventListener("storage", handleSync);
+      window.removeEventListener("tf_profile_updated", handleSync);
+    };
+  }, []);
   // Load projects from localStorage safely
   const [projects, setProjects] = useState(() => {
     try {
@@ -294,6 +307,11 @@ function Projects() {
   const [sortDropdownOpen, setSortDropdownOpen] = useState(false);
   const [actionMenuOpenId, setActionMenuOpenId] = useState(null);
 
+  // Summary Section Menu & Breakdown Modal State
+  const [summaryMenuOpen, setSummaryMenuOpen] = useState(false);
+  const [summaryModalOpen, setSummaryModalOpen] = useState(false);
+  const summaryMenuRef = useRef(null);
+
   // Selected project for Details Modal
   const [selectedProject, setSelectedProject] = useState(null);
 
@@ -320,6 +338,9 @@ function Projects() {
       }
       if (sortRef.current && !sortRef.current.contains(e.target)) {
         setSortDropdownOpen(false);
+      }
+      if (summaryMenuRef.current && !summaryMenuRef.current.contains(e.target)) {
+        setSummaryMenuOpen(false);
       }
       if (!e.target.closest(".tf-proj-action-menu-wrap")) {
         setActionMenuOpenId(null);
@@ -447,6 +468,87 @@ function Projects() {
   const activePercent = Math.round((stats.active / totalSummary) * 100);
   const onHoldPercent = Math.round((stats.onHold / totalSummary) * 100);
   const completedPercent = Math.max(0, 100 - activePercent - onHoldPercent);
+
+  // Average progress computation across all projects
+  const avgProgress = useMemo(() => {
+    if (projects.length === 0) return 0;
+    const sum = projects.reduce((acc, p) => acc + (p?.progress || 0), 0);
+    return Math.round(sum / projects.length);
+  }, [projects]);
+
+  // Export Summary CSV
+  const handleExportSummaryCSV = () => {
+    const summaryRows = [
+      ["=== TEAMFLOW PROJECT PORTFOLIO SUMMARY ==="],
+      [`Generated On`, new Date().toLocaleString()],
+      [`Total Projects`, stats.total],
+      [`Active Projects`, `${stats.active} (${activePercent}%)`],
+      [`On Hold Projects`, `${stats.onHold} (${onHoldPercent}%)`],
+      [`Completed Projects`, `${stats.completed} (${completedPercent}%)`],
+      [`Average Progress`, `${avgProgress}%`],
+      [],
+      ["=== PROJECT BREAKDOWN ==="],
+      ["Project Name", "Status", "Category", "Progress", "Date Range", "Team Members"],
+      ...projects.map((p) => [
+        `"${p.name || ""}"`,
+        `"${p.status || ""}"`,
+        `"${p.category || ""}"`,
+        `"${p.progress || 0}%"`,
+        `"${p.dateRange || ""}"`,
+        `"${p.teamSize || ""}"`,
+      ]),
+    ];
+
+    const csvContent = "data:text/csv;charset=utf-8," + summaryRows.map((r) => r.join(",")).join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `TeamFlow_Project_Summary_${new Date().toISOString().split("T")[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    showToast("Project summary CSV exported successfully!");
+  };
+
+  // Export Summary JSON
+  const handleExportSummaryJSON = () => {
+    const exportData = {
+      report: "TeamFlow Employee Project Summary",
+      generatedAt: new Date().toISOString(),
+      stats: {
+        total: stats.total,
+        active: stats.active,
+        activePercent,
+        onHold: stats.onHold,
+        onHoldPercent,
+        completed: stats.completed,
+        completedPercent,
+        averageProgress: avgProgress,
+      },
+      projects: projects.map((p) => ({
+        id: p.id,
+        name: p.name,
+        category: p.category,
+        status: p.status,
+        progress: p.progress,
+        dateRange: p.dateRange,
+        teamSize: p.teamSize,
+      })),
+    };
+
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `TeamFlow_Project_Summary_${new Date().toISOString().split("T")[0]}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    showToast("Project summary JSON exported successfully!");
+  };
 
   // Circumference for r=36 is 2 * PI * 36 = 226.2
   const c = 226.2;
@@ -998,14 +1100,120 @@ function Projects() {
                   <PieChartIcon size={18} color="#2563EB" />
                   <h2>My Project Summary</h2>
                 </div>
-                <button
-                  type="button"
-                  className="tf-proj-card-more-btn"
-                  onClick={() => showToast("Exporting project summary chart...")}
-                  aria-label="Summary menu"
-                >
-                  <MoreVertical size={16} />
-                </button>
+                <div className="tf-proj-summary-menu-wrap" ref={summaryMenuRef}>
+                  <button
+                    type="button"
+                    className={`tf-proj-card-more-btn ${summaryMenuOpen ? "active" : ""}`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSummaryMenuOpen((prev) => !prev);
+                    }}
+                    aria-label="Summary options"
+                    title="Project summary options"
+                  >
+                    <MoreVertical size={16} />
+                  </button>
+
+                  {summaryMenuOpen && (
+                    <div className="tf-proj-action-popover tf-proj-summary-popover">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSummaryModalOpen(true);
+                          setSummaryMenuOpen(false);
+                        }}
+                      >
+                        <BarChart2 size={14} className="tf-popover-icon blue" />
+                        <span>Detailed Breakdown</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          handleExportSummaryCSV();
+                          setSummaryMenuOpen(false);
+                        }}
+                      >
+                        <Download size={14} className="tf-popover-icon green" />
+                        <span>Export Summary (CSV)</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          handleExportSummaryJSON();
+                          setSummaryMenuOpen(false);
+                        }}
+                      >
+                        <FileText size={14} className="tf-popover-icon purple" />
+                        <span>Export Report (JSON)</span>
+                      </button>
+
+                      <div className="tf-proj-popover-divider" />
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveFilter("Active");
+                          setSummaryMenuOpen(false);
+                          showToast(`Showing Active Projects (${stats.active})`);
+                        }}
+                      >
+                        <span className="tf-proj-menu-dot green" />
+                        <span>View Active (${stats.active})</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveFilter("On Hold");
+                          setSummaryMenuOpen(false);
+                          showToast(`Showing On Hold Projects (${stats.onHold})`);
+                        }}
+                      >
+                        <span className="tf-proj-menu-dot orange" />
+                        <span>View On Hold (${stats.onHold})</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveFilter("Completed");
+                          setSummaryMenuOpen(false);
+                          showToast(`Showing Completed Projects (${stats.completed})`);
+                        }}
+                      >
+                        <span className="tf-proj-menu-dot purple" />
+                        <span>View Completed (${stats.completed})</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveFilter("All");
+                          setSummaryMenuOpen(false);
+                          showToast(`Showing All Projects (${stats.total})`);
+                        }}
+                      >
+                        <Folder size={14} className="tf-popover-icon slate" />
+                        <span>View All (${stats.total})</span>
+                      </button>
+
+                      <div className="tf-proj-popover-divider" />
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSummaryMenuOpen(false);
+                          showToast("Project metrics and completion rates synchronized!");
+                        }}
+                      >
+                        <Zap size={14} className="tf-popover-icon amber" />
+                        <span>Recalculate & Sync</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* Donut Chart with Center Number */}
@@ -1120,7 +1328,7 @@ function Projects() {
                   <h2>Recent Project Activity</h2>
                 </div>
 
-                <Link to="/employee/settings?tab=activity" className="tf-proj-view-all-link">
+                <Link to="/employee/activity" className="tf-proj-view-all-link">
                   View all <ArrowRight size={14} />
                 </Link>
               </div>
@@ -1219,8 +1427,11 @@ function Projects() {
                   <div className="tf-proj-modal-members">
                     {(selectedProject?.members || []).map((m, idx) => (
                       <div key={m?.id || idx} className="tf-proj-modal-member-pill">
-                        <img src={m?.avatar || memberAvatars[idx % memberAvatars.length]} alt={m?.name || "Member"} />
-                        <span>{m?.name || "Member"}</span>
+                        <img
+                          src={idx === 0 || m?.name?.includes("You") ? (profile.photo || DEFAULT_AVATAR) : (m?.avatar || memberAvatars[idx % memberAvatars.length])}
+                          alt={m?.name || "Member"}
+                        />
+                        <span>{idx === 0 || m?.name?.includes("You") ? `${profile.fullName || "John Doe"} (You)` : (m?.name || "Member")}</span>
                       </div>
                     ))}
                   </div>
@@ -1241,6 +1452,177 @@ function Projects() {
           </div>
         )}
       </div>
+
+        {/* Modal: My Projects Summary Breakdown Modal */}
+        {summaryModalOpen && (
+          <div
+            className="tf-modal-backdrop"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) setSummaryModalOpen(false);
+            }}
+          >
+            <div className="tf-modal-card tf-proj-breakdown-modal" role="dialog" aria-modal="true">
+              <div className="tf-modal-header">
+                <div className="tf-modal-title-group">
+                  <div className="tf-modal-icon-box purple">
+                    <PieChartIcon size={20} />
+                  </div>
+                  <div>
+                    <h3>My Projects Summary Breakdown</h3>
+                    <p>Real-time portfolio metrics, status velocity, and completion rates</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  className="tf-modal-close"
+                  onClick={() => setSummaryModalOpen(false)}
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              <div className="tf-proj-modal-body">
+                {/* 4 KPI Summary Cards */}
+                <div className="tf-proj-breakdown-kpi-grid">
+                  <div className="tf-proj-bk-card purple">
+                    <span className="tf-proj-bk-label">Completed Rate</span>
+                    <strong>{completedPercent}%</strong>
+                    <small>{stats.completed} of {stats.total} projects completed</small>
+                  </div>
+                  <div className="tf-proj-bk-card green">
+                    <span className="tf-proj-bk-label">Active Projects</span>
+                    <strong>{stats.active}</strong>
+                    <small>{activePercent}% in active development</small>
+                  </div>
+                  <div className="tf-proj-bk-card orange">
+                    <span className="tf-proj-bk-label">On Hold</span>
+                    <strong>{stats.onHold}</strong>
+                    <small>{onHoldPercent}% awaiting review or blocked</small>
+                  </div>
+                  <div className="tf-proj-bk-card blue">
+                    <span className="tf-proj-bk-label">Average Progress</span>
+                    <strong>{avgProgress}%</strong>
+                    <small>Overall completion across all projects</small>
+                  </div>
+                </div>
+
+                {/* Progress Distribution Meters */}
+                <div className="tf-proj-breakdown-section">
+                  <h4 className="tf-proj-breakdown-section-title">Portfolio Status Distribution</h4>
+                  <div className="tf-proj-meter-list">
+                    <div className="tf-proj-meter-row">
+                      <div className="tf-proj-meter-info">
+                        <span className="tf-proj-meter-name">
+                          <span className="tf-proj-meter-dot green" />
+                          Active Projects
+                        </span>
+                        <span className="tf-proj-meter-val">{stats.active} ({activePercent}%)</span>
+                      </div>
+                      <div className="tf-proj-meter-track">
+                        <div className="tf-proj-meter-fill green" style={{ width: `${activePercent}%` }} />
+                      </div>
+                    </div>
+
+                    <div className="tf-proj-meter-row">
+                      <div className="tf-proj-meter-info">
+                        <span className="tf-proj-meter-name">
+                          <span className="tf-proj-meter-dot orange" />
+                          On Hold Projects
+                        </span>
+                        <span className="tf-proj-meter-val">{stats.onHold} ({onHoldPercent}%)</span>
+                      </div>
+                      <div className="tf-proj-meter-track">
+                        <div className="tf-proj-meter-fill orange" style={{ width: `${onHoldPercent}%` }} />
+                      </div>
+                    </div>
+
+                    <div className="tf-proj-meter-row">
+                      <div className="tf-proj-meter-info">
+                        <span className="tf-proj-meter-name">
+                          <span className="tf-proj-meter-dot purple" />
+                          Completed Projects
+                        </span>
+                        <span className="tf-proj-meter-val">{stats.completed} ({completedPercent}%)</span>
+                      </div>
+                      <div className="tf-proj-meter-track">
+                        <div className="tf-proj-meter-fill purple" style={{ width: `${completedPercent}%` }} />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Individual Projects Matrix */}
+                <div className="tf-proj-breakdown-section">
+                  <h4 className="tf-proj-breakdown-section-title">Project Completion Matrix</h4>
+                  <div className="tf-proj-breakdown-table-wrap">
+                    <table className="tf-proj-breakdown-table">
+                      <thead>
+                        <tr>
+                          <th>Project</th>
+                          <th>Status</th>
+                          <th>Progress</th>
+                          <th>Team</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {projects.map((p) => (
+                          <tr key={p.id}>
+                            <td>
+                              <div className="tf-proj-bk-name-col">
+                                <strong>{p.name}</strong>
+                                <span>{p.category} • {p.dateRange}</span>
+                              </div>
+                            </td>
+                            <td>
+                              <span className={`tf-proj-status-badge ${(p.status || "Active").toLowerCase().replace(" ", "-")}`}>
+                                {p.status}
+                              </span>
+                            </td>
+                            <td>
+                              <div className="tf-proj-bk-prog-wrap">
+                                <div className="tf-proj-progress-track small">
+                                  <div
+                                    className={`tf-proj-progress-fill ${p.barColor || "green"}`}
+                                    style={{ width: `${p.progress || 0}%` }}
+                                  />
+                                </div>
+                                <span className="tf-proj-bk-prog-pct">{p.progress || 0}%</span>
+                              </div>
+                            </td>
+                            <td>
+                              <span className="tf-proj-bk-team-tag">{p.teamSize || "Team"}</span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+              <div className="tf-modal-actions space-between">
+                <button
+                  type="button"
+                  className="tf-btn-secondary"
+                  onClick={() => setSummaryModalOpen(false)}
+                >
+                  Close
+                </button>
+                <button
+                  type="button"
+                  className="tf-btn-primary"
+                  onClick={() => {
+                    handleExportSummaryCSV();
+                    setSummaryModalOpen(false);
+                  }}
+                >
+                  <Download size={14} />
+                  <span>Export Summary (CSV)</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
     </EmployeeShell>
   );
 }

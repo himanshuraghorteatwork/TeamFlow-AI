@@ -1994,3 +1994,318 @@
   background: #0F172A;
   border-color: #334155;
 }
+
+
+/* ==========================================================================
+   TASK PROGRESS VERTICAL ELLIPSIS POPOVER MENU & BREAKDOWN MODAL
+   ========================================================================== */
+.employee-shell .tf-widget-action-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.employee-shell .tf-widget-more-btn.active {
+  color: #0F172A;
+  background: #F1F5F9;
+}
+
+.employee-shell.tf-dark .tf-widget-more-btn.active,
+[data-theme="dark"] .employee-shell .tf-widget-more-btn.active {
+  color: #F8FAFC;
+  background: #334155;
+}
+
+.employee-shell .tf-progress-menu-popover {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  min-width: 215px;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 10px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+  z-index: 100;
+  padding: 6px;
+  animation: tfPopIn 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.employee-shell.tf-dark .tf-progress-menu-popover,
+[data-theme="dark"] .employee-shell .tf-progress-menu-popover {
+  background: #1E293B;
+  border-color: #334155;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+}
+
+.employee-shell .tf-progress-menu-popover button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #334155;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.12s ease;
+  text-align: left;
+}
+
+.employee-shell .tf-progress-menu-popover button:hover {
+  background: #F1F5F9;
+  color: #0F172A;
+}
+
+.employee-shell.tf-dark .tf-progress-menu-popover button,
+[data-theme="dark"] .employee-shell .tf-progress-menu-popover button {
+  color: #CBD5E1;
+}
+
+.employee-shell.tf-dark .tf-progress-menu-popover button:hover,
+[data-theme="dark"] .employee-shell .tf-progress-menu-popover button:hover {
+  background: #334155;
+  color: #FFFFFF;
+}
+
+.employee-shell .tf-popover-divider {
+  height: 1px;
+  background: #E2E8F0;
+  margin: 4px 6px;
+}
+
+.employee-shell.tf-dark .tf-popover-divider,
+[data-theme="dark"] .employee-shell .tf-popover-divider {
+  background: #334155;
+}
+
+.employee-shell .tf-popover-icon.blue {
+  color: #2563EB;
+}
+.employee-shell .tf-popover-icon.green {
+  color: #10B981;
+}
+.employee-shell .tf-popover-icon.slate {
+  color: #64748B;
+}
+
+/* Modal styling for breakdown */
+.employee-shell .tf-progress-breakdown-modal {
+  width: 100%;
+  max-width: 580px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.employee-shell .tf-breakdown-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.employee-shell .tf-bk-card {
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.employee-shell.tf-dark .tf-bk-card,
+[data-theme="dark"] .employee-shell .tf-bk-card {
+  background: #0F172A;
+  border-color: #334155;
+}
+
+.employee-shell .tf-bk-card.green {
+  border-left: 4px solid #10B981;
+}
+.employee-shell .tf-bk-card.blue {
+  border-left: 4px solid #3B82F6;
+}
+.employee-shell .tf-bk-card.gray {
+  border-left: 4px solid #94A3B8;
+}
+.employee-shell .tf-bk-card.red {
+  border-left: 4px solid #EF4444;
+}
+
+.employee-shell .tf-bk-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #64748B;
+  letter-spacing: 0.04em;
+}
+
+.employee-shell.tf-dark .tf-bk-label,
+[data-theme="dark"] .employee-shell .tf-bk-label {
+  color: #94A3B8;
+}
+
+.employee-shell .tf-bk-card strong {
+  font-size: 20px;
+  font-weight: 700;
+  color: #0F172A;
+}
+
+.employee-shell.tf-dark .tf-bk-card strong,
+[data-theme="dark"] .employee-shell .tf-bk-card strong {
+  color: #F8FAFC;
+}
+
+.employee-shell .tf-bk-card small {
+  font-size: 11px;
+  color: #64748B;
+}
+
+.employee-shell .tf-bk-section {
+  margin-bottom: 20px;
+}
+
+.employee-shell .tf-bk-section h4 {
+  margin: 0 0 10px 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: #0F172A;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.employee-shell.tf-dark .tf-bk-section h4,
+[data-theme="dark"] .employee-shell .tf-bk-section h4 {
+  color: #F8FAFC;
+}
+
+.employee-shell .tf-priority-bars-list,
+.employee-shell .tf-project-dist-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.employee-shell .tf-priority-bar-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.employee-shell .tf-pbar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  color: #334155;
+  font-weight: 500;
+}
+
+.employee-shell.tf-dark .tf-pbar-header,
+[data-theme="dark"] .employee-shell .tf-pbar-header {
+  color: #CBD5E1;
+}
+
+.employee-shell .tf-pbar-track {
+  height: 7px;
+  background: #F1F5F9;
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.employee-shell.tf-dark .tf-pbar-track,
+[data-theme="dark"] .employee-shell .tf-pbar-track {
+  background: #334155;
+}
+
+.employee-shell .tf-pbar-fill {
+  height: 100%;
+  border-radius: 9999px;
+  transition: width 0.3s ease;
+}
+
+.employee-shell .tf-pbar-fill.red {
+  background: #EF4444;
+}
+.employee-shell .tf-pbar-fill.orange {
+  background: #F59E0B;
+}
+.employee-shell .tf-pbar-fill.blue {
+  background: #3B82F6;
+}
+
+.employee-shell .tf-proj-dist-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+}
+
+.employee-shell.tf-dark .tf-proj-dist-row,
+[data-theme="dark"] .employee-shell .tf-proj-dist-row {
+  background: #0F172A;
+  border-color: #334155;
+}
+
+.employee-shell .tf-pdist-left {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 140px;
+}
+
+.employee-shell .tf-pdist-left strong {
+  font-size: 12.5px;
+  color: #0F172A;
+}
+
+.employee-shell.tf-dark .tf-pdist-left strong,
+[data-theme="dark"] .employee-shell .tf-pdist-left strong {
+  color: #F8FAFC;
+}
+
+.employee-shell .tf-pdist-left span {
+  font-size: 11px;
+  color: #64748B;
+}
+
+.employee-shell .tf-pdist-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+}
+
+.employee-shell .tf-pdist-track {
+  flex: 1;
+  height: 6px;
+  background: #E2E8F0;
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.employee-shell.tf-dark .tf-pdist-track,
+[data-theme="dark"] .employee-shell .tf-pdist-track {
+  background: #334155;
+}
+
+.employee-shell .tf-pdist-fill {
+  height: 100%;
+  background: #10B981;
+  border-radius: 9999px;
+}
+
+.employee-shell .tf-pdist-pct {
+  font-size: 12px;
+  font-weight: 700;
+  color: #10B981;
+  min-width: 34px;
+  text-align: right;
+}

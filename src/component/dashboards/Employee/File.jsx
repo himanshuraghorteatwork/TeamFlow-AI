@@ -31,7 +31,7 @@ import {
 } from "lucide-react";
 
 import EmployeeShell from "./EmployeeShell";
-import { getEmployeeProfile } from "./EmployeeAuth";
+import { getEmployeeProfile, DEFAULT_AVATAR } from "./EmployeeAuth";
 import "./File.css";
 
 /* In-Memory Store for Real File Blobs uploaded during session */
@@ -540,6 +540,17 @@ const defaultFolders = [
 ];
 
 function File() {
+  const [profile, setProfile] = useState(getEmployeeProfile);
+
+  useEffect(() => {
+    const handleSync = () => setProfile(getEmployeeProfile());
+    window.addEventListener("storage", handleSync);
+    window.addEventListener("tf_profile_updated", handleSync);
+    return () => {
+      window.removeEventListener("storage", handleSync);
+      window.removeEventListener("tf_profile_updated", handleSync);
+    };
+  }, []);
   // Load files from localStorage
   const [files, setFiles] = useState(() => {
     try {
@@ -1176,7 +1187,7 @@ Generated and downloaded in real time from TeamFlow AI.
       <div className="tf-files-page">
         {/* Toast */}
         {toastMessage && (
-          <div className="tf-files-toast">
+          <div className="tf-emp-files-toast">
             <Check size={16} />
             <span>{toastMessage}</span>
           </div>
@@ -1234,7 +1245,6 @@ Generated and downloaded in real time from TeamFlow AI.
             className="tf-files-kpi-card"
             onClick={() => {
               setUploaderFilter("You");
-              showToast("Filtered by your uploads");
             }}
           >
             <div className="tf-kpi-icon-box green">
@@ -1609,12 +1619,12 @@ Generated and downloaded in real time from TeamFlow AI.
                             <td className="td-uploader">
                               <div className="tf-uploader-cell">
                                 <img
-                                  src={file.uploaderAvatar}
-                                  alt={file.uploader}
+                                  src={file.isCurrentUser ? (profile.photo || DEFAULT_AVATAR) : file.uploaderAvatar}
+                                  alt={file.isCurrentUser ? (profile.fullName || "John Doe") : file.uploader}
                                   className="tf-uploader-avatar"
                                 />
                                 <div className="tf-uploader-texts">
-                                  <span className="tf-uploader-name">{file.uploader}</span>
+                                  <span className="tf-uploader-name">{file.isCurrentUser ? (profile.fullName || "John Doe") : file.uploader}</span>
                                   {file.isCurrentUser && (
                                     <span className="tf-uploader-you">You</span>
                                   )}
@@ -1836,7 +1846,6 @@ Generated and downloaded in real time from TeamFlow AI.
                   className="tf-side-card-link"
                   onClick={() => {
                     setTypePillFilter("All");
-                    showToast("Showing all files.");
                   }}
                 >
                   View all <ChevronRight size={13} />
@@ -1940,10 +1949,8 @@ Generated and downloaded in real time from TeamFlow AI.
                       onClick={() => {
                         if (isActive) {
                           setActiveFolderFilter(null);
-                          showToast("Cleared folder filter");
                         } else {
                           setActiveFolderFilter(fol.name);
-                          showToast(`Filtered by folder: ${fol.name}`);
                         }
                       }}
                     >
