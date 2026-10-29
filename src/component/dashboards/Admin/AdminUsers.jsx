@@ -51,6 +51,18 @@ const DEFAULT_WORKSPACES = [
 
 const DEFAULT_ROLES = ["Admin", "Team Lead", "Member", "Viewer"];
 
+const DEFAULT_DEPARTMENTS = [
+  "Engineering",
+  "Design",
+  "Product",
+  "Marketing",
+  "Sales",
+  "Operations",
+  "Finance",
+  "Human Resources",
+  "Customer Support",
+];
+
 const loadUsers = () => {
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
@@ -96,7 +108,7 @@ export default function AdminUsers() {
     workspace: "TeamFlow Workspace",
     department: "Engineering",
     status: "Active",
-    phone: "+1 (555) 019-2834",
+    phone: "",
   });
 
   // Toast auto-dismiss
@@ -234,7 +246,7 @@ export default function AdminUsers() {
       workspace: "TeamFlow Workspace",
       department: "Engineering",
       status: "Active",
-      phone: "+1 (555) " + Math.floor(100 + Math.random() * 900) + "-" + Math.floor(1000 + Math.random() * 9000),
+      phone: "",
     });
     setOpenMenu(null);
     setShowModal(true);
@@ -292,6 +304,7 @@ export default function AdminUsers() {
       const newUser = {
         id: Date.now(),
         ...form,
+        phone: form.phone.trim() || "+1 (555) 019-2834",
         initials,
         joined: new Date().toLocaleDateString("en-US", {
           month: "short",
@@ -308,10 +321,12 @@ export default function AdminUsers() {
 
   const deleteUser = (id, userName) => {
     setOpenMenu(null);
+    const targetUser = usersList.find((u) => u.id === id);
     setConfirmDelete({
       type: "single",
       id,
-      name: userName || "this user",
+      name: userName || targetUser?.name || "this user",
+      user: targetUser,
     });
   };
 
@@ -913,72 +928,74 @@ export default function AdminUsers() {
               )}
             </div>
 
-            {/* PAGINATION BAR */}
-            <div className="admin-users-pagination-bar">
-              <div className="admin-users-per-page">
-                <label>Rows per page:</label>
-                <select
-                  value={perPage}
-                  onChange={(e) => {
-                    setPerPage(Number(e.target.value));
-                    setCurrentPage(1);
-                  }}
-                  className="per-page-select"
-                >
-                  <option value={5}>5</option>
-                  <option value={8}>8</option>
-                  <option value={10}>10</option>
-                  <option value={20}>20</option>
-                  <option value={50}>50</option>
-                </select>
-              </div>
-
-              <div className="admin-users-page-info">
-                Showing {filteredUsers.length === 0 ? 0 : (currentPage - 1) * perPage + 1} -{" "}
-                {Math.min(currentPage * perPage, filteredUsers.length)} of {filteredUsers.length} users
-              </div>
-
-              <div className="admin-users-pagination-nav">
-                <button
-                  type="button"
-                  className="page-nav-btn"
-                  disabled={currentPage <= 1}
-                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                  title="Previous Page"
-                >
-                  <ChevronLeft size={15} />
-                  <span>Prev</span>
-                </button>
-
-                <div className="page-numbers">
-                  {Array.from({ length: totalPages }, (_, i) => i + 1)
-                    .filter((p) => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1)
-                    .map((p, i, arr) => (
-                      <React.Fragment key={p}>
-                        {i > 0 && p - arr[i - 1] > 1 && <span className="page-ellipsis">…</span>}
-                        <button
-                          type="button"
-                          className={`page-num-btn ${currentPage === p ? "active" : ""}`}
-                          onClick={() => setCurrentPage(p)}
-                        >
-                          {p}
-                        </button>
-                      </React.Fragment>
-                    ))}
+            {/* TABLE FOOTER / PAGINATION BAR (Matching Workspace, Tasks, Projects & Bugs) */}
+            {filteredUsers.length > 0 && (
+              <div className="ws-pagination-bar bp-pagination-bar admin-users-pagination-bar">
+                <div className="ws-pagination-info bp-pagination-info">
+                  <span>
+                    Showing {(currentPage - 1) * perPage + 1} to{" "}
+                    {Math.min(currentPage * perPage, filteredUsers.length)} of {filteredUsers.length} users
+                  </span>
+                  <div className="ws-page-size-wrap bp-page-size-wrap">
+                    <span>Rows per page:</span>
+                    <select
+                      value={perPage}
+                      onChange={(e) => {
+                        setPerPage(Number(e.target.value));
+                        setCurrentPage(1);
+                      }}
+                    >
+                      <option value={5}>5</option>
+                      <option value={8}>8</option>
+                      <option value={10}>10</option>
+                      <option value={20}>20</option>
+                      <option value={50}>50</option>
+                    </select>
+                  </div>
                 </div>
 
-                <button
-                  type="button"
-                  className="page-nav-btn"
-                  disabled={currentPage >= totalPages}
-                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                  title="Next Page"
-                >
-                  <span>Next</span>
-                  <ChevronRight size={15} />
-                </button>
+                <div className="ws-pagination-controls bp-pagination-controls">
+                  <button
+                    type="button"
+                    className="ws-page-nav-btn bp-page-nav-btn"
+                    disabled={currentPage <= 1}
+                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  >
+                    Previous
+                  </button>
+
+                  <div className="ws-page-pills bp-page-pills">
+                    {Array.from({ length: totalPages }, (_, i) => i + 1)
+                      .filter((p) => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1)
+                      .map((p, i, arr) => (
+                        <React.Fragment key={p}>
+                          {i > 0 && p - arr[i - 1] > 1 && (
+                            <span className="ws-page-ellipsis bp-page-ellipsis">…</span>
+                          )}
+                          <button
+                            type="button"
+                            className={`ws-page-num-pill bp-page-num-pill ${
+                              currentPage === p ? "active" : ""
+                            }`}
+                            onClick={() => setCurrentPage(p)}
+                          >
+                            {p}
+                          </button>
+                        </React.Fragment>
+                      ))}
+                  </div>
+
+                  <button
+                    type="button"
+                    className="ws-page-nav-btn bp-page-nav-btn"
+                    disabled={currentPage >= totalPages}
+                    onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                  >
+                    Next
+                  </button>
+                </div>
               </div>
-            </div>
+            )}
           </section>
         </main>
       </div>
@@ -1093,15 +1110,17 @@ export default function AdminUsers() {
 
                 <div className="admin-users-form-group">
                   <label>Department</label>
-                  <div className="admin-users-input">
-                    <Briefcase size={17} />
-                    <input
-                      name="department"
-                      value={form.department}
-                      onChange={handleFormChange}
-                      placeholder="e.g. Engineering"
-                    />
-                  </div>
+                  <select
+                    name="department"
+                    value={form.department}
+                    onChange={handleFormChange}
+                  >
+                    {DEFAULT_DEPARTMENTS.map((dept) => (
+                      <option key={dept} value={dept}>
+                        {dept}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
 
@@ -1113,7 +1132,7 @@ export default function AdminUsers() {
                     name="phone"
                     value={form.phone}
                     onChange={handleFormChange}
-                    placeholder="+1 (555) 000-0000"
+                    placeholder="e.g. +1 (555) 019-2834"
                   />
                 </div>
               </div>
@@ -1259,6 +1278,7 @@ export default function AdminUsers() {
                     type: "single",
                     id: targetUser.id,
                     name: targetUser.name,
+                    user: targetUser,
                   });
                 }}
               >
@@ -1289,33 +1309,114 @@ export default function AdminUsers() {
         </div>
       )}
 
-      {/* DELETE / RESET CONFIRMATION MODAL (ZERO JS ALERTS) */}
+      {/* DELETE / RESET CONFIRMATION MODAL (USER FRIENDLY & ACCESSIBLE) */}
       {confirmDelete && (
         <div
           className="admin-users-modal-overlay"
-          onMouseDown={(e) => {
-            if (e.target === e.currentTarget) setConfirmDelete(null);
-          }}
+          onClick={() => setConfirmDelete(null)}
+          role="presentation"
         >
-          <div className="admin-users-modal sm delete-confirm-modal" role="dialog" aria-modal="true">
-            <div className="delete-modal-icon-wrap">
-              <Trash2 size={24} />
+          <div
+            className="admin-users-modal delete-confirm-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="delete-user-modal-title"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="modal-header delete-modal-header">
+              <div className="delete-modal-icon-badge">
+                <Trash2 size={20} />
+              </div>
+              <div className="delete-modal-header-text">
+                <h3 id="delete-user-modal-title">
+                  {confirmDelete.type === "single"
+                    ? "Delete User Account?"
+                    : confirmDelete.type === "bulk"
+                    ? `Delete ${confirmDelete.count} Users?`
+                    : "Reset to Demo Users?"}
+                </h3>
+                <span className="delete-modal-subtitle">
+                  {confirmDelete.type === "single"
+                    ? `User ID: #${confirmDelete.id || (confirmDelete.user && confirmDelete.user.id) || "—"} • Permanent Administrative Action`
+                    : confirmDelete.type === "bulk"
+                    ? `Batch Deletion of ${confirmDelete.count} Selected Accounts`
+                    : "Administrative Database Restore"}
+                </span>
+              </div>
+              <button
+                type="button"
+                className="modal-close-btn"
+                onClick={() => setConfirmDelete(null)}
+                aria-label="Close dialog"
+              >
+                <X size={18} />
+              </button>
             </div>
-            <h2>
-              {confirmDelete.type === "single"
-                ? "Delete User Account?"
-                : confirmDelete.type === "bulk"
-                ? `Delete ${confirmDelete.count} Users?`
-                : "Reset to Demo Users?"}
-            </h2>
-            <p>
-              {confirmDelete.type === "single"
-                ? `Are you sure you want to permanently delete user "${confirmDelete.name}"? All assigned roles, workspaces, and permissions will be removed.`
-                : confirmDelete.type === "bulk"
-                ? `Are you sure you want to permanently delete ${confirmDelete.count} selected users? This action cannot be undone.`
-                : "Are you sure you want to restore default demo users? Any newly created users and role adjustments will be overwritten."}
-            </p>
-            <div className="modal-actions delete-modal-actions">
+
+            {/* Modal Body */}
+            <div className="modal-body delete-modal-body">
+              <p className="delete-modal-lead">
+                {confirmDelete.type === "single"
+                  ? `Are you sure you want to permanently delete user "${confirmDelete.name}"? All assigned roles, workspaces, and permissions will be removed.`
+                  : confirmDelete.type === "bulk"
+                  ? `Are you sure you want to permanently delete ${confirmDelete.count} selected users? This action cannot be undone.`
+                  : "Are you sure you want to restore default demo users? Any newly created users and role adjustments will be overwritten."}
+              </p>
+
+              {/* Single User Preview Card */}
+              {confirmDelete.type === "single" && (
+                (() => {
+                  const u = confirmDelete.user || usersList.find((x) => x.id === confirmDelete.id) || {};
+                  return (
+                    <div className="delete-user-preview-card">
+                      <div className="preview-user-avatar">
+                        {u.initials || (u.name || confirmDelete.name || "U").slice(0, 2).toUpperCase()}
+                      </div>
+                      <div className="preview-user-info">
+                        <div className="preview-user-top">
+                          <strong className="preview-user-name">{u.name || confirmDelete.name}</strong>
+                          {u.status && (
+                            <span className={`preview-status-pill status-${(u.status || "active").toLowerCase()}`}>
+                              <span className="status-dot" />
+                              {u.status}
+                            </span>
+                          )}
+                        </div>
+                        <span className="preview-user-email">{u.email || "No email assigned"}</span>
+                        <div className="preview-user-chips">
+                          {u.role && (
+                            <span className="preview-chip role">
+                              <Shield size={11} /> {u.role}
+                            </span>
+                          )}
+                          {u.workspace && (
+                            <span className="preview-chip workspace">
+                              <Building2 size={11} /> {u.workspace}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })()
+              )}
+
+              {/* Warning Alert Banner */}
+              <div className="delete-modal-alert">
+                <AlertCircle size={16} />
+                <span>
+                  {confirmDelete.type === "single"
+                    ? "Warning: This action is permanent and cannot be undone. User authentication sessions and security keys will be revoked immediately."
+                    : confirmDelete.type === "bulk"
+                    ? "Warning: All selected accounts and their workspace permissions will be permanently expunged."
+                    : "Warning: All current user modifications will be replaced by the default template accounts."}
+                </span>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="modal-footer delete-modal-footer">
               <button
                 type="button"
                 className="btn-cancel"
@@ -1328,7 +1429,14 @@ export default function AdminUsers() {
                 className="btn-danger"
                 onClick={handleConfirmDeleteExecution}
               >
-                {confirmDelete.type === "reset" ? "Reset to Demo" : "Delete User"}
+                <Trash2 size={15} />
+                <span>
+                  {confirmDelete.type === "reset"
+                    ? "Reset to Demo"
+                    : confirmDelete.type === "bulk"
+                    ? `Delete ${confirmDelete.count} Users`
+                    : "Delete User"}
+                </span>
               </button>
             </div>
           </div>

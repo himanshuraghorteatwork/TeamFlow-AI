@@ -879,6 +879,106 @@ export default function AdminRoles() {
     return accessLogs.slice(start, start + logsPageSize);
   }, [accessLogs, logsPage, logsPageSize]);
 
+  // Activity Logs Style Pagination Helper (Zero Extra Spacing)
+  const renderPagination = (
+    currentPage,
+    setCurrentPage,
+    pageSize,
+    setPageSize,
+    totalItems,
+    itemLabel,
+    isTableFooter = false,
+    sizeOptions = [5, 10, 20]
+  ) => {
+    if (totalItems === 0) return null;
+    const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
+    const safePage = Math.min(currentPage, totalPages);
+
+    const getPageNumbers = () => {
+      if (totalPages <= 7) {
+        return Array.from({ length: totalPages }, (_, i) => i + 1);
+      }
+      if (safePage <= 4) {
+        return [1, 2, 3, 4, 5, "...", totalPages];
+      }
+      if (safePage >= totalPages - 3) {
+        return [1, "...", totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+      }
+      return [1, "...", safePage - 1, safePage, safePage + 1, "...", totalPages];
+    };
+
+    return (
+      <div
+        className={`admin-logs-pagination-bar rp-pagination-bar ws-pagination-bar ${
+          isTableFooter ? "rp-pagination-table-footer" : ""
+        }`}
+      >
+        <div className="admin-logs-pagination-info rp-pagination-info ws-pagination-info">
+          <span>
+            Showing {(safePage - 1) * pageSize + 1} to{" "}
+            {Math.min(safePage * pageSize, totalItems)} of {totalItems} {itemLabel}
+          </span>
+          <div className="admin-logs-page-size-wrap rp-page-size-wrap ws-page-size-wrap">
+            <span>{itemLabel.charAt(0).toUpperCase() + itemLabel.slice(1)} per page:</span>
+            <select
+              value={pageSize}
+              onChange={(e) => {
+                setPageSize(Number(e.target.value));
+                setCurrentPage(1);
+              }}
+              aria-label={`${itemLabel} per page`}
+            >
+              {sizeOptions.map((opt) => (
+                <option key={opt} value={opt}>
+                  {opt}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        <div className="admin-logs-pagination-controls rp-pagination-controls ws-pagination-controls">
+          <button
+            type="button"
+            className="admin-logs-page-nav-btn rp-page-nav-btn ws-page-nav-btn"
+            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+            disabled={safePage <= 1}
+          >
+            Previous
+          </button>
+          <div className="admin-logs-page-pills rp-page-pills ws-page-pills">
+            {getPageNumbers().map((num, idx) =>
+              num === "..." ? (
+                <span key={`ellipsis-${idx}`} className="admin-logs-page-ellipsis rp-page-ellipsis">
+                  ...
+                </span>
+              ) : (
+                <button
+                  key={num}
+                  type="button"
+                  className={`admin-logs-page-num-pill rp-page-num-pill ws-page-num-pill ${
+                    safePage === num ? "active" : ""
+                  }`}
+                  onClick={() => setCurrentPage(num)}
+                >
+                  {num}
+                </button>
+              )
+            )}
+          </div>
+          <button
+            type="button"
+            className="admin-logs-page-nav-btn rp-page-nav-btn ws-page-nav-btn"
+            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+            disabled={safePage >= totalPages}
+          >
+            Next
+          </button>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="tfAdminRoles rolesPermissionsCardPage">
       {/* SIDEBAR */}
@@ -1300,63 +1400,8 @@ export default function AdminRoles() {
                   )}
                 </div>
 
-                {/* MODULES PAGINATION BAR (Matching Workspace & Users) */}
-                {filteredModules.length > 0 && (
-                  <div className="ws-pagination-bar rp-pagination-bar">
-                    <div className="ws-pagination-info rp-pagination-info">
-                      <span>
-                        Showing {filteredModules.length === 0 ? 0 : (modulesPage - 1) * modulesPageSize + 1} to{" "}
-                        {Math.min(modulesPage * modulesPageSize, filteredModules.length)} of {filteredModules.length} modules
-                      </span>
-                      <div className="ws-page-size-wrap rp-page-size-wrap">
-                        <span>Modules per page:</span>
-                        <select
-                          value={modulesPageSize}
-                          onChange={(e) => {
-                            setModulesPageSize(Number(e.target.value));
-                            setModulesPage(1);
-                          }}
-                        >
-                          <option value={4}>4</option>
-                          <option value={6}>6</option>
-                          <option value={8}>8</option>
-                          <option value={12}>12</option>
-                        </select>
-                      </div>
-                    </div>
-
-                    <div className="ws-pagination-controls rp-pagination-controls">
-                      <button
-                        type="button"
-                        className="ws-page-nav-btn rp-page-nav-btn"
-                        onClick={() => setModulesPage((p) => Math.max(1, p - 1))}
-                        disabled={modulesPage <= 1}
-                      >
-                        Previous
-                      </button>
-                      <div className="ws-page-pills rp-page-pills">
-                        {Array.from({ length: totalModulePages }, (_, i) => i + 1).map((num) => (
-                          <button
-                            key={num}
-                            type="button"
-                            className={`ws-page-num-pill rp-page-num-pill ${modulesPage === num ? "active" : ""}`}
-                            onClick={() => setModulesPage(num)}
-                          >
-                            {num}
-                          </button>
-                        ))}
-                      </div>
-                      <button
-                        type="button"
-                        className="ws-page-nav-btn rp-page-nav-btn"
-                        onClick={() => setModulesPage((p) => Math.min(totalModulePages, p + 1))}
-                        disabled={modulesPage >= totalModulePages}
-                      >
-                        Next
-                      </button>
-                    </div>
-                  </div>
-                )}
+                {/* MODULES PAGINATION BAR (Activity Logs Style, zero-space flush layout) */}
+                {renderPagination(modulesPage, setModulesPage, modulesPageSize, setModulesPageSize, filteredModules.length, "modules", false, [4, 6, 8, 12])}
               </div>
 
               {/* RIGHT COLUMN: ROLE DETAILS SIDEBAR (Exact match to reference design) */}
@@ -1551,7 +1596,7 @@ export default function AdminRoles() {
           {/* TAB 2: ASSIGNED USERS */}
           {activeTab === "users" && (
             <div className="rp-tab-pane">
-              <div className="rp-tab-card">
+              <div className="rp-tab-card rp-table-card">
                 <div className="rp-tab-card-header">
                   <div>
                     <h3>Users assigned to {selectedRole?.name}</h3>
@@ -1637,63 +1682,8 @@ export default function AdminRoles() {
                   </table>
                 </div>
 
-                {/* ASSIGNED USERS PAGINATION BAR (Matching Workspace & Users) */}
-                {roleAssignedUsers.length > 0 && (
-                  <div className="ws-pagination-bar rp-pagination-bar">
-                    <div className="ws-pagination-info rp-pagination-info">
-                      <span>
-                        Showing {roleAssignedUsers.length === 0 ? 0 : (usersPage - 1) * usersPageSize + 1} to{" "}
-                        {Math.min(usersPage * usersPageSize, roleAssignedUsers.length)} of {roleAssignedUsers.length} users
-                      </span>
-                      <div className="ws-page-size-wrap rp-page-size-wrap">
-                        <span>Rows per page:</span>
-                        <select
-                          value={usersPageSize}
-                          onChange={(e) => {
-                            setUsersPageSize(Number(e.target.value));
-                            setUsersPage(1);
-                          }}
-                        >
-                          <option value={5}>5</option>
-                          <option value={8}>8</option>
-                          <option value={10}>10</option>
-                          <option value={20}>20</option>
-                        </select>
-                      </div>
-                    </div>
-
-                    <div className="ws-pagination-controls rp-pagination-controls">
-                      <button
-                        type="button"
-                        className="ws-page-nav-btn rp-page-nav-btn"
-                        onClick={() => setUsersPage((p) => Math.max(1, p - 1))}
-                        disabled={usersPage <= 1}
-                      >
-                        Previous
-                      </button>
-                      <div className="ws-page-pills rp-page-pills">
-                        {Array.from({ length: totalUserPages }, (_, i) => i + 1).map((num) => (
-                          <button
-                            key={num}
-                            type="button"
-                            className={`ws-page-num-pill rp-page-num-pill ${usersPage === num ? "active" : ""}`}
-                            onClick={() => setUsersPage(num)}
-                          >
-                            {num}
-                          </button>
-                        ))}
-                      </div>
-                      <button
-                        type="button"
-                        className="ws-page-nav-btn rp-page-nav-btn"
-                        onClick={() => setUsersPage((p) => Math.min(totalUserPages, p + 1))}
-                        disabled={usersPage >= totalUserPages}
-                      >
-                        Next
-                      </button>
-                    </div>
-                  </div>
-                )}
+                {/* ASSIGNED USERS PAGINATION BAR (Activity Logs Style, zero-space flush layout) */}
+                {renderPagination(usersPage, setUsersPage, usersPageSize, setUsersPageSize, roleAssignedUsers.length, "users", true, [5, 8, 10, 20])}
               </div>
             </div>
           )}
@@ -1788,7 +1778,7 @@ export default function AdminRoles() {
           {/* TAB 4: ACCESS LOGS */}
           {activeTab === "logs" && (
             <div className="rp-tab-pane">
-              <div className="rp-tab-card">
+              <div className="rp-tab-card rp-table-card">
                 <div className="rp-tab-card-header">
                   <div>
                     <h3>RBAC Access & Audit Trail Logs</h3>
@@ -1842,63 +1832,8 @@ export default function AdminRoles() {
                   </table>
                 </div>
 
-                {/* AUDIT LOGS PAGINATION BAR (Matching Workspace & Users) */}
-                {accessLogs.length > 0 && (
-                  <div className="ws-pagination-bar rp-pagination-bar">
-                    <div className="ws-pagination-info rp-pagination-info">
-                      <span>
-                        Showing {accessLogs.length === 0 ? 0 : (logsPage - 1) * logsPageSize + 1} to{" "}
-                        {Math.min(logsPage * logsPageSize, accessLogs.length)} of {accessLogs.length} audit logs
-                      </span>
-                      <div className="ws-page-size-wrap rp-page-size-wrap">
-                        <span>Rows per page:</span>
-                        <select
-                          value={logsPageSize}
-                          onChange={(e) => {
-                            setLogsPageSize(Number(e.target.value));
-                            setLogsPage(1);
-                          }}
-                        >
-                          <option value={5}>5</option>
-                          <option value={8}>8</option>
-                          <option value={10}>10</option>
-                          <option value={20}>20</option>
-                        </select>
-                      </div>
-                    </div>
-
-                    <div className="ws-pagination-controls rp-pagination-controls">
-                      <button
-                        type="button"
-                        className="ws-page-nav-btn rp-page-nav-btn"
-                        onClick={() => setLogsPage((p) => Math.max(1, p - 1))}
-                        disabled={logsPage <= 1}
-                      >
-                        Previous
-                      </button>
-                      <div className="ws-page-pills rp-page-pills">
-                        {Array.from({ length: totalLogsPages }, (_, i) => i + 1).map((num) => (
-                          <button
-                            key={num}
-                            type="button"
-                            className={`ws-page-num-pill rp-page-num-pill ${logsPage === num ? "active" : ""}`}
-                            onClick={() => setLogsPage(num)}
-                          >
-                            {num}
-                          </button>
-                        ))}
-                      </div>
-                      <button
-                        type="button"
-                        className="ws-page-nav-btn rp-page-nav-btn"
-                        onClick={() => setLogsPage((p) => Math.min(totalLogsPages, p + 1))}
-                        disabled={logsPage >= totalLogsPages}
-                      >
-                        Next
-                      </button>
-                    </div>
-                  </div>
-                )}
+                {/* AUDIT LOGS PAGINATION BAR (Activity Logs Style, zero-space flush layout) */}
+                {renderPagination(logsPage, setLogsPage, logsPageSize, setLogsPageSize, accessLogs.length, "audit logs", true, [5, 8, 10, 20])}
               </div>
             </div>
           )}
@@ -2160,7 +2095,11 @@ export default function AdminRoles() {
                   ? (confirmAction.isCurrentlyGranted ? "Revoke Capability" : "Grant Capability")
                   : confirmAction.type === "reset-role" || confirmAction.type === "reset-all"
                   ? "Reset Defaults"
-                  : "Delete Role"}
+                  : (
+                    <>
+                      <Trash2 size={16} /> Delete Role
+                    </>
+                  )}
               </button>
             </div>
           </div>

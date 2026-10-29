@@ -856,12 +856,11 @@ export default function AdminInvoices() {
                           <div className="invoice-row-actions">
                             <button
                               type="button"
-                              className="inv-action-pill inv-view-btn"
+                              className="inv-action-icon inv-view-btn"
                               title="Preview Statement Receipt"
                               onClick={() => setSelectedInvoice(inv)}
                             >
-                              <Eye size={13} />
-                              <span>Preview</span>
+                              <Eye size={14} />
                             </button>
                             <button
                               type="button"
@@ -869,7 +868,7 @@ export default function AdminInvoices() {
                               title="Print Statement Receipt"
                               onClick={() => handlePrint(inv)}
                             >
-                              <Printer size={13} />
+                              <Printer size={14} />
                             </button>
                             <button
                               type="button"
@@ -878,7 +877,7 @@ export default function AdminInvoices() {
                               aria-label="Download in PDF format"
                               onClick={() => handleDownloadPDF(inv)}
                             >
-                              {downloadSuccess === inv.id ? <Check size={13} /> : <Download size={13} />}
+                              {downloadSuccess === inv.id ? <Check size={14} /> : <Download size={14} />}
                             </button>
                             <button
                               type="button"
@@ -886,7 +885,7 @@ export default function AdminInvoices() {
                               title="Cycle Status (Paid / Pending / Refunded)"
                               onClick={() => toggleInvoiceStatus(inv.id)}
                             >
-                              <Clock size={13} />
+                              <Clock size={14} />
                             </button>
                             <button
                               type="button"
@@ -894,7 +893,7 @@ export default function AdminInvoices() {
                               title="Delete Statement"
                               onClick={() => setInvoiceToDelete(inv)}
                             >
-                              <Trash2 size={13} />
+                              <Trash2 size={14} />
                             </button>
                           </div>
                         </td>

@@ -8,6 +8,7 @@ import {
   AlertTriangle,
   Search,
   Plus,
+  Minus,
   Filter,
   Download,
   RotateCcw,
@@ -38,14 +39,19 @@ import {
   ChevronRight,
   Database,
   Cpu,
+  Activity,
+  Info,
+  Eye,
 } from "lucide-react";
 
 import AdminSidebar from "./AdminSidebar.jsx";
 import AdminTopbar from "./AdminTopbar.jsx";
 import { initialAdminProjects } from "./adminProjectsData.js";
+import { initialWorkspaceActivities } from "./adminWorkspaceData.js";
 import "./AdminWorkspace.css";
 
 const STORAGE_KEY = "teamflow_admin_workspaces_v2";
+const ACTIVITY_STORAGE_KEY = "teamflow_admin_workspace_activities_v2";
 
 const defaultTeamAvatars = [
   { name: "Rahul Sharma", avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=60&h=60&fit=crop&crop=faces" },
@@ -210,6 +216,69 @@ const loadStoredWorkspaces = () => {
   return INITIAL_WORKSPACES;
 };
 
+
+const formatDetailKey = (key) => {
+  const keyMap = {
+    workspace: "Target Workspace",
+    members: "Member Allocation",
+    quota: "Storage Quota",
+    storageQuota: "Storage Quota",
+    currentUsage: "Current Usage",
+    plan: "Subscription Tier",
+    tier: "Plan Tier",
+    projects: "Linked Projects",
+    projectsAdded: "Projects Provisioned",
+    assignedOwner: "Workspace Owner",
+    previousSeats: "Previous Seat Count",
+    updatedSeats: "Updated Seat Count",
+    previousQuota: "Previous Quota",
+    newQuota: "New Quota",
+    adjustment: "Quota Delta",
+    previousStatus: "Previous Status",
+    newStatus: "New Status",
+    reason: "Operation Reason",
+    synchronizedCount: "Sync Project Count",
+    activeProjects: "Active Project Boards",
+    status: "Lifecycle State",
+    storagePreserved: "Preserved Storage",
+    invitedEmail: "Invited Email Address",
+    role: "Assigned Role",
+    projectId: "Project Reference",
+    tasksCount: "Active Task Count",
+    auditedSeats: "Audited Seat Count",
+    complianceStatus: "Compliance Status",
+    initialProjects: "Initial Projects",
+  };
+  if (keyMap[key]) return keyMap[key];
+  return key
+    .replace(/([A-Z])/g, " $1")
+    .replace(/^./, (str) => str.toUpperCase());
+};
+
+const formatDetailValue = (key, val) => {
+  if (Array.isArray(val)) {
+    return (
+      <div className="ws-param-pills-list">
+        {val.map((item, idx) => (
+          <span key={idx} className="ws-param-pill-tag">
+            {item}
+          </span>
+        ))}
+      </div>
+    );
+  }
+  if (typeof val === "number") {
+    if (key.toLowerCase().includes("quota") && !String(val).includes("GB")) {
+      return `${val} GB`;
+    }
+    return val.toLocaleString();
+  }
+  if (typeof val === "boolean") {
+    return val ? "Enabled" : "Disabled";
+  }
+  return String(val);
+};
+
 export default function AdminWorkspace() {
   const navigate = useNavigate();
   const [workspaces, setWorkspaces] = useState(loadStoredWorkspaces);
@@ -219,6 +288,190 @@ export default function AdminWorkspace() {
   const [activeWorkspaceSlug, setActiveWorkspaceSlug] = useState(() => {
     return localStorage.getItem("teamflow_active_workspace_slug") || "teamflow-main";
   });
+
+  // Workspace Page Tabs: 'workspaces' | 'activity'
+  const [activeTab, setActiveTab] = useState("workspaces");
+
+  // Workspace Activity Logs State (Live synchronized with Analytics & local storage)
+  const [activities, setActivities] = useState(() => {
+    try {
+      const saved = localStorage.getItem(ACTIVITY_STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (e) {}
+    return initialWorkspaceActivities;
+  });
+
+  const [activitySearch, setActivitySearch] = useState("");
+  const [activityCategory, setActivityCategory] = useState("All");
+  const [activitySeverity, setActivitySeverity] = useState("All");
+  const [activityPage, setActivityPage] = useState(1);
+  const [activityPageSize, setActivityPageSize] = useState(5);
+  const [selectedActivity, setSelectedActivity] = useState(null);
+
+  useEffect(() => {
+    const handleStorageUpdate = () => {
+      try {
+        const saved = localStorage.getItem(ACTIVITY_STORAGE_KEY);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed) && parsed.length > 0) setActivities(parsed);
+        }
+      } catch (e) {}
+    };
+
+    window.addEventListener("teamflow_data_update", handleStorageUpdate);
+    window.addEventListener("storage", handleStorageUpdate);
+    return () => {
+      window.removeEventListener("teamflow_data_update", handleStorageUpdate);
+      window.removeEventListener("storage", handleStorageUpdate);
+    };
+  }, []);
+
+  // Filtered & Paginated Workspace Activities
+  const filteredActivities = useMemo(() => {
+    return activities.filter((act) => {
+      const q = activitySearch.toLowerCase().trim();
+      const matchesQ =
+        !q ||
+        (act.action || "").toLowerCase().includes(q) ||
+        (act.workspace || "").toLowerCase().includes(q) ||
+        (act.user || "").toLowerCase().includes(q) ||
+        (act.id || "").toLowerCase().includes(q);
+
+      const matchesCat =
+        activityCategory === "All" || act.category === activityCategory;
+      const matchesSev =
+        activitySeverity === "All" || act.severity === activitySeverity;
+
+      return matchesQ && matchesCat && matchesSev;
+    });
+  }, [activities, activitySearch, activityCategory, activitySeverity]);
+
+  const totalActivityPages = Math.max(1, Math.ceil(filteredActivities.length / activityPageSize));
+  const paginatedActivities = useMemo(() => {
+    const start = (activityPage - 1) * activityPageSize;
+    return filteredActivities.slice(start, start + activityPageSize);
+  }, [filteredActivities, activityPage, activityPageSize]);
+
+  const handleExportActivityCSV = () => {
+    const headers = ["ID", "Workspace", "Action", "Category", "Severity", "Actor", "Role", "Timestamp"];
+    const rows = filteredActivities.map((a) => [
+      `"${a.id}"`,
+      `"${a.workspace}"`,
+      `"${(a.action || "").replace(/"/g, '""')}"`,
+      `"${a.category}"`,
+      `"${a.severity}"`,
+      `"${a.user}"`,
+      `"${a.role}"`,
+      `"${a.fullDate || a.time}"`,
+    ]);
+    const csv = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", `workspace-activity-logs-${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    showToast("Exported workspace activity logs to CSV.", "success");
+  };
+
+  // Workspace Activity Audit Logger (Logged to Analytics & Workspace Tab)
+  const logWorkspaceActivity = (action, category, severity, details = {}, workspaceName = "TeamFlow Workspace") => {
+    const newLog = {
+      id: `WSA-${Date.now().toString().slice(-4)}`,
+      workspace: workspaceName,
+      action,
+      category,
+      severity,
+      user: "Amit Sharma",
+      role: "Org Admin",
+      avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=120&auto=format&fit=crop&q=80",
+      time: "Just now",
+      fullDate: new Date().toISOString().replace("T", " ").slice(0, 19),
+      ip: "192.168.1.10",
+      details,
+    };
+    try {
+      const saved = localStorage.getItem(ACTIVITY_STORAGE_KEY);
+      let list = saved ? JSON.parse(saved) : initialWorkspaceActivities;
+      if (!Array.isArray(list)) list = initialWorkspaceActivities;
+      const updatedList = [newLog, ...list];
+      localStorage.setItem(ACTIVITY_STORAGE_KEY, JSON.stringify(updatedList));
+      setActivities(updatedList);
+      window.dispatchEvent(new Event("teamflow_data_update"));
+    } catch (e) {}
+  };
+
+  // Helper to sync workspace projects into teamflow_admin_projects_v2
+  const syncWorkspaceProjects = (workspace, projectCount, oldName = null) => {
+    try {
+      const saved = localStorage.getItem("teamflow_admin_projects_v2");
+      let currentProjects = saved ? JSON.parse(saved) : initialAdminProjects;
+      if (!Array.isArray(currentProjects)) currentProjects = initialAdminProjects;
+
+      // Update workspace name if renamed
+      if (oldName && oldName !== workspace.name) {
+        currentProjects = currentProjects.map((p) =>
+          p.workspace === oldName ? { ...p, workspace: workspace.name } : p
+        );
+      }
+
+      // Check existing projects for this workspace
+      const existing = currentProjects.filter(
+        (p) => (p.workspace || "").toLowerCase() === (workspace.name || "").toLowerCase()
+      );
+
+      const toAdd = Math.max(0, projectCount - existing.length);
+      if (toAdd > 0) {
+        const templates = [
+          { name: `${workspace.name} Core Initiative`, desc: `Primary deliverables, sprint velocity, and operational milestones for ${workspace.name}.`, priority: "High", progress: 65, tasks: 14, completed: 9 },
+          { name: `${workspace.name} Roadmap & Delivery`, desc: `Product lifecycle tracking, team tasks, and cross-functional sync.`, priority: "Medium", progress: 40, tasks: 10, completed: 4 },
+          { name: `${workspace.name} Architecture & Cloud Sync`, desc: `Technical integrations, webhooks, and infrastructure assets for ${workspace.name}.`, priority: "High", progress: 85, tasks: 12, completed: 10 },
+          { name: `${workspace.name} Analytics & QA`, desc: `Automated test suites, performance benchmarks, and analytics dashboards.`, priority: "Low", progress: 20, tasks: 8, completed: 2 },
+          { name: `${workspace.name} Compliance & Governance`, desc: `Security reviews, team runbooks, and enterprise governance.`, priority: "Critical", progress: 50, tasks: 6, completed: 3 },
+        ];
+
+        const newProjects = [];
+        for (let i = 0; i < toAdd; i++) {
+          const tpl = templates[i % templates.length];
+          newProjects.push({
+            id: Date.now() + i + Math.floor(Math.random() * 1000),
+            name: existing.length === 0 && i === 0 ? tpl.name : `${workspace.name} Project ${existing.length + i + 1}`,
+            workspace: workspace.name,
+            owner: workspace.owner || "Amit Sharma",
+            ownerEmail: workspace.email || "amit@teamflow.ai",
+            status: "Active",
+            priority: tpl.priority,
+            description: tpl.desc,
+            tasks: tpl.tasks,
+            completedTasks: tpl.completed,
+            progress: tpl.progress,
+            dueDate: new Date(Date.now() + (20 + i * 15) * 86400000).toISOString().split("T")[0],
+            createdAt: new Date().toISOString().split("T")[0],
+            color: workspace.color || "#6366f1",
+            iconType: "layout",
+            team: [
+              { name: workspace.owner || "Amit Sharma", avatar: (workspace.owner || "AS").slice(0, 2).toUpperCase(), color: workspace.color || "#6366f1" },
+            ],
+            extraMembers: Math.max(0, (Number(workspace.members) || 1) - 1),
+          });
+        }
+
+        currentProjects = [...newProjects, ...currentProjects];
+      }
+
+      localStorage.setItem("teamflow_admin_projects_v2", JSON.stringify(currentProjects));
+      window.dispatchEvent(new Event("teamflow_data_update"));
+    } catch (e) {
+      console.error("Failed to sync workspace projects:", e);
+    }
+  };
 
   // Opened Workspace Modal & Tab state
   const [openedWorkspace, setOpenedWorkspace] = useState(null);
@@ -321,6 +574,8 @@ export default function AdminWorkspace() {
     return Array.from(set);
   }, [workspaces]);
 
+
+
   // Filtered & Sorted Workspaces
   const filteredWorkspaces = useMemo(() => {
     let result = workspaces.filter((ws) => {
@@ -362,6 +617,68 @@ export default function AdminWorkspace() {
   useEffect(() => {
     setCurrentPage(1);
   }, [search, statusFilter, planFilter, ownerFilter, sortBy, pageSize]);
+
+  // Reusable Pagination Bar (Seamless Zero-Extra-Spacing Layout)
+  const renderPaginationBar = (isTableFooter = false) => {
+    if (filteredWorkspaces.length === 0) return null;
+    return (
+      <div className={`ws-pagination-bar ${isTableFooter ? "ws-pagination-table-footer" : ""}`}>
+        <div className="ws-pagination-info">
+          <span>
+            Showing {(currentPage - 1) * pageSize + 1} to{" "}
+            {Math.min(currentPage * pageSize, filteredWorkspaces.length)} of {filteredWorkspaces.length} workspaces
+          </span>
+          <div className="ws-page-size-wrap">
+            <span>Rows:</span>
+            <select
+              value={pageSize}
+              onChange={(e) => {
+                setPageSize(Number(e.target.value));
+                setCurrentPage(1);
+              }}
+              aria-label="Rows per page"
+            >
+              <option value={8}>8</option>
+              <option value={12}>12</option>
+              <option value={24}>24</option>
+            </select>
+          </div>
+        </div>
+
+        <div className="ws-pagination-controls">
+          <button
+            type="button"
+            className="ws-page-nav-btn"
+            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+            disabled={currentPage <= 1}
+          >
+            Previous
+          </button>
+          <div className="ws-page-pills">
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((num) => (
+              <button
+                key={num}
+                type="button"
+                className={`ws-page-num-pill ${currentPage === num ? "active" : ""}`}
+                onClick={() => setCurrentPage(num)}
+              >
+                {num}
+              </button>
+            ))}
+          </div>
+          <button
+            type="button"
+            className="ws-page-nav-btn"
+            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+            disabled={currentPage >= totalPages}
+          >
+            Next
+          </button>
+        </div>
+      </div>
+    );
+  };
+
 
   // Open Create Modal
   const openCreateModal = () => {
@@ -418,8 +735,13 @@ export default function AdminWorkspace() {
 
     const initials = form.initials.trim() || form.name.slice(0, 2).toUpperCase();
     const slug = form.slug.trim() || form.name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+    const numMembers = Math.max(1, Number(form.members) || 1);
+    const numProjects = Math.max(0, Number(form.projects) || 0);
+    const numQuota = Math.max(1, Number(form.quota) || 100);
+    const numStorage = Math.min(numQuota, Math.max(0, Number(form.storage) || 0));
 
     if (editingWorkspace) {
+      const oldName = editingWorkspace.name;
       const updated = workspaces.map((w) =>
         w.id === editingWorkspace.id
           ? {
@@ -427,29 +749,51 @@ export default function AdminWorkspace() {
               ...form,
               initials,
               slug,
-              members: Number(form.members) || 1,
-              projects: Number(form.projects) || 0,
-              storage: Number(form.storage) || 0,
-              quota: Number(form.quota) || 100,
+              members: numMembers,
+              projects: numProjects,
+              storage: numStorage,
+              quota: numQuota,
             }
           : w
       );
       saveWorkspaces(updated, `Workspace "${form.name}" updated successfully.`);
+
+      // Sync project updates if name changed or project quota adjusted
+      syncWorkspaceProjects({ ...editingWorkspace, name: form.name, owner: form.owner, email: form.email, color: form.color }, numProjects, oldName);
+
+      logWorkspaceActivity(
+        `Updated workspace "${form.name}" quotas (${numQuota} GB quota, ${numMembers} members, ${numProjects} projects)`,
+        "Storage Quotas",
+        "info",
+        { workspace: form.name, members: numMembers, quota: numQuota, storage: numStorage, projects: numProjects },
+        form.name
+      );
     } else {
       const newWs = {
         id: Date.now(),
         ...form,
         initials,
         slug,
-        members: Number(form.members) || 1,
-        projects: Number(form.projects) || 0,
-        storage: Number(form.storage) || 10,
-        quota: Number(form.quota) || 100,
+        members: numMembers,
+        projects: numProjects,
+        storage: numStorage,
+        quota: numQuota,
         team: defaultTeamAvatars,
-        extraMembers: Math.max(0, (Number(form.members) || 1) - 4),
+        extraMembers: Math.max(0, numMembers - 4),
         created: new Date().toISOString().split("T")[0],
       };
       saveWorkspaces([newWs, ...workspaces], `Workspace "${form.name}" created.`);
+
+      // Provision corresponding projects in Projects Dashboard!
+      syncWorkspaceProjects(newWs, numProjects);
+
+      logWorkspaceActivity(
+        `Provisioned new workspace "${newWs.name}" (${numMembers} members, ${numQuota} GB quota, ${numProjects} projects)`,
+        "Lifecycle",
+        "success",
+        { workspace: newWs.name, members: numMembers, quota: numQuota, projects: numProjects },
+        newWs.name
+      );
     }
 
     setShowModal(false);
@@ -549,6 +893,7 @@ export default function AdminWorkspace() {
 
   // Open Workspace Action
   const handleOpenWorkspace = (ws) => {
+    syncWorkspaceProjects(ws, ws.projects || 4);
     setOpenedWorkspace(ws);
     setOpenedTab("overview");
     setProjectSearch("");
@@ -574,10 +919,26 @@ export default function AdminWorkspace() {
     }
   };
 
-  // Navigate to Projects Page
-  const handleGoToProjects = () => {
+  // Navigate to Projects Page with Workspace Filter
+  const handleGoToProjects = (targetWorkspace = null, projectItem = null) => {
+    const ws = (targetWorkspace && targetWorkspace.name) ? targetWorkspace : openedWorkspace;
+    const wsName = ws?.name || "";
+    if (ws) {
+      syncWorkspaceProjects(ws, ws.projects || 4);
+    }
     setOpenedWorkspace(null);
-    navigate("/admin/projects");
+    if (wsName) {
+      try {
+        localStorage.setItem("teamflow_selected_project_workspace", wsName);
+      } catch (e) {}
+      if (projectItem && projectItem.name) {
+        navigate(`/admin/projects?workspace=${encodeURIComponent(wsName)}&project=${encodeURIComponent(projectItem.name)}`);
+      } else {
+        navigate(`/admin/projects?workspace=${encodeURIComponent(wsName)}`);
+      }
+    } else {
+      navigate("/admin/projects");
+    }
   };
 
   // Open Edit Modal from Hub
@@ -624,9 +985,23 @@ export default function AdminWorkspace() {
     saveWorkspaces(updatedAll, `Allocated +50 GB to "${openedWorkspace.name}". Total quota is now ${newQuota} GB.`);
   };
 
-  // Projects associated with the currently opened workspace
+  // Projects associated with the currently opened workspace (reads live synced projects)
   const workspaceProjects = useMemo(() => {
     if (!openedWorkspace) return [];
+
+    try {
+      const saved = localStorage.getItem("teamflow_admin_projects_v2");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          const directMatches = parsed.filter(
+            (p) => (p.workspace || "").toLowerCase() === (openedWorkspace.name || "").toLowerCase()
+          );
+          if (directMatches.length > 0) return directMatches;
+        }
+      }
+    } catch (e) {}
+
     const nameLower = (openedWorkspace.name || "").toLowerCase();
     
     const matched = initialAdminProjects.filter((p) => {
@@ -863,6 +1238,17 @@ export default function AdminWorkspace() {
                 </button>
               </div>
 
+              {/* PAGE TAB TOGGLE: AUDIT LOGS */}
+              <button
+                type="button"
+                className={`ws-btn-audit-logs ${activeTab === "activity" ? "active" : ""}`}
+                onClick={() => setActiveTab(activeTab === "activity" ? "workspaces" : "activity")}
+                title={activeTab === "activity" ? "Return to All Workspaces" : "Open Workspace Activity & Audit Logs"}
+              >
+                {activeTab === "activity" ? <Building2 size={15} /> : <Activity size={15} />}
+                <span>{activeTab === "activity" ? "All Workspaces" : "Activity Logs"}</span>
+              </button>
+
               {/* CREATE WORKSPACE BUTTON */}
               <button type="button" className="ws-btn-primary" onClick={openCreateModal}>
                 <Plus size={16} />
@@ -872,9 +1258,39 @@ export default function AdminWorkspace() {
           </div>
 
           {/* =========================================================
-             2. TOP 4 KPI STATS CARDS WITH SPARKLINES (Matching Screenshot)
+             WORKSPACE PAGE TABS (Workspaces vs Activity Logs)
           ========================================================= */}
-          <section className="ws-stats-row">
+          <div className="ws-page-tabs">
+            <button
+              type="button"
+              className={`ws-page-tab-btn ${activeTab === "workspaces" ? "active" : ""}`}
+              onClick={() => setActiveTab("workspaces")}
+            >
+              <Building2 size={16} />
+              <span>All Workspaces</span>
+              <span className="ws-tab-count-badge">{workspaces.length}</span>
+            </button>
+
+            <button
+              type="button"
+              className={`ws-page-tab-btn ${activeTab === "activity" ? "active" : ""}`}
+              onClick={() => setActiveTab("activity")}
+            >
+              <Activity size={16} />
+              <span>Workspace Activity Logs</span>
+              <span className="ws-tab-count-badge live">{activities.length}</span>
+            </button>
+          </div>
+
+          {/* =========================================================
+             PAGE 1: ALL WORKSPACES
+          ========================================================= */}
+          {activeTab === "workspaces" && (
+            <>
+              {/* =========================================================
+                 2. TOP 4 KPI STATS CARDS WITH SPARKLINES (Matching Screenshot)
+              ========================================================= */}
+              <section className="ws-stats-row">
             {/* 1. TOTAL WORKSPACES */}
             <article className="ws-stat-card">
               <div className="ws-stat-card-left">
@@ -1073,6 +1489,7 @@ export default function AdminWorkspace() {
              4. MAIN WORKSPACES VIEW: GRID OF CARDS (Matching Screenshot)
           ========================================================= */}
           {viewMode === "grid" && (
+            <>
             <div className="ws-cards-grid">
               {paginatedWorkspaces.map((ws) => {
                 const isMenuOpen = activeMenuId === ws.id;
@@ -1268,6 +1685,8 @@ export default function AdminWorkspace() {
                 </div>
               )}
             </div>
+            {renderPaginationBar(false)}
+            </>
           )}
 
           {/* =========================================================
@@ -1395,11 +1814,19 @@ export default function AdminWorkspace() {
                               <div className="ws-table-actions">
                                 <button
                                   type="button"
-                                  className="ws-action-icon-btn"
-                                  title="Edit workspace"
+                                  className="ws-action-icon-btn view"
+                                  title="View workspace details & overview"
+                                  onClick={() => handleOpenWorkspace(ws)}
+                                >
+                                  <Eye size={14} />
+                                </button>
+                                <button
+                                  type="button"
+                                  className="ws-action-icon-btn edit customize"
+                                  title="Edit workspace settings & quotas"
                                   onClick={() => openEditModal(ws)}
                                 >
-                                  <Pencil size={14} />
+                                  <SlidersHorizontal size={14} />
                                 </button>
                                 <button
                                   type="button"
@@ -1427,6 +1854,7 @@ export default function AdminWorkspace() {
                   </tbody>
                 </table>
               </div>
+              {renderPaginationBar(true)}
             </div>
           )}
 
@@ -1475,11 +1903,19 @@ export default function AdminWorkspace() {
                             <div className="ws-kanban-actions">
                               <button
                                 type="button"
-                                className="ws-action-icon-btn"
-                                onClick={() => openEditModal(ws)}
-                                title="Edit workspace"
+                                className="ws-action-icon-btn view"
+                                onClick={() => handleOpenWorkspace(ws)}
+                                title="View workspace overview"
                               >
-                                <Pencil size={12} />
+                                <Eye size={12} />
+                              </button>
+                              <button
+                                type="button"
+                                className="ws-action-icon-btn edit customize"
+                                onClick={() => openEditModal(ws)}
+                                title="Edit workspace settings & quotas"
+                              >
+                                <SlidersHorizontal size={12} />
                               </button>
                               <button
                                 type="button"
@@ -1504,66 +1940,332 @@ export default function AdminWorkspace() {
               })}
             </div>
           )}
+          </>
+          )}
 
           {/* =========================================================
-             PAGINATION BAR (Always at bottom - "add pages in last")
+             PAGE 2: WORKSPACE ACTIVITY & AUDIT LOGS
           ========================================================= */}
-          {filteredWorkspaces.length > 0 && viewMode !== "kanban" && (
-            <div className="ws-pagination-bar">
-              <div className="ws-pagination-info">
-                <span>
-                  Showing {filteredWorkspaces.length === 0 ? 0 : (currentPage - 1) * pageSize + 1} to{" "}
-                  {Math.min(currentPage * pageSize, filteredWorkspaces.length)} of {filteredWorkspaces.length} workspaces
-                </span>
-                <div className="ws-page-size-wrap">
-                  <span>Rows per page:</span>
-                  <select
-                    value={pageSize}
-                    onChange={(e) => {
-                      setPageSize(Number(e.target.value));
-                      setCurrentPage(1);
-                    }}
+          {activeTab === "activity" && (
+            <section className="ws-activity-section">
+              <div className="ws-activity-section-header">
+                <div className="ws-activity-header-left">
+                  <div className="ws-activity-header-icon">
+                    <Activity size={22} />
+                  </div>
+                  <div>
+                    <div className="ws-activity-title-row">
+                      <h2>Workspace Activity & Audit Logs</h2>
+                      <span className="ws-activity-live-badge">
+                        <span className="live-dot" /> Live Audit Trail
+                      </span>
+                    </div>
+                    <p>
+                      Comprehensive audit trail of workspace provisioning, storage quota customizations, member allocations, and project updates.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="ws-activity-header-actions">
+                  <button
+                    type="button"
+                    className="ws-btn-export-activity"
+                    onClick={handleExportActivityCSV}
+                    title="Export workspace audit logs to CSV"
                   >
-                    <option value={8}>8</option>
-                    <option value={12}>12</option>
-                    <option value={24}>24</option>
-                  </select>
+                    <Download size={15} />
+                    <span>Export Logs CSV</span>
+                  </button>
                 </div>
               </div>
 
-              <div className="ws-pagination-controls">
-                <button
-                  type="button"
-                  className="ws-page-nav-btn"
-                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                  disabled={currentPage <= 1}
-                >
-                  Previous
-                </button>
-                <div className="ws-page-pills">
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((num) => (
-                    <button
-                      key={num}
-                      type="button"
-                      className={`ws-page-num-pill ${currentPage === num ? "active" : ""}`}
-                      onClick={() => setCurrentPage(num)}
-                    >
-                      {num}
-                    </button>
-                  ))}
+              {/* ACTIVITY STATS ROW */}
+              <div className="ws-activity-kpi-grid">
+                <div className="ws-activity-kpi-card">
+                  <div className="ws-kpi-icon-wrap purple">
+                    <Activity size={18} />
+                  </div>
+                  <div>
+                    <span className="ws-kpi-label">Total Logged Events</span>
+                    <strong className="ws-kpi-val">{activities.length}</strong>
+                  </div>
                 </div>
-                <button
-                  type="button"
-                  className="ws-page-nav-btn"
-                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                  disabled={currentPage >= totalPages}
-                >
-                  Next
-                </button>
+
+                <div className="ws-activity-kpi-card">
+                  <div className="ws-kpi-icon-wrap blue">
+                    <HardDrive size={18} />
+                  </div>
+                  <div>
+                    <span className="ws-kpi-label">Storage Quota Events</span>
+                    <strong className="ws-kpi-val">
+                      {activities.filter((a) => a.category === "Storage Quotas").length}
+                    </strong>
+                  </div>
+                </div>
+
+                <div className="ws-activity-kpi-card">
+                  <div className="ws-kpi-icon-wrap green">
+                    <Users size={18} />
+                  </div>
+                  <div>
+                    <span className="ws-kpi-label">Member Allocations</span>
+                    <strong className="ws-kpi-val">
+                      {activities.filter((a) => a.category === "Members").length}
+                    </strong>
+                  </div>
+                </div>
+
+                <div className="ws-activity-kpi-card">
+                  <div className="ws-kpi-icon-wrap amber">
+                    <FolderKanban size={18} />
+                  </div>
+                  <div>
+                    <span className="ws-kpi-label">Project Synchronizations</span>
+                    <strong className="ws-kpi-val">
+                      {activities.filter((a) => a.category === "Project Sync").length}
+                    </strong>
+                  </div>
+                </div>
               </div>
-            </div>
+
+              {/* FILTER TOOLBAR */}
+              <div className="ws-activity-toolbar">
+                <div className="ws-activity-search">
+                  <Search size={16} />
+                  <input
+                    type="text"
+                    placeholder="Search workspace logs by action, workspace, actor, or ID..."
+                    value={activitySearch}
+                    onChange={(e) => {
+                      setActivitySearch(e.target.value);
+                      setActivityPage(1);
+                    }}
+                  />
+                  {activitySearch && (
+                    <button type="button" onClick={() => setActivitySearch("")} className="clear-btn">
+                      <X size={13} />
+                    </button>
+                  )}
+                </div>
+
+                <div className="ws-activity-filters">
+                  <select
+                    value={activityCategory}
+                    onChange={(e) => {
+                      setActivityCategory(e.target.value);
+                      setActivityPage(1);
+                    }}
+                    aria-label="Filter category"
+                  >
+                    <option value="All">All Categories</option>
+                    <option value="Storage Quotas">Storage Quotas</option>
+                    <option value="Project Sync">Project Sync</option>
+                    <option value="Members">Members</option>
+                    <option value="Lifecycle">Lifecycle</option>
+                  </select>
+
+                  <select
+                    value={activitySeverity}
+                    onChange={(e) => {
+                      setActivitySeverity(e.target.value);
+                      setActivityPage(1);
+                    }}
+                    aria-label="Filter severity"
+                  >
+                    <option value="All">All Severities</option>
+                    <option value="success">Success</option>
+                    <option value="info">Info</option>
+                    <option value="warning">Warning</option>
+                  </select>
+
+                  {(activitySearch || activityCategory !== "All" || activitySeverity !== "All") && (
+                    <button
+                      type="button"
+                      className="ws-clear-activity-filter"
+                      onClick={() => {
+                        setActivitySearch("");
+                        setActivityCategory("All");
+                        setActivitySeverity("All");
+                        setActivityPage(1);
+                      }}
+                    >
+                      <RotateCcw size={13} />
+                      <span>Reset</span>
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* ACTIVITY DATA TABLE */}
+              <div className="ws-activity-table-wrapper">
+                <table className="ws-activity-table">
+                  <thead>
+                    <tr>
+                      <th style={{ width: 44, textAlign: "center" }}>#</th>
+                      <th style={{ width: 140 }}>TIMESTAMP</th>
+                      <th>WORKSPACE</th>
+                      <th>ACTIVITY / ACTION</th>
+                      <th>PERFORMED BY</th>
+                      <th>CATEGORY</th>
+                      <th>STATUS</th>
+                      <th style={{ textAlign: "right", width: 80 }}>DETAILS</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {paginatedActivities.map((act, idx) => (
+                      <tr key={act.id}>
+                        <td style={{ textAlign: "center" }}>
+                          <span className="ws-row-num">
+                            {(activityPage - 1) * activityPageSize + idx + 1}
+                          </span>
+                        </td>
+
+                        <td>
+                          <div className="ws-act-time">
+                            <strong>{act.time}</strong>
+                            <small>{act.fullDate?.slice(0, 10)}</small>
+                          </div>
+                        </td>
+
+                        <td>
+                          <div className="ws-act-workspace-cell">
+                            <span className="ws-act-workspace-dot" />
+                            <strong>{act.workspace}</strong>
+                          </div>
+                        </td>
+
+                        <td>
+                          <div className="ws-act-action-cell">
+                            <span>{act.action}</span>
+                            {act.details?.quota && (
+                              <span className="ws-act-quota-badge">
+                                <HardDrive size={10} /> {act.details.quota} GB
+                              </span>
+                            )}
+                          </div>
+                        </td>
+
+                        <td>
+                          <div className="ws-act-actor-cell">
+                            {act.avatar ? (
+                              <img src={act.avatar} alt={act.user} className="ws-act-avatar" />
+                            ) : (
+                              <div className="ws-act-avatar fallback">
+                                {(act.user || "A").slice(0, 2).toUpperCase()}
+                              </div>
+                            )}
+                            <div>
+                              <strong>{act.user}</strong>
+                              <small>{act.role}</small>
+                            </div>
+                          </div>
+                        </td>
+
+                        <td>
+                          <span className={`ws-act-cat-pill cat--${(act.category || "").toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}>
+                            {act.category}
+                          </span>
+                        </td>
+
+                        <td>
+                          <span className={`ws-act-sev-pill sev--${act.severity}`}>
+                            {act.severity === "success" && <CheckCircle2 size={11} />}
+                            {act.severity === "info" && <Info size={11} />}
+                            {act.severity === "warning" && <AlertTriangle size={11} />}
+                            <span>{act.severity}</span>
+                          </span>
+                        </td>
+
+                        <td style={{ textAlign: "right" }}>
+                          <button
+                            type="button"
+                            className="ws-act-detail-btn view"
+                            onClick={() => setSelectedActivity(act)}
+                            title="View activity record payload & metadata"
+                          >
+                            <Eye size={14} />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+
+                    {paginatedActivities.length === 0 && (
+                      <tr>
+                        <td colSpan={8} className="ws-act-empty-cell">
+                          <div className="ws-act-empty-state">
+                            <Activity size={32} />
+                            <h4>No workspace activity records found</h4>
+                            <p>Try clearing filters or adjusting your search keyword.</p>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* PAGES AT BOTTOM (ACTIVITY PAGINATION) */}
+              {filteredActivities.length > 0 && (
+                <div className="ws-activity-pagination-bar">
+                  <div className="ws-pagination-info">
+                    <span>
+                      Showing {(activityPage - 1) * activityPageSize + 1} to{" "}
+                      {Math.min(activityPage * activityPageSize, filteredActivities.length)} of {filteredActivities.length} logs
+                    </span>
+                    <div className="ws-page-size-wrap">
+                      <span>Rows:</span>
+                      <select
+                        value={activityPageSize}
+                        onChange={(e) => {
+                          setActivityPageSize(Number(e.target.value));
+                          setActivityPage(1);
+                        }}
+                      >
+                        <option value={5}>5</option>
+                        <option value={10}>10</option>
+                        <option value={20}>20</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="ws-pagination-controls">
+                    <button
+                      type="button"
+                      className="ws-page-nav-btn"
+                      onClick={() => setActivityPage((p) => Math.max(1, p - 1))}
+                      disabled={activityPage <= 1}
+                    >
+                      Previous
+                    </button>
+
+                    <div className="ws-page-pills">
+                      {Array.from({ length: totalActivityPages }, (_, i) => i + 1).map((num) => (
+                        <button
+                          key={num}
+                          type="button"
+                          className={`ws-page-num-pill ${activityPage === num ? "active" : ""}`}
+                          onClick={() => setActivityPage(num)}
+                        >
+                          {num}
+                        </button>
+                      ))}
+                    </div>
+
+                    <button
+                      type="button"
+                      className="ws-page-nav-btn"
+                      onClick={() => setActivityPage((p) => Math.min(totalActivityPages, p + 1))}
+                      disabled={activityPage >= totalActivityPages}
+                    >
+                      Next
+                    </button>
+                  </div>
+                </div>
+              )}
+            </section>
           )}
-        </main>
+
+</main>
       </div>
 
       {/* =========================================================
@@ -1712,43 +2414,195 @@ export default function AdminWorkspace() {
 
               {/* MEMBERS, PROJECTS, STORAGE QUOTA */}
               <div className="ws-form-grid-3">
+                {/* 1. MEMBERS WITH STEPPERS & PRESETS */}
                 <div className="ws-form-group">
-                  <label htmlFor="ws-members">Members</label>
-                  <input
-                    id="ws-members"
-                    type="number"
-                    min="1"
-                    value={form.members}
-                    onChange={(e) =>
-                      setForm({ ...form, members: Math.max(1, parseInt(e.target.value) || 1) })
-                    }
-                  />
+                  <div className="ws-form-label-row">
+                    <label htmlFor="ws-members">Members Count</label>
+                    <span className="ws-form-hint">Seats</span>
+                  </div>
+                  <div className="ws-stepper-input-wrap">
+                    <button
+                      type="button"
+                      className="ws-stepper-btn"
+                      onClick={() =>
+                        setForm((prev) => ({
+                          ...prev,
+                          members: Math.max(1, (Number(prev.members) || 1) - 1),
+                        }))
+                      }
+                      title="Decrease members"
+                    >
+                      <Minus size={14} />
+                    </button>
+                    <input
+                      id="ws-members"
+                      type="number"
+                      min="1"
+                      placeholder="e.g. 15"
+                      value={form.members === "" ? "" : form.members}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        if (val === "") {
+                          setForm({ ...form, members: "" });
+                        } else {
+                          const n = parseInt(val, 10);
+                          setForm({ ...form, members: isNaN(n) ? "" : n });
+                        }
+                      }}
+                      onBlur={() => {
+                        if (!form.members || Number(form.members) < 1) {
+                          setForm({ ...form, members: 1 });
+                        }
+                      }}
+                    />
+                    <button
+                      type="button"
+                      className="ws-stepper-btn"
+                      onClick={() =>
+                        setForm((prev) => ({
+                          ...prev,
+                          members: (Number(prev.members) || 0) + 1,
+                        }))
+                      }
+                      title="Increase members"
+                    >
+                      <Plus size={14} />
+                    </button>
+                  </div>
+                  <div className="ws-quick-chips">
+                    {[5, 10, 25, 50, 100].map((preset) => (
+                      <button
+                        key={preset}
+                        type="button"
+                        className={`ws-chip-btn ${Number(form.members) === preset ? "active" : ""}`}
+                        onClick={() => setForm({ ...form, members: preset })}
+                      >
+                        {preset}
+                      </button>
+                    ))}
+                  </div>
                 </div>
 
+                {/* 2. PROJECTS WITH STEPPERS */}
                 <div className="ws-form-group">
-                  <label htmlFor="ws-projects">Projects</label>
-                  <input
-                    id="ws-projects"
-                    type="number"
-                    min="0"
-                    value={form.projects}
-                    onChange={(e) =>
-                      setForm({ ...form, projects: Math.max(0, parseInt(e.target.value) || 0) })
-                    }
-                  />
+                  <div className="ws-form-label-row">
+                    <label htmlFor="ws-projects">Initial Projects</label>
+                    <span className="ws-form-hint">Projects</span>
+                  </div>
+                  <div className="ws-stepper-input-wrap">
+                    <button
+                      type="button"
+                      className="ws-stepper-btn"
+                      onClick={() =>
+                        setForm((prev) => ({
+                          ...prev,
+                          projects: Math.max(0, (Number(prev.projects) || 0) - 1),
+                        }))
+                      }
+                      title="Decrease projects"
+                    >
+                      <Minus size={14} />
+                    </button>
+                    <input
+                      id="ws-projects"
+                      type="number"
+                      min="0"
+                      value={form.projects === "" ? "" : form.projects}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        if (val === "") {
+                          setForm({ ...form, projects: "" });
+                        } else {
+                          const n = parseInt(val, 10);
+                          setForm({ ...form, projects: isNaN(n) ? "" : n });
+                        }
+                      }}
+                      onBlur={() => {
+                        if (form.projects === "" || Number(form.projects) < 0) {
+                          setForm({ ...form, projects: 0 });
+                        }
+                      }}
+                    />
+                    <button
+                      type="button"
+                      className="ws-stepper-btn"
+                      onClick={() =>
+                        setForm((prev) => ({
+                          ...prev,
+                          projects: (Number(prev.projects) || 0) + 1,
+                        }))
+                      }
+                      title="Increase projects"
+                    >
+                      <Plus size={14} />
+                    </button>
+                  </div>
+                  <div className="ws-quick-chips">
+                    {[1, 2, 4, 8].map((preset) => (
+                      <button
+                        key={preset}
+                        type="button"
+                        className={`ws-chip-btn ${Number(form.projects) === preset ? "active" : ""}`}
+                        onClick={() => setForm({ ...form, projects: preset })}
+                      >
+                        {preset}
+                      </button>
+                    ))}
+                  </div>
                 </div>
 
+                {/* 3. CUSTOMIZABLE STORAGE QUOTA */}
                 <div className="ws-form-group">
-                  <label htmlFor="ws-quota">Storage Quota (GB)</label>
-                  <input
-                    id="ws-quota"
-                    type="number"
-                    min="10"
-                    value={form.quota}
-                    onChange={(e) =>
-                      setForm({ ...form, quota: Math.max(10, parseInt(e.target.value) || 10) })
-                    }
-                  />
+                  <div className="ws-form-label-row">
+                    <label htmlFor="ws-quota">Storage Quota</label>
+                    <span className="ws-form-hint">Limit (GB)</span>
+                  </div>
+                  <div className="ws-stepper-input-wrap">
+                    <input
+                      id="ws-quota"
+                      type="number"
+                      min="1"
+                      placeholder="e.g. 100"
+                      value={form.quota === "" ? "" : form.quota}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        if (val === "") {
+                          setForm({ ...form, quota: "" });
+                        } else {
+                          const n = parseInt(val, 10);
+                          setForm({ ...form, quota: isNaN(n) ? "" : n });
+                        }
+                      }}
+                      onBlur={() => {
+                        if (!form.quota || Number(form.quota) < 1) {
+                          setForm({ ...form, quota: 50 });
+                        }
+                      }}
+                    />
+                    <span className="ws-input-unit">GB</span>
+                  </div>
+                  <div className="ws-quick-chips">
+                    {[
+                      { label: "25 GB", val: 25 },
+                      { label: "50 GB", val: 50 },
+                      { label: "100 GB", val: 100 },
+                      { label: "500 GB", val: 500 },
+                      { label: "1 TB", val: 1000 },
+                    ].map((preset) => (
+                      <button
+                        key={preset.label}
+                        type="button"
+                        className={`ws-chip-btn ${Number(form.quota) === preset.val ? "active" : ""}`}
+                        onClick={() => {
+                          const newQuota = preset.val;
+                          const newStorage = Math.min(Number(form.storage) || 0, newQuota);
+                          setForm({ ...form, quota: newQuota, storage: newStorage });
+                        }}
+                      >
+                        {preset.label}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
 
@@ -1756,7 +2610,7 @@ export default function AdminWorkspace() {
               <div className="ws-form-group">
                 <div className="ws-storage-slider-header">
                   <label htmlFor="ws-storage-range">
-                    Storage Allocation: <strong>{form.storage} GB</strong> of {form.quota} GB
+                    Initial Storage Used: <strong>{form.storage} GB</strong> of {form.quota || 100} GB
                   </label>
                   <span className="ws-storage-slider-pct">
                     {Math.min(100, Math.round(((Number(form.storage) || 0) / (Number(form.quota) || 100)) * 100))}%
@@ -1778,7 +2632,7 @@ export default function AdminWorkspace() {
                 <label htmlFor="ws-desc">Description</label>
                 <textarea
                   id="ws-desc"
-                  rows={3}
+                  rows={2}
                   placeholder="Summarize the core purpose and teams using this workspace..."
                   value={form.description}
                   onChange={(e) => setForm({ ...form, description: e.target.value })}
@@ -1832,6 +2686,105 @@ export default function AdminWorkspace() {
       )}
 
       {/* =========================================================
+         ACTIVITY DETAIL PAYLOAD MODAL
+      ========================================================= */}
+      {selectedActivity && (
+        <div
+          className="ws-modal-backdrop"
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget) setSelectedActivity(null);
+          }}
+        >
+          <div className="ws-modal-box ws-modal-md ws-activity-detail-modal">
+            <div className="ws-modal-header">
+              <div className="ws-modal-header-left">
+                <div className="ws-modal-icon-badge activity-glow" style={{ backgroundColor: "#8b5cf618", color: "#8b5cf6" }}>
+                  <Activity size={20} />
+                </div>
+                <div>
+                  <h2>Workspace Activity Detail</h2>
+                  <p>Audit Reference: <span className="ws-act-audit-ref">{selectedActivity.id}</span></p>
+                </div>
+              </div>
+              <button
+                type="button"
+                className="ws-modal-close"
+                onClick={() => setSelectedActivity(null)}
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="ws-activity-detail-body">
+              <div className="ws-act-detail-hero">
+                <div>
+                  <h4>{selectedActivity.action}</h4>
+                  <small>Workspace: <strong>{selectedActivity.workspace}</strong></small>
+                </div>
+                <span className={`ws-act-sev-pill sev--${selectedActivity.severity}`}>
+                  {selectedActivity.severity}
+                </span>
+              </div>
+
+              <div className="ws-act-detail-rows">
+                <div className="ws-act-detail-row">
+                  <span>Timestamp:</span>
+                  <strong>{selectedActivity.fullDate || selectedActivity.time} ({selectedActivity.time})</strong>
+                </div>
+                <div className="ws-act-detail-row">
+                  <span>Event Category:</span>
+                  <strong className="ws-act-row-cat-val">{selectedActivity.category}</strong>
+                </div>
+                <div className="ws-act-detail-row">
+                  <span>Triggered By:</span>
+                  <strong>{selectedActivity.user} ({selectedActivity.role})</strong>
+                </div>
+                <div className="ws-act-detail-row">
+                  <span>Origin IP:</span>
+                  <code className="ws-act-ip-code">{selectedActivity.ip}</code>
+                </div>
+              </div>
+
+              {selectedActivity.details && Object.keys(selectedActivity.details).length > 0 && (
+                <div className="ws-act-params-wrap">
+                  <div className="ws-params-header">
+                    <div className="ws-params-header-title">
+                      <SlidersHorizontal size={13} />
+                      <span>Audit Parameters & Configuration</span>
+                    </div>
+                    <span className="ws-params-count-badge">
+                      {Object.keys(selectedActivity.details).length} parameters
+                    </span>
+                  </div>
+
+                  <div className="ws-params-grid">
+                    {Object.entries(selectedActivity.details).map(([k, v]) => (
+                      <div key={k} className="ws-param-card">
+                        <span className="ws-param-key">{formatDetailKey(k)}</span>
+                        <div className="ws-param-val">
+                          {formatDetailValue(k, v)}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="ws-modal-footer">
+              <button
+                type="button"
+                className="ws-btn-cancel ws-btn-act-close"
+                onClick={() => setSelectedActivity(null)}
+              >
+                Close Details
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* =========================================================
          8. DELETE CONFIRMATION MODAL
       ========================================================= */}
       {confirmDelete && (
@@ -1862,7 +2815,7 @@ export default function AdminWorkspace() {
                 className="ws-btn-danger"
                 onClick={confirmDeleteWorkspace}
               >
-                Delete Workspace
+                <Trash2 size={16} /> Delete Workspace
               </button>
             </div>
           </div>
@@ -1953,7 +2906,7 @@ export default function AdminWorkspace() {
                   <button
                     type="button"
                     className="ws-open-btn-primary"
-                    onClick={handleGoToProjects}
+                    onClick={() => handleGoToProjects(openedWorkspace)}
                   >
                     <FolderKanban size={14} />
                     <span>Go to Projects</span>
@@ -2091,7 +3044,7 @@ export default function AdminWorkspace() {
                       <button
                         type="button"
                         className="ws-open-link-btn"
-                        onClick={handleGoToProjects}
+                        onClick={() => handleGoToProjects(openedWorkspace)}
                       >
                         <span>View All Projects</span>
                         <ChevronRight size={13} />
@@ -2100,7 +3053,7 @@ export default function AdminWorkspace() {
 
                     <div className="ws-open-projects-grid">
                       {workspaceProjects.slice(0, 3).map((p) => (
-                        <div key={p.id} className="ws-open-project-item">
+                        <div key={p.id} className="ws-open-project-item" onClick={() => handleGoToProjects(openedWorkspace, p)} style={{ cursor: "pointer" }} title={`Open ${p.name} in Projects Dashboard`}>
                           <div className="ws-open-proj-top">
                             <h4>{p.name}</h4>
                             <span className={`ws-status-badge ws-status--${(p.status || "active").toLowerCase()}`}>
@@ -2189,8 +3142,19 @@ export default function AdminWorkspace() {
 
                       <button
                         type="button"
+                        className="ws-open-btn-goto-projects"
+                        onClick={() => handleGoToProjects(openedWorkspace)}
+                        title={`Open all ${openedWorkspace?.name || "workspace"} projects in Projects Dashboard`}
+                      >
+                        <FolderKanban size={13} />
+                        <span>Go to Projects</span>
+                        <ArrowRight size={12} />
+                      </button>
+
+                      <button
+                        type="button"
                         className="ws-open-btn-create-proj"
-                        onClick={handleGoToProjects}
+                        onClick={() => handleGoToProjects(openedWorkspace)}
                       >
                         <Plus size={13} />
                         <span>Add Project</span>
@@ -2231,8 +3195,8 @@ export default function AdminWorkspace() {
                           <button
                             type="button"
                             className="ws-btn-open-proj-link"
-                            onClick={handleGoToProjects}
-                            title="Open in Projects Dashboard"
+                            onClick={() => handleGoToProjects(openedWorkspace, p)}
+                            title={`Open ${p.name} in Projects Dashboard`}
                           >
                             <span>Open</span>
                             <ArrowRight size={12} />
@@ -2489,7 +3453,7 @@ export default function AdminWorkspace() {
                 <button
                   type="button"
                   className="ws-open-btn-primary"
-                  onClick={handleGoToProjects}
+                  onClick={() => handleGoToProjects(openedWorkspace)}
                 >
                   <span>Launch Workspace</span>
                   <ArrowRight size={13} />

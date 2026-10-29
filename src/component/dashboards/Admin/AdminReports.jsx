@@ -637,7 +637,7 @@ export default function AdminReports() {
                           <div className="admin-reports-actions-cell actions-cell">
                             <button
                               type="button"
-                              className="rep-action-pill rep-view-btn"
+                              className="rep-action-pill rep-view-btn view"
                               title="Preview Dataset"
                               aria-label="Preview Dataset"
                               onClick={() => setSelectedReport(report)}
@@ -647,7 +647,7 @@ export default function AdminReports() {
                             </button>
                             <button
                               type="button"
-                              className="rep-action-icon rep-download-btn"
+                              className="rep-action-icon rep-download-btn download copy"
                               title={`Download ${report.name} (${report.format})`}
                               aria-label={`Download ${report.name} (${report.format})`}
                               onClick={() => handleDownloadReport(report)}
@@ -656,7 +656,7 @@ export default function AdminReports() {
                             </button>
                             <button
                               type="button"
-                              className="rep-action-icon rep-delete-btn"
+                              className="rep-action-icon rep-delete-btn delete"
                               title="Delete Report from Archive"
                               aria-label="Delete Report from Archive"
                               onClick={() => setReportToDelete(report)}

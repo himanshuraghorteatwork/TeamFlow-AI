@@ -951,10 +951,22 @@
   border-color: #cbd5e1;
 }
 
-.action-btn.delete:hover {
-  background: #fee2e2;
+.action-btn.delete {
+  background: #fef2f2;
   color: #dc2626;
-  border-color: #fca5a5;
+  border-color: #fecaca;
+}
+
+.action-btn.delete:hover {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+  color: #ffffff !important;
+  border-color: #dc2626 !important;
+  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.38) !important;
+  transform: translateY(-2px) scale(1.05) !important;
+}
+
+.action-btn.delete:active {
+  transform: translateY(0) scale(0.96) !important;
 }
 
 .admin-billing-edit-btn {

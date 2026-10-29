@@ -16,10 +16,13 @@ export const projectPriorities = [
 
 export const workspaceOptions = [
   "All",
-  "TeamFlow",
-  "Marketing",
-  "Development",
-  "Design",
+  "TeamFlow Workspace",
+  "Marketing Team",
+  "Development Hub",
+  "Design Studio",
+  "Research Lab",
+  "Startup Team",
+  "Finance Ops",
 ];
 
 export const teamMembersList = [
@@ -38,7 +41,7 @@ export const initialAdminProjects = [
   {
     id: 1,
     name: "Website Redesign",
-    workspace: "Design",
+    workspace: "Design Studio",
     owner: "Rahul Sharma",
     ownerEmail: "rahul@teamflow.ai",
     status: "Active",
@@ -60,7 +63,7 @@ export const initialAdminProjects = [
   {
     id: 2,
     name: "Mobile Application",
-    workspace: "Development",
+    workspace: "Development Hub",
     owner: "Amit Kumar",
     ownerEmail: "amit@teamflow.ai",
     status: "Active",
@@ -82,7 +85,7 @@ export const initialAdminProjects = [
   {
     id: 3,
     name: "AI Integration",
-    workspace: "TeamFlow",
+    workspace: "TeamFlow Workspace",
     owner: "Priya Patel",
     ownerEmail: "priya@teamflow.ai",
     status: "Completed",
@@ -104,7 +107,7 @@ export const initialAdminProjects = [
   {
     id: 4,
     name: "Marketing Portal",
-    workspace: "Marketing",
+    workspace: "Marketing Team",
     owner: "Sneha Singh",
     ownerEmail: "sneha@teamflow.ai",
     status: "On Hold",
@@ -126,7 +129,7 @@ export const initialAdminProjects = [
   {
     id: 5,
     name: "Analytics Dashboard",
-    workspace: "Development",
+    workspace: "Development Hub",
     owner: "Vikram Mehta",
     ownerEmail: "vikram@teamflow.ai",
     status: "Active",
@@ -148,7 +151,7 @@ export const initialAdminProjects = [
   {
     id: 6,
     name: "Team Collaboration",
-    workspace: "TeamFlow",
+    workspace: "TeamFlow Workspace",
     owner: "Sarah Chen",
     ownerEmail: "sarah@teamflow.ai",
     status: "Active",
@@ -170,7 +173,7 @@ export const initialAdminProjects = [
   {
     id: 7,
     name: "Internal Tools",
-    workspace: "TeamFlow",
+    workspace: "TeamFlow Workspace",
     owner: "David Lee",
     ownerEmail: "david@teamflow.ai",
     status: "Completed",
@@ -192,7 +195,7 @@ export const initialAdminProjects = [
   {
     id: 8,
     name: "Bug Tracking System",
-    workspace: "TeamFlow",
+    workspace: "TeamFlow Workspace",
     owner: "Himanshu R",
     ownerEmail: "himanshu@teamflow.ai",
     status: "Active",
@@ -214,7 +217,7 @@ export const initialAdminProjects = [
   {
     id: 9,
     name: "Brand Identity Revamp",
-    workspace: "Design",
+    workspace: "Design Studio",
     owner: "Alex Morgan",
     ownerEmail: "alex@teamflow.ai",
     status: "Active",
@@ -236,7 +239,7 @@ export const initialAdminProjects = [
   {
     id: 10,
     name: "Security Audit & 2FA",
-    workspace: "TeamFlow",
+    workspace: "TeamFlow Workspace",
     owner: "Robert Fox",
     ownerEmail: "robert@teamflow.ai",
     status: "Completed",
@@ -258,7 +261,7 @@ export const initialAdminProjects = [
   {
     id: 11,
     name: "Customer Feedback Hub",
-    workspace: "Marketing",
+    workspace: "Marketing Team",
     owner: "Jessica Taylor",
     ownerEmail: "jessica@teamflow.ai",
     status: "Active",
@@ -280,7 +283,7 @@ export const initialAdminProjects = [
   {
     id: 12,
     name: "Email Automation Engine",
-    workspace: "Marketing",
+    workspace: "Marketing Team",
     owner: "Sneha Singh",
     ownerEmail: "sneha@teamflow.ai",
     status: "Active",

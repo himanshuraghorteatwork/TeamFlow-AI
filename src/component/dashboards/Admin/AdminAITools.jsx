@@ -512,7 +512,7 @@ export default function AdminAITools() {
                         <div className="admin-ai-actions-cell table-actions">
                           <button
                             type="button"
-                            className="ai-action-pill ai-view-btn"
+                            className="ai-action-pill ai-view-btn view"
                             title="View details & Prompt"
                             aria-label="View details & Prompt"
                             onClick={() => setViewingTool(t)}
@@ -531,7 +531,7 @@ export default function AdminAITools() {
                           </button>
                           <button
                             type="button"
-                            className="ai-action-icon ai-edit-btn"
+                            className="ai-action-icon ai-edit-btn edit"
                             title="Edit AI Feature"
                             aria-label="Edit AI Feature"
                             onClick={() => openEditModal(t)}
@@ -540,7 +540,7 @@ export default function AdminAITools() {
                           </button>
                           <button
                             type="button"
-                            className="ai-action-icon ai-delete-btn"
+                            className="ai-action-icon ai-delete-btn delete"
                             title="Delete AI Feature"
                             aria-label="Delete AI Feature"
                             onClick={() => setToolToDelete(t)}
@@ -594,7 +594,7 @@ export default function AdminAITools() {
                     <div className="admin-ai-actions-cell tool-actions">
                       <button
                         type="button"
-                        className="ai-action-pill ai-view-btn"
+                        className="ai-action-pill ai-view-btn view"
                         title="View details & Prompt"
                         aria-label="View details & Prompt"
                         onClick={() => setViewingTool(t)}
@@ -604,7 +604,7 @@ export default function AdminAITools() {
                       </button>
                       <button
                         type="button"
-                        className="ai-action-icon ai-edit-btn"
+                        className="ai-action-icon ai-edit-btn edit"
                         title="Edit AI Feature"
                         aria-label="Edit AI Feature"
                         onClick={() => openEditModal(t)}
@@ -613,7 +613,7 @@ export default function AdminAITools() {
                       </button>
                       <button
                         type="button"
-                        className="ai-action-icon ai-delete-btn"
+                        className="ai-action-icon ai-delete-btn delete"
                         title="Delete AI Feature"
                         aria-label="Delete AI Feature"
                         onClick={() => setToolToDelete(t)}

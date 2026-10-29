@@ -392,14 +392,6 @@ export default function AdminBugs() {
     setActiveMenuId(null);
   };
 
-  // Donut SVG circumference calculation for Bug Overview
-  const donutR = 46;
-  const donutC = 2 * Math.PI * donutR; // ~289.02
-  const pOpen = (stats.open / stats.total) * donutC;
-  const pInProg = (stats.inProgress / stats.total) * donutC;
-  const pResolved = (stats.resolved / stats.total) * donutC;
-  const pClosed = (stats.closed / stats.total) * donutC;
-
   return (
     <div className="tfBugsApp">
       <AdminSidebar mobileOpen={mobileOpen} onClose={() => setMobileOpen(false)} />
@@ -678,7 +670,7 @@ export default function AdminBugs() {
                         <th>Assignee</th>
                         <th>Created</th>
                         <th>Due Date</th>
-                        <th style={{ width: 44, textAlign: "center" }}>Actions</th>
+                        <th style={{ width: 160, textAlign: "right" }}>Actions</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -692,7 +684,6 @@ export default function AdminBugs() {
                         paginatedBugs.map((b) => {
                           const isSelected = selectedIds.includes(b.id);
                           const assigneeMeta = ASSIGNEE_META[b.assignee] || { initials: "US", color: "#64748b", bg: "#f1f5f9" };
-                          const isMenuOpen = activeMenuId === b.id;
 
                           return (
                             <tr key={b.id} className={isSelected ? "row-selected" : ""}>
@@ -738,37 +729,51 @@ export default function AdminBugs() {
                                   {b.dueDate}
                                 </span>
                               </td>
-                              <td style={{ textAlign: "center" }}>
-                                <div className="bugs-action-menu-wrap">
+                              <td className="tf-bugs-action-cell" style={{ textAlign: "right" }}>
+                                <div className="admin-bugs-inline-actions">
                                   <button
                                     type="button"
-                                    className="menu-trigger-btn"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setActiveMenuId(isMenuOpen ? null : b.id);
-                                    }}
+                                    className="action-icon-btn view"
+                                    title="View bug details"
+                                    onClick={() => setViewingBug(b)}
                                   >
-                                    <MoreHorizontal size={15} />
+                                    <Eye size={15} />
                                   </button>
-
-                                  {isMenuOpen && (
-                                    <div className="bugs-action-dropdown">
-                                      <button type="button" onClick={() => { setViewingBug(b); setActiveMenuId(null); }}>
-                                        <Eye size={13} /> View Details
-                                      </button>
-                                      <button type="button" onClick={() => openEditModal(b)}>
-                                        <Pencil size={13} /> Edit Bug
-                                      </button>
-                                      {b.status !== "Resolved" && (
-                                        <button type="button" onClick={() => markResolved(b.id)}>
-                                          <Check size={13} /> Mark Resolved
-                                        </button>
-                                      )}
-                                      <button type="button" className="danger-item" onClick={() => { setBugToDelete(b); setActiveMenuId(null); }}>
-                                        <Trash2 size={13} /> Delete Bug
-                                      </button>
-                                    </div>
+                                  <button
+                                    type="button"
+                                    className="action-icon-btn edit"
+                                    title="Edit bug"
+                                    onClick={() => openEditModal(b)}
+                                  >
+                                    <Pencil size={15} />
+                                  </button>
+                                  {b.status !== "Resolved" ? (
+                                    <button
+                                      type="button"
+                                      className="action-icon-btn resolve"
+                                      title="Mark as Resolved"
+                                      onClick={() => markResolved(b.id)}
+                                    >
+                                      <Check size={15} />
+                                    </button>
+                                  ) : (
+                                    <button
+                                      type="button"
+                                      className="action-icon-btn resolve is-resolved"
+                                      title="Resolved"
+                                      disabled
+                                    >
+                                      <Check size={15} />
+                                    </button>
                                   )}
+                                  <button
+                                    type="button"
+                                    className="action-icon-btn delete"
+                                    title="Delete bug"
+                                    onClick={() => setBugToDelete(b)}
+                                  >
+                                    <Trash2 size={15} />
+                                  </button>
                                 </div>
                               </td>
                             </tr>
@@ -844,145 +849,6 @@ export default function AdminBugs() {
                 )}
               </div>
             </div>
-
-            {/* RIGHT SIDEBAR: 3 ANALYTICAL WIDGETS */}
-            <aside className="tfBugsSidebar">
-              {/* WIDGET 1: BUG OVERVIEW (DONUT) */}
-              <div className="tfBugsWidgetCard">
-                <h3>Bug Overview</h3>
-
-                <div className="tfBugsOverviewBody">
-                  <div className="donut-wrapper">
-                    <svg viewBox="0 0 120 120" className="donut-svg">
-                      <circle cx="60" cy="60" r={donutR} fill="none" stroke="var(--border-color, #f1f5f9)" strokeWidth="14" />
-                      {/* Closed: purple */}
-                      <circle
-                        cx="60" cy="60" r={donutR} fill="none" stroke="#8b5cf6" strokeWidth="14"
-                        strokeDasharray={`${pClosed} ${donutC - pClosed}`}
-                        strokeDashoffset={-(pOpen + pInProg + pResolved)}
-                        transform="rotate(-90 60 60)"
-                      />
-                      {/* Resolved: green */}
-                      <circle
-                        cx="60" cy="60" r={donutR} fill="none" stroke="#10b981" strokeWidth="14"
-                        strokeDasharray={`${pResolved} ${donutC - pResolved}`}
-                        strokeDashoffset={-(pOpen + pInProg)}
-                        transform="rotate(-90 60 60)"
-                      />
-                      {/* In Progress: blue */}
-                      <circle
-                        cx="60" cy="60" r={donutR} fill="none" stroke="#0ea5e9" strokeWidth="14"
-                        strokeDasharray={`${pInProg} ${donutC - pInProg}`}
-                        strokeDashoffset={-pOpen}
-                        transform="rotate(-90 60 60)"
-                      />
-                      {/* Open: red */}
-                      <circle
-                        cx="60" cy="60" r={donutR} fill="none" stroke="#ef4444" strokeWidth="14"
-                        strokeDasharray={`${pOpen} ${donutC - pOpen}`}
-                        strokeDashoffset="0"
-                        transform="rotate(-90 60 60)"
-                      />
-                    </svg>
-                    <div className="donut-center-num">
-                      <strong>{stats.total}</strong>
-                      <span>Total</span>
-                    </div>
-                  </div>
-
-                  <div className="donut-legend">
-                    <div className="legend-row">
-                      <span className="dot dot-red" />
-                      <span className="name">Open</span>
-                      <strong className="val">{stats.open} ({stats.openPct}%)</strong>
-                    </div>
-                    <div className="legend-row">
-                      <span className="dot dot-blue" />
-                      <span className="name">In Progress</span>
-                      <strong className="val">{stats.inProgress} ({stats.inProgressPct}%)</strong>
-                    </div>
-                    <div className="legend-row">
-                      <span className="dot dot-green" />
-                      <span className="name">Resolved</span>
-                      <strong className="val">{stats.resolved} ({stats.resolvedPct}%)</strong>
-                    </div>
-                    <div className="legend-row">
-                      <span className="dot dot-purple" />
-                      <span className="name">Closed</span>
-                      <strong className="val">{stats.closed} ({stats.closedPct}%)</strong>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* WIDGET 2: PRIORITY DISTRIBUTION */}
-              <div className="tfBugsWidgetCard">
-                <h3>Priority Distribution</h3>
-                <div className="priority-bars-list">
-                  <div className="priority-bar-row">
-                    <span className="p-label">Critical</span>
-                    <div className="p-rail">
-                      <div className="p-fill fill-red" style={{ width: `${stats.criticalPct}%` }} />
-                    </div>
-                    <span className="p-pct">{stats.criticalPct}%</span>
-                  </div>
-
-                  <div className="priority-bar-row">
-                    <span className="p-label">High</span>
-                    <div className="p-rail">
-                      <div className="p-fill fill-orange" style={{ width: `${stats.highPct}%` }} />
-                    </div>
-                    <span className="p-pct">{stats.highPct}%</span>
-                  </div>
-
-                  <div className="priority-bar-row">
-                    <span className="p-label">Medium</span>
-                    <div className="p-rail">
-                      <div className="p-fill fill-blue" style={{ width: `${stats.mediumPct}%` }} />
-                    </div>
-                    <span className="p-pct">{stats.mediumPct}%</span>
-                  </div>
-
-                  <div className="priority-bar-row">
-                    <span className="p-label">Low</span>
-                    <div className="p-rail">
-                      <div className="p-fill fill-purple" style={{ width: `${stats.lowPct}%` }} />
-                    </div>
-                    <span className="p-pct">{stats.lowPct}%</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* WIDGET 3: RECENT ACTIVITY */}
-              <div className="tfBugsWidgetCard">
-                <div className="widget-header-row">
-                  <h3>Recent Activity</h3>
-                  <button type="button" className="view-all-link" onClick={() => navigate("/admin/activity-logs")}>
-                    View all <ArrowRight size={11} />
-                  </button>
-                </div>
-
-                <div className="recent-activity-list">
-                  {RECENT_ACTIVITIES.map((act) => (
-                    <div key={act.id} className="activity-item">
-                      <span
-                        className="act-avatar"
-                        style={{ backgroundColor: act.bg, color: act.color }}
-                      >
-                        {act.initials}
-                      </span>
-                      <div className="act-details">
-                        <div className="act-top">
-                          <strong>{act.user}</strong>
-                          <small>{act.time}</small>
-                        </div>
-                        <p>{act.action}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </aside>
           </div>
         </main>
       </div>
@@ -1164,29 +1030,44 @@ export default function AdminBugs() {
       ========================================================= */}
       {bugToDelete && (
         <div className="modal-overlay" onMouseDown={(e) => { if (e.target === e.currentTarget) setBugToDelete(null); }}>
-          <div className="modal-box delete-confirm-modal">
-            <div className="delete-modal-icon">
+          <div className="tasks-delete-modal-dialog bugs-delete-modal-dialog" onClick={(e) => e.stopPropagation()}>
+            <div className="tasks-delete-icon-circle">
               <Trash2 size={24} />
             </div>
-            <h2>Delete Bug Ticket?</h2>
-            <p>
-              Are you sure you want to delete <strong>"{bugToDelete.bugCode}: {bugToDelete.title}"</strong>?
-              This action will permanently remove it from tracking logs.
+            <h3 className="tasks-delete-title">Delete Bug Ticket?</h3>
+            <p className="tasks-delete-text">
+              Are you sure you want to permanently delete <strong>"{bugToDelete.bugCode}: {bugToDelete.title}"</strong>? This action cannot be undone.
             </p>
-            <div className="modal-actions">
-              <button type="button" className="btn-cancel" onClick={() => setBugToDelete(null)}>
+            <div className="tasks-delete-task-preview">
+              <div className="tasks-delete-preview-item">
+                <span className="tasks-preview-label">Bug Code</span>
+                <span className="tasks-preview-val">{bugToDelete.bugCode}</span>
+              </div>
+              <div className="tasks-delete-preview-item">
+                <span className="tasks-preview-label">Severity</span>
+                <span className="tasks-preview-val" style={{ fontWeight: 700 }}>
+                  {bugToDelete.severity}
+                </span>
+              </div>
+              <div className="tasks-delete-preview-item">
+                <span className="tasks-preview-label">Module</span>
+                <span className="tasks-preview-val">{bugToDelete.module || "Core Engine"}</span>
+              </div>
+            </div>
+            <div className="tasks-delete-actions">
+              <button type="button" className="tasks-btn-cancel" onClick={() => setBugToDelete(null)}>
                 Cancel
               </button>
               <button
                 type="button"
-                className="btn-danger"
+                className="tasks-btn-danger"
                 onClick={() => {
                   saveBugs(bugs.filter((b) => b.id !== bugToDelete.id));
                   setBugToDelete(null);
                   showToast(`Bug ticket ${bugToDelete.bugCode} deleted.`);
                 }}
               >
-                Delete Bug
+                <Trash2 size={16} /> Delete Bug
               </button>
             </div>
           </div>

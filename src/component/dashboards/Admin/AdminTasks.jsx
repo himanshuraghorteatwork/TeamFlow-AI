@@ -38,7 +38,7 @@ import AdminTopbar from "./AdminTopbar.jsx";
 import { initialAdminTasks } from "./adminTasksData.js";
 import "./AdminTasks.css";
 
-const STORAGE_KEY = "teamflow_admin_tasks";
+const STORAGE_KEY = "teamflow_admin_tasks_v2";
 
 const STATUS_OPTIONS = ["To Do", "In Progress", "Review", "Completed"];
 const PRIORITY_OPTIONS = ["Low", "Medium", "High", "Critical"];
@@ -209,12 +209,30 @@ export default function AdminTasks() {
     setCurrentPage(1);
   }, [search, statusFilter, priorityFilter, projectFilter, sortKey, sortOrder]);
 
-  // Paginated Slicing
+  // Paginated Slicing (Activity Logs Style)
   const totalPages = Math.max(1, Math.ceil(filteredTasks.length / perPage));
+  const safeCurrentPage = Math.min(Math.max(1, currentPage), totalPages);
+
+  const getPageNumbers = () => {
+    const pages = [];
+    if (totalPages <= 5) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
+    } else {
+      if (safeCurrentPage <= 3) {
+        pages.push(1, 2, 3, "...", totalPages);
+      } else if (safeCurrentPage >= totalPages - 2) {
+        pages.push(1, "...", totalPages - 2, totalPages - 1, totalPages);
+      } else {
+        pages.push(1, "...", safeCurrentPage, "...", totalPages);
+      }
+    }
+    return pages;
+  };
+
   const paginatedTasks = useMemo(() => {
-    const start = (currentPage - 1) * perPage;
+    const start = (safeCurrentPage - 1) * perPage;
     return filteredTasks.slice(start, start + perPage);
-  }, [filteredTasks, currentPage, perPage]);
+  }, [filteredTasks, safeCurrentPage, perPage]);
 
   // Dynamic Statistics
   const stats = useMemo(() => {
@@ -657,11 +675,11 @@ export default function AdminTasks() {
             </div>
           </section>
 
-          {/* META HEADER */}
-          <div className="admin-tasks-meta-header">
+          {/* META HEADER (Activity Logs Style) */}
+          <div className="admin-tasks-meta-header admin-logs-meta-bar">
             <span>
-              Showing {filteredTasks.length === 0 ? 0 : (currentPage - 1) * perPage + 1} -{" "}
-              {Math.min(currentPage * perPage, filteredTasks.length)} of {filteredTasks.length} tasks
+              Showing {filteredTasks.length === 0 ? 0 : (safeCurrentPage - 1) * perPage + 1} to{" "}
+              {Math.min(safeCurrentPage * perPage, filteredTasks.length)} of {filteredTasks.length} tasks
             </span>
             {(search || statusFilter !== "All" || priorityFilter !== "All" || projectFilter !== "All") && (
               <button
@@ -743,7 +761,7 @@ export default function AdminTasks() {
                           </button>
                         </td>
                         <td style={{ textAlign: "center" }}>
-                          <span className="task-row-num">{(currentPage - 1) * perPage + idx + 1}</span>
+                          <span className="task-row-num">{(safeCurrentPage - 1) * perPage + idx + 1}</span>
                         </td>
                         <td>
                           <div className="task-title-cell">
@@ -988,52 +1006,72 @@ export default function AdminTasks() {
             </div>
           )}
 
-          {/* PAGINATION FOOTER */}
+          {/* ATTACHED ACTIVITY LOGS STYLE PAGINATION (ZERO EXTRA SPACING) */}
           {filteredTasks.length > 0 && viewMode !== "kanban" && (
-            <div className="admin-tasks-pagination">
-              <div className="pagination-info">
-                <span>Page {currentPage} of {totalPages}</span>
-                <select
-                  value={perPage}
-                  onChange={(e) => {
-                    setPerPage(Number(e.target.value));
-                    setCurrentPage(1);
-                  }}
-                  className="per-page-select"
-                >
-                  <option value={6}>6 per page</option>
-                  <option value={8}>8 per page</option>
-                  <option value={12}>12 per page</option>
-                  <option value={24}>24 per page</option>
-                </select>
+            <div
+              className={`admin-logs-pagination-bar admin-tasks-pagination-bar ws-pagination-bar rp-pagination-bar ${
+                viewMode === "table" ? "tasks-pagination-table-footer" : "tasks-pagination-card-footer"
+              }`}
+            >
+              <div className="admin-logs-pagination-info ws-pagination-info rp-pagination-info">
+                <span>
+                  Showing {(safeCurrentPage - 1) * perPage + 1} to{" "}
+                  {Math.min(safeCurrentPage * perPage, filteredTasks.length)} of {filteredTasks.length} tasks
+                </span>
+                <div className="admin-logs-page-size-wrap ws-page-size-wrap rp-page-size-wrap">
+                  <span>Tasks per page:</span>
+                  <select
+                    value={perPage}
+                    onChange={(e) => {
+                      setPerPage(Number(e.target.value));
+                      setCurrentPage(1);
+                    }}
+                    aria-label="Tasks per page"
+                  >
+                    <option value={6}>6</option>
+                    <option value={8}>8</option>
+                    <option value={12}>12</option>
+                    <option value={24}>24</option>
+                  </select>
+                </div>
               </div>
 
-              <div className="pagination-buttons">
+              <div className="admin-logs-pagination-controls ws-pagination-controls rp-pagination-controls">
                 <button
                   type="button"
-                  className="page-nav-btn"
+                  className="admin-logs-page-nav-btn ws-page-nav-btn rp-page-nav-btn"
                   onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                  disabled={currentPage <= 1}
+                  disabled={safeCurrentPage <= 1}
                 >
                   Previous
                 </button>
-                <div className="page-numbers">
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((num) => (
-                    <button
-                      key={num}
-                      type="button"
-                      className={`page-num-btn ${currentPage === num ? "active" : ""}`}
-                      onClick={() => setCurrentPage(num)}
-                    >
-                      {num}
-                    </button>
-                  ))}
+
+                <div className="admin-logs-page-pills ws-page-pills rp-page-pills">
+                  {getPageNumbers().map((num, i) =>
+                    num === "..." ? (
+                      <span key={`ellipsis-${i}`} className="admin-logs-page-ellipsis rp-page-ellipsis">
+                        ...
+                      </span>
+                    ) : (
+                      <button
+                        key={num}
+                        type="button"
+                        className={`admin-logs-page-num-pill ws-page-num-pill rp-page-num-pill ${
+                          safeCurrentPage === num ? "active" : ""
+                        }`}
+                        onClick={() => setCurrentPage(num)}
+                      >
+                        {num}
+                      </button>
+                    )
+                  )}
                 </div>
+
                 <button
                   type="button"
-                  className="page-nav-btn"
+                  className="admin-logs-page-nav-btn ws-page-nav-btn rp-page-nav-btn"
                   onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                  disabled={currentPage >= totalPages}
+                  disabled={safeCurrentPage >= totalPages}
                 >
                   Next
                 </button>

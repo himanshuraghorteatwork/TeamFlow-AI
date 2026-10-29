@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   FolderKanban,
   Search,
@@ -66,20 +67,178 @@ import "./AdminProjects.css";
 
 const STORAGE_KEY = "teamflow_admin_projects_v2";
 
+/* =========================================================
+   ANIMATED NUMBER COMPONENT (Smooth counting animation)
+========================================================= */
+function AnimatedNumber({ value, prefix = "", suffix = "" }) {
+  const numericValue = useMemo(() => {
+    if (typeof value === "number") return value;
+    const cleaned = String(value).replace(/[^0-9]/g, "");
+    return parseInt(cleaned, 10) || 0;
+  }, [value]);
+
+  const [displayValue, setDisplayValue] = useState(numericValue);
+
+  useEffect(() => {
+    let startVal = displayValue;
+    let endVal = numericValue;
+    if (startVal === endVal) return;
+
+    let startTime = null;
+    const duration = 350;
+
+    const step = (timestamp) => {
+      if (!startTime) startTime = timestamp;
+      const progress = Math.min((timestamp - startTime) / duration, 1);
+      const factor = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+      const current = Math.floor(startVal + (endVal - startVal) * factor);
+      setDisplayValue(current);
+      if (progress < 1) {
+        requestAnimationFrame(step);
+      }
+    };
+
+    const animId = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(animId);
+  }, [numericValue]);
+
+  return (
+    <span className="tf-live-num">
+      {prefix}
+      {displayValue.toLocaleString()}
+      {suffix}
+    </span>
+  );
+}
+
+// Canonical workspace mapping to unify legacy names with modern Admin Workspaces
+const CANONICAL_WORKSPACE_MAP = {
+  "development": "Development Hub",
+  "development hub": "Development Hub",
+  "design": "Design Studio",
+  "design studio": "Design Studio",
+  "marketing": "Marketing Team",
+  "marketing team": "Marketing Team",
+  "teamflow": "TeamFlow Workspace",
+  "teamflow workspace": "TeamFlow Workspace",
+  "research lab": "Research Lab",
+  "startup team": "Startup Team",
+  "finance ops": "Finance Ops",
+};
+
+const normalizeWorkspaceName = (wsName) => {
+  if (!wsName) return "TeamFlow Workspace";
+  const trimmed = wsName.trim();
+  const lower = trimmed.toLowerCase();
+  if (CANONICAL_WORKSPACE_MAP[lower]) return CANONICAL_WORKSPACE_MAP[lower];
+  return trimmed;
+};
+
 const loadProjects = () => {
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
+    let parsedProjects = [];
     if (saved) {
       const parsed = JSON.parse(saved);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        parsedProjects = parsed;
+      }
     }
+    if (parsedProjects.length === 0) {
+      parsedProjects = initialAdminProjects;
+    }
+
+    // Normalize project workspaces to canonical names
+    parsedProjects = parsedProjects.map((p) => ({
+      ...p,
+      workspace: normalizeWorkspaceName(p.workspace),
+    }));
+
+    // Save normalized back to storage
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(parsedProjects));
+    } catch {}
+
+    // Ensure all registered workspaces have projects
+    let registeredWorkspaces = [];
+    try {
+      const savedWs = localStorage.getItem("teamflow_admin_workspaces_v2");
+      if (savedWs) {
+        const list = JSON.parse(savedWs);
+        if (Array.isArray(list)) registeredWorkspaces = list;
+      }
+    } catch {}
+
+    const projectWorkspaces = new Set(parsedProjects.map((p) => p.workspace));
+    const toSeed = [];
+
+    registeredWorkspaces.forEach((ws, idx) => {
+      const canonicalName = normalizeWorkspaceName(ws.name);
+      if (!projectWorkspaces.has(canonicalName)) {
+        // Generate initial projects for this workspace
+        toSeed.push(
+          {
+            id: Date.now() + idx * 100 + 1,
+            name: `${canonicalName} Initiative`,
+            workspace: canonicalName,
+            owner: ws.owner || "Amit Sharma",
+            ownerEmail: ws.email || "amit@teamflow.ai",
+            status: "Active",
+            priority: "High",
+            description: `Core operational tasks and deliverables for ${canonicalName}.`,
+            tasks: 12,
+            completedTasks: 8,
+            progress: 67,
+            dueDate: "2026-11-28",
+            createdAt: "2026-10-10",
+            color: ws.color || "#6366f1",
+            iconType: "layout",
+            team: [
+              { name: ws.owner || "Amit Sharma", avatar: (ws.owner || "AS").slice(0, 2).toUpperCase(), color: "#6366f1" },
+              { name: "Priya Patel", avatar: "PP", color: "#10b981" },
+            ],
+            extraMembers: 2,
+          },
+          {
+            id: Date.now() + idx * 100 + 2,
+            name: `${canonicalName} Platform QA`,
+            workspace: canonicalName,
+            owner: ws.owner || "David Lee",
+            ownerEmail: ws.email || "david@techcorp.com",
+            status: "Active",
+            priority: "Medium",
+            description: `Quality testing and deployment pipelines for ${canonicalName}.`,
+            tasks: 10,
+            completedTasks: 4,
+            progress: 40,
+            dueDate: "2026-12-15",
+            createdAt: "2026-10-15",
+            color: "#3b82f6",
+            iconType: "chart",
+            team: [
+              { name: "Rahul Sharma", avatar: "RS", color: "#6366f1" },
+            ],
+            extraMembers: 1,
+          }
+        );
+      }
+    });
+
+    if (toSeed.length > 0) {
+      parsedProjects = [...toSeed, ...parsedProjects];
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(parsedProjects));
+    }
+
+    return parsedProjects;
   } catch (e) {
     console.error(e);
+    return initialAdminProjects;
   }
-  return initialAdminProjects;
 };
 
 export default function AdminProjects() {
+  const location = useLocation();
+  const navigate = useNavigate();
   const [projects, setProjects] = useState(loadProjects);
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -89,7 +248,16 @@ export default function AdminProjects() {
   // Filters & Search
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
-  const [workspaceFilter, setWorkspaceFilter] = useState("All");
+  const [workspaceFilter, setWorkspaceFilter] = useState(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const wsParam = params.get("workspace");
+      if (wsParam) return decodeURIComponent(wsParam);
+      const saved = localStorage.getItem("teamflow_selected_project_workspace");
+      if (saved) return saved;
+    } catch {}
+    return "All";
+  });
   const [memberFilter, setMemberFilter] = useState("All");
   const [priorityFilter, setPriorityFilter] = useState("All");
   const [sortKey, setSortKey] = useState("recentlyUpdated"); // 'recentlyUpdated' | 'name-asc' | 'name-desc' | 'progress-desc' | 'dueDate'
@@ -107,7 +275,7 @@ export default function AdminProjects() {
   // Form State
   const [form, setForm] = useState({
     name: "",
-    workspace: "TeamFlow",
+    workspace: "TeamFlow Workspace",
     owner: "Rahul Sharma",
     ownerEmail: "rahul@teamflow.ai",
     status: "Active",
@@ -135,12 +303,100 @@ export default function AdminProjects() {
     if (notifyMsg) showToast(notifyMsg);
   };
 
+  // Synchronize workspace query parameter & search from URL
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams(location.search);
+      const wsParam = params.get("workspace");
+      if (wsParam) {
+        const decoded = decodeURIComponent(wsParam);
+        setWorkspaceFilter(decoded);
+        try {
+          localStorage.setItem("teamflow_selected_project_workspace", decoded);
+        } catch {}
+      }
+      const searchParam = params.get("search") || params.get("project");
+      if (searchParam) {
+        setSearch(decodeURIComponent(searchParam));
+      }
+    } catch {}
+  }, [location.search]);
+
+  const handleWorkspaceChange = (newWs) => {
+    setWorkspaceFilter(newWs);
+    try {
+      if (newWs === "All") {
+        localStorage.removeItem("teamflow_selected_project_workspace");
+        navigate("/admin/projects", { replace: true });
+      } else {
+        localStorage.setItem("teamflow_selected_project_workspace", newWs);
+        navigate(`/admin/projects?workspace=${encodeURIComponent(newWs)}`, { replace: true });
+      }
+    } catch {}
+  };
+
   // Close menus on outside click
   useEffect(() => {
     const handleOutside = () => setActiveMenuId(null);
     window.addEventListener("click", handleOutside);
     return () => window.removeEventListener("click", handleOutside);
   }, []);
+
+  // Synchronize with external data updates (e.g. from AdminWorkspace)
+  useEffect(() => {
+    const handleUpdate = () => {
+      setProjects(loadProjects());
+    };
+    window.addEventListener("teamflow_data_update", handleUpdate);
+    window.addEventListener("storage", handleUpdate);
+    return () => {
+      window.removeEventListener("teamflow_data_update", handleUpdate);
+      window.removeEventListener("storage", handleUpdate);
+    };
+  }, []);
+
+  // Dynamically load all available distinct workspaces (Deduplicated & Canonical)
+  const availableWorkspaces = useMemo(() => {
+    const list = ["All"];
+    const seen = new Set(["all"]);
+
+    const registerWs = (name) => {
+      if (!name) return;
+      const canonical = normalizeWorkspaceName(name);
+      const key = canonical.toLowerCase().trim();
+      if (!seen.has(key)) {
+        seen.add(key);
+        list.push(canonical);
+      }
+    };
+
+    // 1. Standard canonical default workspaces
+    [
+      "TeamFlow Workspace",
+      "Development Hub",
+      "Design Studio",
+      "Marketing Team",
+      "Research Lab",
+      "Startup Team",
+      "Finance Ops",
+    ].forEach(registerWs);
+
+    // 2. Workspaces from Admin Workspace store (e.g. user created)
+    try {
+      const savedWs = localStorage.getItem("teamflow_admin_workspaces_v2");
+      if (savedWs) {
+        const parsed = JSON.parse(savedWs);
+        if (Array.isArray(parsed)) {
+          parsed.forEach((w) => registerWs(w.name));
+        }
+      }
+    } catch (e) {}
+
+    // 3. Workspaces from projects
+    projects.forEach((p) => registerWs(p.workspace));
+
+    return list;
+  }, [projects]);
 
   // Filtered & Sorted Projects
   const filteredProjects = useMemo(() => {
@@ -154,10 +410,17 @@ export default function AdminProjects() {
         p.description?.toLowerCase().includes(term);
 
       const matchesStatus = statusFilter === "All" || p.status === statusFilter;
+
+      const pWs = normalizeWorkspaceName(p.workspace);
+      const filterWs = workspaceFilter === "All" ? "All" : normalizeWorkspaceName(workspaceFilter);
+
       const matchesWorkspace =
-        workspaceFilter === "All" || p.workspace === workspaceFilter;
+        filterWs === "All" ||
+        pWs.toLowerCase() === filterWs.toLowerCase();
+
       const matchesPriority =
         priorityFilter === "All" || p.priority === priorityFilter;
+
       const matchesMember =
         memberFilter === "All" ||
         p.owner === memberFilter ||
@@ -266,39 +529,66 @@ export default function AdminProjects() {
     );
   };
 
-  // Overall Statistics matching reference design
+  // Overall Statistics calculated LIVE based on filtered projects
   const stats = useMemo(() => {
-    const total = projects.length;
-    const active = projects.filter((p) => p.status === "Active").length;
-    const completed = projects.filter((p) => p.status === "Completed").length;
-    const onHold = projects.filter((p) => p.status === "On Hold").length;
-    return { total, active, completed, onHold };
-  }, [projects]);
+    const total = filteredProjects.length;
+    const active = filteredProjects.filter((p) => p.status === "Active").length;
+    const completed = filteredProjects.filter((p) => p.status === "Completed").length;
+    const onHold = filteredProjects.filter((p) => p.status === "On Hold").length;
+    const overdue = filteredProjects.filter((p) => p.status === "Overdue").length;
+    const avgProgress = total > 0
+      ? Math.round(filteredProjects.reduce((acc, p) => acc + (p.progress || 0), 0) / total)
+      : 0;
+    return { total, active, completed, onHold, overdue, avgProgress };
+  }, [filteredProjects]);
 
-  // Workspace distribution stats for Bar Chart
-  const workspaceStats = useMemo(() => {
-    const counts = { TeamFlow: 0, Marketing: 0, Development: 0, Design: 0 };
-    projects.forEach((p) => {
-      if (counts[p.workspace] !== undefined) {
-        counts[p.workspace]++;
-      } else {
-        counts.TeamFlow++;
-      }
-    });
-    return counts;
-  }, [projects]);
+  const isAllWorkspaces = workspaceFilter === "All";
 
-  // Progress overview for top 4 projects
+  // Live Chart 2 Data: Workspace Distribution or Project-Level Velocity
+  const wsColors = ["#8b5cf6", "#3b82f6", "#10b981", "#f59e0b", "#ec4899", "#06b6d4", "#f97316", "#14b8a6", "#6366f1"];
+  const chart2Data = useMemo(() => {
+    if (isAllWorkspaces) {
+      const counts = {};
+      availableWorkspaces.filter((w) => w !== "All").forEach((w) => {
+        counts[w] = 0;
+      });
+      projects.forEach((p) => {
+        const ws = normalizeWorkspaceName(p.workspace);
+        counts[ws] = (counts[ws] || 0) + 1;
+      });
+      return Object.entries(counts)
+        .filter(([_, count]) => count > 0)
+        .slice(0, 7)
+        .map(([name, count], idx) => ({
+          name: name.replace(/ (Workspace|Team|Hub|Studio|Lab)/i, ""),
+          fullName: name,
+          value: count,
+          color: wsColors[idx % wsColors.length],
+          sub: `${count} projects`,
+        }));
+    } else {
+      // Projects in the selected workspace
+      return filteredProjects.slice(0, 6).map((p, idx) => ({
+        name: p.name.length > 11 ? `${p.name.slice(0, 9)}…` : p.name,
+        fullName: p.name,
+        value: p.completedTasks || p.progress || 0,
+        color: p.color || wsColors[idx % wsColors.length],
+        sub: `${p.completedTasks}/${p.tasks} tasks (${p.progress}%)`,
+      }));
+    }
+  }, [isAllWorkspaces, projects, filteredProjects, availableWorkspaces]);
+
+  // Progress overview list for Chart 3
   const progressOverviewList = useMemo(() => {
-    return projects.slice(0, 4);
-  }, [projects]);
+    return filteredProjects.slice(0, 4);
+  }, [filteredProjects]);
 
   // Open Create Modal
   const openCreateModal = () => {
     setEditingProject(null);
     setForm({
       name: "",
-      workspace: "TeamFlow",
+      workspace: "TeamFlow Workspace",
       owner: "Rahul Sharma",
       ownerEmail: "rahul@teamflow.ai",
       status: "Active",
@@ -319,7 +609,7 @@ export default function AdminProjects() {
     setEditingProject(p);
     setForm({
       name: p.name || "",
-      workspace: p.workspace || "TeamFlow",
+      workspace: normalizeWorkspaceName(p.workspace) || "TeamFlow Workspace",
       owner: p.owner || "Rahul Sharma",
       ownerEmail: p.ownerEmail || "rahul@teamflow.ai",
       status: p.status || "Active",
@@ -460,41 +750,27 @@ export default function AdminProjects() {
   const [hoveredSegment, setHoveredSegment] = useState(null);
   const [hoveredBar, setHoveredBar] = useState(null);
 
-  // Live Donut chart stroke calculation (Circumference 2 * PI * 46 = 289.03)
-  const CIRCUMFERENCE = 289.03;
-  const totalCount = stats.total || 1;
-  const activePct = Math.round((stats.active / totalCount) * 100);
-  const completedPct = Math.round((stats.completed / totalCount) * 100);
-  const onHoldPct = Math.max(0, 100 - activePct - completedPct);
+  // Live percentages based on filtered projects
+  const totalCount = stats.total || 0;
+  const activePct = totalCount > 0 ? Math.round((stats.active / totalCount) * 100) : 0;
+  const completedPct = totalCount > 0 ? Math.round((stats.completed / totalCount) * 100) : 0;
+  const onHoldPct = totalCount > 0 ? Math.max(0, 100 - activePct - completedPct) : 0;
 
-  // Exact segment lengths on circumference
-  const activeArcLength = (activePct / 100) * CIRCUMFERENCE;
-  const completedArcLength = (completedPct / 100) * CIRCUMFERENCE;
-  const onHoldArcLength = (onHoldPct / 100) * CIRCUMFERENCE;
-
-  // Workspace chart max scaling
-  const maxWorkspaceVal = useMemo(() => {
-    return Math.max(...Object.values(workspaceStats), 1);
-  }, [workspaceStats]);
-  const yAxisMax = Math.max(Math.ceil(maxWorkspaceVal / 2) * 2, 4);
-
-  // Live Recharts Data for Status Pie & Workspace Bar
+  // Live Recharts Data for Status Pie (reacts immediately to filters)
   const statusPieData = useMemo(() => {
-    return [
+    if (totalCount === 0) {
+      return [{ name: "No Projects", value: 1, color: "#cbd5e1" }];
+    }
+    const data = [
       { name: "Active", value: stats.active || 0, color: "#10b981" },
       { name: "Completed", value: stats.completed || 0, color: "#3b82f6" },
       { name: "On Hold", value: stats.onHold || 0, color: "#f59e0b" },
-    ].filter((d) => d.value > 0);
-  }, [stats]);
-
-  const workspaceChartData = useMemo(() => {
-    return [
-      { name: "TeamFlow", count: workspaceStats.TeamFlow || 0, color: "#8b5cf6" },
-      { name: "Marketing", count: workspaceStats.Marketing || 0, color: "#3b82f6" },
-      { name: "Development", count: workspaceStats.Development || 0, color: "#10b981" },
-      { name: "Design", count: workspaceStats.Design || 0, color: "#f59e0b" },
     ];
-  }, [workspaceStats]);
+    if (stats.overdue > 0) {
+      data.push({ name: "Overdue", value: stats.overdue, color: "#ef4444" });
+    }
+    return data.filter((d) => d.value > 0);
+  }, [stats, totalCount]);
 
   return (
     <div className="admin-projects-app projectManagementPage">
@@ -535,26 +811,29 @@ export default function AdminProjects() {
               <div className="ap-view-selector">
                 <button
                   type="button"
-                  className={`ap-view-btn ${viewMode === "kanban" ? "active" : ""}`}
+                  className={`ap-view-mode-btn ${viewMode === "kanban" ? "active" : ""}`}
                   onClick={() => setViewMode("kanban")}
+                  title="Kanban Board View"
                 >
-                  <FolderKanban size={14} />
+                  <FolderKanban size={15} />
                   <span>Kanban</span>
                 </button>
                 <button
                   type="button"
-                  className={`ap-view-btn ${viewMode === "list" ? "active" : ""}`}
+                  className={`ap-view-mode-btn ${viewMode === "list" ? "active" : ""}`}
                   onClick={() => setViewMode("list")}
+                  title="List Table View"
                 >
-                  <List size={14} />
+                  <List size={15} />
                   <span>List</span>
                 </button>
                 <button
                   type="button"
-                  className={`ap-view-btn ${viewMode === "timeline" ? "active" : ""}`}
+                  className={`ap-view-mode-btn ${viewMode === "timeline" ? "active" : ""}`}
                   onClick={() => setViewMode("timeline")}
+                  title="Timeline View"
                 >
-                  <CalendarDays size={14} />
+                  <CalendarDays size={15} />
                   <span>Timeline</span>
                 </button>
               </div>
@@ -572,7 +851,7 @@ export default function AdminProjects() {
           </div>
 
           {/* =========================================================
-             2. TOP STATS KPI ROW (4 Cards with sparklines)
+             2. TOP STATS KPI ROW (Live counts based on filters)
           ========================================================= */}
           <div className="ap-stats-row">
             {/* Total Projects */}
@@ -584,10 +863,16 @@ export default function AdminProjects() {
                 <div>
                   <span className="ap-stat-title">Total Projects</span>
                   <div className="ap-stat-val-row">
-                    <strong className="ap-stat-val">{stats.total}</strong>
-                    <span className="ap-stat-badge up">↑ 20%</span>
+                    <strong className="ap-stat-val">
+                      <AnimatedNumber value={stats.total} />
+                    </strong>
+                    <span className="ap-stat-badge up">
+                      {isAllWorkspaces ? "All Workspaces" : "Live"}
+                    </span>
                   </div>
-                  <small className="ap-stat-sub">+2 this month</small>
+                  <small className="ap-stat-sub">
+                    {isAllWorkspaces ? "Across organization" : `In ${workspaceFilter}`}
+                  </small>
                 </div>
               </div>
               <div className="ap-sparkline-wrap">
@@ -612,10 +897,14 @@ export default function AdminProjects() {
                 <div>
                   <span className="ap-stat-title">Active Projects</span>
                   <div className="ap-stat-val-row">
-                    <strong className="ap-stat-val">{stats.active}</strong>
-                    <span className="ap-stat-badge up">↑ 14%</span>
+                    <strong className="ap-stat-val">
+                      <AnimatedNumber value={stats.active} />
+                    </strong>
+                    <span className="ap-stat-badge up">
+                      {stats.total > 0 ? `${activePct}%` : "0%"}
+                    </span>
                   </div>
-                  <small className="ap-stat-sub">+1 this month</small>
+                  <small className="ap-stat-sub">{stats.active} currently shipping</small>
                 </div>
               </div>
               <div className="ap-sparkline-wrap">
@@ -640,10 +929,14 @@ export default function AdminProjects() {
                 <div>
                   <span className="ap-stat-title">Completed</span>
                   <div className="ap-stat-val-row">
-                    <strong className="ap-stat-val">{stats.completed}</strong>
-                    <span className="ap-stat-badge up">↑ 50%</span>
+                    <strong className="ap-stat-val">
+                      <AnimatedNumber value={stats.completed} />
+                    </strong>
+                    <span className="ap-stat-badge up">
+                      {stats.total > 0 ? `${completedPct}%` : "0%"}
+                    </span>
                   </div>
-                  <small className="ap-stat-sub">+1 this month</small>
+                  <small className="ap-stat-sub">{stats.completed} delivered</small>
                 </div>
               </div>
               <div className="ap-sparkline-wrap">
@@ -668,10 +961,14 @@ export default function AdminProjects() {
                 <div>
                   <span className="ap-stat-title">On Hold</span>
                   <div className="ap-stat-val-row">
-                    <strong className="ap-stat-val">{stats.onHold}</strong>
-                    <span className="ap-stat-badge down">↓ 50%</span>
+                    <strong className="ap-stat-val">
+                      <AnimatedNumber value={stats.onHold} />
+                    </strong>
+                    <span className={`ap-stat-badge ${stats.onHold > 0 ? "down" : "up"}`}>
+                      {stats.total > 0 ? `${onHoldPct}%` : "0%"}
+                    </span>
                   </div>
-                  <small className="ap-stat-sub">-1 this month</small>
+                  <small className="ap-stat-sub">{stats.onHold} paused or queued</small>
                 </div>
               </div>
               <div className="ap-sparkline-wrap">
@@ -689,14 +986,14 @@ export default function AdminProjects() {
           </div>
 
           {/* =========================================================
-             3. ANALYTICS & CHARTS ROW (3 Cards matching design)
+             3. ANALYTICS & CHARTS ROW (Live interactive charts)
           ========================================================= */}
           <div className="ap-charts-row">
             {/* 1. Project Status Distribution (Live Recharts Pie / Donut Chart) */}
             <div className="ap-chart-card">
               <div className="ap-chart-card-header">
                 <div className="ap-chart-title-wrap">
-                  <h3>Project Status Distribution</h3>
+                  <h3>Project Status</h3>
                   <span className="ap-chart-live-badge">
                     <span className="ap-live-pulse-dot" /> Live
                   </span>
@@ -714,15 +1011,35 @@ export default function AdminProjects() {
                         cx="50%"
                         cy="50%"
                         innerRadius={36}
-                        outerRadius={52}
-                        paddingAngle={3}
+                        outerRadius={hoveredSegment ? 53 : 48}
+                        paddingAngle={totalCount > 1 ? 3 : 0}
                         isAnimationActive={true}
-                        animationDuration={800}
+                        animationDuration={750}
                         animationEasing="ease-out"
+                        onClick={(entry) => {
+                          if (entry?.name) {
+                            setStatusFilter(statusFilter === entry.name ? "All" : entry.name);
+                          }
+                        }}
                       >
-                        {statusPieData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.color} />
-                        ))}
+                        {statusPieData.map((entry, index) => {
+                          const isHovered = hoveredSegment === entry.name;
+                          return (
+                            <Cell
+                              key={`cell-${index}`}
+                              fill={entry.color}
+                              stroke={isHovered ? "#ffffff" : "transparent"}
+                              strokeWidth={isHovered ? 2.5 : 0}
+                              style={{
+                                cursor: "pointer",
+                                filter: isHovered ? "drop-shadow(0 0 8px rgba(99, 102, 241, 0.45))" : "none",
+                                transition: "all 0.25s ease",
+                              }}
+                              onMouseEnter={() => setHoveredSegment(entry.name)}
+                              onMouseLeave={() => setHoveredSegment(null)}
+                            />
+                          );
+                        })}
                       </Pie>
                       <Tooltip
                         contentStyle={{
@@ -731,32 +1048,58 @@ export default function AdminProjects() {
                           borderRadius: "8px",
                           fontSize: "12px",
                           color: "#f8fafc",
-                          padding: "5px 9px",
-                          boxShadow: "0 4px 12px rgba(0,0,0,0.25)",
+                          padding: "6px 10px",
+                          boxShadow: "0 4px 14px rgba(0,0,0,0.3)",
                         }}
                         itemStyle={{ color: "#f8fafc" }}
-                        formatter={(val, name) => [`${val} projects (${Math.round((val / totalCount) * 100)}%)`, name]}
+                        formatter={(val, name) => [
+                          `${val} projects (${totalCount > 0 ? Math.round((val / totalCount) * 100) : 0}%) · Click to filter`,
+                          name,
+                        ]}
                       />
                     </PieChart>
                   </ResponsiveContainer>
                   <div className="ap-donut-center-label">
-                    <strong>{stats.total}</strong>
+                    <strong>
+                      <AnimatedNumber value={stats.total} />
+                    </strong>
                     <small>Projects</small>
                   </div>
                 </div>
 
                 <div className="ap-donut-legend">
-                  <div className="ap-legend-row">
+                  <div
+                    className={`ap-legend-row ${hoveredSegment === "Active" || statusFilter === "Active" ? "active" : ""}`}
+                    onMouseEnter={() => setHoveredSegment("Active")}
+                    onMouseLeave={() => setHoveredSegment(null)}
+                    onClick={() => setStatusFilter(statusFilter === "Active" ? "All" : "Active")}
+                    title="Click to filter by Active status"
+                    style={{ cursor: "pointer" }}
+                  >
                     <span className="ap-legend-dot green" />
                     <span className="ap-legend-name">Active</span>
                     <strong className="ap-legend-val">{stats.active} ({activePct}%)</strong>
                   </div>
-                  <div className="ap-legend-row">
+                  <div
+                    className={`ap-legend-row ${hoveredSegment === "Completed" || statusFilter === "Completed" ? "active" : ""}`}
+                    onMouseEnter={() => setHoveredSegment("Completed")}
+                    onMouseLeave={() => setHoveredSegment(null)}
+                    onClick={() => setStatusFilter(statusFilter === "Completed" ? "All" : "Completed")}
+                    title="Click to filter by Completed status"
+                    style={{ cursor: "pointer" }}
+                  >
                     <span className="ap-legend-dot blue" />
                     <span className="ap-legend-name">Completed</span>
                     <strong className="ap-legend-val">{stats.completed} ({completedPct}%)</strong>
                   </div>
-                  <div className="ap-legend-row">
+                  <div
+                    className={`ap-legend-row ${hoveredSegment === "On Hold" || statusFilter === "On Hold" ? "active" : ""}`}
+                    onMouseEnter={() => setHoveredSegment("On Hold")}
+                    onMouseLeave={() => setHoveredSegment(null)}
+                    onClick={() => setStatusFilter(statusFilter === "On Hold" ? "All" : "On Hold")}
+                    title="Click to filter by On Hold status"
+                    style={{ cursor: "pointer" }}
+                  >
                     <span className="ap-legend-dot yellow" />
                     <span className="ap-legend-name">On Hold</span>
                     <strong className="ap-legend-val">{stats.onHold} ({onHoldPct}%)</strong>
@@ -765,11 +1108,15 @@ export default function AdminProjects() {
               </div>
             </div>
 
-            {/* 2. Projects by Workspace (Live Recharts Bar Chart) */}
+            {/* 2. Projects by Workspace or Velocity (Live Recharts Bar Chart) */}
             <div className="ap-chart-card">
               <div className="ap-chart-card-header">
                 <div className="ap-chart-title-wrap">
-                  <h3>Projects by Workspace</h3>
+                  <h3>
+                    {isAllWorkspaces
+                      ? "Projects by Workspace"
+                      : `${workspaceFilter.replace(/ (Workspace|Team|Hub|Studio|Lab)/i, "")} Velocity`}
+                  </h3>
                   <span className="ap-chart-live-badge">
                     <span className="ap-live-pulse-dot" /> Live Metrics
                   </span>
@@ -778,7 +1125,7 @@ export default function AdminProjects() {
 
               <div className="ap-recharts-bar-wrap" style={{ width: "100%", height: 125, marginTop: 4 }}>
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={workspaceChartData} margin={{ top: 12, right: 10, left: -25, bottom: 0 }}>
+                  <BarChart data={chart2Data} margin={{ top: 12, right: 10, left: -25, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#eef2f6" opacity={0.6} />
                     <XAxis
                       dataKey="name"
@@ -799,22 +1146,44 @@ export default function AdminProjects() {
                         borderRadius: "8px",
                         fontSize: "12px",
                         color: "#f8fafc",
-                        padding: "5px 9px",
-                        boxShadow: "0 4px 12px rgba(0,0,0,0.25)",
+                        padding: "6px 10px",
+                        boxShadow: "0 4px 14px rgba(0,0,0,0.3)",
                       }}
                       itemStyle={{ color: "#f8fafc" }}
-                      formatter={(val, name, item) => [`${val} projects`, item?.payload?.name || "Workspace"]}
+                      formatter={(val, name, item) => [
+                        item?.payload?.sub || `${val} items`,
+                        item?.payload?.fullName || "Item",
+                      ]}
                     />
                     <Bar
-                      dataKey="count"
+                      dataKey="value"
                       radius={[6, 6, 0, 0]}
                       isAnimationActive={true}
-                      animationDuration={850}
+                      animationDuration={800}
                       animationEasing="ease-out"
+                      onClick={(data) => {
+                        if (isAllWorkspaces && data?.fullName) {
+                          handleWorkspaceChange(data.fullName);
+                        }
+                      }}
+                      style={{ cursor: isAllWorkspaces ? "pointer" : "default" }}
                     >
-                      {workspaceChartData.map((entry, index) => (
-                        <Cell key={`bar-${index}`} fill={entry.color} />
-                      ))}
+                      {chart2Data.map((entry, index) => {
+                        const isBarHovered = hoveredBar === index;
+                        return (
+                          <Cell
+                            key={`bar-${index}`}
+                            fill={entry.color}
+                            fillOpacity={hoveredBar === null ? 0.9 : isBarHovered ? 1 : 0.45}
+                            style={{
+                              transition: "all 0.25s ease",
+                              filter: isBarHovered ? "drop-shadow(0 4px 8px rgba(99, 102, 241, 0.35))" : "none",
+                            }}
+                            onMouseEnter={() => setHoveredBar(index)}
+                            onMouseLeave={() => setHoveredBar(null)}
+                          />
+                        );
+                      })}
                     </Bar>
                   </BarChart>
                 </ResponsiveContainer>
@@ -833,28 +1202,47 @@ export default function AdminProjects() {
               </div>
 
               <div className="ap-progress-overview-list">
-                {progressOverviewList.map((item, idx) => {
-                  const colors = ["#6366f1", "#2563eb", "#10b981", "#f59e0b"];
-                  return (
-                    <div key={item.id} className="ap-overview-item">
-                      <div className="ap-overview-top-line">
-                        <span className="ap-overview-name">{item.name}</span>
-                        <strong className="ap-overview-pct">{item.progress}%</strong>
-                      </div>
-                      <div className="ap-overview-meter-track">
-                        <div
-                          className="ap-overview-meter-fill ap-animated-meter"
-                          style={{
-                            width: `${item.progress}%`,
-                            backgroundColor: item.color || colors[idx % colors.length],
-                          }}
-                        >
-                          <span className="ap-meter-live-glow" />
+                {progressOverviewList.length === 0 ? (
+                  <div className="ap-overview-empty">
+                    <p>No projects found in this view</p>
+                    <button
+                      type="button"
+                      className="ap-btn-clear-inline"
+                      onClick={() => handleWorkspaceChange("All")}
+                    >
+                      Show All Projects
+                    </button>
+                  </div>
+                ) : (
+                  progressOverviewList.map((item, idx) => {
+                    const colors = ["#6366f1", "#2563eb", "#10b981", "#f59e0b", "#a855f7"];
+                    return (
+                      <div
+                        key={item.id}
+                        className="ap-overview-item"
+                        onClick={() => openEditModal(item)}
+                        title={`Click to view/edit ${item.name}`}
+                      >
+                        <div className="ap-overview-top-line">
+                          <span className="ap-overview-name">{item.name}</span>
+                          <span className="ap-overview-owner-chip">{item.owner}</span>
+                          <strong className="ap-overview-pct">{item.progress}%</strong>
+                        </div>
+                        <div className="ap-overview-meter-track">
+                          <div
+                            className="ap-overview-meter-fill ap-animated-meter"
+                            style={{
+                              width: `${item.progress}%`,
+                              backgroundColor: item.color || colors[idx % colors.length],
+                            }}
+                          >
+                            <span className="ap-meter-live-glow" />
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })
+                )}
               </div>
             </div>
           </div>
@@ -862,12 +1250,42 @@ export default function AdminProjects() {
           {/* =========================================================
              4. TOOLBAR, SEARCH & FILTER CONTROLS ROW
           ========================================================= */}
+          {/* Quick Workspace Selection Pills */}
+          <div className="ap-workspace-quick-chips">
+            <button
+              type="button"
+              className={`ap-quick-chip ${workspaceFilter === "All" ? "active" : ""}`}
+              onClick={() => handleWorkspaceChange("All")}
+              title="View all projects across all workspaces"
+            >
+              <Layers size={13} />
+              <span>All Projects</span>
+              <span className="ap-chip-badge">{projects.length}</span>
+            </button>
+            {availableWorkspaces.filter((w) => w !== "All").slice(0, 6).map((w) => {
+              const wsCount = projects.filter((p) => normalizeWorkspaceName(p.workspace) === w).length;
+              return (
+                <button
+                  key={w}
+                  type="button"
+                  className={`ap-quick-chip ${workspaceFilter === w ? "active" : ""}`}
+                  onClick={() => handleWorkspaceChange(w)}
+                  title={`Filter by ${w}`}
+                >
+                  <Building2 size={13} />
+                  <span>{w.replace(/ (Workspace|Team|Hub|Studio|Lab)/i, "")}</span>
+                  <span className="ap-chip-badge">{wsCount}</span>
+                </button>
+              );
+            })}
+          </div>
+
           <div className="ap-toolbar-row">
             <div className="ap-search-input-wrap">
               <Search size={15} />
               <input
                 type="text"
-                placeholder="Search projects by name, owner, or workspace..."
+                placeholder="Search by name, owner, or workspace..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
@@ -895,12 +1313,14 @@ export default function AdminProjects() {
               {/* WORKSPACE FILTER */}
               <select
                 value={workspaceFilter}
-                onChange={(e) => setWorkspaceFilter(e.target.value)}
+                onChange={(e) => handleWorkspaceChange(e.target.value)}
                 aria-label="Filter workspace"
+                className="ap-workspace-select"
               >
-                {workspaceOptions.map((w) => (
+                <option value="All">All Workspaces</option>
+                {availableWorkspaces.filter((w) => w !== "All").map((w) => (
                   <option key={w} value={w}>
-                    {w === "All" ? "All Workspaces" : w}
+                    {w}
                   </option>
                 ))}
               </select>
@@ -930,6 +1350,25 @@ export default function AdminProjects() {
                 <option value="progress-desc">Highest Progress</option>
                 <option value="dueDate">Due Date</option>
               </select>
+
+              {/* RESET FILTERS BUTTON */}
+              {(workspaceFilter !== "All" || statusFilter !== "All" || memberFilter !== "All" || priorityFilter !== "All" || search !== "") && (
+                <button
+                  type="button"
+                  className="ap-btn-reset-filters"
+                  onClick={() => {
+                    setSearch("");
+                    setStatusFilter("All");
+                    setMemberFilter("All");
+                    setPriorityFilter("All");
+                    handleWorkspaceChange("All");
+                  }}
+                  title="Reset all active filters"
+                >
+                  <RotateCcw size={13} />
+                  <span>Reset Filters</span>
+                </button>
+              )}
 
               {/* LAYOUT GRID / LIST TOGGLE ICONS */}
               <div className="ap-layout-icons">
@@ -977,6 +1416,27 @@ export default function AdminProjects() {
              5. MAIN VIEW AREA (KANBAN CARDS / LIST TABLE / TIMELINE)
           ========================================================= */}
 
+          {/* ACTIVE WORKSPACE FILTER BANNER */}
+          {workspaceFilter !== "All" && (
+            <div className="ap-active-workspace-banner">
+              <div className="ap-active-workspace-left">
+                <FolderKanban size={16} />
+                <span>
+                  Showing projects for workspace: <strong>{workspaceFilter}</strong> ({filteredProjects.length} {filteredProjects.length === 1 ? "project" : "projects"})
+                </span>
+              </div>
+              <button
+                type="button"
+                className="ap-clear-ws-filter-btn"
+                onClick={() => handleWorkspaceChange("All")}
+                title="Show projects across all workspaces"
+              >
+                <X size={13} />
+                <span>Show All Workspaces</span>
+              </button>
+            </div>
+          )}
+
           {/* KANBAN / CARDS VIEW */}
           {viewMode === "kanban" && (
             <div className="ap-two-col-layout">
@@ -993,7 +1453,7 @@ export default function AdminProjects() {
                       onClick={() => {
                         setSearch("");
                         setStatusFilter("All");
-                        setWorkspaceFilter("All");
+                        handleWorkspaceChange("All");
                         setPriorityFilter("All");
                         setMemberFilter("All");
                       }}
@@ -1022,7 +1482,10 @@ export default function AdminProjects() {
                             </div>
 
                             <span className={`ap-pcard-status-badge ${p.status.toLowerCase().replace(/\s+/g, "-")}`}>
-                              {p.status}
+                              {(p.status === "Active" || p.status === "In Progress") && (
+                                <span className="ap-live-pulse-dot" />
+                              )}
+                              <span>{p.status}</span>
                             </span>
 
                             {/* 3-DOTS ACTION MENU */}
@@ -1084,6 +1547,14 @@ export default function AdminProjects() {
                           </h4>
                           <p className="ap-pcard-desc">{p.description}</p>
 
+                          {/* WORKSPACE META PILL */}
+                          <div className="ap-pcard-meta-row">
+                            <span className="ap-pcard-ws-tag" title={`Workspace: ${p.workspace}`}>
+                              <Building2 size={11} />
+                              <span>{p.workspace}</span>
+                            </span>
+                          </div>
+
                           {/* TASKS PROGRESS BAR */}
                           <div className="ap-pcard-tasks-row">
                             <span className="ap-pcard-tasks-count">
@@ -1093,12 +1564,14 @@ export default function AdminProjects() {
                           </div>
                           <div className="ap-pcard-meter-track">
                             <div
-                              className="ap-pcard-meter-fill"
+                              className="ap-pcard-meter-fill ap-animated-meter"
                               style={{
                                 width: `${p.progress}%`,
                                 backgroundColor: p.color || "#6366f1",
                               }}
-                            />
+                            >
+                              <span className="ap-meter-live-glow" />
+                            </div>
                           </div>
 
                           {/* FOOTER: AVATARS, DUE DATE, PRIORITY */}
@@ -1474,7 +1947,7 @@ export default function AdminProjects() {
                       value={form.workspace}
                       onChange={(e) => setForm({ ...form, workspace: e.target.value })}
                     >
-                      {workspaceOptions
+                      {availableWorkspaces
                         .filter((w) => w !== "All")
                         .map((w) => (
                           <option key={w} value={w}>
@@ -1699,7 +2172,7 @@ export default function AdminProjects() {
                 className="ap-btn-danger"
                 onClick={confirmDeleteProject}
               >
-                Delete Project
+                <Trash2 size={16} /> Delete Project
               </button>
             </div>
           </div>

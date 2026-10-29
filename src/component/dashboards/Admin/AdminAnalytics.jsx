@@ -23,7 +23,12 @@ import {
   ArrowUp,
   ArrowDown,
   Layers,
-  FileSpreadsheet
+  FileSpreadsheet,
+  Eye,
+  Info,
+  AlertTriangle,
+  RotateCcw,
+  X,
 } from "lucide-react";
 import AdminSidebar from "./AdminSidebar.jsx";
 import AdminTopbar from "./AdminTopbar.jsx";
@@ -236,6 +241,16 @@ export default function AdminAnalytics() {
             </div>
 
             <div className="admin-analytics-header-actions">
+              <button
+                type="button"
+                className="analytics-jump-audit-btn"
+                onClick={() => navigate("/admin/activity?tab=workspace")}
+                title="View Workspace Activity & Audit Logs in Activity Logs"
+              >
+                <Activity size={14} />
+                <span>Activity Logs</span>
+              </button>
+
               <div className="range-selector">
                 {["7 Days", "30 Days", "90 Days"].map((r) => (
                   <button
@@ -349,7 +364,6 @@ export default function AdminAnalytics() {
             </div>
           </div>
 
-          {/* Main Visualizations Grid */}
           <div className="admin-analytics-main-grid">
             {/* User Growth Line Chart */}
             <div className="admin-analytics-card growth-chart-card">
@@ -1175,7 +1189,8 @@ export default function AdminAnalytics() {
               </div>
             </div>
           </div>
-        </div>
+
+          </div>
       </main>
     </div>
   );

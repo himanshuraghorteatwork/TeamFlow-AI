@@ -873,121 +873,222 @@
 
 
 /* =========================================================
-   ENHANCED INVOICE ACTIONS STYLING (SAAS POLISHED)
+   ENHANCED INVOICE ACTIONS STYLING (MATCHING SUBSCRIPTION)
 ========================================================= */
 .invoice-row-actions {
   display: inline-flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 8px;
+  gap: 7px;
   white-space: nowrap;
-  min-width: 175px;
 }
 
+.inv-action-icon,
 .inv-action-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  border-radius: 8px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border: 1px solid var(--border-color, #e2e8f0);
-  background: var(--bg-card, #ffffff);
-  color: var(--primary, #4f46e5);
-}
-
-.inv-action-pill:hover {
-  background: var(--primary-soft, #ede9fe);
-  border-color: var(--primary, #4f46e5);
-  box-shadow: 0 2px 6px rgba(79, 70, 229, 0.15);
-}
-
-:root.dark .inv-action-pill {
-  background: #1e293b;
-  border-color: #334155;
-  color: #818cf8;
-}
-
-:root.dark .inv-action-pill:hover {
-  background: rgba(99, 102, 241, 0.2);
-  border-color: #6366f1;
-}
-
-.inv-action-icon {
+  width: 33px;
+  height: 33px;
+  min-width: 33px;
+  border-radius: 9px;
+  border: 1px solid transparent;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 30px;
-  height: 30px;
-  border-radius: 7px;
-  border: 1px solid var(--border-color, #e2e8f0);
-  background: var(--bg-card, #ffffff);
-  color: var(--text-muted, #64748b);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  padding: 0;
+  position: relative;
+  outline: none;
+  background: transparent;
+  text-decoration: none;
 }
 
-.inv-action-icon:hover {
-  background: var(--bg-hover, #f1f5f9);
-  color: var(--text-color, #0f172a);
+/* 1. View / Preview Button (Blue - Matching Subscription View) */
+.inv-action-icon.inv-view-btn,
+.inv-action-pill.inv-view-btn {
+  background: #eff6ff;
+  color: #2563eb;
+  border-color: #bfdbfe;
 }
 
-:root.dark .inv-action-icon {
-  background: #1e293b;
-  border-color: #334155;
-  color: #94a3b8;
+.inv-action-icon.inv-view-btn:hover,
+.inv-action-pill.inv-view-btn:hover {
+  background: #2563eb !important;
+  color: #ffffff !important;
+  border-color: #2563eb !important;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.38) !important;
+  transform: translateY(-2px) scale(1.04);
 }
 
-:root.dark .inv-action-icon:hover {
-  background: #334155;
-  color: #f8fafc;
+:root.dark .inv-action-icon.inv-view-btn,
+:root.dark .inv-action-pill.inv-view-btn,
+.dark .inv-action-icon.inv-view-btn,
+.dark .inv-action-pill.inv-view-btn,
+body.dark-theme .inv-action-icon.inv-view-btn,
+body.dark-theme .inv-action-pill.inv-view-btn,
+[data-theme="dark"] .inv-action-icon.inv-view-btn,
+[data-theme="dark"] .inv-action-pill.inv-view-btn {
+  background: rgba(37, 99, 235, 0.14) !important;
+  border-color: rgba(37, 99, 235, 0.3) !important;
+  color: #60a5fa !important;
 }
 
-.inv-action-icon.inv-status-btn:hover {
-  border-color: #f59e0b;
-  color: #d97706;
-  background: #fef3c7;
+:root.dark .inv-action-icon.inv-view-btn:hover,
+:root.dark .inv-action-pill.inv-view-btn:hover,
+.dark .inv-action-icon.inv-view-btn:hover,
+.dark .inv-action-pill.inv-view-btn:hover,
+body.dark-theme .inv-action-icon.inv-view-btn:hover,
+body.dark-theme .inv-action-pill.inv-view-btn:hover,
+[data-theme="dark"] .inv-action-icon.inv-view-btn:hover,
+[data-theme="dark"] .inv-action-pill.inv-view-btn:hover {
+  background: #2563eb !important;
+  border-color: #2563eb !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.5) !important;
+  transform: translateY(-2px) scale(1.04);
+}
+
+/* 2. Print Button (Purple / Violet - Matching Subscription Edit/Customize) */
+.inv-action-icon.inv-print-btn {
+  background: #f5f3ff;
+  color: #7c3aed;
+  border-color: #ddd6fe;
 }
 
 .inv-action-icon.inv-print-btn:hover {
-  border-color: #93c5fd;
-  color: #2563eb;
-  background: #eff6ff;
+  background: #7c3aed !important;
+  color: #ffffff !important;
+  border-color: #7c3aed !important;
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.38) !important;
+  transform: translateY(-2px) scale(1.04);
+}
+
+:root.dark .inv-action-icon.inv-print-btn,
+.dark .inv-action-icon.inv-print-btn,
+body.dark-theme .inv-action-icon.inv-print-btn,
+[data-theme="dark"] .inv-action-icon.inv-print-btn {
+  background: rgba(124, 58, 237, 0.14) !important;
+  border-color: rgba(124, 58, 237, 0.3) !important;
+  color: #c4b5fd !important;
 }
 
 :root.dark .inv-action-icon.inv-print-btn:hover,
-.dark .inv-action-icon.inv-print-btn:hover {
-  background: rgba(37, 99, 235, 0.2);
-  border-color: #3b82f6;
-  color: #60a5fa;
+.dark .inv-action-icon.inv-print-btn:hover,
+body.dark-theme .inv-action-icon.inv-print-btn:hover,
+[data-theme="dark"] .inv-action-icon.inv-print-btn:hover {
+  background: #7c3aed !important;
+  border-color: #7c3aed !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(124, 58, 237, 0.5) !important;
+  transform: translateY(-2px) scale(1.04);
+}
+
+/* 3. Download Button (Emerald / Green - Matching Subscription Reactivate) */
+.inv-action-icon.inv-download-btn {
+  background: #ecfdf5;
+  color: #059669;
+  border-color: #a7f3d0;
 }
 
 .inv-action-icon.inv-download-btn:hover {
-  border-color: #a7f3d0;
-  color: #059669;
-  background: #ecfdf5;
+  background: #059669 !important;
+  color: #ffffff !important;
+  border-color: #059669 !important;
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.38) !important;
+  transform: translateY(-2px) scale(1.04);
+}
+
+:root.dark .inv-action-icon.inv-download-btn,
+.dark .inv-action-icon.inv-download-btn,
+body.dark-theme .inv-action-icon.inv-download-btn,
+[data-theme="dark"] .inv-action-icon.inv-download-btn {
+  background: rgba(16, 185, 129, 0.14) !important;
+  border-color: rgba(16, 185, 129, 0.3) !important;
+  color: #6ee7b7 !important;
 }
 
 :root.dark .inv-action-icon.inv-download-btn:hover,
-.dark .inv-action-icon.inv-download-btn:hover {
-  background: rgba(16, 185, 129, 0.2);
-  border-color: #10b981;
-  color: #34d399;
+.dark .inv-action-icon.inv-download-btn:hover,
+body.dark-theme .inv-action-icon.inv-download-btn:hover,
+[data-theme="dark"] .inv-action-icon.inv-download-btn:hover {
+  background: #059669 !important;
+  border-color: #059669 !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(5, 150, 105, 0.5) !important;
+  transform: translateY(-2px) scale(1.04);
+}
+
+/* 4. Status / Cycle Button (Amber / Warning - Matching Subscription Pause) */
+.inv-action-icon.inv-status-btn {
+  background: #fffbeb;
+  color: #d97706;
+  border-color: #fde68a;
+}
+
+.inv-action-icon.inv-status-btn:hover {
+  background: #d97706 !important;
+  color: #ffffff !important;
+  border-color: #d97706 !important;
+  box-shadow: 0 4px 12px rgba(217, 119, 6, 0.38) !important;
+  transform: translateY(-2px) scale(1.04);
+}
+
+:root.dark .inv-action-icon.inv-status-btn,
+.dark .inv-action-icon.inv-status-btn,
+body.dark-theme .inv-action-icon.inv-status-btn,
+[data-theme="dark"] .inv-action-icon.inv-status-btn {
+  background: rgba(245, 158, 11, 0.14) !important;
+  border-color: rgba(245, 158, 11, 0.3) !important;
+  color: #fcd34d !important;
+}
+
+:root.dark .inv-action-icon.inv-status-btn:hover,
+.dark .inv-action-icon.inv-status-btn:hover,
+body.dark-theme .inv-action-icon.inv-status-btn:hover,
+[data-theme="dark"] .inv-action-icon.inv-status-btn:hover {
+  background: #d97706 !important;
+  border-color: #d97706 !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(217, 119, 6, 0.5) !important;
+  transform: translateY(-2px) scale(1.04);
+}
+
+/* 5. Delete Button (Rose / Danger - Matching Subscription Delete) */
+.inv-action-icon.inv-delete-btn {
+  background: #fef2f2;
+  color: #dc2626;
+  border-color: #fecaca;
 }
 
 .inv-action-icon.inv-delete-btn:hover {
-  border-color: #fecaca;
-  color: #ef4444;
-  background: #fef2f2;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+  color: #ffffff !important;
+  border-color: #dc2626 !important;
+  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.38) !important;
+  transform: translateY(-2px) scale(1.05) !important;
+}
+
+.inv-action-icon.inv-delete-btn:active {
+  transform: translateY(0) scale(0.96) !important;
+}
+
+:root.dark .inv-action-icon.inv-delete-btn,
+.dark .inv-action-icon.inv-delete-btn,
+body.dark-theme .inv-action-icon.inv-delete-btn,
+[data-theme="dark"] .inv-action-icon.inv-delete-btn {
+  background: rgba(220, 38, 38, 0.14) !important;
+  border-color: rgba(220, 38, 38, 0.3) !important;
+  color: #f87171 !important;
 }
 
 :root.dark .inv-action-icon.inv-delete-btn:hover,
-.dark .inv-action-icon.inv-delete-btn:hover {
-  background: rgba(239, 68, 68, 0.15);
-  border-color: #ef4444;
+.dark .inv-action-icon.inv-delete-btn:hover,
+body.dark-theme .inv-action-icon.inv-delete-btn:hover,
+[data-theme="dark"] .inv-action-icon.inv-delete-btn:hover {
+  background: #dc2626 !important;
+  border-color: #dc2626 !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(220, 38, 38, 0.5) !important;
+  transform: translateY(-2px) scale(1.04);
 }
 
 /* Modal header actions & print buttons */
@@ -1278,39 +1379,118 @@
 }
 
 .delete-modal-footer {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 10px;
-  padding: 14px 22px;
-  background: #f8fafc;
-  border-top: 1px solid #e2e8f0;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 12px !important;
+  padding: 18px 22px !important;
+  background: #f8fafc !important;
+  border-top: 1px solid #e2e8f0 !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.delete-modal-footer .btn-secondary {
+  flex: 1 !important;
+  height: 40px !important;
+  padding: 0 16px !important;
+  border-radius: 10px !important;
+  border: 1px solid #e2e8f0 !important;
+  background: #ffffff !important;
+  color: #334155 !important;
+  font-size: 13.5px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: all 0.18s ease !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+}
+
+.delete-modal-footer .btn-secondary:hover {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05) !important;
+}
+
+.delete-modal-footer .btn-secondary:active {
+  transform: translateY(0) scale(0.98) !important;
 }
 
 .admin-invoices-btn-danger {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  background: #dc2626;
-  color: #ffffff;
-  border: none;
-  border-radius: 8px;
-  padding: 8px 16px;
-  font-size: 13.5px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  box-shadow: 0 1px 3px rgba(220, 38, 38, 0.25);
+  flex: 1 !important;
+  height: 40px !important;
+  padding: 0 16px !important;
+  border-radius: 10px !important;
+  border: 1px solid rgba(220, 38, 38, 0.9) !important;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+  color: #ffffff !important;
+  font-size: 13.5px !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.01em !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 7px !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05), 0 3px 12px rgba(239, 68, 68, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+  outline: none !important;
 }
 
 .admin-invoices-btn-danger:hover {
-  background: #b91c1c;
-  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.35);
-  transform: translateY(-1px);
+  background: linear-gradient(135deg, #f87171 0%, #dc2626 100%) !important;
+  border-color: #dc2626 !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08), 0 6px 18px rgba(239, 68, 68, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
+  transform: translateY(-1.5px) !important;
 }
 
 .admin-invoices-btn-danger:active {
-  transform: translateY(0);
+  transform: translateY(0) scale(0.98) !important;
+  box-shadow: 0 1px 3px rgba(239, 68, 68, 0.25) !important;
+}
+
+.admin-invoices-btn-danger:focus-visible {
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.25), 0 4px 14px rgba(239, 68, 68, 0.32) !important;
+}
+
+:root.dark .delete-modal-footer .btn-secondary,
+.dark .delete-modal-footer .btn-secondary,
+body.dark-theme .delete-modal-footer .btn-secondary,
+[data-theme="dark"] .delete-modal-footer .btn-secondary {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #cbd5e1 !important;
+}
+
+:root.dark .delete-modal-footer .btn-secondary:hover,
+.dark .delete-modal-footer .btn-secondary:hover,
+body.dark-theme .delete-modal-footer .btn-secondary:hover,
+[data-theme="dark"] .delete-modal-footer .btn-secondary:hover {
+  background: #334155 !important;
+  color: #f8fafc !important;
+  border-color: #475569 !important;
+}
+
+:root.dark .admin-invoices-btn-danger,
+.dark .admin-invoices-btn-danger,
+body.dark-theme .admin-invoices-btn-danger,
+[data-theme="dark"] .admin-invoices-btn-danger {
+  background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%) !important;
+  border-color: rgba(239, 68, 68, 0.6) !important;
+  box-shadow: 0 3px 12px rgba(239, 68, 68, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+}
+
+:root.dark .admin-invoices-btn-danger:hover,
+.dark .admin-invoices-btn-danger:hover,
+body.dark-theme .admin-invoices-btn-danger:hover,
+[data-theme="dark"] .admin-invoices-btn-danger:hover {
+  background: linear-gradient(135deg, #f87171 0%, #dc2626 100%) !important;
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
+  transform: translateY(-1.5px) !important;
 }
 
 /* =========================================================

@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import {
   Activity,
+  SlidersHorizontal,
   Search,
   Download,
   RotateCcw,
@@ -16,6 +17,11 @@ import {
   X,
   Eye,
   Plus,
+  ChevronRight,
+  HardDrive,
+  Users,
+  FolderKanban,
+  Info,
 } from "lucide-react";
 
 import AdminSidebar from "./AdminSidebar.jsx";
@@ -50,6 +56,69 @@ const defaultActivities = [
   { id: 23, user: "Amit Sharma", role: "Org Admin", action: "Enabled hardware 2FA requirement for Admins", entity: "Org Security Baseline", ip: "192.168.1.10", severity: "warning", time: "2 weeks ago", fullDate: "2026-10-10 14:15:00" },
   { id: 24, user: "Sneha Singh", role: "DevOps Engineer", action: "Restored PostgreSQL standby replica snapshot", entity: "DB Cluster Primary", ip: "10.0.4.18", severity: "success", time: "3 weeks ago", fullDate: "2026-10-05 08:30:00" }
 ];
+
+
+const formatDetailKey = (key) => {
+  const keyMap = {
+    workspace: "Target Workspace",
+    members: "Member Allocation",
+    quota: "Storage Quota",
+    storageQuota: "Storage Quota",
+    currentUsage: "Current Usage",
+    plan: "Subscription Tier",
+    tier: "Plan Tier",
+    projects: "Linked Projects",
+    projectsAdded: "Projects Provisioned",
+    assignedOwner: "Workspace Owner",
+    previousSeats: "Previous Seat Count",
+    updatedSeats: "Updated Seat Count",
+    previousQuota: "Previous Quota",
+    newQuota: "New Quota",
+    adjustment: "Quota Delta",
+    previousStatus: "Previous Status",
+    newStatus: "New Status",
+    reason: "Operation Reason",
+    synchronizedCount: "Sync Project Count",
+    activeProjects: "Active Project Boards",
+    status: "Lifecycle State",
+    storagePreserved: "Preserved Storage",
+    invitedEmail: "Invited Email Address",
+    role: "Assigned Role",
+    projectId: "Project Reference",
+    tasksCount: "Active Task Count",
+    auditedSeats: "Audited Seat Count",
+    complianceStatus: "Compliance Status",
+    initialProjects: "Initial Projects",
+  };
+  if (keyMap[key]) return keyMap[key];
+  return key
+    .replace(/([A-Z])/g, " $1")
+    .replace(/^./, (str) => str.toUpperCase());
+};
+
+const formatDetailValue = (key, val) => {
+  if (Array.isArray(val)) {
+    return (
+      <div className="ws-param-pills-list">
+        {val.map((item, idx) => (
+          <span key={idx} className="ws-param-pill-tag">
+            {item}
+          </span>
+        ))}
+      </div>
+    );
+  }
+  if (typeof val === "number") {
+    if (key.toLowerCase().includes("quota") && !String(val).includes("GB")) {
+      return `${val} GB`;
+    }
+    return val.toLocaleString();
+  }
+  if (typeof val === "boolean") {
+    return val ? "Enabled" : "Disabled";
+  }
+  return String(val);
+};
 
 export default function AdminActivityLogs() {
   const [logs, setLogs] = useState(() => {
@@ -95,6 +164,143 @@ export default function AdminActivityLogs() {
     ip: "192.168.1.10",
     severity: "info",
   });
+
+  // Active Tab: "security" | "workspace"
+  const [activeTab, setActiveTab] = useState(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("tab") === "workspace" || window.location.hash.includes("workspace")) {
+        return "workspace";
+      }
+    } catch {}
+    return "security";
+  });
+
+  useEffect(() => {
+    const handleUrlChange = () => {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get("tab") === "workspace" || window.location.hash.includes("workspace")) {
+          setActiveTab("workspace");
+        }
+      } catch {}
+    };
+    window.addEventListener("popstate", handleUrlChange);
+    window.addEventListener("hashchange", handleUrlChange);
+    return () => {
+      window.removeEventListener("popstate", handleUrlChange);
+      window.removeEventListener("hashchange", handleUrlChange);
+    };
+  }, []);
+
+  // Workspace Activity & Audit Logs State (Moved from Analytics to Activity Logs)
+  const WORKSPACE_STORAGE_KEY = "teamflow_admin_workspace_activities_v2";
+
+  const [workspaceActivities, setWorkspaceActivities] = useState(() => {
+    try {
+      const saved = localStorage.getItem(WORKSPACE_STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (e) {}
+    return initialWorkspaceActivities;
+  });
+
+  const [wsSearch, setWsSearch] = useState("");
+  const [wsCategory, setWsCategory] = useState("All");
+  const [wsSeverity, setWsSeverity] = useState("All");
+  const [wsPage, setWsPage] = useState(1);
+  const [wsPageSize, setWsPageSize] = useState(6);
+  const [selectedWsDetail, setSelectedWsDetail] = useState(null);
+
+  // Sync to local storage & listen for live updates
+  useEffect(() => {
+    try {
+      localStorage.setItem(WORKSPACE_STORAGE_KEY, JSON.stringify(workspaceActivities));
+    } catch (e) {}
+  }, [workspaceActivities]);
+
+  useEffect(() => {
+    const handleStorageUpdate = () => {
+      try {
+        const saved = localStorage.getItem(WORKSPACE_STORAGE_KEY);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed) && parsed.length > 0) setWorkspaceActivities(parsed);
+        }
+      } catch (e) {}
+    };
+
+    window.addEventListener("teamflow_data_update", handleStorageUpdate);
+    window.addEventListener("storage", handleStorageUpdate);
+    return () => {
+      window.removeEventListener("teamflow_data_update", handleStorageUpdate);
+      window.removeEventListener("storage", handleStorageUpdate);
+    };
+  }, []);
+
+  const filteredWsActivities = useMemo(() => {
+    return workspaceActivities.filter((act) => {
+      const q = wsSearch.toLowerCase().trim();
+      const matchesQ =
+        !q ||
+        (act.action || "").toLowerCase().includes(q) ||
+        (act.workspace || "").toLowerCase().includes(q) ||
+        (act.user || "").toLowerCase().includes(q) ||
+        (act.id || "").toLowerCase().includes(q);
+
+      const matchesCat = wsCategory === "All" || act.category === wsCategory;
+      const matchesSev = wsSeverity === "All" || act.severity === wsSeverity;
+
+      return matchesQ && matchesCat && matchesSev;
+    });
+  }, [workspaceActivities, wsSearch, wsCategory, wsSeverity]);
+
+  const totalWsPages = Math.max(1, Math.ceil(filteredWsActivities.length / wsPageSize));
+  const safeWsPage = Math.min(wsPage, totalWsPages);
+  const paginatedWsActivities = useMemo(() => {
+    const start = (safeWsPage - 1) * wsPageSize;
+    return filteredWsActivities.slice(start, start + wsPageSize);
+  }, [filteredWsActivities, safeWsPage, wsPageSize]);
+
+  const getWsPageNumbers = () => {
+    if (totalWsPages <= 7) {
+      return Array.from({ length: totalWsPages }, (_, i) => i + 1);
+    }
+    if (safeWsPage <= 4) {
+      return [1, 2, 3, 4, 5, "...", totalWsPages];
+    }
+    if (safeWsPage >= totalWsPages - 3) {
+      return [1, "...", totalWsPages - 4, totalWsPages - 3, totalWsPages - 2, totalWsPages - 1, totalWsPages];
+    }
+    return [1, "...", safeWsPage - 1, safeWsPage, safeWsPage + 1, "...", totalWsPages];
+  };
+
+  const exportWsCSV = () => {
+    const headers = ["ID", "Workspace", "Action", "Category", "Severity", "Actor", "Role", "Timestamp"];
+    const rows = filteredWsActivities.map((a) => [
+      `"${a.id}"`,
+      `"${a.workspace}"`,
+      `"${(a.action || "").replace(/"/g, '""')}"`,
+      `"${a.category}"`,
+      `"${a.severity}"`,
+      `"${a.user}"`,
+      `"${a.role}"`,
+      `"${a.fullDate || a.time}"`,
+    ]);
+    const csv = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", `workspace-audit-logs-${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    showToast("Exported workspace audit logs to CSV.");
+  };
 
   // Close modals on Escape key
   useEffect(() => {
@@ -351,6 +557,57 @@ export default function AdminActivityLogs() {
             </div>
           </section>
 
+          {/* TAB NAVIGATION: SECURITY AUDIT vs WORKSPACE ACTIVITY LOGS */}
+          <div className="admin-logs-tabs-nav">
+            <button
+              type="button"
+              className={`logs-tab-btn ${activeTab === "security" ? "active" : ""}`}
+              onClick={() => setActiveTab("security")}
+            >
+              <Shield size={16} />
+              <span>Platform & Security Audit Logs</span>
+              <span className="logs-count-pill">{logs.length}</span>
+            </button>
+
+            <button
+              type="button"
+              className={`logs-tab-btn ${activeTab === "workspace" ? "active" : ""}`}
+              onClick={() => setActiveTab("workspace")}
+            >
+              <Activity size={16} />
+              <span>Workspace Activity & Audit Logs</span>
+              <span className="logs-count-pill live">{workspaceActivities.length}</span>
+            </button>
+          </div>
+
+          {activeTab === "security" && (
+            <>
+            {/* Promo Card: Workspace Activity & Audit Logs Section */}
+            <div className="analytics-audit-preview-card ws-logs-banner">
+              <div className="preview-card-left">
+                <div className="preview-icon-box">
+                  <Activity size={22} />
+                </div>
+                <div>
+                  <div className="preview-title-row">
+                    <h3>Workspace Activity & Audit Logs Section</h3>
+                    <span className="analytics-preview-badge">Live Audit Trail</span>
+                  </div>
+                  <p>
+                    Tracking {workspaceActivities.length} real-time workspace lifecycle operations, storage quota customizations, member seat allocations, and project synchronizations across all organizational workspaces.
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                className="analytics-btn-open-section"
+                onClick={() => setActiveTab("workspace")}
+              >
+                <span>Open Activity Logs Section</span>
+                <ChevronRight size={15} />
+              </button>
+            </div>
+
           {/* STATS */}
           <section className="admin-logs-stats">
             <div className="log-stat-card">
@@ -569,7 +826,7 @@ export default function AdminActivityLogs() {
                         <div className="table-actions">
                           <button
                             type="button"
-                            className="action-btn action-btn--view"
+                            className="action-btn action-btn--view view"
                             title="Inspect Event Details"
                             onClick={() => setViewingLog(l)}
                           >
@@ -577,7 +834,7 @@ export default function AdminActivityLogs() {
                           </button>
                           <button
                             type="button"
-                            className="action-btn action-btn--delete"
+                            className="action-btn action-btn--delete delete"
                             title="Delete Event Record"
                             aria-label="Delete Event Record"
                             onClick={() => setLogToDelete(l)}
@@ -658,8 +915,454 @@ export default function AdminActivityLogs() {
               </div>
             </div>
           )}
+          </>
+          )}
+
+          {/* =========================================================
+             TAB 2: WORKSPACE ACTIVITY & AUDIT LOGS (Moved to Activity Logs)
+          ========================================================= */}
+          {activeTab === "workspace" && (
+            <div className="ws-activity-tab-content">
+              {/* TOP BANNER */}
+              <div className="analytics-audit-preview-card ws-logs-banner active-mode">
+                <div className="preview-card-left">
+                  <div className="preview-icon-box">
+                    <Activity size={22} />
+                  </div>
+                  <div>
+                    <div className="preview-title-row">
+                      <h3>Workspace Activity & Audit Logs Section</h3>
+                      <span className="analytics-preview-badge">Live Audit Trail</span>
+                    </div>
+                    <p>
+                      Tracking {workspaceActivities.length} real-time workspace lifecycle operations, storage quota customizations, member seat allocations, and project synchronizations across all organizational workspaces.
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  className="analytics-btn-export-activity"
+                  onClick={exportWsCSV}
+                  title="Export workspace audit logs to CSV"
+                >
+                  <Download size={14} />
+                  <span>Export Logs CSV</span>
+                </button>
+              </div>
+
+              {/* KPI STATS ROW */}
+              <div className="analytics-activity-kpi-grid">
+                <div className="analytics-activity-kpi-card">
+                  <div className="analytics-kpi-icon-wrap purple">
+                    <Activity size={18} />
+                  </div>
+                  <div>
+                    <span className="analytics-kpi-label">Total Logged Events</span>
+                    <strong className="analytics-kpi-val">{workspaceActivities.length}</strong>
+                  </div>
+                </div>
+
+                <div className="analytics-activity-kpi-card">
+                  <div className="analytics-kpi-icon-wrap blue">
+                    <HardDrive size={18} />
+                  </div>
+                  <div>
+                    <span className="analytics-kpi-label">Storage Quota Events</span>
+                    <strong className="analytics-kpi-val">
+                      {workspaceActivities.filter((a) => a.category === "Storage Quotas").length}
+                    </strong>
+                  </div>
+                </div>
+
+                <div className="analytics-activity-kpi-card">
+                  <div className="analytics-kpi-icon-wrap green">
+                    <Users size={18} />
+                  </div>
+                  <div>
+                    <span className="analytics-kpi-label">Member Allocations</span>
+                    <strong className="analytics-kpi-val">
+                      {workspaceActivities.filter((a) => a.category === "Members").length}
+                    </strong>
+                  </div>
+                </div>
+
+                <div className="analytics-activity-kpi-card">
+                  <div className="analytics-kpi-icon-wrap amber">
+                    <FolderKanban size={18} />
+                  </div>
+                  <div>
+                    <span className="analytics-kpi-label">Project Synchronizations</span>
+                    <strong className="analytics-kpi-val">
+                      {workspaceActivities.filter((a) => a.category === "Project Sync").length}
+                    </strong>
+                  </div>
+                </div>
+              </div>
+
+              {/* FILTER TOOLBAR */}
+              <div className="analytics-activity-toolbar">
+                <div className="analytics-activity-search">
+                  <Search size={16} />
+                  <input
+                    type="text"
+                    placeholder="Search workspace audit logs by action, workspace, actor, or ID..."
+                    value={wsSearch}
+                    onChange={(e) => {
+                      setWsSearch(e.target.value);
+                      setWsPage(1);
+                    }}
+                  />
+                  {wsSearch && (
+                    <button type="button" onClick={() => setWsSearch("")} className="clear-btn">
+                      <X size={13} />
+                    </button>
+                  )}
+                </div>
+
+                <div className="analytics-activity-filters">
+                  <select
+                    value={wsCategory}
+                    onChange={(e) => {
+                      setWsCategory(e.target.value);
+                      setWsPage(1);
+                    }}
+                    aria-label="Filter category"
+                  >
+                    <option value="All">All Categories</option>
+                    <option value="Storage Quotas">Storage Quotas</option>
+                    <option value="Project Sync">Project Sync</option>
+                    <option value="Members">Members</option>
+                    <option value="Lifecycle">Lifecycle</option>
+                    <option value="Plans & Tiers">Plans & Tiers</option>
+                  </select>
+
+                  <select
+                    value={wsSeverity}
+                    onChange={(e) => {
+                      setWsSeverity(e.target.value);
+                      setWsPage(1);
+                    }}
+                    aria-label="Filter severity"
+                  >
+                    <option value="All">All Severities</option>
+                    <option value="success">Success</option>
+                    <option value="info">Info</option>
+                    <option value="warning">Warning</option>
+                  </select>
+
+                  {(wsSearch || wsCategory !== "All" || wsSeverity !== "All") && (
+                    <button
+                      type="button"
+                      className="analytics-clear-activity-filter"
+                      onClick={() => {
+                        setWsSearch("");
+                        setWsCategory("All");
+                        setWsSeverity("All");
+                        setWsPage(1);
+                      }}
+                    >
+                      <RotateCcw size={13} />
+                      <span>Reset</span>
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* META INFO BAR */}
+              <div className="admin-logs-meta-bar">
+                <span>
+                  Showing {filteredWsActivities.length > 0 ? (safeWsPage - 1) * wsPageSize + 1 : 0} to{" "}
+                  {Math.min(safeWsPage * wsPageSize, filteredWsActivities.length)} of {filteredWsActivities.length} filtered ({workspaceActivities.length} total) workspace audit records
+                </span>
+                <button
+                  type="button"
+                  className="reset-demo-link"
+                  onClick={() => {
+                    setWorkspaceActivities(initialWorkspaceActivities);
+                    setWsPage(1);
+                    showToast("Reset workspace activities to default 15 records.");
+                  }}
+                  title="Reset to 15 default records"
+                >
+                  <RotateCcw size={13} />
+                  Reset Sample Data
+                </button>
+              </div>
+
+              {/* DATA TABLE */}
+              <div className="analytics-activity-table-wrapper admin-logs-table-wrap">
+                <table className="analytics-activity-table admin-logs-table">
+                  <thead>
+                    <tr>
+                      <th style={{ width: 44, textAlign: "center" }}>#</th>
+                      <th style={{ width: 140 }}>TIMESTAMP</th>
+                      <th>WORKSPACE</th>
+                      <th>ACTIVITY / ACTION</th>
+                      <th>PERFORMED BY</th>
+                      <th>CATEGORY</th>
+                      <th>STATUS</th>
+                      <th style={{ textAlign: "right", width: 80 }}>DETAILS</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {paginatedWsActivities.map((act, idx) => (
+                      <tr key={act.id}>
+                        <td style={{ textAlign: "center" }}>
+                          <span className="analytics-row-num">
+                            {(safeWsPage - 1) * wsPageSize + idx + 1}
+                          </span>
+                        </td>
+
+                        <td>
+                          <div className="analytics-act-time">
+                            <strong>{act.time}</strong>
+                            <small>{act.fullDate?.slice(0, 10)}</small>
+                          </div>
+                        </td>
+
+                        <td>
+                          <div className="analytics-act-workspace-cell">
+                            <span className="analytics-act-workspace-dot" />
+                            <strong>{act.workspace}</strong>
+                          </div>
+                        </td>
+
+                        <td>
+                          <div className="analytics-act-action-cell">
+                            <span>{act.action}</span>
+                            {act.details?.storageQuota && (
+                              <span className="analytics-act-quota-badge">
+                                <HardDrive size={10} /> {act.details.storageQuota}
+                              </span>
+                            )}
+                          </div>
+                        </td>
+
+                        <td>
+                          <div className="analytics-act-actor-cell">
+                            {act.avatar ? (
+                              <img src={act.avatar} alt={act.user} className="analytics-act-avatar" />
+                            ) : (
+                              <div className="analytics-act-avatar fallback">
+                                {(act.user || "A").slice(0, 2).toUpperCase()}
+                              </div>
+                            )}
+                            <div>
+                              <strong>{act.user}</strong>
+                              <small>{act.role}</small>
+                            </div>
+                          </div>
+                        </td>
+
+                        <td>
+                          <span className={`analytics-act-cat-pill cat--${(act.category || "").toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}>
+                            {act.category}
+                          </span>
+                        </td>
+
+                        <td>
+                          <span className={`analytics-act-sev-pill sev--${act.severity}`}>
+                            {act.severity === "success" && <CheckCircle2 size={11} />}
+                            {act.severity === "info" && <Info size={11} />}
+                            {act.severity === "warning" && <AlertTriangle size={11} />}
+                            <span>{act.severity}</span>
+                          </span>
+                        </td>
+
+                        <td style={{ textAlign: "right" }}>
+                          <button
+                            type="button"
+                            className="analytics-act-detail-btn view"
+                            onClick={() => setSelectedWsDetail(act)}
+                            title="View activity record payload"
+                          >
+                            <Eye size={14} />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+
+                    {paginatedWsActivities.length === 0 && (
+                      <tr>
+                        <td colSpan={8} className="analytics-act-empty-cell">
+                          <div className="analytics-act-empty-state">
+                            <Activity size={32} />
+                            <h4>No workspace activity records found</h4>
+                            <p>Try clearing filters or adjusting your search keyword.</p>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* ATTACHED ACTIVITY LOGS PAGINATION (ZERO EXTRA SPACING) */}
+              {filteredWsActivities.length > 0 && (
+                <div className="admin-logs-pagination-bar ws-activity-attached-pagination">
+                  <div className="admin-logs-pagination-info">
+                    <span>
+                      Showing {(safeWsPage - 1) * wsPageSize + 1} to{" "}
+                      {Math.min(safeWsPage * wsPageSize, filteredWsActivities.length)} of {filteredWsActivities.length} logs
+                    </span>
+                    <div className="admin-logs-page-size-wrap">
+                      <span>Logs per page:</span>
+                      <select
+                        value={wsPageSize}
+                        onChange={(e) => {
+                          setWsPageSize(Number(e.target.value));
+                          setWsPage(1);
+                        }}
+                      >
+                        <option value={5}>5</option>
+                        <option value={6}>6</option>
+                        <option value={10}>10</option>
+                        <option value={20}>20</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="admin-logs-pagination-controls">
+                    <button
+                      type="button"
+                      className="admin-logs-page-nav-btn"
+                      onClick={() => setWsPage((p) => Math.max(1, p - 1))}
+                      disabled={safeWsPage <= 1}
+                    >
+                      Previous
+                    </button>
+
+                    <div className="admin-logs-page-pills">
+                      {getWsPageNumbers().map((num, i) =>
+                        num === "..." ? (
+                          <span key={`ellipsis-${i}`} className="admin-logs-page-ellipsis">
+                            ...
+                          </span>
+                        ) : (
+                          <button
+                            key={num}
+                            type="button"
+                            className={`admin-logs-page-num-pill ${safeWsPage === num ? "active" : ""}`}
+                            onClick={() => setWsPage(num)}
+                          >
+                            {num}
+                          </button>
+                        )
+                      )}
+                    </div>
+
+                    <button
+                      type="button"
+                      className="admin-logs-page-nav-btn"
+                      onClick={() => setWsPage((p) => Math.min(totalWsPages, p + 1))}
+                      disabled={safeWsPage >= totalWsPages}
+                    >
+                      Next
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </main>
       </div>
+
+      {/* WORKSPACE ACTIVITY DETAIL PAYLOAD MODAL */}
+      {selectedWsDetail && (
+        <div
+          className="analytics-modal-backdrop admin-logs-modal-backdrop"
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget) setSelectedWsDetail(null);
+          }}
+        >
+          <div className="analytics-modal-box">
+            <div className="analytics-modal-header">
+              <div className="analytics-modal-header-left">
+                <div className="analytics-modal-icon-badge">
+                  <Activity size={20} />
+                </div>
+                <div>
+                  <h2>Workspace Activity Detail</h2>
+                  <p>Audit Reference: {selectedWsDetail.id}</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                className="analytics-modal-close"
+                onClick={() => setSelectedWsDetail(null)}
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="analytics-activity-detail-body">
+              <div className="analytics-act-detail-hero">
+                <div>
+                  <h4>{selectedWsDetail.action}</h4>
+                  <small>Workspace: <strong>{selectedWsDetail.workspace}</strong></small>
+                </div>
+                <span className={`analytics-act-sev-pill sev--${selectedWsDetail.severity}`}>
+                  {selectedWsDetail.severity}
+                </span>
+              </div>
+
+              <div className="analytics-act-detail-rows">
+                <div className="analytics-act-detail-row">
+                  <span>Timestamp:</span>
+                  <strong>{selectedWsDetail.fullDate || selectedWsDetail.time} ({selectedWsDetail.time})</strong>
+                </div>
+                <div className="analytics-act-detail-row">
+                  <span>Event Category:</span>
+                  <strong>{selectedWsDetail.category}</strong>
+                </div>
+                <div className="analytics-act-detail-row">
+                  <span>Triggered By:</span>
+                  <strong>{selectedWsDetail.user} ({selectedWsDetail.role})</strong>
+                </div>
+                <div className="analytics-act-detail-row">
+                  <span>Origin IP:</span>
+                  <strong>{selectedWsDetail.ip || "192.168.1.10"}</strong>
+                </div>
+              </div>
+
+              {selectedWsDetail.details && Object.keys(selectedWsDetail.details).length > 0 && (
+                <div className="ws-act-params-wrap">
+                  <div className="ws-params-header">
+                    <div className="ws-params-header-title">
+                      <SlidersHorizontal size={13} />
+                      <span>Audit Parameters & Configuration</span>
+                    </div>
+                    <span className="ws-params-count-badge">
+                      {Object.keys(selectedWsDetail.details).length} parameters
+                    </span>
+                  </div>
+
+                  <div className="ws-params-grid">
+                    {Object.entries(selectedWsDetail.details).map(([k, v]) => (
+                      <div key={k} className="ws-param-card">
+                        <span className="ws-param-key">{formatDetailKey(k)}</span>
+                        <div className="ws-param-val">
+                          {formatDetailValue(k, v)}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="analytics-modal-footer">
+              <button
+                type="button"
+                className="analytics-btn-modal-close"
+                onClick={() => setSelectedWsDetail(null)}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* VIEW EVENT DETAILS MODAL */}
       {viewingLog && (

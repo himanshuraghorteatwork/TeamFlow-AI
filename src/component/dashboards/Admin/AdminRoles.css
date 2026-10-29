@@ -29,7 +29,7 @@
 
 .rolesPermissionsCardPage .rp-page-body {
   width: 100%;
-  padding: 24px 28px 48px;
+  padding: 18px 24px 20px;
 }
 
 /* =========================================================
@@ -40,8 +40,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 20px;
-  margin-bottom: 22px;
+  gap: 16px;
+  margin-bottom: 14px;
   flex-wrap: wrap;
 }
 
@@ -197,8 +197,8 @@
 .rp-role-cards-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 14px;
-  margin-bottom: 22px;
+  gap: 12px;
+  margin-bottom: 12px;
 }
 
 .rp-role-top-card {
@@ -348,7 +348,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 20px;
+  margin-bottom: 12px;
   flex-wrap: wrap;
   gap: 12px;
 }
@@ -447,7 +447,7 @@
 .rp-main-two-col {
   display: grid;
   grid-template-columns: 1fr 340px;
-  gap: 20px;
+  gap: 14px;
   align-items: flex-start;
 }
 
@@ -455,7 +455,7 @@
 .rp-cards-col {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
   min-width: 0;
 }
 
@@ -467,7 +467,7 @@
   background: #ffffff;
   border: 1px solid #e2e8f0;
   border-radius: 14px;
-  padding: 16px 20px;
+  padding: 12px 18px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
   flex-wrap: wrap;
   gap: 14px;
@@ -1189,6 +1189,28 @@
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
 }
 
+/* Activity Logs Style Table Card - Zero Extra Spacing */
+.rp-tab-card.rp-table-card {
+  padding: 0;
+  overflow: hidden;
+}
+
+.rp-tab-card.rp-table-card .rp-tab-card-header {
+  padding: 14px 18px;
+  border-bottom: 1px solid #e2e8f0;
+  margin-bottom: 0;
+}
+
+.rp-tab-card.rp-table-card .rp-users-table th,
+.rp-tab-card.rp-table-card .rp-logs-table th {
+  padding: 11px 16px;
+}
+
+.rp-tab-card.rp-table-card .rp-users-table td,
+.rp-tab-card.rp-table-card .rp-logs-table td {
+  padding: 11px 16px;
+}
+
 .rp-tab-card-header {
   display: flex;
   align-items: center;
@@ -1624,16 +1646,31 @@
 .rp-btn-danger {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  height: 36px;
-  padding: 0 16px;
-  border-radius: 8px;
-  border: 0;
-  background: #e11d48;
+  justify-content: center;
+  gap: 7px;
+  height: 38px;
+  padding: 0 18px;
+  border-radius: 10px;
+  border: 1px solid rgba(220, 38, 38, 0.9);
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
   color: #ffffff;
-  font-size: 12.5px;
+  font-size: 13px;
   font-weight: 600;
+  letter-spacing: -0.01em;
   cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05), 0 3px 12px rgba(239, 68, 68, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.rp-btn-danger:hover {
+  background: linear-gradient(135deg, #f87171 0%, #dc2626 100%);
+  border-color: #dc2626;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08), 0 6px 18px rgba(239, 68, 68, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  transform: translateY(-1.5px);
+}
+
+.rp-btn-danger:active {
+  transform: translateY(0) scale(0.98);
 }
 
 .rp-modal-icon-circle {
@@ -1719,19 +1756,38 @@
    8.5. PAGINATION BAR (Matching Workspace & Users)
 ========================================================= */
 
+/* =========================================================
+   8.5. PAGINATION BAR (Activity Logs Style, Zero Extra Spacing)
+========================================================= */
+
 .rp-pagination-bar,
-.rolesPermissionsCardPage .ws-pagination-bar {
+.rolesPermissionsCardPage .ws-pagination-bar,
+.rolesPermissionsCardPage .admin-logs-pagination-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 13px 18px;
+  padding: 9px 16px;
   background: #ffffff;
   border: 1px solid #eef2f6;
   border-radius: 12px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
   flex-wrap: wrap;
-  gap: 12px;
-  margin-top: 14px;
+  gap: 10px;
+  margin-top: 0;
+}
+
+/* Seamless Flush Attachment to Table Card (Activity Logs Style) */
+.rp-tab-card.rp-table-card .rp-pagination-bar,
+.rp-tab-card.rp-table-card .ws-pagination-bar,
+.rp-tab-card.rp-table-card .admin-logs-pagination-bar,
+.rp-pagination-bar.rp-pagination-table-footer {
+  margin: 0;
+  border: none;
+  border-top: 1px solid #eef2f6;
+  border-radius: 0 0 14px 14px;
+  box-shadow: none;
+  padding: 9px 18px;
+  background: #ffffff;
 }
 
 .rp-pagination-info,
@@ -1776,8 +1832,9 @@
 }
 
 .rp-page-nav-btn,
-.rolesPermissionsCardPage .ws-page-nav-btn {
-  padding: 6px 12px;
+.rolesPermissionsCardPage .ws-page-nav-btn,
+.rolesPermissionsCardPage .admin-logs-page-nav-btn {
+  padding: 5px 12px;
   border-radius: 6px;
   border: 1px solid #e2e8f0;
   background: #ffffff;
@@ -1810,9 +1867,10 @@
 }
 
 .rp-page-num-pill,
-.rolesPermissionsCardPage .ws-page-num-pill {
-  width: 32px;
-  height: 32px;
+.rolesPermissionsCardPage .ws-page-num-pill,
+.rolesPermissionsCardPage .admin-logs-page-num-pill {
+  width: 28px;
+  height: 28px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -2583,4 +2641,66 @@ body.dark-theme .rolesPermissionsCardPage .ws-page-num-pill.active,
     width: 100%;
     overflow-x: auto;
   }
+}
+
+
+.rp-page-ellipsis,
+.rolesPermissionsCardPage .admin-logs-page-ellipsis {
+  padding: 0 4px;
+  color: #94a3b8;
+  font-size: 12px;
+  user-select: none;
+}
+
+
+/* Dark Mode for Activity Log Style Table Card & Seamless Footer */
+.dark .rp-tab-card.rp-table-card,
+body.dark-theme .rp-tab-card.rp-table-card,
+[data-theme="dark"] .rp-tab-card.rp-table-card {
+  background: #111c30;
+  border-color: #1e293b;
+}
+
+.dark .rp-tab-card.rp-table-card .rp-tab-card-header,
+body.dark-theme .rp-tab-card.rp-table-card .rp-tab-card-header,
+[data-theme="dark"] .rp-tab-card.rp-table-card .rp-tab-card-header {
+  border-bottom-color: #1e293b;
+}
+
+.dark .rp-tab-card.rp-table-card .rp-users-table th,
+body.dark-theme .rp-tab-card.rp-table-card .rp-users-table th,
+[data-theme="dark"] .rp-tab-card.rp-table-card .rp-users-table th,
+.dark .rp-tab-card.rp-table-card .rp-logs-table th,
+body.dark-theme .rp-tab-card.rp-table-card .rp-logs-table th,
+[data-theme="dark"] .rp-tab-card.rp-table-card .rp-logs-table th {
+  background: #0f172a;
+  color: #94a3b8;
+  border-bottom-color: #1e293b;
+}
+
+.dark .rp-tab-card.rp-table-card .rp-users-table td,
+body.dark-theme .rp-tab-card.rp-table-card .rp-users-table td,
+[data-theme="dark"] .rp-tab-card.rp-table-card .rp-users-table td,
+.dark .rp-tab-card.rp-table-card .rp-logs-table td,
+body.dark-theme .rp-tab-card.rp-table-card .rp-logs-table td,
+[data-theme="dark"] .rp-tab-card.rp-table-card .rp-logs-table td {
+  border-bottom-color: #1e293b;
+  color: #cbd5e1;
+}
+
+.dark .rp-tab-card.rp-table-card .rp-pagination-bar,
+body.dark-theme .rp-tab-card.rp-table-card .rp-pagination-bar,
+[data-theme="dark"] .rp-tab-card.rp-table-card .rp-pagination-bar,
+.dark .rp-tab-card.rp-table-card .ws-pagination-bar,
+body.dark-theme .rp-tab-card.rp-table-card .ws-pagination-bar,
+[data-theme="dark"] .rp-tab-card.rp-table-card .ws-pagination-bar,
+.dark .rp-tab-card.rp-table-card .admin-logs-pagination-bar,
+body.dark-theme .rp-tab-card.rp-table-card .admin-logs-pagination-bar,
+[data-theme="dark"] .rp-tab-card.rp-table-card .admin-logs-pagination-bar,
+.dark .rp-pagination-bar.rp-pagination-table-footer,
+body.dark-theme .rp-pagination-bar.rp-pagination-table-footer,
+[data-theme="dark"] .rp-pagination-bar.rp-pagination-table-footer {
+  background: #111c30;
+  border: none;
+  border-top: 1px solid #1e293b;
 }

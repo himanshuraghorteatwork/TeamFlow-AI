@@ -949,47 +949,93 @@ body.dark-theme .admin-task-card:hover,
 }
 
 .action-btn {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  border: 1px solid #e2e8f0;
-  background: #ffffff;
-  color: #64748b;
-  display: grid;
-  place-items: center;
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
+  border-radius: 9px;
+  border: 1px solid #ddd6fe;
+  background: #f5f3ff;
+  color: #7c3aed;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   padding: 0;
+  outline: none;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
-.dark .action-btn {
-  background: #0b1322;
-  border-color: rgba(255, 255, 255, 0.12);
-  color: #94a3b8;
+.action-btn:active {
+  transform: translateY(0) scale(0.98);
 }
 
 .action-btn:hover {
-  border-color: #cbd5e1;
-  color: #0f172a;
-  background: #f8fafc;
+  background: #7c3aed !important;
+  color: #ffffff !important;
+  border-color: #7c3aed !important;
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.38) !important;
+  transform: translateY(-2px) scale(1.05);
 }
 
-.dark .action-btn:hover {
-  background: rgba(255, 255, 255, 0.08);
-  color: #f8fafc;
-  border-color: rgba(255, 255, 255, 0.2);
+.action-btn.delete {
+  background: #fef2f2;
+  color: #dc2626;
+  border-color: #fecaca;
 }
 
 .action-btn.delete:hover {
-  border-color: #fca5a5;
-  color: #ef4444;
-  background: #fef2f2;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+  color: #ffffff !important;
+  border-color: #dc2626 !important;
+  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.38) !important;
+  transform: translateY(-2px) scale(1.05) !important;
 }
 
-.dark .action-btn.delete:hover {
-  background: rgba(239, 68, 68, 0.15);
-  color: #f87171;
-  border-color: rgba(239, 68, 68, 0.3);
+.action-btn.delete:active {
+  transform: translateY(0) scale(0.96) !important;
+}
+
+:root.dark .action-btn,
+.dark .action-btn,
+body.dark-theme .action-btn,
+[data-theme="dark"] .action-btn {
+  background: #241945 !important;
+  color: #c084fc !important;
+  border-color: #4c1d95 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25) !important;
+}
+
+:root.dark .action-btn:hover,
+.dark .action-btn:hover,
+body.dark-theme .action-btn:hover,
+[data-theme="dark"] .action-btn:hover {
+  background: #7c3aed !important;
+  color: #ffffff !important;
+  border-color: #7c3aed !important;
+  box-shadow: 0 4px 14px rgba(124, 58, 237, 0.5) !important;
+  transform: translateY(-2px) scale(1.05);
+}
+
+:root.dark .action-btn.delete,
+.dark .action-btn.delete,
+body.dark-theme .action-btn.delete,
+[data-theme="dark"] .action-btn.delete {
+  background: #2b1720 !important;
+  color: #fca5a5 !important;
+  border-color: #5c2432 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25) !important;
+}
+
+:root.dark .action-btn.delete:hover,
+.dark .action-btn.delete:hover,
+body.dark-theme .action-btn.delete,
+[data-theme="dark"] .action-btn.delete:hover {
+  background: #dc2626 !important;
+  color: #ffffff !important;
+  border-color: #dc2626 !important;
+  box-shadow: 0 4px 14px rgba(220, 38, 38, 0.5) !important;
+  transform: translateY(-2px) scale(1.05);
 }
 
 /* =========================================================
@@ -1322,10 +1368,11 @@ body.dark-theme .admin-task-card:hover,
 .admin-tasks-table-wrapper {
   background: #ffffff;
   border: 1px solid #e2e8f0;
-  border-radius: 14px;
+  border-bottom: none !important;
+  border-radius: 12px 12px 0 0 !important;
   overflow-x: auto;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-  margin-bottom: 0;
+  margin-bottom: 0 !important;
 }
 
 .dark .admin-tasks-table-wrapper {
@@ -1501,136 +1548,280 @@ body.dark-theme .admin-task-card:hover,
 }
 
 /* =========================================================
-   PAGINATION FOOTER
+   PAGINATION FOOTER (ACTIVITY LOGS STYLE - ZERO EXTRA SPACING)
 ========================================================= */
+.admin-tasks-pagination-bar,
 .admin-tasks-pagination {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 20px;
+  padding: 12px 20px;
   background: #ffffff;
   border: 1px solid #e2e8f0;
-  border-radius: 14px;
-  margin-top: 0;
   flex-wrap: wrap;
   gap: 12px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
-.dark .admin-tasks-pagination {
-  background: #111c30;
-  border-color: rgba(255, 255, 255, 0.08);
+.admin-tasks-pagination-bar.tasks-pagination-table-footer,
+.admin-tasks-pagination.tasks-pagination-table-footer {
+  margin-top: 0 !important;
+  border-top: 1px solid #f1f5f9 !important;
+  border-radius: 0 0 12px 12px !important;
 }
 
-.pagination-info {
+.admin-tasks-pagination-bar.tasks-pagination-card-footer,
+.admin-tasks-pagination.tasks-pagination-card-footer {
+  margin-top: 20px !important;
+  border-radius: 12px !important;
+}
+
+.admin-tasks-pagination-bar .admin-logs-pagination-info,
+.admin-tasks-pagination .pagination-info {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
   font-size: 13px;
   color: #64748b;
-  font-weight: 600;
+  font-weight: 500;
 }
 
-.dark .pagination-info {
-  color: #94a3b8;
+.admin-tasks-pagination-bar .admin-logs-page-size-wrap,
+.admin-tasks-pagination .pagination-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-.per-page-select {
-  padding: 5px 10px;
-  border-radius: 7px;
-  border: 1px solid #e2e8f0;
-  background: #f8fafc;
-  color: #0f172a;
+.admin-tasks-pagination-bar .admin-logs-page-size-wrap select,
+.admin-tasks-pagination .per-page-select {
+  padding: 4px 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
   font-size: 12.5px;
-  font-weight: 600;
-  outline: none;
+  background: #ffffff;
+  color: #334155;
   cursor: pointer;
+  outline: none;
+  font-weight: 500;
+  transition: all 0.15s ease;
 }
 
-.dark .per-page-select {
-  background: #0b1322;
-  border-color: rgba(255, 255, 255, 0.12);
-  color: #f8fafc;
+.admin-tasks-pagination-bar .admin-logs-page-size-wrap select:focus,
+.admin-tasks-pagination .per-page-select:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.15);
 }
 
-.pagination-buttons {
+.admin-tasks-pagination-bar .admin-logs-pagination-controls,
+.admin-tasks-pagination .pagination-buttons {
   display: flex;
   align-items: center;
   gap: 6px;
 }
 
-.page-nav-btn {
+.admin-tasks-pagination-bar .admin-logs-page-nav-btn,
+.admin-tasks-pagination .page-nav-btn {
   padding: 6px 14px;
-  border-radius: 8px;
+  border-radius: 7px;
   border: 1px solid #cbd5e1;
   background: #ffffff;
-  color: #334155;
   font-size: 12.5px;
   font-weight: 600;
+  color: #475569;
   cursor: pointer;
   transition: all 0.15s ease;
+  user-select: none;
 }
 
-.dark .page-nav-btn {
-  background: #0b1322;
-  border-color: rgba(255, 255, 255, 0.12);
-  color: #cbd5e1;
-}
-
-.page-nav-btn:hover:not(:disabled) {
+.admin-tasks-pagination-bar .admin-logs-page-nav-btn:hover:not(:disabled),
+.admin-tasks-pagination .page-nav-btn:hover:not(:disabled) {
   background: #f1f5f9;
+  border-color: #94a3b8;
   color: #0f172a;
+  transform: translateY(-0.5px);
 }
 
-.dark .page-nav-btn:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.08);
-  color: #f8fafc;
-}
-
-.page-nav-btn:disabled {
-  opacity: 0.4;
+.admin-tasks-pagination-bar .admin-logs-page-nav-btn:disabled,
+.admin-tasks-pagination .page-nav-btn:disabled {
+  opacity: 0.45;
   cursor: not-allowed;
 }
 
-.page-numbers {
+.admin-tasks-pagination-bar .admin-logs-page-pills,
+.admin-tasks-pagination .page-numbers {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
 }
 
-.page-num-btn {
+.admin-tasks-pagination-bar .admin-logs-page-num-pill,
+.admin-tasks-pagination .page-num-btn {
   width: 32px;
   height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border-radius: 7px;
-  border: 1px solid transparent;
-  background: transparent;
-  color: #64748b;
-  font-size: 13px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  font-size: 12.5px;
   font-weight: 600;
+  color: #475569;
   cursor: pointer;
-  display: grid;
-  place-items: center;
   transition: all 0.15s ease;
 }
 
-.dark .page-num-btn {
-  color: #94a3b8;
-}
-
-.page-num-btn:hover {
+.admin-tasks-pagination-bar .admin-logs-page-num-pill:hover:not(.active),
+.admin-tasks-pagination .page-num-btn:hover:not(.active) {
   background: #f1f5f9;
+  border-color: #94a3b8;
   color: #0f172a;
 }
 
-.dark .page-num-btn:hover {
-  background: rgba(255, 255, 255, 0.08);
-  color: #f8fafc;
+.admin-tasks-pagination-bar .admin-logs-page-num-pill.active,
+.admin-tasks-pagination .page-num-btn.active {
+  background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%) !important;
+  border-color: #4f46e5 !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 6px rgba(99, 102, 241, 0.35) !important;
+  font-weight: 700 !important;
 }
 
-.page-num-btn.active {
-  background: #4f46e5;
-  color: #ffffff;
-  font-weight: 700;
+.admin-tasks-pagination-bar .admin-logs-page-ellipsis {
+  padding: 0 4px;
+  font-size: 13px;
+  color: #94a3b8;
+  user-select: none;
+}
+
+/* Dark theme overrides for Admin Tasks Pagination */
+:root.dark .admin-tasks-table-wrapper,
+.dark .admin-tasks-table-wrapper,
+[data-theme="dark"] .admin-tasks-table-wrapper,
+body.dark-theme .admin-tasks-table-wrapper {
+  background: #111d38 !important;
+  border-color: #1e2f57 !important;
+}
+
+:root.dark .admin-tasks-pagination-bar,
+:root.dark .admin-tasks-pagination,
+.dark .admin-tasks-pagination-bar,
+.dark .admin-tasks-pagination,
+[data-theme="dark"] .admin-tasks-pagination-bar,
+[data-theme="dark"] .admin-tasks-pagination,
+body.dark-theme .admin-tasks-pagination-bar,
+body.dark-theme .admin-tasks-pagination {
+  background: #111d38 !important;
+  border-color: #1e2f57 !important;
+}
+
+:root.dark .admin-tasks-pagination-bar.tasks-pagination-table-footer,
+:root.dark .admin-tasks-pagination.tasks-pagination-table-footer,
+.dark .admin-tasks-pagination-bar.tasks-pagination-table-footer,
+.dark .admin-tasks-pagination.tasks-pagination-table-footer,
+[data-theme="dark"] .admin-tasks-pagination-bar.tasks-pagination-table-footer,
+[data-theme="dark"] .admin-tasks-pagination.tasks-pagination-table-footer,
+body.dark-theme .admin-tasks-pagination-bar.tasks-pagination-table-footer,
+body.dark-theme .admin-tasks-pagination.tasks-pagination-table-footer {
+  border-top-color: #1e2f57 !important;
+}
+
+:root.dark .admin-tasks-pagination-bar .admin-logs-pagination-info,
+:root.dark .admin-tasks-pagination .pagination-info,
+.dark .admin-tasks-pagination-bar .admin-logs-pagination-info,
+.dark .admin-tasks-pagination .pagination-info,
+[data-theme="dark"] .admin-tasks-pagination-bar .admin-logs-pagination-info,
+[data-theme="dark"] .admin-tasks-pagination .pagination-info,
+body.dark-theme .admin-tasks-pagination-bar .admin-logs-pagination-info,
+body.dark-theme .admin-tasks-pagination .pagination-info {
+  color: #94a3b8 !important;
+}
+
+:root.dark .admin-tasks-pagination-bar .admin-logs-page-size-wrap select,
+:root.dark .admin-tasks-pagination .per-page-select,
+.dark .admin-tasks-pagination-bar .admin-logs-page-size-wrap select,
+.dark .admin-tasks-pagination .per-page-select,
+[data-theme="dark"] .admin-tasks-pagination-bar .admin-logs-page-size-wrap select,
+[data-theme="dark"] .admin-tasks-pagination .per-page-select,
+body.dark-theme .admin-tasks-pagination-bar .admin-logs-page-size-wrap select,
+body.dark-theme .admin-tasks-pagination .per-page-select {
+  background: #0b1329 !important;
+  border-color: #1e2f57 !important;
+  color: #f8fafc !important;
+}
+
+:root.dark .admin-tasks-pagination-bar .admin-logs-page-nav-btn,
+:root.dark .admin-tasks-pagination .page-nav-btn,
+.dark .admin-tasks-pagination-bar .admin-logs-page-nav-btn,
+.dark .admin-tasks-pagination .page-nav-btn,
+[data-theme="dark"] .admin-tasks-pagination-bar .admin-logs-page-nav-btn,
+[data-theme="dark"] .admin-tasks-pagination .page-nav-btn,
+body.dark-theme .admin-tasks-pagination-bar .admin-logs-page-nav-btn,
+body.dark-theme .admin-tasks-pagination .page-nav-btn {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #cbd5e1 !important;
+}
+
+:root.dark .admin-tasks-pagination-bar .admin-logs-page-nav-btn:hover:not(:disabled),
+:root.dark .admin-tasks-pagination .page-nav-btn:hover:not(:disabled),
+.dark .admin-tasks-pagination-bar .admin-logs-page-nav-btn:hover:not(:disabled),
+.dark .admin-tasks-pagination .page-nav-btn:hover:not(:disabled),
+[data-theme="dark"] .admin-tasks-pagination-bar .admin-logs-page-nav-btn:hover:not(:disabled),
+[data-theme="dark"] .admin-tasks-pagination .page-nav-btn:hover:not(:disabled),
+body.dark-theme .admin-tasks-pagination-bar .admin-logs-page-nav-btn:hover:not(:disabled),
+body.dark-theme .admin-tasks-pagination .page-nav-btn:hover:not(:disabled) {
+  background: #334155 !important;
+  border-color: #475569 !important;
+  color: #ffffff !important;
+}
+
+:root.dark .admin-tasks-pagination-bar .admin-logs-page-num-pill,
+:root.dark .admin-tasks-pagination .page-num-btn,
+.dark .admin-tasks-pagination-bar .admin-logs-page-num-pill,
+.dark .admin-tasks-pagination .page-num-btn,
+[data-theme="dark"] .admin-tasks-pagination-bar .admin-logs-page-num-pill,
+[data-theme="dark"] .admin-tasks-pagination .page-num-btn,
+body.dark-theme .admin-tasks-pagination-bar .admin-logs-page-num-pill,
+body.dark-theme .admin-tasks-pagination .page-num-btn {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #cbd5e1 !important;
+}
+
+:root.dark .admin-tasks-pagination-bar .admin-logs-page-num-pill:hover:not(.active),
+:root.dark .admin-tasks-pagination .page-num-btn:hover:not(.active),
+.dark .admin-tasks-pagination-bar .admin-logs-page-num-pill:hover:not(.active),
+.dark .admin-tasks-pagination .page-num-btn:hover:not(.active),
+[data-theme="dark"] .admin-tasks-pagination-bar .admin-logs-page-num-pill:hover:not(.active),
+[data-theme="dark"] .admin-tasks-pagination .page-num-btn:hover:not(.active),
+body.dark-theme .admin-tasks-pagination-bar .admin-logs-page-num-pill:hover:not(.active),
+body.dark-theme .admin-tasks-pagination .page-num-btn:hover:not(.active) {
+  background: #334155 !important;
+  border-color: #475569 !important;
+  color: #ffffff !important;
+}
+
+:root.dark .admin-tasks-pagination-bar .admin-logs-page-num-pill.active,
+:root.dark .admin-tasks-pagination .page-num-btn.active,
+.dark .admin-tasks-pagination-bar .admin-logs-page-num-pill.active,
+.dark .admin-tasks-pagination .page-num-btn.active,
+[data-theme="dark"] .admin-tasks-pagination-bar .admin-logs-page-num-pill.active,
+[data-theme="dark"] .admin-tasks-pagination .page-num-btn.active,
+body.dark-theme .admin-tasks-pagination-bar .admin-logs-page-num-pill.active,
+body.dark-theme .admin-tasks-pagination .page-num-btn.active {
+  background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%) !important;
+  border-color: #4f46e5 !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.4) !important;
+}
+
+:root.dark .admin-tasks-pagination-bar .admin-logs-page-ellipsis,
+.dark .admin-tasks-pagination-bar .admin-logs-page-ellipsis,
+[data-theme="dark"] .admin-tasks-pagination-bar .admin-logs-page-ellipsis,
+body.dark-theme .admin-tasks-pagination-bar .admin-logs-page-ellipsis {
+  color: #94a3b8 !important;
 }
 
 /* =========================================================
@@ -2208,25 +2399,31 @@ body.dark-theme .admin-task-card:hover,
 .tasks-btn-danger {
   flex: 1;
   height: 38px;
-  border-radius: 9px;
-  border: none;
-  background: #ef4444;
+  border-radius: 10px;
+  border: 1px solid rgba(220, 38, 38, 0.9);
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
   color: #ffffff;
-  font-size: 13px;
+  font-size: 13.5px;
   font-weight: 600;
+  letter-spacing: -0.01em;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  transition: all 0.16s ease;
-  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.25);
+  gap: 7px;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05), 0 3px 12px rgba(239, 68, 68, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 .tasks-btn-danger:hover {
-  background: #dc2626;
-  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.35);
-  transform: translateY(-1px);
+  background: linear-gradient(135deg, #f87171 0%, #dc2626 100%);
+  border-color: #dc2626;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08), 0 6px 18px rgba(239, 68, 68, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  transform: translateY(-1.5px);
+}
+
+.tasks-btn-danger:active {
+  transform: translateY(0) scale(0.98);
 }
 
 /* Dark mode for delete and reset confirmation modals */

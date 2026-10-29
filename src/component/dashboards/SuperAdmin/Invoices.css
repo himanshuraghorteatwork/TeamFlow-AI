@@ -78,17 +78,20 @@
 }
 
 .inv-action-btn {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  border: 1px solid;
+  width: 33px;
+  height: 33px;
+  min-width: 33px;
+  border-radius: 9px;
+  border: 1px solid transparent;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   background: transparent;
-  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   flex-shrink: 0;
+  padding: 0;
+  outline: none;
 }
 
 /* View Button (Blue) */
@@ -99,11 +102,11 @@
 }
 
 .inv-action-btn.btn-view:hover {
-  background: #2563eb;
-  color: #ffffff;
-  border-color: #2563eb;
-  box-shadow: 0 3px 8px rgba(37, 99, 235, 0.3);
-  transform: translateY(-1px);
+  background: #2563eb !important;
+  color: #ffffff !important;
+  border-color: #2563eb !important;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.38) !important;
+  transform: translateY(-2px) scale(1.04);
 }
 
 /* Download Button (Green) */
@@ -114,26 +117,26 @@
 }
 
 .inv-action-btn.btn-download:hover {
-  background: #059669;
-  color: #ffffff;
-  border-color: #059669;
-  box-shadow: 0 3px 8px rgba(5, 150, 105, 0.3);
-  transform: translateY(-1px);
+  background: #059669 !important;
+  color: #ffffff !important;
+  border-color: #059669 !important;
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.38) !important;
+  transform: translateY(-2px) scale(1.04);
 }
 
 /* Print Button (Purple) */
 .inv-action-btn.btn-print {
-  background: #faf5ff;
-  color: #9333ea;
-  border-color: #e9d5ff;
+  background: #f5f3ff;
+  color: #7c3aed;
+  border-color: #ddd6fe;
 }
 
 .inv-action-btn.btn-print:hover {
-  background: #9333ea;
-  color: #ffffff;
-  border-color: #9333ea;
-  box-shadow: 0 3px 8px rgba(147, 51, 234, 0.3);
-  transform: translateY(-1px);
+  background: #7c3aed !important;
+  color: #ffffff !important;
+  border-color: #7c3aed !important;
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.38) !important;
+  transform: translateY(-2px) scale(1.04);
 }
 
 /* Settle / Mark Paid Button (Amber) */
@@ -144,11 +147,11 @@
 }
 
 .inv-action-btn.btn-settle:hover {
-  background: #d97706;
-  color: #ffffff;
-  border-color: #d97706;
-  box-shadow: 0 3px 8px rgba(217, 119, 6, 0.3);
-  transform: translateY(-1px);
+  background: #d97706 !important;
+  color: #ffffff !important;
+  border-color: #d97706 !important;
+  box-shadow: 0 4px 12px rgba(217, 119, 6, 0.38) !important;
+  transform: translateY(-2px) scale(1.04);
 }
 
 /* ==========================================================================
@@ -876,47 +879,59 @@
 
 /* Action Buttons in Dark Mode */
 .sa-dark-mode .inv-action-btn.btn-view {
-  background: rgba(59, 102, 255, 0.15) !important;
-  border-color: rgba(59, 102, 255, 0.3) !important;
-  color: #818cf8 !important;
+  background: rgba(37, 99, 235, 0.14) !important;
+  border-color: rgba(37, 99, 235, 0.3) !important;
+  color: #60a5fa !important;
 }
 
 .sa-dark-mode .inv-action-btn.btn-view:hover {
-  background: #3b66ff !important;
+  background: #2563eb !important;
+  border-color: #2563eb !important;
   color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.5) !important;
+  transform: translateY(-2px) scale(1.04);
 }
 
 .sa-dark-mode .inv-action-btn.btn-download {
-  background: rgba(16, 185, 129, 0.15) !important;
+  background: rgba(16, 185, 129, 0.14) !important;
   border-color: rgba(16, 185, 129, 0.3) !important;
-  color: #4ade80 !important;
+  color: #6ee7b7 !important;
 }
 
 .sa-dark-mode .inv-action-btn.btn-download:hover {
-  background: #10b981 !important;
+  background: #059669 !important;
+  border-color: #059669 !important;
   color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(5, 150, 105, 0.5) !important;
+  transform: translateY(-2px) scale(1.04);
 }
 
 .sa-dark-mode .inv-action-btn.btn-print {
-  background: rgba(168, 85, 247, 0.15) !important;
-  border-color: rgba(168, 85, 247, 0.3) !important;
-  color: #c084fc !important;
+  background: rgba(124, 58, 237, 0.14) !important;
+  border-color: rgba(124, 58, 237, 0.3) !important;
+  color: #c4b5fd !important;
 }
 
 .sa-dark-mode .inv-action-btn.btn-print:hover {
-  background: #9333ea !important;
+  background: #7c3aed !important;
+  border-color: #7c3aed !important;
   color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(124, 58, 237, 0.5) !important;
+  transform: translateY(-2px) scale(1.04);
 }
 
 .sa-dark-mode .inv-action-btn.btn-settle {
-  background: rgba(245, 158, 11, 0.15) !important;
+  background: rgba(245, 158, 11, 0.14) !important;
   border-color: rgba(245, 158, 11, 0.3) !important;
-  color: #facc15 !important;
+  color: #fcd34d !important;
 }
 
 .sa-dark-mode .inv-action-btn.btn-settle:hover {
   background: #d97706 !important;
+  border-color: #d97706 !important;
   color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(217, 119, 6, 0.5) !important;
+  transform: translateY(-2px) scale(1.04);
 }
 
 /* Status Pills in Dark Mode */

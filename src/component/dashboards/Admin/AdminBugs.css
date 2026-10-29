@@ -305,10 +305,8 @@
    MAIN CONTENT SPLIT: TABLE (LEFT) + 3 SIDEBAR WIDGETS (RIGHT)
 ========================================================= */
 .tfBugsMainSplit {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 280px;
-  gap: 18px;
-  align-items: start;
+  display: block;
+  width: 100%;
 }
 
 @media (max-width: 1280px) {
@@ -527,9 +525,11 @@
 }
 
 .bug-title-cell {
-  max-width: 240px;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  max-width: 420px;
+  min-width: 180px;
+  white-space: normal;
+  word-break: break-word;
+  line-height: 1.45;
 }
 
 .title-text {
@@ -628,90 +628,219 @@
   font-weight: 600;
 }
 
-/* Actions Menu */
-.bugs-action-menu-wrap {
-  position: relative;
-  display: inline-block;
+/* =========================================================
+   ACTION BUTTONS (Pixel-Perfect Matching Other Modules)
+========================================================= */
+.tf-bugs-action-cell {
+  white-space: nowrap;
+  width: 160px;
 }
 
-.menu-trigger-btn {
-  background: transparent;
-  border: none;
-  color: #64748b;
-  cursor: pointer;
-  padding: 4px;
-  border-radius: 6px;
+.admin-bugs-inline-actions {
   display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 7px;
+}
+
+.admin-bugs-inline-actions .action-icon-btn {
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
+  border-radius: 9px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #64748b;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-}
-
-.menu-trigger-btn:hover {
-  background: #f1f5f9;
-  color: #0f172a;
-}
-
-:root.dark .menu-trigger-btn:hover {
-  background: #1f2937;
-  color: #f8fafc;
-}
-
-.bugs-action-dropdown {
-  position: absolute;
-  right: 0;
-  top: 100%;
-  margin-top: 4px;
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.12);
-  padding: 4px;
-  min-width: 140px;
-  z-index: 100;
-}
-
-:root.dark .bugs-action-dropdown {
-  background: #1e293b;
-  border-color: #334155;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
-}
-
-.bugs-action-dropdown button {
-  width: 100%;
-  text-align: left;
-  background: transparent;
-  border: none;
-  padding: 6px 10px;
-  border-radius: 6px;
-  font-size: 0.75rem;
-  font-weight: 500;
-  color: #334155;
-  display: flex;
-  align-items: center;
-  gap: 8px;
   cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  padding: 0;
+  outline: none;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
-:root.dark .bugs-action-dropdown button {
-  color: #cbd5e1;
+.admin-bugs-inline-actions .action-icon-btn:active {
+  transform: translateY(0) scale(0.98);
 }
 
-.bugs-action-dropdown button:hover {
+/* 1. View Bug Button (Soft Blue -> Vibrant Blue) */
+.admin-bugs-inline-actions .action-icon-btn.view {
+  background: #eff6ff;
+  color: #2563eb;
+  border-color: #bfdbfe;
+}
+
+.admin-bugs-inline-actions .action-icon-btn.view:hover {
+  background: #2563eb !important;
+  color: #ffffff !important;
+  border-color: #2563eb !important;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.38) !important;
+  transform: translateY(-2px) scale(1.05);
+}
+
+/* 2. Edit Bug Button (Soft Purple -> Vibrant Violet) */
+.admin-bugs-inline-actions .action-icon-btn.edit {
+  background: #f5f3ff;
+  color: #7c3aed;
+  border-color: #ddd6fe;
+}
+
+.admin-bugs-inline-actions .action-icon-btn.edit:hover {
+  background: #7c3aed !important;
+  color: #ffffff !important;
+  border-color: #7c3aed !important;
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.38) !important;
+  transform: translateY(-2px) scale(1.05);
+}
+
+/* 3. Resolve Bug Button (Soft Emerald -> Vibrant Emerald) */
+.admin-bugs-inline-actions .action-icon-btn.resolve {
+  background: #ecfdf5;
+  color: #059669;
+  border-color: #a7f3d0;
+}
+
+.admin-bugs-inline-actions .action-icon-btn.resolve:hover {
+  background: #10b981 !important;
+  color: #ffffff !important;
+  border-color: #10b981 !important;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.38) !important;
+  transform: translateY(-2px) scale(1.05);
+}
+
+.admin-bugs-inline-actions .action-icon-btn.resolve.is-resolved {
   background: #f1f5f9;
-  color: #0f172a;
+  color: #94a3b8;
+  border-color: #e2e8f0;
+  cursor: default;
+  box-shadow: none;
+  transform: none;
+  opacity: 0.7;
 }
 
-:root.dark .bugs-action-dropdown button:hover {
-  background: #334155;
-  color: #f8fafc;
-}
-
-.bugs-action-dropdown button.danger-item {
-  color: #ef4444;
-}
-
-.bugs-action-dropdown button.danger-item:hover {
+/* 4. Delete Bug Button (Soft Red -> Vibrant Red) */
+.admin-bugs-inline-actions .action-icon-btn.delete {
   background: #fef2f2;
+  color: #dc2626;
+  border-color: #fecaca;
+}
+
+.admin-bugs-inline-actions .action-icon-btn.delete:hover {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+  color: #ffffff !important;
+  border-color: #dc2626 !important;
+  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.38) !important;
+  transform: translateY(-2px) scale(1.05) !important;
+}
+
+.admin-bugs-inline-actions .action-icon-btn.delete:active {
+  transform: translateY(0) scale(0.96) !important;
+}
+
+/* DARK MODE ACTION BUTTONS */
+:root.dark .admin-bugs-inline-actions .action-icon-btn,
+.dark .admin-bugs-inline-actions .action-icon-btn,
+body.dark-theme .admin-bugs-inline-actions .action-icon-btn,
+[data-theme="dark"] .admin-bugs-inline-actions .action-icon-btn {
+  background: #111d38;
+  border-color: #1e2f57;
+  color: #94a3b8;
+}
+
+:root.dark .admin-bugs-inline-actions .action-icon-btn.view,
+.dark .admin-bugs-inline-actions .action-icon-btn.view,
+body.dark-theme .admin-bugs-inline-actions .action-icon-btn.view,
+[data-theme="dark"] .admin-bugs-inline-actions .action-icon-btn.view {
+  background: #142347 !important;
+  color: #60a5fa !important;
+  border-color: #1e3a8a !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25) !important;
+}
+
+:root.dark .admin-bugs-inline-actions .action-icon-btn.view:hover,
+.dark .admin-bugs-inline-actions .action-icon-btn.view:hover,
+body.dark-theme .admin-bugs-inline-actions .action-icon-btn.view:hover,
+[data-theme="dark"] .admin-bugs-inline-actions .action-icon-btn.view:hover {
+  background: #2563eb !important;
+  color: #ffffff !important;
+  border-color: #3b82f6 !important;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.5) !important;
+  transform: translateY(-2px) scale(1.05);
+}
+
+:root.dark .admin-bugs-inline-actions .action-icon-btn.edit,
+.dark .admin-bugs-inline-actions .action-icon-btn.edit,
+body.dark-theme .admin-bugs-inline-actions .action-icon-btn.edit,
+[data-theme="dark"] .admin-bugs-inline-actions .action-icon-btn.edit {
+  background: #241945 !important;
+  color: #c084fc !important;
+  border-color: #4c1d95 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25) !important;
+}
+
+:root.dark .admin-bugs-inline-actions .action-icon-btn.edit:hover,
+.dark .admin-bugs-inline-actions .action-icon-btn.edit:hover,
+body.dark-theme .admin-bugs-inline-actions .action-icon-btn.edit:hover,
+[data-theme="dark"] .admin-bugs-inline-actions .action-icon-btn.edit:hover {
+  background: #7c3aed !important;
+  color: #ffffff !important;
+  border-color: #7c3aed !important;
+  box-shadow: 0 4px 14px rgba(124, 58, 237, 0.5) !important;
+  transform: translateY(-2px) scale(1.05);
+}
+
+:root.dark .admin-bugs-inline-actions .action-icon-btn.resolve,
+.dark .admin-bugs-inline-actions .action-icon-btn.resolve,
+body.dark-theme .admin-bugs-inline-actions .action-icon-btn.resolve,
+[data-theme="dark"] .admin-bugs-inline-actions .action-icon-btn.resolve {
+  background: #0f2d24 !important;
+  color: #34d399 !important;
+  border-color: #065f46 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25) !important;
+}
+
+:root.dark .admin-bugs-inline-actions .action-icon-btn.resolve:hover,
+.dark .admin-bugs-inline-actions .action-icon-btn.resolve:hover,
+body.dark-theme .admin-bugs-inline-actions .action-icon-btn.resolve:hover,
+[data-theme="dark"] .admin-bugs-inline-actions .action-icon-btn.resolve:hover {
+  background: #10b981 !important;
+  color: #ffffff !important;
+  border-color: #10b981 !important;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.5) !important;
+  transform: translateY(-2px) scale(1.05);
+}
+
+:root.dark .admin-bugs-inline-actions .action-icon-btn.resolve.is-resolved,
+.dark .admin-bugs-inline-actions .action-icon-btn.resolve.is-resolved,
+body.dark-theme .admin-bugs-inline-actions .action-icon-btn.resolve.is-resolved,
+[data-theme="dark"] .admin-bugs-inline-actions .action-icon-btn.resolve.is-resolved {
+  background: #1e293b !important;
+  color: #64748b !important;
+  border-color: #334155 !important;
+  opacity: 0.6;
+}
+
+:root.dark .admin-bugs-inline-actions .action-icon-btn.delete,
+.dark .admin-bugs-inline-actions .action-icon-btn.delete,
+body.dark-theme .admin-bugs-inline-actions .action-icon-btn.delete,
+[data-theme="dark"] .admin-bugs-inline-actions .action-icon-btn.delete {
+  background: #2b1720 !important;
+  color: #fca5a5 !important;
+  border-color: #5c2432 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25) !important;
+}
+
+:root.dark .admin-bugs-inline-actions .action-icon-btn.delete:hover,
+.dark .admin-bugs-inline-actions .action-icon-btn.delete:hover,
+body.dark-theme .admin-bugs-inline-actions .action-icon-btn.delete:hover,
+[data-theme="dark"] .admin-bugs-inline-actions .action-icon-btn.delete:hover {
+  background: #dc2626 !important;
+  color: #ffffff !important;
+  border-color: #dc2626 !important;
+  box-shadow: 0 4px 14px rgba(220, 38, 38, 0.5) !important;
+  transform: translateY(-2px) scale(1.05);
 }
 
 :root.dark .bugs-action-dropdown button.danger-item:hover {
@@ -1332,14 +1461,34 @@
 }
 
 .btn-danger {
-  padding: 8px 18px;
-  border: none;
-  background: #ef4444;
-  color: #ffffff;
-  border-radius: 8px;
-  font-size: 0.8125rem;
-  font-weight: 600;
-  cursor: pointer;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 7px !important;
+  height: 38px !important;
+  padding: 0 20px !important;
+  border-radius: 10px !important;
+  border: 1px solid rgba(220, 38, 38, 0.9) !important;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+  color: #ffffff !important;
+  font-size: 13.5px !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.01em !important;
+  cursor: pointer !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05), 0 3px 12px rgba(239, 68, 68, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+  outline: none !important;
+}
+
+.btn-danger:hover {
+  background: linear-gradient(135deg, #f87171 0%, #dc2626 100%) !important;
+  border-color: #dc2626 !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08), 0 6px 18px rgba(239, 68, 68, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
+  transform: translateY(-1.5px) !important;
+}
+
+.btn-danger:active {
+  transform: translateY(0) scale(0.98) !important;
 }
 
 /* View Bug Modal Specifics */
@@ -1427,3 +1576,411 @@
   color: #f8fafc;
 }
 
+
+/* =========================================================
+   COMPREHENSIVE DARK MODE SUPPORT (Antigravity Modern Theme)
+========================================================= */
+body.dark-theme .tfBugsApp,
+[data-theme="dark"] .tfBugsApp {
+  background: #090d16;
+  color: #f8fafc;
+}
+
+body.dark-theme .tfBugsHeader__titleGroup h1,
+[data-theme="dark"] .tfBugsHeader__titleGroup h1 {
+  color: #f8fafc;
+}
+
+body.dark-theme .tfBugsHeader__titleGroup p,
+[data-theme="dark"] .tfBugsHeader__titleGroup p {
+  color: #94a3b8;
+}
+
+body.dark-theme .tfBugsBtn--secondary,
+[data-theme="dark"] .tfBugsBtn--secondary {
+  background: #111827;
+  border-color: #1f2937;
+  color: #cbd5e1;
+}
+
+body.dark-theme .tfBugsBtn--secondary:hover,
+[data-theme="dark"] .tfBugsBtn--secondary:hover {
+  background: #1f2937;
+  color: #ffffff;
+}
+
+body.dark-theme .tfBugsKpiCard,
+[data-theme="dark"] .tfBugsKpiCard {
+  background: #111827;
+  border-color: #1f2937;
+}
+
+body.dark-theme .tfBugsToolbar,
+[data-theme="dark"] .tfBugsToolbar {
+  background: #111827;
+  border-color: #1f2937;
+}
+
+body.dark-theme .tfBugsSelectWrapper,
+[data-theme="dark"] .tfBugsSelectWrapper {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+body.dark-theme .tfBugsSelectWrapper select,
+[data-theme="dark"] .tfBugsSelectWrapper select {
+  color: #f8fafc;
+}
+
+body.dark-theme .tfBugsSearch,
+[data-theme="dark"] .tfBugsSearch {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+body.dark-theme .tfBugsSearch input,
+[data-theme="dark"] .tfBugsSearch input {
+  color: #f1f5f9;
+}
+
+body.dark-theme .tfBugsTableCard,
+[data-theme="dark"] .tfBugsTableCard {
+  background: #111827;
+  border-color: #1f2937;
+}
+
+body.dark-theme .tfBugsTable th,
+[data-theme="dark"] .tfBugsTable th {
+  background: #111827;
+  color: #94a3b8;
+  border-bottom-color: #1f2937;
+}
+
+body.dark-theme .tfBugsTable td,
+[data-theme="dark"] .tfBugsTable td {
+  color: #e2e8f0;
+  border-bottom-color: #172033;
+}
+
+body.dark-theme .tfBugsTable tr:hover td,
+[data-theme="dark"] .tfBugsTable tr:hover td {
+  background: #172033;
+}
+
+body.dark-theme .title-text,
+[data-theme="dark"] .title-text {
+  color: #f8fafc;
+}
+
+body.dark-theme .title-text:hover,
+[data-theme="dark"] .title-text:hover {
+  color: #818cf8;
+}
+
+body.dark-theme .text-muted,
+[data-theme="dark"] .text-muted {
+  color: #94a3b8;
+}
+
+body.dark-theme .bp-page-size-wrap select,
+[data-theme="dark"] .bp-page-size-wrap select,
+body.dark-theme .tfBugsTableCard .ws-page-size-wrap select,
+[data-theme="dark"] .tfBugsTableCard .ws-page-size-wrap select {
+  background: #1e293b;
+  border-color: #334155;
+  color: #f1f5f9;
+}
+
+body.dark-theme .bp-page-nav-btn,
+[data-theme="dark"] .bp-page-nav-btn,
+body.dark-theme .tfBugsTableCard .ws-page-nav-btn,
+[data-theme="dark"] .tfBugsTableCard .ws-page-nav-btn {
+  background: #1e293b;
+  border-color: #334155;
+  color: #cbd5e1;
+}
+
+body.dark-theme .bp-page-num-pill,
+[data-theme="dark"] .bp-page-num-pill,
+body.dark-theme .tfBugsTableCard .ws-page-num-pill,
+[data-theme="dark"] .tfBugsTableCard .ws-page-num-pill {
+  background: #1e293b;
+  border-color: #334155;
+  color: #cbd5e1;
+}
+
+body.dark-theme .modal-box,
+[data-theme="dark"] .modal-box {
+  background: #111827;
+  border: 1px solid #1f2937;
+}
+
+body.dark-theme .modal-header h2,
+[data-theme="dark"] .modal-header h2 {
+  color: #f8fafc;
+}
+
+body.dark-theme .form-group label,
+[data-theme="dark"] .form-group label {
+  color: #cbd5e1;
+}
+
+body.dark-theme .form-group input,
+body.dark-theme .form-group select,
+body.dark-theme .form-group textarea,
+[data-theme="dark"] .form-group input,
+[data-theme="dark"] .form-group select,
+[data-theme="dark"] .form-group textarea {
+  background: #1e293b;
+  border-color: #334155;
+  color: #f8fafc;
+}
+
+body.dark-theme .btn-cancel,
+[data-theme="dark"] .btn-cancel {
+  background: #1f2937;
+  border-color: #374151;
+  color: #cbd5e1;
+}
+
+/* =========================================================
+   USER-FRIENDLY DELETE CONFIRMATION MODAL (LIKE DELETE TASK)
+========================================================= */
+.tasks-delete-modal-dialog {
+  background: #ffffff;
+  border-radius: 18px;
+  width: 100%;
+  max-width: 440px;
+  padding: 28px 24px 24px;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.18), 0 0 0 1px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e2e8f0;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
+  animation: bugsDialogPop 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes bugsDialogPop {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.tasks-delete-icon-circle {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: #fee2e2;
+  color: #ef4444;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+  border: 4px solid #fef2f2;
+}
+
+.tasks-delete-title {
+  font-size: 19px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 8px 0;
+  letter-spacing: -0.01em;
+}
+
+.tasks-delete-text {
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: #475569;
+  margin: 0 0 16px 0;
+}
+
+.tasks-delete-text strong {
+  color: #0f172a;
+  font-weight: 700;
+}
+
+.tasks-delete-task-preview {
+  width: 100%;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  text-align: left;
+  box-sizing: border-box;
+}
+
+.tasks-delete-preview-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+}
+
+.tasks-preview-label {
+  color: #64748b;
+  font-weight: 500;
+}
+
+.tasks-preview-val {
+  color: #0f172a;
+  font-weight: 600;
+}
+
+.tasks-delete-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.tasks-btn-cancel {
+  flex: 1;
+  height: 40px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  color: #334155;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.16s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.tasks-btn-cancel:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: #0f172a;
+  transform: translateY(-1px);
+}
+
+.tasks-btn-cancel:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.tasks-btn-danger {
+  flex: 1;
+  height: 40px;
+  border-radius: 10px;
+  border: 1px solid rgba(220, 38, 38, 0.9);
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: #ffffff;
+  font-size: 13.5px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05), 0 3px 12px rgba(239, 68, 68, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.tasks-btn-danger:hover {
+  background: linear-gradient(135deg, #f87171 0%, #dc2626 100%);
+  border-color: #dc2626;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08), 0 6px 18px rgba(239, 68, 68, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  transform: translateY(-1.5px);
+}
+
+.tasks-btn-danger:active {
+  transform: translateY(0) scale(0.98);
+  box-shadow: 0 1px 3px rgba(239, 68, 68, 0.25);
+}
+
+:root.dark .tasks-delete-modal-dialog,
+.dark .tasks-delete-modal-dialog,
+body.dark-theme .tasks-delete-modal-dialog,
+[data-theme="dark"] .tasks-delete-modal-dialog {
+  background: #111d38 !important;
+  border-color: #1e2f57 !important;
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.8) !important;
+}
+
+:root.dark .tasks-delete-title,
+.dark .tasks-delete-title,
+body.dark-theme .tasks-delete-title,
+[data-theme="dark"] .tasks-delete-title {
+  color: #f8fafc !important;
+}
+
+:root.dark .tasks-delete-text,
+.dark .tasks-delete-text,
+body.dark-theme .tasks-delete-text,
+[data-theme="dark"] .tasks-delete-text {
+  color: #94a3b8 !important;
+}
+
+:root.dark .tasks-delete-text strong,
+.dark .tasks-delete-text strong,
+body.dark-theme .tasks-delete-text strong,
+[data-theme="dark"] .tasks-delete-text strong {
+  color: #ffffff !important;
+}
+
+:root.dark .tasks-delete-task-preview,
+.dark .tasks-delete-task-preview,
+body.dark-theme .tasks-delete-task-preview,
+[data-theme="dark"] .tasks-delete-task-preview {
+  background: #0c1630 !important;
+  border-color: #1e2f57 !important;
+}
+
+:root.dark .tasks-preview-val,
+.dark .tasks-preview-val,
+body.dark-theme .tasks-preview-val,
+[data-theme="dark"] .tasks-preview-val {
+  color: #f1f5f9 !important;
+}
+
+:root.dark .tasks-btn-cancel,
+.dark .tasks-btn-cancel,
+body.dark-theme .tasks-btn-cancel,
+[data-theme="dark"] .tasks-btn-cancel {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #cbd5e1 !important;
+}
+
+:root.dark .tasks-btn-cancel:hover,
+.dark .tasks-btn-cancel:hover,
+body.dark-theme .tasks-btn-cancel:hover,
+[data-theme="dark"] .tasks-btn-cancel:hover {
+  background: #334155 !important;
+  color: #ffffff !important;
+  border-color: #475569 !important;
+}
+
+:root.dark .tasks-btn-danger,
+.dark .tasks-btn-danger,
+body.dark-theme .tasks-btn-danger,
+[data-theme="dark"] .tasks-btn-danger {
+  background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%) !important;
+  border-color: rgba(239, 68, 68, 0.6) !important;
+  box-shadow: 0 3px 12px rgba(239, 68, 68, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+}
+
+:root.dark .tasks-btn-danger:hover,
+.dark .tasks-btn-danger:hover,
+body.dark-theme .tasks-btn-danger:hover,
+[data-theme="dark"] .tasks-btn-danger:hover {
+  background: linear-gradient(135deg, #f87171 0%, #dc2626 100%) !important;
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
+  transform: translateY(-1.5px) !important;
+}

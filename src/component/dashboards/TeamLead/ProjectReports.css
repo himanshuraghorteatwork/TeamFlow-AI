@@ -497,22 +497,51 @@
 .pr-view-btn {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  padding: 5px 10px;
-  border-radius: 7px;
-  border: 1px solid #dce2ee;
-  background: #ffffff;
-  color: #3d4a67;
+  gap: 6px;
+  padding: 0 11px;
+  height: 31px;
+  border-radius: 8px;
+  border: 1px solid #bfdbfe;
+  background: #eff6ff;
+  color: #2563eb;
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.16s ease;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  outline: none;
 }
 
 .pr-view-btn:hover {
-  background: #f1f4fb;
-  border-color: #cbd4e5;
-  color: #17223b;
+  background: #2563eb !important;
+  border-color: #2563eb !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.38) !important;
+  transform: translateY(-2px) scale(1.04);
+}
+
+.pr-view-btn:active {
+  transform: translateY(0) scale(0.98);
+}
+
+:root.dark .pr-view-btn,
+.dark .pr-view-btn,
+body.dark-theme .pr-view-btn,
+[data-theme="dark"] .pr-view-btn {
+  background: #142347 !important;
+  border-color: #1e3a8a !important;
+  color: #60a5fa !important;
+}
+
+:root.dark .pr-view-btn:hover,
+.dark .pr-view-btn:hover,
+body.dark-theme .pr-view-btn:hover,
+[data-theme="dark"] .pr-view-btn:hover {
+  background: #2563eb !important;
+  border-color: #3b82f6 !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.5) !important;
+  transform: translateY(-2px) scale(1.04);
 }
 
 /* Modal */
