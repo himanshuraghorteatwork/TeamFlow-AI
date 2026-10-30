@@ -734,9 +734,20 @@ export default function AdminAITools() {
                 <textarea rows={3} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="Feature capabilities and triggers..." />
               </div>
 
-              <div className="modal-actions">
-                <button type="button" className="btn-cancel" onClick={() => setShowModal(false)}>Cancel</button>
-                <button type="submit" className="btn-submit">{editingTool ? "Save Changes" : "Provision"}</button>
+              <div className="modal-actions ai-tool-modal-actions">
+                <button
+                  type="button"
+                  className="btn-cancel ai-tool-cancel-btn"
+                  onClick={() => setShowModal(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="btn-submit ai-tool-submit-btn"
+                >
+                  {editingTool ? "Save Changes" : "Provision"}
+                </button>
               </div>
             </form>
           </div>

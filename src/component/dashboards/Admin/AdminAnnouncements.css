@@ -570,32 +570,23 @@ body.dark-theme .admin-ann-main,
 }
 
 /* =========================================================
-   MAIN 2-COLUMN LAYOUT
+   MAIN FULL SCREEN LAYOUT
 ========================================================= */
 .admin-ann-grid-layout {
-  display: grid;
-  grid-template-columns: 1fr 340px;
-  gap: 20px;
-  align-items: start;
-}
-
-@media (max-width: 1200px) {
-  .admin-ann-grid-layout {
-    grid-template-columns: 1fr;
-  }
+  display: block !important;
+  width: 100% !important;
 }
 
 .admin-ann-left-column {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  min-width: 0;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 16px !important;
+  width: 100% !important;
+  min-width: 0 !important;
 }
 
 .admin-ann-right-column {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
+  display: none !important;
 }
 
 /* =========================================================
@@ -1933,8 +1924,9 @@ body.dark-theme .ann-action-btn.delete:hover,
 }
 
 .ann-view-modal-dialog,
-.ann-analytics-modal-dialog {
-  width: 560px;
+.ann-analytics-modal-dialog,
+.ann-form-modal-dialog {
+  width: 620px;
   max-width: 95vw;
   background: #ffffff;
   border: 1px solid #e2e8f0;
@@ -1948,10 +1940,218 @@ body.dark-theme .ann-action-btn.delete:hover,
 
 :root.dark .ann-view-modal-dialog,
 :root.dark .ann-analytics-modal-dialog,
+:root.dark .ann-form-modal-dialog,
 .dark .ann-view-modal-dialog,
-.dark .ann-analytics-modal-dialog {
+.dark .ann-analytics-modal-dialog,
+.dark .ann-form-modal-dialog {
   background: #0f172a;
   border-color: #1e293b;
+}
+
+.ann-form-modal-body {
+  padding: 20px 24px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 16px !important;
+  overflow-y: auto !important;
+  max-height: calc(88vh - 130px) !important;
+}
+
+/* Quick templates inside modal */
+.ann-modal-templates-row {
+  display: flex !important;
+  align-items: center !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+  padding: 10px 14px !important;
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 10px !important;
+}
+
+:root.dark .ann-modal-templates-row,
+.dark .ann-modal-templates-row,
+body.dark-theme .ann-modal-templates-row,
+[data-theme="dark"] .ann-modal-templates-row {
+  background: #111827 !important;
+  border-color: #1f2937 !important;
+}
+
+.ann-modal-templates-lbl {
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  color: #64748b !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.04em !important;
+}
+
+.ann-modal-templates-pills {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 6px !important;
+}
+
+.ann-modal-template-pill {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  padding: 5px 11px !important;
+  border-radius: 7px !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #334155 !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+}
+
+.ann-modal-template-pill:hover {
+  background: #eff6ff !important;
+  border-color: #93c5fd !important;
+  color: #1d4ed8 !important;
+  transform: translateY(-1px) !important;
+}
+
+:root.dark .ann-modal-template-pill,
+.dark .ann-modal-template-pill,
+body.dark-theme .ann-modal-template-pill,
+[data-theme="dark"] .ann-modal-template-pill {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f1f5f9 !important;
+}
+
+:root.dark .ann-modal-template-pill:hover,
+.dark .ann-modal-template-pill:hover,
+body.dark-theme .ann-modal-template-pill:hover,
+[data-theme="dark"] .ann-modal-template-pill:hover {
+  background: #2563eb !important;
+  border-color: #3b82f6 !important;
+  color: #ffffff !important;
+}
+
+/* Modal Footer */
+.ann-modal-footer,
+.ann-form-modal-footer {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 16px 24px !important;
+  border-top: 1px solid #e2e8f0 !important;
+  background: #f8fafc !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+:root.dark .ann-modal-footer,
+.dark .ann-modal-footer,
+body.dark-theme .ann-modal-footer,
+[data-theme="dark"] .ann-modal-footer,
+:root.dark .ann-form-modal-footer,
+.dark .ann-form-modal-footer,
+body.dark-theme .ann-form-modal-footer,
+[data-theme="dark"] .ann-form-modal-footer {
+  background: #0f172a !important;
+  border-top-color: #1e293b !important;
+}
+
+/* CANCEL BUTTON: Pinned to the FAR LEFT */
+.ann-modal-cancel-btn,
+.ann-form-modal-footer .ann-btn-secondary {
+  margin-right: auto !important; /* FORCES Cancel button to the far LEFT */
+  height: 42px !important;
+  padding: 0 20px !important;
+  border: 1px solid #cbd5e1 !important;
+  background: #ffffff !important;
+  color: #334155 !important;
+  border-radius: 9px !important;
+  font-size: 13.5px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 7px !important;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+}
+
+.ann-modal-cancel-btn:hover,
+.ann-form-modal-footer .ann-btn-secondary:hover {
+  background: #f8fafc !important;
+  color: #0f172a !important;
+  border-color: #94a3b8 !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08) !important;
+}
+
+.ann-modal-cancel-btn:active,
+.ann-form-modal-footer .ann-btn-secondary:active {
+  transform: translateY(0) !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+}
+
+:root.dark .ann-modal-cancel-btn,
+.dark .ann-modal-cancel-btn,
+body.dark-theme .ann-modal-cancel-btn,
+[data-theme="dark"] .ann-modal-cancel-btn,
+:root.dark .ann-form-modal-footer .ann-btn-secondary,
+.dark .ann-form-modal-footer .ann-btn-secondary,
+body.dark-theme .ann-form-modal-footer .ann-btn-secondary,
+[data-theme="dark"] .ann-form-modal-footer .ann-btn-secondary {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f1f5f9 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
+}
+
+:root.dark .ann-modal-cancel-btn:hover,
+.dark .ann-modal-cancel-btn:hover,
+body.dark-theme .ann-modal-cancel-btn:hover,
+[data-theme="dark"] .ann-modal-cancel-btn:hover,
+:root.dark .ann-form-modal-footer .ann-btn-secondary:hover,
+.dark .ann-form-modal-footer .ann-btn-secondary:hover,
+body.dark-theme .ann-form-modal-footer .ann-btn-secondary:hover,
+[data-theme="dark"] .ann-form-modal-footer .ann-btn-secondary:hover {
+  background: #334155 !important;
+  border-color: #475569 !important;
+  color: #ffffff !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* SUBMIT BUTTON: Pinned to the FAR RIGHT */
+.ann-modal-submit-btn,
+.ann-form-modal-footer .ann-btn-primary {
+  margin-left: auto !important; /* FORCES Submit button to the far RIGHT */
+  height: 42px !important;
+  padding: 0 22px !important;
+  border: none !important;
+  background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%) !important;
+  color: #ffffff !important;
+  border-radius: 9px !important;
+  font-size: 13.5px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  box-shadow: 0 2px 6px rgba(79, 70, 229, 0.28) !important;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.ann-modal-submit-btn:hover,
+.ann-form-modal-footer .ann-btn-primary:hover {
+  background: linear-gradient(135deg, #4338ca 0%, #3730a3 100%) !important;
+  box-shadow: 0 5px 14px rgba(79, 70, 229, 0.42) !important;
+  transform: translateY(-1px) !important;
+}
+
+.ann-modal-submit-btn:active,
+.ann-form-modal-footer .ann-btn-primary:active {
+  transform: translateY(0) !important;
 }
 
 @keyframes annPopIn {

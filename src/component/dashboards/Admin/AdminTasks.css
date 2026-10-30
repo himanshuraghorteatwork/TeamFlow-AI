@@ -2056,18 +2056,133 @@ body.dark-theme .admin-tasks-pagination-bar .admin-logs-page-ellipsis {
   }
 }
 
-.modal-actions {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 12px;
-  padding-top: 16px;
-  border-top: 1px solid #e2e8f0;
-  margin-top: 4px;
+.modal-actions,
+.tasks-modal-actions,
+.modal-box .modal-actions,
+.admin-tasks-app .modal-actions {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  padding-top: 18px !important;
+  border-top: 1px solid #e2e8f0 !important;
+  margin-top: 10px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  background: transparent !important;
 }
 
-.dark .modal-actions {
-  border-top-color: rgba(255, 255, 255, 0.08);
+.modal-actions .btn-secondary,
+.tasks-modal-actions .btn-secondary,
+.tasks-modal-cancel-btn {
+  margin-right: auto !important; /* FORCES Cancel button to the far LEFT */
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 7px !important;
+  height: 42px !important;
+  padding: 0 20px !important;
+  border-radius: 9px !important;
+  border: 1px solid #cbd5e1 !important;
+  background: #ffffff !important;
+  font-size: 13.5px !important;
+  font-weight: 600 !important;
+  color: #334155 !important;
+  cursor: pointer !important;
+  transition: all 0.16s ease !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+}
+
+.modal-actions .btn-secondary:hover,
+.tasks-modal-actions .btn-secondary:hover,
+.tasks-modal-cancel-btn:hover {
+  background: #f8fafc !important;
+  color: #0f172a !important;
+  border-color: #94a3b8 !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08) !important;
+}
+
+.modal-actions .btn-secondary:active,
+.tasks-modal-actions .btn-secondary:active,
+.tasks-modal-cancel-btn:active {
+  transform: translateY(0) !important;
+}
+
+.modal-actions .btn-primary,
+.tasks-modal-actions .btn-primary,
+.tasks-modal-submit-btn {
+  margin-left: auto !important; /* FORCES Submit button to the far RIGHT */
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  height: 42px !important;
+  padding: 0 22px !important;
+  border-radius: 9px !important;
+  border: 0 !important;
+  background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%) !important;
+  color: #ffffff !important;
+  font-size: 13.5px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.32) !important;
+  transition: all 0.16s ease !important;
+}
+
+.modal-actions .btn-primary:hover,
+.tasks-modal-actions .btn-primary:hover,
+.tasks-modal-submit-btn:hover {
+  background: linear-gradient(135deg, #4338ca 0%, #4f46e5 100%) !important;
+  box-shadow: 0 6px 18px rgba(79, 70, 229, 0.4) !important;
+  transform: translateY(-1px) !important;
+}
+
+.modal-actions .btn-primary:active,
+.tasks-modal-actions .btn-primary:active,
+.tasks-modal-submit-btn:active {
+  transform: translateY(0) !important;
+}
+
+:root.dark .modal-actions,
+.dark .modal-actions,
+body.dark-theme .modal-actions,
+[data-theme="dark"] .modal-actions,
+:root.dark .tasks-modal-actions,
+.dark .tasks-modal-actions,
+body.dark-theme .tasks-modal-actions,
+[data-theme="dark"] .tasks-modal-actions {
+  border-top-color: #1e293b !important;
+  background: transparent !important;
+}
+
+:root.dark .modal-actions .btn-secondary,
+.dark .modal-actions .btn-secondary,
+body.dark-theme .modal-actions .btn-secondary,
+[data-theme="dark"] .modal-actions .btn-secondary,
+:root.dark .tasks-modal-cancel-btn,
+.dark .tasks-modal-cancel-btn,
+body.dark-theme .tasks-modal-cancel-btn,
+[data-theme="dark"] .tasks-modal-cancel-btn {
+  background: #1e293b !important;
+  border: 1px solid #334155 !important;
+  color: #f1f5f9 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
+}
+
+:root.dark .modal-actions .btn-secondary:hover,
+.dark .modal-actions .btn-secondary:hover,
+body.dark-theme .modal-actions .btn-secondary:hover,
+[data-theme="dark"] .modal-actions .btn-secondary:hover,
+:root.dark .tasks-modal-cancel-btn:hover,
+.dark .tasks-modal-cancel-btn:hover,
+body.dark-theme .tasks-modal-cancel-btn:hover,
+[data-theme="dark"] .tasks-modal-cancel-btn:hover {
+  background: #334155 !important;
+  border-color: #475569 !important;
+  color: #ffffff !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
 }
 
 /* =========================================================

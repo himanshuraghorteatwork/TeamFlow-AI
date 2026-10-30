@@ -107,6 +107,7 @@ export default function AdminAnnouncements() {
   const [selectedIds, setSelectedIds] = useState([]);
 
   // Modals & Popups
+  const [showAnnouncementModal, setShowAnnouncementModal] = useState(false);
   const [viewingItem, setViewingItem] = useState(null);
   const [deletingItem, setDeletingItem] = useState(null);
   const [showAnalyticsModal, setShowAnalyticsModal] = useState(false);
@@ -280,11 +281,7 @@ export default function AdminAnnouncements() {
       category: item.category || "general",
       status: item.status || "Published",
     });
-
-    // Scroll smoothly to form
-    if (formRef.current) {
-      formRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
+    setShowAnnouncementModal(true);
     showToast(`Loaded "${item.title}" into editor.`);
   };
 
@@ -302,7 +299,7 @@ export default function AdminAnnouncements() {
       category: "general",
       status: "Published",
     });
-    showToast("Cancelled edit mode.");
+    setShowAnnouncementModal(false);
   };
 
   // Apply Quick Template
@@ -317,9 +314,6 @@ export default function AdminAnnouncements() {
       category: tmpl.category,
       status: "Published",
     });
-    if (formRef.current) {
-      formRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
     showToast(`Applied "${tmpl.label}" template.`);
   };
 
@@ -551,16 +545,11 @@ export default function AdminAnnouncements() {
                 className="ann-btn-primary"
                 onClick={() => {
                   handleCancelEdit();
-                  if (formRef.current) {
-                    formRef.current.scrollIntoView({
-                      behavior: "smooth",
-                      block: "start",
-                    });
-                  }
+                  setShowAnnouncementModal(true);
                 }}
               >
                 <Plus size={16} />
-                <span>Post Announcement</span>
+                <span>Create Announcement</span>
               </button>
             </div>
           </section>
@@ -1253,312 +1242,242 @@ export default function AdminAnnouncements() {
                 </div>
               </div>
             </div>
-
-            {/* RIGHT COLUMN: SIDEBAR PANELS */}
-            <div className="admin-ann-right-column">
-              {/* 1. CREATE / EDIT FORM CARD */}
-              <div
-                className={`ann-form-card ${isEditing ? "is-editing-mode" : ""}`}
-                ref={formRef}
-              >
-                <div className="ann-form-header">
-                  <div className="ann-form-header-left">
-                    <div
-                      className={`ann-form-icon-circle ${
-                        isEditing ? "editing" : ""
-                      }`}
-                    >
-                      {isEditing ? <Pencil size={18} /> : <Megaphone size={18} />}
-                    </div>
-                    <div>
-                      <h3>
-                        {isEditing ? "Edit Announcement" : "Create Announcement"}
-                      </h3>
-                      <p>
-                        {isEditing
-                          ? `Updating notice #${editingId}`
-                          : "Share updates with your organization"}
-                      </p>
-                    </div>
-                  </div>
-
-                  {isEditing && (
-                    <button
-                      type="button"
-                      className="ann-btn-cancel-edit-sm"
-                      onClick={handleCancelEdit}
-                      title="Cancel edit"
-                    >
-                      <X size={14} />
-                    </button>
-                  )}
-                </div>
-
-                {isEditing && (
-                  <div className="ann-editing-banner">
-                    <span className="editing-pill">Active Editing</span>
-                    <button
-                      type="button"
-                      className="editing-cancel-link"
-                      onClick={handleCancelEdit}
-                    >
-                      Cancel Edit
-                    </button>
-                  </div>
-                )}
-
-                <form onSubmit={handleSubmitForm} className="ann-form-body">
-                  {/* Title Field */}
-                  <div className="ann-field-group">
-                    <label>
-                      Title <span className="req">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="Enter announcement title"
-                      value={form.title}
-                      onChange={(e) =>
-                        setForm({ ...form, title: e.target.value })
-                      }
-                      required
-                    />
-                  </div>
-
-                  {/* Content Field + Formatting Toolbar */}
-                  <div className="ann-field-group">
-                    <div className="content-label-row">
-                      <label>
-                        Content <span className="req">*</span>
-                      </label>
-                      <div className="mini-format-toolbar">
-                        <button
-                          type="button"
-                          onClick={() => handleFormatContent("bold")}
-                          title="Bold"
-                        >
-                          <Bold size={12} />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleFormatContent("italic")}
-                          title="Italic"
-                        >
-                          <Italic size={12} />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleFormatContent("list")}
-                          title="Bullet list"
-                        >
-                          <ListFilter size={12} />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleFormatContent("link")}
-                          title="Add Link"
-                        >
-                          <Link2 size={12} />
-                        </button>
-                      </div>
-                    </div>
-                    <textarea
-                      rows={4}
-                      placeholder="Write your announcement here..."
-                      value={form.content}
-                      onChange={(e) =>
-                        setForm({ ...form, content: e.target.value })
-                      }
-                      required
-                    />
-                  </div>
-
-                  {/* Audience & Priority Row */}
-                  <div className="ann-field-row">
-                    <div className="ann-field-group half">
-                      <label>
-                        Audience <span className="req">*</span>
-                      </label>
-                      <select
-                        value={form.audience}
-                        onChange={(e) =>
-                          setForm({ ...form, audience: e.target.value })
-                        }
-                      >
-                        {AUDIENCES.map((aud) => (
-                          <option key={aud} value={aud}>
-                            {aud}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div className="ann-field-group half">
-                      <label>Priority</label>
-                      <select
-                        value={form.priority}
-                        onChange={(e) =>
-                          setForm({ ...form, priority: e.target.value })
-                        }
-                      >
-                        <option value="Low">🔵 Low</option>
-                        <option value="Medium">🟡 Medium</option>
-                        <option value="High">🔴 High</option>
-                        <option value="Urgent">🚨 Urgent</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  {/* Workspace Optional Field */}
-                  <div className="ann-field-group">
-                    <label>Workspace (Optional)</label>
-                    <select
-                      value={form.workspace}
-                      onChange={(e) =>
-                        setForm({ ...form, workspace: e.target.value })
-                      }
-                    >
-                      {WORKSPACES.map((ws) => (
-                        <option key={ws} value={ws}>
-                          {ws}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  {/* Pin Toggle Switch */}
-                  <div className="ann-switch-row">
-                    <label className="ann-switch-container">
-                      <input
-                        type="checkbox"
-                        checked={form.pinned}
-                        onChange={(e) =>
-                          setForm({ ...form, pinned: e.target.checked })
-                        }
-                      />
-                      <span className="ann-switch-slider" />
-                    </label>
-                    <div className="ann-switch-text">
-                      <span className="switch-title">
-                        Pin this announcement
-                      </span>
-                      <small className="switch-desc">
-                        Keep at the top for important notices
-                      </small>
-                    </div>
-                  </div>
-
-                  {/* Submit Button */}
-                  <div className="ann-form-actions-row">
-                    {isEditing && (
-                      <button
-                        type="button"
-                        className="ann-btn-cancel-edit"
-                        onClick={handleCancelEdit}
-                      >
-                        Cancel
-                      </button>
-                    )}
-                    <button
-                      type="submit"
-                      className={`ann-btn-submit-post ${
-                        isEditing ? "editing" : ""
-                      }`}
-                    >
-                      {isEditing ? (
-                        <>
-                          <Check size={16} />
-                          <span>Save Changes</span>
-                        </>
-                      ) : (
-                        <>
-                          <Send size={15} />
-                          <span>Post Announcement</span>
-                        </>
-                      )}
-                    </button>
-                  </div>
-                </form>
-              </div>
-
-              {/* 2. QUICK TEMPLATES CARD */}
-              <div className="ann-sidebar-card">
-                <div className="ann-sidebar-card-header">
-                  <div className="sidebar-card-title-group">
-                    <Megaphone size={16} className="text-purple" />
-                    <div>
-                      <h4>Quick Templates</h4>
-                      <small>Use pre-defined templates</small>
-                    </div>
-                  </div>
-                  <button
-                    type="button"
-                    className="sidebar-view-all-link"
-                    onClick={() => handleApplyTemplate(QUICK_TEMPLATES[0])}
-                  >
-                    View All &gt;
-                  </button>
-                </div>
-
-                <div className="ann-templates-grid">
-                  {QUICK_TEMPLATES.map((tmpl) => (
-                    <button
-                      key={tmpl.id}
-                      type="button"
-                      className="ann-template-pill"
-                      onClick={() => handleApplyTemplate(tmpl)}
-                      title={`Load ${tmpl.label}`}
-                    >
-                      {tmpl.id === "maintenance" && <Wrench size={13} />}
-                      {tmpl.id === "feature" && <Sparkles size={13} />}
-                      {tmpl.id === "policy" && <ShieldCheck size={13} />}
-                      {tmpl.id === "general" && <FileText size={13} />}
-                      <span>{tmpl.label}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* 3. RECENT ACTIVITY CARD */}
-              <div className="ann-sidebar-card">
-                <div className="ann-sidebar-card-header">
-                  <div className="sidebar-card-title-group">
-                    <h4>Recent Activity</h4>
-                  </div>
-                  <button
-                    type="button"
-                    className="sidebar-view-all-link"
-                    onClick={() => showToast("Viewing full audit logs.")}
-                  >
-                    View All
-                  </button>
-                </div>
-
-                <div className="ann-activity-list">
-                  {RECENT_ACTIVITIES.map((act) => (
-                    <div key={act.id} className="ann-activity-item">
-                      <div className="activity-status-dot" />
-                      <img
-                        src={act.avatar}
-                        alt={act.author}
-                        className="activity-avatar"
-                      />
-                      <div className="activity-content">
-                        <p className="activity-text">
-                          <strong>{act.author}</strong> {act.action}{" "}
-                          <span className="activity-item-title">
-                            {act.title}
-                          </span>
-                        </p>
-                        <span className="activity-time">{act.time}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
           </div>
         </main>
       </div>
+
+      {/* CREATE & EDIT ANNOUNCEMENT POPUP MODAL */}
+      {showAnnouncementModal && (
+        <div
+          className="ann-modal-overlay"
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget) handleCancelEdit();
+          }}
+        >
+          <div className="ann-form-modal-dialog">
+            <div className="ann-view-modal-header">
+              <div className="ann-view-header-title">
+                <div
+                  className={`ann-category-icon-box ${
+                    isEditing ? "editing" : "general"
+                  }`}
+                >
+                  {isEditing ? <Pencil size={18} /> : <Megaphone size={18} />}
+                </div>
+                <div>
+                  <h2>
+                    {isEditing ? "Edit Announcement" : "Create Announcement"}
+                  </h2>
+                  <span className="view-modal-id">
+                    {isEditing
+                      ? `Updating notice #${editingId}`
+                      : "Share updates and broadcasts with your organization"}
+                  </span>
+                </div>
+              </div>
+              <button
+                type="button"
+                className="ann-modal-close-btn"
+                onClick={handleCancelEdit}
+                aria-label="Close modal"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmitForm} className="ann-form-modal-body">
+              {!isEditing && (
+                <div className="ann-modal-templates-row">
+                  <span className="ann-modal-templates-lbl">Quick Templates:</span>
+                  <div className="ann-modal-templates-pills">
+                    {QUICK_TEMPLATES.map((tmpl) => (
+                      <button
+                        key={tmpl.id}
+                        type="button"
+                        className="ann-modal-template-pill"
+                        onClick={() => handleApplyTemplate(tmpl)}
+                        title={`Load ${tmpl.label} template`}
+                      >
+                        {tmpl.id === "maintenance" && <Wrench size={12} />}
+                        {tmpl.id === "feature" && <Sparkles size={12} />}
+                        {tmpl.id === "policy" && <ShieldCheck size={12} />}
+                        {tmpl.id === "general" && <FileText size={12} />}
+                        <span>{tmpl.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Title Field */}
+              <div className="ann-field-group">
+                <label>
+                  Title <span className="req">*</span>
+                </label>
+                <input
+                  type="text"
+                  placeholder="Enter announcement title"
+                  value={form.title}
+                  onChange={(e) =>
+                    setForm({ ...form, title: e.target.value })
+                  }
+                  required
+                />
+              </div>
+
+              {/* Content Field + Formatting Toolbar */}
+              <div className="ann-field-group">
+                <div className="content-label-row">
+                  <label>
+                    Content <span className="req">*</span>
+                  </label>
+                  <div className="mini-format-toolbar">
+                    <button
+                      type="button"
+                      onClick={() => handleFormatContent("bold")}
+                      title="Bold"
+                    >
+                      <Bold size={12} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleFormatContent("italic")}
+                      title="Italic"
+                    >
+                      <Italic size={12} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleFormatContent("list")}
+                      title="Bullet list"
+                    >
+                      <ListFilter size={12} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleFormatContent("link")}
+                      title="Add Link"
+                    >
+                      <Link2 size={12} />
+                    </button>
+                  </div>
+                </div>
+                <textarea
+                  rows={4}
+                  placeholder="Write your announcement here..."
+                  value={form.content}
+                  onChange={(e) =>
+                    setForm({ ...form, content: e.target.value })
+                  }
+                  required
+                />
+              </div>
+
+              {/* Audience & Priority Row */}
+              <div className="ann-field-row">
+                <div className="ann-field-group half">
+                  <label>
+                    Audience <span className="req">*</span>
+                  </label>
+                  <select
+                    value={form.audience}
+                    onChange={(e) =>
+                      setForm({ ...form, audience: e.target.value })
+                    }
+                  >
+                    {AUDIENCES.map((aud) => (
+                      <option key={aud} value={aud}>
+                        {aud}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="ann-field-group half">
+                  <label>Priority</label>
+                  <select
+                    value={form.priority}
+                    onChange={(e) =>
+                      setForm({ ...form, priority: e.target.value })
+                    }
+                  >
+                    <option value="Low">🔵 Low</option>
+                    <option value="Medium">🟡 Medium</option>
+                    <option value="High">🔴 High</option>
+                    <option value="Urgent">🚨 Urgent</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Workspace Optional Field */}
+              <div className="ann-field-group">
+                <label>Workspace (Optional)</label>
+                <select
+                  value={form.workspace}
+                  onChange={(e) =>
+                    setForm({ ...form, workspace: e.target.value })
+                  }
+                >
+                  {WORKSPACES.map((ws) => (
+                    <option key={ws} value={ws}>
+                      {ws}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Pin Toggle Switch */}
+              <div className="ann-switch-row">
+                <label className="ann-switch-container">
+                  <input
+                    type="checkbox"
+                    checked={form.pinned}
+                    onChange={(e) =>
+                      setForm({ ...form, pinned: e.target.checked })
+                    }
+                  />
+                  <span className="ann-switch-slider" />
+                </label>
+                <div className="ann-switch-text">
+                  <span className="switch-title">
+                    Pin this announcement
+                  </span>
+                  <small className="switch-desc">
+                    Keep at the top for important notices
+                  </small>
+                </div>
+              </div>
+
+              {/* Modal Footer with Cancel on LEFT, Submit on RIGHT */}
+              <div className="ann-modal-footer ann-form-modal-footer">
+                <button
+                  type="button"
+                  className="ann-btn-secondary ann-modal-cancel-btn"
+                  onClick={handleCancelEdit}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="ann-btn-primary ann-modal-submit-btn"
+                >
+                  {isEditing ? (
+                    <>
+                      <Check size={16} />
+                      <span>Save Changes</span>
+                    </>
+                  ) : (
+                    <>
+                      <Send size={15} />
+                      <span>Post Announcement</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* VIEW ANNOUNCEMENT DETAILS MODAL */}
       {viewingItem && (

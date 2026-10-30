@@ -471,6 +471,20 @@ export default function AdminProjects() {
   // Reusable Pagination Bar (Matching Workspace & Roles)
   const renderPaginationBar = () => {
     if (filteredProjects.length === 0) return null;
+
+    const getPageNumbers = () => {
+      if (totalPages <= 7) {
+        return Array.from({ length: totalPages }, (_, i) => i + 1);
+      }
+      if (currentPage <= 4) {
+        return [1, 2, 3, 4, 5, "...", totalPages];
+      }
+      if (currentPage >= totalPages - 3) {
+        return [1, "...", totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+      }
+      return [1, "...", currentPage - 1, currentPage, currentPage + 1, "...", totalPages];
+    };
+
     return (
       <div className="ws-pagination-bar ap-pagination-bar">
         <div className="ws-pagination-info ap-pagination-info">
@@ -505,16 +519,23 @@ export default function AdminProjects() {
             Previous
           </button>
           <div className="ws-page-pills ap-page-pills">
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((num) => (
-              <button
-                key={num}
-                type="button"
-                className={`ws-page-num-pill ap-page-num-pill ${currentPage === num ? "active" : ""}`}
-                onClick={() => setCurrentPage(num)}
-              >
-                {num}
-              </button>
-            ))}
+            {getPageNumbers().map((num, idx) =>
+              num === "..." ? (
+                <span key={`ellipsis-${idx}`} className="ap-page-ellipsis ws-page-ellipsis">
+                  …
+                </span>
+              ) : (
+                <button
+                  key={num}
+                  type="button"
+                  className={`ws-page-num-pill ap-page-num-pill ${currentPage === num ? "active" : ""}`}
+                  onClick={() => setCurrentPage(num)}
+                  aria-current={currentPage === num ? "page" : undefined}
+                >
+                  {num}
+                </button>
+              )
+            )}
           </div>
           <button
             type="button"
@@ -755,6 +776,39 @@ export default function AdminProjects() {
   const activePct = totalCount > 0 ? Math.round((stats.active / totalCount) * 100) : 0;
   const completedPct = totalCount > 0 ? Math.round((stats.completed / totalCount) * 100) : 0;
   const onHoldPct = totalCount > 0 ? Math.max(0, 100 - activePct - completedPct) : 0;
+
+  // SVG Donut metrics with live orbital & telemetry effects (matches AdminDashboard & AdminAnalytics)
+  const donutRadius = 46;
+  const donutCircumference = 2 * Math.PI * donutRadius; // ~289.03
+  const donutSlices = useMemo(() => {
+    if (totalCount === 0) return [];
+    const rawSlices = [
+      { name: "Active", count: stats.active || 0, color: "#10b981", pct: activePct },
+      { name: "Completed", count: stats.completed || 0, color: "#3b82f6", pct: completedPct },
+      { name: "On Hold", count: stats.onHold || 0, color: "#f59e0b", pct: onHoldPct },
+    ];
+    if (stats.overdue > 0) {
+      const overduePct = Math.round((stats.overdue / totalCount) * 100);
+      rawSlices.push({ name: "Overdue", count: stats.overdue, color: "#ef4444", pct: overduePct });
+    }
+
+    let currentOffset = 0;
+    return rawSlices.map((slice) => {
+      const length = (slice.count / totalCount) * donutCircumference;
+      const sliceData = {
+        ...slice,
+        length,
+        offset: currentOffset,
+      };
+      currentOffset -= length;
+      return sliceData;
+    });
+  }, [stats, totalCount, activePct, completedPct, onHoldPct, donutCircumference]);
+
+  const activeHoveredSlice = useMemo(() => {
+    if (!hoveredSegment) return null;
+    return donutSlices.find((s) => s.name === hoveredSegment) || null;
+  }, [hoveredSegment, donutSlices]);
 
   // Live Recharts Data for Status Pie (reacts immediately to filters)
   const statusPieData = useMemo(() => {
@@ -1002,68 +1056,123 @@ export default function AdminProjects() {
 
               <div className="ap-donut-content">
                 <div className="ap-donut-svg-wrap">
-                  <ResponsiveContainer width={120} height={120}>
-                    <PieChart>
-                      <Pie
-                        data={statusPieData}
-                        dataKey="value"
-                        nameKey="name"
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={36}
-                        outerRadius={hoveredSegment ? 53 : 48}
-                        paddingAngle={totalCount > 1 ? 3 : 0}
-                        isAnimationActive={true}
-                        animationDuration={750}
-                        animationEasing="ease-out"
-                        onClick={(entry) => {
-                          if (entry?.name) {
-                            setStatusFilter(statusFilter === entry.name ? "All" : entry.name);
-                          }
-                        }}
-                      >
-                        {statusPieData.map((entry, index) => {
-                          const isHovered = hoveredSegment === entry.name;
+                  <svg viewBox="0 0 140 140" className="ap-donut-svg">
+                    <defs>
+                      <filter id="apDonutGlow-active" x="-30%" y="-30%" width="160%" height="160%">
+                        <feDropShadow dx="0" dy="0" stdDeviation="4.5" floodColor="#10b981" floodOpacity="0.8" />
+                      </filter>
+                      <filter id="apDonutGlow-completed" x="-30%" y="-30%" width="160%" height="160%">
+                        <feDropShadow dx="0" dy="0" stdDeviation="4.5" floodColor="#3b82f6" floodOpacity="0.8" />
+                      </filter>
+                      <filter id="apDonutGlow-onhold" x="-30%" y="-30%" width="160%" height="160%">
+                        <feDropShadow dx="0" dy="0" stdDeviation="4.5" floodColor="#f59e0b" floodOpacity="0.8" />
+                      </filter>
+                      <filter id="apDonutGlow-overdue" x="-30%" y="-30%" width="160%" height="160%">
+                        <feDropShadow dx="0" dy="0" stdDeviation="4.5" floodColor="#ef4444" floodOpacity="0.8" />
+                      </filter>
+                    </defs>
+
+                    {/* Ambient live outer orbital ring */}
+                    <circle
+                      cx="70"
+                      cy="70"
+                      r="63"
+                      fill="none"
+                      className="ap-donut-aura-ring"
+                    />
+
+                    {/* Expanding live sonar wave */}
+                    <circle
+                      cx="70"
+                      cy="70"
+                      r={donutRadius}
+                      fill="none"
+                      className="ap-donut-sonar-wave"
+                    />
+
+                    {/* Background track ring */}
+                    <circle
+                      cx="70"
+                      cy="70"
+                      r={donutRadius}
+                      fill="none"
+                      className="ap-donut-bg-ring"
+                      strokeWidth={13}
+                    />
+
+                    {/* Slices group rotated -90deg */}
+                    <g transform="rotate(-90 70 70)">
+                      {totalCount === 0 ? (
+                        <circle
+                          cx="70"
+                          cy="70"
+                          r={donutRadius}
+                          fill="none"
+                          stroke="#64748b"
+                          strokeWidth={13}
+                          opacity={0.3}
+                        />
+                      ) : (
+                        donutSlices.map((slice) => {
+                          const isHovered = hoveredSegment === slice.name;
+                          const isAnyHovered = hoveredSegment !== null;
+                          const sliceKey = slice.name.toLowerCase().replace(/\s+/g, "");
                           return (
-                            <Cell
-                              key={`cell-${index}`}
-                              fill={entry.color}
-                              stroke={isHovered ? "#ffffff" : "transparent"}
-                              strokeWidth={isHovered ? 2.5 : 0}
+                            <circle
+                              key={slice.name}
+                              cx="70"
+                              cy="70"
+                              r={donutRadius}
+                              fill="none"
+                              stroke={slice.color}
+                              strokeWidth={isHovered ? 17 : 13}
+                              strokeDasharray={`${slice.length} ${donutCircumference - slice.length}`}
+                              strokeDashoffset={slice.offset}
+                              filter={isHovered ? `url(#apDonutGlow-${sliceKey})` : undefined}
+                              opacity={isAnyHovered && !isHovered ? 0.35 : 1}
+                              className={`ap-donut-slice slice-${sliceKey} ${isHovered ? "active" : ""}`}
                               style={{
                                 cursor: "pointer",
-                                filter: isHovered ? "drop-shadow(0 0 8px rgba(99, 102, 241, 0.45))" : "none",
-                                transition: "all 0.25s ease",
+                                transition: "stroke-width 0.25s ease, opacity 0.25s ease, filter 0.25s ease",
                               }}
-                              onMouseEnter={() => setHoveredSegment(entry.name)}
+                              onMouseEnter={() => setHoveredSegment(slice.name)}
                               onMouseLeave={() => setHoveredSegment(null)}
-                            />
+                              onClick={() => setStatusFilter(statusFilter === slice.name ? "All" : slice.name)}
+                            >
+                              <title>{`${slice.name}: ${slice.count} projects (${slice.pct}%) · Click to filter`}</title>
+                            </circle>
                           );
-                        })}
-                      </Pie>
-                      <Tooltip
-                        contentStyle={{
-                          backgroundColor: "#111c30",
-                          border: "1px solid #1e293b",
-                          borderRadius: "8px",
-                          fontSize: "12px",
-                          color: "#f8fafc",
-                          padding: "6px 10px",
-                          boxShadow: "0 4px 14px rgba(0,0,0,0.3)",
-                        }}
-                        itemStyle={{ color: "#f8fafc" }}
-                        formatter={(val, name) => [
-                          `${val} projects (${totalCount > 0 ? Math.round((val / totalCount) * 100) : 0}%) · Click to filter`,
-                          name,
-                        ]}
-                      />
-                    </PieChart>
-                  </ResponsiveContainer>
-                  <div className="ap-donut-center-label">
-                    <strong>
-                      <AnimatedNumber value={stats.total} />
-                    </strong>
-                    <small>Projects</small>
+                        })
+                      )}
+                    </g>
+
+                    {/* Orbiting Live Satellite Beacon */}
+                    <g className="ap-donut-orbit-beacon" style={{ transformOrigin: "70px 70px" }}>
+                      <circle cx="70" cy={16} r="6" fill="none" className="ap-donut-beacon-pulse" />
+                      <circle cx="70" cy={16} r="3.2" className="ap-donut-beacon-core" />
+                    </g>
+                  </svg>
+
+                  <div className={`ap-donut-center-label ${activeHoveredSlice ? "has-hover" : ""}`}>
+                    {activeHoveredSlice ? (
+                      <div className="ap-donut-active-metric">
+                        <strong style={{ color: activeHoveredSlice.color }}>
+                          {activeHoveredSlice.count}
+                        </strong>
+                        <small style={{ color: activeHoveredSlice.color, fontWeight: 700 }}>
+                          {activeHoveredSlice.name} ({activeHoveredSlice.pct}%)
+                        </small>
+                      </div>
+                    ) : (
+                      <div className="ap-donut-default-metric">
+                        <strong>
+                          <AnimatedNumber value={stats.total} />
+                        </strong>
+                        <small>
+                          <span className="ap-center-live-dot" /> Projects
+                        </small>
+                      </div>
+                    )}
                   </div>
                 </div>
 

@@ -1532,6 +1532,22 @@
   text-align: center;
 }
 
+.rp-modal-box.rp-modal-sm .rp-modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  border-top: 0;
+  margin-top: 20px;
+  padding-top: 0;
+}
+
+.rp-modal-box.rp-modal-sm .rp-modal-footer button {
+  flex: 1;
+  height: 40px;
+  border-radius: 10px;
+}
+
 @keyframes rpModalPop {
   0% {
     opacity: 0;
@@ -1611,36 +1627,70 @@
 .rp-modal-footer {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 10px;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e2e8f0;
+  width: 100%;
 }
 
 .rp-btn-cancel {
-  height: 36px;
-  padding: 0 14px;
-  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  height: 42px;
+  padding: 0 20px;
+  border-radius: 9px;
   border: 1px solid #cbd5e1;
   background: #ffffff;
-  font-size: 12.5px;
+  font-size: 13.5px;
   font-weight: 600;
-  color: #475569;
+  color: #334155;
   cursor: pointer;
+  transition: all 0.16s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.rp-btn-cancel:hover {
+  background: #f8fafc;
+  border-color: #94a3b8;
+  color: #0f172a;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+}
+
+.rp-btn-cancel:active {
+  transform: translateY(0);
 }
 
 .rp-btn-primary {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  height: 36px;
-  padding: 0 16px;
-  border-radius: 8px;
+  justify-content: center;
+  gap: 7px;
+  height: 42px;
+  padding: 0 22px;
+  border-radius: 9px;
   border: 0;
-  background: #6366f1;
+  background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
   color: #ffffff;
-  font-size: 12.5px;
+  font-size: 13.5px;
   font-weight: 600;
   cursor: pointer;
+  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.32);
+  transition: all 0.16s ease;
+}
+
+.rp-btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(79, 70, 229, 0.45);
+  filter: brightness(1.05);
+}
+
+.rp-btn-primary:active {
+  transform: translateY(0);
 }
 
 .rp-btn-danger {
@@ -2457,19 +2507,49 @@ body.dark-theme .rp-form-group select,
   color: #f8fafc;
 }
 
+:root.dark .rp-modal-footer,
+.dark .rp-modal-footer,
+body.dark-theme .rp-modal-footer,
+[data-theme="dark"] .rp-modal-footer {
+  border-top-color: #1e293b !important;
+}
+
+:root.dark .rp-btn-cancel,
 .dark .rp-btn-cancel,
 body.dark-theme .rp-btn-cancel,
 [data-theme="dark"] .rp-btn-cancel {
-  background: #1e293b;
-  border-color: #334155;
-  color: #cbd5e1;
+  background: #1e293b !important;
+  border: 1px solid #334155 !important;
+  color: #f1f5f9 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
 }
 
+:root.dark .rp-btn-cancel:hover,
 .dark .rp-btn-cancel:hover,
 body.dark-theme .rp-btn-cancel:hover,
 [data-theme="dark"] .rp-btn-cancel:hover {
-  background: #334155;
-  color: #f8fafc;
+  background: #334155 !important;
+  border-color: #475569 !important;
+  color: #ffffff !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
+}
+
+:root.dark .rp-btn-primary,
+.dark .rp-btn-primary,
+body.dark-theme .rp-btn-primary,
+[data-theme="dark"] .rp-btn-primary {
+  background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.45) !important;
+}
+
+:root.dark .rp-btn-primary:hover,
+.dark .rp-btn-primary:hover,
+body.dark-theme .rp-btn-primary:hover,
+[data-theme="dark"] .rp-btn-primary:hover {
+  box-shadow: 0 6px 20px rgba(79, 70, 229, 0.6) !important;
+  filter: brightness(1.06) !important;
 }
 
 .dark .rp-modal-confirm-title,
@@ -2546,15 +2626,21 @@ body.dark-theme .rolesPermissionsCardPage .ws-page-num-pill:hover,
   color: #f8fafc;
 }
 
+:root.dark .rp-page-num-pill.active,
 .dark .rp-page-num-pill.active,
 body.dark-theme .rp-page-num-pill.active,
 [data-theme="dark"] .rp-page-num-pill.active,
+:root.dark .rolesPermissionsCardPage .ws-page-num-pill.active,
 .dark .rolesPermissionsCardPage .ws-page-num-pill.active,
 body.dark-theme .rolesPermissionsCardPage .ws-page-num-pill.active,
 [data-theme="dark"] .rolesPermissionsCardPage .ws-page-num-pill.active {
-  background: #6366f1;
-  color: #ffffff;
-  border-color: #6366f1;
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%) !important;
+  color: #ffffff !important;
+  border: 1px solid #818cf8 !important;
+  font-weight: 700 !important;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.35), 0 3px 12px rgba(99, 102, 241, 0.5) !important;
+  transform: translateY(-1px) scale(1.06) !important;
+  z-index: 2 !important;
 }
 
 /* =========================================================

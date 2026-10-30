@@ -1413,76 +1413,195 @@ body.dark-theme .calFormGroup select,
   gap: 12px;
 }
 
-.calModalFooter {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 14px 20px;
-  border-top: 1px solid #f1f5f9;
-  background: #f8fafc;
+.calModalFooter,
+.cal-modal-actions {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 16px 22px !important;
+  border-top: 1px solid #e2e8f0 !important;
+  background: #f8fafc !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
 }
 
 :root.dark .calModalFooter,
 .dark .calModalFooter,
 body.dark-theme .calModalFooter,
-[data-theme="dark"] .calModalFooter {
-  background: #0f172a;
-  border-top-color: #1f2937;
+[data-theme="dark"] .calModalFooter,
+:root.dark .cal-modal-actions,
+.dark .cal-modal-actions,
+body.dark-theme .cal-modal-actions,
+[data-theme="dark"] .cal-modal-actions {
+  background: #0f172a !important;
+  border-top-color: #1e293b !important;
 }
 
-.calBtnCancel {
-  padding: 8px 16px;
-  border: 1px solid #cbd5e1;
-  background: #ffffff;
-  color: #475569;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
+/* CANCEL BUTTON: Positioned on the FAR LEFT with user-friendly styling */
+.calBtnCancel,
+.cal-modal-cancel-btn {
+  margin-right: auto !important; /* FORCES Cancel button to the far LEFT */
+  height: 42px !important;
+  padding: 0 20px !important;
+  border: 1px solid #cbd5e1 !important;
+  background: #ffffff !important;
+  color: #334155 !important;
+  border-radius: 9px !important;
+  font-size: 13.5px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+}
+
+.calBtnCancel:hover,
+.cal-modal-cancel-btn:hover {
+  background: #f8fafc !important;
+  color: #0f172a !important;
+  border-color: #94a3b8 !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08) !important;
+}
+
+.calBtnCancel:active,
+.cal-modal-cancel-btn:active {
+  transform: translateY(0) !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
 }
 
 :root.dark .calBtnCancel,
 .dark .calBtnCancel,
 body.dark-theme .calBtnCancel,
-[data-theme="dark"] .calBtnCancel {
-  background: #1e293b;
-  border-color: #334155;
-  color: #cbd5e1;
+[data-theme="dark"] .calBtnCancel,
+:root.dark .cal-modal-cancel-btn,
+.dark .cal-modal-cancel-btn,
+body.dark-theme .cal-modal-cancel-btn,
+[data-theme="dark"] .cal-modal-cancel-btn {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f1f5f9 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
 }
 
-.calBtnSubmit {
-  padding: 8px 18px;
-  border: none;
-  background: #1a73e8;
-  color: #ffffff;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
+:root.dark .calBtnCancel:hover,
+.dark .calBtnCancel:hover,
+body.dark-theme .calBtnCancel:hover,
+[data-theme="dark"] .calBtnCancel:hover,
+:root.dark .cal-modal-cancel-btn:hover,
+.dark .cal-modal-cancel-btn:hover,
+body.dark-theme .cal-modal-cancel-btn:hover,
+[data-theme="dark"] .cal-modal-cancel-btn:hover {
+  background: #334155 !important;
+  border-color: #475569 !important;
+  color: #ffffff !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
 }
 
-.calBtnSubmit:hover {
-  background: #1557b0;
+/* RIGHT ACTIONS CONTAINER */
+.cal-modal-actions-right {
+  margin-left: auto !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
 }
 
-.calBtnDanger {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 14px;
-  border: 1px solid #fecaca;
-  background: #fef2f2;
-  color: #ef4444;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
+/* SUBMIT BUTTON: Positioned on the RIGHT */
+.calBtnSubmit,
+.cal-modal-submit-btn {
+  height: 42px !important;
+  padding: 0 22px !important;
+  border: none !important;
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+  color: #ffffff !important;
+  border-radius: 9px !important;
+  font-size: 13.5px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 7px !important;
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.28) !important;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.calBtnSubmit:hover:not(:disabled),
+.cal-modal-submit-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%) !important;
+  box-shadow: 0 5px 14px rgba(37, 99, 235, 0.42) !important;
+  transform: translateY(-1px) !important;
+}
+
+.calBtnSubmit:active:not(:disabled),
+.cal-modal-submit-btn:active:not(:disabled) {
+  transform: translateY(0) !important;
+}
+
+.calBtnSubmit:disabled,
+.cal-modal-submit-btn:disabled {
+  opacity: 0.6 !important;
+  cursor: not-allowed !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+/* DANGER / DELETE BUTTON IN MODAL */
+.calBtnDanger,
+.cal-modal-delete-btn {
+  height: 42px !important;
+  padding: 0 16px !important;
+  border: 1px solid #fecaca !important;
+  background: #fef2f2 !important;
+  color: #dc2626 !important;
+  border-radius: 9px !important;
+  font-size: 13.5px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.calBtnDanger:hover,
+.cal-modal-delete-btn:hover {
+  background: #fee2e2 !important;
+  border-color: #fca5a5 !important;
+  color: #b91c1c !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 3px 8px rgba(220, 38, 38, 0.15) !important;
 }
 
 :root.dark .calBtnDanger,
 .dark .calBtnDanger,
 body.dark-theme .calBtnDanger,
-[data-theme="dark"] .calBtnDanger {
-  background: rgba(239, 68, 68, 0.2);
-  border-color: rgba(239, 68, 68, 0.4);
-  color: #f87171;
+[data-theme="dark"] .calBtnDanger,
+:root.dark .cal-modal-delete-btn,
+.dark .cal-modal-delete-btn,
+body.dark-theme .cal-modal-delete-btn,
+[data-theme="dark"] .cal-modal-delete-btn {
+  background: rgba(239, 68, 68, 0.16) !important;
+  border-color: rgba(239, 68, 68, 0.35) !important;
+  color: #fca5a5 !important;
+}
+
+:root.dark .calBtnDanger:hover,
+.dark .calBtnDanger:hover,
+body.dark-theme .calBtnDanger:hover,
+[data-theme="dark"] .calBtnDanger:hover,
+:root.dark .cal-modal-delete-btn:hover,
+.dark .cal-modal-delete-btn:hover,
+body.dark-theme .cal-modal-delete-btn:hover,
+[data-theme="dark"] .cal-modal-delete-btn:hover {
+  background: rgba(239, 68, 68, 0.28) !important;
+  border-color: rgba(239, 68, 68, 0.5) !important;
+  color: #fecaca !important;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25) !important;
 }
 
 

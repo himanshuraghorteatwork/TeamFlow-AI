@@ -989,17 +989,18 @@
   align-items: center;
   gap: 10px;
   height: 42px;
-  padding: 0 12px;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
+  padding: 0 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 9px;
   background: #ffffff;
   color: #64748b;
-  transition: all 0.15s ease;
+  transition: all 0.16s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
 .admin-users-input:focus-within {
   border-color: #6366f1;
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
   color: #4f46e5;
 }
 
@@ -1010,74 +1011,100 @@
   font-size: 13.5px;
   color: #0f172a;
   background: transparent;
+  font-weight: 500;
+}
+
+.admin-users-input input::placeholder {
+  color: #94a3b8;
 }
 
 .admin-users-form select {
   height: 42px;
-  padding: 0 12px;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
+  padding: 0 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 9px;
   background: #ffffff;
   color: #0f172a;
   font-size: 13.5px;
+  font-weight: 500;
   outline: 0;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all 0.16s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
 .admin-users-form select:focus {
   border-color: #6366f1;
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
 }
 
 .admin-users-modal-actions {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  gap: 10px;
-  padding-top: 8px;
-  border-top: 1px solid #f1f5f9;
-  margin-top: 8px;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 18px;
+  border-top: 1px solid #e2e8f0;
+  margin-top: 10px;
+  width: 100%;
 }
 
 .admin-users-cancel-btn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  height: 40px;
-  padding: 0 16px;
+  justify-content: center;
+  gap: 7px;
+  height: 42px;
+  padding: 0 20px;
   background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  border-radius: 9px;
   font-size: 13.5px;
   font-weight: 600;
-  color: #64748b;
+  color: #334155;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all 0.16s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .admin-users-cancel-btn:hover {
   background: #f8fafc;
+  border-color: #94a3b8;
   color: #0f172a;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+}
+
+.admin-users-cancel-btn:active {
+  transform: translateY(0);
 }
 
 .admin-users-save-btn {
-  height: 40px;
-  padding: 0 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  height: 42px;
+  padding: 0 22px;
   background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
   border: 0;
-  border-radius: 8px;
+  border-radius: 9px;
   font-size: 13.5px;
   font-weight: 600;
   color: #ffffff;
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.28);
-  transition: all 0.15s ease;
+  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.32);
+  transition: all 0.16s ease;
 }
 
 .admin-users-save-btn:hover {
   transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(79, 70, 229, 0.38);
+  box-shadow: 0 6px 18px rgba(79, 70, 229, 0.45);
+  filter: brightness(1.04);
+}
+
+.admin-users-save-btn:active {
+  transform: translateY(0);
 }
 
 /* =========================================================
@@ -2096,65 +2123,188 @@ body.dark-theme .action-icon-btn.delete:hover,
 
 /* MODALS IN DARK MODE */
 :root.dark .admin-users-modal,
-.dark .admin-users-modal {
-  background: #111827;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+.dark .admin-users-modal,
+body.dark-theme .admin-users-modal,
+[data-theme="dark"] .admin-users-modal {
+  background: #0f172a !important;
+  border: 1px solid #1e293b !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.06) !important;
 }
 
 :root.dark .admin-users-modal-header,
-.dark .admin-users-modal-header {
-  border-bottom-color: rgba(255, 255, 255, 0.08);
+.dark .admin-users-modal-header,
+body.dark-theme .admin-users-modal-header,
+[data-theme="dark"] .admin-users-modal-header {
+  border-bottom: 1px solid #1e293b !important;
 }
 
 :root.dark .admin-users-modal-header h2,
-.dark .admin-users-modal-header h2 {
-  color: #f8fafc;
+.dark .admin-users-modal-header h2,
+body.dark-theme .admin-users-modal-header h2,
+[data-theme="dark"] .admin-users-modal-header h2 {
+  color: #f8fafc !important;
+  font-weight: 700 !important;
 }
 
 :root.dark .admin-users-modal-header p,
-.dark .admin-users-modal-header p {
-  color: #94a3b8;
+.dark .admin-users-modal-header p,
+body.dark-theme .admin-users-modal-header p,
+[data-theme="dark"] .admin-users-modal-header p {
+  color: #94a3b8 !important;
+}
+
+:root.dark .admin-users-modal-close,
+.dark .admin-users-modal-close,
+body.dark-theme .admin-users-modal-close,
+[data-theme="dark"] .admin-users-modal-close {
+  background: #1e293b !important;
+  border: 1px solid #334155 !important;
+  color: #94a3b8 !important;
+  padding: 5px;
+}
+
+:root.dark .admin-users-modal-close:hover,
+.dark .admin-users-modal-close:hover,
+body.dark-theme .admin-users-modal-close:hover,
+[data-theme="dark"] .admin-users-modal-close:hover {
+  background: rgba(239, 68, 68, 0.2) !important;
+  border-color: rgba(239, 68, 68, 0.4) !important;
+  color: #f87171 !important;
 }
 
 :root.dark .admin-users-form-group label,
-.dark .admin-users-form-group label {
-  color: #cbd5e1;
+.dark .admin-users-form-group label,
+body.dark-theme .admin-users-form-group label,
+[data-theme="dark"] .admin-users-form-group label {
+  color: #e2e8f0 !important;
+  font-weight: 600 !important;
+}
+
+:root.dark .admin-users-form-group label .req,
+.dark .admin-users-form-group label .req,
+body.dark-theme .admin-users-form-group label .req,
+[data-theme="dark"] .admin-users-form-group label .req {
+  color: #f87171 !important;
 }
 
 :root.dark .admin-users-input,
-.dark .admin-users-input {
-  background: #0b0f19;
-  border-color: rgba(255, 255, 255, 0.12);
+.dark .admin-users-input,
+body.dark-theme .admin-users-input,
+[data-theme="dark"] .admin-users-input {
+  background: #111d38 !important;
+  border: 1px solid #1e2f57 !important;
+  color: #94a3b8 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25) !important;
+}
+
+:root.dark .admin-users-input:hover,
+.dark .admin-users-input:hover,
+body.dark-theme .admin-users-input:hover,
+[data-theme="dark"] .admin-users-input:hover {
+  border-color: #2b3d66 !important;
+}
+
+:root.dark .admin-users-input:focus-within,
+.dark .admin-users-input:focus-within,
+body.dark-theme .admin-users-input:focus-within,
+[data-theme="dark"] .admin-users-input:focus-within {
+  border-color: #6366f1 !important;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25) !important;
+  color: #818cf8 !important;
 }
 
 :root.dark .admin-users-input input,
-.dark .admin-users-input input {
-  color: #f8fafc;
+.dark .admin-users-input input,
+body.dark-theme .admin-users-input input,
+[data-theme="dark"] .admin-users-input input {
+  color: #f8fafc !important;
+  font-weight: 500 !important;
+}
+
+:root.dark .admin-users-input input::placeholder,
+.dark .admin-users-input input::placeholder,
+body.dark-theme .admin-users-input input::placeholder,
+[data-theme="dark"] .admin-users-input input::placeholder {
+  color: #64748b !important;
 }
 
 :root.dark .admin-users-form select,
-.dark .admin-users-form select {
-  background: #0b0f19;
-  border-color: rgba(255, 255, 255, 0.12);
-  color: #f8fafc;
+.dark .admin-users-form select,
+body.dark-theme .admin-users-form select,
+[data-theme="dark"] .admin-users-form select {
+  background: #111d38 !important;
+  border: 1px solid #1e2f57 !important;
+  color: #f8fafc !important;
+  font-weight: 500 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25) !important;
+}
+
+:root.dark .admin-users-form select:hover,
+.dark .admin-users-form select:hover,
+body.dark-theme .admin-users-form select:hover,
+[data-theme="dark"] .admin-users-form select:hover {
+  border-color: #2b3d66 !important;
+}
+
+:root.dark .admin-users-form select:focus,
+.dark .admin-users-form select:focus,
+body.dark-theme .admin-users-form select:focus,
+[data-theme="dark"] .admin-users-form select:focus {
+  border-color: #6366f1 !important;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25) !important;
+}
+
+:root.dark .admin-users-form select option,
+.dark .admin-users-form select option,
+body.dark-theme .admin-users-form select option,
+[data-theme="dark"] .admin-users-form select option {
+  background: #111d38 !important;
+  color: #f8fafc !important;
 }
 
 :root.dark .admin-users-modal-actions,
-.dark .admin-users-modal-actions {
-  border-top-color: rgba(255, 255, 255, 0.08);
+.dark .admin-users-modal-actions,
+body.dark-theme .admin-users-modal-actions,
+[data-theme="dark"] .admin-users-modal-actions {
+  border-top-color: #1e293b !important;
 }
 
 :root.dark .admin-users-cancel-btn,
-.dark .admin-users-cancel-btn {
-  background: #1e293b;
-  border-color: rgba(255, 255, 255, 0.12);
-  color: #cbd5e1;
+.dark .admin-users-cancel-btn,
+body.dark-theme .admin-users-cancel-btn,
+[data-theme="dark"] .admin-users-cancel-btn {
+  background: #1e293b !important;
+  border: 1px solid #334155 !important;
+  color: #f1f5f9 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
 }
 
 :root.dark .admin-users-cancel-btn:hover,
-.dark .admin-users-cancel-btn:hover {
-  background: #334155;
-  color: #f8fafc;
+.dark .admin-users-cancel-btn:hover,
+body.dark-theme .admin-users-cancel-btn:hover,
+[data-theme="dark"] .admin-users-cancel-btn:hover {
+  background: #334155 !important;
+  border-color: #475569 !important;
+  color: #ffffff !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
+}
+
+:root.dark .admin-users-save-btn,
+.dark .admin-users-save-btn,
+body.dark-theme .admin-users-save-btn,
+[data-theme="dark"] .admin-users-save-btn {
+  background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.45) !important;
+}
+
+:root.dark .admin-users-save-btn:hover,
+.dark .admin-users-save-btn:hover,
+body.dark-theme .admin-users-save-btn:hover,
+[data-theme="dark"] .admin-users-save-btn:hover {
+  box-shadow: 0 6px 20px rgba(79, 70, 229, 0.6) !important;
+  filter: brightness(1.06) !important;
 }
 
 /* USER PROFILE OVERVIEW MODAL IN DARK MODE */

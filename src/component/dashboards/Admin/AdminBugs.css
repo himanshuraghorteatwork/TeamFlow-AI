@@ -1423,41 +1423,140 @@ body.dark-theme .admin-bugs-inline-actions .action-icon-btn.delete:hover,
   gap: 12px;
 }
 
-.modal-actions {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 8px;
+.tfBugsApp .modal-actions,
+.bugs-modal-actions,
+.modal-box .modal-actions {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  padding-top: 18px !important;
+  border-top: 1px solid #e2e8f0 !important;
+  margin-top: 14px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  background: transparent !important;
 }
 
-.btn-cancel {
-  padding: 8px 16px;
-  border: 1px solid #e2e8f0;
-  background: #ffffff;
-  color: #475569;
-  border-radius: 8px;
-  font-size: 0.8125rem;
-  font-weight: 600;
-  cursor: pointer;
+.bugs-modal-cancel-btn,
+.bugs-modal-actions .btn-cancel,
+.tfBugsApp .modal-actions .btn-cancel {
+  margin-right: auto !important; /* FORCES Cancel button to the far LEFT */
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 7px !important;
+  height: 42px !important;
+  padding: 0 20px !important;
+  border-radius: 9px !important;
+  border: 1px solid #cbd5e1 !important;
+  background: #ffffff !important;
+  font-size: 13.5px !important;
+  font-weight: 600 !important;
+  color: #334155 !important;
+  cursor: pointer !important;
+  transition: all 0.16s ease !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
 }
 
-:root.dark .btn-cancel,
-.dark .btn-cancel {
-  background: #1f2937;
-  border-color: #374151;
-  color: #cbd5e1;
+.bugs-modal-cancel-btn:hover,
+.bugs-modal-actions .btn-cancel:hover,
+.tfBugsApp .modal-actions .btn-cancel:hover {
+  background: #f8fafc !important;
+  color: #0f172a !important;
+  border-color: #94a3b8 !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08) !important;
 }
 
-.btn-submit {
-  padding: 8px 18px;
-  border: none;
-  background: #4f46e5;
-  color: #ffffff;
-  border-radius: 8px;
-  font-size: 0.8125rem;
-  font-weight: 600;
-  cursor: pointer;
+.bugs-modal-cancel-btn:active,
+.bugs-modal-actions .btn-cancel:active,
+.tfBugsApp .modal-actions .btn-cancel:active {
+  transform: translateY(0) !important;
+}
+
+.bugs-modal-submit-btn,
+.bugs-modal-actions .btn-submit,
+.tfBugsApp .modal-actions .btn-submit {
+  margin-left: auto !important; /* FORCES Submit button to the far RIGHT */
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  height: 42px !important;
+  padding: 0 22px !important;
+  border-radius: 9px !important;
+  border: 0 !important;
+  background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%) !important;
+  color: #ffffff !important;
+  font-size: 13.5px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.32) !important;
+  transition: all 0.16s ease !important;
+}
+
+.bugs-modal-submit-btn:hover,
+.bugs-modal-actions .btn-submit:hover,
+.tfBugsApp .modal-actions .btn-submit:hover {
+  background: linear-gradient(135deg, #4338ca 0%, #4f46e5 100%) !important;
+  box-shadow: 0 6px 18px rgba(79, 70, 229, 0.4) !important;
+  transform: translateY(-1px) !important;
+}
+
+.bugs-modal-submit-btn:active,
+.bugs-modal-actions .btn-submit:active,
+.tfBugsApp .modal-actions .btn-submit:active {
+  transform: translateY(0) !important;
+}
+
+:root.dark .tfBugsApp .modal-actions,
+.dark .tfBugsApp .modal-actions,
+body.dark-theme .tfBugsApp .modal-actions,
+[data-theme="dark"] .tfBugsApp .modal-actions,
+:root.dark .bugs-modal-actions,
+.dark .bugs-modal-actions,
+body.dark-theme .bugs-modal-actions,
+[data-theme="dark"] .bugs-modal-actions {
+  border-top-color: #1e293b !important;
+  background: transparent !important;
+}
+
+:root.dark .bugs-modal-cancel-btn,
+.dark .bugs-modal-cancel-btn,
+body.dark-theme .bugs-modal-cancel-btn,
+[data-theme="dark"] .bugs-modal-cancel-btn,
+:root.dark .bugs-modal-actions .btn-cancel,
+.dark .bugs-modal-actions .btn-cancel,
+body.dark-theme .bugs-modal-actions .btn-cancel,
+[data-theme="dark"] .bugs-modal-actions .btn-cancel,
+:root.dark .tfBugsApp .modal-actions .btn-cancel,
+.dark .tfBugsApp .modal-actions .btn-cancel,
+body.dark-theme .tfBugsApp .modal-actions .btn-cancel,
+[data-theme="dark"] .tfBugsApp .modal-actions .btn-cancel {
+  background: #1e293b !important;
+  border: 1px solid #334155 !important;
+  color: #f1f5f9 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
+}
+
+:root.dark .bugs-modal-cancel-btn:hover,
+.dark .bugs-modal-cancel-btn:hover,
+body.dark-theme .bugs-modal-cancel-btn:hover,
+[data-theme="dark"] .bugs-modal-cancel-btn:hover,
+:root.dark .bugs-modal-actions .btn-cancel:hover,
+.dark .bugs-modal-actions .btn-cancel:hover,
+body.dark-theme .bugs-modal-actions .btn-cancel:hover,
+[data-theme="dark"] .bugs-modal-actions .btn-cancel:hover,
+:root.dark .tfBugsApp .modal-actions .btn-cancel:hover,
+.dark .tfBugsApp .modal-actions .btn-cancel:hover,
+body.dark-theme .tfBugsApp .modal-actions .btn-cancel:hover,
+[data-theme="dark"] .tfBugsApp .modal-actions .btn-cancel:hover {
+  background: #334155 !important;
+  border-color: #475569 !important;
+  color: #ffffff !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
 }
 
 .btn-danger {

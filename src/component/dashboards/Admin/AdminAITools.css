@@ -1077,14 +1077,81 @@ body.dark-theme .power-btn.on:hover,
   gap: 12px;
 }
 
-.modal-actions {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 10px;
-  padding: 14px 20px;
-  border-top: 1px solid #f1f5f9;
-  background: #f8fafc;
+.admin-ai-app .modal-actions,
+.ai-tool-modal-actions {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 16px 22px !important;
+  border-top: 1px solid #e2e8f0 !important;
+  background: #f8fafc !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.ai-tool-cancel-btn,
+.ai-tool-modal-actions .btn-cancel {
+  margin-right: auto !important; /* FORCES Cancel button to the far LEFT */
+  height: 42px !important;
+  padding: 0 20px !important;
+  border: 1px solid #cbd5e1 !important;
+  background: #ffffff !important;
+  color: #334155 !important;
+  border-radius: 9px !important;
+  font-size: 13.5px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+}
+
+.ai-tool-cancel-btn:hover,
+.ai-tool-modal-actions .btn-cancel:hover {
+  background: #f8fafc !important;
+  color: #0f172a !important;
+  border-color: #94a3b8 !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08) !important;
+}
+
+.ai-tool-cancel-btn:active,
+.ai-tool-modal-actions .btn-cancel:active {
+  transform: translateY(0) !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+}
+
+.ai-tool-submit-btn,
+.ai-tool-modal-actions .btn-submit {
+  margin-left: auto !important; /* FORCES Submit button to the far RIGHT */
+  height: 42px !important;
+  padding: 0 22px !important;
+  border: none !important;
+  background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%) !important;
+  color: #ffffff !important;
+  border-radius: 9px !important;
+  font-size: 13.5px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-shadow: 0 2px 6px rgba(79, 70, 229, 0.28) !important;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.ai-tool-submit-btn:hover,
+.ai-tool-modal-actions .btn-submit:hover {
+  background: linear-gradient(135deg, #4338ca 0%, #3730a3 100%) !important;
+  box-shadow: 0 5px 14px rgba(79, 70, 229, 0.42) !important;
+  transform: translateY(-1px) !important;
+}
+
+.ai-tool-submit-btn:active,
+.ai-tool-modal-actions .btn-submit:active {
+  transform: translateY(0) !important;
 }
 
 .btn-cancel {
@@ -1216,29 +1283,45 @@ body.dark-theme .form-group textarea,
   color: #f8fafc !important;
 }
 
-:root.dark .modal-actions,
-.dark .modal-actions,
-body.dark-theme .modal-actions,
-[data-theme="dark"] .modal-actions {
+:root.dark .admin-ai-app .modal-actions,
+.dark .admin-ai-app .modal-actions,
+body.dark-theme .admin-ai-app .modal-actions,
+[data-theme="dark"] .admin-ai-app .modal-actions,
+:root.dark .ai-tool-modal-actions,
+.dark .ai-tool-modal-actions,
+body.dark-theme .ai-tool-modal-actions,
+[data-theme="dark"] .ai-tool-modal-actions {
   background: #0f172a !important;
   border-top: 1px solid #1f2937 !important;
 }
 
-:root.dark .modal-actions .btn-cancel,
-.dark .modal-actions .btn-cancel,
-body.dark-theme .modal-actions .btn-cancel,
-[data-theme="dark"] .modal-actions .btn-cancel {
+:root.dark .admin-ai-app .modal-actions .btn-cancel,
+.dark .admin-ai-app .modal-actions .btn-cancel,
+body.dark-theme .admin-ai-app .modal-actions .btn-cancel,
+[data-theme="dark"] .admin-ai-app .modal-actions .btn-cancel,
+:root.dark .ai-tool-cancel-btn,
+.dark .ai-tool-cancel-btn,
+body.dark-theme .ai-tool-cancel-btn,
+[data-theme="dark"] .ai-tool-cancel-btn {
   background: #1e293b !important;
   border-color: #334155 !important;
-  color: #cbd5e1 !important;
+  color: #f1f5f9 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
 }
 
-:root.dark .modal-actions .btn-cancel:hover,
-.dark .modal-actions .btn-cancel:hover,
-body.dark-theme .modal-actions .btn-cancel:hover,
-[data-theme="dark"] .modal-actions .btn-cancel:hover {
+:root.dark .admin-ai-app .modal-actions .btn-cancel:hover,
+.dark .admin-ai-app .modal-actions .btn-cancel:hover,
+body.dark-theme .admin-ai-app .modal-actions .btn-cancel:hover,
+[data-theme="dark"] .admin-ai-app .modal-actions .btn-cancel:hover,
+:root.dark .ai-tool-cancel-btn:hover,
+.dark .ai-tool-cancel-btn:hover,
+body.dark-theme .ai-tool-cancel-btn:hover,
+[data-theme="dark"] .ai-tool-cancel-btn:hover {
   background: #334155 !important;
+  border-color: #475569 !important;
   color: #ffffff !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
 }
 
 :root.dark .view-desc-card,

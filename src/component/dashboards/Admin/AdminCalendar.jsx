@@ -1795,25 +1795,29 @@ export default function AdminCalendar() {
                 </div>
               </div>
 
-              <div className="calModalFooter">
-                {editingEvent && (
-                  <button
-                    type="button"
-                    className="calBtnDanger"
-                    onClick={() => {
-                      deleteEvent(editingEvent.id);
-                      setShowEventModal(false);
-                    }}
-                  >
-                    <Trash2 size={14} />
-                    Delete
-                  </button>
-                )}
-                <div style={{ marginLeft: "auto", display: "flex", gap: 10 }}>
-                  <button type="button" className="calBtnCancel" onClick={() => setShowEventModal(false)}>
-                    Cancel
-                  </button>
-                  <button type="submit" className="calBtnSubmit" disabled={!!dateError}>
+              <div className="calModalFooter cal-modal-actions">
+                <button
+                  type="button"
+                  className="calBtnCancel cal-modal-cancel-btn"
+                  onClick={() => setShowEventModal(false)}
+                >
+                  Cancel
+                </button>
+                <div className="cal-modal-actions-right">
+                  {editingEvent && (
+                    <button
+                      type="button"
+                      className="calBtnDanger cal-modal-delete-btn"
+                      onClick={() => {
+                        deleteEvent(editingEvent.id);
+                        setShowEventModal(false);
+                      }}
+                    >
+                      <Trash2 size={14} />
+                      <span>Delete</span>
+                    </button>
+                  )}
+                  <button type="submit" className="calBtnSubmit cal-modal-submit-btn" disabled={!!dateError}>
                     {editingEvent ? "Save Changes" : (form.isMeet ? "Schedule Meeting" : "Create Event")}
                   </button>
                 </div>

@@ -951,11 +951,11 @@ export default function AdminBugs() {
                 />
               </div>
 
-              <div className="modal-actions">
-                <button type="button" className="btn-cancel" onClick={() => setShowCreateModal(false)}>
+              <div className="modal-actions bugs-modal-actions">
+                <button type="button" className="btn-cancel bugs-modal-cancel-btn" onClick={() => setShowCreateModal(false)}>
                   Cancel
                 </button>
-                <button type="submit" className="btn-submit">
+                <button type="submit" className="btn-submit bugs-modal-submit-btn">
                   {editingBug ? "Save Changes" : "Submit Bug Ticket"}
                 </button>
               </div>
@@ -1005,13 +1005,13 @@ export default function AdminBugs() {
               </div>
             </div>
 
-            <div className="modal-actions">
-              <button type="button" className="btn-cancel" onClick={() => setViewingBug(null)}>
+            <div className="modal-actions bugs-modal-actions">
+              <button type="button" className="btn-cancel bugs-modal-cancel-btn" onClick={() => setViewingBug(null)}>
                 Close
               </button>
               <button
                 type="button"
-                className="btn-submit"
+                className="btn-submit bugs-modal-submit-btn"
                 onClick={() => {
                   const b = viewingBug;
                   setViewingBug(null);

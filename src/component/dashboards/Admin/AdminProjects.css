@@ -332,6 +332,58 @@ body.dark-theme .ap-view-selector .ap-view-btn.active,
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.25s ease,
+              background-color 0.25s ease;
+  position: relative;
+}
+
+.ap-chart-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(99, 102, 241, 0.35);
+  box-shadow: 0 12px 28px -6px rgba(0, 0, 0, 0.09),
+              0 0 16px rgba(99, 102, 241, 0.1);
+}
+
+.ap-chart-card:hover .ap-chart-live-badge {
+  background: rgba(16, 185, 129, 0.2);
+  border-color: rgba(16, 185, 129, 0.45);
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.25);
+}
+
+.ap-chart-card:hover .ap-live-pulse-dot {
+  animation: apLivePulseFast 1s infinite;
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.9);
+}
+
+@keyframes apLivePulseFast {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.85);
+  }
+  70% {
+    transform: scale(1.15);
+    box-shadow: 0 0 0 7px rgba(16, 185, 129, 0);
+  }
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+  }
+}
+
+.ap-recharts-bar-wrap {
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), filter 0.3s ease;
+}
+
+.ap-chart-card:hover .ap-recharts-bar-wrap {
+  transform: translateY(-2px);
+  filter: drop-shadow(0 4px 12px rgba(99, 102, 241, 0.25));
+}
+
+.ap-chart-card:hover .ap-overview-meter-fill {
+  filter: brightness(1.15);
+  box-shadow: 0 0 10px rgba(99, 102, 241, 0.4);
 }
 
 .ap-chart-card-header {
@@ -418,42 +470,130 @@ body.dark-theme .ap-view-selector .ap-view-btn.active,
 
 .ap-donut-svg-wrap {
   position: relative;
-  width: 120px;
-  height: 120px;
+  width: 124px;
+  height: 124px;
   flex-shrink: 0;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.ap-donut-svg-wrap svg {
-  animation: apDonutRotateIn 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+.ap-chart-card:hover .ap-donut-svg-wrap {
+  transform: scale(1.05);
 }
 
-@keyframes apDonutRotateIn {
-  from {
-    transform: rotate(-45deg) scale(0.9);
-    opacity: 0.5;
+.ap-donut-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  display: block;
+}
+
+/* Ambient live outer orbital ring (from AdminDashboard & AdminAnalytics) */
+.ap-donut-aura-ring {
+  stroke: rgba(16, 185, 129, 0.28);
+  stroke-width: 1px;
+  stroke-dasharray: 4 6;
+  animation: apDonutAuraSpin 28s linear infinite;
+  transform-origin: 70px 70px;
+}
+
+:root.dark .ap-donut-aura-ring,
+.dark .ap-donut-aura-ring,
+body.dark-theme .ap-donut-aura-ring,
+[data-theme="dark"] .ap-donut-aura-ring {
+  stroke: rgba(16, 185, 129, 0.45);
+}
+
+@keyframes apDonutAuraSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Expanding live sonar radar ping wave */
+.ap-donut-sonar-wave {
+  stroke: #10b981;
+  stroke-width: 1.5px;
+  opacity: 0;
+  transform-origin: 70px 70px;
+  animation: apDonutSonarPulse 3.5s cubic-bezier(0.1, 0.8, 0.3, 1) infinite;
+  pointer-events: none;
+}
+
+@keyframes apDonutSonarPulse {
+  0% {
+    r: 46;
+    opacity: 0.65;
+    stroke-width: 2px;
   }
-  to {
-    transform: rotate(0deg) scale(1);
-    opacity: 1;
+  60% {
+    r: 64;
+    opacity: 0;
+    stroke-width: 0.5px;
+  }
+  100% {
+    r: 64;
+    opacity: 0;
   }
 }
 
-.ap-donut-base-ring {
+/* Background track ring */
+.ap-donut-bg-ring {
   stroke: #f1f5f9;
+  transition: stroke 0.25s ease;
 }
 
-.ap-donut-arc {
-  transition: stroke-dasharray 0.8s cubic-bezier(0.4, 0, 0.2, 1),
-              stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1),
-              stroke-width 0.25s ease,
-              filter 0.25s ease;
-  cursor: pointer;
+:root.dark .ap-donut-bg-ring,
+.dark .ap-donut-bg-ring,
+body.dark-theme .ap-donut-bg-ring,
+[data-theme="dark"] .ap-donut-bg-ring {
+  stroke: #1e293b;
 }
 
-.ap-donut-arc:hover {
-  filter: drop-shadow(0 0 6px currentColor);
+/* Orbiting Live Satellite Beacon */
+.ap-donut-orbit-beacon {
+  animation: apDonutOrbitSpin 6.5s linear infinite;
+  pointer-events: none;
 }
 
+@keyframes apDonutOrbitSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.ap-donut-beacon-core {
+  fill: #ffffff;
+  filter: drop-shadow(0 0 6px #10b981);
+}
+
+.ap-donut-beacon-pulse {
+  stroke: #10b981;
+  stroke-width: 1.2px;
+  opacity: 0.65;
+  animation: apBeaconPulseWave 1.8s infinite ease-out;
+}
+
+@keyframes apBeaconPulseWave {
+  0% { r: 3; opacity: 1; }
+  100% { r: 9; opacity: 0; }
+}
+
+/* Slices idle drop-shadows */
+.ap-donut-slice.slice-active {
+  filter: drop-shadow(0 0 3px rgba(16, 185, 129, 0.5));
+}
+
+.ap-donut-slice.slice-completed {
+  filter: drop-shadow(0 0 3px rgba(59, 130, 246, 0.5));
+}
+
+.ap-donut-slice.slice-onhold {
+  filter: drop-shadow(0 0 3px rgba(245, 158, 11, 0.5));
+}
+
+.ap-donut-slice.slice-overdue {
+  filter: drop-shadow(0 0 3px rgba(239, 68, 68, 0.5));
+}
+
+/* Center hole label */
 .ap-donut-center-label {
   position: absolute;
   inset: 0;
@@ -463,6 +603,11 @@ body.dark-theme .ap-view-selector .ap-view-btn.active,
   justify-content: center;
   text-align: center;
   pointer-events: none;
+  transition: all 0.25s ease;
+}
+
+.ap-donut-center-label.has-hover strong {
+  transform: scale(1.08);
 }
 
 .ap-donut-center-label strong {
@@ -473,11 +618,52 @@ body.dark-theme .ap-view-selector .ap-view-btn.active,
   transition: color 0.2s ease, transform 0.2s ease;
 }
 
+:root.dark .ap-donut-center-label strong,
+.dark .ap-donut-center-label strong,
+body.dark-theme .ap-donut-center-label strong,
+[data-theme="dark"] .ap-donut-center-label strong {
+  color: #f8fafc;
+}
+
 .ap-donut-center-label small {
-  font-size: 11px;
+  font-size: 10.5px;
   color: #64748b;
   font-weight: 600;
   text-transform: capitalize;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 2px;
+  transition: color 0.2s ease;
+}
+
+:root.dark .ap-donut-center-label small,
+.dark .ap-donut-center-label small,
+body.dark-theme .ap-donut-center-label small,
+[data-theme="dark"] .ap-donut-center-label small {
+  color: #94a3b8;
+}
+
+.ap-center-live-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 6px #10b981;
+  animation: apCenterDotPulse 1.8s infinite ease-in-out;
+}
+
+@keyframes apCenterDotPulse {
+  0%, 100% { opacity: 0.5; transform: scale(0.9); }
+  50% { opacity: 1; transform: scale(1.3); box-shadow: 0 0 8px rgba(16, 185, 129, 0.95); }
+}
+
+.ap-donut-active-metric,
+.ap-donut-default-metric {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 .ap-donut-legend {
@@ -728,7 +914,9 @@ body.dark-theme .ap-view-selector .ap-view-btn.active,
   position: relative;
   height: 100%;
   border-radius: 4px;
-  transition: width 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: width 0.7s cubic-bezier(0.4, 0, 0.2, 1),
+              filter 0.3s ease,
+              box-shadow 0.3s ease;
   animation: apMeterExpand 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   overflow: hidden;
 }
@@ -770,18 +958,23 @@ body.dark-theme .ap-view-selector .ap-view-btn.active,
 .ap-search-input-wrap {
   display: flex;
   align-items: center;
-  gap: 10px;
-  height: 40px;
-  padding: 0 14px;
+  gap: 12px;
+  height: 42px;
+  padding: 0 16px;
   background: #ffffff;
   border: 1px solid #e2e8f0;
   border-radius: 10px;
-  flex: 1 1 320px;
+  flex: 1 1 360px;
   min-width: 260px;
-  max-width: 480px;
+  width: 100%;
+  max-width: none;
   color: #64748b;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ap-search-input-wrap:hover {
+  border-color: #cbd5e1;
 }
 
 :root.dark .ap-search-input-wrap,
@@ -793,18 +986,35 @@ body.dark-theme .ap-search-input-wrap,
   color: #94a3b8 !important;
 }
 
+:root.dark .ap-search-input-wrap:hover,
+.dark .ap-search-input-wrap:hover,
+body.dark-theme .ap-search-input-wrap:hover,
+[data-theme="dark"] .ap-search-input-wrap:hover {
+  border-color: #334155 !important;
+}
+
 .ap-search-input-wrap:focus-within {
   border-color: #6366f1 !important;
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15) !important;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.18) !important;
+}
+
+:root.dark .ap-search-input-wrap:focus-within,
+.dark .ap-search-input-wrap:focus-within,
+body.dark-theme .ap-search-input-wrap:focus-within,
+[data-theme="dark"] .ap-search-input-wrap:focus-within {
+  border-color: #6366f1 !important;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25), 0 2px 8px rgba(0, 0, 0, 0.35) !important;
 }
 
 .ap-search-input-wrap input {
   border: 0;
   outline: 0;
   background: transparent;
-  font-size: 13px;
+  font-size: 13.5px;
   color: #0f172a;
   width: 100%;
+  font-weight: 450;
+  letter-spacing: 0.1px;
 }
 
 :root.dark .ap-search-input-wrap input,
@@ -818,6 +1028,13 @@ body.dark-theme .ap-search-input-wrap input,
   color: #94a3b8;
 }
 
+:root.dark .ap-search-input-wrap input::placeholder,
+.dark .ap-search-input-wrap input::placeholder,
+body.dark-theme .ap-search-input-wrap input::placeholder,
+[data-theme="dark"] .ap-search-input-wrap input::placeholder {
+  color: #64748b !important;
+}
+
 .ap-search-input-wrap button {
   background: transparent;
   border: 0;
@@ -825,6 +1042,22 @@ body.dark-theme .ap-search-input-wrap input,
   cursor: pointer;
   display: grid;
   place-items: center;
+  padding: 4px;
+  border-radius: 6px;
+  transition: all 0.15s ease;
+}
+
+.ap-search-input-wrap button:hover {
+  background: rgba(100, 116, 139, 0.15);
+  color: #0f172a;
+}
+
+:root.dark .ap-search-input-wrap button:hover,
+.dark .ap-search-input-wrap button:hover,
+body.dark-theme .ap-search-input-wrap button:hover,
+[data-theme="dark"] .ap-search-input-wrap button:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #f8fafc;
 }
 
 .ap-filters-group {
@@ -833,6 +1066,7 @@ body.dark-theme .ap-search-input-wrap input,
   gap: 8px;
   flex-wrap: wrap;
   justify-content: flex-end;
+  flex-shrink: 0;
 }
 
 .ap-filters-group select {
@@ -2338,57 +2572,90 @@ body.dark-theme .ap-chip-badge,
 .ap-modal-footer {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: space-between;
   gap: 12px;
-  padding-top: 16px;
+  padding-top: 18px;
   border-top: 1px solid #e2e8f0;
-  margin-top: 4px;
+  margin-top: 8px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .ap-btn-cancel {
-  height: 40px;
-  padding: 0 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  height: 42px;
+  padding: 0 20px;
   border-radius: 9px;
   border: 1px solid #cbd5e1;
   background: #ffffff;
-  font-size: 13px;
+  font-size: 13.5px;
   font-weight: 600;
-  color: #475569;
+  color: #334155;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all 0.16s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .ap-btn-cancel:hover {
-  background: #f1f5f9;
+  background: #f8fafc;
   color: #0f172a;
   border-color: #94a3b8;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+}
+
+.ap-btn-cancel:active {
+  transform: translateY(0);
 }
 
 .ap-btn-submit {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
-  height: 40px;
-  padding: 0 20px;
+  height: 42px;
+  padding: 0 22px;
   border-radius: 9px;
   border: 0;
-  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
   color: #ffffff;
-  font-size: 13px;
+  font-size: 13.5px;
   font-weight: 600;
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.28);
-  transition: all 0.15s ease;
+  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.32);
+  transition: all 0.16s ease;
 }
 
 .ap-btn-submit:hover {
-  background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
-  box-shadow: 0 6px 16px rgba(79, 70, 229, 0.35);
+  background: linear-gradient(135deg, #4338ca 0%, #4f46e5 100%);
+  box-shadow: 0 6px 18px rgba(79, 70, 229, 0.4);
   transform: translateY(-1px);
 }
 
 .ap-btn-submit:active {
   transform: translateY(0);
+}
+
+/* Delete Project confirmation modal layout override */
+.ap-modal-box.ap-modal-sm .ap-modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  border-top: 0;
+  margin-top: 20px;
+  padding-top: 0;
+  width: 100%;
+}
+
+.ap-modal-box.ap-modal-sm .ap-modal-footer .ap-btn-cancel,
+.ap-modal-box.ap-modal-sm .ap-modal-footer .ap-btn-danger {
+  flex: 1;
+  height: 40px;
+  border-radius: 10px;
 }
 
 .ap-btn-danger {
@@ -2607,10 +2874,24 @@ body.dark-theme .ap-chip-badge,
 
 .ap-page-num-pill.active,
 .projectManagementPage .ws-page-num-pill.active {
-  background: #6366f1;
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
   color: #ffffff;
   border-color: #6366f1;
-  box-shadow: 0 1px 3px rgba(99, 102, 241, 0.35);
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.4);
+  transform: translateY(-1px);
+}
+
+.ap-page-ellipsis,
+.projectManagementPage .ws-page-ellipsis {
+  padding: 0 5px;
+  color: #94a3b8;
+  font-size: 13px;
+  font-weight: 600;
+  user-select: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* =========================================================
@@ -2713,6 +2994,7 @@ body.dark-theme .ap-stat-sub,
 }
 
 /* Charts Cards */
+:root.dark .ap-chart-card,
 .dark .ap-chart-card,
 body.dark-theme .ap-chart-card,
 [data-theme="dark"] .ap-chart-card {
@@ -2720,18 +3002,56 @@ body.dark-theme .ap-chart-card,
   border-color: rgba(255, 255, 255, 0.08);
 }
 
+:root.dark .ap-chart-card:hover,
+.dark .ap-chart-card:hover,
+body.dark-theme .ap-chart-card:hover,
+[data-theme="dark"] .ap-chart-card:hover {
+  transform: translateY(-4px);
+  background: linear-gradient(180deg, #13223d 0%, #111c30 100%);
+  border-color: rgba(99, 102, 241, 0.45) !important;
+  box-shadow: 0 16px 36px -6px rgba(0, 0, 0, 0.65),
+              0 0 22px rgba(99, 102, 241, 0.22) !important;
+}
+
+:root.dark .ap-chart-card-header h3,
 .dark .ap-chart-card-header h3,
 body.dark-theme .ap-chart-card-header h3,
 [data-theme="dark"] .ap-chart-card-header h3 {
   color: #f8fafc;
+  transition: color 0.25s ease;
 }
 
+:root.dark .ap-chart-card:hover .ap-chart-card-header h3,
+.dark .ap-chart-card:hover .ap-chart-card-header h3,
+body.dark-theme .ap-chart-card:hover .ap-chart-card-header h3,
+[data-theme="dark"] .ap-chart-card:hover .ap-chart-card-header h3 {
+  color: #ffffff;
+}
+
+:root.dark .ap-chart-live-badge,
 .dark .ap-chart-live-badge,
 body.dark-theme .ap-chart-live-badge,
 [data-theme="dark"] .ap-chart-live-badge {
   background: rgba(16, 185, 129, 0.16);
   border-color: rgba(16, 185, 129, 0.35);
   color: #34d399;
+}
+
+:root.dark .ap-chart-card:hover .ap-chart-live-badge,
+.dark .ap-chart-card:hover .ap-chart-live-badge,
+body.dark-theme .ap-chart-card:hover .ap-chart-live-badge,
+[data-theme="dark"] .ap-chart-card:hover .ap-chart-live-badge {
+  background: rgba(16, 185, 129, 0.24);
+  border-color: rgba(16, 185, 129, 0.55);
+  color: #4ade80;
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.32);
+}
+
+:root.dark .ap-chart-card:hover .ap-recharts-bar-wrap,
+.dark .ap-chart-card:hover .ap-recharts-bar-wrap,
+body.dark-theme .ap-chart-card:hover .ap-recharts-bar-wrap,
+[data-theme="dark"] .ap-chart-card:hover .ap-recharts-bar-wrap {
+  filter: drop-shadow(0 6px 16px rgba(99, 102, 241, 0.35));
 }
 
 .dark .ap-legend-row:hover,
@@ -2838,18 +3158,20 @@ body.dark-theme .ap-overview-meter-track,
 }
 
 /* Toolbar & Filters */
+:root.dark .ap-search-input-wrap,
 .dark .ap-search-input-wrap,
 body.dark-theme .ap-search-input-wrap,
 [data-theme="dark"] .ap-search-input-wrap {
-  background: #111c30;
-  border-color: rgba(255, 255, 255, 0.08);
-  color: #94a3b8;
+  background: #0f172a !important;
+  border-color: #1e293b !important;
+  color: #94a3b8 !important;
 }
 
+:root.dark .ap-search-input-wrap input,
 .dark .ap-search-input-wrap input,
 body.dark-theme .ap-search-input-wrap input,
 [data-theme="dark"] .ap-search-input-wrap input {
-  color: #f8fafc;
+  color: #f8fafc !important;
 }
 
 :root.dark .ap-filters-group select,
@@ -3305,99 +3627,187 @@ body.dark-theme .ap-color-chip.active,
   box-shadow: 0 0 0 2px #111c30, 0 0 0 4px #818cf8;
 }
 
+:root.dark .ap-modal-footer,
 .dark .ap-modal-footer,
 body.dark-theme .ap-modal-footer,
 [data-theme="dark"] .ap-modal-footer {
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid #1e293b !important;
 }
 
+:root.dark .ap-btn-cancel,
 .dark .ap-btn-cancel,
 body.dark-theme .ap-btn-cancel,
 [data-theme="dark"] .ap-btn-cancel {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: #cbd5e1;
+  background: #1e293b !important;
+  border: 1px solid #334155 !important;
+  color: #f1f5f9 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
 }
 
+:root.dark .ap-btn-cancel:hover,
 .dark .ap-btn-cancel:hover,
 body.dark-theme .ap-btn-cancel:hover,
 [data-theme="dark"] .ap-btn-cancel:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: #ffffff;
-  border-color: rgba(255, 255, 255, 0.2);
+  background: #334155 !important;
+  border-color: #475569 !important;
+  color: #ffffff !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
 }
 
 /* Pagination Dark Mode */
+:root.dark .ap-pagination-bar,
 .dark .ap-pagination-bar,
 body.dark-theme .ap-pagination-bar,
 [data-theme="dark"] .ap-pagination-bar,
+:root.dark .projectManagementPage .ws-pagination-bar,
 .dark .projectManagementPage .ws-pagination-bar,
 body.dark-theme .projectManagementPage .ws-pagination-bar,
 [data-theme="dark"] .projectManagementPage .ws-pagination-bar {
-  background: #111c30;
-  border: 1px solid #1e293b;
-  color: #cbd5e1;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  background: #111c30 !important;
+  border: 1px solid #1e293b !important;
+  color: #cbd5e1 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
 }
 
+:root.dark .ap-pagination-info,
 .dark .ap-pagination-info,
 body.dark-theme .ap-pagination-info,
 [data-theme="dark"] .ap-pagination-info,
+:root.dark .projectManagementPage .ws-pagination-info,
 .dark .projectManagementPage .ws-pagination-info,
 body.dark-theme .projectManagementPage .ws-pagination-info,
 [data-theme="dark"] .projectManagementPage .ws-pagination-info {
-  color: #94a3b8;
+  color: #94a3b8 !important;
 }
 
+:root.dark .ap-page-nav-btn,
 .dark .ap-page-nav-btn,
 body.dark-theme .ap-page-nav-btn,
 [data-theme="dark"] .ap-page-nav-btn,
-.dark .ap-page-num-pill,
-body.dark-theme .ap-page-num-pill,
-[data-theme="dark"] .ap-page-num-pill,
+:root.dark .projectManagementPage .ws-page-nav-btn,
+.dark .projectManagementPage .ws-page-nav-btn,
+body.dark-theme .projectManagementPage .ws-page-nav-btn,
+[data-theme="dark"] .projectManagementPage .ws-page-nav-btn {
+  background: #0b1322 !important;
+  border: 1px solid #1e293b !important;
+  color: #cbd5e1 !important;
+  font-weight: 600;
+  transition: all 0.16s ease;
+}
+
+:root.dark .ap-page-size-wrap select,
 .dark .ap-page-size-wrap select,
 body.dark-theme .ap-page-size-wrap select,
 [data-theme="dark"] .ap-page-size-wrap select,
-.dark .projectManagementPage .ws-page-nav-btn,
-body.dark-theme .projectManagementPage .ws-page-nav-btn,
-[data-theme="dark"] .projectManagementPage .ws-page-nav-btn,
-.dark .projectManagementPage .ws-page-num-pill,
-body.dark-theme .projectManagementPage .ws-page-num-pill,
-[data-theme="dark"] .projectManagementPage .ws-page-num-pill,
+:root.dark .projectManagementPage .ws-page-size-wrap select,
 .dark .projectManagementPage .ws-page-size-wrap select,
 body.dark-theme .projectManagementPage .ws-page-size-wrap select,
 [data-theme="dark"] .projectManagementPage .ws-page-size-wrap select {
-  background: #0b1322;
-  border-color: #1e293b;
-  color: #cbd5e1;
+  background: #0b1322 !important;
+  border: 1px solid #1e293b !important;
+  color: #f1f5f9 !important;
+  border-radius: 6px;
+  cursor: pointer;
+  padding: 4px 8px;
 }
 
+/* Inactive Page Pills */
+:root.dark .ap-page-num-pill:not(.active),
+.dark .ap-page-num-pill:not(.active),
+body.dark-theme .ap-page-num-pill:not(.active),
+[data-theme="dark"] .ap-page-num-pill:not(.active),
+:root.dark .projectManagementPage .ws-page-num-pill:not(.active),
+.dark .projectManagementPage .ws-page-num-pill:not(.active),
+body.dark-theme .projectManagementPage .ws-page-num-pill:not(.active),
+[data-theme="dark"] .projectManagementPage .ws-page-num-pill:not(.active) {
+  background: #0b1322 !important;
+  border: 1px solid #1e293b !important;
+  color: #cbd5e1 !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+/* Hover State for Inactive Page Pills */
+:root.dark .ap-page-num-pill:not(.active):hover,
+.dark .ap-page-num-pill:not(.active):hover,
+body.dark-theme .ap-page-num-pill:not(.active):hover,
+[data-theme="dark"] .ap-page-num-pill:not(.active):hover,
+:root.dark .projectManagementPage .ws-page-num-pill:not(.active):hover,
+.dark .projectManagementPage .ws-page-num-pill:not(.active):hover,
+body.dark-theme .projectManagementPage .ws-page-num-pill:not(.active):hover,
+[data-theme="dark"] .projectManagementPage .ws-page-num-pill:not(.active):hover {
+  background: #1e293b !important;
+  border-color: #38bdf8 !important;
+  color: #f8fafc !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Hover State for Nav Buttons */
+:root.dark .ap-page-nav-btn:hover:not(:disabled),
 .dark .ap-page-nav-btn:hover:not(:disabled),
 body.dark-theme .ap-page-nav-btn:hover:not(:disabled),
 [data-theme="dark"] .ap-page-nav-btn:hover:not(:disabled),
-.dark .ap-page-num-pill:hover,
-body.dark-theme .ap-page-num-pill:hover,
-[data-theme="dark"] .ap-page-num-pill:hover,
+:root.dark .projectManagementPage .ws-page-nav-btn:hover:not(:disabled),
 .dark .projectManagementPage .ws-page-nav-btn:hover:not(:disabled),
 body.dark-theme .projectManagementPage .ws-page-nav-btn:hover:not(:disabled),
-[data-theme="dark"] .projectManagementPage .ws-page-nav-btn:hover:not(:disabled),
-.dark .projectManagementPage .ws-page-num-pill:hover,
-body.dark-theme .projectManagementPage .ws-page-num-pill:hover,
-[data-theme="dark"] .projectManagementPage .ws-page-num-pill:hover {
-  background: #1e293b;
-  border-color: #334155;
-  color: #f8fafc;
+[data-theme="dark"] .projectManagementPage .ws-page-nav-btn:hover:not(:disabled) {
+  background: #1e293b !important;
+  border-color: #38bdf8 !important;
+  color: #ffffff !important;
+  transform: translateY(-1px) !important;
 }
 
+/* Disabled Nav Buttons */
+:root.dark .ap-page-nav-btn:disabled,
+.dark .ap-page-nav-btn:disabled,
+body.dark-theme .ap-page-nav-btn:disabled,
+[data-theme="dark"] .ap-page-nav-btn:disabled,
+:root.dark .projectManagementPage .ws-page-nav-btn:disabled,
+.dark .projectManagementPage .ws-page-nav-btn:disabled,
+body.dark-theme .projectManagementPage .ws-page-nav-btn:disabled,
+[data-theme="dark"] .projectManagementPage .ws-page-nav-btn:disabled {
+  background: rgba(11, 19, 34, 0.5) !important;
+  border-color: rgba(255, 255, 255, 0.05) !important;
+  color: #475569 !important;
+  cursor: not-allowed !important;
+  opacity: 0.45 !important;
+  transform: none !important;
+}
+
+/* Highly Visible, Vibrant Active Page Pill in Dark Mode */
+:root.dark .ap-page-num-pill.active,
 .dark .ap-page-num-pill.active,
 body.dark-theme .ap-page-num-pill.active,
 [data-theme="dark"] .ap-page-num-pill.active,
+:root.dark .projectManagementPage .ws-page-num-pill.active,
 .dark .projectManagementPage .ws-page-num-pill.active,
 body.dark-theme .projectManagementPage .ws-page-num-pill.active,
-[data-theme="dark"] .projectManagementPage .ws-page-num-pill.active {
-  background: #6366f1;
-  color: #ffffff;
-  border-color: #6366f1;
+[data-theme="dark"] .projectManagementPage .ws-page-num-pill.active,
+:root.dark .ws-pagination-bar .ws-page-num-pill.active,
+.dark .ws-pagination-bar .ws-page-num-pill.active,
+body.dark-theme .ws-pagination-bar .ws-page-num-pill.active,
+[data-theme="dark"] .ws-pagination-bar .ws-page-num-pill.active {
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%) !important;
+  background-color: #6366f1 !important;
+  color: #ffffff !important;
+  border: 1px solid #818cf8 !important;
+  font-weight: 700 !important;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.35), 0 3px 12px rgba(99, 102, 241, 0.5) !important;
+  transform: translateY(-1px) scale(1.06) !important;
+  z-index: 2 !important;
+}
+
+/* Ellipsis in Dark Mode */
+:root.dark .ap-page-ellipsis,
+.dark .ap-page-ellipsis,
+body.dark-theme .ap-page-ellipsis,
+[data-theme="dark"] .ap-page-ellipsis,
+:root.dark .projectManagementPage .ws-page-ellipsis,
+.dark .projectManagementPage .ws-page-ellipsis,
+body.dark-theme .projectManagementPage .ws-page-ellipsis,
+[data-theme="dark"] .projectManagementPage .ws-page-ellipsis {
+  color: #64748b !important;
 }
 
 /* =========================================================

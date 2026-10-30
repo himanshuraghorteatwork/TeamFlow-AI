@@ -1149,6 +1149,246 @@
   background: #f8fafc;
 }
 
+/* SUPPORT MODAL FOOTERS: Close / Cancel pinned to far LEFT, Submit pinned to far RIGHT */
+.support-thread-modal-footer,
+.support-create-modal-footer {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 16px 22px !important;
+  border-top: 1px solid #e2e8f0 !important;
+  background: #f8fafc !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.support-modal-close-btn,
+.support-modal-cancel-btn,
+.support-thread-modal-footer .admin-support-btn-secondary,
+.support-create-modal-footer .admin-support-btn-secondary {
+  margin-right: auto !important; /* FORCES Close / Cancel button to the far LEFT */
+  height: 42px !important;
+  padding: 0 20px !important;
+  border: 1px solid #cbd5e1 !important;
+  background: #ffffff !important;
+  color: #334155 !important;
+  border-radius: 9px !important;
+  font-size: 13.5px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 7px !important;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+}
+
+.support-modal-close-btn:hover,
+.support-modal-cancel-btn:hover,
+.support-thread-modal-footer .admin-support-btn-secondary:hover,
+.support-create-modal-footer .admin-support-btn-secondary:hover {
+  background: #f8fafc !important;
+  color: #0f172a !important;
+  border-color: #94a3b8 !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08) !important;
+}
+
+.support-modal-close-btn:active,
+.support-modal-cancel-btn:active,
+.support-thread-modal-footer .admin-support-btn-secondary:active,
+.support-create-modal-footer .admin-support-btn-secondary:active {
+  transform: translateY(0) !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+}
+
+.support-modal-submit-btn,
+.support-create-modal-footer .admin-support-btn-primary {
+  margin-left: auto !important; /* FORCES Submit Ticket to the far RIGHT */
+  height: 42px !important;
+  padding: 0 22px !important;
+  border: none !important;
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%) !important;
+  color: #ffffff !important;
+  border-radius: 9px !important;
+  font-size: 13.5px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  box-shadow: 0 2px 6px rgba(99, 102, 241, 0.28) !important;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.support-modal-submit-btn:hover,
+.support-create-modal-footer .admin-support-btn-primary:hover {
+  background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%) !important;
+  box-shadow: 0 5px 14px rgba(99, 102, 241, 0.42) !important;
+  transform: translateY(-1px) !important;
+}
+
+.support-modal-submit-btn:active,
+.support-create-modal-footer .admin-support-btn-primary:active {
+  transform: translateY(0) !important;
+}
+
+/* THREAD REPLY ACTIONS */
+.reply-actions,
+.support-reply-actions {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  width: 100% !important;
+  gap: 12px !important;
+  margin-top: 6px !important;
+}
+
+.support-btn-resolve {
+  height: 40px !important;
+  padding: 0 18px !important;
+  border-radius: 9px !important;
+  font-size: 13.5px !important;
+  font-weight: 600 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 7px !important;
+  border: 1px solid #86efac !important;
+  background: #f0fdf4 !important;
+  color: #15803d !important;
+  cursor: pointer !important;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  box-shadow: 0 1px 2px rgba(22, 101, 52, 0.08) !important;
+}
+
+.support-btn-resolve:hover {
+  background: #dcfce7 !important;
+  border-color: #4ade80 !important;
+  color: #166534 !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 3px 8px rgba(22, 101, 52, 0.16) !important;
+}
+
+.support-btn-resolve:active {
+  transform: translateY(0) !important;
+}
+
+.support-btn-send {
+  margin-left: auto !important;
+  height: 40px !important;
+  padding: 0 20px !important;
+  border-radius: 9px !important;
+  border: none !important;
+  font-size: 13.5px !important;
+  font-weight: 600 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%) !important;
+  color: #ffffff !important;
+  cursor: pointer !important;
+  box-shadow: 0 2px 6px rgba(99, 102, 241, 0.28) !important;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.support-btn-send:hover:not(:disabled) {
+  background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%) !important;
+  box-shadow: 0 5px 14px rgba(99, 102, 241, 0.42) !important;
+  transform: translateY(-1px) !important;
+}
+
+.support-btn-send:active:not(:disabled) {
+  transform: translateY(0) !important;
+}
+
+.support-btn-send:disabled {
+  opacity: 0.55 !important;
+  cursor: not-allowed !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+/* DARK MODE SUPPORT FOR MODAL FOOTERS & BUTTONS */
+:root.dark .support-thread-modal-footer,
+.dark .support-thread-modal-footer,
+body.dark-theme .support-thread-modal-footer,
+[data-theme="dark"] .support-thread-modal-footer,
+:root.dark .support-create-modal-footer,
+.dark .support-create-modal-footer,
+body.dark-theme .support-create-modal-footer,
+[data-theme="dark"] .support-create-modal-footer {
+  background: #0f172a !important;
+  border-top-color: #1e293b !important;
+}
+
+:root.dark .support-modal-close-btn,
+.dark .support-modal-close-btn,
+body.dark-theme .support-modal-close-btn,
+[data-theme="dark"] .support-modal-close-btn,
+:root.dark .support-modal-cancel-btn,
+.dark .support-modal-cancel-btn,
+body.dark-theme .support-modal-cancel-btn,
+[data-theme="dark"] .support-modal-cancel-btn,
+:root.dark .support-thread-modal-footer .admin-support-btn-secondary,
+.dark .support-thread-modal-footer .admin-support-btn-secondary,
+body.dark-theme .support-thread-modal-footer .admin-support-btn-secondary,
+[data-theme="dark"] .support-thread-modal-footer .admin-support-btn-secondary,
+:root.dark .support-create-modal-footer .admin-support-btn-secondary,
+.dark .support-create-modal-footer .admin-support-btn-secondary,
+body.dark-theme .support-create-modal-footer .admin-support-btn-secondary,
+[data-theme="dark"] .support-create-modal-footer .admin-support-btn-secondary {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f1f5f9 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
+}
+
+:root.dark .support-modal-close-btn:hover,
+.dark .support-modal-close-btn:hover,
+body.dark-theme .support-modal-close-btn:hover,
+[data-theme="dark"] .support-modal-close-btn:hover,
+:root.dark .support-modal-cancel-btn:hover,
+.dark .support-modal-cancel-btn:hover,
+body.dark-theme .support-modal-cancel-btn:hover,
+[data-theme="dark"] .support-modal-cancel-btn:hover,
+:root.dark .support-thread-modal-footer .admin-support-btn-secondary:hover,
+.dark .support-thread-modal-footer .admin-support-btn-secondary:hover,
+body.dark-theme .support-thread-modal-footer .admin-support-btn-secondary:hover,
+[data-theme="dark"] .support-thread-modal-footer .admin-support-btn-secondary:hover,
+:root.dark .support-create-modal-footer .admin-support-btn-secondary:hover,
+.dark .support-create-modal-footer .admin-support-btn-secondary:hover,
+body.dark-theme .support-create-modal-footer .admin-support-btn-secondary:hover,
+[data-theme="dark"] .support-create-modal-footer .admin-support-btn-secondary:hover {
+  background: #334155 !important;
+  border-color: #475569 !important;
+  color: #ffffff !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
+}
+
+:root.dark .support-btn-resolve,
+.dark .support-btn-resolve,
+body.dark-theme .support-btn-resolve,
+[data-theme="dark"] .support-btn-resolve {
+  background: rgba(16, 185, 129, 0.14) !important;
+  border-color: rgba(16, 185, 129, 0.35) !important;
+  color: #6ee7b7 !important;
+}
+
+:root.dark .support-btn-resolve:hover,
+.dark .support-btn-resolve:hover,
+body.dark-theme .support-btn-resolve:hover,
+[data-theme="dark"] .support-btn-resolve:hover {
+  background: rgba(16, 185, 129, 0.25) !important;
+  border-color: rgba(16, 185, 129, 0.5) !important;
+  color: #a7f3d0 !important;
+  box-shadow: 0 3px 10px rgba(16, 185, 129, 0.25) !important;
+}
+
 /* Discussion Thread Styling */
 .thread-body {
   padding: 16px 22px;
@@ -2039,7 +2279,9 @@ body.dark-theme .admin-support-table tbody tr:hover,
 }
 
 .delete-modal-footer .btn-secondary,
-.delete-modal-footer .btn-cancel {
+.delete-modal-footer .btn-cancel,
+.delete-modal-footer .delete-cancel-btn,
+.delete-modal-footer .admin-support-btn-secondary {
   flex: 1 !important;
   height: 40px !important;
   border-radius: 10px !important;

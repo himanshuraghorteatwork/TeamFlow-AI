@@ -956,15 +956,15 @@ export default function AdminReports() {
                 </div>
               </div>
 
-              <div className="modal-footer">
+              <div className="modal-footer report-generator-modal-footer">
                 <button
                   type="button"
-                  className="admin-reports-btn-secondary"
+                  className="admin-reports-btn-secondary report-modal-cancel-btn"
                   onClick={() => setShowGenerator(false)}
                 >
                   Cancel
                 </button>
-                <button type="submit" className="admin-reports-btn-primary">
+                <button type="submit" className="admin-reports-btn-primary report-modal-submit-btn">
                   <Sparkles size={15} />
                   <span>Generate Report</span>
                 </button>

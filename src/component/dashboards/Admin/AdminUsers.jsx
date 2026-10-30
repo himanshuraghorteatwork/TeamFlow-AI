@@ -1146,7 +1146,17 @@ export default function AdminUsers() {
                   Cancel
                 </button>
                 <button type="submit" className="admin-users-save-btn">
-                  {editingUser ? "Save Changes" : "Create User"}
+                  {editingUser ? (
+                    <>
+                      <Check size={16} />
+                      <span>Save Changes</span>
+                    </>
+                  ) : (
+                    <>
+                      <Plus size={16} />
+                      <span>Create User</span>
+                    </>
+                  )}
                 </button>
               </div>
             </form>

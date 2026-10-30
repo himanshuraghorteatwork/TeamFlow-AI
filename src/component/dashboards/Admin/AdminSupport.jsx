@@ -1077,15 +1077,15 @@ export default function AdminSupport() {
                 </div>
               </div>
 
-              <div className="modal-footer">
+              <div className="modal-footer support-create-modal-footer">
                 <button
                   type="button"
-                  className="admin-support-btn-secondary"
+                  className="admin-support-btn-secondary support-modal-cancel-btn"
                   onClick={() => setShowNewTicketModal(false)}
                 >
                   Cancel
                 </button>
-                <button type="submit" className="admin-support-btn-primary">
+                <button type="submit" className="admin-support-btn-primary support-modal-submit-btn">
                   <Send size={15} />
                   <span>Submit Ticket</span>
                 </button>
@@ -1160,10 +1160,10 @@ export default function AdminSupport() {
                     value={replyText}
                     onChange={(e) => setReplyText(e.target.value)}
                   />
-                  <div className="reply-actions">
+                  <div className="reply-actions support-reply-actions">
                     <button
                       type="button"
-                      className="admin-support-btn-secondary"
+                      className="admin-support-btn-secondary support-btn-resolve"
                       onClick={() => handleMarkResolved(selectedTicket.id)}
                     >
                       <Check size={14} />
@@ -1171,7 +1171,7 @@ export default function AdminSupport() {
                     </button>
                     <button
                       type="submit"
-                      className="admin-support-btn-primary"
+                      className="admin-support-btn-primary support-btn-send"
                       disabled={!replyText.trim()}
                     >
                       <Send size={14} />
@@ -1203,10 +1203,10 @@ export default function AdminSupport() {
                       value={replyText}
                       onChange={(e) => setReplyText(e.target.value)}
                     />
-                    <div className="reply-actions">
+                    <div className="reply-actions support-reply-actions">
                       <button
                         type="submit"
-                        className="admin-support-btn-primary"
+                        className="admin-support-btn-primary support-btn-send"
                         disabled={!replyText.trim()}
                       >
                         <Send size={14} />
@@ -1218,8 +1218,12 @@ export default function AdminSupport() {
               )}
             </div>
 
-            <div className="modal-footer">
-              <button className="admin-support-btn-secondary" onClick={() => setSelectedTicket(null)}>
+            <div className="modal-footer support-thread-modal-footer">
+              <button
+                type="button"
+                className="admin-support-btn-secondary support-modal-close-btn"
+                onClick={() => setSelectedTicket(null)}
+              >
                 Close
               </button>
             </div>
@@ -1287,7 +1291,7 @@ export default function AdminSupport() {
             <div className="modal-footer delete-modal-footer">
               <button
                 type="button"
-                className="admin-support-btn-secondary"
+                className="admin-support-btn-secondary delete-cancel-btn"
                 onClick={() => setTicketToDelete(null)}
               >
                 Cancel

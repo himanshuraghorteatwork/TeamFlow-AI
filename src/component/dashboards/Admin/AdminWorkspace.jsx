@@ -42,6 +42,9 @@ import {
   Activity,
   Info,
   Eye,
+  Globe,
+  Tag,
+  User,
 } from "lucide-react";
 
 import AdminSidebar from "./AdminSidebar.jsx";
@@ -277,6 +280,29 @@ const formatDetailValue = (key, val) => {
     return val ? "Enabled" : "Disabled";
   }
   return String(val);
+};
+
+const getParamIcon = (key) => {
+  const k = (key || "").toLowerCase();
+  if (k.includes("workspace") || k.includes("target")) return <Building2 size={13} />;
+  if (k.includes("member") || k.includes("seat") || k.includes("user") || k.includes("owner") || k.includes("allocation")) return <Users size={13} />;
+  if (k.includes("quota") || k.includes("storage") || k.includes("usage")) return <HardDrive size={13} />;
+  if (k.includes("project") || k.includes("task")) return <FolderKanban size={13} />;
+  if (k.includes("tier") || k.includes("plan")) return <Sparkles size={13} />;
+  if (k.includes("role") || k.includes("compliance") || k.includes("security")) return <ShieldCheck size={13} />;
+  if (k.includes("status") || k.includes("state")) return <CheckCircle2 size={13} />;
+  return <Layers size={13} />;
+};
+
+const getInitials = (name) => {
+  if (!name) return "U";
+  return name
+    .split(" ")
+    .map((n) => n[0])
+    .filter(Boolean)
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
 };
 
 export default function AdminWorkspace() {
@@ -2690,67 +2716,125 @@ export default function AdminWorkspace() {
       ========================================================= */}
       {selectedActivity && (
         <div
-          className="ws-modal-backdrop"
+          className="ws-modal-backdrop ws-act-backdrop"
           onMouseDown={(e) => {
             if (e.target === e.currentTarget) setSelectedActivity(null);
           }}
         >
           <div className="ws-modal-box ws-modal-md ws-activity-detail-modal">
-            <div className="ws-modal-header">
+            {/* Modal Header */}
+            <div className="ws-modal-header ws-act-modal-header">
               <div className="ws-modal-header-left">
-                <div className="ws-modal-icon-badge activity-glow" style={{ backgroundColor: "#8b5cf618", color: "#8b5cf6" }}>
+                <div className="ws-modal-icon-badge ws-act-icon-badge">
                   <Activity size={20} />
                 </div>
                 <div>
-                  <h2>Workspace Activity Detail</h2>
-                  <p>Audit Reference: <span className="ws-act-audit-ref">{selectedActivity.id}</span></p>
+                  <h2 className="ws-act-modal-title">Workspace Activity Detail</h2>
+                  <div className="ws-act-audit-meta">
+                    <span className="ws-act-audit-label">Audit Reference:</span>
+                    <span className="ws-act-audit-ref">
+                      <ShieldCheck size={12} />
+                      {selectedActivity.id}
+                    </span>
+                  </div>
                 </div>
               </div>
               <button
                 type="button"
-                className="ws-modal-close"
+                className="ws-modal-close ws-act-close-icon"
                 onClick={() => setSelectedActivity(null)}
+                aria-label="Close dialog"
               >
                 <X size={18} />
               </button>
             </div>
 
+            {/* Modal Body */}
             <div className="ws-activity-detail-body">
+              {/* 1. Hero Summary Card */}
               <div className="ws-act-detail-hero">
-                <div>
-                  <h4>{selectedActivity.action}</h4>
-                  <small>Workspace: <strong>{selectedActivity.workspace}</strong></small>
+                <div className="ws-act-hero-icon-box">
+                  <Building2 size={20} />
                 </div>
-                <span className={`ws-act-sev-pill sev--${selectedActivity.severity}`}>
-                  {selectedActivity.severity}
-                </span>
+                <div className="ws-act-hero-main">
+                  <div className="ws-act-hero-top-row">
+                    <span className="ws-act-workspace-pill">
+                      <Layers size={12} />
+                      {selectedActivity.workspace || "System Workspace"}
+                    </span>
+                    <span className={`ws-act-sev-pill sev--${selectedActivity.severity}`}>
+                      <span className="ws-act-sev-dot" />
+                      {selectedActivity.severity}
+                    </span>
+                  </div>
+                  <h4 className="ws-act-hero-title">{selectedActivity.action}</h4>
+                </div>
               </div>
 
+              {/* 2. Primary Telemetry Details Grid */}
               <div className="ws-act-detail-rows">
                 <div className="ws-act-detail-row">
-                  <span>Timestamp:</span>
-                  <strong>{selectedActivity.fullDate || selectedActivity.time} ({selectedActivity.time})</strong>
+                  <div className="ws-act-row-label">
+                    <Clock size={14} className="ws-row-icon" />
+                    <span>Timestamp:</span>
+                  </div>
+                  <div className="ws-act-row-val">
+                    <span className="ws-act-time-full">
+                      {selectedActivity.fullDate || selectedActivity.time}
+                    </span>
+                    {selectedActivity.time && selectedActivity.fullDate && (
+                      <span className="ws-act-time-rel">({selectedActivity.time})</span>
+                    )}
+                  </div>
                 </div>
+
                 <div className="ws-act-detail-row">
-                  <span>Event Category:</span>
-                  <strong className="ws-act-row-cat-val">{selectedActivity.category}</strong>
+                  <div className="ws-act-row-label">
+                    <Tag size={14} className="ws-row-icon" />
+                    <span>Event Category:</span>
+                  </div>
+                  <div className="ws-act-row-val">
+                    <span className="ws-act-row-cat-val">{selectedActivity.category || "Lifecycle"}</span>
+                  </div>
                 </div>
+
                 <div className="ws-act-detail-row">
-                  <span>Triggered By:</span>
-                  <strong>{selectedActivity.user} ({selectedActivity.role})</strong>
+                  <div className="ws-act-row-label">
+                    <User size={14} className="ws-row-icon" />
+                    <span>Triggered By:</span>
+                  </div>
+                  <div className="ws-act-row-val ws-act-user-val">
+                    <div className="ws-act-user-avatar">
+                      {getInitials(selectedActivity.user)}
+                    </div>
+                    <span className="ws-act-user-name">{selectedActivity.user}</span>
+                    {selectedActivity.role && (
+                      <span className="ws-act-user-role-badge">{selectedActivity.role}</span>
+                    )}
+                  </div>
                 </div>
+
                 <div className="ws-act-detail-row">
-                  <span>Origin IP:</span>
-                  <code className="ws-act-ip-code">{selectedActivity.ip}</code>
+                  <div className="ws-act-row-label">
+                    <Globe size={14} className="ws-row-icon" />
+                    <span>Origin IP:</span>
+                  </div>
+                  <div className="ws-act-row-val">
+                    <code className="ws-act-ip-code">
+                      <span className="ws-act-ip-dot" />
+                      {selectedActivity.ip || "127.0.0.1"}
+                    </code>
+                  </div>
                 </div>
               </div>
 
+              {/* 3. Audit Parameters & Configuration Grid */}
               {selectedActivity.details && Object.keys(selectedActivity.details).length > 0 && (
                 <div className="ws-act-params-wrap">
                   <div className="ws-params-header">
                     <div className="ws-params-header-title">
                       <SlidersHorizontal size={13} />
-                      <span>Audit Parameters & Configuration</span>
+                      <span>Audit Parameters &amp; Configuration</span>
                     </div>
                     <span className="ws-params-count-badge">
                       {Object.keys(selectedActivity.details).length} parameters
@@ -2760,7 +2844,12 @@ export default function AdminWorkspace() {
                   <div className="ws-params-grid">
                     {Object.entries(selectedActivity.details).map(([k, v]) => (
                       <div key={k} className="ws-param-card">
-                        <span className="ws-param-key">{formatDetailKey(k)}</span>
+                        <div className="ws-param-card-header">
+                          <div className="ws-param-card-icon">
+                            {getParamIcon(k)}
+                          </div>
+                          <span className="ws-param-key">{formatDetailKey(k)}</span>
+                        </div>
                         <div className="ws-param-val">
                           {formatDetailValue(k, v)}
                         </div>
@@ -2771,10 +2860,11 @@ export default function AdminWorkspace() {
               )}
             </div>
 
-            <div className="ws-modal-footer">
+            {/* Modal Footer */}
+            <div className="ws-act-modal-footer">
               <button
                 type="button"
-                className="ws-btn-cancel ws-btn-act-close"
+                className="ws-act-close-btn"
                 onClick={() => setSelectedActivity(null)}
               >
                 Close Details

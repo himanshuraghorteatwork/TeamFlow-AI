@@ -1203,11 +1203,11 @@ export default function AdminTasks() {
                 />
               </div>
 
-              <div className="modal-actions">
-                <button type="button" className="btn-secondary" onClick={() => setShowModal(false)}>
+              <div className="modal-actions tasks-modal-actions">
+                <button type="button" className="btn-secondary tasks-modal-cancel-btn" onClick={() => setShowModal(false)}>
                   Cancel
                 </button>
-                <button type="submit" className="btn-primary">
+                <button type="submit" className="btn-primary tasks-modal-submit-btn">
                   <Check size={14} />
                   <span>{editingTask ? "Save Changes" : "Create Task"}</span>
                 </button>

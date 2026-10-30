@@ -1545,15 +1545,15 @@ export default function AdminActivityLogs() {
                 </div>
               </div>
 
-              <div className="admin-logs-modal-footer">
+              <div className="admin-logs-modal-footer logs-create-modal-footer">
                 <button
                   type="button"
-                  className="btn-secondary"
+                  className="btn-cancel logs-modal-cancel-btn"
                   onClick={() => setShowCreateModal(false)}
                 >
                   Cancel
                 </button>
-                <button type="submit" className="btn-primary">
+                <button type="submit" className="btn-primary logs-modal-submit-btn">
                   Record Event
                 </button>
               </div>
