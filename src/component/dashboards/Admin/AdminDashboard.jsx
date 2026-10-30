@@ -761,24 +761,211 @@ export default function AdminDashboard() {
   const [hoveredTaskSlice, setHoveredTaskSlice] = useState(null);
   const [hoveredProjId, setHoveredProjId] = useState(null);
 
-  // Derived user growth bars
+  // Derived user growth bars based on userGrowthTimeframe
   const userGrowthBars = useMemo(() => {
-    if (userGrowthTimeframe === "Last 6 Months") {
-      return dataset.userGrowth.slice(-6);
+    switch (userGrowthTimeframe) {
+      case "Today":
+        return [
+          { label: "08:00", val: 12 },
+          { label: "10:00", val: 28 },
+          { label: "12:00", val: 45 },
+          { label: "14:00", val: 56 },
+          { label: "16:00", val: 64 },
+          { label: "18:00", val: 82 },
+        ];
+      case "7 Days":
+      case "Last 7 Days":
+        return [
+          { label: "Mon", val: 185 },
+          { label: "Tue", val: 198 },
+          { label: "Wed", val: 210 },
+          { label: "Thu", val: 226 },
+          { label: "Fri", val: 238 },
+          { label: "Sat", val: 242 },
+          { label: "Sun", val: 248 },
+        ];
+      case "This Month":
+      case "Month":
+        return [
+          { label: "W1", val: 54 },
+          { label: "W2", val: 98 },
+          { label: "W3", val: 172 },
+          { label: "W4", val: 248 },
+        ];
+      case "This Quarter":
+      case "Quarter":
+        return [
+          { label: "Aug", val: 188 },
+          { label: "Sep", val: 216 },
+          { label: "Oct", val: 248 },
+        ];
+      case "Last 6 Months":
+        return [
+          { label: "May", val: 104 },
+          { label: "Jun", val: 132 },
+          { label: "Jul", val: 160 },
+          { label: "Aug", val: 188 },
+          { label: "Sep", val: 216 },
+          { label: "Oct", val: 248 },
+        ];
+      case "This Year":
+      case "Year":
+      default:
+        return [
+          { label: "Jan", val: 32 },
+          { label: "Feb", val: 48 },
+          { label: "Mar", val: 65 },
+          { label: "Apr", val: 82 },
+          { label: "May", val: 104 },
+          { label: "Jun", val: 132 },
+          { label: "Jul", val: 160 },
+          { label: "Aug", val: 188 },
+          { label: "Sep", val: 216 },
+          { label: "Oct", val: 248 },
+        ];
     }
-    if (userGrowthTimeframe === "This Month") {
-      return [
-        { label: "W1", val: 54, height: "22%" },
-        { label: "W2", val: 98, height: "40%" },
-        { label: "W3", val: 172, height: "70%" },
-        { label: "W4", val: 248, height: "99%" },
-      ];
+  }, [userGrowthTimeframe]);
+
+  const maxGrowthVal = useMemo(() => {
+    const rawMax = Math.max(...userGrowthBars.map((b) => b.val || 0), 50);
+    return Math.ceil(rawMax / 50) * 50;
+  }, [userGrowthBars]);
+
+  const growthYAxisLabels = useMemo(() => {
+    const step = maxGrowthVal / 5;
+    return [
+      maxGrowthVal,
+      Math.round(step * 4),
+      Math.round(step * 3),
+      Math.round(step * 2),
+      Math.round(step),
+      0,
+    ];
+  }, [maxGrowthVal]);
+
+  // Derived Task Breakdown based on taskStatusTimeframe
+  const taskData = useMemo(() => {
+    switch (taskStatusTimeframe) {
+      case "Today":
+        return {
+          total: 42,
+          completed: 22,
+          completedPct: 52,
+          inProgress: 12,
+          inProgressPct: 29,
+          pending: 6,
+          pendingPct: 14,
+          overdue: 2,
+          overduePct: 5,
+        };
+      case "7 Days":
+      case "Last 7 Days":
+        return {
+          total: 312,
+          completed: 156,
+          completedPct: 50,
+          inProgress: 82,
+          inProgressPct: 26,
+          pending: 52,
+          pendingPct: 17,
+          overdue: 22,
+          overduePct: 7,
+        };
+      case "This Quarter":
+      case "Quarter":
+        return {
+          total: 3680,
+          completed: 1840,
+          completedPct: 50,
+          inProgress: 956,
+          inProgressPct: 26,
+          pending: 588,
+          pendingPct: 16,
+          overdue: 296,
+          overduePct: 8,
+        };
+      case "This Year":
+      case "Year":
+        return {
+          total: 8420,
+          completed: 4630,
+          completedPct: 55,
+          inProgress: 1850,
+          inProgressPct: 22,
+          pending: 1260,
+          pendingPct: 15,
+          overdue: 680,
+          overduePct: 8,
+        };
+      case "This Month":
+      case "Month":
+      default:
+        return dataset.taskBreakdown || {
+          total: 1256,
+          completed: 565,
+          completedPct: 45,
+          inProgress: 314,
+          inProgressPct: 25,
+          pending: 251,
+          pendingPct: 20,
+          overdue: 126,
+          overduePct: 10,
+        };
     }
-    return dataset.userGrowth;
-  }, [userGrowthTimeframe, dataset]);
+  }, [taskStatusTimeframe, dataset]);
+
+  // Derived Project Progress list based on projectProgressTimeframe
+  const projectProgressList = useMemo(() => {
+    switch (projectProgressTimeframe) {
+      case "Today":
+        return [
+          { id: 1, name: "Website Redesign - Sprint 14", progress: 88, color: "#6366f1" },
+          { id: 2, name: "Mobile App - Hotfix Patch", progress: 74, color: "#0ea5e9" },
+          { id: 3, name: "AI Integration - Model Tuning", progress: 62, color: "#10b981" },
+          { id: 4, name: "Marketing Portal - Assets Review", progress: 48, color: "#f59e0b" },
+          { id: 5, name: "Internal Tools - Bug Patches", progress: 34, color: "#ef4444" },
+        ];
+      case "7 Days":
+      case "Last 7 Days":
+        return [
+          { id: 1, name: "Website Redesign", progress: 82, color: "#6366f1" },
+          { id: 2, name: "Mobile App v2.0 Beta", progress: 68, color: "#0ea5e9" },
+          { id: 3, name: "AI Integration Pipelines", progress: 58, color: "#10b981" },
+          { id: 4, name: "Marketing Campaign QA", progress: 42, color: "#f59e0b" },
+          { id: 5, name: "Internal Audit Logger", progress: 28, color: "#ef4444" },
+        ];
+      case "This Quarter":
+      case "Quarter":
+        return [
+          { id: 1, name: "Website Redesign", progress: 92, color: "#6366f1" },
+          { id: 2, name: "Mobile App v2.0", progress: 78, color: "#0ea5e9" },
+          { id: 3, name: "Cloud Infrastructure Migration", progress: 68, color: "#8b5cf6" },
+          { id: 4, name: "AI Integration & RAG Engine", progress: 64, color: "#10b981" },
+          { id: 5, name: "Customer Portal & Billing", progress: 52, color: "#f59e0b" },
+        ];
+      case "This Year":
+      case "Year":
+        return [
+          { id: 1, name: "Enterprise Compliance & SSO", progress: 100, color: "#10b981" },
+          { id: 2, name: "Core Platform Architecture", progress: 88, color: "#6366f1" },
+          { id: 3, name: "Mobile App Multi-platform", progress: 82, color: "#0ea5e9" },
+          { id: 4, name: "AI Integration Enterprise Suite", progress: 75, color: "#10b981" },
+          { id: 5, name: "Global Marketing Expansion", progress: 60, color: "#f59e0b" },
+        ];
+      case "This Month":
+      case "Month":
+      default:
+        return dataset.projectProgress || [
+          { id: 1, name: "Website Redesign", progress: 85, color: "#6366f1" },
+          { id: 2, name: "Mobile App", progress: 70, color: "#0ea5e9" },
+          { id: 3, name: "AI Integration", progress: 60, color: "#10b981" },
+          { id: 4, name: "Marketing Portal", progress: 45, color: "#f59e0b" },
+          { id: 5, name: "Internal Tools", progress: 30, color: "#ef4444" },
+        ];
+    }
+  }, [projectProgressTimeframe, dataset]);
 
   // Donut chart math for Task Status Overview
-  const taskData = dataset.taskBreakdown;
   const radius = 54;
   const circumference = 2 * Math.PI * radius; // ~339.29
   const strokeW = 16;
@@ -1273,7 +1460,10 @@ export default function AdminDashboard() {
                   >
                     <option value="This Year">This Year</option>
                     <option value="Last 6 Months">Last 6 Months</option>
+                    <option value="This Quarter">This Quarter</option>
                     <option value="This Month">This Month</option>
+                    <option value="Last 7 Days">Last 7 Days</option>
+                    <option value="Today">Today</option>
                   </select>
                   <ChevronDown size={13} />
                 </div>
@@ -1281,12 +1471,9 @@ export default function AdminDashboard() {
 
               <div className="tfSaasAdmin__growthChartContainer">
                 <div className="tfSaasAdmin__growthYAxis">
-                  <span>250</span>
-                  <span>200</span>
-                  <span>150</span>
-                  <span>100</span>
-                  <span>50</span>
-                  <span>0</span>
+                  {growthYAxisLabels.map((val, idx) => (
+                    <span key={idx}>{val}</span>
+                  ))}
                 </div>
 
                 <div className="tfSaasAdmin__growthBarsArea">
@@ -1314,7 +1501,10 @@ export default function AdminDashboard() {
                             </div>
                           )}
                           <div className="tfSaasAdmin__barRail">
-                            <div className="tfSaasAdmin__barFill" style={{ height: b.height }}>
+                            <div
+                              className="tfSaasAdmin__barFill"
+                              style={{ height: `${Math.min(100, Math.max(8, (b.val / maxGrowthVal) * 100))}%` }}
+                            >
                               <span className="tfSaasAdmin__barShimmer" />
                             </div>
                           </div>
@@ -1345,8 +1535,10 @@ export default function AdminDashboard() {
                     aria-label="Filter task status timeframe"
                   >
                     <option value="This Month">This Month</option>
+                    <option value="This Quarter">This Quarter</option>
+                    <option value="This Year">This Year</option>
+                    <option value="Last 7 Days">Last 7 Days</option>
                     <option value="Today">Today</option>
-                    <option value="7 Days">Last 7 Days</option>
                   </select>
                   <ChevronDown size={13} />
                 </div>
@@ -1553,13 +1745,16 @@ export default function AdminDashboard() {
                   >
                     <option value="This Month">This Month</option>
                     <option value="This Quarter">This Quarter</option>
+                    <option value="This Year">This Year</option>
+                    <option value="Last 7 Days">Last 7 Days</option>
+                    <option value="Today">Today</option>
                   </select>
                   <ChevronDown size={13} />
                 </div>
               </div>
 
               <div className="tfSaasAdmin__projectProgressList">
-                {dataset.projectProgress.map((proj) => {
+                {projectProgressList.map((proj) => {
                   const isHovered = hoveredProjId === proj.id;
                   const isAnyHovered = hoveredProjId !== null;
                   return (

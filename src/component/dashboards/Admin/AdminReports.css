@@ -1859,14 +1859,14 @@ body.dark-theme .rep-action-icon.rep-delete-btn:hover,
   display: flex !important;
   align-items: center !important;
   gap: 12px !important;
-  padding: 16px 20px !important;
-  background: #fff5f5 !important;
-  border-bottom: 1px solid #fee2e2 !important;
+  padding: 18px 22px !important;
+  background: #ffffff !important;
+  border-bottom: 1px solid #f1f5f9 !important;
 }
 
 .delete-modal-icon-badge {
-  width: 40px !important;
-  height: 40px !important;
+  width: 42px !important;
+  height: 42px !important;
   border-radius: 10px !important;
   background: #fee2e2 !important;
   color: #dc2626 !important;
@@ -1881,17 +1881,16 @@ body.dark-theme .rep-action-icon.rep-delete-btn:hover,
 }
 
 .delete-modal-header-text h3 {
-  margin: 0 !important;
-  font-size: 16px !important;
+  margin: 0 0 3px 0 !important;
+  font-size: 17px !important;
   font-weight: 700 !important;
-  color: #991b1b !important;
+  color: #0f172a !important;
 }
 
 .delete-modal-subtitle {
-  font-size: 12px !important;
-  color: #b91c1c !important;
-  font-weight: 600 !important;
-  font-family: monospace !important;
+  font-size: 13px !important;
+  color: #64748b !important;
+  font-weight: 500 !important;
 }
 
 .delete-modal-body {
@@ -2138,30 +2137,57 @@ body.dark-theme .delete-confirm-modal,
 .dark .delete-modal-header,
 body.dark-theme .delete-modal-header,
 [data-theme="dark"] .delete-modal-header {
-  background: rgba(239, 68, 68, 0.12) !important;
-  border-bottom-color: rgba(239, 68, 68, 0.25) !important;
+  background: transparent !important;
+  border-bottom: 1px solid #1f2937 !important;
 }
 
 :root.dark .delete-modal-icon-badge,
 .dark .delete-modal-icon-badge,
 body.dark-theme .delete-modal-icon-badge,
 [data-theme="dark"] .delete-modal-icon-badge {
-  background: rgba(239, 68, 68, 0.25) !important;
-  color: #f87171 !important;
+  background: rgba(239, 68, 68, 0.14) !important;
+  border: 1px solid rgba(239, 68, 68, 0.28) !important;
+  color: #ef4444 !important;
 }
 
 :root.dark .delete-modal-header-text h3,
 .dark .delete-modal-header-text h3,
 body.dark-theme .delete-modal-header-text h3,
 [data-theme="dark"] .delete-modal-header-text h3 {
-  color: #fca5a5 !important;
+  color: #f8fafc !important;
+  margin: 0 0 3px 0 !important;
 }
 
 :root.dark .delete-modal-subtitle,
 .dark .delete-modal-subtitle,
 body.dark-theme .delete-modal-subtitle,
 [data-theme="dark"] .delete-modal-subtitle {
-  color: #f87171 !important;
+  color: #94a3b8 !important;
+}
+
+:root.dark .admin-reports-modal.delete-confirm-modal,
+.dark .admin-reports-modal.delete-confirm-modal,
+body.dark-theme .admin-reports-modal.delete-confirm-modal,
+[data-theme="dark"] .admin-reports-modal.delete-confirm-modal {
+  background: #111827 !important;
+  border: 1px solid rgba(239, 68, 68, 0.3) !important;
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.7), 0 0 35px -10px rgba(239, 68, 68, 0.15) !important;
+}
+
+:root.dark .admin-reports-modal .close-btn,
+.dark .admin-reports-modal .close-btn,
+body.dark-theme .admin-reports-modal .close-btn,
+[data-theme="dark"] .admin-reports-modal .close-btn {
+  color: #94a3b8 !important;
+  background: transparent !important;
+}
+
+:root.dark .admin-reports-modal .close-btn:hover,
+.dark .admin-reports-modal .close-btn:hover,
+body.dark-theme .admin-reports-modal .close-btn:hover,
+[data-theme="dark"] .admin-reports-modal .close-btn:hover {
+  color: #f8fafc !important;
+  background: rgba(255, 255, 255, 0.08) !important;
 }
 
 :root.dark .delete-modal-lead,

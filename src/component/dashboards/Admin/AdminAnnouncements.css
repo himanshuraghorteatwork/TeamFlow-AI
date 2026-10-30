@@ -1197,6 +1197,13 @@ body.dark-theme .ann-action-btn.delete:hover,
   color: #94a3b8;
 }
 
+.ann-pagination-left {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
 .ann-pagination-per-page {
   display: flex;
   align-items: center;

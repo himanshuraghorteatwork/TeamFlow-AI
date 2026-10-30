@@ -1530,8 +1530,8 @@ body.dark-theme .admin-logs-page-num-pill.active {
   align-items: center;
   gap: 14px;
   padding: 18px 22px;
-  background: #fff5f5;
-  border-bottom: 1px solid #fee2e2;
+  background: #ffffff;
+  border-bottom: 1px solid #f1f5f9;
 }
 
 .delete-modal-icon-badge {
@@ -1553,17 +1553,16 @@ body.dark-theme .admin-logs-page-num-pill.active {
 
 .delete-modal-header-text h3 {
   margin: 0;
-  font-size: 16px;
+  font-size: 17px;
   font-weight: 700;
-  color: #991b1b;
+  color: #0f172a;
   letter-spacing: -0.01em;
 }
 
 .delete-modal-subtitle {
-  font-size: 12px;
-  color: #b91c1c;
-  font-weight: 600;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 13px;
+  color: #64748b;
+  font-weight: 500;
   display: block;
   margin-top: 2px;
 }
@@ -1788,30 +1787,57 @@ body.dark-theme .admin-logs-delete-modal {
 .dark .admin-logs-delete-modal .delete-modal-header,
 [data-theme="dark"] .admin-logs-delete-modal .delete-modal-header,
 body.dark-theme .admin-logs-delete-modal .delete-modal-header {
-  background: rgba(239, 68, 68, 0.12) !important;
-  border-bottom-color: rgba(239, 68, 68, 0.25) !important;
+  background: transparent !important;
+  border-bottom: 1px solid #1f2937 !important;
 }
 
 :root.dark .delete-modal-icon-badge,
 .dark .delete-modal-icon-badge,
 [data-theme="dark"] .delete-modal-icon-badge,
 body.dark-theme .delete-modal-icon-badge {
-  background: rgba(239, 68, 68, 0.22) !important;
-  color: #f87171 !important;
+  background: rgba(239, 68, 68, 0.14) !important;
+  border: 1px solid rgba(239, 68, 68, 0.28) !important;
+  color: #ef4444 !important;
 }
 
 :root.dark .delete-modal-header-text h3,
 .dark .delete-modal-header-text h3,
 [data-theme="dark"] .delete-modal-header-text h3,
 body.dark-theme .delete-modal-header-text h3 {
-  color: #fca5a5 !important;
+  color: #f8fafc !important;
+  margin: 0 0 3px 0 !important;
 }
 
 :root.dark .delete-modal-subtitle,
 .dark .delete-modal-subtitle,
 [data-theme="dark"] .delete-modal-subtitle,
 body.dark-theme .delete-modal-subtitle {
-  color: #f87171 !important;
+  color: #94a3b8 !important;
+}
+
+:root.dark .admin-logs-delete-modal,
+.dark .admin-logs-delete-modal,
+[data-theme="dark"] .admin-logs-delete-modal,
+body.dark-theme .admin-logs-delete-modal {
+  background: #111827 !important;
+  border: 1px solid rgba(239, 68, 68, 0.3) !important;
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.7), 0 0 35px -10px rgba(239, 68, 68, 0.15) !important;
+}
+
+:root.dark .admin-logs-delete-modal .modal-close-btn,
+.dark .admin-logs-delete-modal .modal-close-btn,
+body.dark-theme .admin-logs-delete-modal .modal-close-btn,
+[data-theme="dark"] .admin-logs-delete-modal .modal-close-btn {
+  color: #94a3b8 !important;
+  background: transparent !important;
+}
+
+:root.dark .admin-logs-delete-modal .modal-close-btn:hover,
+.dark .admin-logs-delete-modal .modal-close-btn:hover,
+body.dark-theme .admin-logs-delete-modal .modal-close-btn:hover,
+[data-theme="dark"] .admin-logs-delete-modal .modal-close-btn:hover {
+  color: #f8fafc !important;
+  background: rgba(255, 255, 255, 0.08) !important;
 }
 
 :root.dark .delete-modal-lead,

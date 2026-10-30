@@ -1154,33 +1154,35 @@ export default function AdminAnnouncements() {
 
               {/* PAGINATION FOOTER */}
               <div className="ann-pagination-bar">
-                <div className="ann-pagination-count">
-                  Showing{" "}
-                  <strong>
-                    {filteredAnnouncements.length === 0
-                      ? 0
-                      : (currentPage - 1) * perPage + 1}
-                  </strong>{" "}
-                  -{" "}
-                  <strong>
-                    {Math.min(currentPage * perPage, filteredAnnouncements.length)}
-                  </strong>{" "}
-                  of <strong>{filteredAnnouncements.length}</strong> announcements
-                </div>
+                <div className="ann-pagination-left">
+                  <div className="ann-pagination-count">
+                    Showing{" "}
+                    <strong>
+                      {filteredAnnouncements.length === 0
+                        ? 0
+                        : (currentPage - 1) * perPage + 1}
+                    </strong>{" "}
+                    -{" "}
+                    <strong>
+                      {Math.min(currentPage * perPage, filteredAnnouncements.length)}
+                    </strong>{" "}
+                    of <strong>{filteredAnnouncements.length}</strong> announcements
+                  </div>
 
-                <div className="ann-pagination-per-page">
-                  <label>Rows per page:</label>
-                  <select
-                    value={perPage}
-                    onChange={(e) => {
-                      setPerPage(Number(e.target.value));
-                      setCurrentPage(1);
-                    }}
-                  >
-                    <option value={6}>6</option>
-                    <option value={12}>12</option>
-                    <option value={24}>24</option>
-                  </select>
+                  <div className="ann-pagination-per-page">
+                    <label>Rows per page:</label>
+                    <select
+                      value={perPage}
+                      onChange={(e) => {
+                        setPerPage(Number(e.target.value));
+                        setCurrentPage(1);
+                      }}
+                    >
+                      <option value={6}>6</option>
+                      <option value={12}>12</option>
+                      <option value={24}>24</option>
+                    </select>
+                  </div>
                 </div>
 
                 <div className="ann-pagination-controls">

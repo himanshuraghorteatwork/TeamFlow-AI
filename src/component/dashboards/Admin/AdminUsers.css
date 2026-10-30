@@ -2427,17 +2427,17 @@ body.dark-theme .admin-users-modal.delete-confirm-modal,
 .dark .delete-modal-header,
 body.dark-theme .delete-modal-header,
 [data-theme="dark"] .delete-modal-header {
-  background: #111827 !important;
-  border-bottom-color: #1f2937 !important;
+  background: transparent !important;
+  border-bottom: 1px solid #1f2937 !important;
 }
 
 :root.dark .delete-modal-icon-badge,
 .dark .delete-modal-icon-badge,
 body.dark-theme .delete-modal-icon-badge,
 [data-theme="dark"] .delete-modal-icon-badge {
-  background: rgba(220, 38, 38, 0.15) !important;
-  border-color: rgba(220, 38, 38, 0.3) !important;
-  color: #f87171 !important;
+  background: rgba(239, 68, 68, 0.14) !important;
+  border: 1px solid rgba(239, 68, 68, 0.28) !important;
+  color: #ef4444 !important;
 }
 
 :root.dark .delete-modal-header-text h3,
