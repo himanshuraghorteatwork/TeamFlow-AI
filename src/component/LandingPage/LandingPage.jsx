@@ -35,6 +35,12 @@ import "./LandingPage.css";
    1. INTERACTIVE BACKGROUND PARTICLE & ENERGY CONSTELLATION CANVAS
    Smooth 60fps canvas animation responding to live cursor movement
    ========================================================================= */
+/* =========================================================================
+   1. LIVE 3D CONTINUOUS KINETIC UNIVERSE ENGINE
+   Continuous 3D Quantum Polyhedra (Octahedron + Nested Cube, Sacred Merkaba,
+   Dual-Gimbal Gyroscope), Undulating 3D Spatial Wave Ribbon & 3D Neural Mesh
+   Tracks 3D camera mouse tilt and scroll depth smoothly at 60fps
+   ========================================================================= */
 function HeroBackgroundCanvas({ theme }) {
   const canvasRef = useRef(null);
   const themeRef = useRef(theme);
@@ -53,8 +59,8 @@ function HeroBackgroundCanvas({ theme }) {
     let width = (canvas.width = window.innerWidth);
     let height = (canvas.height = window.innerHeight);
 
-    // Particle nodes count scaled by screen size
-    const count = Math.min(Math.floor(width / 36), 46);
+    // Particle nodes in 3D
+    const count = Math.min(Math.floor(width / 30), 55);
     const particles = [];
 
     const darkColors = [
@@ -72,26 +78,120 @@ function HeroBackgroundCanvas({ theme }) {
 
     for (let i = 0; i < count; i++) {
       particles.push({
-        x: Math.random() * width,
-        y: Math.random() * height,
-        vx: (Math.random() - 0.5) * 0.65,
-        vy: (Math.random() - 0.5) * 0.65,
+        x: (Math.random() - 0.5) * width * 1.4,
+        y: (Math.random() - 0.5) * height * 1.4,
+        z: (Math.random() - 0.5) * 650,
+        vx: (Math.random() - 0.5) * 0.55,
+        vy: (Math.random() - 0.5) * 0.55,
+        vz: (Math.random() - 0.5) * 0.45,
         radius: Math.random() * 2.2 + 1.2,
         colorIndex: Math.floor(Math.random() * darkColors.length),
-        baseAlpha: Math.random() * 0.35 + 0.25,
+        baseAlpha: Math.random() * 0.35 + 0.3,
       });
     }
 
+    // 3D Geometry definitions
+    // 1. Octahedron (size R1 = 92)
+    const R1 = 92;
+    const octVerts = [
+      [R1, 0, 0], [-R1, 0, 0], [0, R1, 0], [0, -R1, 0], [0, 0, R1], [0, 0, -R1]
+    ];
+    const octEdges = [
+      [0,2], [0,3], [0,4], [0,5],
+      [1,2], [1,3], [1,4], [1,5],
+      [2,4], [4,3], [3,5], [5,2]
+    ];
+
+    // Inner nested cube (size S1 = 40)
+    const S1 = 40;
+    const cubeVerts = [
+      [-S1, -S1, -S1], [S1, -S1, -S1], [S1, S1, -S1], [-S1, S1, -S1],
+      [-S1, -S1, S1], [S1, -S1, S1], [S1, S1, S1], [-S1, S1, S1]
+    ];
+    const cubeEdges = [
+      [0,1], [1,2], [2,3], [3,0],
+      [4,5], [5,6], [6,7], [7,4],
+      [0,4], [1,5], [2,6], [3,7]
+    ];
+
+    // Gimbal Ring points generator helper
+    const makeRing = (radius, ptCount, tiltX, tiltY) => {
+      const pts = [];
+      const cosX = Math.cos(tiltX), sinX = Math.sin(tiltX);
+      const cosY = Math.cos(tiltY), sinY = Math.sin(tiltY);
+      for (let i = 0; i < ptCount; i++) {
+        const theta = (i / ptCount) * Math.PI * 2;
+        const x = Math.cos(theta) * radius;
+        const y = Math.sin(theta) * radius;
+        const z = 0;
+        const y1 = y * cosX - z * sinX;
+        const z1 = z * cosX + y * sinX;
+        const x2 = x * cosY + z1 * sinY;
+        const z2 = z1 * cosY - x * sinY;
+        pts.push([x2, y1, z2]);
+      }
+      return pts;
+    };
+
+    const ring1 = makeRing(140, 32, 0.65, 0.35);
+    const ring2 = makeRing(162, 32, -0.7, -0.45);
+
+    // 2. Stellated Octahedron (Merkaba) for mid-page
+    const M_S = 48;
+    const merkabaVerts = [
+      [M_S, M_S, M_S], [M_S, -M_S, -M_S], [-M_S, M_S, -M_S], [-M_S, -M_S, M_S],
+      [-M_S, -M_S, -M_S], [-M_S, M_S, M_S], [M_S, -M_S, M_S], [M_S, M_S, -M_S],
+      [1.7 * M_S, 0, 0], [-1.7 * M_S, 0, 0], [0, 1.7 * M_S, 0], [0, -1.7 * M_S, 0], [0, 0, 1.7 * M_S], [0, 0, -1.7 * M_S]
+    ];
+    const merkabaEdges = [
+      [0,1], [0,2], [0,3], [1,2], [1,3], [2,3],
+      [4,5], [4,6], [4,7], [5,6], [5,7], [6,7],
+      [8,0], [8,1], [8,6], [8,7],
+      [9,2], [9,3], [9,4], [9,5],
+      [10,0], [10,2], [10,5], [10,7],
+      [11,1], [11,3], [11,4], [11,6],
+      [12,0], [12,3], [12,5], [12,6],
+      [13,1], [13,2], [13,4], [13,7]
+    ];
+
+    // 3. Gyroscope rings for lower-page
+    const gyroRingA = makeRing(110, 28, 0, 0);
+    const gyroRingB = makeRing(135, 28, Math.PI / 3, Math.PI / 6);
+    const gyroRingC = makeRing(155, 28, -Math.PI / 3, -Math.PI / 4);
+
+    // 4. Golden-Ratio Icosahedron Gemstone Crystal
+    const s_ico = 38;
+    const phi_ico = s_ico * 1.6180339887;
+    const icoVerts = [
+      [-s_ico, phi_ico, 0], [s_ico, phi_ico, 0], [-s_ico, -phi_ico, 0], [s_ico, -phi_ico, 0],
+      [0, -s_ico, phi_ico], [0, s_ico, phi_ico], [0, -s_ico, -phi_ico], [0, s_ico, -phi_ico],
+      [phi_ico, 0, -s_ico], [phi_ico, 0, s_ico], [-phi_ico, 0, -s_ico], [-phi_ico, 0, s_ico]
+    ];
+    const icoEdges = [
+      [0,1],[0,5],[0,7],[0,10],[0,11],[1,5],[1,7],[1,8],[1,9],[2,3],[2,4],[2,6],[2,10],[2,11],[3,4],[3,6],[3,8],[3,9],[4,5],[4,9],[4,11],[5,9],[5,11],[6,7],[6,8],[6,10],[7,8],[7,10],[8,9],[10,11]
+    ];
+
     const mouse = { x: -1000, y: -1000, active: false };
+    let rotX = 0, rotY = 0;
+    let targetRotX = 0, targetRotY = 0;
+    let targetScrollY = 0, currentScrollY = 0;
 
     const handleMouseMove = (e) => {
       mouse.x = e.clientX;
       mouse.y = e.clientY;
       mouse.active = true;
+      targetRotY = (e.clientX / width - 0.5) * 0.38;
+      targetRotX = (e.clientY / height - 0.5) * -0.26;
     };
 
     const handleMouseLeave = () => {
       mouse.active = false;
+      targetRotX = 0;
+      targetRotY = 0;
+    };
+
+    const handleScroll = () => {
+      targetScrollY = window.scrollY || document.documentElement.scrollTop;
     };
 
     const handleResize = () => {
@@ -101,69 +201,351 @@ function HeroBackgroundCanvas({ theme }) {
 
     window.addEventListener("mousemove", handleMouseMove, { passive: true });
     window.addEventListener("mouseleave", handleMouseLeave);
+    window.addEventListener("scroll", handleScroll, { passive: true });
     window.addEventListener("resize", handleResize);
 
-    // Smooth real-time transition progress (0.0 = full light, 1.0 = full dark)
+    targetScrollY = window.scrollY || 0;
+    currentScrollY = targetScrollY;
+
     let themeProgress = themeRef.current === "dark" ? 1 : 0;
+    let time = 0;
+
+    const m1Rot = { x: 0.2, y: 0.4, z: 0 };
+    const m2Rot = { x: 0.5, y: -0.3, z: 0.2 };
+    const m3Rot = { x: -0.4, y: 0.6, z: -0.2 };
+    const m4Rot = { x: 0.3, y: 0.1, z: 0.5 };
+
+    const project3D = (x, y, z, cx, cy, cz, rx, ry, rz, camRotX, camRotY, fov) => {
+      const cosX = Math.cos(rx), sinX = Math.sin(rx);
+      const cosY = Math.cos(ry), sinY = Math.sin(ry);
+      const cosZ = Math.cos(rz), sinZ = Math.sin(rz);
+
+      const x1 = x;
+      const y1 = y * cosX - z * sinX;
+      const z1 = z * cosX + y * sinX;
+
+      const x2 = x1 * cosY + z1 * sinY;
+      const y2 = y1;
+      const z2 = z1 * cosY - x1 * sinY;
+
+      const x3 = x2 * cosZ - y2 * sinZ;
+      const y3 = y2 * cosZ + x2 * sinZ;
+      const z3 = z2;
+
+      const wx = x3 + cx;
+      const wy = y3 + cy;
+      const wz = z3 + cz;
+
+      const camCosY = Math.cos(camRotY), camSinY = Math.sin(camRotY);
+      const camCosX = Math.cos(camRotX), camSinX = Math.sin(camRotX);
+
+      const cx1 = wx * camCosY - wz * camSinY;
+      const cz1 = wz * camCosY + wx * camSinY;
+
+      const cy1 = wy * camCosX - cz1 * camSinX;
+      const cz2 = cz1 * camCosX + wy * camSinX;
+
+      const depth = cz2 + fov;
+      if (depth < 60) return null;
+      const scale = fov / depth;
+      return {
+        sx: width / 2 + cx1 * scale,
+        sy: height / 2 + cy1 * scale,
+        scale,
+        depth: cz2,
+      };
+    };
 
     const render = () => {
+      time += 0.018;
       ctx.clearRect(0, 0, width, height);
 
-      // Smooth real-time easing towards the target theme over ~0.8s
       const targetProgress = themeRef.current === "dark" ? 1 : 0;
       themeProgress += (targetProgress - themeProgress) * 0.04;
 
-      // Draw connecting constellation lines
+      rotX += (targetRotX - rotX) * 0.06;
+      rotY += (targetRotY - rotY) * 0.06;
+      const scrollVelocity = targetScrollY - currentScrollY;
+      currentScrollY += scrollVelocity * 0.08;
+      const scrollMomentum = Math.max(-0.04, Math.min(0.04, scrollVelocity * 0.0015));
+
+      const fov = 820;
+      const halfW = (width * 1.4) / 2;
+      const halfH = (height * 1.4) / 2;
+
+      const isDark = themeProgress > 0.5;
+      const palette = isDark ? darkColors : lightColors;
+      const strokeIndigo = isDark ? "rgba(99, 102, 241, " : "rgba(79, 70, 229, ";
+      const strokeCyan = isDark ? "rgba(56, 189, 248, " : "rgba(2, 132, 199, ";
+      const strokePink = isDark ? "rgba(236, 72, 153, " : "rgba(219, 39, 119, ";
+
+      // -------------------------------------------------------------
+      // 1. Continuous 3D Spatial Wave Grid Lattice in deep space
+      // Stays permanently alive in the viewport, rippling continuously
+      // -------------------------------------------------------------
+      const waveCols = 15;
+      const waveRows = 6;
+      const waveStepX = (width * 1.4) / waveCols;
+      const waveGrid = [];
+
+      for (let r = 0; r < waveRows; r++) {
+        waveGrid[r] = [];
+        const gz = 320 + r * 65;
+        for (let c = 0; c < waveCols; c++) {
+          const gx = -width * 0.7 + c * waveStepX;
+          const gy =
+            height * 0.28 +
+            Math.sin(gx * 0.0035 + time * 1.2 + currentScrollY * 0.0015) * 28 +
+            Math.cos(gz * 0.0045 + time * 0.95) * 24;
+          const proj = project3D(gx, gy, gz, 0, 0, 0, 0, 0, 0, rotX, rotY, fov);
+          waveGrid[r][c] = proj;
+        }
+      }
+
+      for (let r = 0; r < waveRows; r++) {
+        for (let c = 0; c < waveCols - 1; c++) {
+          const p1 = waveGrid[r][c];
+          const p2 = waveGrid[r][c + 1];
+          if (!p1 || !p2) continue;
+          const alpha = (0.08 + 0.06 * themeProgress) * ((waveRows - r) / waveRows);
+          ctx.beginPath();
+          ctx.moveTo(p1.sx, p1.sy);
+          ctx.lineTo(p2.sx, p2.sy);
+          ctx.strokeStyle = `${strokeIndigo}${alpha.toFixed(3)})`;
+          ctx.lineWidth = 1.0;
+          ctx.stroke();
+        }
+      }
+
+      for (let r = 0; r < waveRows - 1; r++) {
+        for (let c = 0; c < waveCols; c += 2) {
+          const p1 = waveGrid[r][c];
+          const p2 = waveGrid[r + 1][c];
+          if (!p1 || !p2) continue;
+          const alpha = (0.06 + 0.05 * themeProgress) * ((waveRows - r) / waveRows);
+          ctx.beginPath();
+          ctx.moveTo(p1.sx, p1.sy);
+          ctx.lineTo(p2.sx, p2.sy);
+          ctx.strokeStyle = `${strokeCyan}${alpha.toFixed(3)})`;
+          ctx.lineWidth = 0.8;
+          ctx.stroke();
+        }
+      }
+
+      // -------------------------------------------------------------
+      // 2. Continuous 3D Constellation Nodes across the whole page
+      // -------------------------------------------------------------
+      const cosY = Math.cos(rotY), sinY = Math.sin(rotY);
+      const cosX = Math.cos(rotX), sinX = Math.sin(rotX);
+      const projected = [];
+
       for (let i = 0; i < particles.length; i++) {
-        for (let j = i + 1; j < particles.length; j++) {
-          const dx = particles[i].x - particles[j].x;
-          const dy = particles[i].y - particles[j].y;
+        const p = particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.z += p.vz;
+
+        if (p.x < -halfW) p.x = halfW;
+        if (p.x > halfW) p.x = -halfW;
+        if (p.y < -halfH) p.y = halfH;
+        if (p.y > halfH) p.y = -halfH;
+        if (p.z < -340) p.z = 340;
+        if (p.z > 340) p.z = -340;
+
+        const x1 = p.x * cosY - p.z * sinY;
+        const z1 = p.z * cosY + p.x * sinY;
+        const y1 = p.y * cosX - z1 * sinX;
+        const z2 = z1 * cosX + p.y * sinX;
+
+        const depth = z2 + 820;
+        const scale = fov / Math.max(depth, 80);
+        const sx = width / 2 + x1 * scale;
+        const sy = height / 2 + y1 * scale;
+
+        projected.push({
+          sx,
+          sy,
+          scale,
+          radius: Math.max(0.7, p.radius * scale),
+          colorIndex: p.colorIndex,
+          baseAlpha: p.baseAlpha,
+        });
+      }
+
+      for (let i = 0; i < projected.length; i++) {
+        for (let j = i + 1; j < projected.length; j++) {
+          const pi = projected[i];
+          const pj = projected[j];
+          const dx = pi.sx - pj.sx;
+          const dy = pi.sy - pj.sy;
           const dist = Math.sqrt(dx * dx + dy * dy);
 
           if (dist < 145) {
-            const baseAlpha = 0.12 + 0.06 * themeProgress;
+            const depthFactor = Math.min(pi.scale, pj.scale);
+            const baseAlpha = (0.12 + 0.10 * themeProgress) * depthFactor;
             const alpha = (1 - dist / 145) * baseAlpha;
             ctx.beginPath();
-            ctx.moveTo(particles[i].x, particles[i].y);
-            ctx.lineTo(particles[j].x, particles[j].y);
-            ctx.strokeStyle = `rgba(99, 102, 241, ${alpha})`;
-            ctx.lineWidth = 1;
+            ctx.moveTo(pi.sx, pi.sy);
+            ctx.lineTo(pj.sx, pj.sy);
+            ctx.strokeStyle = `rgba(99, 102, 241, ${alpha.toFixed(3)})`;
+            ctx.lineWidth = Math.max(0.6, 1.25 * depthFactor);
             ctx.stroke();
           }
         }
       }
 
-      // Draw and update particle positions
-      for (let i = 0; i < particles.length; i++) {
-        const p = particles[i];
+      for (let i = 0; i < projected.length; i++) {
+        const p = projected[i];
+        if (p.sx < -40 || p.sx > width + 40 || p.sy < -40 || p.sy > height + 40) continue;
 
-        // Subtle interactive mouse attraction & avoidance
-        if (mouse.active) {
-          const mdx = mouse.x - p.x;
-          const mdy = mouse.y - p.y;
-          const mdist = Math.sqrt(mdx * mdx + mdy * mdy);
-          if (mdist < 190 && mdist > 0) {
-            const force = (190 - mdist) / 190;
-            p.x += (mdx / mdist) * force * 1.6;
-            p.y += (mdy / mdist) * force * 1.6;
-          }
+        const alpha = Math.min(1, p.baseAlpha * p.scale);
+        ctx.beginPath();
+        ctx.arc(p.sx, p.sy, p.radius, 0, Math.PI * 2);
+        ctx.fillStyle = `${palette[p.colorIndex]}${alpha.toFixed(3)})`;
+        ctx.fill();
+
+        if (p.scale > 1.0) {
+          ctx.beginPath();
+          ctx.arc(p.sx, p.sy, p.radius * 2.6, 0, Math.PI * 2);
+          ctx.fillStyle = `${palette[p.colorIndex]}${(alpha * 0.32).toFixed(3)})`;
+          ctx.fill();
+        }
+      }
+
+      // -------------------------------------------------------------
+      // Helper function to render wireframe 3D polyhedra & rings
+      // -------------------------------------------------------------
+      const drawPolyhedron = (verts, edges, cx, cy, cz, rx, ry, rz, edgeColor, nodeColor, alphaMultiplier = 1) => {
+        const projVerts = verts.map(([vx, vy, vz]) => project3D(vx, vy, vz, cx, cy, cz, rx, ry, rz, rotX, rotY, fov));
+        if (projVerts.some((v) => !v)) return;
+
+        for (let i = 0; i < edges.length; i++) {
+          const [a, b] = edges[i];
+          const pa = projVerts[a];
+          const pb = projVerts[b];
+          if (!pa || !pb) continue;
+          const avgScale = (pa.scale + pb.scale) * 0.5;
+          const alpha = (0.32 + 0.22 * themeProgress) * avgScale * alphaMultiplier;
+
+          ctx.beginPath();
+          ctx.moveTo(pa.sx, pa.sy);
+          ctx.lineTo(pb.sx, pb.sy);
+          ctx.strokeStyle = `${edgeColor}${alpha.toFixed(3)})`;
+          ctx.lineWidth = Math.max(0.8, 1.6 * avgScale);
+          ctx.stroke();
         }
 
-        p.x += p.vx;
-        p.y += p.vy;
+        for (let i = 0; i < projVerts.length; i++) {
+          const p = projVerts[i];
+          if (!p) continue;
+          const alpha = (0.55 + 0.38 * themeProgress) * p.scale * alphaMultiplier;
 
-        // Wrap around viewport edges
-        if (p.x < -10) p.x = width + 10;
-        if (p.x > width + 10) p.x = -10;
-        if (p.y < -10) p.y = height + 10;
-        if (p.y > height + 10) p.y = -10;
+          ctx.beginPath();
+          ctx.arc(p.sx, p.sy, 2.5 * p.scale, 0, Math.PI * 2);
+          ctx.fillStyle = `${nodeColor}${alpha.toFixed(3)})`;
+          ctx.fill();
+
+          ctx.beginPath();
+          ctx.arc(p.sx, p.sy, 6 * p.scale, 0, Math.PI * 2);
+          ctx.fillStyle = `${nodeColor}${(alpha * 0.35).toFixed(3)})`;
+          ctx.fill();
+        }
+      };
+
+      const drawRing = (ringPoints, cx, cy, cz, rx, ry, rz, ringColor, satAngle, satColor) => {
+        const projRing = ringPoints.map(([vx, vy, vz]) => project3D(vx, vy, vz, cx, cy, cz, rx, ry, rz, rotX, rotY, fov));
+        if (projRing.some((v) => !v)) return;
 
         ctx.beginPath();
-        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-        const palette = themeProgress > 0.5 ? darkColors : lightColors;
-        ctx.fillStyle = `${palette[p.colorIndex]}${p.baseAlpha})`;
-        ctx.fill();
-      }
+        for (let i = 0; i < projRing.length; i++) {
+          const p = projRing[i];
+          if (i === 0) ctx.moveTo(p.sx, p.sy);
+          else ctx.lineTo(p.sx, p.sy);
+        }
+        ctx.closePath();
+        const avgScale = projRing[0].scale;
+        const alpha = (0.26 + 0.18 * themeProgress) * avgScale;
+        ctx.strokeStyle = `${ringColor}${alpha.toFixed(3)})`;
+        ctx.lineWidth = Math.max(0.7, 1.4 * avgScale);
+        ctx.stroke();
+
+        if (satAngle !== undefined && ringPoints.length > 0) {
+          const rawIdx = Math.floor(((satAngle % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2) / (Math.PI * 2)) * ringPoints.length);
+          const idx = rawIdx % ringPoints.length;
+          const satP = projRing[idx];
+          if (satP) {
+            ctx.beginPath();
+            ctx.arc(satP.sx, satP.sy, 3.8 * satP.scale, 0, Math.PI * 2);
+            ctx.fillStyle = `${satColor}0.98)`;
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.arc(satP.sx, satP.sy, 9 * satP.scale, 0, Math.PI * 2);
+            ctx.fillStyle = `${satColor}0.42)`;
+            ctx.fill();
+          }
+        }
+      };
+
+      // -------------------------------------------------------------
+      // 3. Render Persistent 3D Polyhedra Live Across the Whole Page
+      // These continuous 3D entities stay live and active in the viewport
+      // regardless of scroll position, with fluid rotational kinetic spin!
+      // -------------------------------------------------------------
+      // Entity 1: Quantum AI Core (Octahedron + Nested Cube + Gimbal Rings)
+      // Floating on Upper-Right of the viewport with gentle floating oscillation
+      m1Rot.x += 0.008 + scrollMomentum * 0.5;
+      m1Rot.y += 0.013 + scrollMomentum;
+      m1Rot.z += 0.005;
+
+      const e1_X = width > 992 ? width * 0.33 : width * 0.25;
+      const e1_Y = -height * 0.18 + Math.sin(time * 0.85) * 20;
+      const e1_Z = 70;
+
+      drawPolyhedron(octVerts, octEdges, e1_X, e1_Y, e1_Z, m1Rot.x, m1Rot.y, m1Rot.z, strokeIndigo, strokeCyan, 1);
+      drawPolyhedron(cubeVerts, cubeEdges, e1_X, e1_Y, e1_Z, -m1Rot.x * 1.2, -m1Rot.y * 1.1, m1Rot.z, strokePink, strokePink, 0.9);
+      drawRing(ring1, e1_X, e1_Y, e1_Z, m1Rot.x * 0.5, m1Rot.y + time * 0.5, 0.4, strokeCyan, time * 2.2, strokeCyan);
+      drawRing(ring2, e1_X, e1_Y, e1_Z, -m1Rot.x * 0.6, -m1Rot.y - time * 0.4, -0.5, strokeIndigo, -time * 1.8, strokePink);
+
+      // Entity 4: Golden-Ratio Icosahedron Gemstone Crystal
+      // Floating on Upper-Left of the viewport with faceted rotational dance
+      m4Rot.x += 0.0075 + scrollMomentum * 0.4;
+      m4Rot.y += 0.0105 + scrollMomentum * 0.7;
+      m4Rot.z += 0.006;
+
+      const e4_X = width > 992 ? -width * 0.32 : -width * 0.24;
+      const e4_Y = -height * 0.26 + Math.sin(time * 0.95 + 2) * 20;
+      const e4_Z = 85;
+
+      drawPolyhedron(icoVerts, icoEdges, e4_X, e4_Y, e4_Z, m4Rot.x, m4Rot.y, m4Rot.z, strokeCyan, strokePink, 1);
+      drawRing(ring2, e4_X, e4_Y, e4_Z, -m4Rot.x * 0.8, m4Rot.y * 1.2, m4Rot.z, strokeIndigo, time * 2.0, strokePink);
+
+      // Entity 2: Sacred Merkaba (Stellated Quantum Star)
+      // Floating on Mid-Left of the viewport with counter-axis tumble
+      m2Rot.x += 0.009 + scrollMomentum * 0.8;
+      m2Rot.y += 0.011 + scrollMomentum * 0.5;
+      m2Rot.z += 0.007;
+
+      const e2_X = width > 992 ? -width * 0.34 : -width * 0.26;
+      const e2_Y = height * 0.12 + Math.cos(time * 0.75) * 22;
+      const e2_Z = 100;
+
+      drawPolyhedron(merkabaVerts, merkabaEdges, e2_X, e2_Y, e2_Z, m2Rot.x, m2Rot.y, m2Rot.z, strokeCyan, strokeIndigo, 1);
+      drawRing(ring1, e2_X, e2_Y, e2_Z, m2Rot.x, m2Rot.y * 0.8, m2Rot.z, strokePink, time * 1.6, strokeCyan);
+
+      // Entity 3: Quantum Gyroscope (Triple Gimbal Rings & Satellites)
+      // Floating on Lower-Right of the viewport
+      m3Rot.x += 0.007 + scrollMomentum * 0.6;
+      m3Rot.y += 0.009 + scrollMomentum * 0.9;
+      m3Rot.z += 0.008;
+
+      const e3_X = width > 992 ? width * 0.28 : width * 0.20;
+      const e3_Y = height * 0.36 + Math.sin(time * 0.9 + 1) * 18;
+      const e3_Z = 90;
+
+      drawRing(gyroRingA, e3_X, e3_Y, e3_Z, m3Rot.x, m3Rot.y, m3Rot.z, strokeIndigo, time * 2.5, strokeCyan);
+      drawRing(gyroRingB, e3_X, e3_Y, e3_Z, -m3Rot.x * 0.9, -m3Rot.y * 1.1, m3Rot.z, strokePink, -time * 2.0, strokePink);
+      drawRing(gyroRingC, e3_X, e3_Y, e3_Z, m3Rot.x * 1.2, m3Rot.y * 0.7, -m3Rot.z, strokeCyan, time * 1.7, strokeIndigo);
 
       animId = requestAnimationFrame(render);
     };
@@ -173,6 +555,7 @@ function HeroBackgroundCanvas({ theme }) {
     return () => {
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("mouseleave", handleMouseLeave);
+      window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("resize", handleResize);
       cancelAnimationFrame(animId);
     };
@@ -420,6 +803,25 @@ function Navbar({ theme, toggleTheme, isScrolled }) {
 }
 
 /* =========================================================================
+   CONTINUOUS 3D FLOATING GLASS PRISM COMPONENT
+   ========================================================================= */
+function FloatingPrism3D({ className = "" }) {
+  return (
+    <div className={`live-3d-floating-prism ${className}`} aria-hidden="true">
+      <div className="prism-cube">
+        <div className="face f1" />
+        <div className="face f2" />
+        <div className="face f3" />
+        <div className="face f4" />
+        <div className="face f5" />
+        <div className="face f6" />
+        <div className="prism-core-glow" />
+      </div>
+    </div>
+  );
+}
+
+/* =========================================================================
    4. FULL-SCREEN WIDESCREEN HERO SECTION
    2-Column Layout utilizing left and right screen space completely
    ========================================================================= */
@@ -436,6 +838,9 @@ function Hero() {
 
       {/* LEFT COLUMN: Punchy Hero Content, Headline, Dual CTAs & Live Activity */}
       <div className="hero-content-col">
+        {/* Continuous 3D Floating Glass Prism */}
+        <FloatingPrism3D className="prism-hero" />
+
         {/* Floating Announcement Pill with Live Animated Beacon */}
         <a href="#features" className="hero-announcement-pill">
           <span className="live-beacon">
@@ -773,7 +1178,7 @@ function Hero() {
             </div>
           </div>
 
-          {/* Floating Telemetry Badges with Parallax & Float Keyframes */}
+          {/* Floating Telemetry Badges with 3D Depth & Hover Physics */}
           <div className="floating-badge badge-bottom-left float-anim-1">
             <div className="floating-icon-box">⚡</div>
             <div>
@@ -787,6 +1192,16 @@ function Hero() {
             <div>
               <strong>Sprint Velocity 94%</strong>
               <span>+16% faster team execution</span>
+            </div>
+          </div>
+
+          <div className="floating-badge badge-center-top float-anim-3">
+            <div className="floating-icon-box cyan">
+              <span className="live-3d-sphere" />
+            </div>
+            <div>
+              <strong>Autonomous AI Sync</strong>
+              <span>12ms Latency • 99.99% Shard Health</span>
             </div>
           </div>
         </div>
@@ -891,6 +1306,9 @@ function Features() {
   return (
     <section className="features-section" id="features">
       <div className="features-container">
+        {/* Continuous 3D Floating Glass Prism */}
+        <FloatingPrism3D className="prism-features" />
+
         <div className="features-heading">
           <span className="section-eyebrow">
             <Layers size={13} />
@@ -974,6 +1392,9 @@ function HowItWorks() {
   return (
     <section className="how-section" id="how-it-works">
       <div className="how-container">
+        {/* Continuous 3D Floating Glass Prism */}
+        <FloatingPrism3D className="prism-how" />
+
         <div className="how-heading">
           <span className="section-eyebrow">
             <Zap size={13} />
@@ -1128,6 +1549,9 @@ function Pricing() {
   return (
     <section className="pricing-section" id="pricing">
       <div className="pricing-container">
+        {/* Continuous 3D Floating Glass Prism */}
+        <FloatingPrism3D className="prism-pricing" />
+
         <div className="pricing-heading">
           <span className="section-eyebrow">
             <Zap size={13} />
@@ -1264,6 +1688,9 @@ function Testimonials() {
   return (
     <section className="testimonials-section" id="testimonials">
       <div className="testimonials-container">
+        {/* Continuous 3D Floating Glass Prism */}
+        <FloatingPrism3D className="prism-testimonials" />
+
         <div className="testimonials-heading">
           <span className="section-eyebrow">
             <Star size={13} />
@@ -1345,6 +1772,9 @@ function FAQ() {
   return (
     <section className="faq-section" id="faq">
       <div className="faq-container">
+        {/* Continuous 3D Floating Glass Prism */}
+        <FloatingPrism3D className="prism-faq" />
+
         <div className="faq-heading">
           <span className="section-eyebrow">
             <CheckCircle2 size={13} />
@@ -1406,6 +1836,19 @@ function FinalCTA() {
     <section className="cta-banner-section">
       <div className="cta-banner-card">
         <div className="cta-banner-glow" />
+
+        {/* Continuous 3D Floating Glass Prism */}
+        <div className="live-3d-floating-prism prism-cta" aria-hidden="true">
+          <div className="prism-cube">
+            <div className="face f1" />
+            <div className="face f2" />
+            <div className="face f3" />
+            <div className="face f4" />
+            <div className="face f5" />
+            <div className="face f6" />
+            <div className="prism-core-glow" />
+          </div>
+        </div>
 
         <div className="cta-content">
           <span className="cta-eyebrow">

@@ -322,9 +322,10 @@ body {
   transition: color 0.8s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
-.landing-page-root.theme-light .logo-text,
+.landing-page-root.theme-light .navbar .logo-text,
+.landing-page-root.theme-light .mobile-drawer .logo-text,
 .theme-light .navbar .logo-text,
-.theme-light .logo-link .logo-text,
+.theme-light .logo-link:not(.footer-logo-link) .logo-text,
 [data-theme="light"] .navbar .logo-text {
   color: #0f172a !important;
 }
@@ -344,7 +345,8 @@ body {
   transition: color 0.8s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
-.landing-page-root.theme-light .logo-ai,
+.landing-page-root.theme-light .navbar .logo-ai,
+.landing-page-root.theme-light .mobile-drawer .logo-ai,
 .theme-light .navbar .logo-ai,
 [data-theme="light"] .navbar .logo-ai {
   color: #4f46e5 !important;
@@ -1119,27 +1121,55 @@ body {
   color: var(--tf-text-secondary);
 }
 
-/* RIGHT COLUMN: HERO DASHBOARD SHOWCASE FRAME */
+/* RIGHT COLUMN: HERO DASHBOARD SHOWCASE FRAME WITH 3D PERSPECTIVE & SPECULAR GLARE */
 .hero-dashboard-col {
   position: relative;
   z-index: 2;
   width: 100%;
+  perspective: 1400px;
+  perspective-origin: center center;
 }
 
 .hero-dashboard {
   position: relative;
   width: 100%;
+  transform-style: preserve-3d;
+  transform: rotateX(calc(var(--mouse-norm-y, 0) * -7deg))
+             rotateY(calc(var(--mouse-norm-x, 0) * 8.5deg))
+             translateZ(8px);
+  transition: transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
+  will-change: transform;
 }
 
 .dashboard-window {
   background: var(--tf-window-bg);
   border: 1px solid var(--tf-window-border);
   border-radius: var(--tf-radius-lg);
-  box-shadow: var(--tf-window-shadow);
+  box-shadow: 0 28px 65px -15px rgba(0, 0, 0, 0.35),
+              0 0 45px rgba(99, 102, 241, 0.16),
+              inset 0 1px 0 rgba(255, 255, 255, 0.18);
   overflow: hidden;
   display: flex;
   flex-direction: column;
   transition: var(--tf-transition);
+  transform-style: preserve-3d;
+  position: relative;
+}
+
+/* Dynamic 3D Specular Light Glare Sheen tracking cursor angle */
+.dashboard-window::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background: radial-gradient(
+    700px circle at calc(50% + var(--mouse-norm-x, 0) * 35%) calc(40% + var(--mouse-norm-y, 0) * 35%),
+    rgba(255, 255, 255, 0.09) 0%,
+    transparent 65%
+  );
+  z-index: 10;
+  transition: opacity 0.3s ease;
 }
 
 /* Topbar */
@@ -1330,13 +1360,14 @@ body {
   border-radius: var(--tf-radius-sm);
   padding: 10px;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
-  transition: var(--tf-transition);
+  transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.25s ease, border-color 0.25s ease;
+  transform-style: preserve-3d;
 }
 
 .dash-task-item:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  border-color: var(--tf-border-hover);
+  transform: translateY(-3px) translateZ(18px) scale(1.02);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.16), 0 0 18px rgba(99, 102, 241, 0.15);
+  border-color: rgba(99, 102, 241, 0.45);
 }
 
 .dash-task-item.is-done {
@@ -1691,7 +1722,7 @@ body {
   font-weight: 600;
 }
 
-/* Floating Telemetry Badges with Parallax & Float Keyframes */
+/* Floating Telemetry Badges with 3D Spatial Depth & Float Physics */
 .floating-badge {
   position: absolute;
   z-index: 5;
@@ -1699,37 +1730,60 @@ body {
   border: 1px solid var(--tf-border);
   padding: 10px 14px;
   border-radius: var(--tf-radius-md);
-  box-shadow: 0 16px 36px rgba(15, 23, 42, 0.15);
+  box-shadow: 0 20px 42px rgba(15, 23, 42, 0.2), 0 0 24px rgba(99, 102, 241, 0.16);
   display: flex;
   align-items: center;
   gap: 10px;
-  max-width: 260px;
+  max-width: 270px;
   text-align: left;
+  transform-style: preserve-3d;
+  transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.35s ease, border-color 0.35s ease;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.floating-badge:hover {
+  transform: translate3d(0, -8px, 95px) scale(1.06) !important;
+  box-shadow: 0 28px 56px rgba(0, 0, 0, 0.32), 0 0 32px rgba(99, 102, 241, 0.35) !important;
+  border-color: rgba(99, 102, 241, 0.55);
 }
 
 .float-anim-1 {
-  animation: floatBadge1 4.5s ease-in-out infinite;
+  animation: floatBadge3D1 5s ease-in-out infinite;
 }
 
 .float-anim-2 {
-  animation: floatBadge2 5s ease-in-out infinite 0.5s;
+  animation: floatBadge3D2 5.5s ease-in-out infinite 0.6s;
 }
 
-@keyframes floatBadge1 {
+.float-anim-3 {
+  animation: floatBadge3D3 6s ease-in-out infinite 1.2s;
+}
+
+@keyframes floatBadge3D1 {
   0%, 100% {
-    transform: translateY(0);
+    transform: translate3d(0, 0, 48px) rotateX(0deg) rotateY(0deg);
   }
   50% {
-    transform: translateY(-8px);
+    transform: translate3d(-6px, -18px, 86px) rotateX(-5deg) rotateY(6deg);
   }
 }
 
-@keyframes floatBadge2 {
+@keyframes floatBadge3D2 {
   0%, 100% {
-    transform: translateY(0);
+    transform: translate3d(0, 0, 42px) rotateX(0deg) rotateY(0deg);
   }
   50% {
-    transform: translateY(8px);
+    transform: translate3d(8px, -20px, 80px) rotateX(5deg) rotateY(-7deg);
+  }
+}
+
+@keyframes floatBadge3D3 {
+  0%, 100% {
+    transform: translate3d(0, 0, 52px) rotateX(0deg) rotateY(0deg);
+  }
+  50% {
+    transform: translate3d(-5px, -16px, 92px) rotateX(-4deg) rotateY(5deg);
   }
 }
 
@@ -1743,10 +1797,15 @@ body {
   right: -16px;
 }
 
+.badge-center-top {
+  top: -22px;
+  left: 28%;
+}
+
 .floating-icon-box {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
   background: #eff6ff;
   border: 1px solid #bfdbfe;
   display: flex;
@@ -1754,6 +1813,7 @@ body {
   justify-content: center;
   font-size: 15px;
   flex-shrink: 0;
+  transform: translateZ(16px);
 }
 
 .floating-icon-box.pink {
@@ -1761,16 +1821,156 @@ body {
   border-color: #fbcfe8;
 }
 
+.floating-icon-box.cyan {
+  background: #ecfeff;
+  border-color: #a5f3fc;
+}
+
+/* 3D Pulsing Autonomous Sphere */
+.live-3d-sphere {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #a5f3fc 0%, #06b6d4 55%, #0e7490 100%);
+  box-shadow: 0 0 10px #22d3ee, 0 0 20px rgba(34, 211, 238, 0.6), inset -2px -2px 3px rgba(0, 0, 0, 0.35);
+  animation: live3DSpherePulse 2.2s ease-in-out infinite alternate;
+}
+
+@keyframes live3DSpherePulse {
+  0% {
+    transform: scale(0.92);
+    box-shadow: 0 0 8px #22d3ee, 0 0 16px rgba(34, 211, 238, 0.4);
+  }
+  100% {
+    transform: scale(1.12);
+    box-shadow: 0 0 14px #38bdf8, 0 0 26px rgba(56, 189, 248, 0.8), 0 0 38px rgba(99, 102, 241, 0.5);
+  }
+}
+
 .floating-badge strong {
   display: block;
   font-size: 12px;
   font-weight: 750;
   color: var(--tf-text-main);
+  transform: translateZ(14px);
 }
 
 .floating-badge span {
   font-size: 10.5px;
   color: var(--tf-text-muted);
+  transform: translateZ(10px);
+}
+
+/* =========================================================================
+   2B. CONTINUOUS 3D GEOMETRIC GLASS PRISMS & HOLOGRAPHIC SHARDS
+   Classy, frosted multi-face 3D crystal cubes with dynamic glowing core
+   ========================================================================= */
+.live-3d-floating-prism {
+  position: absolute;
+  width: 52px;
+  height: 52px;
+  perspective: 900px;
+  pointer-events: none;
+  z-index: 4;
+}
+
+.prism-hero {
+  top: -24px;
+  right: 18px;
+}
+
+.prism-features {
+  top: 36px;
+  right: 18px;
+}
+
+.prism-cta {
+  bottom: 24px;
+  left: 28px;
+}
+
+.prism-cube {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  animation: continuousPrismTumble 16s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  will-change: transform;
+}
+
+.prism-cube .face {
+  position: absolute;
+  width: 52px;
+  height: 52px;
+  background: rgba(99, 102, 241, 0.08);
+  border: 1px solid rgba(165, 180, 252, 0.4);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: inset 0 0 16px rgba(99, 102, 241, 0.25), 0 8px 24px rgba(0, 0, 0, 0.15);
+  border-radius: 8px;
+  transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.prism-cube .f1 { transform: rotateY(0deg) translateZ(26px); }
+.prism-cube .f2 { transform: rotateY(90deg) translateZ(26px); }
+.prism-cube .f3 { transform: rotateY(180deg) translateZ(26px); }
+.prism-cube .f4 { transform: rotateY(-90deg) translateZ(26px); }
+.prism-cube .f5 { transform: rotateX(90deg) translateZ(26px); }
+.prism-cube .f6 { transform: rotateX(-90deg) translateZ(26px); }
+
+.prism-core-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 18px;
+  height: 18px;
+  margin: -9px 0 0 -9px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #38bdf8 0%, #818cf8 60%, transparent 100%);
+  box-shadow: 0 0 16px #38bdf8, 0 0 30px #6366f1;
+  transform: translateZ(0);
+  animation: prismCorePulse 2.8s ease-in-out infinite alternate;
+}
+
+@keyframes continuousPrismTumble {
+  0% {
+    transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg) translateY(0);
+  }
+  33% {
+    transform: rotateX(120deg) rotateY(180deg) rotateZ(60deg) translateY(-14px);
+  }
+  66% {
+    transform: rotateX(240deg) rotateY(360deg) rotateZ(120deg) translateY(12px);
+  }
+  100% {
+    transform: rotateX(360deg) rotateY(540deg) rotateZ(180deg) translateY(0);
+  }
+}
+
+@keyframes prismCorePulse {
+  0% {
+    transform: scale(0.85);
+    opacity: 0.65;
+    box-shadow: 0 0 12px #38bdf8, 0 0 20px #6366f1;
+  }
+  100% {
+    transform: scale(1.25);
+    opacity: 1;
+    box-shadow: 0 0 20px #38bdf8, 0 0 36px #ec4899;
+  }
+}
+
+.landing-page-root.theme-dark .prism-cube .face {
+  background: rgba(99, 102, 241, 0.12);
+  border-color: rgba(56, 189, 248, 0.55);
+  box-shadow: inset 0 0 18px rgba(56, 189, 248, 0.3), 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+.landing-page-root.theme-light .prism-cube .face {
+  background: rgba(99, 102, 241, 0.05);
+  border-color: rgba(99, 102, 241, 0.35);
+  box-shadow: inset 0 0 12px rgba(99, 102, 241, 0.12), 0 6px 18px rgba(15, 23, 42, 0.08);
 }
 
 /* =========================================================================
@@ -1897,6 +2097,7 @@ body {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 24px;
+  perspective: 1400px;
 }
 
 .feature-card {
@@ -1907,14 +2108,18 @@ body {
   display: flex;
   flex-direction: column;
   box-shadow: var(--tf-card-shadow);
-  transition: var(--tf-transition);
+  transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
+              box-shadow 0.35s ease,
+              border-color 0.35s ease;
   position: relative;
+  transform-style: preserve-3d;
+  will-change: transform;
 }
 
 .feature-card:hover {
-  transform: translateY(-4px);
-  border-color: var(--tf-border-hover);
-  box-shadow: var(--tf-card-shadow-hover);
+  transform: translateY(-8px) translateZ(32px) rotateX(3.5deg) rotateY(-1.5deg);
+  border-color: rgba(99, 102, 241, 0.55);
+  box-shadow: 0 24px 50px -10px rgba(0, 0, 0, 0.26), 0 0 30px rgba(99, 102, 241, 0.2);
 }
 
 .feature-card-header {
@@ -1922,6 +2127,7 @@ body {
   align-items: center;
   justify-content: space-between;
   margin-bottom: 20px;
+  transform: translateZ(20px);
 }
 
 .feature-icon-box {
@@ -1931,11 +2137,23 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform 0.25s ease;
+  transform: translateZ(28px);
+  transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.35s ease;
 }
 
 .feature-card:hover .feature-icon-box {
-  transform: scale(1.08);
+  transform: translateZ(52px) scale(1.15) rotate(-6deg);
+  box-shadow: 0 12px 24px rgba(99, 102, 241, 0.32);
+}
+
+.feature-card h3 {
+  transform: translateZ(22px);
+  transition: transform 0.35s ease;
+}
+
+.feature-card p {
+  transform: translateZ(16px);
+  transition: transform 0.35s ease;
 }
 
 .feature-icon-box.purple {
@@ -2089,6 +2307,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 28px;
+  perspective: 1400px;
 }
 
 .how-step-card {
@@ -2101,13 +2320,17 @@ body {
   gap: 36px;
   align-items: center;
   box-shadow: var(--tf-card-shadow);
-  transition: var(--tf-transition);
+  transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
+              box-shadow 0.35s ease,
+              border-color 0.35s ease;
+  transform-style: preserve-3d;
+  will-change: transform;
 }
 
 .how-step-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--tf-card-shadow-hover);
-  border-color: var(--tf-border-hover);
+  transform: translateY(-6px) translateZ(28px) rotateX(2deg);
+  box-shadow: 0 24px 50px -10px rgba(0, 0, 0, 0.22), 0 0 30px rgba(99, 102, 241, 0.16);
+  border-color: rgba(99, 102, 241, 0.45);
 }
 
 .how-step-number-pill {
@@ -2122,6 +2345,7 @@ body {
   font-size: 11px;
   font-weight: 800;
   margin-bottom: 16px;
+  transform: translateZ(26px);
 }
 
 .how-step-info h3 {
@@ -2198,6 +2422,7 @@ body {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 20px;
+  perspective: 1200px;
 }
 
 .metric-box {
@@ -2207,13 +2432,17 @@ body {
   padding: 28px 24px;
   text-align: center;
   box-shadow: var(--tf-card-shadow);
-  transition: var(--tf-transition);
+  transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
+              box-shadow 0.35s ease,
+              border-color 0.35s ease;
+  transform-style: preserve-3d;
+  will-change: transform;
 }
 
 .metric-box:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--tf-card-shadow-hover);
-  border-color: var(--tf-border-hover);
+  transform: translateY(-6px) translateZ(28px) rotateX(3deg);
+  box-shadow: 0 22px 46px -10px rgba(0, 0, 0, 0.25), 0 0 28px rgba(99, 102, 241, 0.2);
+  border-color: rgba(99, 102, 241, 0.45);
 }
 
 .metric-number {
@@ -2221,6 +2450,7 @@ body {
   font-weight: 900;
   letter-spacing: -1px;
   margin-bottom: 6px;
+  transform: translateZ(28px);
 }
 
 .metric-label {
@@ -2229,6 +2459,7 @@ body {
   font-weight: 750;
   color: var(--tf-text-main);
   margin-bottom: 4px;
+  transform: translateZ(18px);
 }
 
 .metric-sub {
@@ -2321,6 +2552,7 @@ body {
   grid-template-columns: repeat(3, 1fr);
   gap: 24px;
   align-items: stretch;
+  perspective: 1400px;
 }
 
 .pricing-card {
@@ -2332,30 +2564,35 @@ body {
   flex-direction: column;
   position: relative;
   box-shadow: var(--tf-card-shadow);
-  transition: var(--tf-transition);
+  transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
+              box-shadow 0.35s ease,
+              border-color 0.35s ease;
+  transform-style: preserve-3d;
+  will-change: transform;
 }
 
 .pricing-card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--tf-card-shadow-hover);
-  border-color: var(--tf-border-hover);
+  transform: translateY(-10px) translateZ(36px) rotateX(2.5deg);
+  box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.3), 0 0 35px rgba(99, 102, 241, 0.22);
+  border-color: rgba(99, 102, 241, 0.55);
 }
 
 .pricing-card.is-featured {
   border: 2px solid var(--tf-primary);
-  box-shadow: 0 16px 36px rgba(79, 70, 229, 0.16);
-  transform: scale(1.02);
+  box-shadow: 0 20px 45px rgba(79, 70, 229, 0.22), 0 0 30px rgba(99, 102, 241, 0.2);
+  transform: scale(1.02) translateZ(20px);
 }
 
 .pricing-card.is-featured:hover {
-  transform: scale(1.02) translateY(-4px);
+  transform: scale(1.04) translateY(-14px) translateZ(52px) rotateX(2.5deg);
+  box-shadow: 0 38px 75px -10px rgba(79, 70, 229, 0.38), 0 0 50px rgba(99, 102, 241, 0.35);
 }
 
 .featured-ribbon {
   position: absolute;
   top: -12px;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translateX(-50%) translateZ(40px);
   background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%);
   color: #ffffff;
   font-size: 10.5px;
@@ -2533,6 +2770,7 @@ body {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 24px;
+  perspective: 1200px;
 }
 
 .testimonial-card {
@@ -2543,13 +2781,17 @@ body {
   display: flex;
   flex-direction: column;
   box-shadow: var(--tf-card-shadow);
-  transition: var(--tf-transition);
+  transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
+              box-shadow 0.35s ease,
+              border-color 0.35s ease;
+  transform-style: preserve-3d;
+  will-change: transform;
 }
 
 .testimonial-card:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--tf-card-shadow-hover);
-  border-color: var(--tf-border-hover);
+  transform: translateY(-8px) translateZ(30px) rotateX(3deg);
+  box-shadow: 0 24px 50px -10px rgba(0, 0, 0, 0.22), 0 0 28px rgba(99, 102, 241, 0.16);
+  border-color: rgba(99, 102, 241, 0.45);
 }
 
 .testimonial-stars {
@@ -2862,14 +3104,95 @@ body {
   max-width: 380px;
 }
 
-.footer-brand .logo-text {
-  color: #ffffff;
+.footer-brand .logo-text,
+.site-footer .logo-text,
+.footer-logo-link .logo-text,
+.landing-page-root .site-footer .logo-text {
+  font-size: 20px !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.6px !important;
+  line-height: 1 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  transition: color 0.8s cubic-bezier(0.4, 0, 0.2, 1),
+              text-shadow 0.8s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.35s ease !important;
+}
+
+.footer-brand .logo-ai,
+.site-footer .logo-ai,
+.footer-logo-link .logo-ai,
+.landing-page-root .site-footer .logo-ai {
+  font-weight: 800 !important;
+  transition: color 0.8s cubic-bezier(0.4, 0, 0.2, 1),
+              text-shadow 0.8s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.footer-brand .logo-icon-brand,
+.site-footer .logo-icon-brand,
+.footer-logo-link .logo-icon-brand,
+.landing-page-root .site-footer .logo-icon-brand {
+  transition: box-shadow 0.8s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.35s ease !important;
+}
+
+/* Light Mode Footer Logo: Luminous Frosted Silver with Warm Indigo Aura */
+.landing-page-root.theme-light .site-footer .logo-text,
+.landing-page-root.theme-light .footer-brand .logo-text,
+.theme-light .site-footer .logo-text {
+  color: #f8fafc !important;
+  text-shadow: 0 0 14px rgba(165, 180, 252, 0.4), 0 2px 4px rgba(0, 0, 0, 0.45) !important;
+}
+
+.landing-page-root.theme-light .site-footer .logo-ai,
+.landing-page-root.theme-light .footer-brand .logo-ai,
+.theme-light .site-footer .logo-ai {
+  color: #818cf8 !important;
+  text-shadow: 0 0 14px rgba(129, 140, 248, 0.65) !important;
+}
+
+.landing-page-root.theme-light .site-footer .logo-icon-brand,
+.landing-page-root.theme-light .footer-brand .logo-icon-brand,
+.theme-light .site-footer .logo-icon-brand {
+  box-shadow: 0 0 18px rgba(99, 102, 241, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.18) !important;
+}
+
+/* Dark Mode Footer Logo: Brilliant Electric Ultra-White with Neon Cyan Halo */
+.landing-page-root.theme-dark .site-footer .logo-text,
+.landing-page-root.theme-dark .footer-brand .logo-text,
+.theme-dark .site-footer .logo-text {
+  color: #ffffff !important;
+  text-shadow: 0 0 16px rgba(56, 189, 248, 0.7), 0 0 28px rgba(99, 102, 241, 0.5) !important;
+}
+
+.landing-page-root.theme-dark .site-footer .logo-ai,
+.landing-page-root.theme-dark .footer-brand .logo-ai,
+.theme-dark .site-footer .logo-ai {
+  color: #38bdf8 !important;
+  text-shadow: 0 0 18px rgba(56, 189, 248, 0.95), 0 0 34px rgba(14, 165, 233, 0.6) !important;
+}
+
+.landing-page-root.theme-dark .site-footer .logo-icon-brand,
+.landing-page-root.theme-dark .footer-brand .logo-icon-brand,
+.theme-dark .site-footer .logo-icon-brand {
+  box-shadow: 0 0 26px rgba(99, 102, 241, 0.7), 0 0 42px rgba(56, 189, 248, 0.45), 0 0 0 1.5px rgba(255, 255, 255, 0.3) !important;
 }
 
 .footer-logo-link {
   text-decoration: none;
   color: inherit;
   display: inline-block;
+  perspective: 600px;
+}
+
+.footer-logo-link:hover .logo-icon-brand {
+  transform: rotate(-6deg) scale(1.12) translateZ(10px) !important;
+  box-shadow: 0 0 32px rgba(99, 102, 241, 0.85), 0 0 50px rgba(56, 189, 248, 0.6) !important;
+}
+
+.footer-logo-link:hover .logo-text {
+  text-shadow: 0 0 22px rgba(255, 255, 255, 0.95), 0 0 38px rgba(99, 102, 241, 0.75) !important;
 }
 
 .footer-description {
@@ -3225,6 +3548,10 @@ body {
   .floating-icon-box.pink {
     background: rgba(236, 72, 153, 0.25);
     border-color: rgba(244, 114, 182, 0.45);
+  }
+  .floating-icon-box.cyan {
+    background: rgba(6, 182, 212, 0.25);
+    border-color: rgba(34, 211, 238, 0.5);
   }
 
   /* Marquee in Dark Mode */
@@ -3619,6 +3946,10 @@ body {
 
   .features-grid {
     grid-template-columns: 1fr;
+  }
+
+  .live-3d-floating-prism {
+    display: none;
   }
 
   .metrics-grid {

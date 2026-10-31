@@ -61,9 +61,10 @@
   height: 26px;
 }
 
-.superadmin-brand-name,
-.logo-text,
-.app-brand-title {
+.app-sidebar .superadmin-brand-name,
+.employee-shell .logo-text,
+.app-sidebar .logo-text,
+.app-sidebar .app-brand-title {
   color: #0b132b;
   font-size: 19px;
   font-weight: 750;
@@ -73,10 +74,12 @@
   transition: color 0.25s ease;
 }
 
-.superadmin-brand-name span,
-.logo-text span,
-.logo-ai,
-.app-brand-ai {
+.app-sidebar .superadmin-brand-name span,
+.employee-shell .logo-text span,
+.app-sidebar .logo-text span,
+.employee-shell .logo-ai,
+.app-sidebar .logo-ai,
+.app-sidebar .app-brand-ai {
   color: #3b66ff;
   font-weight: 800;
   transition: color 0.25s ease;
@@ -293,34 +296,26 @@ body.dark .app-sidebar-header {
 }
 
 .employee-shell.tf-dark .superadmin-brand-name,
-[data-theme="dark"] .superadmin-brand-name,
-html[data-theme="dark"] .superadmin-brand-name,
-body.dark-mode .superadmin-brand-name,
-body.dark .superadmin-brand-name,
+.app-sidebar.tf-dark .superadmin-brand-name,
+.employee-shell[data-theme="dark"] .superadmin-brand-name,
+.app-sidebar[data-theme="dark"] .superadmin-brand-name,
 .employee-shell.tf-dark .logo-text,
-[data-theme="dark"] .logo-text,
-html[data-theme="dark"] .logo-text,
-body.dark-mode .logo-text,
-body.dark .logo-text,
+.app-sidebar.tf-dark .logo-text,
+.employee-shell[data-theme="dark"] .logo-text,
+.app-sidebar[data-theme="dark"] .logo-text,
 .employee-shell.tf-dark .app-brand-title,
-[data-theme="dark"] .app-brand-title,
-html[data-theme="dark"] .app-brand-title {
+.app-sidebar.tf-dark .app-brand-title {
   color: #f8fafc !important;
 }
 
 .employee-shell.tf-dark .superadmin-brand-name span,
-[data-theme="dark"] .superadmin-brand-name span,
-html[data-theme="dark"] .superadmin-brand-name span,
-body.dark-mode .superadmin-brand-name span,
-body.dark .superadmin-brand-name span,
+.app-sidebar.tf-dark .superadmin-brand-name span,
 .employee-shell.tf-dark .logo-ai,
-[data-theme="dark"] .logo-ai,
-html[data-theme="dark"] .logo-ai,
-body.dark-mode .logo-ai,
-body.dark .logo-ai,
+.app-sidebar.tf-dark .logo-ai,
+.employee-shell[data-theme="dark"] .logo-ai,
+.app-sidebar[data-theme="dark"] .logo-ai,
 .employee-shell.tf-dark .app-brand-ai,
-[data-theme="dark"] .app-brand-ai,
-html[data-theme="dark"] .app-brand-ai {
+.app-sidebar.tf-dark .app-brand-ai {
   color: #3b66ff !important;
 }
 
