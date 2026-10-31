@@ -1083,8 +1083,7 @@ function ActivityLogs() {
             <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "#64748b" }}>
               <span>Rows per page:</span>
               <select
-                className="sap-filter-select"
-                style={{ padding: "3px 6px", fontSize: 12, height: 26 }}
+                className="sap-filter-select sap-pagesize-select"
                 value={pageSize}
                 onChange={(e) => {
                   setPageSize(Number(e.target.value));

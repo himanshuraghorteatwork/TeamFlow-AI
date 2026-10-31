@@ -719,6 +719,25 @@
   gap: 12px;
 }
 
+.activity-logs-page .sap-pagesize-select,
+.activity-logs-page .sap-footer-counts select {
+  height: 28px !important;
+  min-height: 28px !important;
+  width: 58px !important;
+  min-width: 58px !important;
+  padding: 0 22px 0 8px !important;
+  background-position: right 6px center !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  line-height: 26px !important;
+  border-radius: 6px !important;
+  border: 1px solid #cbd5e1 !important;
+  background-color: #ffffff;
+  color: #1e293b;
+  cursor: pointer;
+  box-sizing: border-box !important;
+}
+
 .activity-logs-page .sap-pagination {
   display: flex;
   align-items: center;
@@ -1433,6 +1452,16 @@ body.sa-dark-mode .activity-logs-page .sap-page-btn {
 body.sa-dark-mode .activity-logs-page .sap-page-btn:hover:not(:disabled) {
   background: #1e2f57 !important;
   color: #ffffff !important;
+}
+
+.sa-dark-mode .activity-logs-page .sap-pagesize-select,
+.sa-dark-mode .activity-logs-page .sap-footer-counts select,
+body.sa-dark-mode .activity-logs-page .sap-pagesize-select,
+body.sa-dark-mode .activity-logs-page .sap-footer-counts select {
+  background-color: #131d35 !important;
+  background-position: right 6px center !important;
+  border-color: #243354 !important;
+  color: #f8fafc !important;
 }
 
 /* Dark Mode Modal Overhaul */

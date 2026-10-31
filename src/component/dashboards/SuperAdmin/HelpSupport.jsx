@@ -11,7 +11,6 @@ import {
   X,
   Send,
   Eye,
-  Building2,
   SlidersHorizontal,
   RefreshCw,
   ChevronsLeft,
@@ -19,6 +18,14 @@ import {
   ChevronLeft,
   ChevronRight,
   Download,
+  Trash2,
+  Tag,
+  AlertTriangle,
+  RotateCcw,
+  ShieldCheck,
+  User,
+  Sparkles,
+  CornerDownRight,
 } from "lucide-react";
 import "./SuperAdminCommon.css";
 import "./HelpSupport.css";
@@ -1056,7 +1063,7 @@ function HelpSupport() {
                     <span className="spt-category-chip">
                       <Tag size={11} /> {selectedTicket.category}
                     </span>
-                    <span
+                    <select
                       className={`spt-priority-badge ${
                         selectedTicket.priority.toLowerCase() === "urgent"
                           ? "urgent"
@@ -1066,10 +1073,20 @@ function HelpSupport() {
                           ? "medium"
                           : "low"
                       }`}
+                      style={{
+                        cursor: "pointer",
+                        outline: "none",
+                        fontWeight: 700,
+                      }}
+                      value={selectedTicket.priority}
+                      onChange={(e) => handleUpdatePriority(selectedTicket.id, e.target.value)}
+                      title="Click to change ticket priority"
                     >
-                      {selectedTicket.priority === "Urgent" && <AlertTriangle size={11} />}
-                      Priority: {selectedTicket.priority}
-                    </span>
+                      <option value="Urgent">Priority: Urgent</option>
+                      <option value="High">Priority: High</option>
+                      <option value="Medium">Priority: Medium</option>
+                      <option value="Low">Priority: Low</option>
+                    </select>
                     <span
                       className={`spt-status-pill ${
                         selectedTicket.status.toLowerCase() === "open"

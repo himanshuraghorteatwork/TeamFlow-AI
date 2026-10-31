@@ -1836,6 +1836,22 @@ body.sa-dark-mode,
   border-color: var(--sa-primary);
 }
 
+.sap-pagesize-select,
+.sap-footer-counts select,
+.sap-footer-bar select.sap-filter-select {
+  height: 28px !important;
+  min-height: 28px !important;
+  width: 58px !important;
+  min-width: 58px !important;
+  padding: 0 22px 0 8px !important;
+  background-position: right 6px center !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  line-height: 26px !important;
+  border-radius: 6px !important;
+  box-sizing: border-box !important;
+}
+
 .sap-icon-btn {
   display: inline-flex;
   align-items: center;
@@ -2206,6 +2222,15 @@ body.sa-dark-mode {
 
 .sa-dark-mode .sap-filter-select:focus {
   border-color: #3b66ff !important;
+}
+
+.sa-dark-mode .sap-pagesize-select,
+.sa-dark-mode .sap-footer-counts select,
+.sa-dark-mode .sap-footer-bar select.sap-filter-select,
+body.sa-dark-mode .sap-pagesize-select,
+body.sa-dark-mode .sap-footer-counts select,
+body.sa-dark-mode .sap-footer-bar select.sap-filter-select {
+  background-position: right 6px center !important;
 }
 
 .sa-dark-mode .sap-icon-btn {
