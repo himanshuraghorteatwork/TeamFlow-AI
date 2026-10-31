@@ -159,18 +159,6 @@ function HeroBackgroundCanvas({ theme }) {
     const gyroRingB = makeRing(135, 28, Math.PI / 3, Math.PI / 6);
     const gyroRingC = makeRing(155, 28, -Math.PI / 3, -Math.PI / 4);
 
-    // 4. Golden-Ratio Icosahedron Gemstone Crystal
-    const s_ico = 38;
-    const phi_ico = s_ico * 1.6180339887;
-    const icoVerts = [
-      [-s_ico, phi_ico, 0], [s_ico, phi_ico, 0], [-s_ico, -phi_ico, 0], [s_ico, -phi_ico, 0],
-      [0, -s_ico, phi_ico], [0, s_ico, phi_ico], [0, -s_ico, -phi_ico], [0, s_ico, -phi_ico],
-      [phi_ico, 0, -s_ico], [phi_ico, 0, s_ico], [-phi_ico, 0, -s_ico], [-phi_ico, 0, s_ico]
-    ];
-    const icoEdges = [
-      [0,1],[0,5],[0,7],[0,10],[0,11],[1,5],[1,7],[1,8],[1,9],[2,3],[2,4],[2,6],[2,10],[2,11],[3,4],[3,6],[3,8],[3,9],[4,5],[4,9],[4,11],[5,9],[5,11],[6,7],[6,8],[6,10],[7,8],[7,10],[8,9],[10,11]
-    ];
-
     const mouse = { x: -1000, y: -1000, active: false };
     let rotX = 0, rotY = 0;
     let targetRotX = 0, targetRotY = 0;
@@ -213,7 +201,6 @@ function HeroBackgroundCanvas({ theme }) {
     const m1Rot = { x: 0.2, y: 0.4, z: 0 };
     const m2Rot = { x: 0.5, y: -0.3, z: 0.2 };
     const m3Rot = { x: -0.4, y: 0.6, z: -0.2 };
-    const m4Rot = { x: 0.3, y: 0.1, z: 0.5 };
 
     const project3D = (x, y, z, cx, cy, cz, rx, ry, rz, camRotX, camRotY, fov) => {
       const cosX = Math.cos(rx), sinX = Math.sin(rx);
@@ -265,9 +252,7 @@ function HeroBackgroundCanvas({ theme }) {
 
       rotX += (targetRotX - rotX) * 0.06;
       rotY += (targetRotY - rotY) * 0.06;
-      const scrollVelocity = targetScrollY - currentScrollY;
-      currentScrollY += scrollVelocity * 0.08;
-      const scrollMomentum = Math.max(-0.04, Math.min(0.04, scrollVelocity * 0.0015));
+      currentScrollY += (targetScrollY - currentScrollY) * 0.08;
 
       const fov = 820;
       const halfW = (width * 1.4) / 2;
@@ -295,7 +280,7 @@ function HeroBackgroundCanvas({ theme }) {
           const gx = -width * 0.7 + c * waveStepX;
           const gy =
             height * 0.28 +
-            Math.sin(gx * 0.0035 + time * 1.2 + currentScrollY * 0.0015) * 28 +
+            Math.sin(gx * 0.0035 + time * 1.2) * 28 +
             Math.cos(gz * 0.0045 + time * 0.95) * 24;
           const proj = project3D(gx, gy, gz, 0, 0, 0, 0, 0, 0, rotX, rotY, fov);
           waveGrid[r][c] = proj;
@@ -494,8 +479,8 @@ function HeroBackgroundCanvas({ theme }) {
       // -------------------------------------------------------------
       // Entity 1: Quantum AI Core (Octahedron + Nested Cube + Gimbal Rings)
       // Floating on Upper-Right of the viewport with gentle floating oscillation
-      m1Rot.x += 0.008 + scrollMomentum * 0.5;
-      m1Rot.y += 0.013 + scrollMomentum;
+      m1Rot.x += 0.008;
+      m1Rot.y += 0.013;
       m1Rot.z += 0.005;
 
       const e1_X = width > 992 ? width * 0.33 : width * 0.25;
@@ -507,23 +492,10 @@ function HeroBackgroundCanvas({ theme }) {
       drawRing(ring1, e1_X, e1_Y, e1_Z, m1Rot.x * 0.5, m1Rot.y + time * 0.5, 0.4, strokeCyan, time * 2.2, strokeCyan);
       drawRing(ring2, e1_X, e1_Y, e1_Z, -m1Rot.x * 0.6, -m1Rot.y - time * 0.4, -0.5, strokeIndigo, -time * 1.8, strokePink);
 
-      // Entity 4: Golden-Ratio Icosahedron Gemstone Crystal
-      // Floating on Upper-Left of the viewport with faceted rotational dance
-      m4Rot.x += 0.0075 + scrollMomentum * 0.4;
-      m4Rot.y += 0.0105 + scrollMomentum * 0.7;
-      m4Rot.z += 0.006;
-
-      const e4_X = width > 992 ? -width * 0.32 : -width * 0.24;
-      const e4_Y = -height * 0.26 + Math.sin(time * 0.95 + 2) * 20;
-      const e4_Z = 85;
-
-      drawPolyhedron(icoVerts, icoEdges, e4_X, e4_Y, e4_Z, m4Rot.x, m4Rot.y, m4Rot.z, strokeCyan, strokePink, 1);
-      drawRing(ring2, e4_X, e4_Y, e4_Z, -m4Rot.x * 0.8, m4Rot.y * 1.2, m4Rot.z, strokeIndigo, time * 2.0, strokePink);
-
       // Entity 2: Sacred Merkaba (Stellated Quantum Star)
       // Floating on Mid-Left of the viewport with counter-axis tumble
-      m2Rot.x += 0.009 + scrollMomentum * 0.8;
-      m2Rot.y += 0.011 + scrollMomentum * 0.5;
+      m2Rot.x += 0.009;
+      m2Rot.y += 0.011;
       m2Rot.z += 0.007;
 
       const e2_X = width > 992 ? -width * 0.34 : -width * 0.26;
@@ -535,8 +507,8 @@ function HeroBackgroundCanvas({ theme }) {
 
       // Entity 3: Quantum Gyroscope (Triple Gimbal Rings & Satellites)
       // Floating on Lower-Right of the viewport
-      m3Rot.x += 0.007 + scrollMomentum * 0.6;
-      m3Rot.y += 0.009 + scrollMomentum * 0.9;
+      m3Rot.x += 0.007;
+      m3Rot.y += 0.009;
       m3Rot.z += 0.008;
 
       const e3_X = width > 992 ? width * 0.28 : width * 0.20;
@@ -803,25 +775,6 @@ function Navbar({ theme, toggleTheme, isScrolled }) {
 }
 
 /* =========================================================================
-   CONTINUOUS 3D FLOATING GLASS PRISM COMPONENT
-   ========================================================================= */
-function FloatingPrism3D({ className = "" }) {
-  return (
-    <div className={`live-3d-floating-prism ${className}`} aria-hidden="true">
-      <div className="prism-cube">
-        <div className="face f1" />
-        <div className="face f2" />
-        <div className="face f3" />
-        <div className="face f4" />
-        <div className="face f5" />
-        <div className="face f6" />
-        <div className="prism-core-glow" />
-      </div>
-    </div>
-  );
-}
-
-/* =========================================================================
    4. FULL-SCREEN WIDESCREEN HERO SECTION
    2-Column Layout utilizing left and right screen space completely
    ========================================================================= */
@@ -839,7 +792,17 @@ function Hero() {
       {/* LEFT COLUMN: Punchy Hero Content, Headline, Dual CTAs & Live Activity */}
       <div className="hero-content-col">
         {/* Continuous 3D Floating Glass Prism */}
-        <FloatingPrism3D className="prism-hero" />
+        <div className="live-3d-floating-prism prism-hero" aria-hidden="true">
+          <div className="prism-cube">
+            <div className="face f1" />
+            <div className="face f2" />
+            <div className="face f3" />
+            <div className="face f4" />
+            <div className="face f5" />
+            <div className="face f6" />
+            <div className="prism-core-glow" />
+          </div>
+        </div>
 
         {/* Floating Announcement Pill with Live Animated Beacon */}
         <a href="#features" className="hero-announcement-pill">
@@ -1307,7 +1270,17 @@ function Features() {
     <section className="features-section" id="features">
       <div className="features-container">
         {/* Continuous 3D Floating Glass Prism */}
-        <FloatingPrism3D className="prism-features" />
+        <div className="live-3d-floating-prism prism-features" aria-hidden="true">
+          <div className="prism-cube">
+            <div className="face f1" />
+            <div className="face f2" />
+            <div className="face f3" />
+            <div className="face f4" />
+            <div className="face f5" />
+            <div className="face f6" />
+            <div className="prism-core-glow" />
+          </div>
+        </div>
 
         <div className="features-heading">
           <span className="section-eyebrow">
@@ -1392,9 +1365,6 @@ function HowItWorks() {
   return (
     <section className="how-section" id="how-it-works">
       <div className="how-container">
-        {/* Continuous 3D Floating Glass Prism */}
-        <FloatingPrism3D className="prism-how" />
-
         <div className="how-heading">
           <span className="section-eyebrow">
             <Zap size={13} />
@@ -1549,9 +1519,6 @@ function Pricing() {
   return (
     <section className="pricing-section" id="pricing">
       <div className="pricing-container">
-        {/* Continuous 3D Floating Glass Prism */}
-        <FloatingPrism3D className="prism-pricing" />
-
         <div className="pricing-heading">
           <span className="section-eyebrow">
             <Zap size={13} />
@@ -1688,9 +1655,6 @@ function Testimonials() {
   return (
     <section className="testimonials-section" id="testimonials">
       <div className="testimonials-container">
-        {/* Continuous 3D Floating Glass Prism */}
-        <FloatingPrism3D className="prism-testimonials" />
-
         <div className="testimonials-heading">
           <span className="section-eyebrow">
             <Star size={13} />
@@ -1772,9 +1736,6 @@ function FAQ() {
   return (
     <section className="faq-section" id="faq">
       <div className="faq-container">
-        {/* Continuous 3D Floating Glass Prism */}
-        <FloatingPrism3D className="prism-faq" />
-
         <div className="faq-heading">
           <span className="section-eyebrow">
             <CheckCircle2 size={13} />

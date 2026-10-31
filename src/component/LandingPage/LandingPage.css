@@ -1885,6 +1885,26 @@ body {
   right: 18px;
 }
 
+.prism-how {
+  top: 36px;
+  left: 20px;
+}
+
+.prism-pricing {
+  top: 36px;
+  right: 24px;
+}
+
+.prism-testimonials {
+  top: 36px;
+  left: 20px;
+}
+
+.prism-faq {
+  top: 36px;
+  right: 24px;
+}
+
 .prism-cta {
   bottom: 24px;
   left: 28px;
@@ -1974,6 +1994,65 @@ body {
 }
 
 /* =========================================================================
+   CONTINUOUS 3D CANVAS UNIVERSE & TRANSPARENT SECTION INTEGRATION
+   Ensures the live 3D geometric polyhedra, rolling wave lattice, and
+   particle constellation engine seamlessly float across ALL page sections
+   ========================================================================= */
+.hero-section,
+.marquee-section,
+.features-section,
+.how-section,
+.metrics-banner-section,
+.pricing-section,
+.testimonials-section,
+.faq-section,
+.cta-banner-section {
+  background: transparent !important;
+  position: relative;
+  z-index: 1;
+}
+
+.landing-page-root.theme-dark .hero-section,
+.landing-page-root.theme-dark .marquee-section,
+.landing-page-root.theme-dark .features-section,
+.landing-page-root.theme-dark .how-section,
+.landing-page-root.theme-dark .metrics-banner-section,
+.landing-page-root.theme-dark .pricing-section,
+.landing-page-root.theme-dark .testimonials-section,
+.landing-page-root.theme-dark .faq-section,
+.landing-page-root.theme-dark .cta-banner-section {
+  background: transparent !important;
+}
+
+/* Frosted glassmorphic card foundations so text is 100% sharp and high contrast
+   while 3D animated motion flows fluidly behind them */
+.feature-card,
+.how-step-card,
+.metric-box,
+.pricing-card,
+.testimonial-card,
+.faq-item {
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+}
+
+.landing-page-root.theme-light .feature-card,
+.landing-page-root.theme-light .how-step-card,
+.landing-page-root.theme-light .metric-box,
+.landing-page-root.theme-light .pricing-card,
+.landing-page-root.theme-light .testimonial-card,
+.landing-page-root.theme-light .faq-item {
+  background: rgba(255, 255, 255, 0.78) !important;
+  border-color: rgba(226, 232, 240, 0.85);
+}
+
+.landing-page-root.theme-light .marquee-company-pill {
+  background: rgba(255, 255, 255, 0.82) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* =========================================================================
    3. LOGO MARQUEE / CONTINUOUS ANIMATED TICKER
    ========================================================================= */
 .marquee-section {
@@ -1981,7 +2060,9 @@ body {
   padding: 42px clamp(20px, 4vw, 64px);
   border-top: 1px solid var(--tf-border);
   border-bottom: 1px solid var(--tf-border);
-  background: var(--tf-bg-card-subtle);
+  background: transparent !important;
+  position: relative;
+  z-index: 1;
   overflow: hidden;
 }
 
@@ -2063,7 +2144,9 @@ body {
    ========================================================================= */
 .features-section {
   padding: clamp(64px, 8vw, 96px) clamp(20px, 4vw, 64px);
-  background: var(--tf-bg-deep);
+  background: transparent !important;
+  position: relative;
+  z-index: 1;
 }
 
 .features-container {
@@ -2271,9 +2354,11 @@ body {
    ========================================================================= */
 .how-section {
   padding: clamp(64px, 8vw, 96px) clamp(20px, 4vw, 64px);
-  background: var(--tf-bg-card-subtle);
+  background: transparent !important;
   border-top: 1px solid var(--tf-border);
   border-bottom: 1px solid var(--tf-border);
+  position: relative;
+  z-index: 1;
 }
 
 .how-container {
@@ -2410,7 +2495,9 @@ body {
    ========================================================================= */
 .metrics-banner-section {
   padding: 60px clamp(20px, 4vw, 64px);
-  background: var(--tf-bg-deep);
+  background: transparent !important;
+  position: relative;
+  z-index: 1;
 }
 
 .metrics-container {
@@ -2472,8 +2559,10 @@ body {
    ========================================================================= */
 .pricing-section {
   padding: clamp(64px, 8vw, 96px) clamp(20px, 4vw, 64px);
-  background: var(--tf-bg-card-subtle);
+  background: transparent !important;
   border-top: 1px solid var(--tf-border);
+  position: relative;
+  z-index: 1;
 }
 
 .pricing-container {
@@ -2736,7 +2825,9 @@ body {
    ========================================================================= */
 .testimonials-section {
   padding: clamp(64px, 8vw, 96px) clamp(20px, 4vw, 64px);
-  background: var(--tf-bg-deep);
+  background: transparent !important;
+  position: relative;
+  z-index: 1;
 }
 
 .testimonials-container {
@@ -2847,8 +2938,10 @@ body {
    ========================================================================= */
 .faq-section {
   padding: clamp(64px, 8vw, 96px) clamp(20px, 4vw, 64px);
-  background: var(--tf-bg-card-subtle);
+  background: transparent !important;
   border-top: 1px solid var(--tf-border);
+  position: relative;
+  z-index: 1;
 }
 
 .faq-container {
@@ -2951,7 +3044,9 @@ body {
    ========================================================================= */
 .cta-banner-section {
   padding: clamp(64px, 8vw, 96px) clamp(20px, 4vw, 64px);
-  background: var(--tf-bg-deep);
+  background: transparent !important;
+  position: relative;
+  z-index: 1;
 }
 
 .cta-banner-card {
@@ -3556,14 +3651,16 @@ body {
 
   /* Marquee in Dark Mode */
   .marquee-section {
-    background: #0b111e;
+    background: transparent !important;
     border-color: rgba(255, 255, 255, 0.08);
   }
   .marquee-title {
     color: #94a3b8;
   }
   .marquee-company-pill {
-    background: #141c2e;
+    background: rgba(20, 28, 46, 0.72) !important;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     border-color: rgba(255, 255, 255, 0.12);
   }
   .marquee-company-pill strong {
@@ -3581,7 +3678,9 @@ body {
     color: #cbd5e1;
   }
   .feature-card {
-    background: #141c2e;
+    background: rgba(20, 28, 46, 0.72) !important;
+    backdrop-filter: blur(16px) saturate(170%);
+    -webkit-backdrop-filter: blur(16px) saturate(170%);
     border-color: rgba(255, 255, 255, 0.1);
   }
   .feature-card h3 {
@@ -3632,7 +3731,7 @@ body {
 
   /* How It Works in Dark Mode */
   .how-section {
-    background: #0b111e;
+    background: transparent !important;
     border-color: rgba(255, 255, 255, 0.08);
   }
   .how-heading h2 {
@@ -3642,7 +3741,9 @@ body {
     color: #cbd5e1;
   }
   .how-step-card {
-    background: #141c2e;
+    background: rgba(20, 28, 46, 0.72) !important;
+    backdrop-filter: blur(16px) saturate(170%);
+    -webkit-backdrop-filter: blur(16px) saturate(170%);
     border-color: rgba(255, 255, 255, 0.1);
   }
   .how-step-info h3 {
@@ -3666,7 +3767,9 @@ body {
 
   /* Metrics in Dark Mode */
   .metric-box {
-    background: #141c2e;
+    background: rgba(20, 28, 46, 0.72) !important;
+    backdrop-filter: blur(16px) saturate(170%);
+    -webkit-backdrop-filter: blur(16px) saturate(170%);
     border-color: rgba(255, 255, 255, 0.1);
   }
   .metric-label {
@@ -3678,7 +3781,7 @@ body {
 
   /* Pricing in Dark Mode */
   .pricing-section {
-    background: #0b111e;
+    background: transparent !important;
     border-color: rgba(255, 255, 255, 0.08);
   }
   .pricing-heading h2 {
@@ -3698,7 +3801,9 @@ body {
     color: #ffffff;
   }
   .pricing-card {
-    background: #141c2e;
+    background: rgba(20, 28, 46, 0.76) !important;
+    backdrop-filter: blur(16px) saturate(170%);
+    -webkit-backdrop-filter: blur(16px) saturate(170%);
     border-color: rgba(255, 255, 255, 0.1);
   }
   .pricing-card.is-featured {
@@ -3742,7 +3847,9 @@ body {
     color: #cbd5e1;
   }
   .testimonial-card {
-    background: #141c2e;
+    background: rgba(20, 28, 46, 0.72) !important;
+    backdrop-filter: blur(16px) saturate(170%);
+    -webkit-backdrop-filter: blur(16px) saturate(170%);
     border-color: rgba(255, 255, 255, 0.1);
   }
   .testimonial-quote {
@@ -3760,7 +3867,7 @@ body {
 
   /* FAQ in Dark Mode */
   .faq-section {
-    background: #0b111e;
+    background: transparent !important;
     border-color: rgba(255, 255, 255, 0.08);
   }
   .faq-heading h2 {
@@ -3770,7 +3877,9 @@ body {
     color: #cbd5e1;
   }
   .faq-item {
-    background: #141c2e;
+    background: rgba(20, 28, 46, 0.72) !important;
+    backdrop-filter: blur(16px) saturate(170%);
+    -webkit-backdrop-filter: blur(16px) saturate(170%);
     border-color: rgba(255, 255, 255, 0.1);
   }
   .faq-question-btn {
@@ -3782,7 +3891,9 @@ body {
 
   /* Footer in Dark Mode */
   .site-footer {
-    background: #050810;
+    background: rgba(5, 8, 16, 0.88);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
     border-color: rgba(255, 255, 255, 0.1);
   }
   .footer-description {
