@@ -121,15 +121,20 @@
 }
 
 .workspace-brand-icon {
-  display: grid;
-  place-items: center;
-  width: 45px;
-  height: 45px;
-  border-radius: 11px;
-  color: white;
-  background: linear-gradient(135deg, #8967ff, #5344e9);
-  box-shadow: 0 9px 22px #6c5ce533;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  background: transparent;
+  border-radius: 12px;
+  filter: drop-shadow(0 6px 16px rgba(99, 102, 241, 0.32));
   animation: tfBob 4s ease-in-out infinite;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.workspace-brand-icon:hover {
+  transform: scale(1.08) rotate(-4deg);
 }
 
 /* Main heading and features */
@@ -770,13 +775,20 @@
 }
 
 .login-logo {
-  display: grid;
-  place-items: center;
-  width: 37px;
-  height: 37px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: transparent;
   border-radius: 10px;
-  color: white;
-  background: linear-gradient(135deg, #8c68ff, #456fff);
+  filter: drop-shadow(0 4px 12px rgba(99, 102, 241, 0.25));
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.3s ease;
+}
+
+.login-brand:hover .login-logo {
+  transform: scale(1.08) rotate(-4deg);
+  filter: drop-shadow(0 8px 20px rgba(99, 102, 241, 0.45));
 }
 
 /* =========================================================

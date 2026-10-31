@@ -43,13 +43,14 @@
 .role-brand-icon {
   width: 50px;
   height: 50px;
-  border-radius: 15px;
-  display: grid;
-  place-items: center;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
-  color: white;
-  background: linear-gradient(135deg, #8050ff, #4168ff);
-  box-shadow: 0 9px 24px #6b55ff30;
+  background: transparent;
+  filter: drop-shadow(0 6px 18px rgba(99, 102, 241, 0.32));
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.35s ease;
 }
 
 .role-brand h2 {
@@ -698,8 +699,8 @@
 
 .role-brand:hover .role-brand-icon,
 .role-mobile-brand:hover .role-brand-icon {
-  transform: translateY(-3px) rotate(-4deg);
-  box-shadow: 0 14px 32px rgba(107, 85, 255, 0.28);
+  transform: translateY(-3px) scale(1.08) rotate(-4deg);
+  filter: drop-shadow(0 12px 28px rgba(99, 102, 241, 0.48));
 }
 
 /* Hero text animations */

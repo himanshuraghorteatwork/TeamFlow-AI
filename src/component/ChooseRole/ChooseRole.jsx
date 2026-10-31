@@ -2,7 +2,6 @@
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
-  UsersRound,
   Crown,
   ShieldCheck,
   Users,
@@ -18,6 +17,8 @@ import {
   Shield,
   CircleCheck,
 } from "lucide-react";
+
+import BrandLogo from "../common/BrandLogo";
 
 import "./ChooseRole.css";
 
@@ -85,7 +86,7 @@ function ChooseRole() {
         <div className="role-intro-content">
           <div className="role-brand">
             <div className="role-brand-icon">
-              <UsersRound size={27} />
+              <BrandLogo size={46} id="tf-role-left-logo" />
             </div>
 
             <div>
@@ -197,7 +198,7 @@ function ChooseRole() {
         <div className="role-selection-inner">
           <div className="role-mobile-brand">
             <div className="role-brand-icon">
-              <UsersRound size={25} />
+              <BrandLogo size={36} id="tf-role-mob-logo" />
             </div>
             <strong>
               TeamFlow <span>AI</span>

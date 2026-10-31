@@ -2,13 +2,14 @@
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
-  UsersRound,
   User,
   Mail,
   Lock,
   Eye,
   EyeOff,
 } from "lucide-react";
+
+import BrandLogo from "../common/BrandLogo";
 
 import {
   ROLES,
@@ -264,7 +265,7 @@ function Signup() {
 
         <div className="workspace-brand">
           <span className="workspace-brand-icon">
-            <UsersRound size={24} />
+            <BrandLogo size={42} id="tf-signup-workspace-logo" />
           </span>
           <span>
             TeamFlow <strong>AI</strong>
@@ -385,7 +386,7 @@ function Signup() {
             aria-label="Go to TeamFlow AI home"
           >
             <span className="signup-brand-icon">
-              <UsersRound size={24} />
+              <BrandLogo size={34} id="tf-signup-card-logo" />
             </span>
 
             <span className="signup-brand-name">
