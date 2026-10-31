@@ -26,6 +26,7 @@ import {
 
 import AdminSidebar from "./AdminSidebar.jsx";
 import AdminTopbar from "./AdminTopbar.jsx";
+import { initialWorkspaceActivities } from "./adminWorkspaceData.js";
 import "./AdminActivityLogs.css";
 
 const STORAGE_KEY = "teamflow_admin_activities";
@@ -172,7 +173,9 @@ export default function AdminActivityLogs() {
       if (params.get("tab") === "workspace" || window.location.hash.includes("workspace")) {
         return "workspace";
       }
-    } catch {}
+    } catch {
+      // ignore
+    }
     return "security";
   });
 
@@ -183,7 +186,9 @@ export default function AdminActivityLogs() {
         if (params.get("tab") === "workspace" || window.location.hash.includes("workspace")) {
           setActiveTab("workspace");
         }
-      } catch {}
+      } catch {
+      // ignore
+    }
     };
     window.addEventListener("popstate", handleUrlChange);
     window.addEventListener("hashchange", handleUrlChange);
@@ -203,7 +208,9 @@ export default function AdminActivityLogs() {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0) return parsed;
       }
-    } catch (e) {}
+    } catch {
+      // ignore
+    }
     return initialWorkspaceActivities;
   });
 
@@ -218,7 +225,9 @@ export default function AdminActivityLogs() {
   useEffect(() => {
     try {
       localStorage.setItem(WORKSPACE_STORAGE_KEY, JSON.stringify(workspaceActivities));
-    } catch (e) {}
+    } catch {
+      // ignore
+    }
   }, [workspaceActivities]);
 
   useEffect(() => {
@@ -229,7 +238,9 @@ export default function AdminActivityLogs() {
           const parsed = JSON.parse(saved);
           if (Array.isArray(parsed) && parsed.length > 0) setWorkspaceActivities(parsed);
         }
-      } catch (e) {}
+      } catch {
+      // ignore
+    }
     };
 
     window.addEventListener("teamflow_data_update", handleStorageUpdate);
