@@ -1,6 +1,6 @@
 /* =========================================================
    TEAM LEAD LAYOUT
-   TeamFlow AI Design System
+   TeamFlow AI Design System & Admin Theme Harmony
 ========================================================= */
 
 .teamlead-layout {
@@ -8,7 +8,8 @@
   width: 100%;
   min-width: 0;
   min-height: 100vh;
-  background: #f6f7fc;
+  background: #f8fafc;
+  color: #0f172a;
 }
 
 .teamlead-layout,
@@ -24,7 +25,7 @@
   flex: 1;
   min-width: 0;
   min-height: 100vh;
-  background: #f6f7fc;
+  background: #f8fafc;
 }
 
 /* =========================================================
@@ -36,15 +37,471 @@
   width: 100%;
   min-width: 0;
   overflow-x: hidden;
-  background: #f6f7fc;
+  background: #f8fafc;
 }
 
 .teamlead-layout-content > * {
   width: 100%;
 }
 
-/* Base dark mode page background; the shared dark theme also styles the sidebar. */
+/* Base dark mode page background matching Admin panel */
+:root.dark .teamlead-layout,
+.dark .teamlead-layout,
+[data-theme="dark"] .teamlead-layout,
+body.dark-theme .teamlead-layout,
+.dark-mode .teamlead-layout,
+:root.dark .teamlead-main-wrapper,
+.dark .teamlead-main-wrapper,
+[data-theme="dark"] .teamlead-main-wrapper,
+body.dark-theme .teamlead-main-wrapper,
 .dark-mode .teamlead-main-wrapper,
+:root.dark .teamlead-layout-content,
+.dark .teamlead-layout-content,
+[data-theme="dark"] .teamlead-layout-content,
+body.dark-theme .teamlead-layout-content,
 .dark-mode .teamlead-layout-content {
-  background: #101629;
+  background: #0b0f19 !important;
+  color: #f8fafc !important;
+}
+
+/* =========================================================
+   UNIVERSAL ADMIN-GRADE ACTION BUTTONS ACROSS ALL SECTIONS
+   (Pure CSS - No JS inline styling needed)
+========================================================= */
+
+/* Primary Action Buttons */
+.teamlead-layout .tl-btn-primary,
+.teamlead-layout .tl-project-btn-primary,
+.teamlead-layout .tl-task-primary-btn,
+.teamlead-layout .tl-bug-primary,
+.teamlead-layout .meeting-primary-btn,
+.teamlead-layout .tl-member-primary,
+.teamlead-layout .tl-calendar-primary,
+.teamlead-layout .wl-primary-button,
+.teamlead-layout .tld-primary-button,
+.teamlead-layout .tf-files-primary-btn,
+.teamlead-layout .ai-summary-primary-btn,
+.teamlead-layout .tl-ai-send-btn,
+.teamlead-layout .tsg-btn-primary,
+.teamlead-layout .pr-btn-primary,
+.teamlead-layout .ts-primary-button,
+.teamlead-layout button.submit,
+.teamlead-layout button.primary {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  height: 38px !important;
+  padding: 0 16px !important;
+  border-radius: 8px !important;
+  border: 0 !important;
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%) !important;
+  color: #ffffff !important;
+  font-family: inherit !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.28) !important;
+  transition: all 0.16s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  text-decoration: none !important;
+  user-select: none !important;
+}
+
+.teamlead-layout .tl-btn-primary:hover,
+.teamlead-layout .tl-project-btn-primary:hover,
+.teamlead-layout .tl-task-primary-btn:hover,
+.teamlead-layout .tl-bug-primary:hover,
+.teamlead-layout .meeting-primary-btn:hover,
+.teamlead-layout .tl-member-primary:hover,
+.teamlead-layout .tl-calendar-primary:hover,
+.teamlead-layout .wl-primary-button:hover,
+.teamlead-layout .tld-primary-button:hover,
+.teamlead-layout .tf-files-primary-btn:hover,
+.teamlead-layout .ai-summary-primary-btn:hover,
+.teamlead-layout .tl-ai-send-btn:hover,
+.teamlead-layout .tsg-btn-primary:hover,
+.teamlead-layout .pr-btn-primary:hover,
+.teamlead-layout .ts-primary-button:hover,
+.teamlead-layout button.submit:hover,
+.teamlead-layout button.primary:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.38) !important;
+  background: linear-gradient(135deg, #5b5cf0 0%, #4338ca 100%) !important;
+}
+
+.teamlead-layout .tl-btn-primary:active,
+.teamlead-layout .tl-project-btn-primary:active,
+.teamlead-layout .tl-task-primary-btn:active,
+.teamlead-layout .tl-bug-primary:active,
+.teamlead-layout .meeting-primary-btn:active,
+.teamlead-layout .tl-member-primary:active,
+.teamlead-layout .tl-calendar-primary:active,
+.teamlead-layout .wl-primary-button:active,
+.teamlead-layout .tld-primary-button:active,
+.teamlead-layout .tf-files-primary-btn:active,
+.teamlead-layout .ai-summary-primary-btn:active,
+.teamlead-layout .tl-ai-send-btn:active,
+.teamlead-layout .tsg-btn-primary:active,
+.teamlead-layout .pr-btn-primary:active,
+.teamlead-layout .ts-primary-button:active {
+  transform: translateY(0) !important;
+  box-shadow: 0 2px 4px rgba(99, 102, 241, 0.2) !important;
+}
+
+/* Secondary & Filter Action Buttons */
+.teamlead-layout .tl-btn-secondary,
+.teamlead-layout .tl-project-btn-secondary,
+.teamlead-layout .tl-task-cancel-button,
+.teamlead-layout .meeting-secondary-btn,
+.teamlead-layout .wl-secondary-button,
+.teamlead-layout .tld-secondary-button,
+.teamlead-layout .tld-date-button,
+.teamlead-layout .tsg-btn-secondary,
+.teamlead-layout .pr-btn-secondary,
+.teamlead-layout .ts-secondary-button,
+.teamlead-layout .tl-calendar-today,
+.teamlead-layout .tl-calendar-month-controls > button,
+.teamlead-layout .tld-calendar-heading button,
+.teamlead-layout .meeting-dropdown button,
+.teamlead-layout .tl-task-filter-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 7px !important;
+  height: 38px !important;
+  padding: 0 14px !important;
+  border-radius: 8px !important;
+  border: 1px solid #e2e8f0 !important;
+  background: #ffffff !important;
+  color: #334155 !important;
+  font-family: inherit !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+  transition: all 0.15s ease !important;
+}
+
+.teamlead-layout .tl-btn-secondary:hover,
+.teamlead-layout .tl-project-btn-secondary:hover,
+.teamlead-layout .tl-task-cancel-button:hover,
+.teamlead-layout .meeting-secondary-btn:hover,
+.teamlead-layout .wl-secondary-button:hover,
+.teamlead-layout .tld-secondary-button:hover,
+.teamlead-layout .tld-date-button:hover,
+.teamlead-layout .tsg-btn-secondary:hover,
+.teamlead-layout .pr-btn-secondary:hover,
+.teamlead-layout .ts-secondary-button:hover,
+.teamlead-layout .tl-calendar-today:hover,
+.teamlead-layout .tl-calendar-month-controls > button:hover,
+.teamlead-layout .tld-calendar-heading button:hover,
+.teamlead-layout .meeting-dropdown button:hover,
+.teamlead-layout .tl-task-filter-btn:hover {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+/* Secondary Buttons in Dark Mode */
+:root.dark .teamlead-layout .tl-btn-secondary,
+.dark .teamlead-layout .tl-btn-secondary,
+[data-theme="dark"] .teamlead-layout .tl-btn-secondary,
+body.dark-mode .teamlead-layout .tl-btn-secondary,
+:root.dark .teamlead-layout .tl-project-btn-secondary,
+.dark .teamlead-layout .tl-project-btn-secondary,
+:root.dark .teamlead-layout .tl-task-cancel-button,
+.dark .teamlead-layout .tl-task-cancel-button,
+:root.dark .teamlead-layout .meeting-secondary-btn,
+.dark .teamlead-layout .meeting-secondary-btn,
+:root.dark .teamlead-layout .wl-secondary-button,
+.dark .teamlead-layout .wl-secondary-button,
+:root.dark .teamlead-layout .tld-secondary-button,
+.dark .teamlead-layout .tld-secondary-button,
+:root.dark .teamlead-layout .tld-date-button,
+.dark .teamlead-layout .tld-date-button,
+:root.dark .teamlead-layout .tsg-btn-secondary,
+.dark .teamlead-layout .tsg-btn-secondary,
+:root.dark .teamlead-layout .pr-btn-secondary,
+.dark .teamlead-layout .pr-btn-secondary,
+:root.dark .teamlead-layout .ts-secondary-button,
+.dark .teamlead-layout .ts-secondary-button,
+:root.dark .teamlead-layout .tl-calendar-today,
+.dark .teamlead-layout .tl-calendar-today,
+:root.dark .teamlead-layout .tl-calendar-month-controls > button,
+.dark .teamlead-layout .tl-calendar-month-controls > button,
+:root.dark .teamlead-layout .tld-calendar-heading button,
+.dark .teamlead-layout .tld-calendar-heading button,
+:root.dark .teamlead-layout .meeting-dropdown button,
+.dark .teamlead-layout .meeting-dropdown button,
+:root.dark .teamlead-layout .tl-task-filter-btn,
+.dark .teamlead-layout .tl-task-filter-btn {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+  box-shadow: none !important;
+}
+
+:root.dark .teamlead-layout .tl-btn-secondary:hover,
+.dark .teamlead-layout .tl-btn-secondary:hover,
+[data-theme="dark"] .teamlead-layout .tl-btn-secondary:hover,
+body.dark-mode .teamlead-layout .tl-btn-secondary:hover,
+:root.dark .teamlead-layout .tl-project-btn-secondary:hover,
+.dark .teamlead-layout .tl-project-btn-secondary:hover,
+:root.dark .teamlead-layout .tl-task-cancel-button:hover,
+.dark .teamlead-layout .tl-task-cancel-button:hover,
+:root.dark .teamlead-layout .meeting-secondary-btn:hover,
+.dark .teamlead-layout .meeting-secondary-btn:hover,
+:root.dark .teamlead-layout .wl-secondary-button:hover,
+.dark .teamlead-layout .wl-secondary-button:hover,
+:root.dark .teamlead-layout .tld-secondary-button:hover,
+.dark .teamlead-layout .tld-secondary-button:hover,
+:root.dark .teamlead-layout .tld-date-button:hover,
+.dark .teamlead-layout .tld-date-button:hover,
+:root.dark .teamlead-layout .tsg-btn-secondary:hover,
+.dark .teamlead-layout .tsg-btn-secondary:hover,
+:root.dark .teamlead-layout .pr-btn-secondary:hover,
+.dark .teamlead-layout .pr-btn-secondary:hover,
+:root.dark .teamlead-layout .ts-secondary-button:hover,
+.dark .teamlead-layout .ts-secondary-button:hover,
+:root.dark .teamlead-layout .tl-calendar-today:hover,
+.dark .teamlead-layout .tl-calendar-today:hover,
+:root.dark .teamlead-layout .tl-calendar-month-controls > button:hover,
+.dark .teamlead-layout .tl-calendar-month-controls > button:hover,
+:root.dark .teamlead-layout .tld-calendar-heading button:hover,
+.dark .teamlead-layout .tld-calendar-heading button:hover,
+:root.dark .teamlead-layout .meeting-dropdown button:hover,
+.dark .teamlead-layout .meeting-dropdown button:hover,
+:root.dark .teamlead-layout .tl-task-filter-btn:hover,
+.dark .teamlead-layout .tl-task-filter-btn:hover {
+  background: #28354f !important;
+  border-color: #4f46e5 !important;
+  color: #ffffff !important;
+}
+
+/* =========================================================
+   UNIVERSAL ADMIN-GRADE DELETE ACTION BUTTONS & MODALS
+   Pure CSS, No JS inline styles, Dark mode compatible
+========================================================= */
+.tl-btn-delete,
+.tl-action-delete,
+.tl-delete-action,
+.tl-task-row-actions button.delete,
+.tl-bug-delete,
+.tl-calendar-delete-btn,
+.wl-action-btn.delete,
+.mt-dropdown .mt-delete-action,
+.tl-member-menu button.danger,
+.meeting-dropdown .meeting-delete-action {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  background: rgba(239, 68, 68, 0.08) !important;
+  color: #ef4444 !important;
+  border: 1px solid rgba(239, 68, 68, 0.22) !important;
+  border-radius: 8px !important;
+  cursor: pointer !important;
+  font-weight: 600 !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.tl-btn-delete:hover,
+.tl-action-delete:hover,
+.tl-delete-action:hover,
+.tl-task-row-actions button.delete:hover,
+.tl-bug-delete:hover,
+.tl-calendar-delete-btn:hover,
+.wl-action-btn.delete:hover,
+.mt-dropdown .mt-delete-action:hover,
+.tl-member-menu button.danger:hover,
+.meeting-dropdown .meeting-delete-action:hover {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+  color: #ffffff !important;
+  border-color: #dc2626 !important;
+  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.38) !important;
+  transform: translateY(-2px) scale(1.05) !important;
+}
+
+.tl-btn-delete:active,
+.tl-action-delete:active,
+.tl-delete-action:active,
+.tl-task-row-actions button.delete:active,
+.tl-bug-delete:active,
+.tl-calendar-delete-btn:active,
+.wl-action-btn.delete:active,
+.mt-dropdown .mt-delete-action:active,
+.tl-member-menu button.danger:active,
+.meeting-dropdown .meeting-delete-action:active {
+  transform: translateY(0) scale(0.96) !important;
+}
+
+/* Dark mode for delete buttons */
+:root.dark .tl-btn-delete,
+.dark .tl-btn-delete,
+.dark-mode .tl-btn-delete,
+[data-theme="dark"] .tl-btn-delete,
+body.dark-theme .tl-btn-delete,
+:root.dark .tl-action-delete,
+.dark .tl-action-delete,
+.dark-mode .tl-action-delete,
+[data-theme="dark"] .tl-action-delete,
+body.dark-theme .tl-action-delete,
+:root.dark .tl-task-row-actions button.delete,
+.dark .tl-task-row-actions button.delete,
+:root.dark .tl-bug-delete,
+.dark .tl-bug-delete,
+:root.dark .tl-calendar-delete-btn,
+.dark .tl-calendar-delete-btn,
+:root.dark .wl-action-btn.delete,
+.dark .wl-action-btn.delete,
+:root.dark .mt-dropdown .mt-delete-action,
+.dark .mt-dropdown .mt-delete-action,
+:root.dark .tl-member-menu button.danger,
+.dark .tl-member-menu button.danger,
+:root.dark .meeting-dropdown .meeting-delete-action,
+.dark .meeting-dropdown .meeting-delete-action {
+  background: rgba(239, 68, 68, 0.15) !important;
+  color: #f87171 !important;
+  border-color: rgba(239, 68, 68, 0.35) !important;
+}
+
+:root.dark .tl-btn-delete:hover,
+.dark .tl-btn-delete:hover,
+.dark-mode .tl-btn-delete:hover,
+[data-theme="dark"] .tl-btn-delete:hover,
+body.dark-theme .tl-btn-delete:hover,
+:root.dark .tl-action-delete:hover,
+.dark .tl-action-delete:hover,
+:root.dark .tl-task-row-actions button.delete:hover,
+.dark .tl-task-row-actions button.delete:hover,
+:root.dark .tl-bug-delete:hover,
+.dark .tl-bug-delete:hover,
+:root.dark .tl-calendar-delete-btn:hover,
+.dark .tl-calendar-delete-btn:hover,
+:root.dark .wl-action-btn.delete:hover,
+.dark .wl-action-btn.delete:hover,
+:root.dark .mt-dropdown .mt-delete-action:hover,
+.dark .mt-dropdown .mt-delete-action:hover,
+:root.dark .tl-member-menu button.danger:hover,
+.dark .tl-member-menu button.danger:hover,
+:root.dark .meeting-dropdown .meeting-delete-action:hover,
+.dark .meeting-dropdown .meeting-delete-action:hover {
+  background: linear-gradient(135deg, #f87171 0%, #ef4444 100%) !important;
+  color: #ffffff !important;
+  border-color: #ef4444 !important;
+  box-shadow: 0 4px 16px rgba(239, 68, 68, 0.5) !important;
+}
+
+/* =========================================================
+   CUSTOM CSS DELETE CONFIRMATION MODAL (REPLACES JS window.confirm)
+========================================================= */
+.tl-delete-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: tlDeleteFadeIn 0.2s ease-out;
+}
+
+.tl-delete-modal-box {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 440px;
+  padding: 24px;
+  text-align: center;
+  box-shadow: 0 20px 45px -10px rgba(15, 23, 42, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.05);
+  animation: tlDeleteScaleUp 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+:root.dark .tl-delete-modal-box,
+.dark .tl-delete-modal-box,
+.dark-mode .tl-delete-modal-box,
+[data-theme="dark"] .tl-delete-modal-box,
+body.dark-theme .tl-delete-modal-box {
+  background: #1e293b;
+  border-color: #334155;
+  box-shadow: 0 24px 50px -10px rgba(0, 0, 0, 0.6);
+}
+
+.tl-delete-modal-icon-circle {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #fee2e2;
+  color: #ef4444;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+  box-shadow: 0 0 0 8px rgba(254, 226, 226, 0.45);
+}
+
+:root.dark .tl-delete-modal-icon-circle,
+.dark .tl-delete-modal-icon-circle,
+.dark-mode .tl-delete-modal-icon-circle,
+[data-theme="dark"] .tl-delete-modal-icon-circle,
+body.dark-theme .tl-delete-modal-icon-circle {
+  background: rgba(239, 68, 68, 0.2);
+  color: #f87171;
+  box-shadow: 0 0 0 8px rgba(239, 68, 68, 0.1);
+}
+
+.tl-delete-modal-box h3 {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 8px;
+}
+
+:root.dark .tl-delete-modal-box h3,
+.dark .tl-delete-modal-box h3,
+.dark-mode .tl-delete-modal-box h3,
+[data-theme="dark"] .tl-delete-modal-box h3,
+body.dark-theme .tl-delete-modal-box h3 {
+  color: #f8fafc;
+}
+
+.tl-delete-modal-box p {
+  font-size: 0.875rem;
+  color: #64748b;
+  margin: 0 0 22px;
+  line-height: 1.5;
+}
+
+:root.dark .tl-delete-modal-box p,
+.dark .tl-delete-modal-box p,
+.dark-mode .tl-delete-modal-box p,
+[data-theme="dark"] .tl-delete-modal-box p,
+body.dark-theme .tl-delete-modal-box p {
+  color: #94a3b8;
+}
+
+.tl-delete-modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.tl-delete-modal-footer .tl-btn-secondary,
+.tl-delete-modal-footer .tl-btn-danger {
+  min-width: 120px;
+  padding: 9px 18px;
+}
+
+@keyframes tlDeleteFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes tlDeleteScaleUp {
+  from { opacity: 0; transform: scale(0.94) translateY(8px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
 }

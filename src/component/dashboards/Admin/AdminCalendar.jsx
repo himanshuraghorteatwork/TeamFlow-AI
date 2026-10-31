@@ -580,7 +580,7 @@ export default function AdminCalendar() {
   }, [currentDate]);
 
   // Toggle category
-  const toggleCategory = (catName) => {
+  const _toggleCategory = (catName) => {
     setActiveCategories((prev) => ({ ...prev, [catName]: !prev[catName] }));
   };
 
@@ -1507,34 +1507,6 @@ export default function AdminCalendar() {
                       );
                     })
                   )}
-                </div>
-              </div>
-
-              {/* CARD 3: MY CALENDARS CATEGORY CHECKBOXES */}
-              <div className="tfCalCategoriesCard">
-                <div className="card-top-row">
-                  <h3>My Calendars</h3>
-                  <button type="button" className="add-cat-btn" onClick={() => openCreateModal()} title="Add Event">
-                    <Plus size={14} />
-                  </button>
-                </div>
-
-                <div className="categories-list">
-                  {CALENDAR_CATEGORIES.map((cat) => {
-                    const isChecked = activeCategories[cat.name] !== false;
-
-                    return (
-                      <label key={cat.id} className="category-checkbox-row">
-                        <input
-                          type="checkbox"
-                          checked={isChecked}
-                          onChange={() => toggleCategory(cat.name)}
-                        />
-                        <span className="cat-color-dot" style={{ backgroundColor: cat.color }} />
-                        <span className="cat-name">{cat.name}</span>
-                      </label>
-                    );
-                  })}
                 </div>
               </div>
             </aside>

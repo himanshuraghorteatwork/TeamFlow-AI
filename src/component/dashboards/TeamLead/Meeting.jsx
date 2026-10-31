@@ -114,6 +114,7 @@ export default function Meetings() {
   const [editingId, setEditingId] = useState(null);
   const [selectedMeeting, setSelectedMeeting] = useState(null);
   const [openMenu, setOpenMenu] = useState(null);
+  const [deleteMeetingTarget, setDeleteMeetingTarget] = useState(null);
   const [form, setForm] = useState(emptyForm);
 
   const today = new Date().toLocaleDateString("en-CA");
@@ -206,19 +207,14 @@ export default function Meetings() {
     setForm(emptyForm);
   }
 
-  function deleteMeeting(id) {
-    const confirmed = window.confirm(
-      "Are you sure you want to delete this meeting?"
-    );
-
-    if (!confirmed) return;
-
+  function confirmDeleteMeeting() {
+    if (!deleteMeetingTarget) return;
     setMeetings((previous) =>
-      previous.filter((meeting) => meeting.id !== id)
+      previous.filter((meeting) => meeting.id !== deleteMeetingTarget.id)
     );
-
     setOpenMenu(null);
     setSelectedMeeting(null);
+    setDeleteMeetingTarget(null);
   }
 
   function markCompleted(id) {
@@ -439,8 +435,11 @@ export default function Meetings() {
                         )}
 
                         <button
-                          className="meeting-delete-action"
-                          onClick={() => deleteMeeting(meeting.id)}
+                          className="meeting-delete-action tl-btn-delete"
+                          onClick={() => {
+                            setDeleteMeetingTarget(meeting);
+                            setOpenMenu(null);
+                          }}
                         >
                           <Trash2 size={15} />
                           Delete Meeting
@@ -735,6 +734,40 @@ export default function Meetings() {
               >
                 <Pencil size={16} />
                 Edit Meeting
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* CUSTOM CSS DELETE CONFIRMATION MODAL */}
+      {deleteMeetingTarget && (
+        <div
+          className="tl-delete-modal-overlay"
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget) setDeleteMeetingTarget(null);
+          }}
+        >
+          <div className="tl-delete-modal-box">
+            <div className="tl-delete-modal-icon-circle">
+              <Trash2 size={24} />
+            </div>
+            <h3>Delete "{deleteMeetingTarget.title}"?</h3>
+            <p>Are you sure you want to permanently delete this meeting? Participants will be notified of the cancellation.</p>
+            <div className="tl-delete-modal-footer">
+              <button
+                type="button"
+                className="tl-btn-secondary"
+                onClick={() => setDeleteMeetingTarget(null)}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="tl-btn-danger"
+                onClick={confirmDeleteMeeting}
+              >
+                <Trash2 size={15} /> Delete Meeting
               </button>
             </div>
           </div>

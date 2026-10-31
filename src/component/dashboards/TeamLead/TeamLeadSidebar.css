@@ -1,128 +1,408 @@
-/* TeamFlow AI shared dashboard sidebar styles. Scoped to the sidebar only. */
-.team-lead-sidebar {
-  --tf-sidebar-bg: #fff;
-  --tf-sidebar-text: #26334f;
-  --tf-sidebar-muted: #77839a;
-  --tf-sidebar-border: #e6eaf2;
-  --tf-sidebar-primary: #5963f5;
-  box-sizing: border-box;
+/* =========================================================
+   TEAMFLOW AI - TEAM LEAD SIDEBAR
+   Styled with Admin Panel Design System & Theme Engine
+========================================================= */
+
+.tfTeamLeadSidebar {
+  --sidebar-width: 232px;
+  --primary: #4f46e5;
+  --primary-hover: #4338ca;
+  --primary-soft: #eef2ff;
+
+  --text: #101828;
+  --text-dark: #0f172a;
+  --secondary: #64748b;
+  --muted: #94a3b8;
+
+  --border: #e2e8f0;
+  --surface: #ffffff;
+  --hover-bg: #f1f5f9;
+
   position: sticky;
   top: 0;
-  z-index: 30;
-  display: flex;
-  flex: 0 0 232px;
-  flex-direction: column;
-  width: 232px;
+  left: 0;
+  bottom: 0;
+  z-index: 1000;
+
+  width: var(--sidebar-width);
   height: 100vh;
-  padding: 0 12px;
-  overflow-x: hidden;
-  overflow-y: auto;
-  background: var(--tf-sidebar-bg);
-  border-right: 1px solid var(--tf-sidebar-border);
-  color: var(--tf-sidebar-text);
-  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  font-size: 14px;
-  line-height: 1.5;
-  scrollbar-width: thin;
-  scrollbar-color: #dbe1ee transparent;
-}
-.team-lead-sidebar *,
-.team-lead-sidebar *::before,
-.team-lead-sidebar *::after { box-sizing: border-box; }
-.team-lead-sidebar button { font: inherit; cursor: pointer; }
-.team-lead-sidebar::-webkit-scrollbar { width: 5px; }
-.team-lead-sidebar::-webkit-scrollbar-thumb { background: #dbe1ee; border-radius: 8px; }
+  flex: 0 0 var(--sidebar-width);
 
-.tls-brand {
-  display: flex; flex: 0 0 60px; align-items: center; gap: 10px; width: 100%; min-width: 0;
-  margin: 0; padding: 0 6px; border: 0; border-bottom: 1px solid #e8ecf4;
-  color: #17213e; background: transparent; text-align: left;
-}
-.tls-logo {
-  display: grid; flex: 0 0 26px; place-items: center; width: 26px; height: 26px;
-}
-.tls-brand-copy { display: flex; min-width: 0; }
-.tls-brand-name { color: #0b132b; font-size: 19px; line-height: 1.2; font-weight: 750; letter-spacing: -.5px; white-space: nowrap; }
-.tls-brand-name b { color: #3b66ff; font-weight: 800; }
-.tls-brand-sub { color: var(--tf-sidebar-muted); font-size: 12px; line-height: 1.4; }
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 
-.tls-nav {
-  flex: 1 1 auto; min-height: 0; width: 100%; padding: 12px 0 32px;
-  overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain;
-  scrollbar-width: none; -ms-overflow-style: none;
-}
-.tls-nav::-webkit-scrollbar { display: none; width: 0; height: 0; }
-.tls-nav-group { display: block; width: 100%; margin: 0 0 14px; }
-.tls-nav-group:last-child { margin-bottom: 0; }
-.tls-section-label {
-  margin: 8px 8px 6px; padding: 0; color: #8896ab; font-size: 10px;
-  line-height: 1.4; font-weight: 750; letter-spacing: .6px;
-}
-.team-lead-sidebar .tls-nav-item {
-  position: relative; display: flex; align-items: center; gap: 12px; width: 100%;
-  min-height: 36px; padding: 8px 12px; border: 0; border-radius: 8px;
-  color: #475569; background: transparent; font: 500 12.5px/1.4 Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  text-align: left;
-  transition: all .15s ease;
-}
-.team-lead-sidebar .tls-nav-item svg { flex: 0 0 17px; color: currentColor; }
-.tls-nav-group > .tls-nav-item + .tls-nav-item { margin-top: 2px; }
-.team-lead-sidebar .tls-nav-item:hover { color: #1e293b; background: #f3f6fc; }
-.team-lead-sidebar .tls-nav-item:active { transform: scale(.99); }
-.team-lead-sidebar .tls-nav-item.active { color: #fff; background: #3b66ff; font-weight: 600; box-shadow: 0 2px 6px rgba(59, 102, 255, .28); }
-.tls-nav-item span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  background: var(--surface);
+  border-right: 1px solid var(--border);
 
-.tls-sidebar-bottom { margin-top: auto; padding-top: 20px; }
-.tls-support-card {
-  display: flex; flex-direction: column; gap: 12px; width: 100%; margin-bottom: 12px;
-  padding: 13px; border: 1px solid #e5e9f2; border-radius: 12px; background: #fafbff;
-}
-.tls-support-heading { display: flex; align-items: center; gap: 9px; }
-.tls-support-icon { display: grid; flex: 0 0 34px; place-items: center; width: 34px; height: 34px; border-radius: 9px; color: #6256e8; background: #eeecff; }
-.tls-support-copy { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-.tls-support-copy b { color: #26334f; font-size: 12px; line-height: 1.4; font-weight: 650; }
-.tls-support-copy small { color: var(--tf-sidebar-muted); font-size: 11px; line-height: 1.4; }
-.tls-support-button {
-  min-height: 40px; padding: 8px 10px; border: 1px solid #e0e5f0; border-radius: 8px;
-  color: #4e55d9; background: #fff; font-size: 13px; font-weight: 600;
-  transition: background-color .18s ease, border-color .18s ease;
-}
-.tls-support-button:hover { background: #f3f2ff; border-color: #c9c5ff; }
-.team-lead-sidebar button:focus-visible { outline: 2px solid #5963f5; outline-offset: 2px; }
-
-@media (max-width: 767px) {
-  /* Mobile navigation should be provided by the app's mobile drawer/trigger. */
-  .team-lead-sidebar { display: none; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .team-lead-sidebar *, .team-lead-sidebar *::before, .team-lead-sidebar *::after {
-    animation: none !important; transition-duration: .01ms !important; scroll-behavior: auto !important;
-  }
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  box-sizing: border-box;
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s ease, border-color 0.2s ease;
 }
 
+.tfTeamLeadSidebar *,
+.tfTeamLeadSidebar *::before,
+.tfTeamLeadSidebar *::after {
+  box-sizing: border-box;
+}
 
-.tls-brand .superadmin-brand-name {
+/* =========================================================
+   BRAND ROW
+========================================================= */
+
+.tfTeamLeadSidebar .tfAdminSidebar__brandRow {
+  height: 64px;
+  min-height: 64px;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  flex-shrink: 0;
+}
+
+.tfTeamLeadSidebar .tfAdminSidebar__brand {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-dark);
+  text-decoration: none;
+}
+
+.tfTeamLeadSidebar .tfAdminSidebar__brandMark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 8px;
+  background: transparent;
+}
+
+.tfTeamLeadSidebar .tfAdminSidebar__brandTitle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tfTeamLeadSidebar .superadmin-brand-name {
   color: #0b132b;
-  font-size: 19px;
+  font-size: 18px;
   font-weight: 750;
   line-height: 1.2;
-  letter-spacing: -0.5px;
+  letter-spacing: -0.4px;
   white-space: nowrap;
 }
 
-.tls-brand .superadmin-brand-name span {
+.tfTeamLeadSidebar .superadmin-brand-name span {
   color: #3b66ff;
   font-weight: 800;
 }
 
-[data-theme="dark"] .tls-brand .superadmin-brand-name,
-body.dark-mode .tls-brand .superadmin-brand-name,
-.dark .tls-brand .superadmin-brand-name {
+
+.tfTeamLeadSidebar .tfAdminSidebar__mobileClose {
+  display: none;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  border: 0;
+  border-radius: 6px;
+  color: var(--secondary);
+  background: #f1f5f9;
+  cursor: pointer;
+  transition: all 140ms ease;
+}
+
+.tfTeamLeadSidebar .tfAdminSidebar__mobileClose:hover {
+  color: var(--text-dark);
+  background: #e2e8f0;
+}
+
+/* =========================================================
+   NAVIGATION LINKS
+========================================================= */
+
+.tfTeamLeadSidebar .tfAdminSidebar__nav {
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 12px 10px 16px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.tfTeamLeadSidebar .tfAdminSidebar__nav::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+.tfTeamLeadSidebar .tfAdminSidebar__section {
+  margin: 0 0 14px;
+}
+
+.tfTeamLeadSidebar .tfAdminSidebar__section:first-child {
+  margin-bottom: 12px;
+}
+
+.tfTeamLeadSidebar .tfAdminSidebar__sectionLabel {
+  margin: 8px 10px 4px;
+  color: var(--secondary);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.4;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.tfTeamLeadSidebar .tfAdminSidebar__sectionLinks {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* =========================================================
+   NAV ITEMS
+========================================================= */
+
+.tfTeamLeadSidebar .tfAdminSidebar__navItem {
+  position: relative;
+  width: 100%;
+  min-height: 36px;
+  padding: 0 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-radius: 7px;
+  color: #334155;
+  background: transparent;
+  text-decoration: none;
+  font-size: 12.5px;
+  font-weight: 500;
+  line-height: 1.4;
+  transition: color 140ms ease, background-color 140ms ease;
+}
+
+.tfTeamLeadSidebar .tfAdminSidebar__navItem svg {
+  width: 17px;
+  height: 17px;
+  flex: 0 0 17px;
+  color: #64748b;
+  transition: color 140ms ease;
+}
+
+.tfTeamLeadSidebar .tfAdminSidebar__navLabel {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tfTeamLeadSidebar .tfAdminSidebar__navItem:hover {
+  color: var(--text-dark);
+  background: var(--hover-bg);
+}
+
+.tfTeamLeadSidebar .tfAdminSidebar__navItem:hover svg {
+  color: var(--primary);
+}
+
+/* ACTIVE STATE */
+.tfTeamLeadSidebar .tfAdminSidebar__navItem--active,
+.tfTeamLeadSidebar .tfAdminSidebar__navItem.active {
+  color: #ffffff !important;
+  background: var(--primary) !important;
+  font-weight: 600;
+  box-shadow: 0 2px 6px rgba(79, 70, 229, 0.28);
+}
+
+.tfTeamLeadSidebar .tfAdminSidebar__navItem--active svg,
+.tfTeamLeadSidebar .tfAdminSidebar__navItem.active svg {
+  color: #ffffff !important;
+}
+
+.tfTeamLeadSidebar .tfAdminSidebar__navItem--active:hover,
+.tfTeamLeadSidebar .tfAdminSidebar__navItem.active:hover {
+  background: var(--primary-hover) !important;
+}
+
+/* AI CHIP */
+.tf-sidebar-ai-chip {
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-size: 9.5px;
+  font-weight: 750;
+  letter-spacing: 0.3px;
+  background: linear-gradient(135deg, #6366f1, #a855f7);
+  color: #ffffff;
+  box-shadow: 0 1px 3px rgba(99, 102, 241, 0.25);
+}
+
+/* BADGES */
+.tf-sidebar-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 700;
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.tfTeamLeadSidebar .tfAdminSidebar__navItem--active .tf-sidebar-badge {
+  background: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+}
+
+.tf-sidebar-badge--danger {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.tf-sidebar-badge--warning {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.tf-sidebar-badge--primary {
+  background: #e0e7ff;
+  color: #4338ca;
+}
+
+.tf-sidebar-badge--green {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+/* =========================================================
+   MOBILE / RESPONSIVE (Off-Canvas Drawer)
+========================================================= */
+
+.tfAdminSidebarOverlay {
+  display: none;
+}
+
+@media (max-width: 991px) {
+  .tfTeamLeadSidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 1050;
+    transform: translateX(-105%);
+    box-shadow: 16px 0 40px rgba(15, 23, 42, 0.18);
+  }
+
+  .tfTeamLeadSidebar.tfAdminSidebar--open {
+    transform: translateX(0);
+  }
+
+  .tfAdminSidebarOverlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1040;
+    display: block;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    border: 0;
+    background: rgba(15, 23, 42, 0.45);
+    backdrop-filter: blur(2px);
+    cursor: pointer;
+  }
+
+  .tfTeamLeadSidebar .tfAdminSidebar__mobileClose {
+    display: grid !important;
+  }
+}
+
+/* =========================================================
+   DARK MODE
+========================================================= */
+
+:root.dark .tfTeamLeadSidebar,
+.dark .tfTeamLeadSidebar,
+[data-theme="dark"] .tfTeamLeadSidebar,
+body.dark-mode .tfTeamLeadSidebar,
+body.dark-theme .tfTeamLeadSidebar {
+  --text: #f8fafc;
+  --text-dark: #ffffff;
+  --secondary: #94a3b8;
+  --muted: #64748b;
+  --border: #1e293b;
+  --surface: #0f172a;
+  --hover-bg: rgba(255, 255, 255, 0.06);
+
+  background: #0f172a;
+  border-right-color: #1e293b;
+}
+
+:root.dark .tfTeamLeadSidebar .tfAdminSidebar__brandRow,
+.dark .tfTeamLeadSidebar .tfAdminSidebar__brandRow,
+[data-theme="dark"] .tfTeamLeadSidebar .tfAdminSidebar__brandRow,
+body.dark-mode .tfTeamLeadSidebar .tfAdminSidebar__brandRow {
+  background: #0f172a;
+  border-bottom-color: #1e293b;
+}
+
+:root.dark .tfTeamLeadSidebar .superadmin-brand-name,
+.dark .tfTeamLeadSidebar .superadmin-brand-name,
+[data-theme="dark"] .tfTeamLeadSidebar .superadmin-brand-name,
+body.dark-mode .tfTeamLeadSidebar .superadmin-brand-name {
   color: #f8fafc !important;
 }
 
-[data-theme="dark"] .tls-brand .superadmin-brand-name span,
-body.dark-mode .tls-brand .superadmin-brand-name span,
-.dark .tls-brand .superadmin-brand-name span {
-  color: #3b66ff !important;
+:root.dark .tfTeamLeadSidebar .tfAdminSidebar__sectionLabel,
+.dark .tfTeamLeadSidebar .tfAdminSidebar__sectionLabel,
+[data-theme="dark"] .tfTeamLeadSidebar .tfAdminSidebar__sectionLabel,
+body.dark-mode .tfTeamLeadSidebar .tfAdminSidebar__sectionLabel {
+  color: #64748b;
+}
+
+:root.dark .tfTeamLeadSidebar .tfAdminSidebar__navItem,
+.dark .tfTeamLeadSidebar .tfAdminSidebar__navItem,
+[data-theme="dark"] .tfTeamLeadSidebar .tfAdminSidebar__navItem,
+body.dark-mode .tfTeamLeadSidebar .tfAdminSidebar__navItem {
+  color: #94a3b8;
+}
+
+:root.dark .tfTeamLeadSidebar .tfAdminSidebar__navItem:hover,
+.dark .tfTeamLeadSidebar .tfAdminSidebar__navItem:hover,
+[data-theme="dark"] .tfTeamLeadSidebar .tfAdminSidebar__navItem:hover,
+body.dark-mode .tfTeamLeadSidebar .tfAdminSidebar__navItem:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #f8fafc;
+}
+
+:root.dark .tfTeamLeadSidebar .tfAdminSidebar__navItem.active,
+.dark .tfTeamLeadSidebar .tfAdminSidebar__navItem.active,
+[data-theme="dark"] .tfTeamLeadSidebar .tfAdminSidebar__navItem.active,
+body.dark-mode .tfTeamLeadSidebar .tfAdminSidebar__navItem.active {
+  background: #4f46e5 !important;
+  color: #ffffff !important;
+}
+
+:root.dark .tfTeamLeadSidebar .tf-sidebar-badge,
+.dark .tfTeamLeadSidebar .tf-sidebar-badge,
+[data-theme="dark"] .tfTeamLeadSidebar .tf-sidebar-badge,
+body.dark-mode .tfTeamLeadSidebar .tf-sidebar-badge,
+body.dark-theme .tfTeamLeadSidebar .tf-sidebar-badge {
+  background: #1e293b;
+  color: #94a3b8;
+}
+
+:root.dark .tfTeamLeadSidebar .tf-sidebar-badge--green,
+.dark .tfTeamLeadSidebar .tf-sidebar-badge--green,
+[data-theme="dark"] .tfTeamLeadSidebar .tf-sidebar-badge--green,
+body.dark-mode .tfTeamLeadSidebar .tf-sidebar-badge--green,
+body.dark-theme .tfTeamLeadSidebar .tf-sidebar-badge--green {
+  background: rgba(34, 197, 94, 0.2);
+  color: #4ade80;
 }

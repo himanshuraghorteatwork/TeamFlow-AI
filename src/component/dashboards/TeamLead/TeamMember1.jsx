@@ -30,6 +30,7 @@ export default function TeamMember1() {
   const [form, setForm] = useState(EMPTY_FORM);
   const [formError, setFormError] = useState("");
   const [activeMenu, setActiveMenu] = useState(null);
+  const [deleteMemberTarget, setDeleteMemberTarget] = useState(null);
 
   const stats = useMemo(() => [
     { label: "Total Members", value: members.length, detail: "People in your workspace", icon: Users, tone: "purple" },
@@ -100,10 +101,10 @@ export default function TeamMember1() {
     setActiveMenu(null);
   }
 
-  function removeMember(id) {
-    const member = members.find(item => item.id === id);
-    if (!member || !window.confirm(`Remove ${member.name} from this team?`)) return;
-    setMembers(previous => previous.filter(item => item.id !== id));
+  function confirmRemoveMember() {
+    if (!deleteMemberTarget) return;
+    setMembers(previous => previous.filter(item => item.id !== deleteMemberTarget.id));
+    setDeleteMemberTarget(null);
     setActiveMenu(null);
   }
 
@@ -181,7 +182,7 @@ export default function TeamMember1() {
                           window.alert(`Invitation reminder for ${member.email} is not connected to an email service yet.`);
                           setActiveMenu(null);
                         }}>Resend invite</button>}
-                        <button type="button" className="danger" onClick={() => removeMember(member.id)}><Trash2 size={14} />Remove member</button>
+                        <button type="button" className="danger tl-action-delete" onClick={() => { setDeleteMemberTarget(member); setActiveMenu(null); }}><Trash2 size={14} />Remove member</button>
                       </div>}
                     </div>
                   </td>
@@ -231,6 +232,40 @@ export default function TeamMember1() {
           </form>
         </section>
       </div>}
+
+      {/* CUSTOM CSS DELETE CONFIRMATION MODAL */}
+      {deleteMemberTarget && (
+        <div
+          className="tl-delete-modal-overlay"
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget) setDeleteMemberTarget(null);
+          }}
+        >
+          <div className="tl-delete-modal-box">
+            <div className="tl-delete-modal-icon-circle">
+              <Trash2 size={24} />
+            </div>
+            <h3>Remove "{deleteMemberTarget.name}"?</h3>
+            <p>Are you sure you want to remove this member from the team? Their seat and permissions will be revoked.</p>
+            <div className="tl-delete-modal-footer">
+              <button
+                type="button"
+                className="tl-btn-secondary"
+                onClick={() => setDeleteMemberTarget(null)}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="tl-btn-danger"
+                onClick={confirmRemoveMember}
+              >
+                <Trash2 size={15} /> Remove Member
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }

@@ -15,6 +15,7 @@ import {
   Users,
   AlertTriangle,
   BriefcaseBusiness,
+  Trash2,
 } from "lucide-react";
 import "./Workload.css";
 
@@ -59,11 +60,18 @@ function CapacityBadge({ capacity }) {
 
 export default function Workload() {
   const navigate = useNavigate();
-  const [members] = useState(INITIAL_MEMBERS);
+  const [members, setMembers] = useState(INITIAL_MEMBERS);
   const [search, setSearch] = useState("");
   const [capacityFilter, setCapacityFilter] = useState("All members");
   const [period, setPeriod] = useState("This week");
   const [showFilters, setShowFilters] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+
+  const confirmDeleteWorkload = () => {
+    if (!deleteTarget) return;
+    setMembers(prev => prev.filter(m => m.id !== deleteTarget.id));
+    setDeleteTarget(null);
+  };
 
   const filteredMembers = useMemo(() => members.filter(member => {
     const matchesSearch = `${member.name} ${member.role}`.toLowerCase().includes(search.toLowerCase().trim());
@@ -198,6 +206,7 @@ export default function Workload() {
                   <th>OVERDUE</th>
                   <th>CAPACITY</th>
                   <th>STATUS</th>
+                  <th>ACTIONS</th>
                 </tr>
               </thead>
               <tbody>
@@ -222,11 +231,22 @@ export default function Workload() {
                       </div>
                     </td>
                     <td><CapacityBadge capacity={member.capacity} /></td>
+                    <td>
+                      <button
+                        type="button"
+                        className="wl-action-btn delete tl-btn-delete"
+                        title={`Remove ${member.name} from workload view`}
+                        aria-label={`Remove ${member.name} from workload view`}
+                        onClick={() => setDeleteTarget(member)}
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </td>
                   </tr>
                 ))}
                 {filteredMembers.length === 0 && (
                   <tr>
-                    <td colSpan="7">
+                    <td colSpan="8">
                       <div className="wl-empty">
                         <Users size={24} />
                         <b>No team members found</b>
@@ -248,6 +268,40 @@ export default function Workload() {
         <p className="wl-data-note">
           <Clock3 size={14} /> Sample workload data for UI preview. Connect your task and team APIs to display live metrics.
         </p>
+
+        {/* CUSTOM CSS DELETE CONFIRMATION MODAL */}
+        {deleteTarget && (
+          <div
+            className="tl-delete-modal-overlay"
+            onMouseDown={(e) => {
+              if (e.target === e.currentTarget) setDeleteTarget(null);
+            }}
+          >
+            <div className="tl-delete-modal-box">
+              <div className="tl-delete-modal-icon-circle">
+                <Trash2 size={24} />
+              </div>
+              <h3>Remove "{deleteTarget.name}" from Workload?</h3>
+              <p>Are you sure you want to clear this workload assignment? The member will remain in the directory.</p>
+              <div className="tl-delete-modal-footer">
+                <button
+                  type="button"
+                  className="tl-btn-secondary"
+                  onClick={() => setDeleteTarget(null)}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  className="tl-btn-danger"
+                  onClick={confirmDeleteWorkload}
+                >
+                  <Trash2 size={15} /> Remove Assignment
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );

@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  Activity,
   ArrowDownRight,
   ArrowRight,
   ArrowUpRight,
@@ -10,11 +9,9 @@ import {
   CheckCircle2,
   ChevronDown,
   CircleHelp,
-  Clock3,
   FolderKanban,
   Sparkles,
   Users,
-  MessageCircle,
   FileText,
 } from "lucide-react";
 import {
@@ -23,9 +20,6 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  PieChart,
-  Pie,
-  Cell,
   BarChart,
   Bar,
 } from "recharts";
@@ -34,6 +28,43 @@ import { initialBugs as defaultBugs } from "../Employee/bugdata.js";
 import { initialProjects as defaultProjects } from "../Employee/projectData.js";
 import { initialMembers as defaultMembers } from "../Employee/teamData.js";
 import "./TeamLeadDashboard.css";
+
+/* =========================================================
+   ANIMATED NUMBER COMPONENT
+========================================================= */
+function AnimatedNumber({ value, prefix = "", suffix = "" }) {
+  const numericValue = useMemo(() => {
+    if (typeof value === "number") return value;
+    const cleaned = String(value).replace(/[^0-9]/g, "");
+    return parseInt(cleaned, 10) || 0;
+  }, [value]);
+
+  const [displayValue, setDisplayValue] = useState(numericValue);
+
+  useEffect(() => {
+    let startVal = displayValue;
+    let endVal = numericValue;
+    if (startVal === endVal) return;
+
+    let startTime = null;
+    const duration = 400;
+
+    const step = (timestamp) => {
+      if (!startTime) startTime = timestamp;
+      const progress = Math.min((timestamp - startTime) / duration, 1);
+      const factor = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+      const current = Math.floor(startVal + (endVal - startVal) * factor);
+      setDisplayValue(current);
+      if (progress < 1) {
+        window.requestAnimationFrame(step);
+      }
+    };
+    const reqId = window.requestAnimationFrame(step);
+    return () => window.cancelAnimationFrame(reqId);
+  }, [numericValue, displayValue]);
+
+  return <>{prefix}{displayValue.toLocaleString()}{suffix}</>;
+}
 
 const TASKS_STORAGE_KEY = "teamflow_teamlead_tasks";
 const BUGS_STORAGE_KEY = "teamflow_bugs";
@@ -112,7 +143,7 @@ function getLeadName() {
 function formatTaskDate(dateStr) {
   if (!dateStr) return "No due date";
   if (/^\d{4}-\d{2}-\d{2}/.test(dateStr)) {
-    const [y, m, d] = dateStr.slice(0, 10).split("-");
+    const [, m, d] = dateStr.slice(0, 10).split("-");
     const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
     const monthIdx = parseInt(m, 10) - 1;
     if (monthIdx >= 0 && monthIdx < 12) {
@@ -141,27 +172,10 @@ function toDateInputValue(date) {
 function StatCard({ title, value, change, description, icon: Icon, tone = "blue", negative = false, onClick }) {
   return (
     <article
-      className="tld-stat-card"
+      className={`tld-stat-card ${onClick ? "clickable" : ""}`}
       onClick={onClick}
-      style={{
-        cursor: onClick ? "pointer" : "default",
-        userSelect: "none",
-        transition: "transform 0.18s ease, box-shadow 0.18s ease",
-      }}
       role={onClick ? "button" : undefined}
       tabIndex={onClick ? 0 : undefined}
-      onMouseEnter={(e) => {
-        if (onClick) {
-          e.currentTarget.style.transform = "translateY(-2px)";
-          e.currentTarget.style.boxShadow = "0 8px 20px rgba(24,39,75,.09)";
-        }
-      }}
-      onMouseLeave={(e) => {
-        if (onClick) {
-          e.currentTarget.style.transform = "none";
-          e.currentTarget.style.boxShadow = "";
-        }
-      }}
       onKeyDown={(e) => {
         if (onClick && (e.key === "Enter" || e.key === " ")) {
           e.preventDefault();
@@ -365,11 +379,91 @@ export default function TeamLeadDashboard() {
     };
   }, [tasks]);
 
+  // Sprint Velocity & Burndown controls
+  const [velocityTimeframe, setVelocityTimeframe] = useState("Sprint 24 (Active)");
+  const [hoveredVelocityBar, setHoveredVelocityBar] = useState(null);
+  const [card1View, setCard1View] = useState("velocity"); // 'velocity' | 'projects'
+
+  // Task & Bug donut telemetry state
+  const [taskStatusTimeframe, setTaskStatusTimeframe] = useState("Sprint 24");
+  const [bugStatusTimeframe, setBugStatusTimeframe] = useState("All Bugs");
+  const [hoveredTaskSlice, setHoveredTaskSlice] = useState(null);
+  const [hoveredBugSlice, setHoveredBugSlice] = useState(null);
+
+  // Velocity bar data
+  const velocityBars = useMemo(() => {
+    switch (velocityTimeframe) {
+      case "Today":
+        return [
+          { label: "09:00", val: 4 },
+          { label: "11:00", val: 9 },
+          { label: "13:00", val: 15 },
+          { label: "15:00", val: 22 },
+          { label: "17:00", val: 28 },
+          { label: "19:00", val: 32 },
+        ];
+      case "Last 7 Days":
+        return [
+          { label: "Mon", val: 16 },
+          { label: "Tue", val: 24 },
+          { label: "Wed", val: 19 },
+          { label: "Thu", val: 31 },
+          { label: "Fri", val: 28 },
+          { label: "Sat", val: 14 },
+          { label: "Sun", val: 10 },
+        ];
+      case "This Month":
+        return [
+          { label: "W1", val: 45 },
+          { label: "W2", val: 72 },
+          { label: "W3", val: 98 },
+          { label: "W4", val: 124 },
+        ];
+      case "Sprint 23":
+        return [
+          { label: "Mon", val: 14 },
+          { label: "Tue", val: 20 },
+          { label: "Wed", val: 26 },
+          { label: "Thu", val: 28 },
+          { label: "Fri", val: 34 },
+          { label: "Sat", val: 12 },
+          { label: "Sun", val: 8 },
+        ];
+      case "Sprint 24 (Active)":
+      default:
+        return [
+          { label: "Mon", val: 18 },
+          { label: "Tue", val: 26 },
+          { label: "Wed", val: 22 },
+          { label: "Thu", val: 34 },
+          { label: "Fri", val: 38 },
+          { label: "Sat", val: 16 },
+          { label: "Sun", val: 12 },
+        ];
+    }
+  }, [velocityTimeframe]);
+
+  const maxVelocityVal = useMemo(() => {
+    const rawMax = Math.max(...velocityBars.map((b) => b.val || 0), 20);
+    return Math.ceil(rawMax / 10) * 10;
+  }, [velocityBars]);
+
+  const velocityGridLabels = useMemo(() => {
+    const step = maxVelocityVal / 4;
+    return [
+      maxVelocityVal,
+      Math.round(step * 3),
+      Math.round(step * 2),
+      Math.round(step),
+      0,
+    ];
+  }, [maxVelocityVal]);
+
   // Project Progress list
   const projectProgressList = useMemo(() => {
     if (projects.length === 0) return [];
     return projects.slice(0, 4).map((p, i) => {
-      let progress = 0;
+      let progress;
       if (Array.isArray(p.tasks) && p.tasks.length > 0) {
         const done = p.tasks.filter((t) => t.status === "Completed" || t.status === "Done").length;
         progress = Math.round((done / p.tasks.length) * 100);
@@ -385,52 +479,115 @@ export default function TeamLeadDashboard() {
     });
   }, [projects]);
 
-  // Dynamic Task status data for pie chart
-  const taskStatusData = useMemo(() => {
-    if (tasks.length === 0) {
-      return [
-        { name: "Completed", value: 100, count: 0, color: "#10b981" },
-      ];
+  // SVG Donut geometry
+  const donutRadius = 54;
+  const donutCircumference = 2 * Math.PI * donutRadius; // ~339.292
+
+  // Task Status Donut Data
+  const taskDonutData = useMemo(() => {
+    let completed = tasks.filter((t) => t.status === "Completed" || t.status === "Done").length;
+    let inProgress = tasks.filter((t) => t.status === "In Progress").length;
+    let inReview = tasks.filter((t) => t.status === "In Review" || t.status === "Review").length;
+    let todo = tasks.filter((t) => t.status === "To Do" || t.status === "Todo").length;
+
+    let total = completed + inProgress + inReview + todo;
+    if (total === 0) {
+      completed = 14;
+      inProgress = 8;
+      inReview = 4;
+      todo = 6;
+      total = 32;
     }
-    const completed = tasks.filter((t) => t.status === "Completed" || t.status === "Done").length;
-    const inProgress = tasks.filter((t) => t.status === "In Progress").length;
-    const inReview = tasks.filter((t) => t.status === "In Review" || t.status === "Review").length;
-    const todo = Math.max(0, tasks.length - completed - inProgress - inReview);
 
-    const slices = [
-      { name: "Completed", count: completed, color: "#10b981" },
-      { name: "In Progress", count: inProgress, color: "#2787f5" },
-      { name: "To Do", count: todo, color: "#f59e0b" },
-      { name: "In Review", count: inReview, color: "#8b5cf6" },
-    ].filter((s) => s.count > 0);
+    const completedPct = Math.round((completed / total) * 100);
+    const inProgressPct = Math.round((inProgress / total) * 100);
+    const inReviewPct = Math.round((inReview / total) * 100);
+    const todoPct = Math.max(0, 100 - completedPct - inProgressPct - inReviewPct);
 
-    const total = tasks.length || 1;
-    return slices.map((s) => ({
-      ...s,
-      value: Math.round((s.count / total) * 100),
-    }));
+    return {
+      total,
+      slices: [
+        { key: "completed", name: "Completed", count: completed, pct: completedPct, color: "#10b981", dotClass: "dot-green" },
+        { key: "inProgress", name: "In Progress", count: inProgress, pct: inProgressPct, color: "#3b82f6", dotClass: "dot-blue" },
+        { key: "inReview", name: "In Review", count: inReview, pct: inReviewPct, color: "#8b5cf6", dotClass: "dot-purple" },
+        { key: "todo", name: "To Do", count: todo, pct: todoPct, color: "#f59e0b", dotClass: "dot-amber" },
+      ],
+    };
   }, [tasks]);
 
-  // Dynamic Bug status data for pie chart
-  const bugStatusData = useMemo(() => {
-    const open = bugs.filter((b) => b.status === "Open").length;
-    const inProg = bugs.filter((b) => b.status === "In Progress").length;
-    const resolved = bugs.filter((b) => b.status === "Resolved" || b.status === "Closed").length;
-    const critical = bugs.filter((b) => (b.priority === "Critical" || b.priority === "Urgent") && b.status !== "Resolved" && b.status !== "Closed").length;
+  const taskSlicesWithOffsets = useMemo(() => {
+    let acc = 0;
+    const slices = [];
+    for (let i = 0; i < taskDonutData.slices.length; i++) {
+      const slice = taskDonutData.slices[i];
+      const len = (slice.pct / 100) * donutCircumference;
+      slices.push({
+        ...slice,
+        length: len,
+        offset: -acc,
+      });
+      acc += len;
+    }
+    return slices;
+  }, [taskDonutData, donutCircumference]);
 
-    const slices = [
-      { name: "Open", count: open, color: "#f04452" },
-      { name: "In Progress", count: inProg, color: "#2787f5" },
-      { name: "Resolved", count: resolved, color: "#10b981" },
-      { name: "Critical", count: critical, color: "#f59e0b" },
-    ];
+  const activeTaskSliceMeta = useMemo(() => {
+    if (!hoveredTaskSlice) return null;
+    return taskSlicesWithOffsets.find((s) => s.key === hoveredTaskSlice) || null;
+  }, [hoveredTaskSlice, taskSlicesWithOffsets]);
 
-    const total = bugs.length || 1;
-    return slices.map((s) => ({
-      ...s,
-      value: Math.round((s.count / total) * 100),
-    }));
+  // Bug Status Donut Data
+  const bugDonutData = useMemo(() => {
+    let open = bugs.filter((b) => b.status === "Open" || b.status === "New").length;
+    let inProgress = bugs.filter((b) => b.status === "In Progress" || b.status === "Investigating").length;
+    let resolved = bugs.filter((b) => b.status === "Resolved" || b.status === "Closed").length;
+    let critical = bugs.filter((b) => (b.priority === "Critical" || b.priority === "Urgent") && b.status !== "Resolved" && b.status !== "Closed").length;
+
+    let total = open + inProgress + resolved + critical;
+    if (total === 0) {
+      open = 5;
+      inProgress = 4;
+      resolved = 9;
+      critical = 2;
+      total = 20;
+    }
+
+    const openPct = Math.round((open / total) * 100);
+    const inProgressPct = Math.round((inProgress / total) * 100);
+    const resolvedPct = Math.round((resolved / total) * 100);
+    const criticalPct = Math.max(0, 100 - openPct - inProgressPct - resolvedPct);
+
+    return {
+      total,
+      slices: [
+        { key: "open", name: "Open", count: open, pct: openPct, color: "#ef4444", dotClass: "dot-red" },
+        { key: "inProgress", name: "In Progress", count: inProgress, pct: inProgressPct, color: "#3b82f6", dotClass: "dot-blue" },
+        { key: "resolved", name: "Resolved", count: resolved, pct: resolvedPct, color: "#10b981", dotClass: "dot-green" },
+        { key: "critical", name: "Critical", count: critical, pct: criticalPct, color: "#f59e0b", dotClass: "dot-amber" },
+      ],
+    };
   }, [bugs]);
+
+  const bugSlicesWithOffsets = useMemo(() => {
+    let acc = 0;
+    const slices = [];
+    for (let i = 0; i < bugDonutData.slices.length; i++) {
+      const slice = bugDonutData.slices[i];
+      const len = (slice.pct / 100) * donutCircumference;
+      slices.push({
+        ...slice,
+        length: len,
+        offset: -acc,
+      });
+      acc += len;
+    }
+    return slices;
+  }, [bugDonutData, donutCircumference]);
+
+  const activeBugSliceMeta = useMemo(() => {
+    if (!hoveredBugSlice) return null;
+    return bugSlicesWithOffsets.find((s) => s.key === hoveredBugSlice) || null;
+  }, [hoveredBugSlice, bugSlicesWithOffsets]);
 
   // Team members preview
   const displayTeamMembers = useMemo(() => {
@@ -658,117 +815,403 @@ export default function TeamLeadDashboard() {
             />
           </section>
 
-          {/* Chart Panels */}
+          {/* =========================================================
+              ROW 2: CHARTS & ANALYTICS (SPRINT VELOCITY | TASK STATUS | BUG STATUS)
+          ========================================================= */}
           <section className="tld-row-grid tld-row-charts">
-            {/* Project Progress */}
-            <article className="tld-panel tld-project-panel">
-              <PanelHeader title="Project Progress" action="View all" onAction={goToProjects} />
-              <div className="tld-project-list">
-                {projectProgressList.map((project, i) => (
-                  <div
-                    className="tld-project-row"
-                    key={project.name}
-                    onClick={goToProjects}
-                    style={{ cursor: "pointer" }}
-                    title={`Click to open ${project.name}`}
-                  >
-                    <span className={`tld-project-icon project-tone-${i % 4}`}>
-                      <FolderKanban size={17} />
-                    </span>
-                    <span className="tld-project-title">{project.name}</span>
-                    <div className="tld-progress-track">
-                      <span style={{ width: `${project.progress}%` }} />
-                    </div>
-                    <b>{project.progress}%</b>
+            {/* 1. SPRINT VELOCITY & BURNDOWN (BAR GRAPH) */}
+            <article className="tld-panel tld-velocity-panel">
+              <div className="tld-panel-header">
+                <div className="tld-card-header-title-group">
+                  <h2>{card1View === "velocity" ? "Sprint Velocity & Burndown" : "Project Progress"}</h2>
+                  <span className="tld-live-badge">
+                    <span className="tld-live-pulse-dot" /> Live
+                  </span>
+                </div>
+                <div className="tld-card-header-controls">
+                  <div className="tld-view-toggle-pill" role="tablist">
+                    <button
+                      type="button"
+                      className={`tld-toggle-btn ${card1View === "velocity" ? "active" : ""}`}
+                      onClick={() => setCard1View("velocity")}
+                      title="Show Sprint Velocity Bar Graph"
+                    >
+                      Velocity
+                    </button>
+                    <button
+                      type="button"
+                      className={`tld-toggle-btn ${card1View === "projects" ? "active" : ""}`}
+                      onClick={() => setCard1View("projects")}
+                      title="Show Project Progress List"
+                    >
+                      Projects
+                    </button>
                   </div>
-                ))}
-              </div>
-            </article>
 
-            {/* Task Status Donut */}
-            <article className="tld-panel">
-              <PanelHeader title="Task Status" action="View all" onAction={goToTasks} />
-              <div className="tld-donut-layout">
-                <div className="tld-donut-wrap">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={taskStatusData}
-                        dataKey="value"
-                        nameKey="name"
-                        cx="50%"
-                        cy="50%"
-                        innerRadius="65%"
-                        outerRadius="90%"
-                        paddingAngle={3}
-                        stroke="none"
+                  {card1View === "velocity" ? (
+                    <div className="tld-select-pill">
+                      <select
+                        value={velocityTimeframe}
+                        onChange={(e) => setVelocityTimeframe(e.target.value)}
+                        aria-label="Filter velocity timeframe"
                       >
-                        {taskStatusData.map((item) => (
-                          <Cell key={item.name} fill={item.color} />
-                        ))}
-                      </Pie>
-                      <Tooltip formatter={(val, name, entry) => [`${entry.payload.count || 0} tasks (${val}%)`, name]} />
-                    </PieChart>
-                  </ResponsiveContainer>
-                  <div className="tld-donut-center">
-                    <strong>{tasks.length}</strong>
-                    <span>Total Tasks</span>
+                        <option value="Sprint 24 (Active)">Sprint 24</option>
+                        <option value="Last 7 Days">Last 7 Days</option>
+                        <option value="This Month">This Month</option>
+                        <option value="Sprint 23">Sprint 23</option>
+                        <option value="Today">Today</option>
+                      </select>
+                      <ChevronDown size={13} />
+                    </div>
+                  ) : (
+                    <button type="button" className="tld-link-button" onClick={goToProjects}>
+                      View all <ArrowRight size={12} />
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {card1View === "velocity" ? (
+                <div className="tld-velocity-chart-container">
+                  <div className="tld-velocity-yaxis">
+                    {velocityGridLabels.map((val, idx) => (
+                      <span key={idx}>{val}</span>
+                    ))}
+                  </div>
+
+                  <div className="tld-velocity-bars-area">
+                    <div className="tld-grid-lines">
+                      <span /><span /><span /><span /><span />
+                    </div>
+
+                    <div className="tld-bars-track">
+                      {velocityBars.map((b) => {
+                        const isHovered = hoveredVelocityBar === b.label;
+                        const isAnyHovered = hoveredVelocityBar !== null;
+                        const heightPct = Math.min(100, Math.max(10, (b.val / maxVelocityVal) * 100));
+
+                        return (
+                          <div
+                            key={b.label}
+                            className={`tld-bar-group ${isHovered ? "is-hovered" : ""} ${isAnyHovered && !isHovered ? "is-dimmed" : ""}`}
+                            onMouseEnter={() => setHoveredVelocityBar(b.label)}
+                            onMouseLeave={() => setHoveredVelocityBar(null)}
+                          >
+                            {/* Live floating interactive Tooltip */}
+                            {isHovered && (
+                              <div className="tld-bar-tooltip" role="tooltip">
+                                <span className="tooltip-val">{b.val} Tasks</span>
+                                <span className="tooltip-lbl">{b.label} · Velocity</span>
+                                <div className="tooltip-arrow" />
+                              </div>
+                            )}
+                            <div className="tld-bar-rail">
+                              <div
+                                className="tld-bar-fill"
+                                style={{ height: `${heightPct}%` }}
+                              >
+                                <span className="tld-bar-shimmer" />
+                              </div>
+                            </div>
+                            <span className={`tld-bar-label ${isHovered ? "active" : ""}`}>
+                              {b.label}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
                 </div>
-                <div className="tld-status-legend">
-                  {taskStatusData.map((item) => (
-                    <div className="tld-status-legend-item" key={item.name}>
-                      <span>
-                        <i style={{ background: item.color }} />
-                        {item.name}
+              ) : (
+                <div className="tld-project-list">
+                  {projectProgressList.map((project, i) => (
+                    <div
+                      className="tld-project-row"
+                      key={project.name}
+                      onClick={goToProjects}
+                      title={`Click to open ${project.name}`}
+                    >
+                      <span className={`tld-project-icon project-tone-${i % 4}`}>
+                        <FolderKanban size={17} />
                       </span>
-                      <b>{item.count ?? item.value}</b>
+                      <span className="tld-project-title">{project.name}</span>
+                      <div className="tld-progress-track">
+                        <span style={{ width: `${project.progress}%` }}>
+                          <span className="tld-progress-shimmer" />
+                        </span>
+                      </div>
+                      <b>{project.progress}%</b>
                     </div>
                   ))}
                 </div>
+              )}
+            </article>
+
+            {/* 2. TASK STATUS OVERVIEW (SVG DONUT CHART) */}
+            <article className="tld-panel">
+              <div className="tld-panel-header">
+                <div className="tld-card-header-title-group">
+                  <h2>Task Status</h2>
+                  <span className="tld-live-badge">
+                    <span className="tld-live-pulse-dot" /> Live
+                  </span>
+                </div>
+                <div className="tld-card-header-controls">
+                  <div className="tld-select-pill">
+                    <select
+                      value={taskStatusTimeframe}
+                      onChange={(e) => setTaskStatusTimeframe(e.target.value)}
+                      aria-label="Filter task status timeframe"
+                    >
+                      <option value="Sprint 24">Sprint 24</option>
+                      <option value="All Tasks">All Tasks</option>
+                      <option value="This Month">This Month</option>
+                      <option value="Last 7 Days">Last 7 Days</option>
+                    </select>
+                    <ChevronDown size={13} />
+                  </div>
+                  <button type="button" className="tld-link-button" onClick={goToTasks}>
+                    View all <ArrowRight size={12} />
+                  </button>
+                </div>
+              </div>
+
+              <div className="tld-telemetry-donut-layout">
+                {/* SVG DONUT CHART WITH TELEMETRY EFFECTS */}
+                <div className="tld-donut-box">
+                  <svg viewBox="0 0 140 140" className="tld-donut-svg">
+                    <defs>
+                      <filter id="taskDonutSliceGlow" x="-20%" y="-20%" width="140%" height="140%">
+                        <feDropShadow dx="0" dy="0" stdDeviation="3.5" floodColor="#3b82f6" floodOpacity="0.6" />
+                      </filter>
+                    </defs>
+
+                    {/* Ambient outer orbital ring */}
+                    <circle cx="70" cy="70" r="65" fill="none" className="tld-donut-aura-ring" />
+
+                    {/* Expanding live sonar wave */}
+                    <circle cx="70" cy="70" r={donutRadius} fill="none" className="tld-donut-sonar-wave" />
+
+                    {/* Subtle background track */}
+                    <circle
+                      cx="70"
+                      cy="70"
+                      r={donutRadius}
+                      fill="none"
+                      strokeWidth={16}
+                      className="tld-donut-bg-ring"
+                    />
+
+                    {/* Slices rotated -90deg */}
+                    <g transform="rotate(-90 70 70)">
+                      {taskSlicesWithOffsets.map((slice) => {
+                        const isHovered = hoveredTaskSlice === slice.key;
+                        const isDimmed = hoveredTaskSlice && !isHovered;
+                        return (
+                          <circle
+                            key={slice.key}
+                            cx="70"
+                            cy="70"
+                            r={donutRadius}
+                            fill="none"
+                            stroke={slice.color}
+                            strokeWidth={isHovered ? 21 : 16}
+                            strokeDasharray={`${slice.length} ${donutCircumference - slice.length}`}
+                            strokeDashoffset={slice.offset}
+                            className={`tld-donut-slice slice-${slice.key} ${isHovered ? "active" : ""} ${isDimmed ? "dimmed" : ""}`}
+                            onMouseEnter={() => setHoveredTaskSlice(slice.key)}
+                            onMouseLeave={() => setHoveredTaskSlice(null)}
+                          />
+                        );
+                      })}
+                    </g>
+
+                    {/* Orbiting Live Satellite Beacon */}
+                    <g className="tld-donut-orbit-beacon" style={{ transformOrigin: "70px 70px" }}>
+                      <circle cx="70" cy="16" r="6" fill="none" className="tld-beacon-pulse" />
+                      <circle cx="70" cy="16" r="3" className="tld-beacon-core" />
+                    </g>
+                  </svg>
+
+                  {/* Center Telemetry Counter */}
+                  <div className={`tld-donut-center-telemetry ${activeTaskSliceMeta ? "has-hover" : ""}`}>
+                    {activeTaskSliceMeta ? (
+                      <>
+                        <strong style={{ color: activeTaskSliceMeta.color }}>
+                          {activeTaskSliceMeta.count}
+                        </strong>
+                        <span className="tld-donut-active-sub" style={{ color: activeTaskSliceMeta.color }}>
+                          {activeTaskSliceMeta.name} ({activeTaskSliceMeta.pct}%)
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <strong>
+                          <AnimatedNumber value={taskDonutData.total} />
+                        </strong>
+                        <span className="tld-donut-center-sub">
+                          <span className="tld-live-pulse-dot" /> Total Tasks
+                        </span>
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                {/* Status Breakdown Legend with Bidirectional Synchronization */}
+                <div className="tld-status-list">
+                  {taskSlicesWithOffsets.map((slice) => {
+                    const isHovered = hoveredTaskSlice === slice.key;
+                    const isDimmed = hoveredTaskSlice && !isHovered;
+                    return (
+                      <div
+                        key={slice.key}
+                        className={`tld-status-row ${isHovered ? `is-active is-${slice.key}` : ""} ${isDimmed ? "is-dimmed" : ""}`}
+                        onMouseEnter={() => setHoveredTaskSlice(slice.key)}
+                        onMouseLeave={() => setHoveredTaskSlice(null)}
+                      >
+                        <div className="status-label-group">
+                          <span className={`dot ${slice.dotClass}`} />
+                          <span className="status-name">{slice.name}</span>
+                        </div>
+                        <span className="status-pct">{slice.pct}%</span>
+                        <b className="status-count">{slice.count}</b>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             </article>
 
-            {/* Bug Status Donut */}
+            {/* 3. BUG STATUS & TRIAGE (SVG DONUT CHART) */}
             <article className="tld-panel">
-              <PanelHeader title="Bug Status" action="View all" onAction={() => navigate("/teamlead/bugs")} />
-              <div className="tld-donut-layout">
-                <div className="tld-donut-wrap">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={bugStatusData}
-                        dataKey="value"
-                        nameKey="name"
-                        cx="50%"
-                        cy="50%"
-                        innerRadius="65%"
-                        outerRadius="90%"
-                        paddingAngle={3}
-                        stroke="none"
-                      >
-                        {bugStatusData.map((item) => (
-                          <Cell key={item.name} fill={item.color} />
-                        ))}
-                      </Pie>
-                      <Tooltip formatter={(val, name, entry) => [`${entry.payload.count || 0} bugs`, name]} />
-                    </PieChart>
-                  </ResponsiveContainer>
-                  <div className="tld-donut-center">
-                    <strong>{bugs.length}</strong>
-                    <span>Total Bugs</span>
+              <div className="tld-panel-header">
+                <div className="tld-card-header-title-group">
+                  <h2>Bug Status</h2>
+                  <span className="tld-live-badge tld-live-badge--amber">
+                    <span className="tld-live-pulse-dot tld-live-pulse-dot--amber" /> Live
+                  </span>
+                </div>
+                <div className="tld-card-header-controls">
+                  <div className="tld-select-pill">
+                    <select
+                      value={bugStatusTimeframe}
+                      onChange={(e) => setBugStatusTimeframe(e.target.value)}
+                      aria-label="Filter bug status"
+                    >
+                      <option value="All Bugs">All Bugs</option>
+                      <option value="Active Sprint">Active Sprint</option>
+                      <option value="Critical Only">Critical Only</option>
+                    </select>
+                    <ChevronDown size={13} />
+                  </div>
+                  <button type="button" className="tld-link-button" onClick={() => navigate("/teamlead/bugs")}>
+                    View all <ArrowRight size={12} />
+                  </button>
+                </div>
+              </div>
+
+              <div className="tld-telemetry-donut-layout">
+                {/* SVG DONUT CHART WITH TELEMETRY EFFECTS */}
+                <div className="tld-donut-box">
+                  <svg viewBox="0 0 140 140" className="tld-donut-svg">
+                    <defs>
+                      <filter id="bugDonutSliceGlow" x="-20%" y="-20%" width="140%" height="140%">
+                        <feDropShadow dx="0" dy="0" stdDeviation="3.5" floodColor="#ef4444" floodOpacity="0.6" />
+                      </filter>
+                    </defs>
+
+                    {/* Ambient outer orbital ring */}
+                    <circle cx="70" cy="70" r="65" fill="none" className="tld-donut-aura-ring" />
+
+                    {/* Expanding live sonar wave */}
+                    <circle cx="70" cy="70" r={donutRadius} fill="none" className="tld-donut-sonar-wave tld-donut-sonar-wave--bug" />
+
+                    {/* Subtle background track */}
+                    <circle
+                      cx="70"
+                      cy="70"
+                      r={donutRadius}
+                      fill="none"
+                      strokeWidth={16}
+                      className="tld-donut-bg-ring"
+                    />
+
+                    {/* Slices rotated -90deg */}
+                    <g transform="rotate(-90 70 70)">
+                      {bugSlicesWithOffsets.map((slice) => {
+                        const isHovered = hoveredBugSlice === slice.key;
+                        const isDimmed = hoveredBugSlice && !isHovered;
+                        return (
+                          <circle
+                            key={slice.key}
+                            cx="70"
+                            cy="70"
+                            r={donutRadius}
+                            fill="none"
+                            stroke={slice.color}
+                            strokeWidth={isHovered ? 21 : 16}
+                            strokeDasharray={`${slice.length} ${donutCircumference - slice.length}`}
+                            strokeDashoffset={slice.offset}
+                            className={`tld-donut-slice slice-${slice.key} ${isHovered ? "active" : ""} ${isDimmed ? "dimmed" : ""}`}
+                            onMouseEnter={() => setHoveredBugSlice(slice.key)}
+                            onMouseLeave={() => setHoveredBugSlice(null)}
+                          />
+                        );
+                      })}
+                    </g>
+
+                    {/* Orbiting Live Satellite Beacon */}
+                    <g className="tld-donut-orbit-beacon" style={{ transformOrigin: "70px 70px" }}>
+                      <circle cx="70" cy="16" r="6" fill="none" className="tld-beacon-pulse tld-beacon-pulse--bug" />
+                      <circle cx="70" cy="16" r="3" className="tld-beacon-core tld-beacon-core--bug" />
+                    </g>
+                  </svg>
+
+                  {/* Center Telemetry Counter */}
+                  <div className={`tld-donut-center-telemetry ${activeBugSliceMeta ? "has-hover" : ""}`}>
+                    {activeBugSliceMeta ? (
+                      <>
+                        <strong style={{ color: activeBugSliceMeta.color }}>
+                          {activeBugSliceMeta.count}
+                        </strong>
+                        <span className="tld-donut-active-sub" style={{ color: activeBugSliceMeta.color }}>
+                          {activeBugSliceMeta.name} ({activeBugSliceMeta.pct}%)
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <strong>
+                          <AnimatedNumber value={bugDonutData.total} />
+                        </strong>
+                        <span className="tld-donut-center-sub">
+                          <span className="tld-live-pulse-dot" /> Total Bugs
+                        </span>
+                      </>
+                    )}
                   </div>
                 </div>
-                <div className="tld-status-legend">
-                  {bugStatusData.map((item) => (
-                    <div className="tld-status-legend-item" key={item.name}>
-                      <span>
-                        <i style={{ background: item.color }} />
-                        {item.name}
-                      </span>
-                      <b>{item.count}</b>
-                    </div>
-                  ))}
+
+                {/* Status Breakdown Legend with Bidirectional Synchronization */}
+                <div className="tld-status-list">
+                  {bugSlicesWithOffsets.map((slice) => {
+                    const isHovered = hoveredBugSlice === slice.key;
+                    const isDimmed = hoveredBugSlice && !isHovered;
+                    return (
+                      <div
+                        key={slice.key}
+                        className={`tld-status-row ${isHovered ? `is-active is-${slice.key}` : ""} ${isDimmed ? "is-dimmed" : ""}`}
+                        onMouseEnter={() => setHoveredBugSlice(slice.key)}
+                        onMouseLeave={() => setHoveredBugSlice(null)}
+                      >
+                        <div className="status-label-group">
+                          <span className={`dot ${slice.dotClass}`} />
+                          <span className="status-name">{slice.name}</span>
+                        </div>
+                        <span className="status-pct">{slice.pct}%</span>
+                        <b className="status-count">{slice.count}</b>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             </article>

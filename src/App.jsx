@@ -97,6 +97,7 @@ import TeamLeadReport from "./component/dashboards/TeamLead/Report.jsx";
 import TeamLeadSetting from "./component/dashboards/TeamLead/Setting.jsx";
 import TeamLeadAI from "./component/dashboards/TeamLead/AiAssistant.jsx";
 import TeamMember1 from "./component/dashboards/TeamLead/TeamMember1.jsx";
+import TeamLeadSprintHub from "./component/dashboards/TeamLead/SprintHub.jsx";
 
 function App() {
   return (
@@ -205,6 +206,8 @@ function App() {
       <Route path="/teamlead" element={<TeamLeadLayout />}>
         <Route index element={<Navigate to="dashboard" replace />} />
         <Route path="dashboard" element={<TeamLeadDashboard />} />
+        <Route path="sprints" element={<TeamLeadSprintHub />} />
+        <Route path="sprint" element={<Navigate to="sprints" replace />} />
         <Route path="workload" element={<TeamLeadWorkload />} />
         <Route path="files" element={<TeamLeadFilesDocs />} />
         <Route path="meetings" element={<TeamLeadMeetings />} />

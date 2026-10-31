@@ -224,6 +224,7 @@ export default function Bug() {
   const [filter, setFilter] = useState("All Bugs");
   const [selectedBug, setSelectedBug] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [deleteBugTarget, setDeleteBugTarget] = useState(null);
 
   useEffect(() => {
     try {
@@ -271,10 +272,11 @@ export default function Bug() {
     setShowModal(false);
   }
 
-  function deleteBug(bug) {
-    if (!window.confirm(`Delete "${bug.title}"? This cannot be undone.`)) return;
-    setBugs(previous => previous.filter(item => item.id !== bug.id));
-    if (selectedBug?.id === bug.id) setSelectedBug(null);
+  function confirmDeleteBug() {
+    if (!deleteBugTarget) return;
+    setBugs(previous => previous.filter(item => item.id !== deleteBugTarget.id));
+    if (selectedBug?.id === deleteBugTarget.id) setSelectedBug(null);
+    setDeleteBugTarget(null);
   }
 
   function updateStatus(id, status) {
@@ -349,7 +351,7 @@ export default function Bug() {
                     <td><span className="tl-bug-assignee"><i>{getInitials(bug.assignee)}</i>{bug.assignee}</span></td>
                     <td><span className="tl-bug-ai-score"><Sparkles size={14} /><span><b>{bug.aiConfidence}%</b><small>{bug.aiCategory}</small></span></span></td>
                     <td><span className="tl-bug-date"><CalendarDays size={14} />{bug.createdAt}</span></td>
-                    <td><button type="button" className="tl-bug-delete" aria-label={`Delete ${bug.title}`} onClick={() => deleteBug(bug)}><Trash2 size={16} /></button></td>
+                    <td><button type="button" className="tl-bug-delete tl-btn-delete" aria-label={`Delete ${bug.title}`} onClick={() => setDeleteBugTarget(bug)}><Trash2 size={16} /></button></td>
                   </tr>
                 ))}
               </tbody>
@@ -364,6 +366,40 @@ export default function Bug() {
 
       {selectedBug && <BugDetails bug={selectedBug} onClose={() => setSelectedBug(null)} onStatusChange={updateStatus} />}
       {showModal && <ReportBugModal onClose={() => setShowModal(false)} onSave={createBug} />}
+
+      {/* CUSTOM CSS DELETE CONFIRMATION MODAL */}
+      {deleteBugTarget && (
+        <div
+          className="tl-delete-modal-overlay"
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget) setDeleteBugTarget(null);
+          }}
+        >
+          <div className="tl-delete-modal-box">
+            <div className="tl-delete-modal-icon-circle">
+              <Trash2 size={24} />
+            </div>
+            <h3>Delete "{deleteBugTarget.title}"?</h3>
+            <p>Are you sure you want to permanently delete bug #{deleteBugTarget.id}? This will remove all associated triage history and cannot be undone.</p>
+            <div className="tl-delete-modal-footer">
+              <button
+                type="button"
+                className="tl-btn-secondary"
+                onClick={() => setDeleteBugTarget(null)}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="tl-btn-danger"
+                onClick={confirmDeleteBug}
+              >
+                <Trash2 size={15} /> Delete Bug
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }

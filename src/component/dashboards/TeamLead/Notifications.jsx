@@ -409,7 +409,7 @@ export default function Notifications() {
                 <Check size={15} />
               </button>
               <button
-                className="ntf-action-icon-btn danger"
+                className="ntf-action-icon-btn danger tl-btn-delete"
                 onClick={() => handleDelete(item.id)}
                 title="Delete notification"
               >

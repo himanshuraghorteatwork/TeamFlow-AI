@@ -115,6 +115,7 @@ export default function Task() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
   const [viewingTask, setViewingTask] = useState(null);
+  const [deleteTaskTarget, setDeleteTaskTarget] = useState(null);
   const [form, setForm] = useState(emptyForm);
   const [formError, setFormError] = useState("");
   const [toast, setToast] = useState("");
@@ -236,11 +237,12 @@ export default function Task() {
     setModalOpen(false);
   }
 
-  function deleteTask(task) {
-    if (!window.confirm(`Delete "${task.title}"? This cannot be undone.`)) return;
-    saveTasks(tasks.filter((item) => item.id !== task.id));
-    setViewingTask(null);
-    notify("Task deleted.");
+  function confirmDeleteTask() {
+    if (!deleteTaskTarget) return;
+    saveTasks(tasks.filter((item) => item.id !== deleteTaskTarget.id));
+    if (viewingTask?.id === deleteTaskTarget.id) setViewingTask(null);
+    setDeleteTaskTarget(null);
+    notify("Task deleted successfully.");
   }
 
   function updateStatus(task, status) {
@@ -391,7 +393,7 @@ export default function Task() {
                       <div className="tl-task-row-actions">
                         <button type="button" title="View task" aria-label={`View ${task.title}`} onClick={() => setViewingTask(task)}><Eye size={15} /></button>
                         <button type="button" title="Edit task" aria-label={`Edit ${task.title}`} onClick={() => openEdit(task)}><Pencil size={15} /></button>
-                        <button type="button" className="delete" title="Delete task" aria-label={`Delete ${task.title}`} onClick={() => deleteTask(task)}><Trash2 size={15} /></button>
+                        <button type="button" className="delete tl-btn-delete" title="Delete task" aria-label={`Delete ${task.title}`} onClick={() => setDeleteTaskTarget(task)}><Trash2 size={15} /></button>
                       </div>
                     </td>
                   </tr>
@@ -426,7 +428,7 @@ export default function Task() {
                       </label>
                       <div className="tl-task-row-actions">
                         <button type="button" aria-label={`Edit ${task.title}`} onClick={() => openEdit(task)}><Pencil size={15} /></button>
-                        <button type="button" className="delete" aria-label={`Delete ${task.title}`} onClick={() => deleteTask(task)}><Trash2 size={15} /></button>
+                        <button type="button" className="delete tl-btn-delete" aria-label={`Delete ${task.title}`} onClick={() => setDeleteTaskTarget(task)}><Trash2 size={15} /></button>
                       </div>
                     </article>
                   ))}
@@ -483,11 +485,45 @@ export default function Task() {
                 <div><small>Status</small><strong>{viewingTask.status || "To Do"}</strong></div>
               </div>
               <footer className="tl-task-form-actions">
-                <button type="button" className="tl-task-cancel-button" onClick={() => deleteTask(viewingTask)}>Delete task</button>
+                <button type="button" className="tl-task-cancel-button tl-btn-delete" onClick={() => setDeleteTaskTarget(viewingTask)}>Delete task</button>
                 <button type="button" className="tl-task-create-button" onClick={() => openEdit(viewingTask)}><Pencil size={15} /> Edit task</button>
               </footer>
             </div>
           </section>
+        </div>
+      )}
+
+      {/* CUSTOM CSS DELETE CONFIRMATION MODAL */}
+      {deleteTaskTarget && (
+        <div
+          className="tl-delete-modal-overlay"
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget) setDeleteTaskTarget(null);
+          }}
+        >
+          <div className="tl-delete-modal-box">
+            <div className="tl-delete-modal-icon-circle">
+              <Trash2 size={24} />
+            </div>
+            <h3>Delete "{deleteTaskTarget.title}"?</h3>
+            <p>Are you sure you want to remove this task? All subtasks, assignments, and status progress will be deleted.</p>
+            <div className="tl-delete-modal-footer">
+              <button
+                type="button"
+                className="tl-btn-secondary"
+                onClick={() => setDeleteTaskTarget(null)}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="tl-btn-danger"
+                onClick={confirmDeleteTask}
+              >
+                <Trash2 size={15} /> Delete Task
+              </button>
+            </div>
+          </div>
         </div>
       )}
 

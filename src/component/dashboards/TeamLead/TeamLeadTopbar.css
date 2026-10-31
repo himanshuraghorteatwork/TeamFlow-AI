@@ -1,461 +1,804 @@
 /* =========================================================
-   TEAM LEAD UNIFIED TOPBAR
-   Same exact sleek topbar for all Team Lead pages
+   TEAMFLOW AI - TEAM LEAD UNIFIED TOPBAR
+   Fully aligned with Admin & SuperAdmin Panels Design System
 ========================================================= */
 
-.tlt-topbar {
-  --tlt-bg: rgba(255, 255, 255, 0.96);
-  --tlt-text: #101b45;
-  --tlt-muted: #65718a;
-  --tlt-border: #e5eaf3;
-  --tlt-primary: #4f5ff5;
-  --tlt-primary-hover: #414fe0;
-  --tlt-card-bg: #ffffff;
-  --tlt-input-bg: #f9fbfe;
-
+.tfTeamLeadTopbar {
   position: sticky;
   top: 0;
-  z-index: 40;
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  min-height: 64px;
-  padding: 10px 28px;
-  background: var(--tlt-bg);
-  border-bottom: 1px solid var(--tlt-border);
-  backdrop-filter: blur(10px);
-  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  color: var(--tlt-text);
-  box-sizing: border-box;
+  z-index: 900;
   width: 100%;
+  height: 64px;
+  padding: 0 24px;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 16px;
+  border-bottom: 1px solid #e2e8f0;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(12px);
+  box-sizing: border-box;
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
-.tlt-topbar *,
-.tlt-topbar *::before,
-.tlt-topbar *::after {
+.tfTeamLeadTopbar *,
+.tfTeamLeadTopbar *::before,
+.tfTeamLeadTopbar *::after {
   box-sizing: border-box;
 }
 
-/* Search bar */
-.tlt-search {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-width: 220px;
-  max-width: 720px;
-  height: 40px;
-  flex: 1;
-  padding: 0 12px;
-  color: #53617e;
-  border: 1px solid #e1e7f0;
-  border-radius: 9px;
-  background: var(--tlt-input-bg);
-  transition: border-color 0.16s ease, box-shadow 0.16s ease;
-}
+/* =========================================================
+   LEFT SECTION: HAMBURGER, SQUAD PILL, SEARCH
+========================================================= */
 
-.tlt-search:focus-within {
-  border-color: var(--tlt-primary);
-  box-shadow: 0 0 0 3px rgba(79, 95, 245, 0.12);
-  background: #ffffff;
-}
-
-.tlt-search input {
-  width: 100%;
+.tfTeamLeadTopbar .tfAdminTopbar__left {
+  flex: 1 1 auto;
   min-width: 0;
-  border: 0;
-  outline: 0;
-  background: transparent;
-  color: var(--tlt-text);
-  font: inherit;
-  font-size: 13px;
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px;
 }
 
-.tlt-search input::placeholder {
-  color: #8c97ad;
-}
-
-.tlt-search kbd {
-  flex-shrink: 0;
-  padding: 3px 6px;
-  border: 1px solid #e1e7f0;
-  border-radius: 5px;
-  color: #8993a8;
-  background: #ffffff;
-  font-size: 10px;
-  font-family: inherit;
-  font-weight: 600;
-}
-
-/* Actions Right */
-.tlt-topbar-actions {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-left: auto;
-}
-
-.tlt-icon-button {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border: 1px solid transparent;
-  border-radius: 9px;
-  background: transparent;
-  color: #283657;
-  cursor: pointer;
-  transition: background 0.18s ease, color 0.18s ease;
-}
-
-.tlt-icon-button:hover {
-  background: #f1f4fa;
-  color: #101b45;
-}
-
-/* Buttons */
-.tlt-primary-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-  min-height: 40px;
-  padding: 0 14px;
-  border: 1px solid transparent;
-  border-radius: 8px;
-  font: inherit;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  background: var(--tlt-primary);
-  color: #ffffff;
-  box-shadow: 0 2px 8px rgba(79, 95, 245, 0.22);
-  transition: background 0.18s ease, transform 0.18s ease;
-}
-
-.tlt-primary-button:hover {
-  background: var(--tlt-primary-hover);
-  transform: translateY(-1px);
-}
-
-/* Notification badge */
-.tlt-notification-count {
-  position: absolute;
-  top: 3px;
-  right: 3px;
-  display: grid;
+.tfTeamLeadTopbar .tfAdminTopbar__mobileMenu {
+  display: none;
   place-items: center;
-  width: 17px;
-  height: 17px;
-  border: 2px solid #ffffff;
-  border-radius: 50%;
-  color: #ffffff;
-  background: #f04452;
-  font-size: 9px;
-  font-weight: 700;
-}
-
-/* Profile button */
-.tlt-profile-button {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  padding: 2px 6px 2px 4px;
-  border: 1px solid transparent;
-  border-radius: 9px;
-  background: transparent;
-  color: var(--tlt-text);
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  color: #334155;
   cursor: pointer;
-  text-align: left;
-  transition: background 0.18s ease;
+  flex-shrink: 0;
+  padding: 0;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
 }
 
-.tlt-profile-button:hover {
-  background: #f1f4fa;
+.tfTeamLeadTopbar .tfAdminTopbar__mobileMenu:hover {
+  background: #f1f5f9;
 }
 
-.tlt-avatar {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex: 0 0 36px;
-  width: 36px;
-  height: 36px;
+/* TEAM LEAD SQUAD PILL */
+.tf-topbar-squad-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px;
+  padding: 5px 12px;
+  border-radius: 9999px;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  flex-shrink: 0;
+  margin-right: 4px;
+  user-select: none;
+}
+
+.tf-topbar-squad-dot {
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
-  color: #ffffff;
-  background: #0ea5c6;
-  font-size: 13px;
-  font-weight: 700;
+  background: #10b981;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+  flex-shrink: 0;
 }
 
-.tlt-profile-details {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
+.tf-topbar-squad-name {
+  font-size: 12px;
+  font-weight: 650;
+  color: #1e293b;
+  letter-spacing: -0.01em;
   white-space: nowrap;
 }
 
-.tlt-profile-details strong {
-  font-size: 12.5px;
-  font-weight: 650;
-  color: var(--tlt-text);
-}
-
-.tlt-profile-details small {
-  color: var(--tlt-muted);
+.tf-topbar-squad-sprint {
   font-size: 11px;
+  font-weight: 700;
+  color: #4f46e5;
+  background: #eef2ff;
+  padding: 2px 8px;
+  border-radius: 6px;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
 }
 
-/* Popovers */
-.tlt-popover-wrap {
+/* =========================================================
+   SEARCH BAR
+========================================================= */
+
+.tfTeamLeadTopbar .tfAdminTopbar__searchWrap {
   position: relative;
+  width: 100%;
+  max-width: 480px;
 }
 
-.tlt-popover {
+.tfTeamLeadTopbar .tfAdminTopbar__search {
+  width: 100%;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 9px;
+  background: #f8fafc;
+  color: #64748b;
+  transition: all 0.2s ease;
+}
+
+.tfTeamLeadTopbar .tfAdminTopbar__search:focus-within {
+  border-color: #4f46e5;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+}
+
+.tfTeamLeadTopbar .tfAdminTopbar__search input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: #0f172a;
+  font-family: inherit;
+  font-size: 13px;
+  outline: none;
+}
+
+.tfTeamLeadTopbar .tfAdminTopbar__search input::placeholder {
+  color: #94a3b8;
+}
+
+.tfTeamLeadTopbar .tfAdminTopbar__search kbd {
+  flex-shrink: 0;
+  padding: 2px 7px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #64748b;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.tfTeamLeadTopbar .tfAdminTopbar__clearSearch {
+  border: 0;
+  background: transparent;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 2px;
+  display: grid;
+  place-items: center;
+}
+
+.tfTeamLeadTopbar .tfAdminTopbar__clearSearch:hover {
+  color: #0f172a;
+}
+
+/* =========================================================
+   RIGHT ACTIONS - HORIZONTAL FLEX ROW
+========================================================= */
+
+.tfTeamLeadTopbar .tfAdminTopbar__actions,
+.tfTeamLeadTopbar .tfAdminTopbar__right {
+  flex: 0 0 auto;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 8px;
+}
+
+.tfTeamLeadTopbar .tfAdminTopbar__dropdownWrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* ICON BUTTONS (NOTIFICATIONS, HELP) */
+.tfTeamLeadTopbar .tfAdminTopbar__iconButton {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #334155;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.tfTeamLeadTopbar .tfAdminTopbar__iconButton:hover {
+  color: #4f46e5;
+  border-color: #c7d2fe;
+  background: #f5f3ff;
+}
+
+/* NOTIFICATION BADGE */
+.tfTeamLeadTopbar .tfAdminTopbar__notificationBadge {
   position: absolute;
-  top: calc(100% + 9px);
-  right: 0;
-  z-index: 100;
-  width: 310px;
-  padding: 12px;
-  border: 1px solid var(--tlt-border);
-  border-radius: 12px;
-  background: var(--tlt-card-bg);
-  box-shadow: 0 14px 40px rgba(20, 35, 70, 0.14);
-  animation: tltFadeIn 0.18s ease;
+  top: -4px;
+  right: -4px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  display: grid;
+  place-items: center;
+  border: 2px solid #ffffff;
+  border-radius: 9999px;
+  background: #ef4444;
+  color: #ffffff;
+  font-size: 9.5px;
+  font-weight: 700;
 }
 
-.tlt-create-menu {
-  width: 210px;
-}
-
-.tlt-create-menu button,
-.tlt-profile-menu button {
+/* PROFILE BUTTON */
+.tfTeamLeadTopbar .tfAdminTopbar__profile {
+  min-width: 175px;
+  height: 42px;
+  padding: 4px 10px;
   display: flex;
   align-items: center;
   gap: 9px;
-  width: 100%;
-  min-height: 38px;
-  padding: 8px 10px;
-  border: 0;
-  border-radius: 7px;
-  color: #253252;
-  background: transparent;
-  text-align: left;
+  border: 1px solid #e2e8f0;
+  border-radius: 9px;
+  background: #ffffff;
+  color: #0f172a;
+  font-family: inherit;
   cursor: pointer;
-  font: inherit;
-  font-size: 13px;
-  font-weight: 500;
-  transition: background 0.15s ease;
+  transition: all 0.15s ease;
 }
 
-.tlt-create-menu button:hover,
-.tlt-profile-menu button:hover {
-  background: #f4f6fb;
-  color: #4f5ff5;
+.tfTeamLeadTopbar .tfAdminTopbar__profile:hover {
+  border-color: #c7d2fe;
+  background: #f5f3ff;
 }
 
-.tlt-profile-logout {
-  padding-top: 6px;
-  border-top: 1px solid var(--tlt-border);
+.tfTeamLeadTopbar .tfAdminTopbar__profileAvatar {
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  color: #ffffff;
+  font-size: 12.5px;
+  font-weight: 700;
+  overflow: hidden;
 }
 
-.tlt-profile-logout button {
-  width: 100%;
-  padding: 8px 10px;
+.tfTeamLeadTopbar .tfAdminTopbar__profileText {
+  flex: 1;
+  min-width: 0;
   display: flex;
-  align-items: center;
-  gap: 10px;
-  border: 0;
-  border-radius: 8px;
-  background: transparent;
-  color: #ef4444;
-  font: inherit;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
+  flex-direction: column;
   text-align: left;
-  transition: background 0.15s ease;
 }
 
-.tlt-profile-logout button:hover {
-  background: #fef2f2;
+.tfTeamLeadTopbar .tfAdminTopbar__profileText strong {
+  display: block;
+  font-size: 13px;
+  font-weight: 650;
+  color: #0f172a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.tlt-popover-heading {
+.tfTeamLeadTopbar .tfAdminTopbar__profileText small {
+  display: block;
+  font-size: 11px;
+  color: #64748b;
+  margin-top: 1px;
+  white-space: nowrap;
+}
+
+.tfTeamLeadTopbar .tfAdminTopbar__profileArrow {
+  color: #94a3b8;
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+.tfTeamLeadTopbar .tfAdminTopbar__profileArrow--open {
+  transform: rotate(180deg);
+  color: #4f46e5;
+  flex-shrink: 0;
+}
+
+/* =========================================================
+   SHORTCUT ROWS IN HELP POPUP
+========================================================= */
+
+.tf-help-dropdown {
+  min-width: 250px;
+  padding: 10px;
+}
+
+.tf-shortcut-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 4px 4px 10px;
-  border-bottom: 1px solid var(--tlt-border);
+  padding: 6px 8px;
+  font-size: 12px;
+  color: #334155;
+  border-radius: 6px;
 }
 
-.tlt-popover-heading strong {
-  font-size: 13px;
-  color: var(--tlt-text);
-}
-
-.tlt-popover-heading span {
-  color: #5b4ce2;
+.tf-shortcut-row kbd {
+  padding: 2px 6px;
+  border: 1px solid #cbd5e1;
+  border-radius: 5px;
+  background: #f8fafc;
+  color: #64748b;
   font-size: 11px;
   font-weight: 600;
 }
 
-.tlt-notification-item {
-  display: flex;
-  gap: 10px;
-  padding: 10px 4px;
-  border-bottom: 1px solid #f0f2f7;
-  cursor: pointer;
-  border-radius: 6px;
-  transition: background 0.15s ease;
+/* NOTIFICATIONS FOOTER */
+.tf-notif-footer-wrap {
+  padding: 8px 12px 6px;
+  border-top: 1px solid #f1f5f9;
+  margin-top: 4px;
 }
 
-.tlt-notification-item:hover {
-  background: #f7f9fd;
-}
-
-.tlt-notification-item:last-of-type {
-  border-bottom: 0;
-}
-
-.tlt-notification-item b {
-  display: block;
-  font-size: 12px;
-  color: var(--tlt-text);
-}
-
-.tlt-notification-item p {
-  margin: 3px 0;
-  color: var(--tlt-muted);
-  font-size: 11px;
-  line-height: 1.4;
-}
-
-.tlt-notification-item small {
-  color: #8a94a8;
-  font-size: 10px;
-}
-
-.tlt-notice-icon {
-  display: grid;
-  place-items: center;
-  flex: 0 0 32px;
-  width: 32px;
-  height: 32px;
-  border-radius: 9px;
-}
-
-.tlt-notice-icon.purple { color: #6b55e8; background: #f0edff; }
-.tlt-notice-icon.green { color: #0b9c70; background: #e2f8ef; }
-.tlt-notice-icon.orange { color: #d97706; background: #fff3df; }
-
-.tlt-view-all-notifications {
+.tf-notif-view-all {
+  width: 100%;
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 6px;
-  width: 100%;
-  padding: 8px;
-  margin-top: 8px;
-  border: 1px solid #e5eaf3;
-  border-radius: 7px;
-  background: #f8faff;
-  color: #4f5ff5;
+  justify-content: space-between;
+  padding: 6px 10px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: #4f46e5;
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.16s ease;
+  transition: background-color 0.15s ease;
 }
 
-.tlt-view-all-notifications:hover {
+.tf-notif-view-all:hover {
   background: #eef2ff;
 }
 
-/* Animations */
-@keyframes tltFadeIn {
-  from { opacity: 0; transform: translateY(-5px); }
-  to { opacity: 1; transform: translateY(0); }
-}
+/* =========================================================
+   RESPONSIVE
+========================================================= */
 
-/* Dark Mode Universal Overrides */
-.dark-mode .tlt-topbar {
-  --tlt-bg: rgba(19, 27, 46, 0.98);
-  --tlt-text: #f8fafc;
-  --tlt-muted: #94a3b8;
-  --tlt-border: #273553;
-  --tlt-card-bg: #151e34;
-  --tlt-input-bg: #18233c;
-}
-
-.dark-mode .tlt-search {
-  border-color: #2b3b5c;
-}
-
-.dark-mode .tlt-search kbd {
-  background: #1e293b;
-  border-color: #334155;
-  color: #cbd5e1;
-}
-
-.dark-mode .tlt-icon-button {
-  color: #c7d2e8;
-}
-
-.dark-mode .tlt-icon-button:hover,
-.dark-mode .tlt-profile-button:hover {
-  background: #252e47;
-}
-
-.dark-mode .tlt-create-menu button,
-.dark-mode .tlt-profile-menu button {
-  color: #edf1ff;
-}
-
-.dark-mode .tlt-create-menu button:hover,
-.dark-mode .tlt-profile-menu button:hover {
-  background: #1e2a47;
-}
-
-.dark-mode .tlt-profile-logout {
-  border-color: #2b3b5c;
-}
-
-.dark-mode .tlt-profile-logout button {
-  color: #f87171;
-}
-
-.dark-mode .tlt-profile-logout button:hover {
-  background: #3a202c;
-  color: #fca5a5;
-}
-
-.dark-mode .tlt-view-all-notifications {
-  background: #1e2a47;
-  border-color: #2b3b5c;
-  color: #a5b4fc;
-}
-
-.dark-mode .tlt-notification-item:hover {
-  background: #1e2a47;
-}
-
-.dark-mode .tlt-notification-item {
-  border-color: #2b3b5c;
-}
-
-/* Responsive */
 @media (max-width: 991px) {
-  .tlt-topbar { padding: 10px 16px; gap: 10px; }
-  .tlt-profile-details { display: none; }
-  .tlt-create-button-text { display: none; }
+  .tfTeamLeadTopbar .tfAdminTopbar__mobileMenu {
+    display: grid !important;
+  }
+
+  .tf-topbar-squad-badge {
+    display: none !important;
+  }
 }
 
 @media (max-width: 767px) {
-  .tlt-topbar { min-height: 58px; padding: 8px 12px; }
-  .tlt-search { height: 38px; }
-  .tlt-search kbd { display: none; }
-  .tlt-topbar-actions { gap: 4px; }
-  .tlt-icon-button { width: 36px; height: 36px; }
+  .tfTeamLeadTopbar {
+    padding: 0 14px;
+  }
+
+  .tfTeamLeadTopbar .tfAdminTopbar__profileText {
+    display: none !important;
+  }
+
+  .tfTeamLeadTopbar .tfAdminTopbar__profile {
+    min-width: unset;
+    padding: 4px;
+  }
+
+  .tfTeamLeadTopbar .tfAdminTopbar__searchWrap {
+    max-width: 180px;
+  }
+}
+
+/* =========================================================
+   DARK MODE - COMPREHENSIVE COVERAGE
+   Supports :root.dark, .dark, [data-theme="dark"], body.dark-mode
+========================================================= */
+
+:root.dark .tfTeamLeadTopbar,
+.dark .tfTeamLeadTopbar,
+[data-theme="dark"] .tfTeamLeadTopbar,
+body.dark-mode .tfTeamLeadTopbar,
+body.dark-theme .tfTeamLeadTopbar,
+.sa-dark-mode .tfTeamLeadTopbar {
+  background: rgba(15, 23, 42, 0.96) !important;
+  border-bottom-color: #1e293b !important;
+}
+
+/* Squad Pill in Dark Mode */
+:root.dark .tf-topbar-squad-badge,
+.dark .tf-topbar-squad-badge,
+[data-theme="dark"] .tf-topbar-squad-badge,
+body.dark-mode .tf-topbar-squad-badge,
+.sa-dark-mode .tf-topbar-squad-badge {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+}
+
+:root.dark .tf-topbar-squad-name,
+.dark .tf-topbar-squad-name,
+[data-theme="dark"] .tf-topbar-squad-name,
+body.dark-mode .tf-topbar-squad-name,
+.sa-dark-mode .tf-topbar-squad-name {
+  color: #f8fafc !important;
+}
+
+:root.dark .tf-topbar-squad-sprint,
+.dark .tf-topbar-squad-sprint,
+[data-theme="dark"] .tf-topbar-squad-sprint,
+body.dark-mode .tf-topbar-squad-sprint,
+.sa-dark-mode .tf-topbar-squad-sprint {
+  background: #312e81 !important;
+  color: #c7d2fe !important;
+}
+
+/* Search Bar in Dark Mode */
+:root.dark .tfTeamLeadTopbar .tfAdminTopbar__search,
+.dark .tfTeamLeadTopbar .tfAdminTopbar__search,
+[data-theme="dark"] .tfTeamLeadTopbar .tfAdminTopbar__search,
+body.dark-mode .tfTeamLeadTopbar .tfAdminTopbar__search,
+.sa-dark-mode .tfTeamLeadTopbar .tfAdminTopbar__search {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #94a3b8 !important;
+}
+
+:root.dark .tfTeamLeadTopbar .tfAdminTopbar__search input,
+.dark .tfTeamLeadTopbar .tfAdminTopbar__search input,
+[data-theme="dark"] .tfTeamLeadTopbar .tfAdminTopbar__search input,
+body.dark-mode .tfTeamLeadTopbar .tfAdminTopbar__search input,
+.sa-dark-mode .tfTeamLeadTopbar .tfAdminTopbar__search input {
+  color: #f8fafc !important;
+}
+
+:root.dark .tfTeamLeadTopbar .tfAdminTopbar__search kbd,
+.dark .tfTeamLeadTopbar .tfAdminTopbar__search kbd,
+[data-theme="dark"] .tfTeamLeadTopbar .tfAdminTopbar__search kbd,
+body.dark-mode .tfTeamLeadTopbar .tfAdminTopbar__search kbd,
+.sa-dark-mode .tfTeamLeadTopbar .tfAdminTopbar__search kbd {
+  background: #0f172a !important;
+  border-color: #475569 !important;
+  color: #94a3b8 !important;
+}
+
+/* Icon Buttons & Profile in Dark Mode */
+:root.dark .tfTeamLeadTopbar .tfAdminTopbar__iconButton,
+.dark .tfTeamLeadTopbar .tfAdminTopbar__iconButton,
+[data-theme="dark"] .tfTeamLeadTopbar .tfAdminTopbar__iconButton,
+body.dark-mode .tfTeamLeadTopbar .tfAdminTopbar__iconButton,
+:root.dark .tfTeamLeadTopbar .tfAdminTopbar__mobileMenu,
+.dark .tfTeamLeadTopbar .tfAdminTopbar__mobileMenu,
+[data-theme="dark"] .tfTeamLeadTopbar .tfAdminTopbar__mobileMenu,
+body.dark-mode .tfTeamLeadTopbar .tfAdminTopbar__mobileMenu {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #cbd5e1 !important;
+}
+
+:root.dark .tfTeamLeadTopbar .tfAdminTopbar__iconButton:hover,
+.dark .tfTeamLeadTopbar .tfAdminTopbar__iconButton:hover,
+[data-theme="dark"] .tfTeamLeadTopbar .tfAdminTopbar__iconButton:hover,
+body.dark-mode .tfTeamLeadTopbar .tfAdminTopbar__iconButton:hover {
+  background: #28354f !important;
+  border-color: #4f46e5 !important;
+  color: #f8fafc !important;
+}
+
+:root.dark .tfTeamLeadTopbar .tfAdminTopbar__profile,
+.dark .tfTeamLeadTopbar .tfAdminTopbar__profile,
+[data-theme="dark"] .tfTeamLeadTopbar .tfAdminTopbar__profile,
+body.dark-mode .tfTeamLeadTopbar .tfAdminTopbar__profile {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+:root.dark .tfTeamLeadTopbar .tfAdminTopbar__profile:hover,
+.dark .tfTeamLeadTopbar .tfAdminTopbar__profile:hover,
+[data-theme="dark"] .tfTeamLeadTopbar .tfAdminTopbar__profile:hover,
+body.dark-mode .tfTeamLeadTopbar .tfAdminTopbar__profile:hover {
+  background: #28354f !important;
+  border-color: #4f46e5 !important;
+}
+
+:root.dark .tfTeamLeadTopbar .tfAdminTopbar__profileText strong,
+.dark .tfTeamLeadTopbar .tfAdminTopbar__profileText strong,
+[data-theme="dark"] .tfTeamLeadTopbar .tfAdminTopbar__profileText strong,
+body.dark-mode .tfTeamLeadTopbar .tfAdminTopbar__profileText strong {
+  color: #f8fafc !important;
+}
+
+:root.dark .tfTeamLeadTopbar .tfAdminTopbar__profileText small,
+.dark .tfTeamLeadTopbar .tfAdminTopbar__profileText small,
+[data-theme="dark"] .tfTeamLeadTopbar .tfAdminTopbar__profileText small,
+body.dark-mode .tfTeamLeadTopbar .tfAdminTopbar__profileText small {
+  color: #94a3b8 !important;
+}
+
+/* Notification badge border in dark mode */
+:root.dark .tfTeamLeadTopbar .tfAdminTopbar__notificationBadge,
+.dark .tfTeamLeadTopbar .tfAdminTopbar__notificationBadge,
+body.dark-mode .tfTeamLeadTopbar .tfAdminTopbar__notificationBadge {
+  border-color: #1e293b !important;
+}
+
+/* Dropdowns in Dark Mode */
+:root.dark .tfTeamLeadTopbar .tfAdminTopbar__simpleDropdown,
+.dark .tfTeamLeadTopbar .tfAdminTopbar__simpleDropdown,
+[data-theme="dark"] .tfTeamLeadTopbar .tfAdminTopbar__simpleDropdown,
+body.dark-mode .tfTeamLeadTopbar .tfAdminTopbar__simpleDropdown,
+:root.dark .tfTeamLeadTopbar .tfAdminTopbar__notificationDropdown,
+.dark .tfTeamLeadTopbar .tfAdminTopbar__notificationDropdown,
+[data-theme="dark"] .tfTeamLeadTopbar .tfAdminTopbar__notificationDropdown,
+body.dark-mode .tfTeamLeadTopbar .tfAdminTopbar__notificationDropdown,
+:root.dark .tfTeamLeadTopbar .tfAdminTopbar__accountMenu,
+.dark .tfTeamLeadTopbar .tfAdminTopbar__accountMenu,
+[data-theme="dark"] .tfTeamLeadTopbar .tfAdminTopbar__accountMenu,
+body.dark-mode .tfTeamLeadTopbar .tfAdminTopbar__accountMenu,
+:root.dark .tfTeamLeadTopbar .tfAdminTopbar__searchResults,
+.dark .tfTeamLeadTopbar .tfAdminTopbar__searchResults,
+[data-theme="dark"] .tfTeamLeadTopbar .tfAdminTopbar__searchResults,
+body.dark-mode .tfTeamLeadTopbar .tfAdminTopbar__searchResults {
+  background: #0f172a !important;
+  border-color: #1e293b !important;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.45) !important;
+}
+
+:root.dark .tf-dropdown-label,
+.dark .tf-dropdown-label,
+:root.dark .tf-notif-footer-wrap,
+.dark .tf-notif-footer-wrap {
+  border-color: #1e293b !important;
+}
+
+:root.dark .tf-dropdown-label strong,
+.dark .tf-dropdown-label strong {
+  color: #f8fafc !important;
+}
+
+:root.dark .tf-shortcut-row,
+.dark .tf-shortcut-row {
+  color: #cbd5e1 !important;
+}
+
+:root.dark .tf-shortcut-row kbd,
+.dark .tf-shortcut-row kbd {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #94a3b8 !important;
+}
+
+:root.dark .tf-notif-view-all:hover,
+.dark .tf-notif-view-all:hover {
+  background: #1e293b !important;
+}
+
+/* =========================================================
+   ANIMATED THEME TOGGLE SWITCH
+========================================================= */
+
+.superadmin-theme-toggle,
+.tfAdminTopbar__themeToggle {
+  position: relative;
+  display: flex !important;
+  align-items: center;
+  width: 58px !important;
+  height: 30px !important;
+  padding: 3px !important;
+  background: #e2e8f0;
+  border: 1px solid #cbd5e1;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.25s ease, border-color 0.25s ease, box-shadow 0.2s ease;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+  user-select: none;
+  overflow: hidden;
+  flex-shrink: 0;
+  outline: none;
+}
+
+.superadmin-theme-toggle:hover,
+.tfAdminTopbar__themeToggle:hover {
+  border-color: #94a3b8;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.08), 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+.superadmin-theme-toggle.is-dark,
+.tfAdminTopbar__themeToggle.is-dark {
+  background: #172442 !important;
+  border-color: #233355 !important;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.35) !important;
+}
+
+.superadmin-theme-toggle.is-light,
+.tfAdminTopbar__themeToggle.is-light {
+  background: #e2e8f0 !important;
+  border-color: #cbd5e1 !important;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06) !important;
+}
+
+.superadmin-theme-toggle.is-dark:hover,
+.tfAdminTopbar__themeToggle.is-dark:hover {
+  border-color: #475569 !important;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4), 0 0 0 3px rgba(96, 136, 255, 0.25) !important;
+}
+
+.superadmin-theme-toggle.is-light:hover,
+.tfAdminTopbar__themeToggle.is-light:hover {
+  border-color: #94a3b8 !important;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.08), 0 0 0 3px rgba(99, 102, 241, 0.15) !important;
+}
+
+.sa-toggle-track {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 7px;
+  pointer-events: none;
+}
+
+.sa-toggle-sun-icon {
+  color: #f59e0b;
+  opacity: 0.95;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.sa-toggle-moon-icon {
+  color: #94a3b8;
+  opacity: 0.35;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.superadmin-theme-toggle.is-dark .sa-toggle-sun-icon,
+.tfAdminTopbar__themeToggle.is-dark .sa-toggle-sun-icon {
+  opacity: 0.3;
+  color: #64748b;
+  transform: rotate(-20deg) scale(0.9);
+}
+
+.superadmin-theme-toggle.is-dark .sa-toggle-moon-icon,
+.tfAdminTopbar__themeToggle.is-dark .sa-toggle-moon-icon {
+  opacity: 0.95;
+  color: #38bdf8;
+  transform: rotate(0deg) scale(1);
+}
+
+.superadmin-theme-toggle.is-light .sa-toggle-sun-icon,
+.tfAdminTopbar__themeToggle.is-light .sa-toggle-sun-icon {
+  opacity: 0.95;
+  color: #f59e0b;
+  transform: rotate(0deg) scale(1);
+}
+
+.superadmin-theme-toggle.is-light .sa-toggle-moon-icon,
+.tfAdminTopbar__themeToggle.is-light .sa-toggle-moon-icon {
+  opacity: 0.3;
+  color: #94a3b8;
+  transform: rotate(20deg) scale(0.9);
+}
+
+.sa-toggle-thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  color: #f59e0b;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2), 0 1px 2px rgba(0, 0, 0, 0.1);
+  transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.superadmin-theme-toggle.is-dark .sa-toggle-thumb,
+.tfAdminTopbar__themeToggle.is-dark .sa-toggle-thumb {
+  transform: translateX(28px);
+  background: #0f172a;
+  color: #38bdf8;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.12), 0 0 10px rgba(56, 189, 248, 0.35);
+}
+
+.superadmin-theme-toggle.is-light .sa-toggle-thumb,
+.tfAdminTopbar__themeToggle.is-light .sa-toggle-thumb {
+  transform: translateX(0);
+  background: #ffffff;
+  color: #f59e0b;
+}
+
+.superadmin-theme-toggle:active .sa-toggle-thumb,
+.tfAdminTopbar__themeToggle:active .sa-toggle-thumb {
+  transform: scale(0.92);
+}
+
+.superadmin-theme-toggle.is-dark:active .sa-toggle-thumb,
+.tfAdminTopbar__themeToggle.is-dark:active .sa-toggle-thumb {
+  transform: translateX(28px) scale(0.92);
+}
+
+/* Backwards-compatibility aliases */
+.tfTeamLeadTopbar .tlt-right {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px;
+}
+
+/* =========================================================
+   NOTIFICATION ICON UTILITY CLASSES (NO JS INLINE STYLING)
+========================================================= */
+
+.tfAdminTopbar__notificationIcon--purple {
+  color: #8b5cf6 !important;
+  background: #f3e8ff !important;
+}
+
+.tfAdminTopbar__notificationIcon--green {
+  color: #10b981 !important;
+  background: #d1fae5 !important;
+}
+
+.tfAdminTopbar__notificationIcon--orange {
+  color: #f97316 !important;
+  background: #ffedd5 !important;
+}
+
+.tfAdminTopbar__notificationIcon--indigo {
+  color: #4f46e5 !important;
+  background: #eef2ff !important;
+}
+
+.tfAdminTopbar__searchArrow {
+  margin-left: auto !important;
+  color: #94a3b8 !important;
+  flex-shrink: 0 !important;
+}
+
+:root.dark .tfAdminTopbar__notificationIcon--purple,
+.dark .tfAdminTopbar__notificationIcon--purple,
+[data-theme="dark"] .tfAdminTopbar__notificationIcon--purple,
+body.dark-mode .tfAdminTopbar__notificationIcon--purple {
+  color: #c084fc !important;
+  background: rgba(139, 92, 246, 0.2) !important;
+}
+
+:root.dark .tfAdminTopbar__notificationIcon--green,
+.dark .tfAdminTopbar__notificationIcon--green,
+[data-theme="dark"] .tfAdminTopbar__notificationIcon--green,
+body.dark-mode .tfAdminTopbar__notificationIcon--green {
+  color: #34d399 !important;
+  background: rgba(16, 185, 129, 0.2) !important;
+}
+
+:root.dark .tfAdminTopbar__notificationIcon--orange,
+.dark .tfAdminTopbar__notificationIcon--orange,
+[data-theme="dark"] .tfAdminTopbar__notificationIcon--orange,
+body.dark-mode .tfAdminTopbar__notificationIcon--orange {
+  color: #fb923c !important;
+  background: rgba(249, 115, 22, 0.2) !important;
+}
+
+:root.dark .tfAdminTopbar__notificationIcon--indigo,
+.dark .tfAdminTopbar__notificationIcon--indigo,
+[data-theme="dark"] .tfAdminTopbar__notificationIcon--indigo,
+body.dark-mode .tfAdminTopbar__notificationIcon--indigo {
+  color: #818cf8 !important;
+  background: rgba(99, 102, 241, 0.2) !important;
+}
+
+:root.dark .tfAdminTopbar__searchArrow,
+.dark .tfAdminTopbar__searchArrow,
+[data-theme="dark"] .tfAdminTopbar__searchArrow,
+body.dark-mode .tfAdminTopbar__searchArrow {
+  color: #64748b !important;
 }

@@ -10,65 +10,81 @@
   color: #edf1ff;
 }
 
-/* Base sidebar styling, aligned with the workspace theme below */
-.dark-mode .team-lead-sidebar {
-  background: #ffffff !important;
-  border-right: 1px solid #e6eaf2 !important;
-  color: #26334f !important;
+/* Base sidebar styling aligned with Admin panel dark theme */
+.dark-mode .tfTeamLeadSidebar,
+.dark .tfTeamLeadSidebar,
+:root.dark .tfTeamLeadSidebar,
+[data-theme="dark"] .tfTeamLeadSidebar {
+  background: #0f172a !important;
+  border-right: 1px solid #1e293b !important;
+  color: #f8fafc !important;
 }
 
-.dark-mode .team-lead-sidebar .tls-brand {
-  border-bottom: 1px solid #edf0f6 !important;
-  color: #17213e !important;
+.dark-mode .tfTeamLeadSidebar .tfAdminSidebar__brandRow,
+.dark .tfTeamLeadSidebar .tfAdminSidebar__brandRow,
+:root.dark .tfTeamLeadSidebar .tfAdminSidebar__brandRow,
+[data-theme="dark"] .tfTeamLeadSidebar .tfAdminSidebar__brandRow {
+  background: #0f172a !important;
+  border-bottom: 1px solid #1e293b !important;
+  color: #f8fafc !important;
 }
 
-.dark-mode .team-lead-sidebar .tls-brand-name {
-  color: #17213e !important;
+.dark-mode .tfTeamLeadSidebar .superadmin-brand-name,
+.dark .tfTeamLeadSidebar .superadmin-brand-name,
+:root.dark .tfTeamLeadSidebar .superadmin-brand-name,
+[data-theme="dark"] .tfTeamLeadSidebar .superadmin-brand-name {
+  color: #f8fafc !important;
 }
 
-.dark-mode .team-lead-sidebar .tls-brand-sub {
-  color: #77839a !important;
+.dark-mode .tfTeamLeadSidebar .tfAdminSidebar__sectionLabel,
+.dark .tfTeamLeadSidebar .tfAdminSidebar__sectionLabel,
+:root.dark .tfTeamLeadSidebar .tfAdminSidebar__sectionLabel,
+[data-theme="dark"] .tfTeamLeadSidebar .tfAdminSidebar__sectionLabel {
+  color: #64748b !important;
 }
 
-.dark-mode .team-lead-sidebar .tls-section-label {
-  color: #78849a !important;
-}
-
-.dark-mode .team-lead-sidebar .tls-nav-item {
-  color: #3e4b65 !important;
+.dark-mode .tfTeamLeadSidebar .tfAdminSidebar__navItem,
+.dark .tfTeamLeadSidebar .tfAdminSidebar__navItem,
+:root.dark .tfTeamLeadSidebar .tfAdminSidebar__navItem,
+[data-theme="dark"] .tfTeamLeadSidebar .tfAdminSidebar__navItem {
+  color: #94a3b8 !important;
   background: transparent !important;
-  border-color: transparent !important;
 }
 
-.dark-mode .team-lead-sidebar .tls-nav-item:hover {
-  color: #3547ce !important;
-  background: #f3f5ff !important;
+.dark-mode .tfTeamLeadSidebar .tfAdminSidebar__navItem:hover,
+.dark .tfTeamLeadSidebar .tfAdminSidebar__navItem:hover,
+:root.dark .tfTeamLeadSidebar .tfAdminSidebar__navItem:hover,
+[data-theme="dark"] .tfTeamLeadSidebar .tfAdminSidebar__navItem:hover {
+  color: #f8fafc !important;
+  background: rgba(255, 255, 255, 0.06) !important;
 }
 
-.dark-mode .team-lead-sidebar .tls-nav-item.active {
-  color: #4e55df !important;
-  background: #eef0ff !important;
-  border-color: #e3e6ff !important;
-  box-shadow: inset 3px 0 0 #5963f5 !important;
+.dark-mode .tfTeamLeadSidebar .tfAdminSidebar__navItem--active,
+.dark-mode .tfTeamLeadSidebar .tfAdminSidebar__navItem.active,
+.dark .tfTeamLeadSidebar .tfAdminSidebar__navItem--active,
+.dark .tfTeamLeadSidebar .tfAdminSidebar__navItem.active,
+:root.dark .tfTeamLeadSidebar .tfAdminSidebar__navItem--active,
+:root.dark .tfTeamLeadSidebar .tfAdminSidebar__navItem.active,
+[data-theme="dark"] .tfTeamLeadSidebar .tfAdminSidebar__navItem--active,
+[data-theme="dark"] .tfTeamLeadSidebar .tfAdminSidebar__navItem.active {
+  color: #ffffff !important;
+  background: #4f46e5 !important;
 }
 
-.dark-mode .team-lead-sidebar .tls-support-card {
-  background: #fafbff !important;
-  border: 1px solid #e5e9f2 !important;
+.dark-mode .tfTeamLeadSidebar .tf-lead-footer,
+.dark .tfTeamLeadSidebar .tf-lead-footer,
+:root.dark .tfTeamLeadSidebar .tf-lead-footer,
+[data-theme="dark"] .tfTeamLeadSidebar .tf-lead-footer {
+  border-top-color: #1e293b !important;
+  background: #0f172a !important;
 }
 
-.dark-mode .team-lead-sidebar .tls-support-copy b {
-  color: #26334f !important;
-}
-
-.dark-mode .team-lead-sidebar .tls-support-copy small {
-  color: #77839a !important;
-}
-
-.dark-mode .team-lead-sidebar .tls-support-button {
-  background: #ffffff !important;
-  border: 1px solid #e0e5f0 !important;
-  color: #4e55d9 !important;
+.dark-mode .tfTeamLeadSidebar .tf-lead-status-card,
+.dark .tfTeamLeadSidebar .tf-lead-status-card,
+:root.dark .tfTeamLeadSidebar .tf-lead-status-card,
+[data-theme="dark"] .tfTeamLeadSidebar .tf-lead-status-card {
+  background: #1e293b !important;
+  border-color: #334155 !important;
 }
 
 /* ---------------------------------------------------------

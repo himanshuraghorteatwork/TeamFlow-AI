@@ -95,6 +95,7 @@ export default function Calendar() {
   const [editingId, setEditingId] = useState(null);
   const [formError, setFormError] = useState("");
   const [form, setForm] = useState(() => getEmptyForm(todayKey));
+  const [deleteEventTarget, setDeleteEventTarget] = useState(null);
 
   const calendarDays = useMemo(() => {
     const year = currentMonth.getFullYear();
@@ -217,9 +218,10 @@ export default function Calendar() {
     setFormError("");
   }
 
-  function deleteEvent(id) {
-    if (!window.confirm("Are you sure you want to delete this event?")) return;
-    setEvents(previous => previous.filter(event => event.id !== id));
+  function confirmDeleteEvent() {
+    if (!deleteEventTarget) return;
+    setEvents(previous => previous.filter(event => event.id !== deleteEventTarget.id));
+    setDeleteEventTarget(null);
   }
 
   function selectEventDate(date) {
@@ -328,7 +330,7 @@ export default function Calendar() {
                     <span className={`tl-calendar-category ${event.category}`}>{CATEGORY_LABELS[event.category] || "Event"}</span>
                     <div>
                       <button type="button" aria-label={`Edit ${event.title}`} onClick={() => openEditForm(event)}><Pencil size={13} /></button>
-                      <button type="button" aria-label={`Delete ${event.title}`} onClick={() => deleteEvent(event.id)}><Trash2 size={13} /></button>
+                      <button type="button" className="tl-calendar-delete-btn tl-btn-delete" aria-label={`Delete ${event.title}`} onClick={() => setDeleteEventTarget(event)}><Trash2 size={13} /></button>
                     </div>
                   </div>
                   <h3>{event.title}</h3>
@@ -406,6 +408,40 @@ export default function Calendar() {
               </footer>
             </form>
           </section>
+        </div>
+      )}
+
+      {/* CUSTOM CSS DELETE CONFIRMATION MODAL */}
+      {deleteEventTarget && (
+        <div
+          className="tl-delete-modal-overlay"
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget) setDeleteEventTarget(null);
+          }}
+        >
+          <div className="tl-delete-modal-box">
+            <div className="tl-delete-modal-icon-circle">
+              <Trash2 size={24} />
+            </div>
+            <h3>Delete "{deleteEventTarget.title}"?</h3>
+            <p>Are you sure you want to permanently remove this event from your calendar? This action cannot be undone.</p>
+            <div className="tl-delete-modal-footer">
+              <button
+                type="button"
+                className="tl-btn-secondary"
+                onClick={() => setDeleteEventTarget(null)}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="tl-btn-danger"
+                onClick={confirmDeleteEvent}
+              >
+                <Trash2 size={15} /> Delete Event
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </section>

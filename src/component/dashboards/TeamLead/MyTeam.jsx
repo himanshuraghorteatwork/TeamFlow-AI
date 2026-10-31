@@ -137,6 +137,7 @@ export default function MyTeam() {
   const [showForm, setShowForm] = useState(false);
   const [selectedMember, setSelectedMember] = useState(null);
   const [menuMember, setMenuMember] = useState(null);
+  const [deleteMemberTarget, setDeleteMemberTarget] = useState(null);
 
   const [form, setForm] = useState({
     name: "",
@@ -206,22 +207,15 @@ export default function MyTeam() {
     setStatusFilter("All Status");
   }
 
-  function handleDeleteMember(id) {
-    const confirmed = window.confirm(
-      "Are you sure you want to remove this team member?"
-    );
-
-    if (!confirmed) return;
-
+  function confirmDeleteMember() {
+    if (!deleteMemberTarget) return;
     setMembers((previous) =>
-      previous.filter((member) => member.id !== id)
+      previous.filter((member) => member.id !== deleteMemberTarget.id)
     );
-
-    setMenuMember(null);
-
-    if (selectedMember?.id === id) {
+    if (selectedMember?.id === deleteMemberTarget.id) {
       setSelectedMember(null);
     }
+    setDeleteMemberTarget(null);
   }
 
   return (
@@ -391,8 +385,11 @@ export default function MyTeam() {
                         </button>
 
                         <button
-                          className="mt-delete-action"
-                          onClick={() => handleDeleteMember(member.id)}
+                          className="mt-delete-action tl-btn-delete"
+                          onClick={() => {
+                            setDeleteMemberTarget(member);
+                            setMenuMember(null);
+                          }}
                         >
                           <Trash2 size={15} />
                           Remove Member
@@ -654,6 +651,40 @@ export default function MyTeam() {
             >
               Close Profile
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* CUSTOM CSS DELETE CONFIRMATION MODAL */}
+      {deleteMemberTarget && (
+        <div
+          className="tl-delete-modal-overlay"
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget) setDeleteMemberTarget(null);
+          }}
+        >
+          <div className="tl-delete-modal-box">
+            <div className="tl-delete-modal-icon-circle">
+              <Trash2 size={24} />
+            </div>
+            <h3>Remove "{deleteMemberTarget.name}"?</h3>
+            <p>Are you sure you want to remove this member from the team? Their assigned tasks will become unassigned.</p>
+            <div className="tl-delete-modal-footer">
+              <button
+                type="button"
+                className="tl-btn-secondary"
+                onClick={() => setDeleteMemberTarget(null)}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="tl-btn-danger"
+                onClick={confirmDeleteMember}
+              >
+                <Trash2 size={15} /> Remove Member
+              </button>
+            </div>
           </div>
         </div>
       )}
