@@ -1423,8 +1423,99 @@ function HowItWorks() {
 }
 
 /* =========================================================================
-   8. LIVE METRICS & TELEMETRY NUMBERS
+   8. LIVE METRICS & TELEMETRY NUMBERS WITH DYNAMIC ROLL-DOWN ANIMATION
+   Physically cascades digits downwards with elastic reel physics
+   Reacts to scroll gestures (scrolling down or up) and viewport entrance
    ========================================================================= */
+
+function RollDigitColumn({ char, charIndex, totalChars, rollKey, cardIndex }) {
+  const isDigit = /^[0-9]$/.test(char);
+  const targetDigit = isDigit ? parseInt(char, 10) : 0;
+
+  // Compute horizontal ratio so gradient spans seamless across the full stat string
+  const ratio = totalChars > 1 ? (charIndex / (totalChars - 1)) * 100 : 0;
+  const gradientStyle = {
+    background: "var(--tf-gradient-text)",
+    WebkitBackgroundClip: "text",
+    WebkitTextFillColor: "transparent",
+    backgroundSize: `${Math.max(totalChars, 1) * 100}% 100%`,
+    backgroundPosition: `${ratio}% 50%`,
+  };
+
+  if (!isDigit) {
+    let symbolClass = "roll-symbol";
+    if (char === ".") symbolClass += " is-dot";
+    else if (char === ",") symbolClass += " is-comma";
+    else if (char === "%") symbolClass += " is-percent";
+    else if (char === "+") symbolClass += " is-plus";
+    else if (char === "x") symbolClass += " is-multiplier";
+
+    return (
+      <span className={symbolClass} style={gradientStyle}>
+        {char}
+      </span>
+    );
+  }
+
+  // Generate downward rolling numbers sequence ending at targetDigit:
+  // Index 0 is targetDigit (settles at translateY(0em))
+  // Index k is (targetDigit - (k % 10) + 10) % 10
+  // Each item is 1.15em high block, positioned absolutely in sequence
+  const count = 10 + charIndex * 2 + cardIndex * 2;
+  const items = [];
+  for (let k = 0; k <= count; k++) {
+    items.push((targetDigit - (k % 10) + 10) % 10);
+  }
+
+  const startY = -(count * 1.15).toFixed(3);
+  const duration = 950 + charIndex * 50 + cardIndex * 40;
+  const delay = cardIndex * 50 + charIndex * 35;
+
+  return (
+    <span className="roll-digit-col">
+      <span
+        key={rollKey}
+        className={`roll-digit-strip ${rollKey > 0 ? "roll-down-active" : ""}`}
+        style={{
+          "--reel-start-y": `${startY}em`,
+          animationDuration: `${duration}ms`,
+          animationDelay: `${delay}ms`,
+        }}
+      >
+        {items.map((num, idx) => (
+          <span
+            key={idx}
+            className="roll-digit-item"
+            style={gradientStyle}
+          >
+            {num}
+          </span>
+        ))}
+      </span>
+    </span>
+  );
+}
+
+function LiveRollingNumber({ value, rollKey, cardIndex = 0 }) {
+  const chars = String(value).split("");
+  const totalChars = chars.length;
+
+  return (
+    <span className="roll-number-container">
+      {chars.map((char, idx) => (
+        <RollDigitColumn
+          key={`${idx}-${char}`}
+          char={char}
+          charIndex={idx}
+          totalChars={totalChars}
+          rollKey={rollKey}
+          cardIndex={cardIndex}
+        />
+      ))}
+    </span>
+  );
+}
+
 function MetricsSection() {
   const stats = [
     { value: "99.98%", label: "Platform SLA Uptime", sub: "Enterprise High Availability" },
@@ -1433,13 +1524,111 @@ function MetricsSection() {
     { value: "3.2x", label: "Faster Cycle Velocity", sub: "From Idea to Production" },
   ];
 
+  const sectionRef = useRef(null);
+  const [rollKey, setRollKey] = useState(0);
+  const [isRolling, setIsRolling] = useState(false);
+  const lastScrollY = useRef(0);
+  const lastTriggerTime = useRef(0);
+  const rollingTimer = useRef(null);
+
+  const triggerRoll = () => {
+    const now = Date.now();
+    // Throttle so continuous wheel ticks don't spasmingly restart mid-roll
+    if (now - lastTriggerTime.current < 600) return;
+    lastTriggerTime.current = now;
+
+    setRollKey((k) => k + 1);
+    setIsRolling(true);
+
+    if (rollingTimer.current) clearTimeout(rollingTimer.current);
+    rollingTimer.current = setTimeout(() => {
+      setIsRolling(false);
+    }, 1500);
+  };
+
+  // Scroll detection: Trigger rolling when scrolling up or down
+  useEffect(() => {
+    lastScrollY.current = window.scrollY || document.documentElement.scrollTop;
+
+    const handleScroll = () => {
+      const el = sectionRef.current;
+      if (!el) return;
+
+      const rect = el.getBoundingClientRect();
+      const windowHeight = window.innerHeight || document.documentElement.clientHeight;
+
+      // Check if section is visibly on screen (central 80% of screen)
+      const inViewport = rect.top < windowHeight * 0.88 && rect.bottom > windowHeight * 0.12;
+      if (!inViewport) return;
+
+      const currentScrollY = window.scrollY || document.documentElement.scrollTop;
+      const delta = Math.abs(currentScrollY - lastScrollY.current);
+
+      // Trigger if user scrolled up or down
+      if (delta > 30) {
+        lastScrollY.current = currentScrollY;
+        triggerRoll();
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      if (rollingTimer.current) clearTimeout(rollingTimer.current);
+    };
+  }, []);
+
+  // IntersectionObserver: Trigger when entering viewport (scrolling down into it or up into it)
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            triggerRoll();
+          }
+        });
+      },
+      {
+        threshold: [0.15, 0.4],
+        rootMargin: "0px 0px -40px 0px",
+      }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  // Wheel listener: Instant responsiveness if user rolls wheel while over the section
+  const handleWheel = (e) => {
+    if (Math.abs(e.deltaY) > 8) {
+      triggerRoll();
+    }
+  };
+
   return (
-    <section className="metrics-banner-section">
+    <section
+      className="metrics-banner-section"
+      ref={sectionRef}
+      onWheel={handleWheel}
+    >
       <div className="metrics-container">
         <div className="metrics-grid">
-          {stats.map((s) => (
-            <div className="metric-box" key={s.label}>
-              <div className="metric-number gradient-text">{s.value}</div>
+          {stats.map((s, index) => (
+            <div
+              className={`metric-box ${isRolling ? "is-rolling" : ""}`}
+              key={s.label}
+              onMouseEnter={triggerRoll}
+            >
+              <div className="metric-number">
+                <LiveRollingNumber
+                  value={s.value}
+                  rollKey={rollKey}
+                  cardIndex={index}
+                />
+              </div>
               <strong className="metric-label">{s.label}</strong>
               <span className="metric-sub">{s.sub}</span>
             </div>

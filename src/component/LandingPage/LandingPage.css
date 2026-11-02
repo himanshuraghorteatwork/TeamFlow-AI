@@ -2532,12 +2532,139 @@ body {
   border-color: rgba(99, 102, 241, 0.45);
 }
 
+:root {
+  --roll-digit-height: 1.15em;
+  --roll-digit-width: 0.65em;
+}
+
 .metric-number {
   font-size: clamp(32px, 3.5vw, 42px);
   font-weight: 900;
   letter-spacing: -1px;
   margin-bottom: 6px;
   transform: translateZ(28px);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--roll-digit-height);
+  line-height: var(--roll-digit-height);
+  font-variant-numeric: tabular-nums;
+  position: relative;
+}
+
+.roll-number-container {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--roll-digit-height);
+  line-height: var(--roll-digit-height);
+  vertical-align: middle;
+}
+
+.roll-digit-col {
+  display: inline-block;
+  position: relative;
+  height: var(--roll-digit-height);
+  line-height: var(--roll-digit-height);
+  overflow: hidden;
+  vertical-align: top;
+  width: var(--roll-digit-width);
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  contain: paint;
+}
+
+.roll-digit-strip {
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  transform: translateY(0em);
+  will-change: transform;
+}
+
+.roll-digit-strip.roll-down-active {
+  animation-name: rollDownDigit;
+  animation-timing-function: cubic-bezier(0.12, 0.82, 0.2, 1);
+  animation-fill-mode: both;
+}
+
+.roll-digit-item {
+  display: block;
+  height: var(--roll-digit-height);
+  line-height: var(--roll-digit-height);
+  width: 100%;
+  text-align: center;
+  user-select: none;
+  font-variant-numeric: tabular-nums;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  background: var(--tf-gradient-text);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.roll-symbol {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--roll-digit-height);
+  line-height: var(--roll-digit-height);
+  user-select: none;
+  vertical-align: top;
+  background: var(--tf-gradient-text);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.roll-symbol.is-dot,
+.roll-symbol.is-comma {
+  width: 0.28em;
+  text-align: center;
+}
+
+.roll-symbol.is-plus,
+.roll-symbol.is-percent,
+.roll-symbol.is-multiplier {
+  padding-left: 0.04em;
+}
+
+@keyframes rollDownDigit {
+  0% {
+    transform: translateY(var(--reel-start-y, -11.5em));
+    filter: blur(0.25px);
+  }
+  65% {
+    filter: blur(0.1px);
+  }
+  86% {
+    transform: translateY(0.05em);
+    filter: blur(0px);
+  }
+  94% {
+    transform: translateY(-0.015em);
+  }
+  100% {
+    transform: translateY(0em);
+    filter: blur(0px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .roll-digit-strip.roll-down-active {
+    animation: none !important;
+    transform: translateY(0em) !important;
+  }
+}
+
+.metric-box.is-rolling {
+  border-color: rgba(99, 102, 241, 0.45);
+  box-shadow: 0 18px 38px -8px rgba(99, 102, 241, 0.2), var(--tf-card-shadow);
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
 }
 
 .metric-label {
