@@ -26,6 +26,52 @@ import {
 import "../Admin/AdminTopbar.css";
 import "./TeamLeadTopbar.css";
 
+function readTeamLeadUser(fallbackName = "Komal Pawar") {
+  try {
+    const cur = JSON.parse(localStorage.getItem("teamflow_current_user") || "null");
+    if (cur?.name) {
+      return {
+        name: cur.name,
+        email: cur.email || "komal.pawar@teamflow.demo",
+        role: cur.role || "Team Lead",
+        photo: cur.photo || "",
+      };
+    }
+    const sett = JSON.parse(localStorage.getItem("teamflow_teamlead_settings") || "null");
+    if (sett?.profile?.name) {
+      return {
+        name: sett.profile.name,
+        email: sett.profile.email || "komal.pawar@teamflow.demo",
+        role: sett.profile.role || "Team Lead",
+        photo: sett.profile.photo || "",
+      };
+    }
+  } catch {
+    // ignore
+  }
+  return {
+    name: fallbackName,
+    email: "komal.pawar@teamflow.demo",
+    role: "Team Lead",
+    photo: "",
+  };
+}
+
+function readNotificationsCount() {
+  try {
+    const saved = localStorage.getItem("teamflow_teamlead_notifications");
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed)) {
+        return parsed.filter((n) => n.unread).length;
+      }
+    }
+  } catch {
+    // ignore
+  }
+  return 3;
+}
+
 export default function TeamLeadTopbar({
   onMobileMenuToggle,
   profileName = "Komal Pawar",
@@ -119,7 +165,66 @@ export default function TeamLeadTopbar({
   const [searchOpen, setSearchOpen] = useState(false);
   const [notificationOpen, setNotificationOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
-  const [unreadCount, setUnreadCount] = useState(3);
+
+  const [leadUser, setLeadUser] = useState(() => readTeamLeadUser(profileName));
+  const [unreadCount, setUnreadCount] = useState(readNotificationsCount);
+
+  // Sync user profile updates from settings or storage
+  useEffect(() => {
+    const handleUserSync = () => {
+      setLeadUser(readTeamLeadUser(profileName));
+    };
+    window.addEventListener("teamflow_user_update", handleUserSync);
+    window.addEventListener("storage", handleUserSync);
+    return () => {
+      window.removeEventListener("teamflow_user_update", handleUserSync);
+      window.removeEventListener("storage", handleUserSync);
+    };
+  }, [profileName]);
+
+  // Sync notifications unread count
+  useEffect(() => {
+    const handleDataSync = () => {
+      setUnreadCount(readNotificationsCount());
+    };
+    window.addEventListener("teamflow_data_update", handleDataSync);
+    window.addEventListener("storage", handleDataSync);
+    return () => {
+      window.removeEventListener("teamflow_data_update", handleDataSync);
+      window.removeEventListener("storage", handleDataSync);
+    };
+  }, []);
+
+  const userInitials = useMemo(() => {
+    const name = leadUser?.name || "";
+    if (!name) return "KP";
+    return (
+      name
+        .trim()
+        .split(/\s+/)
+        .map((part) => part[0] || "")
+        .slice(0, 2)
+        .join("")
+        .toUpperCase() || "KP"
+    );
+  }, [leadUser.name]);
+
+  const handleMarkAllNotificationsRead = () => {
+    setUnreadCount(0);
+    try {
+      const saved = localStorage.getItem("teamflow_teamlead_notifications");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          const updated = parsed.map((n) => ({ ...n, unread: false }));
+          localStorage.setItem("teamflow_teamlead_notifications", JSON.stringify(updated));
+        }
+      }
+    } catch {
+      // ignore
+    }
+    window.dispatchEvent(new Event("teamflow_data_update"));
+  };
 
   const searchRef = useRef(null);
   const searchInputRef = useRef(null);
@@ -325,7 +430,7 @@ export default function TeamLeadTopbar({
                   <button
                     type="button"
                     className="tfAdminTopbar__markReadBtn"
-                    onClick={() => setUnreadCount(0)}
+                    onClick={handleMarkAllNotificationsRead}
                   >
                     Mark all read
                   </button>
@@ -404,11 +509,19 @@ export default function TeamLeadTopbar({
             aria-label="Open team lead profile menu"
           >
             <span className="tfAdminTopbar__profileAvatar">
-              KP
+              {leadUser.photo ? (
+                <img
+                  src={leadUser.photo}
+                  alt={leadUser.name}
+                  style={{ width: "100%", height: "100%", borderRadius: "50%", objectFit: "cover" }}
+                />
+              ) : (
+                userInitials
+              )}
             </span>
             <span className="tfAdminTopbar__profileText">
-              <strong>{profileName}</strong>
-              <small>Team Lead</small>
+              <strong>{leadUser.name}</strong>
+              <small>{leadUser.role || "Team Lead"}</small>
             </span>
             <ChevronDown
               size={14}
@@ -420,11 +533,19 @@ export default function TeamLeadTopbar({
             <div className="tfAdminTopbar__accountMenu">
               <div className="tfAdminTopbar__accountHeader">
                 <div className="tfAdminTopbar__accountAvatar">
-                  KP
+                  {leadUser.photo ? (
+                    <img
+                      src={leadUser.photo}
+                      alt={leadUser.name}
+                      style={{ width: "100%", height: "100%", borderRadius: "50%", objectFit: "cover" }}
+                    />
+                  ) : (
+                    userInitials
+                  )}
                 </div>
                 <div>
-                  <strong>{profileName}</strong>
-                  <span>komal.pawar@teamflow.demo</span>
+                  <strong>{leadUser.name}</strong>
+                  <span>{leadUser.email}</span>
                 </div>
               </div>
 

@@ -44,14 +44,27 @@ const STARTERS = [
   },
 ];
 
-const INITIAL_MESSAGES = [
-  {
-    id: "welcome",
-    role: "assistant",
-    time: "Just now",
-    text: "Hi Priya! I'm your TeamFlow assistant. I can help you get a quick read on team progress, plan work, and think through project priorities. What would you like to work on?",
-  },
-];
+function getWelcomeMessage() {
+  let name = "there";
+  try {
+    const cur = JSON.parse(localStorage.getItem("teamflow_current_user") || "null");
+    if (cur?.name) name = cur.name.split(" ")[0];
+    else {
+      const sett = JSON.parse(localStorage.getItem("teamflow_teamlead_settings") || "null");
+      if (sett?.profile?.name) name = sett.profile.name.split(" ")[0];
+    }
+  } catch {
+    // ignore
+  }
+  return [
+    {
+      id: "welcome",
+      role: "assistant",
+      time: "Just now",
+      text: `Hi ${name}! I'm your TeamFlow assistant. I can help you get a quick read on team progress, plan work, and think through project priorities. What would you like to work on?`,
+    },
+  ];
+}
 
 let messageSequence = 0;
 
@@ -111,7 +124,7 @@ function makeReply(prompt) {
 }
 
 export default function AiAssistant() {
-  const [messages, setMessages] = useState(INITIAL_MESSAGES);
+  const [messages, setMessages] = useState(getWelcomeMessage);
   const [draft, setDraft] = useState("");
   const [isThinking, setIsThinking] = useState(false);
   const [notice, setNotice] = useState("");
@@ -152,7 +165,7 @@ export default function AiAssistant() {
 
   function startNewChat() {
     window.clearTimeout(responseTimer.current);
-    setMessages(INITIAL_MESSAGES);
+    setMessages(getWelcomeMessage());
     setDraft("");
     setNotice("");
     setIsThinking(false);

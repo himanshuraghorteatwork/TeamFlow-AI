@@ -195,7 +195,29 @@ export default function TaskSuggestions() {
       )
     );
     const target = suggestions.find((s) => s.id === id);
-    setToastMessage(`Accepted: "${target?.title}". Task assigned to ${target?.assignee}.`);
+    if (target) {
+      try {
+        const rawTasks = localStorage.getItem("teamflow_teamlead_tasks") || localStorage.getItem("teamflow_tasks");
+        const existingTasks = rawTasks ? JSON.parse(rawTasks) : [];
+        if (Array.isArray(existingTasks)) {
+          const newTask = {
+            id: `TASK-${Date.now().toString().slice(-4)}`,
+            title: target.title,
+            project: target.project || "TeamFlow Website",
+            assignee: target.assignee || "Aarav Shah",
+            priority: target.impact || "Medium",
+            status: "To Do",
+            dueDate: new Date(Date.now() + 86400000 * 3).toISOString().split("T")[0],
+          };
+          existingTasks.unshift(newTask);
+          localStorage.setItem("teamflow_teamlead_tasks", JSON.stringify(existingTasks));
+          window.dispatchEvent(new Event("teamflow_data_update"));
+        }
+      } catch {
+        // ignore
+      }
+    }
+    setToastMessage(`Accepted: "${target?.title}". Added to Sprint Tasks and assigned to ${target?.assignee}.`);
   };
 
   const handleDismiss = (id) => {

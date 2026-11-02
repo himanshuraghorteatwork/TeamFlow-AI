@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   CalendarCheck,
   CalendarDays,
@@ -82,9 +82,33 @@ function getEmptyForm(date) {
   };
 }
 
+const CALENDAR_STORAGE_KEY = "teamflow_calendar_events";
+
+function getStoredEvents() {
+  try {
+    const saved = localStorage.getItem(CALENDAR_STORAGE_KEY);
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    }
+  } catch {
+    // ignore
+  }
+  return initialEvents;
+}
+
 export default function Calendar() {
   const todayKey = toDateKey(new Date());
-  const [events, setEvents] = useState(initialEvents);
+  const [events, setEvents] = useState(getStoredEvents);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(CALENDAR_STORAGE_KEY, JSON.stringify(events));
+      window.dispatchEvent(new Event("teamflow_data_update"));
+    } catch {
+      // ignore
+    }
+  }, [events]);
   const [currentMonth, setCurrentMonth] = useState(() => {
     const today = new Date();
     return new Date(today.getFullYear(), today.getMonth(), 1);

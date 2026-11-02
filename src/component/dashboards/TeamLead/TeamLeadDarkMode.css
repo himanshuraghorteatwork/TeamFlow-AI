@@ -2268,3 +2268,998 @@
 .dark-mode .tl-project-number {
   color: #94a3b8 !important;
 }
+
+/* =========================================================
+   RECHARTS DARK MODE STYLING & GRAPH POLISH
+========================================================= */
+.dark-mode .recharts-cartesian-grid line,
+.dark-mode .recharts-cartesian-grid-horizontal line,
+.dark-mode .recharts-cartesian-grid-vertical line {
+  stroke: #334155 !important;
+  opacity: 0.8;
+}
+
+.dark-mode .recharts-text,
+.dark-mode .recharts-cartesian-axis-tick text {
+  fill: #94a3b8 !important;
+  font-size: 11px !important;
+}
+
+.dark-mode .recharts-default-tooltip {
+  background-color: #1e293b !important;
+  border: 1px solid #334155 !important;
+  border-radius: 8px !important;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.55) !important;
+  color: #f8fafc !important;
+  padding: 10px 14px !important;
+}
+
+.dark-mode .recharts-tooltip-item {
+  color: #e2e8f0 !important;
+  font-size: 12px !important;
+}
+
+.dark-mode .recharts-tooltip-label {
+  color: #a5b4fc !important;
+  font-weight: 600 !important;
+  border-bottom: 1px solid #334155 !important;
+  margin-bottom: 6px !important;
+  padding-bottom: 4px !important;
+}
+
+.dark-mode .pr-chart-wrap .recharts-bar-rectangles path[fill="#e2e8f0"] {
+  fill: #334155 !important;
+}
+
+/* Contrast enhancement for due dates, tables and preview cards in dark theme */
+.dark-mode .pr-table td span[style*="color: #3e4c6a"] {
+  color: #94a3b8 !important;
+}
+
+.dark-mode .tf-files-modal [style*="background: rgba(0,0,0,0.03)"] {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid #334155 !important;
+}
+
+.dark-mode .tf-files-modal [style*="color: #64748b"] {
+  color: #94a3b8 !important;
+}
+
+.dark-mode .tld-workload-chart,
+.dark-mode .pr-chart-wrap {
+  position: relative;
+  min-height: 200px;
+}
+
+/* =========================================================
+   MY TEAM SQUAD DIRECTORY DARK MODE POLISH
+========================================================= */
+.dark-mode .mt-view-toggle-wrap {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+}
+
+.dark-mode .mt-view-btn {
+  color: #94a3b8 !important;
+}
+
+.dark-mode .mt-view-btn:hover {
+  color: #f8fafc !important;
+}
+
+.dark-mode .mt-view-btn.active {
+  background: #1e293b !important;
+  color: #a5b4fc !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4) !important;
+}
+
+.dark-mode .mt-filter-select-wrap select {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+.dark-mode .mt-filter-select-wrap select:focus {
+  border-color: #6366f1 !important;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.22) !important;
+}
+
+.dark-mode .mt-filter-select-wrap .mt-select-icon {
+  color: #64748b !important;
+}
+
+.dark-mode .mt-table-wrap {
+  border-color: #334155 !important;
+  background: #1e293b !important;
+}
+
+.dark-mode .mt-table th {
+  background: #0f172a !important;
+  color: #94a3b8 !important;
+  border-bottom-color: #334155 !important;
+}
+
+.dark-mode .mt-table td {
+  border-bottom-color: #243049 !important;
+  color: #f8fafc !important;
+}
+
+.dark-mode .mt-table tbody tr:hover {
+  background: #182238 !important;
+}
+
+.dark-mode .mt-table-member-cell strong {
+  color: #f8fafc !important;
+}
+
+.dark-mode .mt-table-member-cell small {
+  color: #94a3b8 !important;
+}
+
+.dark-mode .mt-table-email-cell span {
+  color: #94a3b8 !important;
+}
+
+.dark-mode .mt-table-copy-btn,
+.dark-mode .mt-icon-action-btn,
+.dark-mode .mt-card-quick-btn {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  color: #94a3b8 !important;
+}
+
+.dark-mode .mt-table-copy-btn:hover,
+.dark-mode .mt-icon-action-btn:hover,
+.dark-mode .mt-card-quick-btn:hover {
+  background: #253352 !important;
+  border-color: #6366f1 !important;
+  color: #c7d2fe !important;
+}
+
+.dark-mode .mt-card-view-btn {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  color: #a5b4fc !important;
+}
+
+.dark-mode .mt-card-view-btn:hover {
+  background: #4f46e5 !important;
+  color: #ffffff !important;
+  border-color: #4f46e5 !important;
+}
+
+.dark-mode .mt-table-projects-badge {
+  background: #0f172a !important;
+  color: #cbd5e1 !important;
+}
+
+.dark-mode .mt-table-progress-track {
+  background: #0f172a !important;
+}
+
+.dark-mode .mt-panel-footer {
+  border-top-color: #334155 !important;
+  color: #94a3b8 !important;
+}
+
+.dark-mode .mt-footer-link {
+  color: #a5b4fc !important;
+}
+
+.dark-mode .mt-footer-link:hover {
+  background: #253352 !important;
+}
+
+.dark-mode .mt-status.in-a-meeting {
+  background: rgba(139, 92, 246, 0.18) !important;
+  color: #c4b5fd !important;
+}
+
+.dark-mode .mt-status.on-leave {
+  background: rgba(239, 68, 68, 0.18) !important;
+  color: #fca5a5 !important;
+}
+
+.dark-mode .mt-stat-card.is-active-filter {
+  border-color: #6366f1 !important;
+  background: #182238 !important;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.3) !important;
+}
+
+.dark-mode .mt-form-label {
+  color: #cbd5e1 !important;
+}
+
+.dark-mode .mt-profile-actions-bar {
+  border-bottom-color: #334155 !important;
+}
+
+.dark-mode .mt-action-pill {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  color: #cbd5e1 !important;
+}
+
+.dark-mode .mt-action-pill:hover {
+  background: #253352 !important;
+  border-color: #6366f1 !important;
+  color: #c7d2fe !important;
+}
+
+.dark-mode .mt-profile-details > div {
+  border-bottom-color: #243049 !important;
+}
+
+.dark-mode .mt-dropdown-divider {
+  background: #334155 !important;
+}
+
+.dark-mode .mt-color-btn {
+  border-color: #1e293b !important;
+  box-shadow: 0 0 0 1px #475569 !important;
+}
+
+/* =========================================================
+   TEAM LEAD WORKLOAD MANAGEMENT - DARK THEME POLISH
+========================================================= */
+
+.dark-mode .wl-page {
+  background: #0f172a !important;
+  color: #f8fafc !important;
+}
+
+.dark-mode .wl-breadcrumb {
+  color: #94a3b8 !important;
+}
+
+.dark-mode .wl-breadcrumb span {
+  color: #64748b !important;
+}
+
+.dark-mode .wl-page-heading h1 {
+  color: #f8fafc !important;
+}
+
+.dark-mode .wl-page-heading p {
+  color: #94a3b8 !important;
+}
+
+.dark-mode .wl-period-select,
+.dark-mode .wl-secondary-button {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #cbd5e1 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25) !important;
+}
+
+.dark-mode .wl-period-select:hover,
+.dark-mode .wl-secondary-button:hover {
+  background: #253352 !important;
+  border-color: #475569 !important;
+  color: #f8fafc !important;
+}
+
+.dark-mode .wl-period-select select {
+  color: #cbd5e1 !important;
+}
+
+.dark-mode .wl-stat-card {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+}
+
+.dark-mode .wl-stat-card:hover {
+  border-color: #475569 !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35) !important;
+}
+
+.dark-mode .wl-stat-label {
+  color: #94a3b8 !important;
+}
+
+.dark-mode .wl-stat-value {
+  color: #f8fafc !important;
+}
+
+.dark-mode .wl-stat-foot {
+  color: #94a3b8 !important;
+}
+
+.dark-mode .wl-stat-icon.purple {
+  background: rgba(99, 102, 241, 0.18) !important;
+  color: #a5b4fc !important;
+}
+
+.dark-mode .wl-stat-icon.blue {
+  background: rgba(2, 132, 199, 0.18) !important;
+  color: #38bdf8 !important;
+}
+
+.dark-mode .wl-stat-icon.green {
+  background: rgba(16, 185, 129, 0.18) !important;
+  color: #6ee7b7 !important;
+}
+
+.dark-mode .wl-stat-icon.orange {
+  background: rgba(245, 158, 11, 0.18) !important;
+  color: #fcd34d !important;
+}
+
+.dark-mode .wl-card {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+}
+
+.dark-mode .wl-card-header h2 {
+  color: #f8fafc !important;
+}
+
+.dark-mode .wl-card-header p {
+  color: #94a3b8 !important;
+}
+
+.dark-mode .wl-chart-header-badge {
+  background: rgba(99, 102, 241, 0.18) !important;
+  color: #a5b4fc !important;
+}
+
+.dark-mode .wl-chart-legend {
+  color: #cbd5e1 !important;
+}
+
+.dark-mode .wl-legend-pill {
+  color: #94a3b8 !important;
+}
+
+.dark-mode .wl-chart-total {
+  color: #f8fafc !important;
+}
+
+.dark-mode .wl-chart-total small {
+  color: #94a3b8 !important;
+}
+
+.dark-mode .wl-capacity-summary {
+  background: rgba(99, 102, 241, 0.18) !important;
+  color: #a5b4fc !important;
+}
+
+.dark-mode .wl-capacity-scale {
+  color: #64748b !important;
+}
+
+.dark-mode .wl-capacity-person-meta b {
+  color: #f8fafc !important;
+}
+
+.dark-mode .wl-capacity-person-meta small {
+  color: #94a3b8 !important;
+}
+
+.dark-mode .wl-capacity-row > strong {
+  color: #cbd5e1 !important;
+}
+
+.dark-mode .wl-progress-track {
+  background: #334155 !important;
+}
+
+.dark-mode .wl-capacity-note {
+  background: #17233c !important;
+  border-color: #273a66 !important;
+}
+
+.dark-mode .wl-note-icon {
+  background: #24365f !important;
+  color: #a5b4fc !important;
+}
+
+.dark-mode .wl-note-text b {
+  color: #c7d2fe !important;
+}
+
+.dark-mode .wl-note-text p {
+  color: #94a3b8 !important;
+}
+
+.dark-mode .wl-note-rebalance-link {
+  background: #1e293b !important;
+  border-color: #4338ca !important;
+  color: #c7d2fe !important;
+}
+
+.dark-mode .wl-note-rebalance-link:hover {
+  background: #4f46e5 !important;
+  color: #ffffff !important;
+}
+
+.dark-mode .wl-table-wrap {
+  border-top-color: #334155 !important;
+}
+
+.dark-mode .wl-table {
+  border-color: #334155 !important;
+}
+
+.dark-mode .wl-table th {
+  background: #0f172a !important;
+  border-bottom-color: #334155 !important;
+  color: #94a3b8 !important;
+}
+
+.dark-mode .wl-table th.sortable-th:hover {
+  background: #1e293b !important;
+  color: #f8fafc !important;
+}
+
+.dark-mode .wl-table td {
+  border-bottom-color: #243049 !important;
+  color: #cbd5e1 !important;
+}
+
+.dark-mode .wl-table tbody tr:hover {
+  background: #182238 !important;
+}
+
+.dark-mode .wl-member-cell b {
+  color: #f8fafc !important;
+}
+
+.dark-mode .wl-member-cell small {
+  color: #94a3b8 !important;
+}
+
+.dark-mode .wl-table-capacity strong {
+  color: #f8fafc !important;
+}
+
+.dark-mode .wl-number-bold {
+  color: #f8fafc !important;
+}
+
+.dark-mode .wl-sub-text {
+  color: #64748b !important;
+}
+
+.dark-mode .wl-number-success {
+  color: #34d399 !important;
+}
+
+.dark-mode .wl-number-progress {
+  color: #60a5fa !important;
+}
+
+.dark-mode .wl-number-danger {
+  background: rgba(239, 68, 68, 0.18) !important;
+  color: #fca5a5 !important;
+}
+
+.dark-mode .wl-muted {
+  color: #475569 !important;
+}
+
+.dark-mode .wl-hours-val b {
+  color: #f8fafc !important;
+}
+
+.dark-mode .wl-hours-val small {
+  color: #64748b !important;
+}
+
+.dark-mode .wl-capacity-badge.high {
+  background: rgba(239, 68, 68, 0.18) !important;
+  color: #fca5a5 !important;
+}
+
+.dark-mode .wl-capacity-badge.medium {
+  background: rgba(245, 158, 11, 0.18) !important;
+  color: #fcd34d !important;
+}
+
+.dark-mode .wl-capacity-badge.optimal {
+  background: rgba(16, 185, 129, 0.18) !important;
+  color: #6ee7b7 !important;
+}
+
+.dark-mode .wl-capacity-badge.healthy {
+  background: rgba(2, 132, 199, 0.18) !important;
+  color: #7dd3fc !important;
+}
+
+.dark-mode .wl-action-btn {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  color: #94a3b8 !important;
+}
+
+.dark-mode .wl-action-btn:hover {
+  background: #253352 !important;
+  border-color: #475569 !important;
+  color: #c7d2fe !important;
+}
+
+.dark-mode .wl-action-btn.delete:hover {
+  background: rgba(239, 68, 68, 0.2) !important;
+  border-color: #ef4444 !important;
+  color: #fca5a5 !important;
+}
+
+.dark-mode .wl-table-footer {
+  border-top-color: #334155 !important;
+  color: #94a3b8 !important;
+}
+
+.dark-mode .wl-table-footer b {
+  color: #f8fafc !important;
+}
+
+.dark-mode .wl-link-button {
+  color: #a5b4fc !important;
+}
+
+.dark-mode .wl-link-button:hover {
+  background: #253352 !important;
+}
+
+.dark-mode .wl-table-search {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  color: #94a3b8 !important;
+}
+
+.dark-mode .wl-table-search input {
+  color: #f8fafc !important;
+}
+
+.dark-mode .wl-table-search:focus-within {
+  border-color: #6366f1 !important;
+  background: #0f172a !important;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25) !important;
+}
+
+.dark-mode .wl-search-clear {
+  color: #64748b !important;
+}
+
+.dark-mode .wl-search-clear:hover {
+  color: #f8fafc !important;
+}
+
+.dark-mode .wl-filter-chips {
+  background: #0f172a !important;
+  border: 1px solid #334155 !important;
+}
+
+.dark-mode .wl-filter-chip {
+  color: #94a3b8 !important;
+}
+
+.dark-mode .wl-filter-chip:hover {
+  color: #f8fafc !important;
+}
+
+.dark-mode .wl-filter-chip.active {
+  background: #1e293b !important;
+  color: #a5b4fc !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3) !important;
+}
+
+.dark-mode .wl-empty b {
+  color: #f8fafc !important;
+}
+
+.dark-mode .wl-empty span {
+  color: #94a3b8 !important;
+}
+
+.dark-mode .wl-reset-filter-btn {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #a5b4fc !important;
+}
+
+.dark-mode .wl-reset-filter-btn:hover {
+  background: #4f46e5 !important;
+  color: #ffffff !important;
+}
+
+.dark-mode .wl-toast-alert {
+  background: #0f172a !important;
+  border: 1px solid #334155 !important;
+  color: #f8fafc !important;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* =========================================================
+   REAL-WORLD SAAS TABLE & LIVE CHART HOVER DARK MODE
+========================================================= */
+
+.dark-mode .wl-chart-telemetry-banner.idle {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  color: #94a3b8 !important;
+}
+
+.dark-mode .wl-chart-telemetry-banner.active {
+  background: #17233c !important;
+  border-color: #3b82f6 !important;
+  color: #f8fafc !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4) !important;
+}
+
+.dark-mode .wl-telemetry-day {
+  color: #c7d2fe !important;
+}
+
+.dark-mode .wl-custom-tooltip {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5) !important;
+}
+
+.dark-mode .wl-tt-header {
+  border-bottom-color: #334155 !important;
+}
+
+.dark-mode .wl-tt-day,
+.dark-mode .wl-tt-member-name {
+  color: #f8fafc !important;
+}
+
+.dark-mode .wl-tt-member-role,
+.dark-mode .wl-tt-name {
+  color: #94a3b8 !important;
+}
+
+.dark-mode .wl-tt-val {
+  color: #f8fafc !important;
+}
+
+.dark-mode .wl-tt-progress-track {
+  background: #334155 !important;
+}
+
+.dark-mode .wl-bulk-action-bar {
+  background: #1e293b !important;
+  border-bottom-color: #334155 !important;
+}
+
+.dark-mode .wl-bulk-info {
+  color: #f8fafc !important;
+}
+
+.dark-mode .wl-bulk-btn.secondary {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  color: #cbd5e1 !important;
+}
+
+.dark-mode .wl-bulk-btn.secondary:hover {
+  background: #253352 !important;
+  color: #f8fafc !important;
+}
+
+.dark-mode .wl-custom-checkbox {
+  background: #0f172a !important;
+  border-color: #475569 !important;
+}
+
+.dark-mode .wl-checkbox-label input:checked + .wl-custom-checkbox {
+  background: #4f46e5 !important;
+  border-color: #4f46e5 !important;
+}
+
+.dark-mode .wl-table tbody tr.is-selected {
+  background-color: #1a2744 !important;
+}
+
+.dark-mode .wl-table-cap-badge.danger {
+  background: rgba(239, 68, 68, 0.18) !important;
+  border-color: rgba(239, 68, 68, 0.3) !important;
+  color: #fca5a5 !important;
+}
+
+.dark-mode .wl-table-cap-badge.warning {
+  background: rgba(245, 158, 11, 0.18) !important;
+  border-color: rgba(245, 158, 11, 0.3) !important;
+  color: #fcd34d !important;
+}
+
+.dark-mode .wl-table-cap-badge.normal {
+  background: rgba(16, 185, 129, 0.18) !important;
+  border-color: rgba(16, 185, 129, 0.3) !important;
+  color: #6ee7b7 !important;
+}
+
+.dark-mode .wl-table-cap-badge.healthy {
+  background: rgba(2, 132, 199, 0.18) !important;
+  border-color: rgba(2, 132, 199, 0.3) !important;
+  color: #7dd3fc !important;
+}
+
+.dark-mode .wl-task-tag.assigned {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  color: #cbd5e1 !important;
+}
+
+.dark-mode .wl-task-tag.assigned b {
+  color: #f8fafc !important;
+}
+
+.dark-mode .wl-task-tag.completed {
+  background: rgba(16, 185, 129, 0.15) !important;
+  border-color: rgba(16, 185, 129, 0.3) !important;
+  color: #6ee7b7 !important;
+}
+
+.dark-mode .wl-task-tag.in-progress {
+  background: rgba(59, 130, 246, 0.15) !important;
+  border-color: rgba(59, 130, 246, 0.3) !important;
+  color: #93c5fd !important;
+}
+
+.dark-mode .wl-task-tag.overdue {
+  background: rgba(239, 68, 68, 0.18) !important;
+  border-color: rgba(239, 68, 68, 0.3) !important;
+  color: #fca5a5 !important;
+}
+
+.dark-mode .wl-task-tag.clean {
+  background: #0f172a !important;
+  color: #64748b !important;
+}
+
+.dark-mode .wl-hours-track {
+  background: #334155 !important;
+}
+
+.dark-mode .wl-members-header {
+  border-bottom-color: #334155 !important;
+}
+
+/* =========================================================
+   INTERACTIVE WORKLOAD ADJUSTMENT MODAL DARK THEME
+========================================================= */
+
+.dark-mode .wl-modal-box {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+  box-shadow: 0 25px 65px rgba(0, 0, 0, 0.6) !important;
+}
+
+.dark-mode .wl-modal-header {
+  border-bottom-color: #334155 !important;
+}
+
+.dark-mode .wl-modal-header h2 {
+  color: #f8fafc !important;
+}
+
+.dark-mode .wl-modal-role-pill {
+  background: rgba(99, 102, 241, 0.18) !important;
+  color: #a5b4fc !important;
+}
+
+.dark-mode .wl-modal-header p {
+  color: #94a3b8 !important;
+}
+
+.dark-mode .wl-modal-close {
+  color: #94a3b8 !important;
+}
+
+.dark-mode .wl-modal-close:hover {
+  background: #253352 !important;
+  color: #f8fafc !important;
+}
+
+.dark-mode .wl-modal-preview-card {
+  background: #131d33 !important;
+  border-color: #273859 !important;
+}
+
+.dark-mode .wl-preview-title {
+  color: #c7d2fe !important;
+}
+
+.dark-mode .wl-preview-meter-track {
+  background: #334155 !important;
+}
+
+.dark-mode .wl-meter-marker {
+  background: #64748b !important;
+}
+
+.dark-mode .wl-meter-marker span {
+  color: #94a3b8 !important;
+}
+
+.dark-mode .wl-preview-meta {
+  color: #94a3b8 !important;
+}
+
+.dark-mode .wl-preview-metric b {
+  color: #f8fafc !important;
+}
+
+.dark-mode .wl-presets-label {
+  color: #94a3b8 !important;
+}
+
+.dark-mode .wl-preset-chip {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  color: #cbd5e1 !important;
+}
+
+.dark-mode .wl-preset-chip:hover {
+  background: #253352 !important;
+  border-color: #475569 !important;
+  color: #f8fafc !important;
+}
+
+.dark-mode .wl-preset-chip.active {
+  background: #4f46e5 !important;
+  border-color: #4f46e5 !important;
+  color: #ffffff !important;
+}
+
+.dark-mode .wl-slider-card {
+  background: #131d33 !important;
+  border-color: #334155 !important;
+}
+
+.dark-mode .wl-input-label {
+  color: #e2e8f0 !important;
+}
+
+.dark-mode .wl-number-badge {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+}
+
+.dark-mode .wl-number-badge input {
+  color: #f8fafc !important;
+}
+
+.dark-mode .wl-number-badge span {
+  color: #94a3b8 !important;
+}
+
+.dark-mode .wl-interactive-range {
+  background: #334155 !important;
+}
+
+.dark-mode .wl-range-ticks {
+  color: #64748b !important;
+}
+
+.dark-mode .wl-autosync-toggle {
+  color: #94a3b8 !important;
+}
+
+.dark-mode .wl-modal-tasks-section {
+  border-top-color: #334155 !important;
+}
+
+.dark-mode .wl-tasks-title {
+  color: #f8fafc !important;
+}
+
+.dark-mode .wl-tasks-sub {
+  color: #94a3b8 !important;
+}
+
+.dark-mode .wl-auto-sum-btn {
+  background: rgba(99, 102, 241, 0.18) !important;
+  border-color: #4338ca !important;
+  color: #c7d2fe !important;
+}
+
+.dark-mode .wl-auto-sum-btn:hover {
+  background: #4f46e5 !important;
+  color: #ffffff !important;
+}
+
+.dark-mode .wl-stepper-card {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+}
+
+.dark-mode .wl-stepper-card:hover {
+  background: #172442 !important;
+  border-color: #475569 !important;
+}
+
+.dark-mode .wl-stepper-label {
+  color: #e2e8f0 !important;
+}
+
+.dark-mode .wl-step-btn {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #cbd5e1 !important;
+}
+
+.dark-mode .wl-step-btn:hover {
+  background: #253352 !important;
+  border-color: #6366f1 !important;
+  color: #c7d2fe !important;
+}
+
+.dark-mode .wl-step-input {
+  color: #f8fafc !important;
+}
+
+.dark-mode .wl-modal-actions-bar {
+  border-top-color: #334155 !important;
+}
+
+.dark-mode .wl-modal-reset-btn {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  color: #94a3b8 !important;
+}
+
+.dark-mode .wl-modal-reset-btn:hover {
+  background: #253352 !important;
+  color: #f8fafc !important;
+}
+
+.dark-mode .wl-modal-cancel-btn {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  color: #cbd5e1 !important;
+}
+
+.dark-mode .wl-modal-cancel-btn:hover {
+  background: #253352 !important;
+  color: #f8fafc !important;
+}
+
+/* Rows Per Page & Pagination Dark Mode */
+.dark-mode .wl-rows-per-page {
+  color: #94a3b8 !important;
+}
+
+.dark-mode .wl-rows-select-wrap select {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+.dark-mode .wl-rows-select-wrap select:focus {
+  border-color: #6366f1 !important;
+}
+
+.dark-mode .wl-rows-select-wrap svg {
+  color: #94a3b8 !important;
+}
+
+.dark-mode .wl-page-nav-btn,
+.dark-mode .wl-page-num-btn {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  color: #cbd5e1 !important;
+}
+
+.dark-mode .wl-page-nav-btn:hover:not(:disabled),
+.dark-mode .wl-page-num-btn:hover {
+  background: #253352 !important;
+  border-color: #475569 !important;
+  color: #f8fafc !important;
+}
+
+.dark-mode .wl-page-num-btn.active {
+  background: #4f46e5 !important;
+  border-color: #4f46e5 !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 6px rgba(79, 70, 229, 0.4) !important;
+}

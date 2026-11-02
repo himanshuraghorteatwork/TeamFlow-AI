@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Bell,
   CheckCircle2,
@@ -117,8 +117,32 @@ const CATEGORIES = [
   "AI",
 ];
 
+const NOTIFICATIONS_STORAGE_KEY = "teamflow_teamlead_notifications";
+
+function getStoredNotifications() {
+  try {
+    const saved = localStorage.getItem(NOTIFICATIONS_STORAGE_KEY);
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed)) return parsed;
+    }
+  } catch {
+    // ignore
+  }
+  return INITIAL_NOTIFICATIONS;
+}
+
 export default function Notifications() {
-  const [notifications, setNotifications] = useState(INITIAL_NOTIFICATIONS);
+  const [notifications, setNotifications] = useState(getStoredNotifications);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(NOTIFICATIONS_STORAGE_KEY, JSON.stringify(notifications));
+      window.dispatchEvent(new Event("teamflow_data_update"));
+    } catch {
+      // ignore
+    }
+  }, [notifications]);
   const [activeCategory, setActiveCategory] = useState("All");
   const [search, setSearch] = useState("");
   const [showPreferences, setShowPreferences] = useState(false);

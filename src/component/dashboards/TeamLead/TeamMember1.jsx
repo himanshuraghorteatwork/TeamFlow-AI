@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   CheckCircle2,
   ChevronDown,
@@ -16,13 +16,36 @@ import { initialMembers, teamRoles, teamStatuses } from "../Employee/teamData.js
 import "./TeamMember1.css";
 
 const EMPTY_FORM = { name: "", email: "", role: "Member" };
+const STORAGE_KEY = "teamflow_members_v2";
+
+function getInitialMembers() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    }
+  } catch {
+    // ignore
+  }
+  return initialMembers;
+}
 
 function getInitials(name = "") {
   return name.trim().split(/\s+/).slice(0, 2).map(part => part[0]?.toUpperCase() || "").join("");
 }
 
 export default function TeamMember1() {
-  const [members, setMembers] = useState(initialMembers);
+  const [members, setMembers] = useState(getInitialMembers);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(members));
+      window.dispatchEvent(new Event("teamflow_data_update"));
+    } catch {
+      // ignore
+    }
+  }, [members]);
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("All Roles");
   const [statusFilter, setStatusFilter] = useState("All Statuses");

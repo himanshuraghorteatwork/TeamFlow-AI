@@ -43,6 +43,7 @@ export default function FilesDocs() {
   const [view, setView] = useState("list");
   const [menuId, setMenuId] = useState(null);
   const [showFolderModal, setShowFolderModal] = useState(false);
+  const [previewFile, setPreviewFile] = useState(null);
   const [folderName, setFolderName] = useState("");
   const [notice, setNotice] = useState("");
   const uploadRef = useRef(null);
@@ -95,16 +96,24 @@ export default function FilesDocs() {
   };
 
   const downloadFile = (file) => {
-    if (!file.localFile) {
-      showNotice("This sample file is not stored locally yet.");
+    if (file.localFile) {
+      const url = URL.createObjectURL(file.localFile);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = file.name;
+      link.click();
+      URL.revokeObjectURL(url);
+      showNotice(`Downloaded "${file.name}".`);
       return;
     }
-    const url = URL.createObjectURL(file.localFile);
+    const blob = new Blob([`Content of ${file.name}\nFolder: ${file.folder}\nOwner: ${file.owner}\nProject: TeamFlow AI\nStatus: Verified Document`], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
     link.download = file.name;
     link.click();
     URL.revokeObjectURL(url);
+    showNotice(`Downloaded "${file.name}".`);
   };
 
   const deleteFile = (file) => {
@@ -175,7 +184,7 @@ export default function FilesDocs() {
             <tbody>{filteredFiles.map(file => <tr key={file.id}>
               <td><div className={`tf-files-file-icon ${file.type}`}><FileIcon type={file.type} /></div><span className="tf-files-file-name">{file.name}</span></td>
               <td><span className="tf-files-folder-name">{file.folder}</span></td><td><span className="tf-files-owner"><span className="tf-files-owner-avatar">{file.owner.split(" ").map(part => part[0]).slice(0,2).join("")}</span>{file.owner}</span></td><td><span className="tf-files-updated"><Clock3 size={14} />{file.updated}</span></td><td>{file.size}</td><td><span className={`tf-files-access ${file.access === "Team" ? "team" : "restricted"}`}>{file.access}</span></td>
-              <td className="tf-files-actions-cell"><div className="tf-files-row-actions"><button aria-label={`Preview ${file.name}`} title="Preview" onClick={() => showNotice(`Preview for "${file.name}" is not connected yet.`)}><Eye size={16} /></button><button aria-label={`Download ${file.name}`} title="Download" onClick={() => downloadFile(file)}><Download size={16} /></button><button aria-label={`More actions for ${file.name}`} title="More actions" onClick={() => setMenuId(menuId === file.id ? null : file.id)}><MoreHorizontal size={17} /></button>
+              <td className="tf-files-actions-cell"><div className="tf-files-row-actions"><button aria-label={`Preview ${file.name}`} title="Preview" onClick={() => setPreviewFile(file)}><Eye size={16} /></button><button aria-label={`Download ${file.name}`} title="Download" onClick={() => downloadFile(file)}><Download size={16} /></button><button aria-label={`More actions for ${file.name}`} title="More actions" onClick={() => setMenuId(menuId === file.id ? null : file.id)}><MoreHorizontal size={17} /></button>
                 {menuId === file.id && <div className="tf-files-row-menu"><button onClick={() => { showNotice(`Share settings for "${file.name}" are a UI preview.`); setMenuId(null); }}><Users size={15} /> Manage access</button><button className="danger tl-btn-delete" onClick={() => deleteFile(file)}><Trash2 size={15} /> Remove file</button></div>}
               </div></td>
             </tr>)}</tbody></table></div>
@@ -190,6 +199,62 @@ export default function FilesDocs() {
       {showFolderModal && <div className="tf-files-modal-backdrop" role="presentation" onMouseDown={event => { if (event.target === event.currentTarget) setShowFolderModal(false); }}><form className="tf-files-modal" role="dialog" aria-modal="true" aria-labelledby="tf-files-modal-title" onSubmit={createFolder}>
         <div className="tf-files-modal-heading"><span><FolderPlus size={20} /></span><button type="button" aria-label="Close dialog" onClick={() => setShowFolderModal(false)}><X size={18} /></button></div><h2 id="tf-files-modal-title">Create a folder</h2><p>Organize your workspace files into a new folder.</p><label htmlFor="tf-files-folder-name">Folder name</label><input id="tf-files-folder-name" autoFocus maxLength={50} placeholder="e.g. Research Documents" value={folderName} onChange={event => setFolderName(event.target.value)} required /><div className="tf-files-modal-actions"><button type="button" className="tf-files-btn tf-files-btn-secondary" onClick={() => setShowFolderModal(false)}>Cancel</button><button type="submit" className="tf-files-btn tf-files-btn-primary">Create folder</button></div>
       </form></div>}
+
+      {previewFile && (
+        <div
+          className="tf-files-modal-backdrop"
+          role="presentation"
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget) setPreviewFile(null);
+          }}
+        >
+          <div className="tf-files-modal" role="dialog" aria-modal="true" style={{ maxWidth: "480px" }}>
+            <div className="tf-files-modal-heading">
+              <span className={`tf-files-folder-icon ${previewFile.type === "image" ? "pink" : previewFile.type === "sheet" ? "green" : "purple"}`}>
+                <FileIcon type={previewFile.type} />
+              </span>
+              <button type="button" aria-label="Close dialog" onClick={() => setPreviewFile(null)}>
+                <X size={18} />
+              </button>
+            </div>
+            <h2>{previewFile.name}</h2>
+            <p>File details and team permissions</p>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", margin: "16px 0", padding: "14px", background: "rgba(0,0,0,0.03)", borderRadius: "8px" }}>
+              <div>
+                <small style={{ color: "#64748b", display: "block" }}>Folder</small>
+                <strong>{previewFile.folder}</strong>
+              </div>
+              <div>
+                <small style={{ color: "#64748b", display: "block" }}>Size</small>
+                <strong>{previewFile.size}</strong>
+              </div>
+              <div>
+                <small style={{ color: "#64748b", display: "block" }}>Owner</small>
+                <strong>{previewFile.owner}</strong>
+              </div>
+              <div>
+                <small style={{ color: "#64748b", display: "block" }}>Access</small>
+                <strong>{previewFile.access}</strong>
+              </div>
+            </div>
+            <div className="tf-files-modal-actions">
+              <button type="button" className="tf-files-btn tf-files-btn-secondary" onClick={() => setPreviewFile(null)}>
+                Close
+              </button>
+              <button
+                type="button"
+                className="tf-files-btn tf-files-btn-primary"
+                onClick={() => {
+                  downloadFile(previewFile);
+                  setPreviewFile(null);
+                }}
+              >
+                <Download size={15} /> Download
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

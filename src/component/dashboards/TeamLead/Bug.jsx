@@ -229,6 +229,7 @@ export default function Bug() {
   useEffect(() => {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(bugs));
+      window.dispatchEvent(new Event("teamflow_data_update"));
     } catch (error) {
       console.error("Failed to save bugs from the Team Lead dashboard:", error);
     }

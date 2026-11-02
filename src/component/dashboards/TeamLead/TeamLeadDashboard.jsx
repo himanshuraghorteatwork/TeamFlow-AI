@@ -294,6 +294,7 @@ export default function TeamLeadDashboard() {
       });
       try {
         localStorage.setItem(TASKS_STORAGE_KEY, JSON.stringify(next));
+        window.dispatchEvent(new Event("teamflow_data_update"));
       } catch (err) {
         console.error("Failed to save task update:", err);
       }

@@ -42,11 +42,11 @@ const INITIAL_NOTIFICATIONS = {
 
 const SETTINGS_STORAGE_KEY = "teamflow_teamlead_settings";
 const DEFAULT_PROFILE = {
-  name: "Priya Sharma",
-  email: "priya.sharma@teamflow.ai",
+  name: "Komal Pawar",
+  email: "komal.pawar@teamflow.demo",
   role: "Team Lead",
   timezone: "Asia/Kolkata",
-  bio: "Helping our product team plan, collaborate, and deliver great work.",
+  bio: "Helping our engineering squad plan, collaborate, and deliver high-velocity sprints.",
   photo: "",
 };
 
@@ -152,6 +152,32 @@ export default function Setting() {
     setNoticeType("success");
   }
 
+  function selectTheme(id) {
+    setTheme(id);
+    setNotice("");
+    const isDark = id === "dark" || (id === "system" && systemIsDark);
+    if (typeof document !== "undefined") {
+      if (isDark) {
+        document.documentElement.classList.add("dark", "sa-dark-mode", "dark-mode");
+        document.body.classList.add("dark", "dark-theme", "sa-dark-mode", "dark-mode");
+        document.documentElement.setAttribute("data-theme", "dark");
+      } else {
+        document.documentElement.classList.remove("dark", "sa-dark-mode", "dark-mode");
+        document.body.classList.remove("dark", "dark-theme", "sa-dark-mode", "dark-mode");
+        document.documentElement.setAttribute("data-theme", "light");
+      }
+    }
+    try {
+      localStorage.setItem("teamflow_admin_dark", String(isDark));
+      localStorage.setItem("teamflow_superadmin_dark_mode", String(isDark));
+      localStorage.setItem("teamflow_theme_mode", id === "system" ? "system" : (isDark ? "dark" : "light"));
+      localStorage.setItem("teamflow_dark_mode", String(isDark));
+    } catch {
+      // ignore
+    }
+    window.dispatchEvent(new Event("teamflow_theme_update"));
+  }
+
   function saveSettings(event) {
     event.preventDefault();
 
@@ -211,6 +237,7 @@ export default function Setting() {
           localStorage.setItem("teamflow_users", JSON.stringify(users));
         }
         setProfile(savedProfile);
+        window.dispatchEvent(new Event("teamflow_user_update"));
         showMessage("Profile and preferences saved on this device.");
       } catch (error) {
         console.error("Failed to save Team Lead profile settings:", error);
@@ -228,6 +255,8 @@ export default function Setting() {
         density,
         mobileSessionActive,
       }));
+      window.dispatchEvent(new Event("teamflow_user_update"));
+      window.dispatchEvent(new Event("teamflow_theme_update"));
       showMessage("Preferences saved on this device.");
     } catch (error) {
       console.error("Failed to save Team Lead preferences:", error);
@@ -420,7 +449,7 @@ export default function Setting() {
                 <div className="ts-card-heading"><div><h3>Appearance</h3><p>Choose how TeamFlow looks on this device.</p></div></div>
                 <div className="ts-theme-options">
                   {[["light", "Light", Sun], ["dark", "Dark", Moon], ["system", "System", Monitor]].map(([id, label, Icon]) => (
-                    <button type="button" key={id} className={`ts-theme-option${theme === id ? " selected" : ""}`} aria-pressed={theme === id} onClick={() => { setTheme(id); setNotice(""); }}>
+                    <button type="button" key={id} className={`ts-theme-option${theme === id ? " selected" : ""}`} aria-pressed={theme === id} onClick={() => selectTheme(id)}>
                       <span className={`ts-theme-preview ${id}`}><i /><i /><i /><b /></span>
                       <span><Icon size={15} /><b>{label}</b></span>
                       <i className="ts-radio" />

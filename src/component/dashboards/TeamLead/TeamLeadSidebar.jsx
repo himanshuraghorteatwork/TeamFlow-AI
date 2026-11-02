@@ -221,6 +221,31 @@ export default function TeamLeadSidebar({ mobileOpen = false, onClose }) {
       } catch {
         // ignore storage errors
       }
+
+      try {
+        const rawNotifs = localStorage.getItem("teamflow_teamlead_notifications");
+        if (rawNotifs) {
+          const parsed = JSON.parse(rawNotifs);
+          if (Array.isArray(parsed)) {
+            const unread = parsed.filter(n => n.unread).length;
+            setCounts(c => ({ ...c, notifications: unread }));
+          }
+        }
+      } catch {
+        // ignore storage errors
+      }
+
+      try {
+        const rawMembers = localStorage.getItem("teamflow_members");
+        if (rawMembers) {
+          const parsed = JSON.parse(rawMembers);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setCounts(c => ({ ...c, members: parsed.length }));
+          }
+        }
+      } catch {
+        // ignore storage errors
+      }
     };
 
     loadCounts();
@@ -252,8 +277,14 @@ export default function TeamLeadSidebar({ mobileOpen = false, onClose }) {
   }, []);
 
   const isItemActive = (path) => {
+    if (path === "/teamlead/dashboard") {
+      return location.pathname === "/teamlead/dashboard" || location.pathname === "/teamlead" || location.pathname === "/teamlead/";
+    }
     if (path === "/teamlead/member") {
       return location.pathname.startsWith(path);
+    }
+    if (path === "/teamlead/sprints") {
+      return location.pathname === "/teamlead/sprints" || location.pathname === "/teamlead/sprint";
     }
     return location.pathname === path;
   };

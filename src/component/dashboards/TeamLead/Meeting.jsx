@@ -1,5 +1,5 @@
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   CalendarDays,
   Clock3,
@@ -106,8 +106,32 @@ function formatTime(time) {
   });
 }
 
+const MEETINGS_STORAGE_KEY = "teamflow_meetings";
+
+function getStoredMeetings() {
+  try {
+    const saved = localStorage.getItem(MEETINGS_STORAGE_KEY);
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    }
+  } catch {
+    // ignore
+  }
+  return initialMeetings;
+}
+
 export default function Meetings() {
-  const [meetings, setMeetings] = useState(initialMeetings);
+  const [meetings, setMeetings] = useState(getStoredMeetings);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(MEETINGS_STORAGE_KEY, JSON.stringify(meetings));
+      window.dispatchEvent(new Event("teamflow_data_update"));
+    } catch {
+      // ignore
+    }
+  }, [meetings]);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("All");
   const [showForm, setShowForm] = useState(false);

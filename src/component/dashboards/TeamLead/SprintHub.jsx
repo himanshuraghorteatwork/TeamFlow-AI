@@ -279,6 +279,7 @@ export default function SprintHub() {
   useEffect(() => {
     try {
       localStorage.setItem("teamflow_sprint_issues_v24", JSON.stringify(issues));
+      window.dispatchEvent(new Event("teamflow_data_update"));
     } catch {
       // ignore
     }

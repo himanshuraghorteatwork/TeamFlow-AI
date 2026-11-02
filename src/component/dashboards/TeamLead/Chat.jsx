@@ -178,6 +178,22 @@ export default function TeamLeadChat() {
     setMessageSearch("");
   }
 
+  const currentInitials = useMemo(() => {
+    try {
+      const cur = JSON.parse(localStorage.getItem("teamflow_current_user") || "null");
+      if (cur?.name) {
+        return cur.name.trim().split(/\s+/).map(p => p[0]).slice(0, 2).join("").toUpperCase();
+      }
+      const sett = JSON.parse(localStorage.getItem("teamflow_teamlead_settings") || "null");
+      if (sett?.profile?.name) {
+        return sett.profile.name.trim().split(/\s+/).map(p => p[0]).slice(0, 2).join("").toUpperCase();
+      }
+    } catch {
+      // ignore
+    }
+    return "KP";
+  }, []);
+
   function sendMessage(event) {
     event.preventDefault();
     const text = draft.trim();
@@ -186,7 +202,7 @@ export default function TeamLeadChat() {
     const message = {
       id: `${Date.now()}`,
       author: "You",
-      initials: "PS",
+      initials: currentInitials,
       color: "#7858db",
       time,
       text,
