@@ -81,11 +81,15 @@ export default function TeamLeadTopbar({
   // Helper to read initial dark mode state accurately matching Admin & SuperAdmin
   const getInitialDarkMode = () => {
     try {
+      const themeMode = localStorage.getItem("teamflow_theme_mode");
+      if (themeMode === "dark") return true;
+      if (themeMode === "light") return false;
+      if (themeMode === "system") {
+        return typeof window !== "undefined" && Boolean(window.matchMedia?.("(prefers-color-scheme: dark)").matches);
+      }
+
       const adminDark = localStorage.getItem("teamflow_admin_dark");
       if (adminDark !== null) return adminDark === "true";
-
-      const themeMode = localStorage.getItem("teamflow_theme_mode");
-      if (themeMode !== null) return themeMode === "dark";
 
       const superDark = localStorage.getItem("teamflow_superadmin_dark_mode");
       if (superDark !== null) return superDark === "true";
@@ -105,7 +109,7 @@ export default function TeamLeadTopbar({
   const [darkMode, setDarkMode] = useState(getInitialDarkMode);
 
   // Synchronize theme to DOM and localStorage matching Admin Panel system
-  const applyThemeToDOM = (isDark) => {
+  const applyThemeToDOM = (isDark, explicitMode = null) => {
     if (typeof document === "undefined") return;
 
     document.documentElement.classList.add("theme-transitioning");
@@ -123,7 +127,7 @@ export default function TeamLeadTopbar({
     try {
       localStorage.setItem("teamflow_admin_dark", String(isDark));
       localStorage.setItem("teamflow_superadmin_dark_mode", String(isDark));
-      localStorage.setItem("teamflow_theme_mode", isDark ? "dark" : "light");
+      localStorage.setItem("teamflow_theme_mode", explicitMode || (isDark ? "dark" : "light"));
       localStorage.setItem("teamflow_dark_mode", String(isDark));
     } catch {
       // ignore storage errors
@@ -157,7 +161,9 @@ export default function TeamLeadTopbar({
   }, []);
 
   const toggleDarkMode = () => {
-    setDarkMode((prev) => !prev);
+    const nextDark = !darkMode;
+    setDarkMode(nextDark);
+    applyThemeToDOM(nextDark, nextDark ? "dark" : "light");
   };
 
   // State for popovers
@@ -277,7 +283,7 @@ export default function TeamLeadTopbar({
     { title: "AI Smart Task Suggestions", category: "AI Tools", path: "/teamlead/task-suggestions", icon: Sparkles },
     { title: "Team Performance Velocity", category: "Reports", path: "/teamlead/reports", icon: Activity },
     { title: "Project Burndown Reports", category: "Reports", path: "/teamlead/project-reports", icon: FolderKanban },
-    { title: "Team Notifications", category: "Settings", path: "/teamlead/notifications", icon: Bell },
+    { title: "Team Notifications", category: "Collaboration", path: "/teamlead/notifications", icon: Bell },
     { title: "Team Settings & Sprint Config", category: "Settings", path: "/teamlead/settings", icon: Settings },
   ], []);
 

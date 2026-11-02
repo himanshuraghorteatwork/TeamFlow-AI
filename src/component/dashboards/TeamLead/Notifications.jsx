@@ -242,7 +242,7 @@ export default function Notifications() {
       <header className="ntf-header">
         <div>
           <div className="ntf-breadcrumb">
-            Workspace <span>/</span> Settings <span>/</span> Notifications
+            Workspace <span>/</span> Collaboration <span>/</span> Notifications
           </div>
           <div className="ntf-title-row">
             <h1>Notifications &amp; Activity Center</h1>
@@ -300,7 +300,13 @@ export default function Notifications() {
 
       {/* Metrics Row */}
       <section className="ntf-stats-grid" aria-label="Notification counts">
-        <article className="ntf-stat-card">
+        <article
+          className={`ntf-stat-card${activeCategory === "All" ? " selected" : ""}`}
+          onClick={() => setActiveCategory("All")}
+          role="button"
+          tabIndex={0}
+          title="Click to view all notifications"
+        >
           <div className="ntf-stat-icon red">
             <Bell size={22} />
           </div>
@@ -311,7 +317,13 @@ export default function Notifications() {
           </div>
         </article>
 
-        <article className="ntf-stat-card">
+        <article
+          className={`ntf-stat-card${activeCategory === "Tasks" ? " selected" : ""}`}
+          onClick={() => setActiveCategory("Tasks")}
+          role="button"
+          tabIndex={0}
+          title="Click to filter by Task Assignments"
+        >
           <div className="ntf-stat-icon blue">
             <CheckCircle2 size={22} />
           </div>
@@ -322,7 +334,13 @@ export default function Notifications() {
           </div>
         </article>
 
-        <article className="ntf-stat-card">
+        <article
+          className={`ntf-stat-card${activeCategory === "Bugs" ? " selected" : ""}`}
+          onClick={() => setActiveCategory("Bugs")}
+          role="button"
+          tabIndex={0}
+          title="Click to filter by Bug Reports"
+        >
           <div className="ntf-stat-icon purple">
             <Bug size={22} />
           </div>
@@ -333,7 +351,13 @@ export default function Notifications() {
           </div>
         </article>
 
-        <article className="ntf-stat-card">
+        <article
+          className={`ntf-stat-card${activeCategory === "Meetings" ? " selected" : ""}`}
+          onClick={() => setActiveCategory("Meetings")}
+          role="button"
+          tabIndex={0}
+          title="Click to filter by Meetings & Standups"
+        >
           <div className="ntf-stat-icon orange">
             <Clock3 size={22} />
           </div>

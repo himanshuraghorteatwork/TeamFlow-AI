@@ -5,9 +5,59 @@
 
 /* Main layout wrapper and content */
 .dark-mode .teamlead-main-wrapper,
-.dark-mode .teamlead-layout-content {
-  background: #101629 !important;
+.dark-mode .teamlead-layout-content,
+.dark .teamlead-main-wrapper,
+.dark .teamlead-layout-content,
+:root.dark .teamlead-main-wrapper,
+:root.dark .teamlead-layout-content,
+[data-theme="dark"] .teamlead-main-wrapper,
+[data-theme="dark"] .teamlead-layout-content,
+.teamlead-layout.dark .teamlead-main-wrapper,
+.teamlead-layout.dark .teamlead-layout-content {
+  background: #090d16 !important;
   color: #edf1ff;
+}
+
+/* Unified Topbar Dark Mode */
+.dark-mode .tfTeamLeadTopbar,
+.dark .tfTeamLeadTopbar,
+:root.dark .tfTeamLeadTopbar,
+[data-theme="dark"] .tfTeamLeadTopbar,
+body.dark-mode .tfTeamLeadTopbar,
+body.dark-theme .tfTeamLeadTopbar,
+.teamlead-layout.dark .tfTeamLeadTopbar,
+.teamlead-layout.dark-mode .tfTeamLeadTopbar {
+  background: rgba(15, 23, 42, 0.96) !important;
+  border-bottom: 1px solid #1e293b !important;
+}
+
+.dark-mode .tfTeamLeadTopbar .tfAdminTopbar__search,
+.dark .tfTeamLeadTopbar .tfAdminTopbar__search,
+:root.dark .tfTeamLeadTopbar .tfAdminTopbar__search,
+[data-theme="dark"] .tfTeamLeadTopbar .tfAdminTopbar__search,
+.teamlead-layout.dark .tfAdminTopbar__search {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+}
+
+.dark-mode .tfTeamLeadTopbar .tfAdminTopbar__iconButton,
+.dark .tfTeamLeadTopbar .tfAdminTopbar__iconButton,
+:root.dark .tfTeamLeadTopbar .tfAdminTopbar__iconButton,
+[data-theme="dark"] .tfTeamLeadTopbar .tfAdminTopbar__iconButton,
+.teamlead-layout.dark .tfAdminTopbar__iconButton {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #cbd5e1 !important;
+}
+
+.dark-mode .tfTeamLeadTopbar .tfAdminTopbar__profile,
+.dark .tfTeamLeadTopbar .tfAdminTopbar__profile,
+:root.dark .tfTeamLeadTopbar .tfAdminTopbar__profile,
+[data-theme="dark"] .tfTeamLeadTopbar .tfAdminTopbar__profile,
+.teamlead-layout.dark .tfAdminTopbar__profile {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
 }
 
 /* Base sidebar styling aligned with Admin panel dark theme */
@@ -108,8 +158,8 @@
 .dark-mode .pr-page,
 .dark-mode .ntf-page,
 .dark-mode .ts-page {
-  background: #101629 !important;
-  color: #edf1ff !important;
+  background: #090d16 !important;
+  color: #f8fafc !important;
 }
 
 /* Page Titles and Breadcrumbs */
@@ -566,11 +616,23 @@
   --event-text: #8dcaff;
 }
 
-/* Settings page controls and supporting surfaces */
+/* Settings page controls and supporting surfaces - Matched to Admin Design System */
 .dark-mode .ts-page {
-  --ts-ink: #edf1ff;
-  --ts-muted: #93a0bd;
-  --ts-border: #2b3550;
+  --ts-ink: #f8fafc;
+  --ts-muted: #94a3b8;
+  --ts-border: #1e293b;
+  --admin-bg: #090d16;
+  --admin-card-bg: #111c30;
+  --admin-subtle-bg: #0c1424;
+  --admin-inner-bg: #162034;
+  --admin-border: #1e293b;
+  --admin-border-hover: #334155;
+  --admin-text-main: #f8fafc;
+  --admin-text-body: #cbd5e1;
+  --admin-text-secondary: #94a3b8;
+  --admin-text-muted: #64748b;
+  background: #090d16 !important;
+  color: #f8fafc !important;
 }
 
 .dark-mode .ts-header-badge,
@@ -582,11 +644,10 @@
 .dark-mode .ts-density-options > button,
 .dark-mode .ts-preference-summary,
 .dark-mode .ts-delivery-note,
-.dark-mode .ts-device-note,
-.dark-mode .ts-save-bar {
-  background: #131b2e !important;
-  border-color: #2b3550 !important;
-  color: #cbd5e9 !important;
+.dark-mode .ts-device-note {
+  background: #111c30 !important;
+  border-color: #1e293b !important;
+  color: #cbd5e1 !important;
 }
 
 .dark-mode .ts-nav-help > b,
@@ -599,7 +660,7 @@
 .dark-mode .ts-device-note b,
 .dark-mode .ts-session-row b,
 .dark-mode .ts-theme-option > span:nth-child(2) b {
-  color: #edf1ff !important;
+  color: #f8fafc !important;
 }
 
 .dark-mode .ts-nav-help > small,
@@ -614,7 +675,7 @@
 .dark-mode .ts-theme-option > span:nth-child(2),
 .dark-mode .ts-nav-label,
 .dark-mode .ts-field {
-  color: #a3aec7 !important;
+  color: #94a3b8 !important;
 }
 
 .dark-mode .ts-field > input,
@@ -622,14 +683,14 @@
 .dark-mode .ts-input-icon input,
 .dark-mode .ts-input-icon select,
 .dark-mode .ts-password-input input {
-  background: #101629 !important;
-  border-color: #2b3550 !important;
-  color: #edf1ff !important;
+  background: #0c1424 !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
 }
 
 .dark-mode .ts-setting-row,
 .dark-mode .ts-session-row {
-  border-color: #2b3550 !important;
+  border-color: #1e293b !important;
 }
 
 .dark-mode .ts-private-label,
@@ -637,71 +698,81 @@
 .dark-mode .ts-role-pill,
 .dark-mode .ts-summary-icon,
 .dark-mode .ts-setting-icon {
-  background: #202942 !important;
-  border-color: #34405d !important;
-  color: #b7aaff !important;
+  background: rgba(99, 102, 241, 0.16) !important;
+  border-color: rgba(99, 102, 241, 0.3) !important;
+  color: #a5b4fc !important;
 }
 
 .dark-mode .ts-section-icon {
-  border-color: #34405d !important;
-  background: #202942 !important;
-  color: #b7aaff !important;
+  border-color: rgba(99, 102, 241, 0.3) !important;
+  background: rgba(99, 102, 241, 0.16) !important;
+  color: #a5b4fc !important;
   box-shadow: none !important;
 }
 
 .dark-mode .ts-nav-item {
-  color: #cbd5e9 !important;
+  color: #94a3b8 !important;
 }
 
 .dark-mode .ts-nav-item > svg:first-child {
-  color: #a3aec7 !important;
+  color: #64748b !important;
 }
 
-.dark-mode .ts-nav-item:hover,
+.dark-mode .ts-nav-item:hover {
+  background: #162034 !important;
+  color: #f8fafc !important;
+}
+
 .dark-mode .ts-nav-item.active {
-  background: #202942 !important;
-  border-color: #34405d !important;
-  color: #c4b5fd !important;
+  background: rgba(99, 102, 241, 0.16) !important;
+  border-color: rgba(99, 102, 241, 0.35) !important;
+  color: #a5b4fc !important;
 }
 
 .dark-mode .ts-nav-item.active > svg:first-child {
-  color: #b7aaff !important;
+  color: #818cf8 !important;
 }
 
 .dark-mode .ts-secondary-button,
 .dark-mode .ts-text-button {
-  background: #202942 !important;
-  border-color: #34405d !important;
-  color: #d7def0 !important;
+  background: #1e293b !important;
+  border-color: #475569 !important;
+  color: #f1f5f9 !important;
 }
 
+.dark-mode .ts-secondary-button:hover,
 .dark-mode .ts-text-button:hover {
-  background: #2a2435 !important;
-  border-color: #513447 !important;
-  color: #ff9cab !important;
+  background: #334155 !important;
+  border-color: #64748b !important;
+  color: #ffffff !important;
 }
 
 .dark-mode .ts-password-hint {
-  background: #153a33 !important;
-  color: #a3aec7 !important;
+  background: rgba(16, 185, 129, 0.14) !important;
+  border-color: rgba(16, 185, 129, 0.3) !important;
+  color: #34d399 !important;
 }
 
 .dark-mode .ts-note-status,
 .dark-mode .ts-current-session {
-  background: #153a33 !important;
-  color: #7fe0bf !important;
+  background: rgba(16, 185, 129, 0.14) !important;
+  border-color: rgba(16, 185, 129, 0.3) !important;
+  color: #34d399 !important;
 }
 
 .dark-mode .ts-toggle {
-  background: #3a4560 !important;
+  background: #334155 !important;
 }
 
 .dark-mode .ts-toggle.on {
-  background: linear-gradient(100deg, #7558f0, #6646e8) !important;
+  background: linear-gradient(135deg, #6366f1, #4f46e5) !important;
+  box-shadow: 0 2px 10px rgba(99, 102, 241, 0.45) !important;
 }
 
 .dark-mode .ts-save-bar {
-  background: rgba(19, 27, 46, 0.96) !important;
+  background: rgba(17, 28, 48, 0.92) !important;
+  border-color: #1e293b !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5) !important;
 }
 
 /* My Team cards, controls, menus, and dialogs */

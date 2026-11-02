@@ -93,6 +93,13 @@ const sidebarSections = [
     label: "COLLABORATION",
     items: [
       {
+        label: "Notifications",
+        icon: Bell,
+        path: "/teamlead/notifications",
+        badgeKey: "notifications",
+        badgeTone: "warning",
+      },
+      {
         label: "Team Chat",
         icon: MessageCircle,
         path: "/teamlead/chat",
@@ -152,13 +159,6 @@ const sidebarSections = [
   {
     label: "SETTINGS",
     items: [
-      {
-        label: "Notifications",
-        icon: Bell,
-        path: "/teamlead/notifications",
-        badgeKey: "notifications",
-        badgeTone: "warning",
-      },
       {
         label: "Team Settings",
         icon: Settings,

@@ -324,14 +324,19 @@
 }
 
 /* =========================================================
-   DARK MODE
+   DARK MODE - COMPREHENSIVE COVERAGE
 ========================================================= */
 
 :root.dark .tfTeamLeadSidebar,
 .dark .tfTeamLeadSidebar,
+.dark-mode .tfTeamLeadSidebar,
+.sa-dark-mode .tfTeamLeadSidebar,
 [data-theme="dark"] .tfTeamLeadSidebar,
 body.dark-mode .tfTeamLeadSidebar,
-body.dark-theme .tfTeamLeadSidebar {
+body.dark-theme .tfTeamLeadSidebar,
+.teamlead-layout.dark .tfTeamLeadSidebar,
+.teamlead-layout.dark-mode .tfTeamLeadSidebar,
+.teamlead-layout.sa-dark-mode .tfTeamLeadSidebar {
   --text: #f8fafc;
   --text-dark: #ffffff;
   --secondary: #94a3b8;
@@ -340,69 +345,101 @@ body.dark-theme .tfTeamLeadSidebar {
   --surface: #0f172a;
   --hover-bg: rgba(255, 255, 255, 0.06);
 
-  background: #0f172a;
-  border-right-color: #1e293b;
+  background: #0f172a !important;
+  border-right-color: #1e293b !important;
 }
 
 :root.dark .tfTeamLeadSidebar .tfAdminSidebar__brandRow,
 .dark .tfTeamLeadSidebar .tfAdminSidebar__brandRow,
+.dark-mode .tfTeamLeadSidebar .tfAdminSidebar__brandRow,
+.sa-dark-mode .tfTeamLeadSidebar .tfAdminSidebar__brandRow,
 [data-theme="dark"] .tfTeamLeadSidebar .tfAdminSidebar__brandRow,
-body.dark-mode .tfTeamLeadSidebar .tfAdminSidebar__brandRow {
-  background: #0f172a;
-  border-bottom-color: #1e293b;
+body.dark-mode .tfTeamLeadSidebar .tfAdminSidebar__brandRow,
+.teamlead-layout.dark .tfAdminSidebar__brandRow,
+.teamlead-layout.dark-mode .tfAdminSidebar__brandRow {
+  background: #0f172a !important;
+  border-bottom-color: #1e293b !important;
 }
 
 :root.dark .tfTeamLeadSidebar .superadmin-brand-name,
 .dark .tfTeamLeadSidebar .superadmin-brand-name,
+.dark-mode .tfTeamLeadSidebar .superadmin-brand-name,
+.sa-dark-mode .tfTeamLeadSidebar .superadmin-brand-name,
 [data-theme="dark"] .tfTeamLeadSidebar .superadmin-brand-name,
-body.dark-mode .tfTeamLeadSidebar .superadmin-brand-name {
+body.dark-mode .tfTeamLeadSidebar .superadmin-brand-name,
+.teamlead-layout.dark .superadmin-brand-name,
+.teamlead-layout.dark-mode .superadmin-brand-name {
   color: #f8fafc !important;
 }
 
 :root.dark .tfTeamLeadSidebar .tfAdminSidebar__sectionLabel,
 .dark .tfTeamLeadSidebar .tfAdminSidebar__sectionLabel,
+.dark-mode .tfTeamLeadSidebar .tfAdminSidebar__sectionLabel,
+.sa-dark-mode .tfTeamLeadSidebar .tfAdminSidebar__sectionLabel,
 [data-theme="dark"] .tfTeamLeadSidebar .tfAdminSidebar__sectionLabel,
-body.dark-mode .tfTeamLeadSidebar .tfAdminSidebar__sectionLabel {
-  color: #64748b;
+body.dark-mode .tfTeamLeadSidebar .tfAdminSidebar__sectionLabel,
+.teamlead-layout.dark .tfAdminSidebar__sectionLabel,
+.teamlead-layout.dark-mode .tfAdminSidebar__sectionLabel {
+  color: #64748b !important;
 }
 
 :root.dark .tfTeamLeadSidebar .tfAdminSidebar__navItem,
 .dark .tfTeamLeadSidebar .tfAdminSidebar__navItem,
+.dark-mode .tfTeamLeadSidebar .tfAdminSidebar__navItem,
+.sa-dark-mode .tfTeamLeadSidebar .tfAdminSidebar__navItem,
 [data-theme="dark"] .tfTeamLeadSidebar .tfAdminSidebar__navItem,
-body.dark-mode .tfTeamLeadSidebar .tfAdminSidebar__navItem {
-  color: #94a3b8;
+body.dark-mode .tfTeamLeadSidebar .tfAdminSidebar__navItem,
+.teamlead-layout.dark .tfAdminSidebar__navItem,
+.teamlead-layout.dark-mode .tfAdminSidebar__navItem {
+  color: #94a3b8 !important;
 }
 
 :root.dark .tfTeamLeadSidebar .tfAdminSidebar__navItem:hover,
 .dark .tfTeamLeadSidebar .tfAdminSidebar__navItem:hover,
+.dark-mode .tfTeamLeadSidebar .tfAdminSidebar__navItem:hover,
+.sa-dark-mode .tfTeamLeadSidebar .tfAdminSidebar__navItem:hover,
 [data-theme="dark"] .tfTeamLeadSidebar .tfAdminSidebar__navItem:hover,
-body.dark-mode .tfTeamLeadSidebar .tfAdminSidebar__navItem:hover {
-  background: rgba(255, 255, 255, 0.06);
-  color: #f8fafc;
+body.dark-mode .tfTeamLeadSidebar .tfAdminSidebar__navItem:hover,
+.teamlead-layout.dark .tfAdminSidebar__navItem:hover,
+.teamlead-layout.dark-mode .tfAdminSidebar__navItem:hover {
+  background: rgba(255, 255, 255, 0.06) !important;
+  color: #f8fafc !important;
 }
 
 :root.dark .tfTeamLeadSidebar .tfAdminSidebar__navItem.active,
 .dark .tfTeamLeadSidebar .tfAdminSidebar__navItem.active,
+.dark-mode .tfTeamLeadSidebar .tfAdminSidebar__navItem.active,
+.sa-dark-mode .tfTeamLeadSidebar .tfAdminSidebar__navItem.active,
 [data-theme="dark"] .tfTeamLeadSidebar .tfAdminSidebar__navItem.active,
-body.dark-mode .tfTeamLeadSidebar .tfAdminSidebar__navItem.active {
+body.dark-mode .tfTeamLeadSidebar .tfAdminSidebar__navItem.active,
+.teamlead-layout.dark .tfAdminSidebar__navItem.active,
+.teamlead-layout.dark-mode .tfAdminSidebar__navItem.active {
   background: #4f46e5 !important;
   color: #ffffff !important;
 }
 
 :root.dark .tfTeamLeadSidebar .tf-sidebar-badge,
 .dark .tfTeamLeadSidebar .tf-sidebar-badge,
+.dark-mode .tfTeamLeadSidebar .tf-sidebar-badge,
+.sa-dark-mode .tfTeamLeadSidebar .tf-sidebar-badge,
 [data-theme="dark"] .tfTeamLeadSidebar .tf-sidebar-badge,
 body.dark-mode .tfTeamLeadSidebar .tf-sidebar-badge,
-body.dark-theme .tfTeamLeadSidebar .tf-sidebar-badge {
-  background: #1e293b;
-  color: #94a3b8;
+body.dark-theme .tfTeamLeadSidebar .tf-sidebar-badge,
+.teamlead-layout.dark .tf-sidebar-badge,
+.teamlead-layout.dark-mode .tf-sidebar-badge {
+  background: #1e293b !important;
+  color: #94a3b8 !important;
 }
 
 :root.dark .tfTeamLeadSidebar .tf-sidebar-badge--green,
 .dark .tfTeamLeadSidebar .tf-sidebar-badge--green,
+.dark-mode .tfTeamLeadSidebar .tf-sidebar-badge--green,
+.sa-dark-mode .tfTeamLeadSidebar .tf-sidebar-badge--green,
 [data-theme="dark"] .tfTeamLeadSidebar .tf-sidebar-badge--green,
 body.dark-mode .tfTeamLeadSidebar .tf-sidebar-badge--green,
-body.dark-theme .tfTeamLeadSidebar .tf-sidebar-badge--green {
-  background: rgba(34, 197, 94, 0.2);
-  color: #4ade80;
+body.dark-theme .tfTeamLeadSidebar .tf-sidebar-badge--green,
+.teamlead-layout.dark .tf-sidebar-badge--green,
+.teamlead-layout.dark-mode .tf-sidebar-badge--green {
+  background: rgba(34, 197, 94, 0.2) !important;
+  color: #4ade80 !important;
 }

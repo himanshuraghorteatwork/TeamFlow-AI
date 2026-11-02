@@ -405,7 +405,10 @@
 [data-theme="dark"] .tfTeamLeadTopbar,
 body.dark-mode .tfTeamLeadTopbar,
 body.dark-theme .tfTeamLeadTopbar,
-.sa-dark-mode .tfTeamLeadTopbar {
+.sa-dark-mode .tfTeamLeadTopbar,
+.teamlead-layout.dark .tfTeamLeadTopbar,
+.teamlead-layout.dark-mode .tfTeamLeadTopbar,
+.teamlead-layout.sa-dark-mode .tfTeamLeadTopbar {
   background: rgba(15, 23, 42, 0.96) !important;
   border-bottom-color: #1e293b !important;
 }
