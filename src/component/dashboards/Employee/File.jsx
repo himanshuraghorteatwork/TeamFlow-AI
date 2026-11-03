@@ -588,7 +588,9 @@ function File() {
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 10;
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [rowsDropdownOpen, setRowsDropdownOpen] = useState(false);
+  const rowsRef = useRef(null);
 
   // Selected checkbox IDs
   const [selectedFileIds, setSelectedFileIds] = useState([]);
@@ -698,6 +700,7 @@ function File() {
       if (dateDropRef.current && !dateDropRef.current.contains(e.target)) setDateDropOpen(false);
       if (sortDropRef.current && !sortDropRef.current.contains(e.target)) setSortDropOpen(false);
       if (rowMenuRef.current && !rowMenuRef.current.contains(e.target)) setActiveRowMenuId(null);
+      if (rowsRef.current && !rowsRef.current.contains(e.target)) setRowsDropdownOpen(false);
     };
     document.addEventListener("mousedown", handleOutsideClick);
     return () => document.removeEventListener("mousedown", handleOutsideClick);
@@ -771,11 +774,11 @@ function File() {
 
   // Paginated files
   const paginatedFiles = useMemo(() => {
-    const startIndex = (currentPage - 1) * pageSize;
-    return filteredFiles.slice(startIndex, startIndex + pageSize);
-  }, [filteredFiles, currentPage]);
+    const startIndex = (currentPage - 1) * rowsPerPage;
+    return filteredFiles.slice(startIndex, startIndex + rowsPerPage);
+  }, [filteredFiles, currentPage, rowsPerPage]);
 
-  const totalPages = Math.ceil(filteredFiles.length / pageSize) || 1;
+  const totalPages = Math.max(1, Math.ceil(filteredFiles.length / rowsPerPage));
 
   
   // Reset page to 1 on filter changes
@@ -798,6 +801,48 @@ function File() {
     setSelectedFileIds((prev) =>
       prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
     );
+  };
+
+  // Batch Operations on Selected Files
+  const handleBatchDownload = () => {
+    if (selectedFileIds.length === 0) return;
+    const selectedFiles = files.filter((f) => selectedFileIds.includes(f.id));
+    selectedFiles.forEach((file, index) => {
+      setTimeout(() => {
+        handleDownloadFile(file);
+      }, index * 200);
+    });
+    showToast(`Downloading ${selectedFiles.length} selected files...`);
+  };
+
+  const handleBatchExportManifest = () => {
+    if (selectedFileIds.length === 0) return;
+    const selectedFiles = files.filter((f) => selectedFileIds.includes(f.id));
+    const csvContent =
+      "data:text/csv;charset=utf-8," +
+      [
+        "File Name,Project,Type,Size,Uploaded By,Date",
+        ...selectedFiles.map(
+          (f) =>
+            `"${(f.name || "").replace(/"/g, '""')}","${(f.project || "").replace(/"/g, '""')}","${f.type}","${f.size}","${f.uploadedBy}","${f.date}"`
+        ),
+      ].join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `files_manifest_${Date.now()}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    showToast(`Exported manifest for ${selectedFiles.length} files`);
+  };
+
+  const handleBatchDelete = () => {
+    if (selectedFileIds.length === 0) return;
+    const count = selectedFileIds.length;
+    setFiles((prev) => prev.filter((f) => !selectedFileIds.includes(f.id)));
+    setSelectedFileIds([]);
+    showToast(`Deleted ${count} selected files`);
   };
 
   // Real-time File Download Handler
@@ -1502,6 +1547,44 @@ Generated and downloaded in real time from TeamFlow AI.
 
             {/* Files Table Card */}
             <div className="tf-files-table-card">
+            {/* Multi-Selection Batch Actions Bar */}
+            {selectedFileIds.length > 0 && (
+              <div className="tf-batch-banner">
+                <span className="tf-batch-count">
+                  <strong>{selectedFileIds.length}</strong> file record{selectedFileIds.length > 1 ? "s" : ""} selected
+                </span>
+                <div className="tf-batch-actions">
+                  <button
+                    type="button"
+                    className="tf-batch-btn tf-batch-btn-secondary"
+                    onClick={handleBatchDownload}
+                  >
+                    <Download size={13} /> Download Selected
+                  </button>
+                  <button
+                    type="button"
+                    className="tf-batch-btn tf-batch-btn-secondary"
+                    onClick={handleBatchExportManifest}
+                  >
+                    <FileText size={13} /> Export Manifest
+                  </button>
+                  <button
+                    type="button"
+                    className="tf-batch-btn tf-batch-btn-danger"
+                    onClick={handleBatchDelete}
+                  >
+                    <Trash2 size={13} /> Delete Selected
+                  </button>
+                  <button
+                    type="button"
+                    className="tf-batch-btn-clear"
+                    onClick={() => setSelectedFileIds([])}
+                  >
+                    Clear
+                  </button>
+                </div>
+              </div>
+            )}
               <div className="tf-table-responsive">
                                 <table className="tf-files-table">
                   <colgroup>
@@ -1572,7 +1655,7 @@ Generated and downloaded in real time from TeamFlow AI.
                             {/* Checkbox */}
                             <td className="tf-td-num">
                               <span className="tf-row-num-badge">
-                                {(currentPage - 1) * pageSize + idx + 1}
+                                {(currentPage - 1) * rowsPerPage + idx + 1}
                               </span>
                             </td>
                             <td className="td-check">
@@ -1646,7 +1729,7 @@ Generated and downloaded in real time from TeamFlow AI.
                                 {/* Download */}
                                 <button
                                   type="button"
-                                  className="tf-action-btn"
+                                  className="tf-action-btn download"
                                   onClick={() => handleDownloadFile(file)}
                                   title="Download file"
                                 >
@@ -1656,7 +1739,7 @@ Generated and downloaded in real time from TeamFlow AI.
                                 {/* Preview */}
                                 <button
                                   type="button"
-                                  className="tf-action-btn"
+                                  className="tf-action-btn view"
                                   onClick={() => setPreviewFileModal(file)}
                                   title="Preview file"
                                 >
@@ -1667,7 +1750,7 @@ Generated and downloaded in real time from TeamFlow AI.
                                 <div className="tf-action-more-wrap">
                                   <button
                                     type="button"
-                                    className="tf-action-btn"
+                                    className="tf-action-btn more"
                                     onClick={() =>
                                       setActiveRowMenuId(
                                         activeRowMenuId === file.id ? null : file.id
@@ -1737,8 +1820,8 @@ Generated and downloaded in real time from TeamFlow AI.
               {/* Table Footer: Showing count + Pagination */}
               <footer className="tf-files-table-footer">
                 <span className="tf-footer-showing-text">
-                  Showing {filteredFiles.length === 0 ? 0 : (currentPage - 1) * pageSize + 1} to{" "}
-                  {Math.min(currentPage * pageSize, filteredFiles.length)} of{" "}
+                  Showing {filteredFiles.length === 0 ? 0 : (currentPage - 1) * rowsPerPage + 1} to{" "}
+                  {Math.min(currentPage * rowsPerPage, filteredFiles.length)} of{" "}
                   {filteredFiles.length} files
                 </span>
 
@@ -1746,8 +1829,9 @@ Generated and downloaded in real time from TeamFlow AI.
                   <button
                     type="button"
                     className="tf-page-nav-arrow"
-                    disabled={currentPage === 1}
+                    disabled={currentPage <= 1}
                     onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                    aria-label="Previous page"
                   >
                     <ChevronLeft size={16} />
                   </button>
@@ -1766,15 +1850,44 @@ Generated and downloaded in real time from TeamFlow AI.
                   <button
                     type="button"
                     className="tf-page-nav-arrow"
-                    disabled={currentPage === totalPages}
+                    disabled={currentPage >= totalPages}
                     onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+                    aria-label="Next page"
                   >
                     <ChevronRight size={16} />
                   </button>
 
-                  <div className="tf-page-size-badge">
-                    <span>10 per page</span>
-                    <ChevronDown size={13} />
+                  {/* Rows per page dropdown */}
+                  <div className="tf-rows-per-page-wrap" ref={rowsRef}>
+                    <button
+                      type="button"
+                      className="tf-page-size-badge"
+                      onClick={() => setRowsDropdownOpen(!rowsDropdownOpen)}
+                      aria-label="Select rows per page"
+                      aria-expanded={rowsDropdownOpen}
+                    >
+                      <span>{rowsPerPage} per page</span>
+                      <ChevronDown size={13} className={rowsDropdownOpen ? "open" : ""} />
+                    </button>
+
+                    {rowsDropdownOpen && (
+                      <div className="tf-rows-dropdown-menu">
+                        {[5, 10, 20, 50].map((num) => (
+                          <button
+                            key={num}
+                            type="button"
+                            className={rowsPerPage === num ? "active" : ""}
+                            onClick={() => {
+                              setRowsPerPage(num);
+                              setCurrentPage(1);
+                              setRowsDropdownOpen(false);
+                            }}
+                          >
+                            {num} per page
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
               </footer>

@@ -97,7 +97,7 @@
 }
 
 .tf-act-date-btn:hover {
-  background: #F8FAFC;
+
   border-color: #CBD5E1;
 }
 
@@ -299,7 +299,7 @@
 }
 
 .tf-act-pill-tab:hover {
-  background: #F8FAFC;
+
   border-color: #CBD5E1;
 }
 
@@ -331,7 +331,7 @@
 }
 
 .tf-act-proj-btn:hover {
-  background: #F8FAFC;
+
   border-color: #CBD5E1;
 }
 
@@ -426,7 +426,7 @@
   font-size: 11px;
   font-weight: 500;
   color: #64748B;
-  background: #F8FAFC;
+
   border: 1px solid #E2E8F0;
   padding: 2px 8px;
   border-radius: 12px;
@@ -440,7 +440,7 @@
 
 .tf-act-item-row {
   display: grid;
-  grid-template-columns: 40px 78px 42px minmax(0, 1fr) 140px 75px 32px;
+  grid-template-columns: 28px 34px 72px 38px minmax(0, 1fr) 125px 70px 132px;
   align-items: center;
   gap: 12px;
   padding: 12px 18px;
@@ -454,7 +454,47 @@
 }
 
 .tf-act-item-row:hover {
-  background: #F8FAFC;
+
+}
+.tf-act-item-row.row-selected {
+  background: rgba(37, 99, 235, 0.08) !important;
+}
+[data-theme="dark"] .tf-act-item-row.row-selected,
+body.dark-mode .tf-act-item-row.row-selected,
+.employee-shell.tf-dark .tf-act-item-row.row-selected {
+  background: rgba(59, 130, 246, 0.18) !important;
+}
+.tf-act-check-col {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.tf-act-actions-col {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.tf-act-item-row.row-selected {
+  background: rgba(37, 99, 235, 0.08) !important;
+}
+
+[data-theme="dark"] .tf-act-item-row.row-selected,
+body.dark-mode .tf-act-item-row.row-selected,
+.employee-shell.tf-dark .tf-act-item-row.row-selected {
+  background: rgba(59, 130, 246, 0.18) !important;
+}
+
+.tf-act-check-col {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tf-act-actions-col {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
 }
 
 .tf-act-time-col {
@@ -578,21 +618,42 @@
 }
 
 .tf-act-more-btn {
-  background: transparent;
-  border: none;
-  color: #94A3B8;
-  padding: 5px;
-  border-radius: 4px;
-  cursor: pointer;
-  display: flex;
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  border-radius: 8px;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.12s ease;
+  border: 1px solid #ddd6fe;
+  background: #f5f3ff;
+  color: #7c3aed;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  padding: 0;
+  outline: none;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
 .tf-act-more-btn:hover {
-  background: #E2E8F0;
-  color: #1E293B;
+  background: #7c3aed !important;
+  color: #ffffff !important;
+  border-color: #7c3aed !important;
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.38) !important;
+  transform: translateY(-2px) scale(1.05);
+}
+
+[data-theme="dark"] .tf-act-more-btn {
+  background: #241442 !important;
+  color: #c084fc !important;
+  border-color: #581c87 !important;
+}
+
+[data-theme="dark"] .tf-act-more-btn:hover {
+  background: #7c3aed !important;
+  color: #ffffff !important;
+  border-color: #8b5cf6 !important;
+  box-shadow: 0 4px 14px rgba(124, 58, 237, 0.5) !important;
 }
 
 .tf-act-row-dropdown {
@@ -856,7 +917,7 @@
 }
 
 .tf-act-breakdown-row:hover {
-  background: #F8FAFC;
+
 }
 
 .tf-act-b-left {
@@ -1049,7 +1110,7 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
-  background: #F8FAFC;
+
   border: 1px solid #E2E8F0;
   border-radius: 8px;
   padding: 10px 12px;
@@ -1271,5 +1332,233 @@
 .employee-shell.tf-dark .tf-act-num-col .tf-row-num-badge {
   background-color: rgba(99, 102, 241, 0.16);
   border-color: rgba(99, 102, 241, 0.35);
+  color: #A5B4FC;
+}
+
+
+/* ==========================================================================
+   ACTIVITY PAGINATION FOOTER
+   ========================================================================== */
+.employee-shell .tf-act-pagination-card {
+  margin-top: 14px;
+  background: var(--tf-card-bg, #FFFFFF);
+  border: 1px solid var(--tf-border, #E2E8F0);
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  overflow: visible;
+}
+
+.employee-shell .tf-act-pagination-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 18px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.employee-shell .tf-act-pagination-info {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--tf-text-secondary, #64748B);
+}
+
+.employee-shell .tf-act-pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.employee-shell .tf-act-page-nav-btn {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--tf-border, #E2E8F0);
+  background: var(--tf-card-bg, #FFFFFF);
+  border-radius: 6px;
+  color: var(--tf-text-secondary, #64748B);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  outline: none;
+}
+
+.employee-shell .tf-act-page-nav-btn:hover:not(:disabled) {
+
+  border-color: #CBD5E1;
+  color: #0F172A;
+}
+
+.employee-shell .tf-act-page-nav-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.employee-shell .tf-act-page-btn {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+  background: transparent;
+  border-radius: 6px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--tf-text-secondary, #64748B);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  outline: none;
+}
+
+.employee-shell .tf-act-page-btn:hover {
+  background: #F1F5F9;
+  color: #0F172A;
+}
+
+.employee-shell .tf-act-page-btn.active {
+  background: #4F46E5;
+  color: #FFFFFF;
+  font-weight: 600;
+  border-color: #4F46E5;
+  box-shadow: 0 2px 6px rgba(79, 70, 229, 0.3);
+}
+
+.employee-shell .tf-act-page-size-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--tf-border, #E2E8F0);
+  background: var(--tf-card-bg, #FFFFFF);
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #475569;
+  margin-left: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: inherit;
+  outline: none;
+}
+
+.employee-shell .tf-act-page-size-btn:hover {
+  border-color: #CBD5E1;
+
+  color: #1E293B;
+}
+
+.employee-shell .tf-act-page-size-btn .open {
+  transform: rotate(180deg);
+  transition: transform 0.2s ease;
+}
+
+.employee-shell .tf-act-rows-dropdown-menu {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  right: 0;
+  min-width: 120px;
+  background: var(--tf-card-bg, #FFFFFF);
+  border: 1px solid var(--tf-border, #E2E8F0);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.12);
+  padding: 4px;
+  z-index: 70;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.employee-shell .tf-act-rows-dropdown-menu button {
+  width: 100%;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  background: transparent;
+  border: none;
+  border-radius: 5px;
+  text-align: left;
+  cursor: pointer;
+  color: #334155;
+  transition: all 0.12s ease;
+  font-family: inherit;
+}
+
+.employee-shell .tf-act-rows-dropdown-menu button:hover {
+  background: #F1F5F9;
+  color: #0F172A;
+}
+
+.employee-shell .tf-act-rows-dropdown-menu button.active {
+  background: #EEF2FF;
+  color: #4F46E5;
+  font-weight: 600;
+}
+
+/* Dark mode for Activity pagination */
+[data-theme="dark"] .employee-shell .tf-act-pagination-card {
+  background: #1F2937;
+  border-color: #374151;
+}
+
+[data-theme="dark"] .employee-shell .tf-act-pagination-info {
+  color: #9CA3AF;
+}
+
+[data-theme="dark"] .employee-shell .tf-act-page-nav-btn {
+  background: #111827;
+  border-color: #374151;
+  color: #9CA3AF;
+}
+
+[data-theme="dark"] .employee-shell .tf-act-page-nav-btn:hover:not(:disabled) {
+  background: #273449;
+  color: #F9FAFB;
+}
+
+[data-theme="dark"] .employee-shell .tf-act-page-btn {
+  color: #9CA3AF;
+}
+
+[data-theme="dark"] .employee-shell .tf-act-page-btn:hover {
+  background: #273449;
+  color: #F9FAFB;
+}
+
+[data-theme="dark"] .employee-shell .tf-act-page-btn.active {
+  background: #4F46E5;
+  color: #FFFFFF;
+}
+
+[data-theme="dark"] .employee-shell .tf-act-page-size-btn {
+  background: #111827;
+  border-color: #374151;
+  color: #CBD5E1;
+}
+
+[data-theme="dark"] .employee-shell .tf-act-page-size-btn:hover {
+  background: #273449;
+  border-color: #4B5563;
+  color: #F9FAFB;
+}
+
+[data-theme="dark"] .employee-shell .tf-act-rows-dropdown-menu {
+  background: #1F2937;
+  border-color: #374151;
+  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="dark"] .employee-shell .tf-act-rows-dropdown-menu button {
+  color: #CBD5E1;
+}
+
+[data-theme="dark"] .employee-shell .tf-act-rows-dropdown-menu button:hover {
+  background: #374151;
+  color: #FFFFFF;
+}
+
+[data-theme="dark"] .employee-shell .tf-act-rows-dropdown-menu button.active {
+  background: #312E81;
   color: #A5B4FC;
 }

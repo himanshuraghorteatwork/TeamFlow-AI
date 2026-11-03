@@ -696,21 +696,42 @@
 }
 
 .employee-shell .tf-proj-more-btn {
-  background: transparent;
-  border: none;
-  color: #94A3B8;
-  cursor: pointer;
-  padding: 4px;
-  border-radius: 6px;
-  display: flex;
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  border-radius: 8px;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.15s ease;
+  border: 1px solid #ddd6fe;
+  background: #f5f3ff;
+  color: #7c3aed;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  padding: 0;
+  outline: none;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
 .employee-shell .tf-proj-more-btn:hover {
-  background: #F1F5F9;
-  color: #1E293B;
+  background: #7c3aed !important;
+  color: #ffffff !important;
+  border-color: #7c3aed !important;
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.38) !important;
+  transform: translateY(-2px) scale(1.05);
+}
+
+[data-theme="dark"] .employee-shell .tf-proj-more-btn {
+  background: #241442 !important;
+  color: #c084fc !important;
+  border-color: #581c87 !important;
+}
+
+[data-theme="dark"] .employee-shell .tf-proj-more-btn:hover {
+  background: #7c3aed !important;
+  color: #ffffff !important;
+  border-color: #8b5cf6 !important;
+  box-shadow: 0 4px 14px rgba(124, 58, 237, 0.5) !important;
 }
 
 .employee-shell .tf-proj-action-popover {
@@ -1105,20 +1126,42 @@
 }
 
 .employee-shell .tf-proj-task-action-btn {
-  background: transparent;
-  border: none;
-  color: #94A3B8;
-  cursor: pointer;
-  padding: 4px;
-  border-radius: 4px;
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  border-radius: 8px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  border: 1px solid #ddd6fe;
+  background: #f5f3ff;
+  color: #7c3aed;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  padding: 0;
+  outline: none;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
 .employee-shell .tf-proj-task-action-btn:hover {
-  background: #F1F5F9;
-  color: #1E293B;
+  background: #7c3aed !important;
+  color: #ffffff !important;
+  border-color: #7c3aed !important;
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.38) !important;
+  transform: translateY(-2px) scale(1.05);
+}
+
+[data-theme="dark"] .employee-shell .tf-proj-task-action-btn {
+  background: #241442 !important;
+  color: #c084fc !important;
+  border-color: #581c87 !important;
+}
+
+[data-theme="dark"] .employee-shell .tf-proj-task-action-btn:hover {
+  background: #7c3aed !important;
+  color: #ffffff !important;
+  border-color: #8b5cf6 !important;
+  box-shadow: 0 4px 14px rgba(124, 58, 237, 0.5) !important;
 }
 
 .employee-shell .text-right {
@@ -2167,4 +2210,46 @@
 .employee-shell.tf-dark .tf-modal-actions.space-between,
 [data-theme="dark"] .employee-shell .tf-modal-actions.space-between {
   border-color: #334155;
+}
+
+
+/* ==========================================================================
+   MY TASKS IN PROJECTS — ACTION BUTTONS & MODALS
+   ========================================================================== */
+.employee-shell .tf-proj-task-actions {
+  min-width: 155px;
+  text-align: right;
+  padding-right: 18px !important;
+}
+
+.employee-shell .tf-proj-table .tf-table-actions-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+.employee-shell .tf-proj-task-details-modal {
+  max-width: 520px;
+}
+
+.employee-shell .tf-proj-modal-row-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 14px;
+}
+
+.employee-shell .tf-proj-field-val {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--tf-text-primary, #111827);
+  display: block;
+  margin-top: 2px;
+}
+
+.employee-shell.tf-dark .tf-proj-field-val,
+[data-theme="dark"] .employee-shell .tf-proj-field-val,
+body.dark-mode .tf-proj-field-val {
+  color: #f1f5f9;
 }

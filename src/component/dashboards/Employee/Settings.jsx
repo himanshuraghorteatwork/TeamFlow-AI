@@ -30,10 +30,11 @@ import {
   Copy,
   AlertCircle,
   LogOut,
+  Save,
 } from "lucide-react";
 
 import EmployeeShell from "./EmployeeShell";
-import { getEmployeeProfile, setEmployeeProfile, getEmployeeTheme, setEmployeeTheme, getEmployeeFontSize, setEmployeeFontSize, applyEmployeeFontSize, getEmployeePrimaryColor, setEmployeePrimaryColor, applyEmployeePrimaryColor, DEFAULT_AVATAR } from "./EmployeeAuth";
+import { getEmployeeProfile, setEmployeeProfile, getEmployeeTheme, getEmployeeThemeMode, setEmployeeTheme, getEmployeeFontSize, setEmployeeFontSize, applyEmployeeFontSize, getEmployeePrimaryColor, setEmployeePrimaryColor, applyEmployeePrimaryColor, DEFAULT_AVATAR } from "./EmployeeAuth";
 import "./Settings.css";
 
 /* Storage Keys */
@@ -85,11 +86,15 @@ function Settings() {
       if (saved) {
         const parsed = JSON.parse(saved);
         return {
-          ...parsed,
-          fullName: emp.fullName || parsed.fullName || "John Doe",
-          avatar: emp.photo || parsed.avatar || DEFAULT_AVATAR,
-          email: emp.email || parsed.email || "john.doe@teamflow.com",
-          role: emp.role || parsed.role || "Employee",
+          fullName: parsed.fullName || emp.fullName || "John Doe",
+          email: parsed.email || emp.email || "john.doe@teamflow.com",
+          phoneNumber: parsed.phoneNumber || emp.phoneNumber || "+91 98765 43210",
+          role: parsed.role || emp.role || "Employee",
+          department: parsed.department || emp.department || "Development",
+          location: parsed.location || emp.location || "Pune, India",
+          avatar: parsed.avatar || emp.photo || DEFAULT_AVATAR,
+          status: parsed.status || emp.status || "Active",
+          memberSince: parsed.memberSince || emp.memberSince || "Oct 10, 2024",
         };
       }
     } catch (err) {
@@ -98,37 +103,40 @@ function Settings() {
     return {
       fullName: emp.fullName || "John Doe",
       email: emp.email || "john.doe@teamflow.com",
-      phoneNumber: "+91 98765 43210",
+      phoneNumber: emp.phoneNumber || "+91 98765 43210",
       role: emp.role || "Employee",
       department: emp.department || "Development",
       location: emp.location || "Pune, India",
       avatar: emp.photo || DEFAULT_AVATAR,
-      status: "Active",
-      memberSince: "Oct 10, 2024",
+      status: emp.status || "Active",
+      memberSince: emp.memberSince || "Oct 10, 2024",
     };
   });
 
-  // Sync profile to centralized EmployeeAuth and all storage keys
+  // Real-time synchronization when profile updates elsewhere
   useEffect(() => {
-    try {
-      setEmployeeProfile({
-        fullName: profile.fullName,
-        email: profile.email,
-        role: profile.role,
-        department: profile.department,
-        location: profile.location,
-        photo: profile.avatar,
-        status: profile.status,
-        memberSince: profile.memberSince,
-      });
-    } catch (err) {
-      void err;
-    }
-  }, [profile]);
+    const handleProfileSync = (e) => {
+      const updated = e.detail || getEmployeeProfile();
+      if (updated) {
+        setProfile((prev) => ({
+          ...prev,
+          fullName: updated.fullName || prev.fullName,
+          email: updated.email || prev.email,
+          phoneNumber: updated.phoneNumber || prev.phoneNumber,
+          role: updated.role || prev.role,
+          department: updated.department || prev.department,
+          location: updated.location || prev.location,
+          avatar: updated.photo || updated.avatar || prev.avatar,
+        }));
+      }
+    };
+    window.addEventListener("tf_profile_updated", handleProfileSync);
+    return () => window.removeEventListener("tf_profile_updated", handleProfileSync);
+  }, []);
 
   // 2. Appearance & Display State
   const [appearance, setAppearance] = useState(() => {
-    const currentTheme = getEmployeeTheme() || "light";
+    const currentMode = getEmployeeThemeMode() || "light";
     const currentFontSize = getEmployeeFontSize() || "Medium";
     const currentPrimary = getEmployeePrimaryColor() || "#6366F1";
     try {
@@ -137,7 +145,7 @@ function Settings() {
         const parsed = JSON.parse(saved);
         return {
           ...parsed,
-          theme: currentTheme,
+          theme: parsed.theme === "system" ? "system" : currentMode,
           fontSize: parsed.fontSize || currentFontSize,
           primaryColor: parsed.primaryColor || currentPrimary,
         };
@@ -146,7 +154,7 @@ function Settings() {
       void err;
     }
     return {
-      theme: currentTheme,
+      theme: currentMode,
       primaryColor: currentPrimary,
       fontSize: currentFontSize,
     };
@@ -156,10 +164,10 @@ function Settings() {
   useEffect(() => {
     applyEmployeePrimaryColor(getEmployeePrimaryColor());
 
-    const handleThemeEvent = (e) => {
-      const newTheme = e.detail || getEmployeeTheme();
-      if (newTheme) {
-        setAppearance((prev) => ({ ...prev, theme: newTheme }));
+    const handleThemeEvent = () => {
+      const currentMode = getEmployeeThemeMode();
+      if (currentMode) {
+        setAppearance((prev) => ({ ...prev, theme: currentMode }));
       }
     };
     const handleFontEvent = (e) => {
@@ -175,16 +183,18 @@ function Settings() {
       }
     };
     window.addEventListener("tf_theme_change", handleThemeEvent);
+    window.addEventListener("tf_theme_mode_change", handleThemeEvent);
     window.addEventListener("tf_font_size_change", handleFontEvent);
     window.addEventListener("tf_primary_color_change", handleColorEvent);
     const handleStorage = () => {
-      handleThemeEvent({});
+      handleThemeEvent();
       handleFontEvent({});
       handleColorEvent({});
     };
     window.addEventListener("storage", handleStorage);
     return () => {
       window.removeEventListener("tf_theme_change", handleThemeEvent);
+      window.removeEventListener("tf_theme_mode_change", handleThemeEvent);
       window.removeEventListener("tf_font_size_change", handleFontEvent);
       window.removeEventListener("tf_primary_color_change", handleColorEvent);
       window.removeEventListener("storage", handleStorage);
@@ -218,12 +228,10 @@ function Settings() {
       void err;
     }
 
+    setEmployeeTheme(newTheme);
     if (newTheme === "system") {
-      const sysDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-      setEmployeeTheme(sysDark ? "dark" : "light");
       showToast("Theme set to System default");
     } else {
-      setEmployeeTheme(newTheme);
       showToast(`Switched to ${newTheme === "dark" ? "Dark" : "Light"} mode`);
     }
   };
@@ -388,7 +396,19 @@ function Settings() {
 
   const handleSaveEditProfile = (e) => {
     e.preventDefault();
-    setProfile({ ...editForm });
+    const updated = {
+      ...profile,
+      fullName: editForm.fullName?.trim() || profile.fullName,
+      email: editForm.email?.trim() || profile.email,
+      role: editForm.role || profile.role,
+      department: editForm.department || profile.department,
+      location: editForm.location || profile.location,
+      phoneNumber: editForm.phoneNumber || profile.phoneNumber,
+      photo: editForm.avatar || profile.avatar,
+      avatar: editForm.avatar || profile.avatar,
+    };
+    setProfile(updated);
+    setEmployeeProfile(updated);
     setEditProfileModalOpen(false);
     showToast("Profile details updated successfully!");
   };
@@ -396,11 +416,45 @@ function Settings() {
   const handleAvatarFileChange = (e) => {
     const file = e.target.files?.[0];
     if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        showToast("Image size must be less than 5MB");
+        return;
+      }
       const reader = new FileReader();
       reader.onloadend = () => {
-        setProfile((prev) => ({ ...prev, avatar: reader.result }));
-        setEditForm((prev) => ({ ...prev, avatar: reader.result }));
-        showToast("Profile picture updated!");
+        const rawUrl = reader.result;
+        try {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement("canvas");
+            const size = 256;
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext("2d");
+            const minDim = Math.min(img.width, img.height);
+            const sx = (img.width - minDim) / 2;
+            const sy = (img.height - minDim) / 2;
+            ctx.drawImage(img, sx, sy, minDim, minDim, 0, 0, size, size);
+            const optimized = canvas.toDataURL("image/jpeg", 0.9);
+
+            setProfile((prev) => ({ ...prev, avatar: optimized }));
+            setEditForm((prev) => ({ ...prev, avatar: optimized }));
+            setEmployeeProfile({ photo: optimized, avatar: optimized });
+            showToast("Profile picture updated!");
+          };
+          img.onerror = () => {
+            setProfile((prev) => ({ ...prev, avatar: rawUrl }));
+            setEditForm((prev) => ({ ...prev, avatar: rawUrl }));
+            setEmployeeProfile({ photo: rawUrl, avatar: rawUrl });
+            showToast("Profile picture updated!");
+          };
+          img.src = rawUrl;
+        } catch {
+          setProfile((prev) => ({ ...prev, avatar: rawUrl }));
+          setEditForm((prev) => ({ ...prev, avatar: rawUrl }));
+          setEmployeeProfile({ photo: rawUrl, avatar: rawUrl });
+          showToast("Profile picture updated!");
+        }
       };
       reader.readAsDataURL(file);
     }
@@ -475,6 +529,25 @@ function Settings() {
   // Direct Inline Form Changes (Personal Information Card)
   const handleInputChange = (field, val) => {
     setProfile((prev) => ({ ...prev, [field]: val }));
+  };
+
+  const handleSavePersonalInfo = (e) => {
+    if (e) e.preventDefault();
+    const updated = {
+      fullName: profile.fullName?.trim() || "John Doe",
+      email: profile.email?.trim() || "john.doe@teamflow.com",
+      role: profile.role || "Employee",
+      department: profile.department || "Development",
+      location: profile.location || "Pune, India",
+      phoneNumber: profile.phoneNumber || "+91 98765 43210",
+      photo: profile.avatar || DEFAULT_AVATAR,
+      avatar: profile.avatar || DEFAULT_AVATAR,
+      status: profile.status || "Active",
+      memberSince: profile.memberSince || "Oct 10, 2024",
+    };
+    setProfile(updated);
+    setEmployeeProfile(updated);
+    showToast("Personal information saved successfully!");
   };
 
   return (
@@ -565,7 +638,7 @@ function Settings() {
               <div className="tf-hero-subline">
                 <span>{profile.role}</span>
                 <span className="tf-hero-dot">•</span>
-                <span>Development Team</span>
+                <span>{profile.department ? (profile.department.endsWith("Team") ? profile.department : `${profile.department} Team`) : "Development Team"}</span>
               </div>
               <div className="tf-hero-meta-row">
                 <span className="tf-hero-status-pill">
@@ -616,10 +689,7 @@ function Settings() {
               <div className="tf-card-body">
                 <form
                   className="tf-form-grid"
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    showToast("Personal information saved!");
-                  }}
+                  onSubmit={handleSavePersonalInfo}
                 >
                   {/* Full Name */}
                   <div className="tf-form-group">
@@ -736,6 +806,13 @@ function Settings() {
                       </select>
                       <ChevronDown size={15} className="tf-select-chevron" />
                     </div>
+                  </div>
+
+                  <div className="tf-form-actions-row">
+                    <button type="submit" className="tf-save-profile-btn">
+                      <Save size={15} />
+                      <span>Save Changes</span>
+                    </button>
                   </div>
                 </form>
               </div>
@@ -906,7 +983,7 @@ function Settings() {
                 </div>
 
                 {/* 2. Primary Color */}
-                <div className="tf-display-section">
+                {/* <div className="tf-display-section">
                   <label className="tf-section-label">Primary Color</label>
                   <div className="tf-color-swatches-row">
                     {colorSwatches.map((item) => {
@@ -930,7 +1007,7 @@ function Settings() {
                       );
                     })}
                   </div>
-                </div>
+                </div> */}
 
                 {/* 3. Font Size */}
                 <div className="tf-display-section">
@@ -1304,10 +1381,21 @@ function Settings() {
 
             <form onSubmit={handleSaveEditProfile}>
               <div className="tf-modal-body">
-                {/* Choose preset avatar */}
+                {/* Choose preset or upload avatar */}
                 <div className="tf-modal-avatar-section">
-                  <div className="tf-modal-avatar-preview">
-                    <img src={editForm.avatar} alt="Preview" />
+                  <div className="tf-modal-avatar-preview-wrap">
+                    <div className="tf-modal-avatar-preview">
+                      <img src={editForm.avatar} alt="Preview" />
+                    </div>
+                    <button
+                      type="button"
+                      className="tf-modal-upload-photo-btn"
+                      onClick={() => fileInputRef.current?.click()}
+                      title="Upload custom photo"
+                    >
+                      <Camera size={13} />
+                      <span>Upload Photo</span>
+                    </button>
                   </div>
                   <div className="tf-modal-avatar-options">
                     <span className="tf-modal-avatar-label">Select avatar:</span>
@@ -1357,38 +1445,69 @@ function Settings() {
 
                   <div className="tf-form-group">
                     <label className="tf-form-label">Job Role</label>
-                    <input
-                      type="text"
-                      className="tf-form-input"
-                      value={editForm.role}
-                      onChange={(e) =>
-                        setEditForm((f) => ({ ...f, role: e.target.value }))
-                      }
-                    />
+                    <div className="tf-select-wrap">
+                      <select
+                        className="tf-form-select"
+                        value={editForm.role}
+                        onChange={(e) =>
+                          setEditForm((f) => ({ ...f, role: e.target.value }))
+                        }
+                      >
+                        <option value="Employee">Employee</option>
+                        <option value="Frontend Developer">Frontend Developer</option>
+                        <option value="Backend Developer">Backend Developer</option>
+                        <option value="Full Stack Developer">Full Stack Developer</option>
+                        <option value="UI/UX Designer">UI/UX Designer</option>
+                        <option value="QA Engineer">QA Engineer</option>
+                        <option value="Team Lead">Team Lead</option>
+                        <option value="Project Manager">Project Manager</option>
+                      </select>
+                      <ChevronDown size={15} className="tf-select-chevron" />
+                    </div>
                   </div>
 
                   <div className="tf-form-group">
                     <label className="tf-form-label">Department</label>
-                    <input
-                      type="text"
-                      className="tf-form-input"
-                      value={editForm.department}
-                      onChange={(e) =>
-                        setEditForm((f) => ({ ...f, department: e.target.value }))
-                      }
-                    />
+                    <div className="tf-select-wrap">
+                      <select
+                        className="tf-form-select"
+                        value={editForm.department}
+                        onChange={(e) =>
+                          setEditForm((f) => ({ ...f, department: e.target.value }))
+                        }
+                      >
+                        <option value="Development">Development</option>
+                        <option value="UI/UX Design">UI/UX Design</option>
+                        <option value="Quality Assurance">Quality Assurance</option>
+                        <option value="Product Management">Product Management</option>
+                        <option value="DevOps & Infra">DevOps & Infra</option>
+                        <option value="Marketing">Marketing</option>
+                      </select>
+                      <ChevronDown size={15} className="tf-select-chevron" />
+                    </div>
                   </div>
 
                   <div className="tf-form-group">
                     <label className="tf-form-label">Location</label>
-                    <input
-                      type="text"
-                      className="tf-form-input"
-                      value={editForm.location}
-                      onChange={(e) =>
-                        setEditForm((f) => ({ ...f, location: e.target.value }))
-                      }
-                    />
+                    <div className="tf-select-wrap">
+                      <select
+                        className="tf-form-select"
+                        value={editForm.location}
+                        onChange={(e) =>
+                          setEditForm((f) => ({ ...f, location: e.target.value }))
+                        }
+                      >
+                        <option value="Pune, India">Pune, India</option>
+                        <option value="Bengaluru, India">Bengaluru, India</option>
+                        <option value="Mumbai, India">Mumbai, India</option>
+                        <option value="Hyderabad, India">Hyderabad, India</option>
+                        <option value="Delhi NCR, India">Delhi NCR, India</option>
+                        <option value="San Francisco, USA">San Francisco, USA</option>
+                        <option value="London, UK">London, UK</option>
+                        <option value="Remote, Worldwide">Remote, Worldwide</option>
+                      </select>
+                      <ChevronDown size={15} className="tf-select-chevron" />
+                    </div>
                   </div>
 
                   <div className="tf-form-group">

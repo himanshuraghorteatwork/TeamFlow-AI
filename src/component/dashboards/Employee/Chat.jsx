@@ -10,6 +10,7 @@ import {
   Smile,
   MoreVertical,
   Info,
+  PanelRight,
   Download,
   FileText,
   Pin,
@@ -1357,11 +1358,12 @@ function Chat() {
 
                 <button
                   type="button"
-                  className={`tf-header-icon-btn ${showRightDrawer ? "active" : ""}`}
+                  className={`tf-header-icon-btn tf-panel-btn ${showRightDrawer ? "active" : ""}`}
                   onClick={() => setShowRightDrawer(!showRightDrawer)}
-                  title="Toggle details"
+                  title={showRightDrawer ? "Hide details panel" : "Show details panel"}
+                  aria-label="Toggle details panel"
                 >
-                  <Info size={16} />
+                  <PanelRight size={17} />
                 </button>
               </div>
             </header>

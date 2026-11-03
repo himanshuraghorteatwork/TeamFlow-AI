@@ -424,6 +424,55 @@ function Bugs() {
     );
   };
 
+  // Batch Operations on Selected Bugs
+  const handleBatchMarkResolved = () => {
+    if (selectedBugIds.length === 0) return;
+    setBugs((prev) =>
+      prev.map((b) => (selectedBugIds.includes(b.id) ? { ...b, status: "Resolved" } : b))
+    );
+    showToast(`Marked ${selectedBugIds.length} bugs as Resolved`);
+    setSelectedBugIds([]);
+  };
+
+  const handleBatchMarkInProgress = () => {
+    if (selectedBugIds.length === 0) return;
+    setBugs((prev) =>
+      prev.map((b) => (selectedBugIds.includes(b.id) ? { ...b, status: "In Progress" } : b))
+    );
+    showToast(`Marked ${selectedBugIds.length} bugs as In Progress`);
+    setSelectedBugIds([]);
+  };
+
+  const handleBatchExport = () => {
+    if (selectedBugIds.length === 0) return;
+    const selectedBugs = bugs.filter((b) => selectedBugIds.includes(b.id));
+    const csvContent =
+      "data:text/csv;charset=utf-8," +
+      [
+        "Bug ID,Title,Project,Priority,Status,Assigned Date,Due Date",
+        ...selectedBugs.map(
+          (b) =>
+            `"${b.bugId}","${(b.title || "").replace(/"/g, '""')}","${(b.project || "").replace(/"/g, '""')}","${b.priority}","${b.status}","${b.assignedDate}","${b.dueDate}"`
+        ),
+      ].join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `bugs_export_${Date.now()}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    showToast(`Exported ${selectedBugs.length} bugs to CSV`);
+  };
+
+  const handleBatchDelete = () => {
+    if (selectedBugIds.length === 0) return;
+    const count = selectedBugIds.length;
+    setBugs((prev) => prev.filter((b) => !selectedBugIds.includes(b.id)));
+    setSelectedBugIds([]);
+    showToast(`Deleted ${count} selected bugs`);
+  };
+
   // Handle Status Change
   const handleChangeStatus = (bugId, newStatus) => {
     setBugs((prev) =>
@@ -859,6 +908,51 @@ function Bugs() {
               LEFT COLUMN: Assigned Bugs Table + Pagination Footer
               ------------------------------------------------------------------ */}
           <div className="tf-bugs-table-card">
+            {/* Multi-Selection Batch Actions Bar */}
+            {selectedBugIds.length > 0 && (
+              <div className="tf-batch-banner">
+                <span className="tf-batch-count">
+                  <strong>{selectedBugIds.length}</strong> bug record{selectedBugIds.length > 1 ? "s" : ""} selected
+                </span>
+                <div className="tf-batch-actions">
+                  <button
+                    type="button"
+                    className="tf-batch-btn tf-batch-btn-secondary"
+                    onClick={handleBatchMarkResolved}
+                  >
+                    <CheckCircle2 size={13} /> Mark Resolved
+                  </button>
+                  <button
+                    type="button"
+                    className="tf-batch-btn tf-batch-btn-secondary"
+                    onClick={handleBatchMarkInProgress}
+                  >
+                    <Clock size={13} /> Set In Progress
+                  </button>
+                  <button
+                    type="button"
+                    className="tf-batch-btn tf-batch-btn-secondary"
+                    onClick={handleBatchExport}
+                  >
+                    <Download size={13} /> Export Selected
+                  </button>
+                  <button
+                    type="button"
+                    className="tf-batch-btn tf-batch-btn-danger"
+                    onClick={handleBatchDelete}
+                  >
+                    <Trash2 size={13} /> Delete Selected
+                  </button>
+                  <button
+                    type="button"
+                    className="tf-batch-btn-clear"
+                    onClick={() => setSelectedBugIds([])}
+                  >
+                    Clear
+                  </button>
+                </div>
+              </div>
+            )}
             <div className="tf-bugs-table-responsive">
               <table className="tf-bugs-table">
                 <thead>
@@ -1020,7 +1114,7 @@ function Bugs() {
                             {/* Eye: View Bug Details */}
                             <button
                               type="button"
-                              className="tf-bug-action-btn"
+                              className="tf-bug-action-btn view"
                               onClick={() => handleOpenEditBug(bug)}
                               title="View details"
                             >
@@ -1030,7 +1124,7 @@ function Bugs() {
                             {/* Message: Comments with badge */}
                             <button
                               type="button"
-                              className="tf-bug-action-btn with-badge"
+                              className="tf-bug-action-btn comments with-badge"
                               onClick={() => setCommentsModalBug(bug)}
                               title="Comments"
                             >
@@ -1043,7 +1137,7 @@ function Bugs() {
                             {/* Paperclip: Attachments */}
                             <button
                               type="button"
-                              className="tf-bug-action-btn"
+                              className="tf-bug-action-btn attach"
                               onClick={() => setAttachmentsModalBug(bug)}
                               title="Attachments"
                             >
@@ -1054,7 +1148,7 @@ function Bugs() {
                             <div className="tf-bug-action-menu-wrap">
                               <button
                                 type="button"
-                                className="tf-bug-action-btn"
+                                className="tf-bug-action-btn more"
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   setActionMenuBugId(

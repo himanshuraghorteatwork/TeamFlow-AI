@@ -30,6 +30,7 @@ import {
 } from "lucide-react";
 
 import EmployeeShell from "./EmployeeShell";
+import { getCalendarEvents, setCalendarEvents, subscribeToCalendarSync } from "./calendarSync";
 import "./Calendar.css";
 
 /* Storage Keys */
@@ -360,27 +361,19 @@ function Calendar() {
   const projectRef = useRef(null);
   const ownerRef = useRef(null);
 
-  // Load events safely with current-date default fallback
-  const [events, setEvents] = useState(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length >= 3) {
-          // Verify events aren't old 2024 items
-          const currentYear = new Date().getFullYear();
-          const hasCurrentDates = parsed.some((e) => e.date && e.date.startsWith(String(currentYear)));
-          if (hasCurrentDates) {
-            return parsed.map((e) => ({
-              ...e,
-              owner: e.owner || (isMyEvent(e) ? "my" : "team"),
-            }));
-          }
-        }
-      }
-    } catch {}
-    return generateDefaultEvents(new Date());
-  });
+  // Load events safely with synchronized calendar store
+  const [events, setEvents] = useState(() => getCalendarEvents());
+
+  // Subscribe to real-time calendar updates across pages and modal dialogs
+  useEffect(() => {
+    const unsubscribe = subscribeToCalendarSync((syncedEvents) => {
+      setEvents((prev) => {
+        if (JSON.stringify(prev) === JSON.stringify(syncedEvents)) return prev;
+        return syncedEvents;
+      });
+    });
+    return unsubscribe;
+  }, []);
 
   // Load task deadlines safely
   const [deadlines, setDeadlines] = useState(() => {
@@ -409,7 +402,7 @@ function Calendar() {
 
   // Persist events & deadlines
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(events));
+    setCalendarEvents(events);
   }, [events]);
 
   useEffect(() => {

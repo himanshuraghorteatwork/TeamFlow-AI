@@ -529,3 +529,326 @@ body:has(.employee-shell) {
   background: #334155;
   color: #FFFFFF;
 }
+
+
+/* ==========================================================================
+   PHOTO-MATCHED ACTION BUTTONS (GLOBAL UTILITY)
+   Matching Photo: 1. Blue View | 2. Purple Edit | 3. Amber Lock | 4. Red Delete
+   ========================================================================== */
+.employee-shell .tf-table-action-btn,
+.employee-shell .tf-global-action-btn {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  padding: 0;
+  outline: none;
+  position: relative;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.employee-shell .tf-table-action-btn:active,
+.employee-shell .tf-global-action-btn:active {
+  transform: translateY(0) scale(0.96);
+}
+
+/* Blue Jewel */
+.employee-shell .tf-table-action-btn.view,
+.employee-shell .tf-global-action-btn.view {
+  background: #eff6ff;
+  color: #2563eb;
+  border-color: #bfdbfe;
+}
+.employee-shell .tf-table-action-btn.view:hover,
+.employee-shell .tf-global-action-btn.view:hover {
+  background: #2563eb !important;
+  color: #ffffff !important;
+  border-color: #2563eb !important;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.38) !important;
+  transform: translateY(-2px) scale(1.05);
+}
+
+/* Purple Jewel */
+.employee-shell .tf-table-action-btn.edit,
+.employee-shell .tf-table-action-btn.comments,
+.employee-shell .tf-global-action-btn.edit {
+  background: #f5f3ff;
+  color: #7c3aed;
+  border-color: #ddd6fe;
+}
+.employee-shell .tf-table-action-btn.edit:hover,
+.employee-shell .tf-table-action-btn.comments:hover,
+.employee-shell .tf-global-action-btn.edit:hover {
+  background: #7c3aed !important;
+  color: #ffffff !important;
+  border-color: #7c3aed !important;
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.38) !important;
+  transform: translateY(-2px) scale(1.05);
+}
+
+/* Amber Jewel */
+.employee-shell .tf-table-action-btn.lock,
+.employee-shell .tf-table-action-btn.attach,
+.employee-shell .tf-table-action-btn.warning,
+.employee-shell .tf-global-action-btn.warning {
+  background: #fffbeb;
+  color: #d97706;
+  border-color: #fde68a;
+}
+.employee-shell .tf-table-action-btn.lock:hover,
+.employee-shell .tf-table-action-btn.attach:hover,
+.employee-shell .tf-table-action-btn.warning:hover,
+.employee-shell .tf-global-action-btn.warning:hover {
+  background: #d97706 !important;
+  color: #ffffff !important;
+  border-color: #d97706 !important;
+  box-shadow: 0 4px 12px rgba(217, 119, 6, 0.38) !important;
+  transform: translateY(-2px) scale(1.05);
+}
+
+/* Emerald Jewel */
+.employee-shell .tf-table-action-btn.download,
+.employee-shell .tf-table-action-btn.success,
+.employee-shell .tf-global-action-btn.success {
+  background: #ecfdf5;
+  color: #059669;
+  border-color: #a7f3d0;
+}
+.employee-shell .tf-table-action-btn.download:hover,
+.employee-shell .tf-table-action-btn.success:hover,
+.employee-shell .tf-global-action-btn.success:hover {
+  background: #059669 !important;
+  color: #ffffff !important;
+  border-color: #059669 !important;
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.38) !important;
+  transform: translateY(-2px) scale(1.05);
+}
+
+/* Red Jewel */
+.employee-shell .tf-table-action-btn.delete,
+.employee-shell .tf-table-action-btn.more,
+.employee-shell .tf-global-action-btn.delete {
+  background: #fef2f2;
+  color: #dc2626;
+  border-color: #fecaca;
+}
+.employee-shell .tf-table-action-btn.delete:hover,
+.employee-shell .tf-table-action-btn.more:hover,
+.employee-shell .tf-global-action-btn.delete:hover {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+  color: #ffffff !important;
+  border-color: #dc2626 !important;
+  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.38) !important;
+  transform: translateY(-2px) scale(1.05);
+}
+
+
+/* ==========================================================================
+   MULTI-SELECTION BATCH ACTIONS BAR (Shared across Employee tables)
+   ========================================================================== */
+.tf-batch-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 18px;
+  background: #f0f4ff;
+  border-bottom: 1px solid #dbeafe;
+  color: #1e3a8a;
+  font-size: 13px;
+  font-weight: 500;
+  border-top-left-radius: inherit;
+  border-top-right-radius: inherit;
+  flex-wrap: wrap;
+  transition: all 0.2s ease;
+}
+
+.tf-batch-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #1e40af;
+  font-size: 13px;
+}
+
+.tf-batch-count strong {
+  font-weight: 700;
+  color: #1d4ed8;
+}
+
+.tf-batch-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.tf-batch-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 12px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.tf-batch-btn-secondary {
+  background: #ffffff;
+  color: #334155;
+  border: 1px solid #cbd5e1;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.tf-batch-btn-secondary:hover {
+  background: #f8fafc;
+  border-color: #94a3b8;
+  color: #0f172a;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+}
+
+.tf-batch-btn-primary {
+  background: #5051f9;
+  color: #ffffff;
+  border: 1px solid #5051f9;
+  box-shadow: 0 2px 6px rgba(80, 81, 249, 0.25);
+}
+
+.tf-batch-btn-primary:hover {
+  background: #4344d9;
+  border-color: #4344d9;
+}
+
+.tf-batch-btn-danger {
+  background: #ef4444;
+  color: #ffffff;
+  border: 1px solid #ef4444;
+  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.25);
+}
+
+.tf-batch-btn-danger:hover {
+  background: #dc2626;
+  border-color: #dc2626;
+}
+
+.tf-batch-btn-clear {
+  background: transparent;
+  border: none;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: color 0.15s ease;
+}
+
+.tf-batch-btn-clear:hover {
+  color: #0f172a;
+  text-decoration: underline;
+}
+
+/* Custom Checkbox standard */
+.employee-shell .tf-row-check-btn,
+.employee-shell .tf-checkbox-th-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.employee-shell .tf-custom-checkbox {
+  width: 16px;
+  height: 16px;
+  border: 1.6px solid #cbd5e1;
+  border-radius: 4px;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+  box-sizing: border-box;
+}
+
+.employee-shell .tf-custom-checkbox.checked {
+  background: #5051f9;
+  border-color: #5051f9;
+}
+
+/* Dark mode overrides */
+.employee-shell.tf-dark .tf-batch-banner,
+[data-theme="dark"] .employee-shell .tf-batch-banner,
+body.dark-mode .tf-batch-banner {
+  background: #172442 !important;
+  border-bottom-color: #233355 !important;
+  color: #93c5fd !important;
+}
+
+.employee-shell.tf-dark .tf-batch-count,
+[data-theme="dark"] .employee-shell .tf-batch-count,
+body.dark-mode .tf-batch-count {
+  color: #93c5fd !important;
+}
+
+.employee-shell.tf-dark .tf-batch-count strong,
+[data-theme="dark"] .employee-shell .tf-batch-count strong,
+body.dark-mode .tf-batch-count strong {
+  color: #bfdbfe !important;
+}
+
+.employee-shell.tf-dark .tf-batch-btn-secondary,
+[data-theme="dark"] .employee-shell .tf-batch-btn-secondary,
+body.dark-mode .tf-batch-btn-secondary {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #cbd5e1 !important;
+}
+
+.employee-shell.tf-dark .tf-batch-btn-secondary:hover,
+[data-theme="dark"] .employee-shell .tf-batch-btn-secondary:hover,
+body.dark-mode .tf-batch-btn-secondary:hover {
+  background: #334155 !important;
+  border-color: #475569 !important;
+  color: #f8fafc !important;
+}
+
+.employee-shell.tf-dark .tf-batch-btn-clear,
+[data-theme="dark"] .employee-shell .tf-batch-btn-clear,
+body.dark-mode .tf-batch-btn-clear {
+  color: #94a3b8 !important;
+}
+
+.employee-shell.tf-dark .tf-batch-btn-clear:hover,
+[data-theme="dark"] .employee-shell .tf-batch-btn-clear:hover,
+body.dark-mode .tf-batch-btn-clear:hover {
+  color: #f1f5f9 !important;
+}
+
+.employee-shell.tf-dark .tf-custom-checkbox,
+[data-theme="dark"] .employee-shell .tf-custom-checkbox,
+body.dark-mode .tf-custom-checkbox {
+  background: #1e293b;
+  border-color: #475569;
+}
+
+.employee-shell.tf-dark .tf-custom-checkbox.checked,
+[data-theme="dark"] .employee-shell .tf-custom-checkbox.checked,
+body.dark-mode .tf-custom-checkbox.checked {
+  background: #6366f1;
+  border-color: #6366f1;
+}

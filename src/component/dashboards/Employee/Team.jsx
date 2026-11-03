@@ -1,6 +1,8 @@
 ﻿
 import { useMemo, useState } from "react";
 import {
+  Download,
+  Check,
   Users,
   UserPlus,
   Search,
@@ -43,6 +45,51 @@ function Team() {
   const [statusFilter, setStatusFilter] = useState("All Statuses");
   const [showInvite, setShowInvite] = useState(false);
   const [form, setForm] = useState(emptyForm);
+
+  // Selected Members for Batch Actions
+  const [selectedMemberIds, setSelectedMemberIds] = useState([]);
+
+  const handleSelectAll = () => {
+    if (selectedMemberIds.length === filteredMembers.length) {
+      setSelectedMemberIds([]);
+    } else {
+      setSelectedMemberIds(filteredMembers.map((m) => m.id));
+    }
+  };
+
+  const handleSelectRow = (memberId) => {
+    setSelectedMemberIds((prev) =>
+      prev.includes(memberId) ? prev.filter((id) => id !== memberId) : [...prev, memberId]
+    );
+  };
+
+  const handleBatchExport = () => {
+    if (selectedMemberIds.length === 0) return;
+    const selected = members.filter((m) => selectedMemberIds.includes(m.id));
+    const csvContent =
+      "data:text/csv;charset=utf-8," +
+      [
+        "Name,Email,Department,Role,Status",
+        ...selected.map(
+          (m) =>
+            `"${(m.name || "").replace(/"/g, '""')}","${m.email}","${m.department}","${m.role}","${m.status}"`
+        ),
+      ].join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `team_members_${Date.now()}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setSelectedMemberIds([]);
+  };
+
+  const handleBatchRemove = () => {
+    if (selectedMemberIds.length === 0) return;
+    setMembers((prev) => prev.filter((m) => !selectedMemberIds.includes(m.id)));
+    setSelectedMemberIds([]);
+  };
   const [formError, setFormError] = useState("");
   const [openMenu, setOpenMenu] = useState(null);
 
@@ -305,11 +352,59 @@ function Team() {
               </div>
             </div>
 
+            {/* Multi-Selection Batch Actions Bar */}
+            {selectedMemberIds.length > 0 && (
+              <div className="tf-batch-banner">
+                <span className="tf-batch-count">
+                  <strong>{selectedMemberIds.length}</strong> member record{selectedMemberIds.length > 1 ? "s" : ""} selected
+                </span>
+                <div className="tf-batch-actions">
+                  <button
+                    type="button"
+                    className="tf-batch-btn tf-batch-btn-secondary"
+                    onClick={handleBatchExport}
+                  >
+                    <Download size={13} /> Export Selected
+                  </button>
+                  <button
+                    type="button"
+                    className="tf-batch-btn tf-batch-btn-danger"
+                    onClick={handleBatchRemove}
+                  >
+                    <Trash2 size={13} /> Remove Selected
+                  </button>
+                  <button
+                    type="button"
+                    className="tf-batch-btn-clear"
+                    onClick={() => setSelectedMemberIds([])}
+                  >
+                    Clear
+                  </button>
+                </div>
+              </div>
+            )}
+
             <div className="team-table-wrap">
               <table className="team-table">
                 <thead>
                   <tr>
                     <th className="tf-th-num">Sr</th>
+                    <th style={{ width: "36px", textAlign: "center" }}>
+                      <button
+                        type="button"
+                        className="tf-checkbox-th-btn"
+                        onClick={handleSelectAll}
+                        aria-label="Select all members"
+                      >
+                        {selectedMemberIds.length === filteredMembers.length && filteredMembers.length > 0 ? (
+                          <div className="tf-custom-checkbox checked">
+                            <Check size={12} color="#FFFFFF" strokeWidth={3} />
+                          </div>
+                        ) : (
+                          <div className="tf-custom-checkbox" />
+                        )}
+                      </button>
+                    </th>
                     <th>Member</th>
                     <th>Department</th>
                     <th>Role</th>
@@ -321,9 +416,21 @@ function Team() {
 
                 <tbody>
                   {filteredMembers.map((member, idx) => (
-                    <tr key={member.id}>
+                    <tr key={member.id} className={selectedMemberIds.includes(member.id) ? "row-selected" : ""}>
                       <td className="tf-td-num">
                         <span className="tf-row-num-badge">{idx + 1}</span>
+                      </td>
+                      <td style={{ width: "36px", textAlign: "center" }}>
+                        <button
+                          type="button"
+                          className="tf-row-check-btn"
+                          onClick={() => handleSelectRow(member.id)}
+                          aria-label={`Select member ${member.name}`}
+                        >
+                          <div className={`tf-custom-checkbox ${selectedMemberIds.includes(member.id) ? "checked" : ""}`}>
+                            {selectedMemberIds.includes(member.id) && <Check size={12} color="#FFFFFF" strokeWidth={3} />}
+                          </div>
+                        </button>
                       </td>
                       <td>
                         <div className="team-member-cell">

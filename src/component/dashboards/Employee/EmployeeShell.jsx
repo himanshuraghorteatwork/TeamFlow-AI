@@ -2,9 +2,11 @@ import React, { useState, useEffect } from "react";
 import AppSidebar from "./AppSidebar";
 import EmployeeTopbar from "./EmployeeTopbar";
 import { getEmployeeTheme, getEmployeeFontSize, applyEmployeeFontSize, getEmployeePrimaryColor, applyEmployeePrimaryColor } from "./EmployeeAuth";
+import { addCalendarEvent } from "./calendarSync";
 import { X, CheckSquare, Bug, Calendar, Plus, Network } from "lucide-react";
 import "./EmployeeTokens.css";
 import "./EmployeeShell.css";
+import "./EmployeeDarkMode.css";
 
 function EmployeeShell({
   children,
@@ -53,12 +55,34 @@ function EmployeeShell({
   useEffect(() => {
     const handleThemeChange = (e) => {
       const current = e.detail || getEmployeeTheme();
+      const isDark = current === "dark";
       setTheme(current);
-      document.documentElement.setAttribute("data-theme", current);
+      if (typeof document !== "undefined") {
+        document.body.classList.toggle("sa-dark-mode", isDark);
+        document.body.classList.toggle("tf-dark", isDark);
+        document.body.classList.toggle("dark", isDark);
+        document.body.classList.toggle("dark-mode", isDark);
+        document.body.classList.toggle("dark-theme", isDark);
+        document.documentElement.classList.toggle("sa-dark-mode", isDark);
+        document.documentElement.classList.toggle("tf-dark", isDark);
+        document.documentElement.classList.toggle("dark", isDark);
+        document.documentElement.setAttribute("data-theme", current);
+      }
     };
 
-        const initial = getEmployeeTheme();
-    document.documentElement.setAttribute("data-theme", initial);
+    const initial = getEmployeeTheme();
+    const isDark = initial === "dark";
+    if (typeof document !== "undefined") {
+      document.body.classList.toggle("sa-dark-mode", isDark);
+      document.body.classList.toggle("tf-dark", isDark);
+      document.body.classList.toggle("dark", isDark);
+      document.body.classList.toggle("dark-mode", isDark);
+      document.body.classList.toggle("dark-theme", isDark);
+      document.documentElement.classList.toggle("sa-dark-mode", isDark);
+      document.documentElement.classList.toggle("tf-dark", isDark);
+      document.documentElement.classList.toggle("dark", isDark);
+      document.documentElement.setAttribute("data-theme", initial);
+    }
 
     // Apply font size & primary color
     applyEmployeeFontSize(getEmployeeFontSize());
@@ -162,19 +186,16 @@ function EmployeeShell({
     if (!eventForm.title.trim()) return;
 
     try {
-      const existing = JSON.parse(localStorage.getItem("tf_events") || "[]");
-      const newEvent = {
-        id: `event-${Date.now()}`,
+      addCalendarEvent({
         title: eventForm.title.trim(),
-        date: eventForm.date,
-        time: eventForm.time,
-        category: eventForm.category,
-        location: "TeamFlow Online",
+        date: eventForm.date || new Date().toISOString().split("T")[0],
+        startTime: eventForm.time || "10:00",
+        endTime: "11:00",
+        category: eventForm.category || "meeting",
+        project: "TeamFlow Website",
+        owner: "my",
         description: "Scheduled event",
-      };
-      const updated = [newEvent, ...existing];
-      localStorage.setItem("tf_events", JSON.stringify(updated));
-      window.dispatchEvent(new CustomEvent("tf_events_updated", { detail: newEvent }));
+      });
     } catch (err) {
       console.error("Error creating event:", err);
     }
@@ -218,7 +239,7 @@ function EmployeeShell({
   };
 
   return (
-    <div className={`employee-shell ${theme === "dark" ? "tf-dark" : ""}`}>
+    <div className={`employee-shell ${theme === "dark" ? "tf-dark sa-dark-mode dark" : ""}`}>
       {/* Shared Sidebar */}
       <AppSidebar
         isOpen={sidebarOpen}

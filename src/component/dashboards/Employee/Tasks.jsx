@@ -646,6 +646,55 @@ function Tasks() {
     );
   };
 
+  // Batch Operations on Selected Tasks
+  const handleBatchMarkCompleted = () => {
+    if (selectedTaskIds.length === 0) return;
+    setTasks((prev) =>
+      prev.map((t) => (selectedTaskIds.includes(t.id) ? { ...t, status: "Completed" } : t))
+    );
+    showToast(`Marked ${selectedTaskIds.length} tasks as Completed`);
+    setSelectedTaskIds([]);
+  };
+
+  const handleBatchMarkInProgress = () => {
+    if (selectedTaskIds.length === 0) return;
+    setTasks((prev) =>
+      prev.map((t) => (selectedTaskIds.includes(t.id) ? { ...t, status: "In Progress" } : t))
+    );
+    showToast(`Marked ${selectedTaskIds.length} tasks as In Progress`);
+    setSelectedTaskIds([]);
+  };
+
+  const handleBatchExport = () => {
+    if (selectedTaskIds.length === 0) return;
+    const selectedTasks = tasks.filter((t) => selectedTaskIds.includes(t.id));
+    const csvContent =
+      "data:text/csv;charset=utf-8," +
+      [
+        "ID,Task Name,Project,Due Date,Priority,Status",
+        ...selectedTasks.map(
+          (t) =>
+            `"${t.id}","${(t.title || "").replace(/"/g, '""')}","${(t.project || "").replace(/"/g, '""')}","${t.dueDate}","${t.priority}","${t.status}"`
+        ),
+      ].join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `tasks_export_${Date.now()}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    showToast(`Exported ${selectedTasks.length} tasks to CSV`);
+  };
+
+  const handleBatchDelete = () => {
+    if (selectedTaskIds.length === 0) return;
+    const count = selectedTaskIds.length;
+    setTasks((prev) => prev.filter((t) => !selectedTaskIds.includes(t.id)));
+    setSelectedTaskIds([]);
+    showToast(`Deleted ${count} selected tasks`);
+  };
+
   // Handle Create Task
   const handleCreateTask = (e) => {
     e.preventDefault();
@@ -1095,6 +1144,51 @@ function Tasks() {
               LEFT COLUMN: Tasks Table + Pagination Footer
               ------------------------------------------------------------------ */}
           <div className="tf-tasks-table-card">
+            {/* Multi-Selection Batch Actions Bar */}
+            {selectedTaskIds.length > 0 && (
+              <div className="tf-batch-banner">
+                <span className="tf-batch-count">
+                  <strong>{selectedTaskIds.length}</strong> task record{selectedTaskIds.length > 1 ? "s" : ""} selected
+                </span>
+                <div className="tf-batch-actions">
+                  <button
+                    type="button"
+                    className="tf-batch-btn tf-batch-btn-secondary"
+                    onClick={handleBatchMarkCompleted}
+                  >
+                    <CheckCircle2 size={13} /> Mark Completed
+                  </button>
+                  <button
+                    type="button"
+                    className="tf-batch-btn tf-batch-btn-secondary"
+                    onClick={handleBatchMarkInProgress}
+                  >
+                    <Clock size={13} /> Set In Progress
+                  </button>
+                  <button
+                    type="button"
+                    className="tf-batch-btn tf-batch-btn-secondary"
+                    onClick={handleBatchExport}
+                  >
+                    <Download size={13} /> Export Selected
+                  </button>
+                  <button
+                    type="button"
+                    className="tf-batch-btn tf-batch-btn-danger"
+                    onClick={handleBatchDelete}
+                  >
+                    <Trash2 size={13} /> Delete Selected
+                  </button>
+                  <button
+                    type="button"
+                    className="tf-batch-btn-clear"
+                    onClick={() => setSelectedTaskIds([])}
+                  >
+                    Clear
+                  </button>
+                </div>
+              </div>
+            )}
             <div className="tf-tasks-table-responsive">
               <table className="tf-tasks-table">
                 <thead>
@@ -1145,11 +1239,13 @@ function Tasks() {
                         <td className="tf-td-checkbox">
                           <button
                             type="button"
-                            className={`tf-circle-check-btn ${isCompleted ? "checked" : ""}`}
-                            onClick={() => handleToggleComplete(t)}
-                            title={isCompleted ? "Mark incomplete" : "Mark completed"}
+                            className="tf-row-check-btn"
+                            onClick={() => handleSelectRow(t.id)}
+                            aria-label={`Select task ${t.title}`}
                           >
-                            {isCompleted && <Check size={12} color="#FFFFFF" strokeWidth={3} />}
+                            <div className={`tf-custom-checkbox ${isSelected ? "checked" : ""}`}>
+                              {isSelected && <Check size={12} color="#FFFFFF" strokeWidth={3} />}
+                            </div>
                           </button>
                         </td>
 
@@ -1238,7 +1334,7 @@ function Tasks() {
                             {/* Eye: View details */}
                             <button
                               type="button"
-                              className="tf-task-action-icon-btn"
+                              className="tf-task-action-icon-btn view"
                               onClick={() => handleOpenEditTask(t)}
                               title="View details"
                             >
@@ -1248,7 +1344,7 @@ function Tasks() {
                             {/* Message: Comments with badge */}
                             <button
                               type="button"
-                              className="tf-task-action-icon-btn with-badge"
+                              className="tf-task-action-icon-btn comments with-badge"
                               onClick={() => setCommentsModalTask(t)}
                               title="Comments"
                             >
@@ -1261,7 +1357,7 @@ function Tasks() {
                             {/* Paperclip: Attachments */}
                             <button
                               type="button"
-                              className="tf-task-action-icon-btn"
+                              className="tf-task-action-icon-btn attach"
                               onClick={() => setAttachmentsModalTask(t)}
                               title="Attachments"
                             >
@@ -1272,7 +1368,7 @@ function Tasks() {
                             <div className="tf-task-action-menu-wrap">
                               <button
                                 type="button"
-                                className="tf-task-action-icon-btn"
+                                className="tf-task-action-icon-btn more"
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   setActionMenuTaskId(

@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { Link } from "react-router-dom";
 import {
+  Download,
+  Trash2,
+  Eye,
   Video,
   Calendar,
   Clock,
@@ -48,6 +51,7 @@ import {
 import EmployeeShell from "./EmployeeShell";
 import "./Meetings.css";
 import { getEmployeeProfile } from "./EmployeeAuth";
+import { getCalendarEvents, getCalendarDots, subscribeToCalendarSync, addCalendarEvent, deleteCalendarEvent } from "./calendarSync";
 
 /* Storage Key */
 const STORAGE_KEY = "tf_meetings_v2";
@@ -234,6 +238,136 @@ const defaultMeetings = [
 ];
 
 
+/* Comprehensive Project Summaries for each project */
+const projectSummaries = {
+  "Mobile App": {
+    name: "Mobile App",
+    category: "Mobile Application (iOS & Android)",
+    status: "Active",
+    statusColor: "blue",
+    progress: 62,
+    dueDate: "Apr 15, 2024",
+    lead: "Rahul Sharma",
+    teamSize: "4 members",
+    tasksTotal: 24,
+    tasksCompleted: 15,
+    bugsOpen: 4,
+    bugsResolved: 18,
+    executiveSummary:
+      "The Mobile App project is progressing on schedule through Sprint 4. The core authentication flow, responsive navigation drawer, and push notification sync via APNs/FCM are fully implemented. Next priority is offline data persistence and TestFlight distribution.",
+    highlights: [
+      "Completed 14 user stories during the latest sprint review.",
+      "Resolved 6 critical responsive layout bugs on iOS Safari and Android viewports.",
+      "Integrated biometric login (Face ID / Fingerprint) with fallback credentials.",
+      "Established 60fps chart rendering on dashboard widgets using lightweight canvas.",
+    ],
+    upcomingMilestones: [
+      "TestFlight & Google Play Internal Beta release (Nov 5, 2024)",
+      "End-to-end integration testing for offline sync (Nov 12, 2024)",
+    ],
+  },
+  "TeamFlow Website": {
+    name: "TeamFlow Website",
+    category: "Web Platform & Portal",
+    status: "Active",
+    statusColor: "green",
+    progress: 85,
+    dueDate: "Mar 30, 2024",
+    lead: "Priya Patel",
+    teamSize: "5 members",
+    tasksTotal: 32,
+    tasksCompleted: 27,
+    bugsOpen: 2,
+    bugsResolved: 24,
+    executiveSummary:
+      "TeamFlow Website is in the final polish and stabilization stage. Dark mode unified with SuperAdmin palettes, responsive breakpoints verified across all desktop and tablet resolutions, and automated UI smoke test coverage is currently at 94%.",
+    highlights: [
+      "Finalized complete design system token unification and dark theme palette.",
+      "Optimized production bundle size with Vite, achieving 1.1s initial load times.",
+      "Completed user acceptance testing (UAT) for enterprise SSO and organization provisioning.",
+    ],
+    upcomingMilestones: [
+      "Production deployment to global CDN (Nov 8, 2024)",
+      "Post-launch SEO and Core Web Vitals audit (Nov 15, 2024)",
+    ],
+  },
+  "AI Integration": {
+    name: "AI Integration",
+    category: "AI & Machine Learning",
+    status: "In Progress",
+    statusColor: "purple",
+    progress: 45,
+    dueDate: "May 20, 2024",
+    lead: "Amit Verma",
+    teamSize: "3 members",
+    tasksTotal: 19,
+    tasksCompleted: 9,
+    bugsOpen: 3,
+    bugsResolved: 12,
+    executiveSummary:
+      "AI Integration focuses on bringing intelligent work automation to TeamFlow. Automated smart meeting transcripts, task assignment recommendations, and natural language command parsing have passed phase 1 prototyping.",
+    highlights: [
+      "Integrated LLM streaming responses with zero dropped token latency.",
+      "Built semantic activity analyzer to generate automated daily work summaries.",
+      "Configured robust fallbacks and circuit breakers for external AI model endpoints.",
+    ],
+    upcomingMilestones: [
+      "Context-aware project query engine beta (Nov 18, 2024)",
+      "Smart schedule optimization assistant (Dec 1, 2024)",
+    ],
+  },
+  "Marketing Portal": {
+    name: "Marketing Portal",
+    category: "Growth & Analytics",
+    status: "Active",
+    statusColor: "orange",
+    progress: 58,
+    dueDate: "Apr 28, 2024",
+    lead: "Neha Patil",
+    teamSize: "4 members",
+    tasksTotal: 16,
+    tasksCompleted: 10,
+    bugsOpen: 1,
+    bugsResolved: 9,
+    executiveSummary:
+      "The Marketing Portal aggregates multi-channel lead funnels, campaign conversions, and ROI metrics. The current focus is syncing conversion tracking webhooks and finishing analytics visualization widgets.",
+    highlights: [
+      "Shipped real-time conversion rate dashboard with custom date range pickers.",
+      "Connected Stripe webhook pipelines for automated MRR and churn tracking.",
+      "Integrated automated newsletter sign-up tracking and UTM campaign attribution.",
+    ],
+    upcomingMilestones: [
+      "Self-serve campaign builder release (Nov 22, 2024)",
+      "Automated weekly email performance digests (Nov 30, 2024)",
+    ],
+  },
+  General: {
+    name: "General / Organization",
+    category: "Company Operations",
+    status: "Ongoing",
+    statusColor: "slate",
+    progress: 75,
+    dueDate: "Continuous",
+    lead: "Rahul Sharma",
+    teamSize: "All Company",
+    tasksTotal: 12,
+    tasksCompleted: 9,
+    bugsOpen: 0,
+    bugsResolved: 8,
+    executiveSummary:
+      "Company-wide operational syncs, HR updates, and cross-department collaboration initiatives. Tracking general milestones, policy announcements, and internal tooling improvements.",
+    highlights: [
+      "Published Q4 2024 OKR performance goals and department targets.",
+      "Updated holiday calendar and remote-work benefits in Employee Portal.",
+      "Organized bi-weekly cross-functional all-hands engineering sync.",
+    ],
+    upcomingMilestones: [
+      "Quarterly performance reviews (Nov 25, 2024)",
+      "Year-end planning and retrospective (Dec 15, 2024)",
+    ],
+  },
+};
+
 function Meetings() {
   // Sync User profile from Navbar & localStorage
   const [profile, setProfile] = useState(getEmployeeProfile);
@@ -273,8 +407,51 @@ function Meetings() {
   // Real-time Calendar state
   const [calendarMonth, setCalendarMonth] = useState(() => new Date());
   const [selectedCalendarDate, setSelectedCalendarDate] = useState(null);
+  const [calendarEvents, setCalendarEventsState] = useState(() => getCalendarEvents());
 
-  // Dynamic Mini Calendar computation
+  // Real-time synchronization across all calendar pages
+  useEffect(() => {
+    const unsubscribe = subscribeToCalendarSync((syncedEvents) => {
+      setCalendarEventsState(syncedEvents);
+      // Auto-import any calendar meetings not yet in meetings state
+      const calMeetings = syncedEvents.filter((ev) => ev.category === "meeting");
+      if (calMeetings.length > 0) {
+        setMeetings((prevMeetings) => {
+          let updated = [...prevMeetings];
+          let changed = false;
+          calMeetings.forEach((cm) => {
+            const exists = updated.some(
+              (m) => String(m.id) === String(cm.id) || m.title.toLowerCase() === cm.title.toLowerCase()
+            );
+            if (!exists) {
+              updated.unshift({
+                id: cm.id,
+                title: cm.title,
+                project: cm.project || "TeamFlow Website",
+                projectCategory: "web",
+                date: cm.date,
+                time: cm.startTime || "10:00 AM",
+                timeLabel: cm.timeLabel || "10:00 AM",
+                status: "upcoming",
+                actionType: "join",
+                callType: "video",
+                link: cm.meetingUrl || "https://meet.google.com/teamflow-call",
+                description: cm.description || "Scheduled team meeting",
+                agenda: cm.description || "Discuss agenda and project milestones.",
+                attendees: ["https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100"],
+                extraAttendees: 2,
+              });
+              changed = true;
+            }
+          });
+          return changed ? updated : prevMeetings;
+        });
+      }
+    });
+    return unsubscribe;
+  }, []);
+
+  // Dynamic Mini Calendar computation synchronized across pages
   const miniCalendarDays = useMemo(() => {
     const year = calendarMonth.getFullYear();
     const month = calendarMonth.getMonth();
@@ -309,16 +486,7 @@ function Meetings() {
         (m) => m.date === dateStr || (d === 22 && m.date === "2024-10-22" && year === 2024 && month === 9)
       );
 
-      const dots = [];
-      if (dayMeetings.length > 0) {
-        dots.push("blue");
-        if (dayMeetings.some((m) => m.status === "join_now" || m.status === "cancelled")) {
-          dots.push("red");
-        }
-        if (dayMeetings.some((m) => m.status === "completed")) {
-          dots.push("green");
-        }
-      }
+      const dots = getCalendarDots(dateStr, calendarEvents, [], meetings);
 
       days.push({
         day: d,
@@ -344,7 +512,68 @@ function Meetings() {
     }
 
     return days;
-  }, [calendarMonth, meetings, selectedCalendarDate]);
+  }, [calendarMonth, meetings, selectedCalendarDate, calendarEvents]);
+
+  // Selected Meetings for batch actions
+  const [selectedMeetingIds, setSelectedMeetingIds] = useState([]);
+
+  // Handle Select All
+  const handleSelectAll = () => {
+    const pageIds = paginatedMeetings.map((m) => m.id);
+    const allSelected = pageIds.length > 0 && pageIds.every((id) => selectedMeetingIds.includes(id));
+    if (allSelected) {
+      setSelectedMeetingIds((prev) => prev.filter((id) => !pageIds.includes(id)));
+    } else {
+      setSelectedMeetingIds((prev) => Array.from(new Set([...prev, ...pageIds])));
+    }
+  };
+
+  // Handle single row select
+  const handleSelectRow = (meetingId) => {
+    setSelectedMeetingIds((prev) =>
+      prev.includes(meetingId) ? prev.filter((id) => id !== meetingId) : [...prev, meetingId]
+    );
+  };
+
+  // Batch actions
+  const handleBatchMarkCompleted = () => {
+    if (selectedMeetingIds.length === 0) return;
+    setMeetings((prev) =>
+      prev.map((m) => (selectedMeetingIds.includes(m.id) ? { ...m, status: "Completed" } : m))
+    );
+    showToast(`Marked ${selectedMeetingIds.length} meetings as Completed`);
+    setSelectedMeetingIds([]);
+  };
+
+  const handleBatchExport = () => {
+    if (selectedMeetingIds.length === 0) return;
+    const selected = meetings.filter((m) => selectedMeetingIds.includes(m.id));
+    const csvContent =
+      "data:text/csv;charset=utf-8," +
+      [
+        "Title,Project,Date,Time,Status,Link",
+        ...selected.map(
+          (m) =>
+            `"${(m.title || "").replace(/"/g, '""')}","${(m.project || "").replace(/"/g, '""')}","${m.date}","${m.time}","${m.status}","${m.link || ""}"`
+        ),
+      ].join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `meetings_export_${Date.now()}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    showToast(`Exported ${selected.length} meetings to CSV`);
+  };
+
+  const handleBatchDelete = () => {
+    if (selectedMeetingIds.length === 0) return;
+    const count = selectedMeetingIds.length;
+    setMeetings((prev) => prev.filter((m) => !selectedMeetingIds.includes(m.id)));
+    setSelectedMeetingIds([]);
+    showToast(`Deleted ${count} selected meetings`);
+  };
 
   // Dropdown open states
   const [projectDropdownOpen, setProjectDropdownOpen] = useState(false);
@@ -357,6 +586,21 @@ function Meetings() {
   const [joinModalOpen, setJoinModalOpen] = useState(false);
   const [customJoinUrl, setCustomJoinUrl] = useState("");
   const [selectedMeetingDetails, setSelectedMeetingDetails] = useState(null);
+  const [activeModalTab, setActiveModalTab] = useState("info"); // "info" or "summary"
+
+  // Sync initial tab when meeting is opened
+  useEffect(() => {
+    if (selectedMeetingDetails?.initialTab) {
+      setActiveModalTab(selectedMeetingDetails.initialTab);
+    } else if (selectedMeetingDetails) {
+      setActiveModalTab("info");
+    }
+  }, [selectedMeetingDetails]);
+
+  const handleDeleteMeeting = (id) => {
+    setMeetings((prev) => prev.filter((m) => m.id !== id));
+    showToast("Meeting removed from schedule.");
+  };
   const [activeCallModal, setActiveCallModal] = useState(null);
 
   // Video call simulator controls state
@@ -416,6 +660,9 @@ function Meetings() {
       }
       if (rowMenuRef.current && !rowMenuRef.current.contains(e.target)) {
         setActiveRowMenuId(null);
+      }
+      if (rowsDropdownRef.current && !rowsDropdownRef.current.contains(e.target)) {
+        setRowsDropdownOpen(false);
       }
     };
     document.addEventListener("mousedown", handleOutsideClick);
@@ -479,6 +726,33 @@ function Meetings() {
 
     return list;
   }, [meetings, filterTab, searchQuery, projectFilter, dateFilter, selectedCalendarDate]);
+
+  // Pagination State & Calculations
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rowsDropdownOpen, setRowsDropdownOpen] = useState(false);
+  const rowsDropdownRef = useRef(null);
+
+  // Reset page on filter/search change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filterTab, searchQuery, projectFilter, dateFilter, selectedCalendarDate]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredMeetings.length / rowsPerPage));
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [totalPages, currentPage]);
+
+  const paginatedMeetings = useMemo(() => {
+    const start = (currentPage - 1) * rowsPerPage;
+    return filteredMeetings.slice(start, start + rowsPerPage);
+  }, [filteredMeetings, currentPage, rowsPerPage]);
+
+  const isAllPageSelected =
+    paginatedMeetings.length > 0 && paginatedMeetings.every((m) => selectedMeetingIds.includes(m.id));
 
   // Format call duration MM:SS
   const formatCallTime = (seconds) => {
@@ -866,11 +1140,65 @@ function Meetings() {
 
             {/* Meetings Table Card */}
             <div className="tf-meet-table-card">
+            {/* Multi-Selection Batch Actions Bar */}
+            {selectedMeetingIds.length > 0 && (
+              <div className="tf-batch-banner">
+                <span className="tf-batch-count">
+                  <strong>{selectedMeetingIds.length}</strong> meeting record{selectedMeetingIds.length > 1 ? "s" : ""} selected
+                </span>
+                <div className="tf-batch-actions">
+                  <button
+                    type="button"
+                    className="tf-batch-btn tf-batch-btn-secondary"
+                    onClick={handleBatchMarkCompleted}
+                  >
+                    <CheckCircle2 size={13} /> Mark Completed
+                  </button>
+                  <button
+                    type="button"
+                    className="tf-batch-btn tf-batch-btn-secondary"
+                    onClick={handleBatchExport}
+                  >
+                    <Download size={13} /> Export Selected
+                  </button>
+                  <button
+                    type="button"
+                    className="tf-batch-btn tf-batch-btn-danger"
+                    onClick={handleBatchDelete}
+                  >
+                    <Trash2 size={13} /> Delete Selected
+                  </button>
+                  <button
+                    type="button"
+                    className="tf-batch-btn-clear"
+                    onClick={() => setSelectedMeetingIds([])}
+                  >
+                    Clear
+                  </button>
+                </div>
+              </div>
+            )}
               <div className="tf-table-responsive">
                 <table className="tf-meet-table">
                   <thead>
                     <tr>
                       <th className="tf-th-num">Sr</th>
+                      <th className="tf-th-checkbox" style={{ width: "36px", textAlign: "center" }}>
+                        <button
+                          type="button"
+                          className="tf-checkbox-th-btn"
+                          onClick={handleSelectAll}
+                          aria-label="Select all meetings"
+                        >
+                          {isAllPageSelected ? (
+                            <div className="tf-custom-checkbox checked">
+                              <Check size={12} color="#FFFFFF" strokeWidth={3} />
+                            </div>
+                          ) : (
+                            <div className="tf-custom-checkbox" />
+                          )}
+                        </button>
+                      </th>
                       <th className="col-title">Title & Description</th>
                       <th className="col-proj">Project</th>
                       <th className="col-date">Date & Time</th>
@@ -882,7 +1210,7 @@ function Meetings() {
                   <tbody>
                     {filteredMeetings.length === 0 ? (
                       <tr>
-                        <td colSpan={7} className="tf-table-empty">
+                        <td colSpan={8} className="tf-table-empty">
                           <Video size={32} color="#94A3B8" />
                           <p>No meetings found matching your filters.</p>
                           <button
@@ -900,12 +1228,25 @@ function Meetings() {
                         </td>
                       </tr>
                     ) : (
-                      filteredMeetings.map((m, idx) => {
+                      paginatedMeetings.map((m, idx) => {
+                        const rowNum = (currentPage - 1) * rowsPerPage + idx + 1;
                         return (
-                          <tr key={m.id} className="tf-meet-row">
+                          <tr key={m.id} className={`tf-meet-row ${selectedMeetingIds.includes(m.id) ? "row-selected" : ""}`}>
                             {/* Title & Description */}
                             <td className="tf-td-num">
-                              <span className="tf-row-num-badge">{idx + 1}</span>
+                              <span className="tf-row-num-badge">{rowNum}</span>
+                            </td>
+                            <td className="tf-td-checkbox" style={{ width: "36px", textAlign: "center" }}>
+                              <button
+                                type="button"
+                                className="tf-row-check-btn"
+                                onClick={() => handleSelectRow(m.id)}
+                                aria-label={`Select meeting ${m.title}`}
+                              >
+                                <div className={`tf-custom-checkbox ${selectedMeetingIds.includes(m.id) ? "checked" : ""}`}>
+                                  {selectedMeetingIds.includes(m.id) && <Check size={12} color="#FFFFFF" strokeWidth={3} />}
+                                </div>
+                              </button>
                             </td>
                             <td className="col-title">
                               <div className="tf-meet-title-cell">
@@ -990,71 +1331,61 @@ function Meetings() {
                             {/* Actions */}
                             <td className="col-actions">
                               <div className="tf-actions-row">
-                                {m.actionType === "join" ? (
+                                {m.status === "join_now" || m.actionType === "join" ? (
                                   <button
                                     type="button"
                                     className="tf-row-join-btn"
                                     onClick={() => handleLaunchCall(m)}
+                                    title={`Join ${m.title}`}
                                   >
-                                    <Video size={14} />
-                                    <span>Join</span>
+                                    <Video size={13} />
+                                    <span>Join Now</span>
                                   </button>
                                 ) : (
                                   <button
                                     type="button"
                                     className="tf-row-view-btn"
-                                    onClick={() => setSelectedMeetingDetails(m)}
+                                    onClick={() => setSelectedMeetingDetails({ ...m, initialTab: "info" })}
+                                    title={`View Details for ${m.title}`}
                                   >
-                                    View Details
+                                    <Eye size={13} />
+                                    <span>View Details</span>
                                   </button>
                                 )}
 
-                                {/* Row More Menu Button */}
-                                <div className="tf-row-menu-wrap">
+                                <div className="tf-table-actions-row">
                                   <button
                                     type="button"
-                                    className="tf-row-more-btn"
-                                    onClick={() =>
-                                      setActiveRowMenuId(activeRowMenuId === m.id ? null : m.id)
-                                    }
+                                    className="tf-table-action-btn view"
+                                    onClick={() => setSelectedMeetingDetails({ ...m, initialTab: "info" })}
+                                    title="View Meeting Details"
                                   >
-                                    <MoreVertical size={16} />
+                                    <Eye size={14} />
                                   </button>
-
-                                  {activeRowMenuId === m.id && (
-                                    <div className="tf-row-dropdown-popover" ref={rowMenuRef}>
-                                      <button
-                                        type="button"
-                                        onClick={() => {
-                                          handleLaunchCall(m);
-                                          setActiveRowMenuId(null);
-                                        }}
-                                      >
-                                        <Video size={13} />
-                                        <span>Join Meeting</span>
-                                      </button>
-                                      <button
-                                        type="button"
-                                        onClick={() => {
-                                          setSelectedMeetingDetails(m);
-                                          setActiveRowMenuId(null);
-                                        }}
-                                      >
-                                        <ExternalLink size={13} />
-                                        <span>View Details</span>
-                                      </button>
-                                      <button
-                                        type="button"
-                                        onClick={() => {
-                                          handleCopyLink(m.meetingUrl);
-                                          setActiveRowMenuId(null);
-                                        }}
-                                      >
-                                        <Copy size={13} />
-                                        <span>Copy Link</span>
-                                      </button>
-                                    </div>
-                                  )}
+                                  <button
+                                    type="button"
+                                    className="tf-table-action-btn edit"
+                                    onClick={() => setSelectedMeetingDetails({ ...m, initialTab: "summary" })}
+                                    title={`Project Summary (${m.project})`}
+                                  >
+                                    <FileText size={14} />
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="tf-table-action-btn warning"
+                                    onClick={() => handleCopyLink(m.meetingUrl)}
+                                    title="Copy Meeting Link"
+                                  >
+                                    <Copy size={14} />
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="tf-table-action-btn delete"
+                                    onClick={() => handleDeleteMeeting(m.id)}
+                                    title="Delete Meeting"
+                                  >
+                                    <Trash2 size={14} />
+                                  </button>
                                 </div>
                               </div>
                             </td>
@@ -1069,29 +1400,78 @@ function Meetings() {
               {/* Table Footer / Pagination */}
               <footer className="tf-meet-table-footer">
                 <span className="tf-footer-showing">
-                  Showing 1 to {filteredMeetings.length} of {totalCount} meetings
+                  Showing {filteredMeetings.length === 0 ? 0 : (currentPage - 1) * rowsPerPage + 1} to{" "}
+                  {Math.min(currentPage * rowsPerPage, filteredMeetings.length)} of {filteredMeetings.length} meetings
                 </span>
 
                 <div className="tf-footer-pagination">
+                  {/* Previous Button */}
                   <button
                     type="button"
                     className="tf-page-arrow-btn"
-                    disabled
+                    disabled={currentPage <= 1}
+                    onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
                     aria-label="Previous page"
+                    title="Previous page"
                   >
                     <ChevronLeft size={16} />
                   </button>
-                  <button type="button" className="tf-page-num-btn active">
-                    1
-                  </button>
+
+                  {/* Dynamic Page Buttons */}
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((pg) => (
+                    <button
+                      key={pg}
+                      type="button"
+                      className={`tf-page-num-btn ${currentPage === pg ? "active" : ""}`}
+                      onClick={() => setCurrentPage(pg)}
+                    >
+                      {pg}
+                    </button>
+                  ))}
+
+                  {/* Next Button */}
                   <button
                     type="button"
                     className="tf-page-arrow-btn"
-                    disabled
+                    disabled={currentPage >= totalPages}
+                    onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
                     aria-label="Next page"
+                    title="Next page"
                   >
                     <ChevronRight size={16} />
                   </button>
+
+                  {/* Rows per page selector */}
+                  <div className="tf-rows-per-page-wrap" ref={rowsDropdownRef}>
+                    <button
+                      type="button"
+                      className="tf-rows-per-page-btn"
+                      onClick={() => setRowsDropdownOpen(!rowsDropdownOpen)}
+                      aria-label="Select rows per page"
+                    >
+                      <span>{rowsPerPage} per page</span>
+                      <ChevronDown size={14} className={rowsDropdownOpen ? "open" : ""} />
+                    </button>
+
+                    {rowsDropdownOpen && (
+                      <div className="tf-rows-dropdown-menu">
+                        {[5, 10, 20, 50].map((num) => (
+                          <button
+                            key={num}
+                            type="button"
+                            className={rowsPerPage === num ? "active" : ""}
+                            onClick={() => {
+                              setRowsPerPage(num);
+                              setCurrentPage(1);
+                              setRowsDropdownOpen(false);
+                            }}
+                          >
+                            {num} per page
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </footer>
             </div>
@@ -1238,9 +1618,10 @@ function Meetings() {
                     type="button"
                     className="tf-upcoming-join-btn join-now-pill"
                     onClick={() => handleLaunchCall(meetings[0])}
+                    title="Join Daily Standup"
                   >
                     <span className="tf-dot-pulse" />
-                    <span>Join Now</span>
+                    Join
                   </button>
                 </div>
 
@@ -1258,8 +1639,9 @@ function Meetings() {
                     type="button"
                     className="tf-upcoming-join-btn solid-purple"
                     onClick={() => handleLaunchCall(meetings[1])}
+                    title="Join UI Design Discussion"
                   >
-                    <span>Join</span>
+                    Join
                   </button>
                 </div>
 
@@ -1277,8 +1659,9 @@ function Meetings() {
                     type="button"
                     className="tf-upcoming-join-btn solid-purple"
                     onClick={() => handleLaunchCall(meetings[2])}
+                    title="Join Bug Review Meeting"
                   >
-                    <span>Join</span>
+                    Join
                   </button>
                 </div>
 
@@ -1296,8 +1679,9 @@ function Meetings() {
                     type="button"
                     className="tf-upcoming-join-btn solid-purple"
                     onClick={() => handleLaunchCall(meetings[3])}
+                    title="Join Project Sync"
                   >
-                    <span>Join</span>
+                    Join
                   </button>
                 </div>
               </div>
@@ -1424,64 +1808,364 @@ function Meetings() {
         )}
 
         {/* ====================================================================
-            MODAL 2: MEETING DETAILS MODAL
+            MODAL 2: MEETING DETAILS & PROJECT SUMMARY MODAL
             ==================================================================== */}
-        {selectedMeetingDetails && (
-          <div
-            className="tf-meet-modal-backdrop"
-            onClick={(e) => {
-              if (e.target === e.currentTarget) setSelectedMeetingDetails(null);
-            }}
-          >
-            <div className="tf-meet-modal-card wide" role="dialog" aria-modal="true">
-              <div className="tf-modal-header">
-                <div className="tf-modal-title-wrap">
-                  <div className={`tf-modal-icon-badge ${selectedMeetingDetails.iconBg || "blue"}`}>
-                    <Video size={18} />
-                  </div>
-                  <div>
-                    <h3>{selectedMeetingDetails.title}</h3>
-                    <p>{selectedMeetingDetails.project} • {selectedMeetingDetails.timeLabel}</p>
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  className="tf-modal-close-btn"
-                  onClick={() => setSelectedMeetingDetails(null)}
-                >
-                  <X size={18} />
-                </button>
-              </div>
+        {selectedMeetingDetails && (() => {
+          const summaryData =
+            projectSummaries[selectedMeetingDetails.project] ||
+            projectSummaries["General"] || {
+              name: selectedMeetingDetails.project || "Current Project",
+              category: "General Project",
+              status: "Active",
+              statusColor: "blue",
+              progress: 65,
+              dueDate: "May 15, 2024",
+              lead: "Rahul Sharma",
+              teamSize: "4 members",
+              tasksTotal: 20,
+              tasksCompleted: 13,
+              bugsOpen: 3,
+              bugsResolved: 15,
+              executiveSummary: "Project is progressing on track with active deliverables.",
+              highlights: ["Sprint deliverables on track.", "UI verification completed."],
+              upcomingMilestones: ["Internal Beta release"],
+            };
 
-              <div className="tf-modal-form-body">
-                {/* Description */}
-                <div className="tf-details-section">
-                  <span className="tf-detail-label">Description</span>
-                  <p className="tf-detail-text">{selectedMeetingDetails.description}</p>
+          return (
+            <div
+              className="tf-meet-modal-backdrop"
+              onClick={(e) => {
+                if (e.target === e.currentTarget) setSelectedMeetingDetails(null);
+              }}
+            >
+              <div className="tf-meet-modal-card wide tf-meet-details-modal" role="dialog" aria-modal="true">
+                {/* Modal Header */}
+                <div className="tf-modal-header">
+                  <div className="tf-modal-title-wrap">
+                    <div className={`tf-modal-icon-badge ${selectedMeetingDetails.iconBg || "blue"}`}>
+                      {activeModalTab === "summary" ? <BarChart2 size={18} /> : <Video size={18} />}
+                    </div>
+                    <div>
+                      <div className="tf-modal-title-row">
+                        <h3>{selectedMeetingDetails.title}</h3>
+                        <span className="tf-modal-proj-tag">
+                          {renderProjectIcon(selectedMeetingDetails.projectIcon)}
+                          <span>{selectedMeetingDetails.project}</span>
+                        </span>
+                        {selectedMeetingDetails.status === "completed" && (
+                          <span className="tf-modal-status-pill completed">Completed</span>
+                        )}
+                        {(selectedMeetingDetails.status === "upcoming" || !selectedMeetingDetails.status) && (
+                          <span className="tf-modal-status-pill upcoming">Upcoming</span>
+                        )}
+                        {selectedMeetingDetails.status === "join_now" && (
+                          <span className="tf-modal-status-pill live">Live Now</span>
+                        )}
+                      </div>
+                      <p className="tf-modal-meta-line">
+                        <Clock size={12} />
+                        <span>{selectedMeetingDetails.dateLabel || selectedMeetingDetails.date} • {selectedMeetingDetails.timeLabel}</span>
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    className="tf-modal-close-btn"
+                    onClick={() => setSelectedMeetingDetails(null)}
+                    title="Close"
+                  >
+                    <X size={18} />
+                  </button>
                 </div>
 
-                {/* Meeting link card */}
-                {selectedMeetingDetails.meetingUrl && (
-                  <div className="tf-details-link-card">
-                    <div className="tf-link-card-left">
-                      <Video size={18} color="#2563EB" />
-                      <div>
-                        <strong>Video Call Link</strong>
-                        <span>{selectedMeetingDetails.meetingUrl}</span>
+                {/* Subheader Navigation Tabs */}
+                <div className="tf-meet-modal-tabs">
+                  <button
+                    type="button"
+                    className={`tf-meet-tab-btn ${activeModalTab === "info" ? "active" : ""}`}
+                    onClick={() => setActiveModalTab("info")}
+                  >
+                    <Video size={15} />
+                    <span>Meeting Info</span>
+                  </button>
+                  <button
+                    type="button"
+                    className={`tf-meet-tab-btn ${activeModalTab === "summary" ? "active" : ""}`}
+                    onClick={() => setActiveModalTab("summary")}
+                  >
+                    <BarChart2 size={15} />
+                    <span>Project Summary ({selectedMeetingDetails.project})</span>
+                  </button>
+                </div>
+
+                <div className="tf-modal-form-body">
+                  {/* TAB 1: MEETING DETAILS */}
+                  {activeModalTab === "info" && (
+                    <div className="tf-tab-content-anim">
+                      {/* Description */}
+                      <div className="tf-details-section">
+                        <span className="tf-detail-label">Description</span>
+                        <div className="tf-detail-desc-card">
+                          <p className="tf-detail-text">{selectedMeetingDetails.description}</p>
+                        </div>
+                      </div>
+
+                      {/* Video Call Link Card with Summary replacing Join Button */}
+                      {selectedMeetingDetails.meetingUrl && (
+                        <div className="tf-details-link-card">
+                          <div className="tf-link-card-left">
+                            <div className="tf-link-icon-box">
+                              <Video size={18} color="#2563EB" />
+                            </div>
+                            <div>
+                              <strong>Video Call Link</strong>
+                              <span>{selectedMeetingDetails.meetingUrl}</span>
+                            </div>
+                          </div>
+                          <div className="tf-link-card-actions">
+                            <button
+                              type="button"
+                              className="tf-btn-outline"
+                              onClick={() => handleCopyLink(selectedMeetingDetails.meetingUrl)}
+                              title="Copy Meeting URL"
+                            >
+                              <Copy size={14} />
+                              <span>Copy</span>
+                            </button>
+                            {/* For Already Done Meeting: show Summary button inside View Details!
+                                For Upcoming / Live Meeting: show Join Now button! */}
+                            {selectedMeetingDetails.status === "completed" ? (
+                              <button
+                                type="button"
+                                className="tf-btn-summary-primary"
+                                onClick={() => setActiveModalTab("summary")}
+                                title={`Get Summary for ${selectedMeetingDetails.project}`}
+                              >
+                                <BarChart2 size={14} />
+                                <span>Summary</span>
+                              </button>
+                            ) : (
+                              <button
+                                type="button"
+                                className="tf-btn-primary tf-btn-modal-join"
+                                onClick={() => {
+                                  const m = selectedMeetingDetails;
+                                  setSelectedMeetingDetails(null);
+                                  handleLaunchCall(m);
+                                }}
+                                title="Join Call Now"
+                              >
+                                <Video size={14} />
+                                <span>Join Now</span>
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Agenda */}
+                      {selectedMeetingDetails.agenda && (
+                        <div className="tf-details-section">
+                          <span className="tf-detail-label">Meeting Agenda</span>
+                          <div className="tf-agenda-box">
+                            {selectedMeetingDetails.agenda.split("\n").map((line, idx) => (
+                              <div key={idx} className="tf-agenda-item-row">
+                                <span className="tf-agenda-bullet">{idx + 1}</span>
+                                <p>{line.replace(/^\d+\.\s*/, "")}</p>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Attendees list */}
+                      <div className="tf-details-section">
+                        <span className="tf-detail-label">Attendees ({selectedMeetingDetails.attendees ? selectedMeetingDetails.attendees.length + 1 : 4})</span>
+                        <div className="tf-details-attendees-list">
+                          <div className="tf-detail-attendee-chip">
+                            <div className="tf-chip-user-info">
+                              <img src={avatars.rahul} alt="Rahul" />
+                              <span>Rahul Sharma</span>
+                            </div>
+                            <span className="tf-attendee-role-badge admin">Admin</span>
+                          </div>
+                          <div className="tf-detail-attendee-chip">
+                            <div className="tf-chip-user-info">
+                              <img src={avatars.neha} alt="Neha" />
+                              <span>Neha Patil</span>
+                            </div>
+                            <span className="tf-attendee-role-badge">Member</span>
+                          </div>
+                          <div className="tf-detail-attendee-chip">
+                            <div className="tf-chip-user-info">
+                              <img src={avatars.amit} alt="Amit" />
+                              <span>Amit Verma</span>
+                            </div>
+                            <span className="tf-attendee-role-badge">Member</span>
+                          </div>
+                          <div className="tf-detail-attendee-chip current-user">
+                            <div className="tf-chip-user-info">
+                              <img src={profile.photo || avatars.priya} alt={profile.fullName || "You"} />
+                              <span>{profile.fullName || "John Doe"}</span>
+                            </div>
+                            <span className="tf-attendee-role-badge you">You</span>
+                          </div>
+                        </div>
                       </div>
                     </div>
-                    <div className="tf-link-card-actions">
+                  )}
+
+                  {/* TAB 2: PROJECT SUMMARY (Replaced Join button action) */}
+                  {activeModalTab === "summary" && (
+                    <div className="tf-tab-content-anim tf-proj-summary-container">
+                      {/* Project Hero Card */}
+                      <div className="tf-summary-hero-card">
+                        <div className="tf-summary-hero-left">
+                          <div className={`tf-summary-proj-icon ${summaryData.statusColor || "blue"}`}>
+                            {renderProjectIcon(selectedMeetingDetails.projectIcon)}
+                          </div>
+                          <div>
+                            <div className="tf-summary-title-row">
+                              <h4>{summaryData.name}</h4>
+                              <span className={`tf-summary-status-badge ${summaryData.statusColor || "blue"}`}>
+                                {summaryData.status}
+                              </span>
+                            </div>
+                            <p className="tf-summary-category">{summaryData.category}</p>
+                          </div>
+                        </div>
+                        <div className="tf-summary-hero-right">
+                          <div className="tf-summary-progress-label">
+                            <span>Project Progress</span>
+                            <strong>{summaryData.progress}%</strong>
+                          </div>
+                          <div className="tf-summary-progress-bar">
+                            <div
+                              className={`tf-summary-progress-fill ${summaryData.statusColor || "blue"}`}
+                              style={{ width: `${summaryData.progress}%` }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* 4 Key Metrics Grid */}
+                      <div className="tf-summary-metrics-grid">
+                        <div className="tf-summary-metric-card">
+                          <span className="tf-metric-label">Completed Tasks</span>
+                          <div className="tf-metric-value-wrap">
+                            <strong className="tf-metric-val">{summaryData.tasksCompleted}</strong>
+                            <span className="tf-metric-sub">/ {summaryData.tasksTotal} total</span>
+                          </div>
+                          <span className="tf-metric-badge green">
+                            {Math.round((summaryData.tasksCompleted / (summaryData.tasksTotal || 1)) * 100)}% Complete
+                          </span>
+                        </div>
+                        <div className="tf-summary-metric-card">
+                          <span className="tf-metric-label">Bug Tracking</span>
+                          <div className="tf-metric-value-wrap">
+                            <strong className="tf-metric-val">{summaryData.bugsOpen}</strong>
+                            <span className="tf-metric-sub">open</span>
+                          </div>
+                          <span className="tf-metric-badge red">{summaryData.bugsResolved} resolved</span>
+                        </div>
+                        <div className="tf-summary-metric-card">
+                          <span className="tf-metric-label">Project Team</span>
+                          <div className="tf-metric-value-wrap">
+                            <strong className="tf-metric-val">{summaryData.teamSize}</strong>
+                          </div>
+                          <span className="tf-metric-badge purple">Lead: {summaryData.lead}</span>
+                        </div>
+                        <div className="tf-summary-metric-card">
+                          <span className="tf-metric-label">Target Release</span>
+                          <div className="tf-metric-value-wrap">
+                            <strong className="tf-metric-val">{summaryData.dueDate}</strong>
+                          </div>
+                          <span className="tf-metric-badge blue">On Schedule</span>
+                        </div>
+                      </div>
+
+                      {/* AI Executive Summary Card */}
+                      <div className="tf-summary-ai-card">
+                        <div className="tf-summary-section-header">
+                          <div className="tf-ai-badge">
+                            <Sparkles size={14} />
+                            <span>AI Project Summary</span>
+                          </div>
+                          <button
+                            type="button"
+                            className="tf-summary-copy-btn"
+                            onClick={() => {
+                              navigator.clipboard?.writeText(
+                                `Project Summary: ${summaryData.name}\nProgress: ${summaryData.progress}%\nTasks: ${summaryData.tasksCompleted}/${summaryData.tasksTotal}\n\n${summaryData.executiveSummary}`
+                              );
+                              showToast(`Project summary for ${summaryData.name} copied!`);
+                            }}
+                          >
+                            <Copy size={13} />
+                            <span>Copy Summary</span>
+                          </button>
+                        </div>
+                        <p className="tf-summary-ai-text">{summaryData.executiveSummary}</p>
+                      </div>
+
+                      {/* Highlights & Deliverables */}
+                      <div className="tf-summary-section-card">
+                        <h5>Key Deliverables & Accomplishments</h5>
+                        <ul className="tf-summary-highlights-list">
+                          {summaryData.highlights.map((item, idx) => (
+                            <li key={idx}>
+                              <CheckCircle2 size={15} className="tf-hl-check" />
+                              <span>{item}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+
+                      {/* Upcoming Project Milestones */}
+                      <div className="tf-summary-section-card">
+                        <h5>Upcoming Project Milestones</h5>
+                        <ul className="tf-summary-milestones-list">
+                          {summaryData.upcomingMilestones.map((ms, idx) => (
+                            <li key={idx}>
+                              <Clock size={14} className="tf-ms-clock" />
+                              <span>{ms}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Modal Action Buttons Footer */}
+                <div className="tf-modal-action-buttons tf-meet-footer-actions">
+                  <div className="tf-meet-footer-left">
+                    {activeModalTab === "info" && (
+                      <button
+                        type="button"
+                        className="tf-btn-summary-outline"
+                        onClick={() => setActiveModalTab("summary")}
+                      >
+                        <BarChart2 size={14} />
+                        <span>View Project Summary</span>
+                      </button>
+                    )}
+                    {activeModalTab === "summary" && (
                       <button
                         type="button"
                         className="tf-btn-outline"
-                        onClick={() => handleCopyLink(selectedMeetingDetails.meetingUrl)}
+                        onClick={() => setActiveModalTab("info")}
                       >
-                        <Copy size={14} />
-                        <span>Copy</span>
+                        <ChevronLeft size={14} />
+                        <span>Back to Meeting Info</span>
                       </button>
+                    )}
+                  </div>
+                  <div className="tf-meet-footer-right">
+                    {activeModalTab === "info" && selectedMeetingDetails.status !== "completed" && (
                       <button
                         type="button"
-                        className="tf-btn-primary"
+                        className="tf-btn-primary tf-btn-modal-join"
                         onClick={() => {
                           const m = selectedMeetingDetails;
                           setSelectedMeetingDetails(null);
@@ -1491,58 +2175,30 @@ function Meetings() {
                         <Video size={14} />
                         <span>Join Now</span>
                       </button>
-                    </div>
-                  </div>
-                )}
-
-                {/* Agenda */}
-                {selectedMeetingDetails.agenda && (
-                  <div className="tf-details-section">
-                    <span className="tf-detail-label">Meeting Agenda</span>
-                    <div className="tf-agenda-box">
-                      {selectedMeetingDetails.agenda.split("\n").map((line, idx) => (
-                        <p key={idx}>{line}</p>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Attendees list */}
-                <div className="tf-details-section">
-                  <span className="tf-detail-label">Attendees</span>
-                  <div className="tf-details-attendees-list">
-                    <div className="tf-detail-attendee-chip">
-                      <img src={avatars.rahul} alt="Rahul" />
-                      <span>Rahul Sharma (Admin)</span>
-                    </div>
-                    <div className="tf-detail-attendee-chip">
-                      <img src={avatars.neha} alt="Neha" />
-                      <span>Neha Patil</span>
-                    </div>
-                    <div className="tf-detail-attendee-chip">
-                      <img src={avatars.amit} alt="Amit" />
-                      <span>Amit Verma</span>
-                    </div>
-                    <div className="tf-detail-attendee-chip">
-                      <img src={profile.photo || avatars.priya} alt={profile.fullName || "You"} />
-                      <span>{profile.fullName || "John Doe"} (You)</span>
-                    </div>
+                    )}
+                    {activeModalTab === "summary" && (
+                      <Link
+                        to="/employee/projects"
+                        className="tf-btn-primary tf-btn-open-proj"
+                        onClick={() => setSelectedMeetingDetails(null)}
+                      >
+                        <ExternalLink size={14} />
+                        <span>Open in Projects</span>
+                      </Link>
+                    )}
+                    <button
+                      type="button"
+                      className="tf-btn-secondary"
+                      onClick={() => setSelectedMeetingDetails(null)}
+                    >
+                      Close
+                    </button>
                   </div>
                 </div>
               </div>
-
-              <div className="tf-modal-action-buttons">
-                <button
-                  type="button"
-                  className="tf-btn-secondary"
-                  onClick={() => setSelectedMeetingDetails(null)}
-                >
-                  Close
-                </button>
-              </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
 
         {/* ====================================================================
             GOOGLE MEET CALL INTERFACE (LOBBY + IN-CALL ROOM)

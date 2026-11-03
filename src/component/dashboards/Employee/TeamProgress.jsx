@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
+  Download,
   Users,
   Target,
   CheckSquare,
@@ -357,6 +358,46 @@ function TeamProgress() {
     });
     return list;
   }, [sortField, sortAsc]);
+
+  // Selected Members in Team Progress table
+  const [selectedMemberProgressIds, setSelectedMemberProgressIds] = useState([]);
+
+  const handleSelectAllProgress = () => {
+    if (selectedMemberProgressIds.length === sortedMembers.length) {
+      setSelectedMemberProgressIds([]);
+    } else {
+      setSelectedMemberProgressIds(sortedMembers.map((m) => m.id));
+    }
+  };
+
+  const handleSelectMemberProgress = (memberId, e) => {
+    e.stopPropagation();
+    setSelectedMemberProgressIds((prev) =>
+      prev.includes(memberId) ? prev.filter((id) => id !== memberId) : [...prev, memberId]
+    );
+  };
+
+  const handleBatchExportProgress = () => {
+    if (selectedMemberProgressIds.length === 0) return;
+    const selected = sortedMembers.filter((m) => selectedMemberProgressIds.includes(m.id));
+    const csvContent =
+      "data:text/csv;charset=utf-8," +
+      [
+        "Name,Role,Email,Tasks,Completed,InProgress,Overdue,Workload",
+        ...selected.map(
+          (m) =>
+            `"${(m.name || "").replace(/"/g, '""')}","${m.role}","${m.email}","${m.tasks}","${m.completed}","${m.inProgress}","${m.overdue}","${m.workload}%"`
+        ),
+      ].join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `team_progress_workload_${Date.now()}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    showToast(`Exported ${selected.length} team member records to CSV`);
+  };
 
   const handleSort = (field) => {
     if (sortField === field) {
@@ -781,11 +822,52 @@ function TeamProgress() {
                 </Link>
               </div>
 
+              {/* Multi-Selection Batch Actions Bar */}
+              {selectedMemberProgressIds.length > 0 && (
+                <div className="tf-batch-banner">
+                  <span className="tf-batch-count">
+                    <strong>{selectedMemberProgressIds.length}</strong> team member{selectedMemberProgressIds.length > 1 ? "s" : ""} selected
+                  </span>
+                  <div className="tf-batch-actions">
+                    <button
+                      type="button"
+                      className="tf-batch-btn tf-batch-btn-secondary"
+                      onClick={handleBatchExportProgress}
+                    >
+                      <Download size={13} /> Export Selected
+                    </button>
+                    <button
+                      type="button"
+                      className="tf-batch-btn-clear"
+                      onClick={() => setSelectedMemberProgressIds([])}
+                    >
+                      Clear
+                    </button>
+                  </div>
+                </div>
+              )}
+
               <div className="tf-tp-table-wrap">
                 <table className="tf-tp-members-table">
                   <thead>
                     <tr>
                       <th className="tf-th-num">Sr</th>
+                      <th style={{ width: "36px", textAlign: "center" }}>
+                        <button
+                          type="button"
+                          className="tf-checkbox-th-btn"
+                          onClick={handleSelectAllProgress}
+                          aria-label="Select all members"
+                        >
+                          {selectedMemberProgressIds.length === sortedMembers.length && sortedMembers.length > 0 ? (
+                            <div className="tf-custom-checkbox checked">
+                              <Check size={12} color="#FFFFFF" strokeWidth={3} />
+                            </div>
+                          ) : (
+                            <div className="tf-custom-checkbox" />
+                          )}
+                        </button>
+                      </th>
                       <th onClick={() => handleSort("name")} className="sortable">
                         Name
                       </th>
@@ -812,11 +894,23 @@ function TeamProgress() {
                       <tr
                         key={m.id}
                         onClick={() => setSelectedMember(m)}
-                        className="tf-tp-table-row"
+                        className={`tf-tp-table-row ${selectedMemberProgressIds.includes(m.id) ? "row-selected" : ""}`}
                       >
                         {/* Row Number */}
                         <td className="tf-td-num">
                           <span className="tf-row-num-badge">{idx + 1}</span>
+                        </td>
+                        <td style={{ width: "36px", textAlign: "center" }} onClick={(e) => e.stopPropagation()}>
+                          <button
+                            type="button"
+                            className="tf-row-check-btn"
+                            onClick={(e) => handleSelectMemberProgress(m.id, e)}
+                            aria-label={`Select member ${m.name}`}
+                          >
+                            <div className={`tf-custom-checkbox ${selectedMemberProgressIds.includes(m.id) ? "checked" : ""}`}>
+                              {selectedMemberProgressIds.includes(m.id) && <Check size={12} color="#FFFFFF" strokeWidth={3} />}
+                            </div>
+                          </button>
                         </td>
 
                         {/* Name + Avatar */}

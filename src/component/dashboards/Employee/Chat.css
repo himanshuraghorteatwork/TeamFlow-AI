@@ -418,31 +418,103 @@
 .employee-shell .tf-active-header-actions {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
 
 .employee-shell .tf-header-icon-btn {
   width: 32px;
   height: 32px;
-  border: none;
-  background: transparent;
-  color: #64748B;
-  border-radius: 6px;
-  cursor: pointer;
-  display: flex;
+  min-width: 32px;
+  border-radius: 8px;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.12s ease;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  padding: 0;
+  outline: none;
+  position: relative;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
 .employee-shell .tf-header-icon-btn:hover {
-  background: #F1F5F9;
-  color: #0F172A;
+  background: #f8fafc;
+  border-color: #94a3b8;
+  color: #0f172a;
+  transform: translateY(-1px);
 }
 
+.employee-shell .tf-header-icon-btn:active {
+  transform: translateY(0) scale(0.96);
+}
+
+/* Active state for header action buttons */
 .employee-shell .tf-header-icon-btn.active {
-  background: #EEF2FF;
-  color: #5051F9;
+  background: #f1f5f9;
+  border-color: #94a3b8;
+  color: #0f172a;
+}
+
+/* Panel toggle button — sleek modern look matching UI */
+.employee-shell .tf-header-icon-btn.tf-panel-btn {
+  background: #ffffff;
+  color: #64748b;
+  border-color: #cbd5e1;
+}
+
+.employee-shell .tf-header-icon-btn.tf-panel-btn:hover {
+  background: #f8fafc;
+  border-color: #94a3b8;
+  color: #0f172a;
+}
+
+.employee-shell .tf-header-icon-btn.tf-panel-btn.active {
+  background: #f1f5f9;
+  color: #0f172a;
+  border-color: #94a3b8;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+/* Dark mode for Chat header icon buttons */
+[data-theme="dark"] .employee-shell .tf-header-icon-btn {
+  background: #1e293b;
+  border-color: #334155;
+  color: #94a3b8;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="dark"] .employee-shell .tf-header-icon-btn:hover {
+  background: #273449;
+  border-color: #475569;
+  color: #f8fafc;
+}
+
+[data-theme="dark"] .employee-shell .tf-header-icon-btn.active {
+  background: #334155;
+  border-color: #475569;
+  color: #f8fafc;
+}
+
+[data-theme="dark"] .employee-shell .tf-header-icon-btn.tf-panel-btn {
+  background: #1e293b;
+  border-color: #334155;
+  color: #94a3b8;
+}
+
+[data-theme="dark"] .employee-shell .tf-header-icon-btn.tf-panel-btn:hover {
+  background: #273449;
+  border-color: #475569;
+  color: #f8fafc;
+}
+
+[data-theme="dark"] .employee-shell .tf-header-icon-btn.tf-panel-btn.active {
+  background: #334155;
+  border-color: #475569;
+  color: #f8fafc;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.25);
 }
 
 /* Messages Stream */

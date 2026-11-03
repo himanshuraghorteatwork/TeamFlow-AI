@@ -1,0 +1,1033 @@
+/* ==========================================================================
+   TEAMFLOW AI — EMPLOYEE DASHBOARD SUPERADMIN-ALIGNED DARK MODE
+   Applies SuperAdmin design system colors and components across all Employee views.
+   ========================================================================== */
+
+/* 1. Global Dark Mode Variables applied to Employee */
+body.sa-dark-mode .employee-shell,
+body.dark-mode .employee-shell,
+body.dark-theme .employee-shell,
+body.dark .employee-shell,
+.employee-shell.tf-dark,
+.employee-shell.sa-dark-mode,
+.employee-shell.dark,
+[data-theme="dark"] .employee-shell {
+  --tf-bg: #0b1120;
+  --tf-card-bg: #111c35;
+  --tf-card-subtle: #172442;
+  --tf-card-hover: #15223e;
+  --tf-border: #1f2d4d;
+  --tf-border-subtle: #192540;
+  --tf-border-focus: #3b66ff;
+
+  --tf-text-primary: #f8fafc;
+  --tf-text-secondary: #cbd5e1;
+  --tf-text-muted: #94a3b8;
+  --tf-text-light: #64748b;
+  --tf-text-inverse: #0b1120;
+
+  --tf-primary: #3b66ff;
+  --tf-primary-hover: #2563eb;
+  --tf-primary-light: rgba(59, 102, 255, 0.16);
+  --tf-primary-border: rgba(59, 102, 255, 0.35);
+
+  background: #0b1120 !important;
+  color: #f8fafc !important;
+}
+
+/* 2. Main Layout Backgrounds */
+body.sa-dark-mode .employee-main-wrapper,
+body.dark-mode .employee-main-wrapper,
+.employee-shell.tf-dark .employee-main-wrapper,
+[data-theme="dark"] .employee-shell .employee-main-wrapper,
+body.sa-dark-mode .employee-content-area,
+body.dark-mode .employee-content-area,
+.employee-shell.tf-dark .employee-content-area,
+[data-theme="dark"] .employee-shell .employee-content-area {
+  background: #0b1120 !important;
+  color: #f8fafc !important;
+}
+
+/* 3. Typography & Headings */
+body.sa-dark-mode .employee-shell h1,
+body.sa-dark-mode .employee-shell h2,
+body.sa-dark-mode .employee-shell h3,
+body.sa-dark-mode .employee-shell h4,
+body.dark-mode .employee-shell h1,
+body.dark-mode .employee-shell h2,
+body.dark-mode .employee-shell h3,
+body.dark-mode .employee-shell h4,
+.employee-shell.tf-dark h1,
+.employee-shell.tf-dark h2,
+.employee-shell.tf-dark h3,
+.employee-shell.tf-dark h4,
+[data-theme="dark"] .employee-shell h1,
+[data-theme="dark"] .employee-shell h2,
+[data-theme="dark"] .employee-shell h3,
+[data-theme="dark"] .employee-shell h4 {
+  color: #f8fafc !important;
+}
+
+body.sa-dark-mode .employee-shell p,
+body.dark-mode .employee-shell p,
+.employee-shell.tf-dark p,
+[data-theme="dark"] .employee-shell p {
+  color: #94a3b8 !important;
+}
+
+/* 4. Topbar & Header */
+body.sa-dark-mode .employee-topbar,
+body.dark-mode .employee-topbar,
+.employee-shell.tf-dark .employee-topbar,
+[data-theme="dark"] .employee-shell .employee-topbar {
+  background: #111c35 !important;
+  border-bottom: 1px solid #1f2d4d !important;
+}
+
+body.sa-dark-mode .tf-topbar-search,
+body.dark-mode .tf-topbar-search,
+.employee-shell.tf-dark .tf-topbar-search,
+[data-theme="dark"] .employee-shell .tf-topbar-search {
+  background: #172442 !important;
+  border-color: #233355 !important;
+}
+
+body.sa-dark-mode .tf-topbar-search input,
+body.dark-mode .tf-topbar-search input,
+.employee-shell.tf-dark .tf-topbar-search input,
+[data-theme="dark"] .employee-shell .tf-topbar-search input {
+  color: #f8fafc !important;
+}
+
+body.sa-dark-mode .tf-topbar-search input::placeholder,
+body.dark-mode .tf-topbar-search input::placeholder,
+.employee-shell.tf-dark .tf-topbar-search input::placeholder,
+[data-theme="dark"] .employee-shell .tf-topbar-search input::placeholder {
+  color: #64748b !important;
+}
+
+body.sa-dark-mode .tf-topbar-icon-btn,
+body.dark-mode .tf-topbar-icon-btn,
+.employee-shell.tf-dark .tf-topbar-icon-btn,
+[data-theme="dark"] .employee-shell .tf-topbar-icon-btn,
+body.sa-dark-mode .tf-topbar-profile-btn,
+body.dark-mode .tf-topbar-profile-btn,
+.employee-shell.tf-dark .tf-topbar-profile-btn,
+[data-theme="dark"] .employee-shell .tf-topbar-profile-btn {
+  background: #172442 !important;
+  border-color: #233355 !important;
+  color: #cbd5e1 !important;
+}
+
+/* 5. Sidebar in Dark Mode */
+body.sa-dark-mode .employee-sidebar,
+body.dark-mode .employee-sidebar,
+.employee-shell.tf-dark .employee-sidebar,
+[data-theme="dark"] .employee-shell .employee-sidebar {
+  background: #111c35 !important;
+  border-right: 1px solid #1f2d4d !important;
+}
+
+body.sa-dark-mode .employee-sidebar-header,
+body.dark-mode .employee-sidebar-header,
+.employee-shell.tf-dark .employee-sidebar-header,
+[data-theme="dark"] .employee-shell .employee-sidebar-header {
+  border-bottom: 1px solid #1f2d4d !important;
+}
+
+body.sa-dark-mode .employee-nav-link,
+body.dark-mode .employee-nav-link,
+.employee-shell.tf-dark .employee-nav-link,
+[data-theme="dark"] .employee-shell .employee-nav-link {
+  color: #94a3b8 !important;
+}
+
+body.sa-dark-mode .employee-nav-link:hover,
+body.dark-mode .employee-nav-link:hover,
+.employee-shell.tf-dark .employee-nav-link:hover,
+[data-theme="dark"] .employee-shell .employee-nav-link:hover {
+  background: #172442 !important;
+  color: #f8fafc !important;
+}
+
+body.sa-dark-mode .employee-nav-link.active,
+body.dark-mode .employee-nav-link.active,
+.employee-shell.tf-dark .employee-nav-link.active,
+[data-theme="dark"] .employee-shell .employee-nav-link.active {
+  background: #3b66ff !important;
+  color: #ffffff !important;
+}
+
+/* ==========================================================================
+   6. TABLES — FIX WHITE ROWS & APPLY SUPERADMIN SAP GRID DARK STYLES
+   ========================================================================== */
+
+/* All Table Cards */
+body.sa-dark-mode .employee-shell .tf-tasks-table-card,
+body.dark-mode .employee-shell .tf-tasks-table-card,
+.employee-shell.tf-dark .tf-tasks-table-card,
+[data-theme="dark"] .employee-shell .tf-tasks-table-card,
+body.sa-dark-mode .employee-shell .tf-bugs-table-card,
+body.dark-mode .employee-shell .tf-bugs-table-card,
+.employee-shell.tf-dark .tf-bugs-table-card,
+[data-theme="dark"] .employee-shell .tf-bugs-table-card,
+body.sa-dark-mode .employee-shell .tf-files-table-card,
+body.dark-mode .employee-shell .tf-files-table-card,
+.employee-shell.tf-dark .tf-files-table-card,
+[data-theme="dark"] .employee-shell .tf-files-table-card,
+body.sa-dark-mode .employee-shell .tf-meet-table-card,
+body.dark-mode .employee-shell .tf-meet-table-card,
+.employee-shell.tf-dark .tf-meet-table-card,
+[data-theme="dark"] .employee-shell .tf-meet-table-card,
+body.sa-dark-mode .employee-shell .tf-proj-tasks-table-card,
+body.dark-mode .employee-shell .tf-proj-tasks-table-card,
+.employee-shell.tf-dark .tf-proj-tasks-table-card,
+[data-theme="dark"] .employee-shell .tf-proj-tasks-table-card,
+body.sa-dark-mode .employee-shell .team-panel,
+body.dark-mode .employee-shell .team-panel,
+.employee-shell.tf-dark .team-panel,
+[data-theme="dark"] .employee-shell .team-panel,
+body.sa-dark-mode .employee-shell .tf-tp-table-wrap,
+body.dark-mode .employee-shell .tf-tp-table-wrap,
+.employee-shell.tf-dark .tf-tp-table-wrap,
+[data-theme="dark"] .employee-shell .tf-tp-table-wrap,
+body.sa-dark-mode .employee-shell .tf-act-pagination-card,
+body.dark-mode .employee-shell .tf-act-pagination-card,
+.employee-shell.tf-dark .tf-act-pagination-card,
+[data-theme="dark"] .employee-shell .tf-act-pagination-card {
+  background: #111c35 !important;
+  border: 1px solid #1f2d4d !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35) !important;
+}
+
+/* Table Element */
+body.sa-dark-mode .employee-shell table,
+body.dark-mode .employee-shell table,
+.employee-shell.tf-dark table,
+[data-theme="dark"] .employee-shell table {
+  background: #111c35 !important;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+/* All Table Headers */
+body.sa-dark-mode .employee-shell table thead th,
+body.dark-mode .employee-shell table thead th,
+.employee-shell.tf-dark table thead th,
+[data-theme="dark"] .employee-shell table thead th,
+body.sa-dark-mode .employee-shell .tf-tasks-table th,
+body.dark-mode .employee-shell .tf-tasks-table th,
+.employee-shell.tf-dark .tf-tasks-table th,
+[data-theme="dark"] .employee-shell .tf-tasks-table th,
+body.sa-dark-mode .employee-shell .tf-bugs-table th,
+body.dark-mode .employee-shell .tf-bugs-table th,
+.employee-shell.tf-dark .tf-bugs-table th,
+[data-theme="dark"] .employee-shell .tf-bugs-table th,
+body.sa-dark-mode .employee-shell .tf-files-table th,
+body.dark-mode .employee-shell .tf-files-table th,
+.employee-shell.tf-dark .tf-files-table th,
+[data-theme="dark"] .employee-shell .tf-files-table th,
+body.sa-dark-mode .employee-shell .tf-meet-table th,
+body.dark-mode .employee-shell .tf-meet-table th,
+.employee-shell.tf-dark .tf-meet-table th,
+[data-theme="dark"] .employee-shell .tf-meet-table th,
+body.sa-dark-mode .employee-shell .tf-proj-table th,
+body.dark-mode .employee-shell .tf-proj-table th,
+.employee-shell.tf-dark .tf-proj-table th,
+[data-theme="dark"] .employee-shell .tf-proj-table th,
+body.sa-dark-mode .employee-shell .team-table th,
+body.dark-mode .employee-shell .team-table th,
+.employee-shell.tf-dark .team-table th,
+[data-theme="dark"] .employee-shell .team-table th,
+body.sa-dark-mode .employee-shell .tf-tp-members-table th,
+body.dark-mode .employee-shell .tf-tp-members-table th,
+.employee-shell.tf-dark .tf-tp-members-table th,
+[data-theme="dark"] .employee-shell .tf-tp-members-table th {
+  background: #172442 !important;
+  color: #94a3b8 !important;
+  border-bottom: 1px solid #1f2d4d !important;
+}
+
+/* ALL Table Body Rows and Cells (OVERRIDE ANY WHITE BACKGROUNDS) */
+body.sa-dark-mode .employee-shell table tbody tr,
+body.dark-mode .employee-shell table tbody tr,
+.employee-shell.tf-dark table tbody tr,
+[data-theme="dark"] .employee-shell table tbody tr,
+body.sa-dark-mode .employee-shell table tbody td,
+body.dark-mode .employee-shell table tbody td,
+.employee-shell.tf-dark table tbody td,
+[data-theme="dark"] .employee-shell table tbody td,
+body.sa-dark-mode .employee-shell .tf-tasks-row,
+body.dark-mode .employee-shell .tf-tasks-row,
+.employee-shell.tf-dark .tf-tasks-row,
+[data-theme="dark"] .employee-shell .tf-tasks-row,
+body.sa-dark-mode .employee-shell .tf-tasks-row td,
+body.dark-mode .employee-shell .tf-tasks-row td,
+.employee-shell.tf-dark .tf-tasks-row td,
+[data-theme="dark"] .employee-shell .tf-tasks-row td,
+body.sa-dark-mode .employee-shell .tf-bugs-row,
+body.dark-mode .employee-shell .tf-bugs-row,
+.employee-shell.tf-dark .tf-bugs-row,
+[data-theme="dark"] .employee-shell .tf-bugs-row,
+body.sa-dark-mode .employee-shell .tf-bugs-row td,
+body.dark-mode .employee-shell .tf-bugs-row td,
+.employee-shell.tf-dark .tf-bugs-row td,
+[data-theme="dark"] .employee-shell .tf-bugs-row td,
+body.sa-dark-mode .employee-shell .tf-file-row,
+body.dark-mode .employee-shell .tf-file-row,
+.employee-shell.tf-dark .tf-file-row,
+[data-theme="dark"] .employee-shell .tf-file-row,
+body.sa-dark-mode .employee-shell .tf-file-row td,
+body.dark-mode .employee-shell .tf-file-row td,
+.employee-shell.tf-dark .tf-file-row td,
+[data-theme="dark"] .employee-shell .tf-file-row td,
+body.sa-dark-mode .employee-shell .tf-meet-row,
+body.dark-mode .employee-shell .tf-meet-row,
+.employee-shell.tf-dark .tf-meet-row,
+[data-theme="dark"] .employee-shell .tf-meet-row,
+body.sa-dark-mode .employee-shell .tf-meet-row td,
+body.dark-mode .employee-shell .tf-meet-row td,
+.employee-shell.tf-dark .tf-meet-row td,
+[data-theme="dark"] .employee-shell .tf-meet-row td,
+body.sa-dark-mode .employee-shell .tf-proj-table-row,
+body.dark-mode .employee-shell .tf-proj-table-row,
+.employee-shell.tf-dark .tf-proj-table-row,
+[data-theme="dark"] .employee-shell .tf-proj-table-row,
+body.sa-dark-mode .employee-shell .tf-proj-table-row td,
+body.dark-mode .employee-shell .tf-proj-table-row td,
+.employee-shell.tf-dark .tf-proj-table-row td,
+[data-theme="dark"] .employee-shell .tf-proj-table-row td,
+body.sa-dark-mode .employee-shell .team-table tbody tr,
+body.dark-mode .employee-shell .team-table tbody tr,
+.employee-shell.tf-dark .team-table tbody tr,
+[data-theme="dark"] .employee-shell .team-table tbody tr,
+body.sa-dark-mode .employee-shell .team-table tbody td,
+body.dark-mode .employee-shell .team-table tbody td,
+.employee-shell.tf-dark .team-table tbody td,
+[data-theme="dark"] .employee-shell .team-table tbody td,
+body.sa-dark-mode .employee-shell .tf-tp-table-row,
+body.dark-mode .employee-shell .tf-tp-table-row,
+.employee-shell.tf-dark .tf-tp-table-row,
+[data-theme="dark"] .employee-shell .tf-tp-table-row,
+body.sa-dark-mode .employee-shell .tf-tp-table-row td,
+body.dark-mode .employee-shell .tf-tp-table-row td,
+.employee-shell.tf-dark .tf-tp-table-row td,
+[data-theme="dark"] .employee-shell .tf-tp-table-row td {
+  background: #111c35 !important;
+  color: #e2e8f0 !important;
+  border-bottom: 1px solid #1f2d4d !important;
+}
+
+/* Hover Rows */
+body.sa-dark-mode .employee-shell table tbody tr:hover,
+body.sa-dark-mode .employee-shell table tbody tr:hover td,
+body.dark-mode .employee-shell table tbody tr:hover,
+body.dark-mode .employee-shell table tbody tr:hover td,
+.employee-shell.tf-dark table tbody tr:hover,
+.employee-shell.tf-dark table tbody tr:hover td,
+[data-theme="dark"] .employee-shell table tbody tr:hover,
+[data-theme="dark"] .employee-shell table tbody tr:hover td,
+body.sa-dark-mode .employee-shell .tf-tasks-row:hover td,
+body.dark-mode .employee-shell .tf-tasks-row:hover td,
+.employee-shell.tf-dark .tf-tasks-row:hover td,
+[data-theme="dark"] .employee-shell .tf-tasks-row:hover td,
+body.sa-dark-mode .employee-shell .tf-bugs-row:hover td,
+body.dark-mode .employee-shell .tf-bugs-row:hover td,
+.employee-shell.tf-dark .tf-bugs-row:hover td,
+[data-theme="dark"] .employee-shell .tf-bugs-row:hover td,
+body.sa-dark-mode .employee-shell .tf-file-row:hover td,
+body.dark-mode .employee-shell .tf-file-row:hover td,
+.employee-shell.tf-dark .tf-file-row:hover td,
+[data-theme="dark"] .employee-shell .tf-file-row:hover td,
+body.sa-dark-mode .employee-shell .tf-meet-row:hover td,
+body.dark-mode .employee-shell .tf-meet-row:hover td,
+.employee-shell.tf-dark .tf-meet-row:hover td,
+[data-theme="dark"] .employee-shell .tf-meet-row:hover td,
+body.sa-dark-mode .employee-shell .tf-proj-table-row:hover td,
+body.dark-mode .employee-shell .tf-proj-table-row:hover td,
+.employee-shell.tf-dark .tf-proj-table-row:hover td,
+[data-theme="dark"] .employee-shell .tf-proj-table-row:hover td {
+  background: #15223e !important;
+  color: #f8fafc !important;
+}
+
+/* SELECTED ROWS (SAP Master Data style) */
+body.sa-dark-mode .employee-shell table tbody tr.row-selected,
+body.sa-dark-mode .employee-shell table tbody tr.row-selected td,
+body.sa-dark-mode .employee-shell table tbody tr.selected,
+body.sa-dark-mode .employee-shell table tbody tr.selected td,
+body.sa-dark-mode .employee-shell table tbody tr.is-selected,
+body.sa-dark-mode .employee-shell table tbody tr.is-selected td,
+body.dark-mode .employee-shell table tbody tr.row-selected,
+body.dark-mode .employee-shell table tbody tr.row-selected td,
+body.dark-mode .employee-shell table tbody tr.selected,
+body.dark-mode .employee-shell table tbody tr.selected td,
+body.dark-mode .employee-shell table tbody tr.is-selected,
+body.dark-mode .employee-shell table tbody tr.is-selected td,
+.employee-shell.tf-dark table tbody tr.row-selected,
+.employee-shell.tf-dark table tbody tr.row-selected td,
+.employee-shell.tf-dark table tbody tr.selected,
+.employee-shell.tf-dark table tbody tr.selected td,
+.employee-shell.tf-dark table tbody tr.is-selected,
+.employee-shell.tf-dark table tbody tr.is-selected td,
+[data-theme="dark"] .employee-shell table tbody tr.row-selected,
+[data-theme="dark"] .employee-shell table tbody tr.row-selected td,
+[data-theme="dark"] .employee-shell table tbody tr.selected,
+[data-theme="dark"] .employee-shell table tbody tr.selected td,
+[data-theme="dark"] .employee-shell table tbody tr.is-selected,
+[data-theme="dark"] .employee-shell table tbody tr.is-selected td,
+body.sa-dark-mode .employee-shell .tf-tasks-row.row-selected td,
+body.dark-mode .employee-shell .tf-tasks-row.row-selected td,
+.employee-shell.tf-dark .tf-tasks-row.row-selected td,
+[data-theme="dark"] .employee-shell .tf-tasks-row.row-selected td,
+body.sa-dark-mode .employee-shell .tf-bugs-row.row-selected td,
+body.dark-mode .employee-shell .tf-bugs-row.row-selected td,
+.employee-shell.tf-dark .tf-bugs-row.row-selected td,
+[data-theme="dark"] .employee-shell .tf-bugs-row.row-selected td,
+body.sa-dark-mode .employee-shell .tf-file-row.selected td,
+body.dark-mode .employee-shell .tf-file-row.selected td,
+.employee-shell.tf-dark .tf-file-row.selected td,
+[data-theme="dark"] .employee-shell .tf-file-row.selected td,
+body.sa-dark-mode .employee-shell .tf-meet-row.row-selected td,
+body.dark-mode .employee-shell .tf-meet-row.row-selected td,
+.employee-shell.tf-dark .tf-meet-row.row-selected td,
+[data-theme="dark"] .employee-shell .tf-meet-row.row-selected td,
+body.sa-dark-mode .employee-shell .tf-proj-table-row.row-selected td,
+body.dark-mode .employee-shell .tf-proj-table-row.row-selected td,
+.employee-shell.tf-dark .tf-proj-table-row.row-selected td,
+[data-theme="dark"] .employee-shell .tf-proj-table-row.row-selected td {
+  background: #1c2a4b !important;
+  color: #f8fafc !important;
+}
+
+/* Titles and Texts inside Table rows */
+body.sa-dark-mode .employee-shell .tf-task-main-title,
+body.dark-mode .employee-shell .tf-task-main-title,
+.employee-shell.tf-dark .tf-task-main-title,
+[data-theme="dark"] .employee-shell .tf-task-main-title,
+body.sa-dark-mode .employee-shell .tf-project-name,
+body.dark-mode .employee-shell .tf-project-name,
+.employee-shell.tf-dark .tf-project-name,
+[data-theme="dark"] .employee-shell .tf-project-name,
+body.sa-dark-mode .employee-shell .tf-bug-title,
+body.dark-mode .employee-shell .tf-bug-title,
+.employee-shell.tf-dark .tf-bug-title,
+[data-theme="dark"] .employee-shell .tf-bug-title,
+body.sa-dark-mode .employee-shell .tf-file-name,
+body.dark-mode .employee-shell .tf-file-name,
+.employee-shell.tf-dark .tf-file-name,
+[data-theme="dark"] .employee-shell .tf-file-name,
+body.sa-dark-mode .employee-shell .tf-row-title-text,
+body.dark-mode .employee-shell .tf-row-title-text,
+.employee-shell.tf-dark .tf-row-title-text,
+[data-theme="dark"] .employee-shell .tf-row-title-text {
+  color: #f8fafc !important;
+}
+
+body.sa-dark-mode .employee-shell .tf-task-sub-desc,
+body.dark-mode .employee-shell .tf-task-sub-desc,
+.employee-shell.tf-dark .tf-task-sub-desc,
+[data-theme="dark"] .employee-shell .tf-task-sub-desc,
+body.sa-dark-mode .employee-shell .tf-row-sub-text,
+body.dark-mode .employee-shell .tf-row-sub-text,
+.employee-shell.tf-dark .tf-row-sub-text,
+[data-theme="dark"] .employee-shell .tf-row-sub-text {
+  color: #94a3b8 !important;
+}
+
+/* Row Number Badge in Dark Mode */
+body.sa-dark-mode .employee-shell .tf-row-num-badge,
+body.dark-mode .employee-shell .tf-row-num-badge,
+.employee-shell.tf-dark .tf-row-num-badge,
+[data-theme="dark"] .employee-shell .tf-row-num-badge {
+  background: #172442 !important;
+  border: 1px solid #273860 !important;
+  color: #a5b4fc !important;
+}
+
+/* Custom Checkboxes */
+body.sa-dark-mode .employee-shell .tf-custom-checkbox,
+body.dark-mode .employee-shell .tf-custom-checkbox,
+.employee-shell.tf-dark .tf-custom-checkbox,
+[data-theme="dark"] .employee-shell .tf-custom-checkbox {
+  background: #172442 !important;
+  border-color: #2e3e6b !important;
+}
+
+body.sa-dark-mode .employee-shell .tf-custom-checkbox.checked,
+body.dark-mode .employee-shell .tf-custom-checkbox.checked,
+.employee-shell.tf-dark .tf-custom-checkbox.checked,
+[data-theme="dark"] .employee-shell .tf-custom-checkbox.checked {
+  background: #5051f9 !important;
+  border-color: #5051f9 !important;
+}
+
+/* Circular Check Button */
+body.sa-dark-mode .employee-shell .tf-circle-check-btn,
+body.dark-mode .employee-shell .tf-circle-check-btn,
+.employee-shell.tf-dark .tf-circle-check-btn,
+[data-theme="dark"] .employee-shell .tf-circle-check-btn {
+  background: #172442 !important;
+  border-color: #2e3e6b !important;
+}
+
+body.sa-dark-mode .employee-shell .tf-circle-check-btn.checked,
+body.dark-mode .employee-shell .tf-circle-check-btn.checked,
+.employee-shell.tf-dark .tf-circle-check-btn.checked,
+[data-theme="dark"] .employee-shell .tf-circle-check-btn.checked {
+  background: #5051f9 !important;
+  border-color: #5051f9 !important;
+}
+
+/* ==========================================================================
+   7. TABLE ACTION BUTTONS (PHOTO MATCH JEWEL STYLING IN DARK MODE)
+   ========================================================================== */
+body.sa-dark-mode .employee-shell .tf-task-action-icon-btn.view,
+body.sa-dark-mode .employee-shell .tf-table-action-btn.view,
+body.dark-mode .employee-shell .tf-task-action-icon-btn.view,
+body.dark-mode .employee-shell .tf-table-action-btn.view,
+.employee-shell.tf-dark .tf-task-action-icon-btn.view,
+.employee-shell.tf-dark .tf-table-action-btn.view,
+[data-theme="dark"] .employee-shell .tf-task-action-icon-btn.view,
+[data-theme="dark"] .employee-shell .tf-table-action-btn.view {
+  background: #172442 !important;
+  color: #60a5fa !important;
+  border: 1px solid #233355 !important;
+}
+
+body.sa-dark-mode .employee-shell .tf-task-action-icon-btn.view:hover,
+body.sa-dark-mode .employee-shell .tf-table-action-btn.view:hover,
+body.dark-mode .employee-shell .tf-task-action-icon-btn.view:hover,
+body.dark-mode .employee-shell .tf-table-action-btn.view:hover,
+.employee-shell.tf-dark .tf-task-action-icon-btn.view:hover,
+.employee-shell.tf-dark .tf-table-action-btn.view:hover,
+[data-theme="dark"] .employee-shell .tf-task-action-icon-btn.view:hover,
+[data-theme="dark"] .employee-shell .tf-table-action-btn.view:hover {
+  background: #2563eb !important;
+  color: #ffffff !important;
+  border-color: #2563eb !important;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.45) !important;
+}
+
+body.sa-dark-mode .employee-shell .tf-task-action-icon-btn.comments,
+body.sa-dark-mode .employee-shell .tf-task-action-icon-btn.edit,
+body.sa-dark-mode .employee-shell .tf-table-action-btn.edit,
+body.dark-mode .employee-shell .tf-task-action-icon-btn.comments,
+body.dark-mode .employee-shell .tf-task-action-icon-btn.edit,
+body.dark-mode .employee-shell .tf-table-action-btn.edit,
+.employee-shell.tf-dark .tf-task-action-icon-btn.comments,
+.employee-shell.tf-dark .tf-task-action-icon-btn.edit,
+.employee-shell.tf-dark .tf-table-action-btn.edit,
+[data-theme="dark"] .employee-shell .tf-task-action-icon-btn.comments,
+[data-theme="dark"] .employee-shell .tf-task-action-icon-btn.edit,
+[data-theme="dark"] .employee-shell .tf-table-action-btn.edit {
+  background: #241442 !important;
+  color: #c084fc !important;
+  border: 1px solid #3b1d6e !important;
+}
+
+body.sa-dark-mode .employee-shell .tf-task-action-icon-btn.comments:hover,
+body.sa-dark-mode .employee-shell .tf-task-action-icon-btn.edit:hover,
+body.sa-dark-mode .employee-shell .tf-table-action-btn.edit:hover,
+body.dark-mode .employee-shell .tf-task-action-icon-btn.comments:hover,
+body.dark-mode .employee-shell .tf-task-action-icon-btn.edit:hover,
+body.dark-mode .employee-shell .tf-table-action-btn.edit:hover,
+.employee-shell.tf-dark .tf-task-action-icon-btn.comments:hover,
+.employee-shell.tf-dark .tf-task-action-icon-btn.edit:hover,
+.employee-shell.tf-dark .tf-table-action-btn.edit:hover,
+[data-theme="dark"] .employee-shell .tf-task-action-icon-btn.comments:hover,
+[data-theme="dark"] .employee-shell .tf-task-action-icon-btn.edit:hover,
+[data-theme="dark"] .employee-shell .tf-table-action-btn.edit:hover {
+  background: #7c3aed !important;
+  color: #ffffff !important;
+  border-color: #7c3aed !important;
+  box-shadow: 0 4px 14px rgba(124, 58, 237, 0.45) !important;
+}
+
+body.sa-dark-mode .employee-shell .tf-task-action-icon-btn.attach,
+body.sa-dark-mode .employee-shell .tf-task-action-icon-btn.lock,
+body.sa-dark-mode .employee-shell .tf-table-action-btn.warning,
+body.dark-mode .employee-shell .tf-task-action-icon-btn.attach,
+body.dark-mode .employee-shell .tf-task-action-icon-btn.lock,
+body.dark-mode .employee-shell .tf-table-action-btn.warning,
+.employee-shell.tf-dark .tf-task-action-icon-btn.attach,
+.employee-shell.tf-dark .tf-task-action-icon-btn.lock,
+.employee-shell.tf-dark .tf-table-action-btn.warning,
+[data-theme="dark"] .employee-shell .tf-task-action-icon-btn.attach,
+[data-theme="dark"] .employee-shell .tf-task-action-icon-btn.lock,
+[data-theme="dark"] .employee-shell .tf-table-action-btn.warning {
+  background: #2d1f05 !important;
+  color: #fbbf24 !important;
+  border: 1px solid #523508 !important;
+}
+
+body.sa-dark-mode .employee-shell .tf-task-action-icon-btn.attach:hover,
+body.sa-dark-mode .employee-shell .tf-task-action-icon-btn.lock:hover,
+body.sa-dark-mode .employee-shell .tf-table-action-btn.warning:hover,
+body.dark-mode .employee-shell .tf-task-action-icon-btn.attach:hover,
+body.dark-mode .employee-shell .tf-task-action-icon-btn.lock:hover,
+body.dark-mode .employee-shell .tf-table-action-btn.warning:hover,
+.employee-shell.tf-dark .tf-task-action-icon-btn.attach:hover,
+.employee-shell.tf-dark .tf-task-action-icon-btn.lock:hover,
+.employee-shell.tf-dark .tf-table-action-btn.warning:hover,
+[data-theme="dark"] .employee-shell .tf-task-action-icon-btn.attach:hover,
+[data-theme="dark"] .employee-shell .tf-task-action-icon-btn.lock:hover,
+[data-theme="dark"] .employee-shell .tf-table-action-btn.warning:hover {
+  background: #d97706 !important;
+  color: #ffffff !important;
+  border-color: #d97706 !important;
+  box-shadow: 0 4px 14px rgba(217, 119, 6, 0.45) !important;
+}
+
+body.sa-dark-mode .employee-shell .tf-table-action-btn.download,
+body.sa-dark-mode .employee-shell .tf-table-action-btn.success,
+body.dark-mode .employee-shell .tf-table-action-btn.download,
+body.dark-mode .employee-shell .tf-table-action-btn.success,
+.employee-shell.tf-dark .tf-table-action-btn.download,
+.employee-shell.tf-dark .tf-table-action-btn.success,
+[data-theme="dark"] .employee-shell .tf-table-action-btn.download,
+[data-theme="dark"] .employee-shell .tf-table-action-btn.success {
+  background: #062b1b !important;
+  color: #34d399 !important;
+  border: 1px solid #0b4e31 !important;
+}
+
+body.sa-dark-mode .employee-shell .tf-table-action-btn.download:hover,
+body.sa-dark-mode .employee-shell .tf-table-action-btn.success:hover,
+body.dark-mode .employee-shell .tf-table-action-btn.download:hover,
+body.dark-mode .employee-shell .tf-table-action-btn.success:hover,
+.employee-shell.tf-dark .tf-table-action-btn.download:hover,
+.employee-shell.tf-dark .tf-table-action-btn.success:hover,
+[data-theme="dark"] .employee-shell .tf-table-action-btn.download:hover,
+[data-theme="dark"] .employee-shell .tf-table-action-btn.success:hover {
+  background: #059669 !important;
+  color: #ffffff !important;
+  border-color: #059669 !important;
+  box-shadow: 0 4px 14px rgba(5, 150, 105, 0.45) !important;
+}
+
+body.sa-dark-mode .employee-shell .tf-task-action-icon-btn.more,
+body.sa-dark-mode .employee-shell .tf-task-action-icon-btn.delete,
+body.sa-dark-mode .employee-shell .tf-table-action-btn.delete,
+body.dark-mode .employee-shell .tf-task-action-icon-btn.more,
+body.dark-mode .employee-shell .tf-task-action-icon-btn.delete,
+body.dark-mode .employee-shell .tf-table-action-btn.delete,
+.employee-shell.tf-dark .tf-task-action-icon-btn.more,
+.employee-shell.tf-dark .tf-task-action-icon-btn.delete,
+.employee-shell.tf-dark .tf-table-action-btn.delete,
+[data-theme="dark"] .employee-shell .tf-task-action-icon-btn.more,
+[data-theme="dark"] .employee-shell .tf-task-action-icon-btn.delete,
+[data-theme="dark"] .employee-shell .tf-table-action-btn.delete {
+  background: #2d1214 !important;
+  color: #f87171 !important;
+  border: 1px solid #4c1d1f !important;
+}
+
+body.sa-dark-mode .employee-shell .tf-task-action-icon-btn.more:hover,
+body.sa-dark-mode .employee-shell .tf-task-action-icon-btn.delete:hover,
+body.sa-dark-mode .employee-shell .tf-table-action-btn.delete:hover,
+body.dark-mode .employee-shell .tf-task-action-icon-btn.more:hover,
+body.dark-mode .employee-shell .tf-task-action-icon-btn.delete:hover,
+body.dark-mode .employee-shell .tf-table-action-btn.delete:hover,
+.employee-shell.tf-dark .tf-task-action-icon-btn.more:hover,
+.employee-shell.tf-dark .tf-task-action-icon-btn.delete:hover,
+.employee-shell.tf-dark .tf-table-action-btn.delete:hover,
+[data-theme="dark"] .employee-shell .tf-task-action-icon-btn.more:hover,
+[data-theme="dark"] .employee-shell .tf-task-action-icon-btn.delete:hover,
+[data-theme="dark"] .employee-shell .tf-table-action-btn.delete:hover {
+  background: #dc2626 !important;
+  color: #ffffff !important;
+  border-color: #dc2626 !important;
+  box-shadow: 0 4px 14px rgba(220, 38, 38, 0.45) !important;
+}
+
+/* ==========================================================================
+   8. MULTI-SELECTION BATCH BANNER IN DARK MODE
+   ========================================================================== */
+body.sa-dark-mode .employee-shell .tf-batch-banner,
+body.dark-mode .employee-shell .tf-batch-banner,
+.employee-shell.tf-dark .tf-batch-banner,
+[data-theme="dark"] .employee-shell .tf-batch-banner {
+  background: #172442 !important;
+  border-bottom: 1px solid #233355 !important;
+  color: #93c5fd !important;
+}
+
+body.sa-dark-mode .employee-shell .tf-batch-count,
+body.dark-mode .employee-shell .tf-batch-count,
+.employee-shell.tf-dark .tf-batch-count,
+[data-theme="dark"] .employee-shell .tf-batch-count {
+  color: #93c5fd !important;
+}
+
+body.sa-dark-mode .employee-shell .tf-batch-count strong,
+body.dark-mode .employee-shell .tf-batch-count strong,
+.employee-shell.tf-dark .tf-batch-count strong,
+[data-theme="dark"] .employee-shell .tf-batch-count strong {
+  color: #bfdbfe !important;
+}
+
+body.sa-dark-mode .employee-shell .tf-batch-btn-secondary,
+body.dark-mode .employee-shell .tf-batch-btn-secondary,
+.employee-shell.tf-dark .tf-batch-btn-secondary,
+[data-theme="dark"] .employee-shell .tf-batch-btn-secondary {
+  background: #111c35 !important;
+  border: 1px solid #233355 !important;
+  color: #cbd5e1 !important;
+}
+
+body.sa-dark-mode .employee-shell .tf-batch-btn-secondary:hover,
+body.dark-mode .employee-shell .tf-batch-btn-secondary:hover,
+.employee-shell.tf-dark .tf-batch-btn-secondary:hover,
+[data-theme="dark"] .employee-shell .tf-batch-btn-secondary:hover {
+  background: #1c2a4b !important;
+  border-color: #3b5080 !important;
+  color: #ffffff !important;
+}
+
+body.sa-dark-mode .employee-shell .tf-batch-btn-clear,
+body.dark-mode .employee-shell .tf-batch-btn-clear,
+.employee-shell.tf-dark .tf-batch-btn-clear,
+[data-theme="dark"] .employee-shell .tf-batch-btn-clear {
+  color: #94a3b8 !important;
+}
+
+body.sa-dark-mode .employee-shell .tf-batch-btn-clear:hover,
+body.dark-mode .employee-shell .tf-batch-btn-clear:hover,
+.employee-shell.tf-dark .tf-batch-btn-clear:hover,
+[data-theme="dark"] .employee-shell .tf-batch-btn-clear:hover {
+  color: #ffffff !important;
+}
+
+/* ==========================================================================
+   9. FILTER BAR, SEARCH & TABS IN DARK MODE
+   ========================================================================== */
+body.sa-dark-mode .employee-shell .tf-tasks-filter-bar,
+body.dark-mode .employee-shell .tf-tasks-filter-bar,
+.employee-shell.tf-dark .tf-tasks-filter-bar,
+[data-theme="dark"] .employee-shell .tf-tasks-filter-bar,
+body.sa-dark-mode .employee-shell .tf-bugs-filter-bar,
+body.dark-mode .employee-shell .tf-bugs-filter-bar,
+.employee-shell.tf-dark .tf-bugs-filter-bar,
+[data-theme="dark"] .employee-shell .tf-bugs-filter-bar,
+body.sa-dark-mode .employee-shell .tf-files-filter-bar,
+body.dark-mode .employee-shell .tf-files-filter-bar,
+.employee-shell.tf-dark .tf-files-filter-bar,
+[data-theme="dark"] .employee-shell .tf-files-filter-bar {
+  background: transparent !important;
+}
+
+/* Pill Tabs (All, In Progress, To Do, etc.) */
+body.sa-dark-mode .employee-shell .tf-task-tab,
+body.dark-mode .employee-shell .tf-task-tab,
+.employee-shell.tf-dark .tf-task-tab,
+[data-theme="dark"] .employee-shell .tf-task-tab,
+body.sa-dark-mode .employee-shell .tf-bug-tab,
+body.dark-mode .employee-shell .tf-bug-tab,
+.employee-shell.tf-dark .tf-bug-tab,
+[data-theme="dark"] .employee-shell .tf-bug-tab,
+body.sa-dark-mode .employee-shell .tf-filter-tab,
+body.dark-mode .employee-shell .tf-filter-tab,
+.employee-shell.tf-dark .tf-filter-tab,
+[data-theme="dark"] .employee-shell .tf-filter-tab {
+  background: #172442 !important;
+  border: 1px solid #233355 !important;
+  color: #94a3b8 !important;
+}
+
+body.sa-dark-mode .employee-shell .tf-task-tab.active,
+body.dark-mode .employee-shell .tf-task-tab.active,
+.employee-shell.tf-dark .tf-task-tab.active,
+[data-theme="dark"] .employee-shell .tf-task-tab.active,
+body.sa-dark-mode .employee-shell .tf-bug-tab.active,
+body.dark-mode .employee-shell .tf-bug-tab.active,
+.employee-shell.tf-dark .tf-bug-tab.active,
+[data-theme="dark"] .employee-shell .tf-bug-tab.active,
+body.sa-dark-mode .employee-shell .tf-filter-tab.active,
+body.dark-mode .employee-shell .tf-filter-tab.active,
+.employee-shell.tf-dark .tf-filter-tab.active,
+[data-theme="dark"] .employee-shell .tf-filter-tab.active {
+  background: #3b66ff !important;
+  border-color: #3b66ff !important;
+  color: #ffffff !important;
+}
+
+/* Search input boxes */
+body.sa-dark-mode .employee-shell .tf-task-search-input-wrap,
+body.dark-mode .employee-shell .tf-task-search-input-wrap,
+.employee-shell.tf-dark .tf-task-search-input-wrap,
+[data-theme="dark"] .employee-shell .tf-task-search-input-wrap,
+body.sa-dark-mode .employee-shell .tf-bug-search-box,
+body.dark-mode .employee-shell .tf-bug-search-box,
+.employee-shell.tf-dark .tf-bug-search-box,
+[data-theme="dark"] .employee-shell .tf-bug-search-box,
+body.sa-dark-mode .employee-shell .tf-files-search-box,
+body.dark-mode .employee-shell .tf-files-search-box,
+.employee-shell.tf-dark .tf-files-search-box,
+[data-theme="dark"] .employee-shell .tf-files-search-box {
+  background: #172442 !important;
+  border: 1px solid #233355 !important;
+}
+
+body.sa-dark-mode .employee-shell .tf-task-search-input-wrap input,
+body.dark-mode .employee-shell .tf-task-search-input-wrap input,
+.employee-shell.tf-dark .tf-task-search-input-wrap input,
+[data-theme="dark"] .employee-shell .tf-task-search-input-wrap input,
+body.sa-dark-mode .employee-shell .tf-bug-search-box input,
+body.dark-mode .employee-shell .tf-bug-search-box input,
+.employee-shell.tf-dark .tf-bug-search-box input,
+[data-theme="dark"] .employee-shell .tf-bug-search-box input,
+body.sa-dark-mode .employee-shell .tf-files-search-box input,
+body.dark-mode .employee-shell .tf-files-search-box input,
+.employee-shell.tf-dark .tf-files-search-box input,
+[data-theme="dark"] .employee-shell .tf-files-search-box input {
+  background: transparent !important;
+  color: #f8fafc !important;
+}
+
+/* Filter Dropdown Buttons */
+body.sa-dark-mode .employee-shell .tf-task-dropdown-btn,
+body.dark-mode .employee-shell .tf-task-dropdown-btn,
+.employee-shell.tf-dark .tf-task-dropdown-btn,
+[data-theme="dark"] .employee-shell .tf-task-dropdown-btn,
+body.sa-dark-mode .employee-shell .tf-bug-dropdown-btn,
+body.dark-mode .employee-shell .tf-bug-dropdown-btn,
+.employee-shell.tf-dark .tf-bug-dropdown-btn,
+[data-theme="dark"] .employee-shell .tf-bug-dropdown-btn,
+body.sa-dark-mode .employee-shell .tf-files-dropdown-btn,
+body.dark-mode .employee-shell .tf-files-dropdown-btn,
+.employee-shell.tf-dark .tf-files-dropdown-btn,
+[data-theme="dark"] .employee-shell .tf-files-dropdown-btn {
+  background: #172442 !important;
+  border: 1px solid #233355 !important;
+  color: #cbd5e1 !important;
+}
+
+/* Dropdown Menus */
+body.sa-dark-mode .employee-shell .tf-task-dropdown-menu,
+body.dark-mode .employee-shell .tf-task-dropdown-menu,
+.employee-shell.tf-dark .tf-task-dropdown-menu,
+[data-theme="dark"] .employee-shell .tf-task-dropdown-menu,
+body.sa-dark-mode .employee-shell .tf-bug-dropdown-menu,
+body.dark-mode .employee-shell .tf-bug-dropdown-menu,
+.employee-shell.tf-dark .tf-bug-dropdown-menu,
+[data-theme="dark"] .employee-shell .tf-bug-dropdown-menu,
+body.sa-dark-mode .employee-shell .tf-files-dropdown-menu,
+body.dark-mode .employee-shell .tf-files-dropdown-menu,
+.employee-shell.tf-dark .tf-files-dropdown-menu,
+[data-theme="dark"] .employee-shell .tf-files-dropdown-menu,
+body.sa-dark-mode .employee-shell .tf-rows-dropdown-menu,
+body.dark-mode .employee-shell .tf-rows-dropdown-menu,
+.employee-shell.tf-dark .tf-rows-dropdown-menu,
+[data-theme="dark"] .employee-shell .tf-rows-dropdown-menu {
+  background: #111c35 !important;
+  border: 1px solid #233355 !important;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.5) !important;
+}
+
+body.sa-dark-mode .employee-shell .tf-task-dropdown-menu button,
+body.dark-mode .employee-shell .tf-task-dropdown-menu button,
+.employee-shell.tf-dark .tf-task-dropdown-menu button,
+[data-theme="dark"] .employee-shell .tf-task-dropdown-menu button,
+body.sa-dark-mode .employee-shell .tf-rows-dropdown-menu button,
+body.dark-mode .employee-shell .tf-rows-dropdown-menu button,
+.employee-shell.tf-dark .tf-rows-dropdown-menu button,
+[data-theme="dark"] .employee-shell .tf-rows-dropdown-menu button {
+  color: #cbd5e1 !important;
+}
+
+body.sa-dark-mode .employee-shell .tf-task-dropdown-menu button:hover,
+body.dark-mode .employee-shell .tf-task-dropdown-menu button:hover,
+.employee-shell.tf-dark .tf-task-dropdown-menu button:hover,
+[data-theme="dark"] .employee-shell .tf-task-dropdown-menu button:hover,
+body.sa-dark-mode .employee-shell .tf-rows-dropdown-menu button:hover,
+body.dark-mode .employee-shell .tf-rows-dropdown-menu button:hover,
+.employee-shell.tf-dark .tf-rows-dropdown-menu button:hover,
+[data-theme="dark"] .employee-shell .tf-rows-dropdown-menu button:hover {
+  background: #172442 !important;
+  color: #ffffff !important;
+}
+
+/* ==========================================================================
+   10. KPI CARDS & RIGHT SIDEBAR WIDGETS IN DARK MODE
+   ========================================================================== */
+body.sa-dark-mode .employee-shell .tf-tasks-kpi-card,
+body.dark-mode .employee-shell .tf-tasks-kpi-card,
+.employee-shell.tf-dark .tf-tasks-kpi-card,
+[data-theme="dark"] .employee-shell .tf-tasks-kpi-card,
+body.sa-dark-mode .employee-shell .tf-bug-stat-card,
+body.dark-mode .employee-shell .tf-bug-stat-card,
+.employee-shell.tf-dark .tf-bug-stat-card,
+[data-theme="dark"] .employee-shell .tf-bug-stat-card,
+body.sa-dark-mode .employee-shell .tf-file-stat-card,
+body.dark-mode .employee-shell .tf-file-stat-card,
+.employee-shell.tf-dark .tf-file-stat-card,
+[data-theme="dark"] .employee-shell .tf-file-stat-card,
+body.sa-dark-mode .employee-shell .tf-widget-card,
+body.dark-mode .employee-shell .tf-widget-card,
+.employee-shell.tf-dark .tf-widget-card,
+[data-theme="dark"] .employee-shell .tf-widget-card,
+body.sa-dark-mode .employee-shell .tf-proj-sidebar-card,
+body.dark-mode .employee-shell .tf-proj-sidebar-card,
+.employee-shell.tf-dark .tf-proj-sidebar-card,
+[data-theme="dark"] .employee-shell .tf-proj-sidebar-card {
+  background: #111c35 !important;
+  border: 1px solid #1f2d4d !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35) !important;
+}
+
+body.sa-dark-mode .employee-shell .tf-widget-header,
+body.dark-mode .employee-shell .tf-widget-header,
+.employee-shell.tf-dark .tf-widget-header,
+[data-theme="dark"] .employee-shell .tf-widget-header {
+  border-bottom: 1px solid #1f2d4d !important;
+}
+
+body.sa-dark-mode .employee-shell .tf-deadline-item,
+body.dark-mode .employee-shell .tf-deadline-item,
+.employee-shell.tf-dark .tf-deadline-item,
+[data-theme="dark"] .employee-shell .tf-deadline-item {
+  background: #172442 !important;
+  border: 1px solid #233355 !important;
+}
+
+body.sa-dark-mode .employee-shell .tf-ai-sug-item,
+body.dark-mode .employee-shell .tf-ai-sug-item,
+.employee-shell.tf-dark .tf-ai-sug-item,
+[data-theme="dark"] .employee-shell .tf-ai-sug-item {
+  background: #172442 !important;
+  border: 1px solid #233355 !important;
+}
+
+/* ==========================================================================
+   11. PAGINATION FOOTERS IN DARK MODE
+   ========================================================================== */
+body.sa-dark-mode .employee-shell .tf-tasks-pagination-footer,
+body.dark-mode .employee-shell .tf-tasks-pagination-footer,
+.employee-shell.tf-dark .tf-tasks-pagination-footer,
+[data-theme="dark"] .employee-shell .tf-tasks-pagination-footer,
+body.sa-dark-mode .employee-shell .tf-bugs-pagination-footer,
+body.dark-mode .employee-shell .tf-bugs-pagination-footer,
+.employee-shell.tf-dark .tf-bugs-pagination-footer,
+[data-theme="dark"] .employee-shell .tf-bugs-pagination-footer,
+body.sa-dark-mode .employee-shell .tf-files-pagination-footer,
+body.dark-mode .employee-shell .tf-files-pagination-footer,
+.employee-shell.tf-dark .tf-files-pagination-footer,
+[data-theme="dark"] .employee-shell .tf-files-pagination-footer,
+body.sa-dark-mode .employee-shell .tf-act-pagination-footer,
+body.dark-mode .employee-shell .tf-act-pagination-footer,
+.employee-shell.tf-dark .tf-act-pagination-footer,
+[data-theme="dark"] .employee-shell .tf-act-pagination-footer {
+  background: #111c35 !important;
+  border-top: 1px solid #1f2d4d !important;
+  color: #94a3b8 !important;
+}
+
+body.sa-dark-mode .employee-shell .tf-page-nav-btn,
+body.sa-dark-mode .employee-shell .tf-page-btn,
+body.sa-dark-mode .employee-shell .tf-act-page-btn,
+body.sa-dark-mode .employee-shell .tf-act-page-nav-btn,
+body.dark-mode .employee-shell .tf-page-nav-btn,
+body.dark-mode .employee-shell .tf-page-btn,
+body.dark-mode .employee-shell .tf-act-page-btn,
+body.dark-mode .employee-shell .tf-act-page-nav-btn,
+.employee-shell.tf-dark .tf-page-nav-btn,
+.employee-shell.tf-dark .tf-page-btn,
+.employee-shell.tf-dark .tf-act-page-btn,
+.employee-shell.tf-dark .tf-act-page-nav-btn,
+[data-theme="dark"] .employee-shell .tf-page-nav-btn,
+[data-theme="dark"] .employee-shell .tf-page-btn,
+[data-theme="dark"] .employee-shell .tf-act-page-btn,
+[data-theme="dark"] .employee-shell .tf-act-page-nav-btn {
+  background: #172442 !important;
+  border: 1px solid #233355 !important;
+  color: #cbd5e1 !important;
+}
+
+body.sa-dark-mode .employee-shell .tf-page-btn.active,
+body.sa-dark-mode .employee-shell .tf-act-page-btn.active,
+body.dark-mode .employee-shell .tf-page-btn.active,
+body.dark-mode .employee-shell .tf-act-page-btn.active,
+.employee-shell.tf-dark .tf-page-btn.active,
+.employee-shell.tf-dark .tf-act-page-btn.active,
+[data-theme="dark"] .employee-shell .tf-page-btn.active,
+[data-theme="dark"] .employee-shell .tf-act-page-btn.active {
+  background: #3b66ff !important;
+  color: #ffffff !important;
+  border-color: #3b66ff !important;
+  box-shadow: 0 2px 8px rgba(59, 102, 255, 0.4) !important;
+}
+
+body.sa-dark-mode .employee-shell .tf-rows-per-page-btn,
+body.sa-dark-mode .employee-shell .tf-act-page-size-btn,
+body.dark-mode .employee-shell .tf-rows-per-page-btn,
+body.dark-mode .employee-shell .tf-act-page-size-btn,
+.employee-shell.tf-dark .tf-rows-per-page-btn,
+.employee-shell.tf-dark .tf-act-page-size-btn,
+[data-theme="dark"] .employee-shell .tf-rows-per-page-btn,
+[data-theme="dark"] .employee-shell .tf-act-page-size-btn {
+  background: #172442 !important;
+  border: 1px solid #233355 !important;
+  color: #cbd5e1 !important;
+}
+
+/* ==========================================================================
+   12. MODALS IN DARK MODE
+   ========================================================================== */
+body.sa-dark-mode .employee-shell .tf-modal-card,
+body.dark-mode .employee-shell .tf-modal-card,
+.employee-shell.tf-dark .tf-modal-card,
+[data-theme="dark"] .employee-shell .tf-modal-card {
+  background: #111c35 !important;
+  border: 1px solid #1f2d4d !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6) !important;
+  color: #f8fafc !important;
+}
+
+body.sa-dark-mode .employee-shell .tf-modal-header,
+body.sa-dark-mode .employee-shell .tf-modal-footer,
+body.sa-dark-mode .employee-shell .tf-modal-actions,
+body.dark-mode .employee-shell .tf-modal-header,
+body.dark-mode .employee-shell .tf-modal-footer,
+body.dark-mode .employee-shell .tf-modal-actions,
+.employee-shell.tf-dark .tf-modal-header,
+.employee-shell.tf-dark .tf-modal-footer,
+.employee-shell.tf-dark .tf-modal-actions,
+[data-theme="dark"] .employee-shell .tf-modal-header,
+[data-theme="dark"] .employee-shell .tf-modal-footer,
+[data-theme="dark"] .employee-shell .tf-modal-actions {
+  background: #111c35 !important;
+  border-color: #1f2d4d !important;
+}
+
+body.sa-dark-mode .employee-shell .tf-modal-card input,
+body.sa-dark-mode .employee-shell .tf-modal-card select,
+body.sa-dark-mode .employee-shell .tf-modal-card textarea,
+body.dark-mode .employee-shell .tf-modal-card input,
+body.dark-mode .employee-shell .tf-modal-card select,
+body.dark-mode .employee-shell .tf-modal-card textarea,
+.employee-shell.tf-dark .tf-modal-card input,
+.employee-shell.tf-dark .tf-modal-card select,
+.employee-shell.tf-dark .tf-modal-card textarea,
+[data-theme="dark"] .employee-shell .tf-modal-card input,
+[data-theme="dark"] .employee-shell .tf-modal-card select,
+[data-theme="dark"] .employee-shell .tf-modal-card textarea {
+  background: #172442 !important;
+  border: 1px solid #233355 !important;
+  color: #f8fafc !important;
+}
+
+body.sa-dark-mode .employee-shell .tf-modal-close,
+body.dark-mode .employee-shell .tf-modal-close,
+.employee-shell.tf-dark .tf-modal-close,
+[data-theme="dark"] .employee-shell .tf-modal-close {
+  color: #94a3b8 !important;
+}
+
+body.sa-dark-mode .employee-shell .tf-modal-close:hover,
+body.dark-mode .employee-shell .tf-modal-close:hover,
+.employee-shell.tf-dark .tf-modal-close:hover,
+[data-theme="dark"] .employee-shell .tf-modal-close:hover {
+  background: #172442 !important;
+  color: #f8fafc !important;
+}

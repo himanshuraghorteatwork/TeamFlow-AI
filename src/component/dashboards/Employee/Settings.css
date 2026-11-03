@@ -1521,3 +1521,81 @@
 [data-theme="dark"] .tf-modal-btn.secondary:hover {
   background: #475569;
 }
+
+/* Form actions row and Save button */
+.tf-form-actions-row {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 6px;
+  padding-top: 12px;
+  border-top: 1px solid #F1F5F9;
+}
+
+[data-theme="dark"] .tf-form-actions-row {
+  border-top-color: #334155;
+}
+
+.tf-save-profile-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 16px;
+  background: #6366F1;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 7px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  box-shadow: 0 1px 3px rgba(99, 102, 241, 0.25);
+}
+
+.tf-save-profile-btn:hover {
+  background: #4F46E5;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(99, 102, 241, 0.35);
+}
+
+.tf-save-profile-btn:active {
+  transform: translateY(0);
+}
+
+.tf-modal-avatar-preview-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.tf-modal-upload-photo-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #6366F1;
+  background: #EEF2FF;
+  border: 1px solid #C7D2FE;
+  padding: 4px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.tf-modal-upload-photo-btn:hover {
+  background: #6366F1;
+  color: #FFFFFF;
+}
+
+[data-theme="dark"] .tf-modal-upload-photo-btn {
+  background: #1E1B4B;
+  color: #A5B4FC;
+  border-color: #3730A3;
+}
+
+[data-theme="dark"] .tf-modal-upload-photo-btn:hover {
+  background: #6366F1;
+  color: #FFFFFF;
+}

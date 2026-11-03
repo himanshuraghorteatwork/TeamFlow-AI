@@ -824,39 +824,252 @@
 .employee-shell .tf-task-actions-row {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 7px;
+  justify-content: flex-end;
 }
 
+/* ==========================================================================
+   TABLE ACTION BUTTONS — PHOTO MATCH JEWEL STYLE
+   1. View (Blue) | 2. Comments/Edit (Purple) | 3. Attach/Lock (Amber) | 4. More/Delete (Red)
+   ========================================================================== */
 .employee-shell .tf-task-action-icon-btn {
-  background: transparent;
-  border: none;
-  color: #94A3B8;
-  cursor: pointer;
-  padding: 4px;
-  border-radius: 6px;
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  border-radius: 8px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.12s ease;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  padding: 0;
+  outline: none;
   position: relative;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
-.employee-shell .tf-task-action-icon-btn:hover {
-  color: #5051F9;
-  background: #F1F5F9;
+.employee-shell .tf-task-action-icon-btn:active {
+  transform: translateY(0) scale(0.96);
 }
 
+/* 1. View / Eye button (Blue Jewel - Photo Button 1) */
+.employee-shell .tf-task-action-icon-btn.view,
+.employee-shell .tf-task-actions-row > button:nth-child(1),
+.employee-shell .tf-task-action-icon-btn[title*="View"],
+.employee-shell .tf-task-action-icon-btn[title*="view"] {
+  background: #eff6ff;
+  color: #2563eb;
+  border-color: #bfdbfe;
+}
+
+.employee-shell .tf-task-action-icon-btn.view:hover,
+.employee-shell .tf-task-actions-row > button:nth-child(1):hover,
+.employee-shell .tf-task-action-icon-btn[title*="View"]:hover,
+.employee-shell .tf-task-action-icon-btn[title*="view"]:hover {
+  background: #2563eb !important;
+  color: #ffffff !important;
+  border-color: #2563eb !important;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.38) !important;
+  transform: translateY(-2px) scale(1.05);
+}
+
+/* 2. Edit / Comments button (Purple Jewel - Photo Button 2) */
+.employee-shell .tf-task-action-icon-btn.comments,
+.employee-shell .tf-task-action-icon-btn.edit,
+.employee-shell .tf-task-actions-row > button:nth-child(2),
+.employee-shell .tf-task-action-icon-btn[title*="Comment"],
+.employee-shell .tf-task-action-icon-btn[title*="comment"] {
+  background: #f5f3ff;
+  color: #7c3aed;
+  border-color: #ddd6fe;
+}
+
+.employee-shell .tf-task-action-icon-btn.comments:hover,
+.employee-shell .tf-task-action-icon-btn.edit:hover,
+.employee-shell .tf-task-actions-row > button:nth-child(2):hover,
+.employee-shell .tf-task-action-icon-btn[title*="Comment"]:hover,
+.employee-shell .tf-task-action-icon-btn[title*="comment"]:hover {
+  background: #7c3aed !important;
+  color: #ffffff !important;
+  border-color: #7c3aed !important;
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.38) !important;
+  transform: translateY(-2px) scale(1.05);
+}
+
+/* 3. Attachments / Lock / Status button (Amber Jewel - Photo Button 3) */
+.employee-shell .tf-task-action-icon-btn.attach,
+.employee-shell .tf-task-action-icon-btn.lock,
+.employee-shell .tf-task-action-icon-btn.warning,
+.employee-shell .tf-task-actions-row > button:nth-child(3),
+.employee-shell .tf-task-action-icon-btn[title*="Attach"],
+.employee-shell .tf-task-action-icon-btn[title*="attach"] {
+  background: #fffbeb;
+  color: #d97706;
+  border-color: #fde68a;
+}
+
+.employee-shell .tf-task-action-icon-btn.attach:hover,
+.employee-shell .tf-task-action-icon-btn.lock:hover,
+.employee-shell .tf-task-action-icon-btn.warning:hover,
+.employee-shell .tf-task-actions-row > button:nth-child(3):hover,
+.employee-shell .tf-task-action-icon-btn[title*="Attach"]:hover,
+.employee-shell .tf-task-action-icon-btn[title*="attach"]:hover {
+  background: #d97706 !important;
+  color: #ffffff !important;
+  border-color: #d97706 !important;
+  box-shadow: 0 4px 12px rgba(217, 119, 6, 0.38) !important;
+  transform: translateY(-2px) scale(1.05);
+}
+
+/* 4. More actions / Delete / Danger button (Rose Red Jewel - Photo Button 4) */
+.employee-shell .tf-task-action-icon-btn.more,
+.employee-shell .tf-task-action-icon-btn.delete,
+.employee-shell .tf-task-action-menu-wrap .tf-task-action-icon-btn,
+.employee-shell .tf-task-action-icon-btn[title*="More"],
+.employee-shell .tf-task-action-icon-btn[title*="more"],
+.employee-shell .tf-task-action-icon-btn[title*="Delete"],
+.employee-shell .tf-task-action-icon-btn[title*="delete"] {
+  background: #fef2f2;
+  color: #dc2626;
+  border-color: #fecaca;
+}
+
+.employee-shell .tf-task-action-icon-btn.more:hover,
+.employee-shell .tf-task-action-icon-btn.delete:hover,
+.employee-shell .tf-task-action-menu-wrap .tf-task-action-icon-btn:hover,
+.employee-shell .tf-task-action-icon-btn[title*="More"]:hover,
+.employee-shell .tf-task-action-icon-btn[title*="more"]:hover,
+.employee-shell .tf-task-action-icon-btn[title*="Delete"]:hover,
+.employee-shell .tf-task-action-icon-btn[title*="delete"]:hover {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+  color: #ffffff !important;
+  border-color: #dc2626 !important;
+  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.38) !important;
+  transform: translateY(-2px) scale(1.05);
+}
+
+/* Badge on Comments Button */
 .employee-shell .tf-task-action-icon-btn.with-badge .tf-badge-num {
   position: absolute;
-  top: -2px;
+  top: -5px;
   right: -5px;
-  background: #5051F9;
-  color: #FFFFFF;
+  background: #7c3aed;
+  color: #ffffff;
   font-size: 9.5px;
   font-weight: 700;
-  padding: 1px 4px;
+  padding: 1px 4.5px;
   border-radius: 9999px;
   line-height: 1;
+  box-shadow: 0 0 0 1.5px #ffffff;
+  transition: all 0.2s ease;
+}
+
+.employee-shell .tf-task-action-icon-btn.with-badge:hover .tf-badge-num {
+  background: #ffffff;
+  color: #7c3aed;
+  box-shadow: 0 0 0 1px #7c3aed;
+}
+
+/* DARK MODE OVERRIDES */
+[data-theme="dark"] .employee-shell .tf-task-action-icon-btn.view,
+[data-theme="dark"] .employee-shell .tf-task-actions-row > button:nth-child(1),
+[data-theme="dark"] .employee-shell .tf-task-action-icon-btn[title*="View"],
+[data-theme="dark"] .employee-shell .tf-task-action-icon-btn[title*="view"] {
+  background: #142347 !important;
+  color: #60a5fa !important;
+  border-color: #1e3a8a !important;
+}
+
+[data-theme="dark"] .employee-shell .tf-task-action-icon-btn.view:hover,
+[data-theme="dark"] .employee-shell .tf-task-actions-row > button:nth-child(1):hover,
+[data-theme="dark"] .employee-shell .tf-task-action-icon-btn[title*="View"]:hover,
+[data-theme="dark"] .employee-shell .tf-task-action-icon-btn[title*="view"]:hover {
+  background: #2563eb !important;
+  color: #ffffff !important;
+  border-color: #3b82f6 !important;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.5) !important;
+}
+
+[data-theme="dark"] .employee-shell .tf-task-action-icon-btn.comments,
+[data-theme="dark"] .employee-shell .tf-task-action-icon-btn.edit,
+[data-theme="dark"] .employee-shell .tf-task-actions-row > button:nth-child(2),
+[data-theme="dark"] .employee-shell .tf-task-action-icon-btn[title*="Comment"],
+[data-theme="dark"] .employee-shell .tf-task-action-icon-btn[title*="comment"] {
+  background: #241442 !important;
+  color: #c084fc !important;
+  border-color: #581c87 !important;
+}
+
+[data-theme="dark"] .employee-shell .tf-task-action-icon-btn.comments:hover,
+[data-theme="dark"] .employee-shell .tf-task-action-icon-btn.edit:hover,
+[data-theme="dark"] .employee-shell .tf-task-actions-row > button:nth-child(2):hover,
+[data-theme="dark"] .employee-shell .tf-task-action-icon-btn[title*="Comment"]:hover,
+[data-theme="dark"] .employee-shell .tf-task-action-icon-btn[title*="comment"]:hover {
+  background: #7c3aed !important;
+  color: #ffffff !important;
+  border-color: #8b5cf6 !important;
+  box-shadow: 0 4px 14px rgba(124, 58, 237, 0.5) !important;
+}
+
+[data-theme="dark"] .employee-shell .tf-task-action-icon-btn.attach,
+[data-theme="dark"] .employee-shell .tf-task-action-icon-btn.lock,
+[data-theme="dark"] .employee-shell .tf-task-action-icon-btn.warning,
+[data-theme="dark"] .employee-shell .tf-task-actions-row > button:nth-child(3),
+[data-theme="dark"] .employee-shell .tf-task-action-icon-btn[title*="Attach"],
+[data-theme="dark"] .employee-shell .tf-task-action-icon-btn[title*="attach"] {
+  background: #2e1d08 !important;
+  color: #fbbf24 !important;
+  border-color: #78350f !important;
+}
+
+[data-theme="dark"] .employee-shell .tf-task-action-icon-btn.attach:hover,
+[data-theme="dark"] .employee-shell .tf-task-action-icon-btn.lock:hover,
+[data-theme="dark"] .employee-shell .tf-task-action-icon-btn.warning:hover,
+[data-theme="dark"] .employee-shell .tf-task-actions-row > button:nth-child(3):hover,
+[data-theme="dark"] .employee-shell .tf-task-action-icon-btn[title*="Attach"]:hover,
+[data-theme="dark"] .employee-shell .tf-task-action-icon-btn[title*="attach"]:hover {
+  background: #d97706 !important;
+  color: #ffffff !important;
+  border-color: #f59e0b !important;
+  box-shadow: 0 4px 14px rgba(217, 119, 6, 0.5) !important;
+}
+
+[data-theme="dark"] .employee-shell .tf-task-action-icon-btn.more,
+[data-theme="dark"] .employee-shell .tf-task-action-icon-btn.delete,
+[data-theme="dark"] .employee-shell .tf-task-action-menu-wrap .tf-task-action-icon-btn,
+[data-theme="dark"] .employee-shell .tf-task-action-icon-btn[title*="More"],
+[data-theme="dark"] .employee-shell .tf-task-action-icon-btn[title*="more"],
+[data-theme="dark"] .employee-shell .tf-task-action-icon-btn[title*="Delete"],
+[data-theme="dark"] .employee-shell .tf-task-action-icon-btn[title*="delete"] {
+  background: #3a1414 !important;
+  color: #f87171 !important;
+  border-color: #7f1d1d !important;
+}
+
+[data-theme="dark"] .employee-shell .tf-task-action-icon-btn.more:hover,
+[data-theme="dark"] .employee-shell .tf-task-action-icon-btn.delete:hover,
+[data-theme="dark"] .employee-shell .tf-task-action-menu-wrap .tf-task-action-icon-btn:hover,
+[data-theme="dark"] .employee-shell .tf-task-action-icon-btn[title*="More"]:hover,
+[data-theme="dark"] .employee-shell .tf-task-action-icon-btn[title*="more"]:hover,
+[data-theme="dark"] .employee-shell .tf-task-action-icon-btn[title*="Delete"]:hover,
+[data-theme="dark"] .employee-shell .tf-task-action-icon-btn[title*="delete"]:hover {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+  color: #ffffff !important;
+  border-color: #dc2626 !important;
+  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.5) !important;
+}
+
+[data-theme="dark"] .employee-shell .tf-task-action-icon-btn.with-badge .tf-badge-num {
+  box-shadow: 0 0 0 1.5px #1F2937;
+}
+
+[data-theme="dark"] .employee-shell .tf-task-action-icon-btn.with-badge:hover .tf-badge-num {
+  background: #ffffff;
+  color: #7c3aed;
+  box-shadow: 0 0 0 1px #7c3aed;
 }
 
 .employee-shell .tf-task-action-menu-wrap {

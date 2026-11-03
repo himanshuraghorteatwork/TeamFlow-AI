@@ -795,25 +795,158 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 4px;
+  gap: 7px;
 }
 
+/* Action button jewel style */
 .tf-action-btn {
-  background: transparent;
-  border: none;
-  color: #94A3B8;
-  padding: 5px;
-  border-radius: 6px;
-  cursor: pointer;
-  display: flex;
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  border-radius: 8px;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.12s ease;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  padding: 0;
+  outline: none;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
-.tf-action-btn:hover {
-  background: #F1F5F9;
-  color: #0F172A;
+.tf-action-btn:active {
+  transform: translateY(0) scale(0.96);
+}
+
+/* Download button (Emerald Green Jewel - row 5 photo style) */
+.tf-action-btn.download,
+.tf-actions-group > button:nth-child(1),
+.tf-action-btn[title*="Download"] {
+  background: #ecfdf5;
+  color: #059669;
+  border-color: #a7f3d0;
+}
+
+.tf-action-btn.download:hover,
+.tf-actions-group > button:nth-child(1):hover,
+.tf-action-btn[title*="Download"]:hover {
+  background: #059669 !important;
+  color: #ffffff !important;
+  border-color: #059669 !important;
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.38) !important;
+  transform: translateY(-2px) scale(1.05);
+}
+
+/* Preview / Eye button (Blue Jewel - Photo Button 1) */
+.tf-action-btn.view,
+.tf-actions-group > button:nth-child(2),
+.tf-action-btn[title*="Preview"],
+.tf-action-btn[title*="View"] {
+  background: #eff6ff;
+  color: #2563eb;
+  border-color: #bfdbfe;
+}
+
+.tf-action-btn.view:hover,
+.tf-actions-group > button:nth-child(2):hover,
+.tf-action-btn[title*="Preview"]:hover,
+.tf-action-btn[title*="View"]:hover {
+  background: #2563eb !important;
+  color: #ffffff !important;
+  border-color: #2563eb !important;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.38) !important;
+  transform: translateY(-2px) scale(1.05);
+}
+
+/* More button (Purple / Amber Jewel) */
+.tf-action-btn.more,
+.tf-action-more-wrap .tf-action-btn,
+.tf-action-btn[title*="More"] {
+  background: #f5f3ff;
+  color: #7c3aed;
+  border-color: #ddd6fe;
+}
+
+.tf-action-btn.more:hover,
+.tf-action-more-wrap .tf-action-btn:hover,
+.tf-action-btn[title*="More"]:hover {
+  background: #7c3aed !important;
+  color: #ffffff !important;
+  border-color: #7c3aed !important;
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.38) !important;
+  transform: translateY(-2px) scale(1.05);
+}
+
+/* Delete modifier */
+.tf-action-btn.delete {
+  background: #fef2f2;
+  color: #dc2626;
+  border-color: #fecaca;
+}
+
+.tf-action-btn.delete:hover {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+  color: #ffffff !important;
+  border-color: #dc2626 !important;
+  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.38) !important;
+  transform: translateY(-2px) scale(1.05);
+}
+
+/* Dark mode overrides for File action buttons */
+[data-theme="dark"] .tf-action-btn.download,
+[data-theme="dark"] .tf-actions-group > button:nth-child(1),
+[data-theme="dark"] .tf-action-btn[title*="Download"] {
+  background: #062e24 !important;
+  color: #34d399 !important;
+  border-color: #065f46 !important;
+}
+
+[data-theme="dark"] .tf-action-btn.download:hover,
+[data-theme="dark"] .tf-actions-group > button:nth-child(1):hover,
+[data-theme="dark"] .tf-action-btn[title*="Download"]:hover {
+  background: #059669 !important;
+  color: #ffffff !important;
+  border-color: #10b981 !important;
+  box-shadow: 0 4px 14px rgba(5, 150, 105, 0.5) !important;
+}
+
+[data-theme="dark"] .tf-action-btn.view,
+[data-theme="dark"] .tf-actions-group > button:nth-child(2),
+[data-theme="dark"] .tf-action-btn[title*="Preview"],
+[data-theme="dark"] .tf-action-btn[title*="View"] {
+  background: #142347 !important;
+  color: #60a5fa !important;
+  border-color: #1e3a8a !important;
+}
+
+[data-theme="dark"] .tf-action-btn.view:hover,
+[data-theme="dark"] .tf-actions-group > button:nth-child(2):hover,
+[data-theme="dark"] .tf-action-btn[title*="Preview"]:hover,
+[data-theme="dark"] .tf-action-btn[title*="View"]:hover {
+  background: #2563eb !important;
+  color: #ffffff !important;
+  border-color: #3b82f6 !important;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.5) !important;
+}
+
+[data-theme="dark"] .tf-action-btn.more,
+[data-theme="dark"] .tf-action-more-wrap .tf-action-btn,
+[data-theme="dark"] .tf-action-btn[title*="More"] {
+  background: #241442 !important;
+  color: #c084fc !important;
+  border-color: #581c87 !important;
+}
+
+[data-theme="dark"] .tf-action-btn.more:hover,
+[data-theme="dark"] .tf-action-more-wrap .tf-action-btn:hover,
+[data-theme="dark"] .tf-action-btn[title*="More"]:hover {
+  background: #7c3aed !important;
+  color: #ffffff !important;
+  border-color: #8b5cf6 !important;
+  box-shadow: 0 4px 14px rgba(124, 58, 237, 0.5) !important;
 }
 
 .tf-action-more-wrap {
@@ -941,13 +1074,75 @@
   align-items: center;
   gap: 6px;
   border: 1px solid var(--tf-border, #E2E8F0);
-  background: #FFFFFF;
+  background: var(--tf-card-bg, #FFFFFF);
   border-radius: 6px;
   padding: 4px 10px;
   font-size: 12px;
+  font-weight: 500;
   color: #475569;
   margin-left: 8px;
   cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: inherit;
+  outline: none;
+}
+
+.tf-page-size-badge:hover {
+  border-color: #CBD5E1;
+  background: #F8FAFC;
+  color: #1E293B;
+}
+
+.tf-page-size-badge .open {
+  transform: rotate(180deg);
+  transition: transform 0.2s ease;
+}
+
+.tf-rows-per-page-wrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.tf-rows-dropdown-menu {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  right: 0;
+  min-width: 120px;
+  background: var(--tf-card-bg, #FFFFFF);
+  border: 1px solid var(--tf-border, #E2E8F0);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.12);
+  padding: 4px;
+  z-index: 70;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.tf-rows-dropdown-menu button {
+  width: 100%;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  background: transparent;
+  border: none;
+  border-radius: 5px;
+  text-align: left;
+  cursor: pointer;
+  color: #334155;
+  transition: all 0.12s ease;
+  font-family: inherit;
+}
+
+.tf-rows-dropdown-menu button:hover {
+  background: #F1F5F9;
+  color: #0F172A;
+}
+
+.tf-rows-dropdown-menu button.active {
+  background: #EEF2FF;
+  color: #4F46E5;
+  font-weight: 600;
 }
 
 /* ==========================================================================
@@ -1799,4 +1994,63 @@
   background: #0F172A;
   border-color: #334155;
   color: #F8FAFC;
+}
+
+
+/* Dark Mode Pagination Dropdown */
+[data-theme="dark"] .tf-page-size-badge {
+  background: #1E293B !important;
+  border-color: #334155 !important;
+  color: #CBD5E1 !important;
+}
+
+[data-theme="dark"] .tf-page-size-badge:hover {
+  background: #273449 !important;
+  border-color: #475569 !important;
+  color: #F8FAFC !important;
+}
+
+[data-theme="dark"] .tf-rows-dropdown-menu {
+  background: #1E293B !important;
+  border-color: #334155 !important;
+  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.4) !important;
+}
+
+[data-theme="dark"] .tf-rows-dropdown-menu button {
+  color: #CBD5E1 !important;
+}
+
+[data-theme="dark"] .tf-rows-dropdown-menu button:hover {
+  background: #334155 !important;
+  color: #FFFFFF !important;
+}
+
+[data-theme="dark"] .tf-rows-dropdown-menu button.active {
+  background: #312E81 !important;
+  color: #A5B4FC !important;
+}
+
+[data-theme="dark"] .tf-page-nav-arrow {
+  background: #1E293B !important;
+  border-color: #334155 !important;
+  color: #94A3B8 !important;
+}
+
+[data-theme="dark"] .tf-page-nav-arrow:hover:not(:disabled) {
+  background: #334155 !important;
+  color: #FFFFFF !important;
+}
+
+[data-theme="dark"] .tf-page-num-btn {
+  color: #94A3B8 !important;
+}
+
+[data-theme="dark"] .tf-page-num-btn:hover {
+  background: #334155 !important;
+  color: #FFFFFF !important;
+}
+
+[data-theme="dark"] .tf-page-num-btn.active {
+  background: #4F46E5 !important;
+  color: #FFFFFF !important;
 }

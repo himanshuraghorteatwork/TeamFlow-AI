@@ -48,9 +48,9 @@ export function getEmployeeProfile() {
       DEFAULT_AVATAR;
 
     const initials =
-      ((firstName?.[0] || "") + (lastName?.[0] || "")).toUpperCase() || "JD";
+      ((firstName?.[0] || "") + (lastName?.[0] || firstName?.[1] || "")).toUpperCase() || "JD";
 
-    // Standardize role to "Employee" (not "Product Manager")
+    // Standardize role to valid role (not stale Product Manager)
     let role = "Employee";
     const rawRole = savedSettingsProfile?.role || user?.role || settings?.profile?.jobTitle;
     if (rawRole && rawRole.toLowerCase() !== "product manager") {
@@ -59,42 +59,46 @@ export function getEmployeeProfile() {
       role = "Employee";
     }
 
-    // Clean up any stale "Product Manager" in localStorage
-    if (user && (user.role === "Product Manager" || user.jobTitle === "Product Manager")) {
-      user.role = "Employee";
-      try {
-        localStorage.setItem("teamflow_current_user", JSON.stringify(user));
-      } catch (err) {
-        void err;
-      }
-    }
-    if (settings?.profile && settings.profile.jobTitle === "Product Manager") {
-      settings.profile.jobTitle = "Employee";
-      try {
-        localStorage.setItem("teamflow-settings", JSON.stringify(settings));
-      } catch (err) {
-        void err;
-      }
-    }
-    if (savedSettingsProfile && savedSettingsProfile.role === "Product Manager") {
-      savedSettingsProfile.role = "Employee";
-      try {
-        localStorage.setItem("tf_settings_profile_v2", JSON.stringify(savedSettingsProfile));
-      } catch (err) {
-        void err;
-      }
-    }
+    const phoneNumber =
+      savedSettingsProfile?.phoneNumber ||
+      settings?.profile?.phoneNumber ||
+      user?.phoneNumber ||
+      "+91 98765 43210";
+
+    const department =
+      savedSettingsProfile?.department ||
+      settings?.profile?.department ||
+      "Development";
+
+    const location =
+      savedSettingsProfile?.location ||
+      settings?.profile?.location ||
+      "Pune, India";
+
+    const status =
+      savedSettingsProfile?.status ||
+      settings?.profile?.status ||
+      "Active";
+
+    const memberSince =
+      savedSettingsProfile?.memberSince ||
+      settings?.profile?.memberSince ||
+      "Oct 10, 2024";
 
     return {
       fullName,
       firstName,
       lastName,
       email,
+      phoneNumber,
       photo,
+      avatar: photo,
       initials,
       role,
-      department: savedSettingsProfile?.department || "Development",
-      location: savedSettingsProfile?.location || "Pune, India",
+      department,
+      location,
+      status,
+      memberSince,
     };
   } catch {
     return {
@@ -102,11 +106,15 @@ export function getEmployeeProfile() {
       firstName: "John",
       lastName: "Doe",
       email: "john.doe@teamflow.com",
+      phoneNumber: "+91 98765 43210",
       photo: DEFAULT_AVATAR,
+      avatar: DEFAULT_AVATAR,
       initials: "JD",
       role: "Employee",
       department: "Development",
       location: "Pune, India",
+      status: "Active",
+      memberSince: "Oct 10, 2024",
     };
   }
 }
@@ -116,32 +124,71 @@ export function setEmployeeProfile(updatedProfile) {
     const current = getEmployeeProfile();
     const merged = { ...current, ...updatedProfile };
 
-    const first = merged.firstName || merged.fullName.split(" ")[0] || "John";
-    const last = merged.lastName || merged.fullName.split(" ").slice(1).join(" ") || "Doe";
-    merged.firstName = first;
-    merged.lastName = last;
-    merged.initials = ((first[0] || "") + (last[0] || "")).toUpperCase() || "JD";
-    if (!merged.photo) merged.photo = DEFAULT_AVATAR;
+    // Accurately compute firstName and lastName if fullName is provided
+    let first, last;
+    if (updatedProfile && updatedProfile.fullName) {
+      const parts = updatedProfile.fullName.trim().split(/\s+/);
+      first = parts[0] || "John";
+      last = parts.slice(1).join(" ") || "";
+    } else {
+      first = merged.firstName || merged.fullName.split(" ")[0] || "John";
+      last = merged.lastName || merged.fullName.split(" ").slice(1).join(" ") || "Doe";
+    }
+
+    const fullName = updatedProfile && updatedProfile.fullName
+      ? updatedProfile.fullName.trim()
+      : `${first} ${last}`.trim() || "John Doe";
+
+    const initials =
+      (((first?.[0] || "") + (last?.[0] || first?.[1] || "")).toUpperCase()) || "JD";
+
+    const photo = updatedProfile?.photo || updatedProfile?.avatar || merged.photo || DEFAULT_AVATAR;
+    const phoneNumber = updatedProfile?.phoneNumber || merged.phoneNumber || "+91 98765 43210";
+    const role = updatedProfile?.role || merged.role || "Employee";
+    const department = updatedProfile?.department || merged.department || "Development";
+    const location = updatedProfile?.location || merged.location || "Pune, India";
+    const email = updatedProfile?.email || merged.email || "john.doe@teamflow.com";
+    const status = updatedProfile?.status || merged.status || "Active";
+    const memberSince = updatedProfile?.memberSince || merged.memberSince || "Oct 10, 2024";
+
+    const finalProfile = {
+      fullName,
+      firstName: first,
+      lastName: last,
+      email,
+      phoneNumber,
+      role,
+      department,
+      location,
+      photo,
+      avatar: photo,
+      initials,
+      status,
+      memberSince,
+    };
 
     // 1. tf_settings_profile_v2
     const settingsProfile = {
-      fullName: merged.fullName,
-      email: merged.email,
-      role: merged.role,
-      department: merged.department || "Development",
-      location: merged.location || "Pune, India",
-      avatar: merged.photo,
-      status: merged.status || "Active",
-      memberSince: merged.memberSince || "Oct 10, 2024",
+      fullName,
+      email,
+      phoneNumber,
+      role,
+      department,
+      location,
+      avatar: photo,
+      status,
+      memberSince,
     };
     localStorage.setItem("tf_settings_profile_v2", JSON.stringify(settingsProfile));
 
     // 2. teamflow_current_user
     const currentUser = {
-      name: merged.fullName,
-      email: merged.email,
-      role: merged.role,
-      photo: merged.photo,
+      name: fullName,
+      email,
+      role,
+      photo,
+      phoneNumber,
+      jobTitle: role,
     };
     localStorage.setItem("teamflow_current_user", JSON.stringify(currentUser));
 
@@ -152,9 +199,12 @@ export function setEmployeeProfile(updatedProfile) {
       if (!settings.profile) settings.profile = {};
       settings.profile.firstName = first;
       settings.profile.lastName = last;
-      settings.profile.email = merged.email;
-      settings.profile.photo = merged.photo;
-      settings.profile.jobTitle = merged.role;
+      settings.profile.email = email;
+      settings.profile.photo = photo;
+      settings.profile.jobTitle = role;
+      settings.profile.department = department;
+      settings.profile.location = location;
+      settings.profile.phoneNumber = phoneNumber;
       localStorage.setItem("teamflow-settings", JSON.stringify(settings));
     } catch (err) {
       void err;
@@ -162,39 +212,98 @@ export function setEmployeeProfile(updatedProfile) {
 
     // Broadcast across all tabs and components
     window.dispatchEvent(new Event("storage"));
-    window.dispatchEvent(new CustomEvent("tf_profile_updated", { detail: merged }));
-    return merged;
+    window.dispatchEvent(new CustomEvent("tf_profile_updated", { detail: finalProfile }));
+    return finalProfile;
   } catch (err) {
     console.error("Failed to set employee profile:", err);
     return updatedProfile;
   }
 }
 
+export function getSystemPreferredTheme() {
+  if (typeof window !== "undefined" && window.matchMedia) {
+    return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  }
+  return "light";
+}
+
+export function getEmployeeThemeMode() {
+  try {
+    // 1. Check direct theme mode key
+    const mode = localStorage.getItem("teamflow_theme_mode");
+    if (mode === "system" || mode === "dark" || mode === "light") {
+      return mode;
+    }
+
+    // 2. Check appearance settings v2
+    const appSaved = localStorage.getItem("tf_settings_appearance_v2");
+    if (appSaved) {
+      try {
+        const appObj = JSON.parse(appSaved);
+        if (appObj?.theme && ["system", "dark", "light"].includes(appObj.theme)) {
+          return appObj.theme;
+        }
+      } catch {}
+    }
+
+    // 3. Check teamflow-settings
+    const settingsStr = localStorage.getItem("teamflow-settings");
+    if (settingsStr) {
+      try {
+        const settings = JSON.parse(settingsStr);
+        if (settings?.appearance?.theme && ["system", "dark", "light"].includes(settings.appearance.theme)) {
+          return settings.appearance.theme;
+        }
+      } catch {}
+    }
+
+    // Default to light
+    return "light";
+  } catch {
+    return "light";
+  }
+}
+
 export function getEmployeeTheme() {
   try {
+    const mode = getEmployeeThemeMode();
+    if (mode === "system") {
+      return getSystemPreferredTheme();
+    }
+    if (mode === "dark" || mode === "light") {
+      return mode;
+    }
+
     // 1. Check teamflow_theme
     const tfTheme = localStorage.getItem("teamflow_theme");
     if (tfTheme === "dark" || tfTheme === "light") {
       return tfTheme;
     }
 
-    // 2. Check tf_dark legacy key
+    // 2. Check SuperAdmin sync keys
+    const saDark = localStorage.getItem("teamflow_superadmin_dark_mode");
+    if (saDark === "true") return "dark";
+    if (saDark === "false") return "light";
+
+    const adminDark = localStorage.getItem("teamflow_admin_dark");
+    if (adminDark === "true") return "dark";
+    if (adminDark === "false") return "light";
+
+    // 3. Check tf_dark legacy key
     const tfDark = localStorage.getItem("tf_dark");
     if (tfDark !== null) {
       return tfDark === "true" ? "dark" : "light";
     }
 
-    // 3. Check teamflow-settings appearance
-    const settings = JSON.parse(
-      localStorage.getItem("teamflow-settings") || "null"
-    );
-    if (settings?.appearance?.theme) {
-      if (settings.appearance.theme === "system") {
-        return window.matchMedia("(prefers-color-scheme: dark)").matches
-          ? "dark"
-          : "light";
+    // 4. Check active DOM classes
+    if (typeof document !== "undefined") {
+      if (
+        document.body.classList.contains("sa-dark-mode") ||
+        document.body.classList.contains("dark") ||
+        document.documentElement.getAttribute("data-theme") === "dark"
+      ) {
+        return "dark";
       }
-      return settings.appearance.theme === "dark" ? "dark" : "light";
     }
 
     // Default to light mode
@@ -204,21 +313,25 @@ export function getEmployeeTheme() {
   }
 }
 
-export function setEmployeeTheme(theme) {
+export function setEmployeeTheme(themeOrMode) {
   try {
-    const isDark = theme === "dark";
-    const normalizedTheme = isDark ? "dark" : "light";
+    const mode = ["system", "dark", "light"].includes(themeOrMode) ? themeOrMode : "light";
+    const effectiveTheme = mode === "system" ? getSystemPreferredTheme() : mode;
+    const isDark = effectiveTheme === "dark";
 
-    // Persist across localStorage keys
-    localStorage.setItem("teamflow_theme", normalizedTheme);
+    // Persist mode and effective theme
+    localStorage.setItem("teamflow_theme_mode", mode);
+    localStorage.setItem("teamflow_theme", effectiveTheme);
     localStorage.setItem("tf_dark", isDark ? "true" : "false");
+    localStorage.setItem("teamflow_superadmin_dark_mode", String(isDark));
+    localStorage.setItem("teamflow_admin_dark", String(isDark));
 
     const settingsStr = localStorage.getItem("teamflow-settings");
     if (settingsStr) {
       try {
         const settings = JSON.parse(settingsStr);
         if (!settings.appearance) settings.appearance = {};
-        settings.appearance.theme = normalizedTheme;
+        settings.appearance.theme = mode;
         localStorage.setItem("teamflow-settings", JSON.stringify(settings));
       } catch (err) {
         void err;
@@ -229,16 +342,51 @@ export function setEmployeeTheme(theme) {
       const appSaved = localStorage.getItem("tf_settings_appearance_v2");
       if (appSaved) {
         const appObj = JSON.parse(appSaved);
-        appObj.theme = normalizedTheme;
+        appObj.theme = mode;
         localStorage.setItem("tf_settings_appearance_v2", JSON.stringify(appObj));
       }
     } catch {}
 
-    document.documentElement.setAttribute("data-theme", normalizedTheme);
-    window.dispatchEvent(new CustomEvent("tf_theme_change", { detail: normalizedTheme }));
+    // Apply classes to both body and documentElement
+    if (typeof document !== "undefined") {
+      document.body.classList.toggle("sa-dark-mode", isDark);
+      document.body.classList.toggle("tf-dark", isDark);
+      document.body.classList.toggle("dark", isDark);
+      document.body.classList.toggle("dark-mode", isDark);
+      document.body.classList.toggle("dark-theme", isDark);
+      document.documentElement.classList.toggle("sa-dark-mode", isDark);
+      document.documentElement.classList.toggle("tf-dark", isDark);
+      document.documentElement.classList.toggle("dark", isDark);
+      document.documentElement.setAttribute("data-theme", effectiveTheme);
+      document.documentElement.setAttribute("data-theme-mode", mode);
+    }
+
+    window.dispatchEvent(new CustomEvent("tf_theme_change", { detail: effectiveTheme }));
+    window.dispatchEvent(new CustomEvent("tf_theme_mode_change", { detail: mode }));
     window.dispatchEvent(new Event("storage"));
+    window.dispatchEvent(new Event("teamflow_theme_update"));
   } catch (err) {
     console.error("Failed to set theme:", err);
+  }
+}
+
+// Auto-sync when OS system preference changes (e.g. user toggles dark mode in Windows/macOS)
+if (typeof window !== "undefined" && window.matchMedia) {
+  try {
+    const sysMatcher = window.matchMedia("(prefers-color-scheme: dark)");
+    const onSystemThemeChange = () => {
+      const currentMode = getEmployeeThemeMode();
+      if (currentMode === "system") {
+        setEmployeeTheme("system");
+      }
+    };
+    if (sysMatcher.addEventListener) {
+      sysMatcher.addEventListener("change", onSystemThemeChange);
+    } else if (sysMatcher.addListener) {
+      sysMatcher.addListener(onSystemThemeChange);
+    }
+  } catch (e) {
+    void e;
   }
 }
 

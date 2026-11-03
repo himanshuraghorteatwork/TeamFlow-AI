@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { Link } from "react-router-dom";
 import {
+  Trash2,
+  Eye,
+  Edit3,
   Folder,
   Play,
   Clock,
@@ -404,6 +407,71 @@ function Projects() {
     setTimeout(() => setToastMessage(""), 3000);
   };
 
+  // Selected Tasks in Projects Table
+  const [selectedTaskIds, setSelectedTaskIds] = useState([]);
+
+  const handleSelectAllTasks = () => {
+    if (selectedTaskIds.length === projectTasks.length) {
+      setSelectedTaskIds([]);
+    } else {
+      setSelectedTaskIds(projectTasks.map((t) => t.id));
+    }
+  };
+
+  const handleSelectTask = (taskId) => {
+    setSelectedTaskIds((prev) =>
+      prev.includes(taskId) ? prev.filter((id) => id !== taskId) : [...prev, taskId]
+    );
+  };
+
+  const handleBatchMarkCompleted = () => {
+    if (selectedTaskIds.length === 0) return;
+    setProjectTasks((prev) =>
+      prev.map((t) => (selectedTaskIds.includes(t.id) ? { ...t, status: "Completed" } : t))
+    );
+    showToast(`Marked ${selectedTaskIds.length} tasks as Completed`);
+    setSelectedTaskIds([]);
+  };
+
+  const handleBatchMarkInProgress = () => {
+    if (selectedTaskIds.length === 0) return;
+    setProjectTasks((prev) =>
+      prev.map((t) => (selectedTaskIds.includes(t.id) ? { ...t, status: "In Progress" } : t))
+    );
+    showToast(`Marked ${selectedTaskIds.length} tasks as In Progress`);
+    setSelectedTaskIds([]);
+  };
+
+  const handleBatchExport = () => {
+    if (selectedTaskIds.length === 0) return;
+    const selected = projectTasks.filter((t) => selectedTaskIds.includes(t.id));
+    const csvContent =
+      "data:text/csv;charset=utf-8," +
+      [
+        "Task Name,Project,Due Date,Priority,Status",
+        ...selected.map(
+          (t) =>
+            `"${(t.name || "").replace(/"/g, '""')}","${(t.project || "").replace(/"/g, '""')}","${t.dueDate}","${t.priority}","${t.status}"`
+        ),
+      ].join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `project_tasks_${Date.now()}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    showToast(`Exported ${selected.length} tasks to CSV`);
+  };
+
+  const handleBatchDelete = () => {
+    if (selectedTaskIds.length === 0) return;
+    const count = selectedTaskIds.length;
+    setProjectTasks((prev) => prev.filter((t) => !selectedTaskIds.includes(t.id)));
+    setSelectedTaskIds([]);
+    showToast(`Deleted ${count} selected tasks`);
+  };
+
   // Export List functionality (CSV download)
   const handleExportList = () => {
     const headers = ["Project Name", "Status", "Category", "Date Range", "Progress", "Team Size"];
@@ -428,21 +496,98 @@ function Projects() {
     showToast("Projects list exported successfully!");
   };
 
+  // Task Details Modal & Edit Task Modal State
+  const [taskDetailsModal, setTaskDetailsModal] = useState(null);
+  const [taskEditModal, setTaskEditModal] = useState(null);
+  const [taskEditForm, setTaskEditForm] = useState({
+    name: "",
+    project: "",
+    dueDate: "",
+    priority: "Medium",
+    status: "To Do",
+    description: "",
+  });
+
+  // Open Task Details Modal
+  const handleOpenTaskDetails = (task) => {
+    setTaskDetailsModal(task);
+  };
+
+  // Open Edit Task Modal
+  const handleOpenEditTask = (task) => {
+    setTaskEditModal(task);
+    setTaskEditForm({
+      name: task.name || "",
+      project: task.project || "TeamFlow Website",
+      dueDate: task.dueDate || "Today",
+      priority: task.priority || "Medium",
+      status: task.status || "To Do",
+      description: task.description || "",
+    });
+  };
+
+  // Save Edit Task
+  const handleSaveEditTask = (e) => {
+    e.preventDefault();
+    if (!taskEditForm.name.trim()) return;
+
+    setProjectTasks((prev) =>
+      prev.map((t) =>
+        t.id === taskEditModal.id
+          ? {
+              ...t,
+              name: taskEditForm.name.trim(),
+              project: taskEditForm.project,
+              dueDate: taskEditForm.dueDate,
+              priority: taskEditForm.priority,
+              status: taskEditForm.status,
+              description: taskEditForm.description,
+            }
+          : t
+      )
+    );
+
+    if (taskDetailsModal && taskDetailsModal.id === taskEditModal.id) {
+      setTaskDetailsModal((prev) => ({
+        ...prev,
+        name: taskEditForm.name.trim(),
+        project: taskEditForm.project,
+        dueDate: taskEditForm.dueDate,
+        priority: taskEditForm.priority,
+        status: taskEditForm.status,
+        description: taskEditForm.description,
+      }));
+    }
+
+    setTaskEditModal(null);
+    showToast(`Task "${taskEditForm.name.trim()}" updated successfully!`);
+  };
+
+  // Delete Single Task
+  const handleDeleteTask = (taskId) => {
+    const task = projectTasks.find((t) => t.id === taskId);
+    setProjectTasks((prev) => prev.filter((t) => t.id !== taskId));
+    if (taskDetailsModal && taskDetailsModal.id === taskId) {
+      setTaskDetailsModal(null);
+    }
+    showToast(`Task "${task?.name || "Item"}" deleted.`);
+  };
+
   // Toggle task status in the "My Tasks in Projects" table
   const handleToggleTaskStatus = (taskId) => {
+    let updatedStatus = "In Progress";
     setProjectTasks((prev) =>
       prev.map((t) => {
         if (t.id === taskId) {
-          let nextStatus = "In Progress";
-          if (t.status === "To Do") nextStatus = "In Progress";
-          else if (t.status === "In Progress") nextStatus = "Completed";
-          else if (t.status === "Completed") nextStatus = "To Do";
-          return { ...t, status: nextStatus };
+          if (t.status === "To Do") updatedStatus = "In Progress";
+          else if (t.status === "In Progress") updatedStatus = "Completed";
+          else if (t.status === "Completed") updatedStatus = "To Do";
+          return { ...t, status: updatedStatus };
         }
         return t;
       })
     );
-    showToast("Task status updated!");
+    showToast(`Task status updated to "${updatedStatus}"`);
   };
 
 
@@ -1024,10 +1169,72 @@ function Projects() {
                 </Link>
               </div>
 
+              {/* Multi-Selection Batch Actions Bar */}
+              {selectedTaskIds.length > 0 && (
+                <div className="tf-batch-banner">
+                  <span className="tf-batch-count">
+                    <strong>{selectedTaskIds.length}</strong> task record{selectedTaskIds.length > 1 ? "s" : ""} selected
+                  </span>
+                  <div className="tf-batch-actions">
+                    <button
+                      type="button"
+                      className="tf-batch-btn tf-batch-btn-secondary"
+                      onClick={handleBatchMarkCompleted}
+                    >
+                      <CheckCircle2 size={13} /> Mark Completed
+                    </button>
+                    <button
+                      type="button"
+                      className="tf-batch-btn tf-batch-btn-secondary"
+                      onClick={handleBatchMarkInProgress}
+                    >
+                      <Clock size={13} /> Set In Progress
+                    </button>
+                    <button
+                      type="button"
+                      className="tf-batch-btn tf-batch-btn-secondary"
+                      onClick={handleBatchExport}
+                    >
+                      <Download size={13} /> Export Selected
+                    </button>
+                    <button
+                      type="button"
+                      className="tf-batch-btn tf-batch-btn-danger"
+                      onClick={handleBatchDelete}
+                    >
+                      <Trash2 size={13} /> Delete Selected
+                    </button>
+                    <button
+                      type="button"
+                      className="tf-batch-btn-clear"
+                      onClick={() => setSelectedTaskIds([])}
+                    >
+                      Clear
+                    </button>
+                  </div>
+                </div>
+              )}
+
               <div className="tf-proj-table-responsive">
                 <table className="tf-proj-table">
                   <thead>
                     <tr>
+                      <th style={{ width: "36px", textAlign: "center" }}>
+                        <button
+                          type="button"
+                          className="tf-checkbox-th-btn"
+                          onClick={handleSelectAllTasks}
+                          aria-label="Select all tasks"
+                        >
+                          {selectedTaskIds.length === projectTasks.length && projectTasks.length > 0 ? (
+                            <div className="tf-custom-checkbox checked">
+                              <Check size={12} color="#FFFFFF" strokeWidth={3} />
+                            </div>
+                          ) : (
+                            <div className="tf-custom-checkbox" />
+                          )}
+                        </button>
+                      </th>
                       <th>Task Name</th>
                       <th>Project</th>
                       <th>Due Date</th>
@@ -1042,8 +1249,25 @@ function Projects() {
                       const prioritySlug = (t?.priority || "Medium").toLowerCase();
 
                       return (
-                        <tr key={t.id} className="tf-proj-table-row">
-                          <td className="tf-proj-task-name">
+                        <tr key={t.id} className={`tf-proj-table-row ${selectedTaskIds.includes(t.id) ? "row-selected" : ""}`}>
+                          <td style={{ width: "36px", textAlign: "center" }}>
+                            <button
+                              type="button"
+                              className="tf-row-check-btn"
+                              onClick={() => handleSelectTask(t.id)}
+                              aria-label={`Select task ${t.name}`}
+                            >
+                              <div className={`tf-custom-checkbox ${selectedTaskIds.includes(t.id) ? "checked" : ""}`}>
+                                {selectedTaskIds.includes(t.id) && <Check size={12} color="#FFFFFF" strokeWidth={3} />}
+                              </div>
+                            </button>
+                          </td>
+                          <td
+                            className="tf-proj-task-name"
+                            onClick={() => handleOpenTaskDetails(t)}
+                            style={{ cursor: "pointer" }}
+                            title="Click to view task details"
+                          >
                             <strong>{t?.name}</strong>
                           </td>
                           <td className="tf-proj-task-project">
@@ -1071,14 +1295,40 @@ function Projects() {
                             </button>
                           </td>
                           <td className="tf-proj-task-actions text-right">
-                            <button
-                              type="button"
-                              className="tf-proj-task-action-btn"
-                              onClick={() => handleToggleTaskStatus(t.id)}
-                              title="Toggle status"
-                            >
-                              <MoreVertical size={15} />
-                            </button>
+                            <div className="tf-table-actions-row">
+                              <button
+                                type="button"
+                                className="tf-table-action-btn view"
+                                onClick={() => handleOpenTaskDetails(t)}
+                                title="View Details"
+                              >
+                                <Eye size={14} />
+                              </button>
+                              <button
+                                type="button"
+                                className="tf-table-action-btn edit"
+                                onClick={() => handleOpenEditTask(t)}
+                                title="Edit Task"
+                              >
+                                <Edit3 size={14} />
+                              </button>
+                              <button
+                                type="button"
+                                className="tf-table-action-btn warning"
+                                onClick={() => handleToggleTaskStatus(t.id)}
+                                title={`Advance status (currently ${t?.status})`}
+                              >
+                                <CheckCircle2 size={14} />
+                              </button>
+                              <button
+                                type="button"
+                                className="tf-table-action-btn delete"
+                                onClick={() => handleDeleteTask(t.id)}
+                                title="Delete Task"
+                              >
+                                <Trash2 size={14} />
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       );
@@ -1452,6 +1702,211 @@ function Projects() {
           </div>
         )}
       </div>
+
+        {/* Modal: View Task Details */}
+        {taskDetailsModal && (
+          <div
+            className="tf-modal-backdrop"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) setTaskDetailsModal(null);
+            }}
+          >
+            <div className="tf-modal-card tf-proj-task-details-modal" role="dialog" aria-modal="true">
+              <div className="tf-modal-header">
+                <div className="tf-modal-title-group">
+                  <div className="tf-modal-icon-box task">
+                    <CheckSquare size={18} />
+                  </div>
+                  <div>
+                    <h3>{taskDetailsModal.name}</h3>
+                    <p>{taskDetailsModal.project} • {taskDetailsModal.dueDate}</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  className="tf-modal-close"
+                  onClick={() => setTaskDetailsModal(null)}
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              <div className="tf-proj-modal-body">
+                <div className="tf-proj-modal-desc-box">
+                  <label>Description</label>
+                  <p>{taskDetailsModal.description || "No specific details provided for this project task."}</p>
+                </div>
+
+                <div className="tf-proj-modal-row-grid">
+                  <div className="tf-proj-modal-field">
+                    <label>Project</label>
+                    <span className="tf-proj-field-val">{taskDetailsModal.project}</span>
+                  </div>
+                  <div className="tf-proj-modal-field">
+                    <label>Due Date</label>
+                    <span className="tf-proj-field-val">{taskDetailsModal.dueDate}</span>
+                  </div>
+                  <div className="tf-proj-modal-field">
+                    <label>Priority</label>
+                    <span className={`tf-proj-priority-pill ${(taskDetailsModal.priority || "Medium").toLowerCase()}`}>
+                      <span className="dot" />
+                      {taskDetailsModal.priority}
+                    </span>
+                  </div>
+                  <div className="tf-proj-modal-field">
+                    <label>Status</label>
+                    <span className={`tf-proj-status-badge ${(taskDetailsModal.status || "To Do").toLowerCase().replace(" ", "-")}`}>
+                      {taskDetailsModal.status}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="tf-modal-footer" style={{ padding: "16px 20px", display: "flex", justifyContent: "flex-end", gap: "10px", borderTop: "1px solid var(--tf-border, #E5E7EB)" }}>
+                <button
+                  type="button"
+                  className="tf-btn-secondary"
+                  onClick={() => {
+                    const t = taskDetailsModal;
+                    setTaskDetailsModal(null);
+                    handleOpenEditTask(t);
+                  }}
+                >
+                  <Edit3 size={14} /> Edit Task
+                </button>
+                <button
+                  type="button"
+                  className="tf-btn-primary"
+                  onClick={() => setTaskDetailsModal(null)}
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Modal: Edit Task */}
+        {taskEditModal && (
+          <div
+            className="tf-modal-backdrop"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) setTaskEditModal(null);
+            }}
+          >
+            <div className="tf-modal-card" role="dialog" aria-modal="true" style={{ maxWidth: "480px" }}>
+              <div className="tf-modal-header">
+                <div className="tf-modal-title-group">
+                  <div className="tf-modal-icon-box task">
+                    <Edit3 size={18} />
+                  </div>
+                  <div>
+                    <h3>Edit Project Task</h3>
+                    <p>Update task details and assignments</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  className="tf-modal-close"
+                  onClick={() => setTaskEditModal(null)}
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              <form onSubmit={handleSaveEditTask} className="tf-modal-form">
+                <div className="tf-form-group">
+                  <label>Task Name</label>
+                  <input
+                    type="text"
+                    value={taskEditForm.name}
+                    onChange={(e) => setTaskEditForm({ ...taskEditForm, name: e.target.value })}
+                    placeholder="Enter task name..."
+                    required
+                  />
+                </div>
+
+                <div className="tf-form-row">
+                  <div className="tf-form-group">
+                    <label>Project</label>
+                    <select
+                      value={taskEditForm.project}
+                      onChange={(e) => setTaskEditForm({ ...taskEditForm, project: e.target.value })}
+                    >
+                      {projects.map((p) => (
+                        <option key={p.id} value={p.name}>
+                          {p.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="tf-form-group">
+                    <label>Due Date</label>
+                    <input
+                      type="text"
+                      value={taskEditForm.dueDate}
+                      onChange={(e) => setTaskEditForm({ ...taskEditForm, dueDate: e.target.value })}
+                      placeholder="e.g. Today, Tomorrow, Oct 28"
+                    />
+                  </div>
+                </div>
+
+                <div className="tf-form-row">
+                  <div className="tf-form-group">
+                    <label>Priority</label>
+                    <select
+                      value={taskEditForm.priority}
+                      onChange={(e) => setTaskEditForm({ ...taskEditForm, priority: e.target.value })}
+                    >
+                      <option value="High">High</option>
+                      <option value="Medium">Medium</option>
+                      <option value="Low">Low</option>
+                    </select>
+                  </div>
+
+                  <div className="tf-form-group">
+                    <label>Status</label>
+                    <select
+                      value={taskEditForm.status}
+                      onChange={(e) => setTaskEditForm({ ...taskEditForm, status: e.target.value })}
+                    >
+                      <option value="To Do">To Do</option>
+                      <option value="In Progress">In Progress</option>
+                      <option value="Completed">Completed</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="tf-form-group">
+                  <label>Description / Notes</label>
+                  <textarea
+                    rows={3}
+                    value={taskEditForm.description}
+                    onChange={(e) => setTaskEditForm({ ...taskEditForm, description: e.target.value })}
+                    placeholder="Add context or notes..."
+                  />
+                </div>
+
+                <div className="tf-modal-actions">
+                  <button
+                    type="button"
+                    className="tf-btn-secondary"
+                    onClick={() => setTaskEditModal(null)}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="tf-btn-primary"
+                  >
+                    Save Changes
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
 
         {/* Modal: My Projects Summary Breakdown Modal */}
         {summaryModalOpen && (

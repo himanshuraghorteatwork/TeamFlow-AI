@@ -523,22 +523,44 @@
 }
 
 .team-icon-btn {
-  display: grid;
-  width: 33px;
-  height: 33px;
-  place-items: center;
-  border: 1px solid transparent;
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
   border-radius: 8px;
-  background: transparent;
-  color: #888da1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #ddd6fe;
+  background: #f5f3ff;
+  color: #7c3aed;
   cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  padding: 0;
+  outline: none;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
 .team-icon-btn:hover,
 .team-icon-btn[aria-expanded="true"] {
-  border-color: #e9e4ff;
-  background: #f6f4ff;
-  color: #7057e8;
+  background: #7c3aed !important;
+  color: #ffffff !important;
+  border-color: #7c3aed !important;
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.38) !important;
+  transform: translateY(-2px) scale(1.05);
+}
+
+[data-theme="dark"] .team-icon-btn {
+  background: #241442 !important;
+  color: #c084fc !important;
+  border-color: #581c87 !important;
+}
+
+[data-theme="dark"] .team-icon-btn:hover,
+[data-theme="dark"] .team-icon-btn[aria-expanded="true"] {
+  background: #7c3aed !important;
+  color: #ffffff !important;
+  border-color: #8b5cf6 !important;
+  box-shadow: 0 4px 14px rgba(124, 58, 237, 0.5) !important;
 }
 
 .team-menu-backdrop {

@@ -624,6 +624,7 @@ function AI() {
     <EmployeeShell
       activeRoute="/employee/ai-assistant"
       searchPlaceholder="Search tasks, projects, files, meetings, or ask AI..."
+      noScroll={true}
     >
       <div className="tf-ai-page">
         {/* Toast Alert */}
@@ -652,95 +653,6 @@ function AI() {
           </div>
 
         </header>
-
-        {/* ====================================================================
-            2. TOP 4 METRIC KPI STAT CARDS (Matches Tasks, Projects, Dashboard)
-            ==================================================================== */}
-        <section className="tf-ai-stats-grid">
-          {/* Card 1: My Tasks */}
-          <div
-            className={`tf-ai-stat-card ${selectedKpi === "tasks" ? "selected" : ""}`}
-            onClick={() => {
-              setSelectedKpi("tasks");
-              handleSendPrompt("Give me a summary of my tasks for this week.");
-            }}
-          >
-            <div className="tf-ai-stat-icon purple">
-              <CheckSquare size={20} color="#7C3AED" strokeWidth={2.2} />
-            </div>
-            <div className="tf-ai-stat-body">
-              <span className="tf-ai-stat-label">My Tasks</span>
-              <div className="tf-ai-stat-val-row">
-                <strong className="tf-ai-stat-value">12</strong>
-                <span className="tf-ai-stat-badge positive">↑ 25%</span>
-              </div>
-              <span className="tf-ai-stat-sub">8 completed • 3 in progress • 1 overdue</span>
-            </div>
-          </div>
-
-          {/* Card 2: My Projects */}
-          <div
-            className={`tf-ai-stat-card ${selectedKpi === "projects" ? "selected" : ""}`}
-            onClick={() => {
-              setSelectedKpi("projects");
-              handleSendPrompt("Show my project progress.");
-            }}
-          >
-            <div className="tf-ai-stat-icon blue">
-              <Folder size={20} color="#2563EB" strokeWidth={2.2} />
-            </div>
-            <div className="tf-ai-stat-body">
-              <span className="tf-ai-stat-label">My Projects</span>
-              <div className="tf-ai-stat-val-row">
-                <strong className="tf-ai-stat-value">4</strong>
-                <span className="tf-ai-stat-badge neutral">Active</span>
-              </div>
-              <span className="tf-ai-stat-sub">2 active • 1 on hold • 1 completed</span>
-            </div>
-          </div>
-
-          {/* Card 3: Upcoming Meetings */}
-          <div
-            className={`tf-ai-stat-card ${selectedKpi === "meetings" ? "selected" : ""}`}
-            onClick={() => {
-              setSelectedKpi("meetings");
-              handleSendPrompt("What are the upcoming meetings this week?");
-            }}
-          >
-            <div className="tf-ai-stat-icon orange">
-              <Calendar size={20} color="#F59E0B" strokeWidth={2.2} />
-            </div>
-            <div className="tf-ai-stat-body">
-              <span className="tf-ai-stat-label">Upcoming Meetings</span>
-              <div className="tf-ai-stat-val-row">
-                <strong className="tf-ai-stat-value">3</strong>
-                <span className="tf-ai-stat-badge neutral">This Week</span>
-              </div>
-              <span className="tf-ai-stat-sub">Daily Standup, Design sync & Sprint</span>
-            </div>
-          </div>
-
-          {/* Card 4: Assigned Bugs */}
-          <div
-            className={`tf-ai-stat-card ${selectedKpi === "bugs" ? "selected" : ""}`}
-            onClick={() => {
-              setSelectedKpi("bugs");
-              handleSendPrompt("List my assigned bugs.");
-            }}
-          >
-            <div className="tf-ai-stat-icon red">
-              <Bug size={20} color="#EF4444" strokeWidth={2.2} />
-            </div>
-            <div className="tf-ai-stat-body">
-              <span className="tf-ai-stat-label">Assigned Bugs</span>
-              <div className="tf-ai-stat-val-row">
-                <strong className="tf-ai-stat-value">3</strong>
-                <span className="tf-ai-stat-badge negative">Attention</span>
-              </div>
-              <span className="tf-ai-stat-sub">1 open • 1 in progress • 1 resolved</span>
-            </div>
-          </div>
-        </section>
 
         {/* ====================================================================
             4. MAIN TWO-COLUMN WORKSPACE
@@ -1346,3 +1258,4 @@ function AI() {
 }
 
 export default AI;
+

@@ -29,6 +29,7 @@ import {
 
 import EmployeeShell from "./EmployeeShell";
 import { getEmployeeProfile } from "./EmployeeAuth";
+import { getCalendarEvents, getCalendarDots, getCalendarEventsForDate, subscribeToCalendarSync, formatHour } from "./calendarSync";
 import "./Dashboard.css";
 
 /* Initial Projects matching reference image */
@@ -356,6 +357,15 @@ function Dashboard() {
   const [calendarMonth, setCalendarMonth] = useState(() => new Date());
   const [selectedDay, setSelectedDay] = useState(() => new Date().getDate());
   const [dayEventsModal, setDayEventsModal] = useState(null);
+  const [calendarEvents, setCalendarEventsState] = useState(() => getCalendarEvents());
+
+  // Real-time synchronization across all calendar pages
+  useEffect(() => {
+    const unsubscribe = subscribeToCalendarSync((syncedEvents) => {
+      setCalendarEventsState(syncedEvents);
+    });
+    return unsubscribe;
+  }, []);
 
   // Date range picker toggle
   const [dateRangeOpen, setDateRangeOpen] = useState(false);
@@ -513,7 +523,7 @@ function Dashboard() {
     setTimeout(() => setCopiedAnswer(false), 2000);
   };
 
-  // Real-time Calendar days grid computation
+  // Real-time Calendar days grid computation synchronized across pages
   const calendarDays = useMemo(() => {
     const year = calendarMonth.getFullYear();
     const month = calendarMonth.getMonth();
@@ -547,25 +557,7 @@ function Dashboard() {
     for (let d = 1; d <= daysInMonth; d++) {
       const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
       const isToday = isCurrentMonthNow && d === todayDate;
-      const dots = [];
-
-      const hasMeeting = storedMeetings.some((m) => m.date === dateStr);
-      if (hasMeeting) dots.push("blue");
-
-      const hasTaskDeadline = tasks.some(
-        (t) => t.dueDate === dateStr || (t.dueDate && t.dueDate.includes(String(d)))
-      );
-      if (hasTaskDeadline) dots.push("red");
-
-      const presetEvents = calendarEventsMap[d];
-      if (presetEvents) {
-        presetEvents.forEach((ev) => {
-          if (ev.type === "milestone" && !dots.includes("green")) dots.push("green");
-          if (ev.type === "other" && !dots.includes("orange")) dots.push("orange");
-          if (ev.type === "deadline" && !dots.includes("red")) dots.push("red");
-          if (ev.type === "meeting" && !dots.includes("blue")) dots.push("blue");
-        });
-      }
+      const dots = getCalendarDots(dateStr, calendarEvents, tasks, storedMeetings);
 
       days.push({
         day: d,
@@ -588,7 +580,7 @@ function Dashboard() {
     }
 
     return days;
-  }, [calendarMonth, tasks]);
+  }, [calendarMonth, tasks, calendarEvents]);
 
   const handleDayClick = (cell) => {
     if (!cell.currentMonth) return;
@@ -616,8 +608,19 @@ function Dashboard() {
         time: t.dueTime || "5:00 PM",
       }));
 
-    const presetEvents = calendarEventsMap[cell.day] || [];
-    const combinedEvents = [...dayMeetings, ...dayTasks, ...presetEvents];
+    const syncedDayEvents = getCalendarEventsForDate(cell.fullDate, calendarEvents).map((ev) => ({
+      title: `${ev.category === "meeting" ? "Meeting" : ev.category === "deadline" ? "Deadline" : ev.category === "milestone" ? "Milestone" : "Event"}: ${ev.title}`,
+      type: ev.category === "meeting" ? "meeting" : ev.category === "deadline" ? "deadline" : ev.category === "milestone" ? "milestone" : "other",
+      time: ev.timeLabel || formatHour(ev.startTime) || "Scheduled",
+    }));
+
+    // Combine and deduplicate
+    const combinedEvents = [...dayMeetings, ...dayTasks];
+    syncedDayEvents.forEach((se) => {
+      if (!combinedEvents.some((c) => c.title.toLowerCase().includes(se.title.split(": ")[1]?.toLowerCase() || "___"))) {
+        combinedEvents.push(se);
+      }
+    });
 
     if (combinedEvents.length > 0) {
       setDayEventsModal({

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
+  Download,
   CheckCircle2,
   Clock,
   FileText,
@@ -246,6 +247,158 @@ const initialActivities = [
     link: "/employee/tasks",
     details: "Confirmed staging build passed automated UI smoke tests.",
   },
+  // Oct 24, 2024
+  {
+    id: "act-15",
+    dateGroup: "Oct 24, 2024",
+    date: "2024-10-24",
+    time: "04:30 PM",
+    type: "Task",
+    action: "Completed task",
+    title: "Optimized SVG assets and icons",
+    project: "TeamFlow Website",
+    icon: "check",
+    iconColor: "green",
+    tagColor: "green",
+    link: "/employee/tasks",
+    details: "Reduced asset bundle size by compressing iconography across the dashboard.",
+  },
+  {
+    id: "act-16",
+    dateGroup: "Oct 24, 2024",
+    date: "2024-10-24",
+    time: "02:15 PM",
+    type: "File",
+    action: "Uploaded file",
+    title: "Architecture_Diagram_v2.png",
+    project: "API Integration",
+    icon: "file",
+    iconColor: "purple",
+    tagColor: "purple",
+    link: "/employee/files",
+    details: "Uploaded high-resolution service topology diagram for backend team.",
+  },
+  {
+    id: "act-17",
+    dateGroup: "Oct 24, 2024",
+    date: "2024-10-24",
+    time: "11:30 AM",
+    type: "Meeting",
+    action: "Attended meeting",
+    title: "Weekly Tech Architecture Sync",
+    project: "Mobile App",
+    icon: "video",
+    iconColor: "blue",
+    tagColor: "blue",
+    link: "/employee/meetings",
+    details: "Aligned on caching strategies and Redis connection pooling.",
+  },
+  {
+    id: "act-18",
+    dateGroup: "Oct 24, 2024",
+    date: "2024-10-24",
+    time: "09:00 AM",
+    type: "Bug",
+    action: "Created bug",
+    title: "Reported session timeout issue on Safari",
+    project: "TeamFlow Website",
+    icon: "bug",
+    iconColor: "red",
+    tagColor: "red",
+    link: "/employee/bugs",
+    details: "Filed bug report regarding cookie persistence on cross-site requests.",
+  },
+  // Oct 23, 2024
+  {
+    id: "act-19",
+    dateGroup: "Oct 23, 2024",
+    date: "2024-10-23",
+    time: "05:10 PM",
+    type: "Task",
+    action: "Updated task",
+    title: "Finalized client onboarding user flows",
+    project: "TeamFlow Website",
+    icon: "edit",
+    iconColor: "blue",
+    tagColor: "green",
+    link: "/employee/tasks",
+    details: "Wrapped up wireframes for multi-tenant invitation links.",
+  },
+  {
+    id: "act-20",
+    dateGroup: "Oct 23, 2024",
+    date: "2024-10-23",
+    time: "03:45 PM",
+    type: "Bug",
+    action: "Resolved bug",
+    title: "Fixed badge notification counter lag",
+    project: "Mobile App",
+    icon: "bug",
+    iconColor: "red",
+    tagColor: "red",
+    link: "/employee/bugs",
+    details: "Corrected WebSocket re-subscription logic on app resume.",
+  },
+  {
+    id: "act-21",
+    dateGroup: "Oct 23, 2024",
+    date: "2024-10-23",
+    time: "01:20 PM",
+    type: "File",
+    action: "Accessed file",
+    title: "Design_System_Tokens.json",
+    project: "TeamFlow Website",
+    icon: "file",
+    iconColor: "purple",
+    tagColor: "purple",
+    link: "/employee/files",
+    details: "Imported CSS variables into global theme file.",
+  },
+  {
+    id: "act-22",
+    dateGroup: "Oct 23, 2024",
+    date: "2024-10-23",
+    time: "10:30 AM",
+    type: "Meeting",
+    action: "Attended meeting",
+    title: "Quarterly OKR Review (45 mins)",
+    project: "TeamFlow Website",
+    icon: "video",
+    iconColor: "blue",
+    tagColor: "blue",
+    link: "/employee/meetings",
+    details: "Reviewed company-wide performance goals and employee milestones.",
+  },
+  {
+    id: "act-23",
+    dateGroup: "Oct 22, 2024",
+    date: "2024-10-22",
+    time: "04:15 PM",
+    type: "Task",
+    action: "Completed task",
+    title: "Configured CORS policy for test environment",
+    project: "API Integration",
+    icon: "check",
+    iconColor: "green",
+    tagColor: "green",
+    link: "/employee/tasks",
+    details: "Whitelist staging origins to support automated Cypress runs.",
+  },
+  {
+    id: "act-24",
+    dateGroup: "Oct 22, 2024",
+    date: "2024-10-22",
+    time: "11:00 AM",
+    type: "Project",
+    action: "Updated project",
+    title: "Updated milestone roadmap dates",
+    project: "Mobile App",
+    icon: "folder",
+    iconColor: "purple",
+    tagColor: "purple",
+    link: "/employee/projects",
+    details: "Shifted mobile beta release to next Monday.",
+  },
 ];
 
 /* Available Date Ranges */
@@ -339,6 +492,12 @@ function Activity() {
   // Toast
   const [toastMessage, setToastMessage] = useState("");
 
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [rowsDropdownOpen, setRowsDropdownOpen] = useState(false);
+  const rowsRef = useRef(null);
+
   const dateRangeRef = useRef(null);
   const projectRef = useRef(null);
 
@@ -355,6 +514,9 @@ function Activity() {
       }
       if (projectRef.current && !projectRef.current.contains(e.target)) {
         setProjectDropdownOpen(false);
+      }
+      if (rowsRef.current && !rowsRef.current.contains(e.target)) {
+        setRowsDropdownOpen(false);
       }
       if (!e.target.closest(".tf-act-more-btn") && !e.target.closest(".tf-act-dropdown-menu")) {
         setActiveMenuId(null);
@@ -435,6 +597,53 @@ function Activity() {
     return cells;
   }, [calendarMonth, activities]);
 
+  
+  // Multi-selection state
+  const [selectedActIds, setSelectedActIds] = useState([]);
+
+  // Reset page and selection on filter changes
+  useEffect(() => {
+    setCurrentPage(1);
+    setSelectedActIds([]);
+  }, [activeTab, selectedProject, selectedCalendarDate, selectedDateRange]);
+
+  const handleSelectAllActivities = () => {
+    const currentItemIds = paginatedActivities.map((a) => a.id);
+    const allSelected = currentItemIds.length > 0 && currentItemIds.every((id) => selectedActIds.includes(id));
+    if (allSelected) {
+      setSelectedActIds((prev) => prev.filter((id) => !currentItemIds.includes(id)));
+    } else {
+      setSelectedActIds((prev) => Array.from(new Set([...prev, ...currentItemIds])));
+    }
+  };
+
+  const handleSelectActivity = (id) => {
+    setSelectedActIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+  };
+
+  const handleBatchDeleteActivities = () => {
+    if (selectedActIds.length === 0) return;
+    const count = selectedActIds.length;
+    setActivities((prev) => prev.filter((a) => !selectedActIds.includes(a.id)));
+    setSelectedActIds([]);
+    showToast(`Deleted ${count} activity record${count > 1 ? "s" : ""}`);
+  };
+
+  const handleBatchExportActivities = () => {
+    if (selectedActIds.length === 0) return;
+    const items = activities.filter((a) => selectedActIds.includes(a.id));
+    const jsonStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(items, null, 2));
+    const dl = document.createElement("a");
+    dl.setAttribute("href", jsonStr);
+    dl.setAttribute("download", `my_activities_export_${Date.now()}.json`);
+    document.body.appendChild(dl);
+    dl.click();
+    dl.remove();
+    showToast(`Exported ${selectedActIds.length} activity records to JSON`);
+  };
+
   // Filtered Activities
   const filteredActivities = useMemo(() => {
     return activities.filter((act) => {
@@ -454,16 +663,23 @@ function Activity() {
     });
   }, [activities, activeTab, selectedProject, selectedCalendarDate]);
 
-  // Grouped by dateGroup
-  const groupedActivities = useMemo(() => {
+  // Pagination Calculations
+  const totalPages = Math.max(1, Math.ceil(filteredActivities.length / rowsPerPage));
+  const paginatedActivities = useMemo(() => {
+    const startIndex = (currentPage - 1) * rowsPerPage;
+    return filteredActivities.slice(startIndex, startIndex + rowsPerPage);
+  }, [filteredActivities, currentPage, rowsPerPage]);
+
+  // Grouped by dateGroup for current page view
+  const paginatedGroupedActivities = useMemo(() => {
     const groups = {};
-    filteredActivities.forEach((act) => {
+    paginatedActivities.forEach((act) => {
       const g = act.dateGroup || "Recent Activity";
       if (!groups[g]) groups[g] = [];
       groups[g].push(act);
     });
     return groups;
-  }, [filteredActivities]);
+  }, [paginatedActivities]);
 
   // Delete Activity
   const handleDeleteActivity = (id, e) => {
@@ -784,7 +1000,7 @@ function Activity() {
               LEFT COLUMN: Grouped Activity Cards
               ------------------------------------------------------------------ */}
           <div className="tf-act-left-col">
-            {Object.keys(groupedActivities).length === 0 ? (
+            {Object.keys(paginatedGroupedActivities).length === 0 ? (
               <div className="tf-act-empty-card">
                 <Clock size={36} className="tf-act-empty-icon" />
                 <h3>No activity found</h3>
@@ -795,125 +1011,266 @@ function Activity() {
                   onClick={() => {
                     setActiveTab("All");
                     setSelectedProject("All Projects");
+                    setCurrentPage(1);
                   }}
                 >
                   Reset Filters
                 </button>
               </div>
             ) : (
-              Object.entries(groupedActivities).map(([groupTitle, items]) => (
-                <div key={groupTitle} className="tf-act-group-card">
-                  {/* Group Header */}
-                  <div className="tf-act-group-header">
-                    <h3>{groupTitle}</h3>
-                    <span className="tf-act-group-badge">{items.length} activities</span>
+              <>
+                {/* Multi-Selection Batch Actions Banner */}
+                {selectedActIds.length > 0 && (
+                  <div className="tf-batch-banner" style={{ marginBottom: "16px", borderRadius: "10px" }}>
+                    <span className="tf-batch-count">
+                      <strong>{selectedActIds.length}</strong> activity record{selectedActIds.length > 1 ? "s" : ""} selected
+                    </span>
+                    <div className="tf-batch-actions">
+                      <button
+                        type="button"
+                        className="tf-batch-btn tf-batch-btn-secondary"
+                        onClick={handleBatchExportActivities}
+                      >
+                        <Download size={13} /> Export Selected
+                      </button>
+                      <button
+                        type="button"
+                        className="tf-batch-btn tf-batch-btn-danger"
+                        onClick={handleBatchDeleteActivities}
+                      >
+                        <Trash2 size={13} /> Delete Selected
+                      </button>
+                      <button
+                        type="button"
+                        className="tf-batch-btn tf-batch-btn-clear"
+                        onClick={() => setSelectedActIds([])}
+                      >
+                        Clear
+                      </button>
+                    </div>
                   </div>
+                )}
 
-                  {/* List of activity rows */}
-                  <div className="tf-act-items-list">
-                    {items.map((act) => {
-                      const srNumber = filteredActivities.findIndex((a) => a.id === act.id) + 1;
-                      return (
-                        <div
-                          key={act.id}
-                          className="tf-act-item-row"
-                          onClick={() => setActiveDetailModal(act)}
-                        >
-                          {/* Sr No */}
-                          <div className="tf-act-num-col">
-                            <span className="tf-row-num-badge">{srNumber}</span>
-                          </div>
+                {Object.entries(paginatedGroupedActivities).map(([groupTitle, items]) => {
+                  const groupItemIds = items.map((a) => a.id);
+                  const isAllGroupSelected = groupItemIds.length > 0 && groupItemIds.every((id) => selectedActIds.includes(id));
 
-                          {/* Time */}
-                          <div className="tf-act-time-col">
-                            <span>{act.time}</span>
-                          </div>
-
-                        {/* Icon Badge */}
-                        <div className="tf-act-icon-col">
-                          {renderActivityIcon(act.icon, act.iconColor)}
-                        </div>
-
-                        {/* Action & Title */}
-                        <div className="tf-act-info-col">
-                          <strong className="tf-act-action-title">{act.action}</strong>
-                          <span className="tf-act-subtext">{act.title}</span>
-                        </div>
-
-                        {/* Project */}
-                        <div className="tf-act-project-col">
-                          <span>{act.project}</span>
-                        </div>
-
-                        {/* Tag Pill Badge */}
-                        <div className="tf-act-tag-col">
-                          <span className={`tf-act-tag-pill ${act.tagColor || "green"}`}>
-                            {act.type}
-                          </span>
-                        </div>
-
-                        {/* Action Menu (3 dots) */}
-                        <div
-                          className="tf-act-menu-col"
-                          onClick={(e) => e.stopPropagation()}
-                        >
+                  return (
+                    <div key={groupTitle} className="tf-act-group-card">
+                      {/* Group Header */}
+                      <div className="tf-act-group-header">
+                        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                           <button
                             type="button"
-                            className="tf-act-more-btn"
-                            onClick={() =>
-                              setActiveMenuId((prev) => (prev === act.id ? null : act.id))
-                            }
-                            title="More options"
+                            className="tf-row-check-btn"
+                            onClick={() => {
+                              if (isAllGroupSelected) {
+                                setSelectedActIds((prev) => prev.filter((id) => !groupItemIds.includes(id)));
+                              } else {
+                                setSelectedActIds((prev) => Array.from(new Set([...prev, ...groupItemIds])));
+                              }
+                            }}
+                            aria-label={`Select all activities in ${groupTitle}`}
                           >
-                            <MoreVertical size={15} />
-                          </button>
-
-                          {activeMenuId === act.id && (
-                            <div className="tf-act-row-dropdown">
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setActiveDetailModal(act);
-                                  setActiveMenuId(null);
-                                }}
-                              >
-                                <Eye size={13} />
-                                <span>View Details</span>
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  navigate(act.link);
-                                  setActiveMenuId(null);
-                                }}
-                              >
-                                <ExternalLink size={13} />
-                                <span>Open Related Item</span>
-                              </button>
-                              <button
-                                type="button"
-                                onClick={(e) => handleCopyLink(act, e)}
-                              >
-                                <Copy size={13} />
-                                <span>Copy Link</span>
-                              </button>
-                              <button
-                                type="button"
-                                className="delete"
-                                onClick={(e) => handleDeleteActivity(act.id, e)}
-                              >
-                                <Trash2 size={13} />
-                                <span>Delete Entry</span>
-                              </button>
+                            <div className={`tf-custom-checkbox ${isAllGroupSelected ? "checked" : ""}`}>
+                              {isAllGroupSelected && <Check size={12} color="#FFFFFF" strokeWidth={3} />}
                             </div>
-                          )}
+                          </button>
+                          <h3>{groupTitle}</h3>
                         </div>
+                        <span className="tf-act-group-badge">{items.length} activities</span>
                       </div>
-                    );
-                  })}
-                  </div>
+
+                      {/* List of activity rows */}
+                      <div className="tf-act-items-list">
+                        {items.map((act) => {
+                          const srNumber = filteredActivities.findIndex((a) => a.id === act.id) + 1;
+                          const isSelected = selectedActIds.includes(act.id);
+
+                          return (
+                            <div
+                              key={act.id}
+                              className={`tf-act-item-row ${isSelected ? "row-selected" : ""}`}
+                              onClick={() => setActiveDetailModal(act)}
+                            >
+                              {/* Checkbox */}
+                              <div className="tf-act-check-col" onClick={(e) => e.stopPropagation()}>
+                                <button
+                                  type="button"
+                                  className="tf-row-check-btn"
+                                  onClick={() => handleSelectActivity(act.id)}
+                                  aria-label={`Select activity ${act.title}`}
+                                >
+                                  <div className={`tf-custom-checkbox ${isSelected ? "checked" : ""}`}>
+                                    {isSelected && <Check size={12} color="#FFFFFF" strokeWidth={3} />}
+                                  </div>
+                                </button>
+                              </div>
+
+                              {/* Sr No */}
+                              <div className="tf-act-num-col">
+                                <span className="tf-row-num-badge">{srNumber}</span>
+                              </div>
+
+                              {/* Time */}
+                              <div className="tf-act-time-col">
+                                <span>{act.time}</span>
+                              </div>
+
+                              {/* Icon Badge */}
+                              <div className="tf-act-icon-col">
+                                {renderActivityIcon(act.icon, act.iconColor)}
+                              </div>
+
+                              {/* Action & Title */}
+                              <div className="tf-act-info-col">
+                                <strong className="tf-act-action-title">{act.action}</strong>
+                                <span className="tf-act-subtext">{act.title}</span>
+                              </div>
+
+                              {/* Project */}
+                              <div className="tf-act-project-col">
+                                <span>{act.project}</span>
+                              </div>
+
+                              {/* Tag Pill Badge */}
+                              <div className="tf-act-tag-col">
+                                <span className={`tf-act-tag-pill ${act.tagColor || "green"}`}>
+                                  {act.type}
+                                </span>
+                              </div>
+
+                              {/* Jewel Action Buttons */}
+                              <div
+                                className="tf-act-actions-col"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <div className="tf-table-actions-row">
+                                  <button
+                                    type="button"
+                                    className="tf-table-action-btn view"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setActiveDetailModal(act);
+                                    }}
+                                    title="View Details"
+                                  >
+                                    <Eye size={14} />
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="tf-table-action-btn edit"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      navigate(act.link);
+                                    }}
+                                    title="Open Related Item"
+                                  >
+                                    <ExternalLink size={14} />
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="tf-table-action-btn warning"
+                                    onClick={(e) => handleCopyLink(act, e)}
+                                    title="Copy Link"
+                                  >
+                                    <Copy size={14} />
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="tf-table-action-btn delete"
+                                    onClick={(e) => handleDeleteActivity(act.id, e)}
+                                    title="Delete Entry"
+                                  >
+                                    <Trash2 size={14} />
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })}
+
+                {/* Pagination Footer Section */}
+                <div className="tf-act-pagination-card">
+                  <footer className="tf-act-pagination-footer">
+                    <span className="tf-act-pagination-info">
+                      Showing {filteredActivities.length === 0 ? 0 : (currentPage - 1) * rowsPerPage + 1} to{" "}
+                      {Math.min(currentPage * rowsPerPage, filteredActivities.length)} of{" "}
+                      {filteredActivities.length} activities
+                    </span>
+
+                    <div className="tf-act-pagination-controls">
+                      <button
+                        type="button"
+                        className="tf-act-page-nav-btn"
+                        disabled={currentPage <= 1}
+                        onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                        aria-label="Previous page"
+                      >
+                        <ChevronLeft size={16} />
+                      </button>
+
+                      {Array.from({ length: totalPages }, (_, i) => i + 1).map((pg) => (
+                        <button
+                          key={pg}
+                          type="button"
+                          className={`tf-act-page-btn ${currentPage === pg ? "active" : ""}`}
+                          onClick={() => setCurrentPage(pg)}
+                        >
+                          {pg}
+                        </button>
+                      ))}
+
+                      <button
+                        type="button"
+                        className="tf-act-page-nav-btn"
+                        disabled={currentPage >= totalPages}
+                        onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+                        aria-label="Next page"
+                      >
+                        <ChevronRight size={16} />
+                      </button>
+
+                      {/* Rows per page dropdown */}
+                      <div className="tf-rows-per-page-wrap" ref={rowsRef}>
+                        <button
+                          type="button"
+                          className="tf-act-page-size-btn"
+                          onClick={() => setRowsDropdownOpen(!rowsDropdownOpen)}
+                          aria-label="Select activities per page"
+                          aria-expanded={rowsDropdownOpen}
+                        >
+                          <span>{rowsPerPage} per page</span>
+                          <ChevronDown size={13} className={rowsDropdownOpen ? "open" : ""} />
+                        </button>
+
+                        {rowsDropdownOpen && (
+                          <div className="tf-act-rows-dropdown-menu">
+                            {[5, 10, 20, 50].map((num) => (
+                              <button
+                                key={num}
+                                type="button"
+                                className={rowsPerPage === num ? "active" : ""}
+                                onClick={() => {
+                                  setRowsPerPage(num);
+                                  setCurrentPage(1);
+                                  setRowsDropdownOpen(false);
+                                }}
+                              >
+                                {num} per page
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </footer>
                 </div>
-              ))
+              </>
             )}
           </div>
 
